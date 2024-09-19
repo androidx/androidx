@@ -41,37 +41,37 @@ protected actual constructor(metadata: FailureMetadata, actual: String?) :
     actual open fun isNotEmpty() = commonIsNotEmpty()
 
     /** Fails if the string contains the given sequence. */
-    actual open fun doesNotContain(charSequence: CharSequence) = commonDoesNotContain(charSequence)
+    actual open fun doesNotContain(charSequence: CharSequence?) = commonDoesNotContain(charSequence)
 
     /** Fails if the string does not start with the given string. */
-    actual open fun startsWith(string: String) = commonStartsWith(string)
+    actual open fun startsWith(string: String?) = commonStartsWith(string)
 
     /** Fails if the string does not end with the given string. */
-    actual open fun endsWith(string: String) = commonEndsWith(string)
+    actual open fun endsWith(string: String?) = commonEndsWith(string)
 
     /** Fails if the string does not match the given [regex]. */
-    actual open fun matches(regex: String) = commonMatches(regex)
+    actual open fun matches(regex: String?) = commonMatches(regex)
 
     /** Fails if the string does not match the given [regex]. */
-    actual fun matches(regex: Regex) = commonMatches(regex)
+    actual fun matches(regex: Regex?) = commonMatches(regex)
 
     /** Fails if the string matches the given regex. */
-    actual open fun doesNotMatch(regex: String) = commonDoesNotMatch(regex)
+    actual open fun doesNotMatch(regex: String?) = commonDoesNotMatch(regex)
 
     /** Fails if the string matches the given regex. */
-    actual fun doesNotMatch(regex: Regex) = commonDoesNotMatch(regex)
+    actual fun doesNotMatch(regex: Regex?) = commonDoesNotMatch(regex)
 
     /** Fails if the string does not contain a match on the given regex. */
-    actual open fun containsMatch(regex: String) = commonContainsMatch(regex)
+    actual open fun containsMatch(regex: String?) = commonContainsMatch(regex)
 
     /** Fails if the string does not contain a match on the given regex. */
-    actual fun containsMatch(regex: Regex) = commonContainsMatch(regex)
+    actual fun containsMatch(regex: Regex?) = commonContainsMatch(regex)
 
     /** Fails if the string contains a match on the given regex. */
-    actual open fun doesNotContainMatch(regex: String) = commonDoesNotContainMatch(regex)
+    actual open fun doesNotContainMatch(regex: String?) = commonDoesNotContainMatch(regex)
 
     /** Fails if the string contains a match on the given regex. */
-    actual fun doesNotContainMatch(regex: Regex) = commonDoesNotContainMatch(regex)
+    actual fun doesNotContainMatch(regex: Regex?) = commonDoesNotContainMatch(regex)
 
     /**
      * Returns a [StringSubject]-like instance that will ignore the case of the characters.
@@ -106,7 +106,7 @@ protected actual constructor(metadata: FailureMetadata, actual: String?) :
             commonCaseInsensitiveStringComparisonContains(expected)
 
         /** Fails if the string contains the given sequence (while ignoring case). */
-        actual fun doesNotContain(expected: CharSequence) =
+        actual fun doesNotContain(expected: CharSequence?) =
             commonCaseInsensitiveStringComparisonDoesNotContain(expected)
     }
 }
