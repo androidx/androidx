@@ -62,33 +62,33 @@ protected constructor(
 
     /** Fails if the subject is not empty. */
     fun isEmpty() {
-        requireNonNull(actual) { "Expected to be empty, but was null" }
+        requireNonNull(actual)
 
         if (!actual.isEmpty()) {
-            failWithoutActual(simpleFact("Expected to be empty"))
+            failWithoutActual(simpleFact("expected to be empty"))
         }
     }
 
     /** Fails if the subject is empty. */
     fun isNotEmpty() {
-        requireNonNull(actual) { "Expected not to be empty, but was null" }
+        requireNonNull(actual)
 
         if (actual.isEmpty()) {
-            failWithoutActual(simpleFact("Expected to be not empty"))
+            failWithoutActual(simpleFact("expected to be not empty"))
         }
     }
 
     /** Fails if the subject does not have the given size. */
     fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize($expectedSize) must be >= 0" }
-        requireNonNull(actual) { "Expected to have size $expectedSize, but was null" }
+        requireNonNull(actual)
 
         check("count()").that(actual.count()).isEqualTo(expectedSize)
     }
 
     /** Checks (with a side-effect failure) that the subject contains the supplied item. */
     fun contains(element: Any?) {
-        requireNonNull(actual) { "Expected to contain $element, but was null" }
+        requireNonNull(actual)
 
         if (element !in actual) {
             val matchingItems = actual.retainMatchingToString(listOf(element))
@@ -107,22 +107,23 @@ protected constructor(
 
     /** Checks (with a side-effect failure) that the subject does not contain the supplied item. */
     fun doesNotContain(element: Any?) {
-        requireNonNull(actual) { "Expected not to contain $element, but was null" }
+        requireNonNull(actual)
 
         if (element in actual) {
-            failWithoutActual(simpleFact("Expected not to contain $element"))
+            failWithActual("expected not to contain", element)
         }
     }
 
     /** Checks that the subject does not contain duplicate elements. */
     fun containsNoDuplicates() {
-        requireNonNull(actual) { "Expected not to contain duplicates, but was null" }
+        requireNonNull(actual)
 
         val duplicates = actual.groupBy { it }.values.filter { it.size > 1 }
-
         if (duplicates.isNotEmpty()) {
             failWithoutActual(
-                simpleFact("Expected not to contain duplicates, but contained $duplicates")
+                simpleFact("expected not to contain duplicates"),
+                fact("but contained", duplicates),
+                fact("full contents", actualCustomStringRepresentation())
             )
         }
     }

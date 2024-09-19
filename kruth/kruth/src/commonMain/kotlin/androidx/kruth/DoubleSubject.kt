@@ -69,11 +69,14 @@ internal constructor(
     fun isWithin(tolerance: Double): TolerantDoubleComparison {
         return object : TolerantDoubleComparison() {
             override fun of(expected: Double) {
-                requireNonNull(actual) { "Expected $actual, but was null" }
+                requireNonNull(actual) {
+                    "actual value cannot be null. tolerance=$tolerance expected=$expected"
+                }
                 checkTolerance(tolerance)
+
                 if (!equalWithinTolerance(actual, expected, tolerance)) {
                     failWithoutActual(
-                        fact("Expected", expected),
+                        fact("expected", expected),
                         fact("but was", actual),
                         fact("outside tolerance", tolerance),
                     )
@@ -85,11 +88,14 @@ internal constructor(
     fun isNotWithin(tolerance: Double): TolerantDoubleComparison {
         return object : TolerantDoubleComparison() {
             override fun of(expected: Double) {
-                requireNonNull(actual) { "Expected $actual, but was null" }
+                requireNonNull(actual) {
+                    "actual value cannot be null. tolerance=$tolerance expected=$expected"
+                }
                 checkTolerance(tolerance)
+
                 if (!notEqualWithinTolerance(actual, expected, tolerance)) {
                     failWithoutActual(
-                        fact("Expected not to be", expected),
+                        fact("expected not to be", expected),
                         fact("but was", actual),
                         fact("within tolerance", tolerance),
                     )

@@ -36,9 +36,8 @@ internal constructor(
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {
-                    "Actual value cannot be null, tolerance=$tolerance, expected=$expected"
+                    "actual value cannot be null, tolerance=$tolerance, expected=$expected"
                 }
-
                 checkTolerance(tolerance)
 
                 if (!equalWithinTolerance(actual, expected, tolerance)) {
@@ -63,9 +62,8 @@ internal constructor(
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {
-                    "Actual value cannot be null, tolerance=$tolerance, expected=$expected"
+                    "actual value cannot be null, tolerance=$tolerance, expected=$expected"
                 }
-
                 checkTolerance(tolerance)
 
                 if (equalWithinTolerance(actual, expected, tolerance)) {

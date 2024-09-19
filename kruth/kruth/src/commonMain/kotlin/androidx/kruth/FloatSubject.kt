@@ -57,9 +57,8 @@ internal constructor(
         object : TolerantFloatComparison() {
             override fun of(expected: Float) {
                 requireNonNull(actual) {
-                    "Actual value cannot be null, tolerance=$tolerance, expected=$expected"
+                    "actual value cannot be null, tolerance=$tolerance, expected=$expected"
                 }
-
                 checkTolerance(tolerance)
 
                 if (!equalWithinTolerance(actual, expected, tolerance)) {
@@ -96,9 +95,8 @@ internal constructor(
         object : TolerantFloatComparison() {
             override fun of(expected: Float) {
                 requireNonNull(actual) {
-                    "Actual value cannot be null, tolerance=$tolerance, expected=$expected"
+                    "actual value cannot be null, tolerance=$tolerance, expected=$expected"
                 }
-
                 checkTolerance(tolerance)
 
                 if (!notEqualWithinTolerance(actual, expected, tolerance)) {

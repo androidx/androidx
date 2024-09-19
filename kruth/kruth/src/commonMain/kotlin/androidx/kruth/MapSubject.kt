@@ -173,9 +173,8 @@ protected constructor(
 
     /** Fails if the map does not contain exactly the given set of entries in the given map. */
     fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
-        requireNonNull(actual) { "Expected $expectedMap, but was null" }
-
         if (expectedMap.isEmpty()) {
+            requireNonNull(actual)
             if (actual.isNotEmpty()) {
                 isEmpty()
             }
