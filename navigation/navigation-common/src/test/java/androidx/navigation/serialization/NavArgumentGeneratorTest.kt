@@ -1008,8 +1008,10 @@ class NavArgumentGeneratorTest {
 
         assertThat(exception.message)
             .isEqualTo(
-                "Cannot cast arg of type kotlin.collections.LinkedHashSet to a NavType. " +
-                    "Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.serialization.NavArgumentGeneratorTest" +
+                    ".convertIllegalCustomType.TestClass could not find any NavType for " +
+                    "argument arg of type kotlin.collections.LinkedHashSet - typeMap " +
+                    "received was {}"
             )
     }
 

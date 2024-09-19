@@ -598,8 +598,10 @@ class NavGraphBuilderTest {
         }
         assertThat(exception)
             .isEqualTo(
-                "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
-                    "NavType. Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.compose.NavGraphBuilderTest" +
+                    ".testComposableKClassArgsMissingCustomType.TestClass could " +
+                    "not find any NavType for argument arg of type androidx" +
+                    ".navigation.compose.CustomType - typeMap received was {}"
             )
     }
 
@@ -715,8 +717,10 @@ class NavGraphBuilderTest {
         }
         assertThat(exception)
             .isEqualTo(
-                "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
-                    "NavType. Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.compose.NavGraphBuilderTest" +
+                    ".testDialogKClassArgsMissingCustomType.TestClass could not " +
+                    "find any NavType for argument arg of type androidx.navigation" +
+                    ".compose.CustomType - typeMap received was {}"
             )
     }
 
