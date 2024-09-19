@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -328,35 +329,46 @@ internal fun BoxScope.ModalBottomSheetContent(
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(
-                    Modifier.align(Alignment.CenterHorizontally).semantics(
-                        mergeDescendants = true
-                    ) {
-                        // Provides semantics to interact with the bottomsheet based on its
-                        // current value.
-                        with(sheetState) {
-                            dismiss(dismissActionLabel) {
-                                animateToDismiss()
-                                true
-                            }
-                            if (currentValue == PartiallyExpanded) {
-                                expand(expandActionLabel) {
-                                    if (anchoredDraggableState.confirmValueChange(Expanded)) {
-                                        scope.launch { sheetState.expand() }
-                                    }
-                                    true
-                                }
-                            } else if (hasPartiallyExpandedState) {
-                                collapse(collapseActionLabel) {
-                                    if (
-                                        anchoredDraggableState.confirmValueChange(PartiallyExpanded)
-                                    ) {
-                                        scope.launch { partialExpand() }
-                                    }
-                                    true
+                    modifier =
+                        Modifier.align(Alignment.CenterHorizontally)
+                            .clickable {
+                                when (sheetState.currentValue) {
+                                    Expanded -> scope.launch { sheetState.hide() }
+                                    PartiallyExpanded -> scope.launch { sheetState.expand() }
+                                    else -> scope.launch { sheetState.show() }
                                 }
                             }
-                        }
-                    }
+                            .semantics(mergeDescendants = true) {
+                                // Provides semantics to interact with the bottomsheet based on its
+                                // current value.
+                                with(sheetState) {
+                                    dismiss(dismissActionLabel) {
+                                        animateToDismiss()
+                                        true
+                                    }
+                                    if (currentValue == PartiallyExpanded) {
+                                        expand(expandActionLabel) {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(Expanded)
+                                            ) {
+                                                scope.launch { sheetState.expand() }
+                                            }
+                                            true
+                                        }
+                                    } else if (hasPartiallyExpandedState) {
+                                        collapse(collapseActionLabel) {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(
+                                                    PartiallyExpanded
+                                                )
+                                            ) {
+                                                scope.launch { partialExpand() }
+                                            }
+                                            true
+                                        }
+                                    }
+                                }
+                            },
                 ) {
                     dragHandle()
                 }

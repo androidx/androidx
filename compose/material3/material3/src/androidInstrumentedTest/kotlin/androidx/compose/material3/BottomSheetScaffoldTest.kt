@@ -80,6 +80,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -1025,5 +1026,63 @@ class BottomSheetScaffoldTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun bottomSheetScaffold_testDragHandleClick() {
+        lateinit var sheetState: SheetState
+        rule.setContent {
+            sheetState = rememberStandardBottomSheetState()
+            BottomSheetScaffold(
+                sheetContent = {
+                    Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight).testTag(sheetTag))
+                },
+                sheetDragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+                sheetPeekHeight = peekHeight,
+                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
+            ) {
+                Text("Content")
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+    }
+
+    @Test
+    fun bottomSheetScaffold_testDragHandleClick_hiddenStateAllowed() {
+        lateinit var sheetState: SheetState
+        rule.setContent {
+            sheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+            BottomSheetScaffold(
+                sheetContent = {
+                    Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight).testTag(sheetTag))
+                },
+                sheetDragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+                sheetPeekHeight = peekHeight,
+                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
+            ) {
+                Text("Content")
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
     }
 }
