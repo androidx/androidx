@@ -110,6 +110,7 @@ package androidx.compose.foundation {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean NewNestedFlingPropagationEnabled;
+    field public static boolean RemoveBasicTextGraphicsLayerEnabled;
   }
 
   public final class DarkThemeKt {
