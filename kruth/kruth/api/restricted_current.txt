@@ -210,8 +210,8 @@ package androidx.kruth {
 
   public class LongSubject extends androidx.kruth.ComparableSubject<java.lang.Long> {
     method @Deprecated public void isEquivalentAccordingToCompareTo(Long? other);
-    method public final androidx.kruth.LongSubject.TolerantLongComparison isNotWithin(long tolerance);
-    method public final androidx.kruth.LongSubject.TolerantLongComparison isWithin(long tolerance);
+    method public androidx.kruth.LongSubject.TolerantLongComparison isNotWithin(long tolerance);
+    method public androidx.kruth.LongSubject.TolerantLongComparison isWithin(long tolerance);
   }
 
   public abstract static class LongSubject.TolerantLongComparison {

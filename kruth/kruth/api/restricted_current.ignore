@@ -1,10 +1,4 @@
 // Baseline format: 1.0
-AddedFinal: androidx.kruth.LongSubject#isNotWithin(long):
-    Method androidx.kruth.LongSubject.isNotWithin has added 'final' qualifier
-AddedFinal: androidx.kruth.LongSubject#isWithin(long):
-    Method androidx.kruth.LongSubject.isWithin has added 'final' qualifier
-
-
 ChangedType: androidx.kruth.ExpectFailure#assertThat(T):
     Method androidx.kruth.ExpectFailure.assertThat has changed return type from androidx.kruth.TruthFailureSubject to androidx.kruth.TruthFailureSubject<T>
 ChangedType: androidx.kruth.MultimapSubject#valuesForKey(K):
