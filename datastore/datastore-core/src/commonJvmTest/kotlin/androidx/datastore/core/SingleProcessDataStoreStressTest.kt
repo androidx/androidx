@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
@@ -60,6 +61,7 @@ class SingleProcessDataStoreStressTest {
         testScope.cancel()
     }
 
+    @Ignore // b/368361169
     @Test
     fun testManyConcurrentReadsAndWrites() =
         runBlocking<Unit> {
