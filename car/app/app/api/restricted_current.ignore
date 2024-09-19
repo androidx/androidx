@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-AddedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST:
-    Added field androidx.car.app.mediaextensions.MetadataExtras.KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST
+ChangedValue: androidx.car.app.features.CarFeatures#FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING:
+    Field androidx.car.app.features.CarFeatures.FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING has changed value from background_audio_while_driving to com.android.car.background_audio_while_driving

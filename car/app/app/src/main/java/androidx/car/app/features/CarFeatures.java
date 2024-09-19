@@ -37,7 +37,7 @@ public final class CarFeatures {
      * Flag value to check whether or not audio is allowed to play while driving.
      */
     public static final String FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING =
-            "background_audio_while_driving";
+            "com.android.car.background_audio_while_driving";
 
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
