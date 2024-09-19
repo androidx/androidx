@@ -317,8 +317,11 @@ class LazyColumnTest {
         rule.runOnIdle {
             with(rule.density) {
                 runBlocking {
-                    // we scroll enough to make the Red item not visible anymore
-                    state.scrollBy(6.dp.toPx())
+                    // Scroll enough to put Red item's center on top.
+                    state.scrollBy(5.dp.toPx())
+
+                    // Scroll half size of the Red item.
+                    state.scrollBy(3.dp.toPx())
                 }
             }
         }

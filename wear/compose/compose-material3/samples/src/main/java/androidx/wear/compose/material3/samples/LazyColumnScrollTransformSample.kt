@@ -18,11 +18,13 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +34,7 @@ import androidx.wear.compose.foundation.lazy.LazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
@@ -39,6 +42,39 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.scrollTransform
 import androidx.wear.compose.material3.lazy.targetMorphingHeight
+import kotlinx.coroutines.launch
+
+@Preview
+@Composable
+fun LazyColumnScrollingSample() {
+    val state = rememberLazyColumnState()
+    val coroutineScope = rememberCoroutineScope()
+    LazyColumn(
+        state = state,
+        modifier =
+            Modifier.background(MaterialTheme.colorScheme.background).padding(horizontal = 10.dp)
+    ) {
+        items(20) {
+            Text(
+                "Item $it",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .scrollTransform(
+                            this,
+                            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(10.dp)
+                        .clickable { coroutineScope.launch { state.scrollToItem(it) } }
+            )
+        }
+        item {
+            Button(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) { Text("To top") }
+        }
+    }
+}
 
 @Sampled
 @Preview
@@ -46,8 +82,16 @@ import androidx.wear.compose.material3.lazy.targetMorphingHeight
 fun LazyColumnScalingMorphingEffectSample() {
     val allIngredients = listOf("2 eggs", "tomato", "cheese", "bread")
     val state = rememberLazyColumnState()
+    val coroutineScope = rememberCoroutineScope()
     AppScaffold {
-        ScreenScaffold(state, bottomButton = { EdgeButton(onClick = {}) { Text("Okay") } }) {
+        ScreenScaffold(
+            state,
+            bottomButton = {
+                EdgeButton(onClick = { coroutineScope.launch { state.scrollToItem(1) } }) {
+                    Text("To top")
+                }
+            }
+        ) {
             LazyColumn(
                 state = state,
                 modifier =
@@ -96,8 +140,23 @@ fun LazyColumnTargetMorphingHeightSample() {
             MenuItem("London fog", 2.6f),
         )
     val state = rememberLazyColumnState()
+    val coroutineScope = rememberCoroutineScope()
     AppScaffold {
-        ScreenScaffold(state, bottomButton = { EdgeButton(onClick = {}) { Text("Okay") } }) {
+        ScreenScaffold(
+            state,
+            bottomButton = {
+                EdgeButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            // Scroll to the first non-header item.
+                            state.scrollToItem(1)
+                        }
+                    }
+                ) {
+                    Text("To top")
+                }
+            }
+        ) {
             LazyColumn(
                 state = state,
                 modifier =

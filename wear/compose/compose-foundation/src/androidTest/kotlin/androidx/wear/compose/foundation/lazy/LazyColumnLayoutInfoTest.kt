@@ -34,6 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +62,7 @@ class LazyColumnLayoutInfoTest {
                 state = rememberLazyColumnState().also { state = it },
                 // Viewport take 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
-                modifier = Modifier.requiredSize(itemSizeDp * 4f),
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -69,10 +70,10 @@ class LazyColumnLayoutInfoTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 4)
+            assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 5)
             // Start offset compensates for the layout where the first item is exactly above the
             // center line.
-            state.layoutInfo.assertVisibleItems(count = 3, startOffset = itemSizePx)
+            state.layoutInfo.assertVisibleItems(count = 3, startOffset = itemSizePx * 2)
         }
     }
 
@@ -85,7 +86,7 @@ class LazyColumnLayoutInfoTest {
                 state = rememberLazyColumnState().also { state = it },
                 // Viewport take 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
-                modifier = Modifier.requiredSize(itemSizeDp * 4f),
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 verticalArrangement = Arrangement.spacedBy(itemSizeDp),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -93,14 +94,46 @@ class LazyColumnLayoutInfoTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 4)
+            assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 5)
             // Start offset compensates for the layout where the first item is exactly above the
             // center line.
             state.layoutInfo.assertVisibleItems(
                 count = 2,
                 spacing = itemSizePx,
-                startOffset = itemSizePx
+                startOffset = itemSizePx * 2,
             )
+        }
+    }
+
+    @Composable
+    fun ObservingFun(state: LazyColumnState, currentInfo: StableRef<LazyColumnLayoutInfo?>) {
+        currentInfo.value = state.layoutInfo
+    }
+
+    @Test
+    fun visibleItemsAreObservableWhenWeScroll() {
+        lateinit var state: LazyColumnState
+        val currentInfo = StableRef<LazyColumnLayoutInfo?>(null)
+        rule.setContent {
+            LazyColumn(
+                state = rememberLazyColumnState().also { state = it },
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.requiredSize(itemSizeDp * 3f)
+            ) {
+                items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+            ObservingFun(state, currentInfo)
+        }
+
+        rule.runOnIdle {
+            // empty it here and scrolling should invoke observingFun again
+            currentInfo.value = null
+            runBlocking { state.scrollToItem(1) }
+        }
+
+        rule.runOnIdle {
+            assertThat(currentInfo.value).isNotNull()
+            currentInfo.value!!.assertVisibleItems(count = 3, startIndex = 0)
         }
     }
 
@@ -128,7 +161,7 @@ class LazyColumnLayoutInfoTest {
             currentInfo!!.assertVisibleItems(
                 count = 1,
                 expectedSize = itemSizePx * 2,
-                strictOnOffset = false
+                startOffset = itemSizePx,
             )
             currentInfo = null
             size = itemSizeDp
@@ -139,7 +172,7 @@ class LazyColumnLayoutInfoTest {
             currentInfo!!.assertVisibleItems(
                 count = 1,
                 expectedSize = itemSizePx,
-                strictOnOffset = false
+                startOffset = itemSizePx * 3 / 2,
             )
         }
     }
@@ -186,7 +219,7 @@ class LazyColumnLayoutInfoTest {
         lateinit var state: LazyColumnState
         rule.setContent {
             LazyColumn(
-                modifier = Modifier.requiredSize(itemSizeDp * 3f),
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 state = rememberLazyColumnState().also { state = it },
             ) {
                 items(2, contentType = { it }) { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -195,6 +228,7 @@ class LazyColumnLayoutInfoTest {
         }
 
         rule.runOnIdle {
+            assertThat(state.layoutInfo.visibleItems.size).isEqualTo(3)
             assertThat(state.layoutInfo.visibleItems.map { it.contentType })
                 .isEqualTo(listOf(0, 1, null))
         }
@@ -205,7 +239,7 @@ class LazyColumnLayoutInfoTest {
         lateinit var state: LazyColumnState
         rule.setContent {
             LazyColumn(
-                modifier = Modifier.requiredSize(itemSizeDp * 3f),
+                modifier = Modifier.requiredSize(itemSizeDp * 5f),
                 state = rememberLazyColumnState().also { state = it },
             ) {
                 items(2, key = { it }) { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -220,24 +254,40 @@ class LazyColumnLayoutInfoTest {
         }
     }
 
+    @Test
+    fun visibleItemsAreCorrectAfterScroll() {
+        lateinit var state: LazyColumnState
+        rule.setContent {
+            LazyColumn(
+                state = rememberLazyColumnState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3f),
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                items((0..6).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(2, scrollOffset = -10) } }
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1, startOffset = -10)
+        }
+    }
+
     private fun LazyColumnLayoutInfo.assertVisibleItems(
         count: Int,
         startIndex: Int = 0,
         startOffset: Int = 0,
         expectedSize: Int = itemSizePx,
         spacing: Int = 0,
-        strictOnOffset: Boolean = true
     ) {
         assertThat(visibleItems.size).isEqualTo(count)
         var currentIndex = startIndex
         var currentOffset = startOffset
         visibleItems.forEach {
             assertThat(it.index).isEqualTo(currentIndex)
-            if (strictOnOffset) {
-                assertWithMessage("Offset of item $currentIndex")
-                    .that(it.offset)
-                    .isEqualTo(currentOffset)
-            }
+            assertWithMessage("Offset of item $currentIndex")
+                .that(it.offset)
+                .isEqualTo(currentOffset)
             assertThat(it.height).isEqualTo(expectedSize)
             currentIndex++
             currentOffset += it.height + spacing

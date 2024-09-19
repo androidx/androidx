@@ -137,6 +137,29 @@ class LazyColumnState : ScrollableState {
 
     private val scrollableState = ScrollableState { -onScroll(-it) }
 
+    /**
+     * Scrolls the item specified by [index] to the center of the screen.
+     *
+     * This operation happens instantly without animation.
+     *
+     * @param index The index of the item to scroll to. Must be non-negative.
+     * @param scrollOffset The offset between the center of the screen and item's center.
+     */
+    suspend fun scrollToItem(
+        @androidx.annotation.IntRange(from = 0) index: Int,
+        scrollOffset: Int = 0
+    ) {
+        scroll { snapToItemIndexInternal(index, scrollOffset) }
+    }
+
+    private fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
+        anchorItemIndex = index
+        anchorItemScrollOffset = scrollOffset
+        lastMeasuredAnchorItemHeight = Int.MIN_VALUE
+        remeasurement?.forceRemeasure()
+        nearestRange = calculateNearestItemsRange(anchorItemIndex)
+    }
+
     private fun onScroll(distance: Float): Float {
         if (distance < 0 && !canScrollForward || distance > 0 && !canScrollBackward) {
             return 0f
