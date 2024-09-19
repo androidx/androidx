@@ -150,11 +150,9 @@ private fun foldingFeatureInternal(
     val end = actualCenter + offset
     val bounds =
         if (orientation == VERTICAL) {
-            val windowHeight = windowBounds.height()
-            Rect(start, 0, end, windowHeight)
+            Rect(start, windowBounds.top, end, windowBounds.bottom)
         } else {
-            val windowWidth = windowBounds.width()
-            Rect(0, start, windowWidth, end)
+            Rect(windowBounds.left, start, windowBounds.right, end)
         }
     val occlusionType =
         if (shouldTreatAsHinge) {
@@ -180,9 +178,6 @@ private class FakeFoldingFeature(
 ) : FoldingFeature {
     init {
         require(!(bounds.width() == 0 && bounds.height() == 0)) { "Bounds must be non zero" }
-        require(!(bounds.left != 0 && bounds.top != 0)) {
-            "Bounding rectangle must start at the top or left window edge for folding features"
-        }
     }
 
     override fun equals(other: Any?): Boolean {
