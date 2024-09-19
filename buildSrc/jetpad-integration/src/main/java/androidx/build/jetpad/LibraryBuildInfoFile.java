@@ -19,6 +19,7 @@ package androidx.build.jetpad;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Object outlining the format of a library's build info file.
@@ -53,6 +54,7 @@ public final class LibraryBuildInfoFile {
     public Boolean isKmp;
     public String target;
     public ArrayList<Check> checks;
+    public Set<String> kmpChildren;
 
     /**
      * @property isTipOfTree boolean that specifies whether the dependency is tip-of-tree
