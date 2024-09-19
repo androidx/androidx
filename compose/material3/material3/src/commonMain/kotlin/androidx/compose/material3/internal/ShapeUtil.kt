@@ -42,8 +42,8 @@ internal fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon = transf
  *
  * @param path a [Path] object which, if supplied, will avoid the function having to create a new
  *   [Path] object
- * @param startAngle an angle to rotate the [Path] to start drawing from. The rotation pivot is set
- *   to be the polygon's centerX and centerY coordinates.
+ * @param startAngle an angle (in degrees) to rotate the [Path] to start drawing from. The rotation
+ *   pivot is set to be the polygon's centerX and centerY coordinates.
  * @param repeatPath whether or not to repeat the [Path] twice before closing it. This flag is
  *   useful when the caller would like to draw parts of the path while offsetting the start and stop
  *   positions (for example, when phasing and rotating a path to simulate a motion as a Star
@@ -73,7 +73,7 @@ internal fun RoundedPolygon.toPath(
  *
  * @param progress the [Morph]'s progress
  * @param path a [Path] to rewind and set with the new path data
- * @param startAngle an angle to rotate the [Path] to start drawing from
+ * @param startAngle an angle (in degrees) to rotate the [Path] to start drawing from
  * @param repeatPath whether or not to repeat the [Path] twice before closing it. This flag is
  *   useful when the caller would like to draw parts of the path while offsetting the start and stop
  *   positions (for example, when phasing and rotating a path to simulate a motion as a Star
