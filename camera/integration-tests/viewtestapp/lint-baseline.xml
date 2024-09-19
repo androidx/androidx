@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -112,37 +112,37 @@
     <issue
         id="RestrictedApiAndroidX"
         message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        mainThreadExecutor().execute(() -> {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        errorLine1="    CameraXExecutors.mainThreadExecutor().execute {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+            file="src/main/java/androidx/camera/integration/view/util/CaptureUtils.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
         message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Matrix croppingTransform = getRectToRect(new RectF(cropRect),"
-        errorLine2="                                   ~~~~~~~~~~~~~">
+        errorLine1="        TransformUtils.getRectToRect("
+        errorLine2="                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+            file="src/main/java/androidx/camera/integration/view/util/CaptureUtils.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
         message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Matrix croppingTransform = getRectToRect(new RectF(cropRect),"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            RectF(cropRect),"
+        errorLine2="            ~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+            file="src/main/java/androidx/camera/integration/view/util/CaptureUtils.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
         message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                new RectF(0, 0, cropRect.width(), cropRect.height()), 0);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            RectF(0f, 0f, cropRect.width().toFloat(), cropRect.height().toFloat()),"
+        errorLine2="            ~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+            file="src/main/java/androidx/camera/integration/view/util/CaptureUtils.kt"/>
     </issue>
 
     <issue
