@@ -35,6 +35,8 @@ class NavigationComposeIssueRegistry : IssueRegistry() {
                 ComposableDestinationInComposeScopeDetector.ComposableNavGraphInComposeScope,
                 UnrememberedGetBackStackEntryDetector.UnrememberedGetBackStackEntry,
                 WrongStartDestinationTypeDetector.WrongStartDestinationType,
+                TypeSafeDestinationMissingAnnotationDetector.MissingKeepAnnotationIssue,
+                TypeSafeDestinationMissingAnnotationDetector.MissingSerializableAnnotationIssue,
             )
 
     override val vendor =
