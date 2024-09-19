@@ -239,7 +239,7 @@ dependencies {
     kmpDocs(project(":lifecycle:lifecycle-viewmodel"))
     kmpDocs(project(":lifecycle:lifecycle-viewmodel-compose"))
     docs(project(":lifecycle:lifecycle-viewmodel-ktx"))
-    docs(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    kmpDocs(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     kmpDocs(project(":lifecycle:lifecycle-viewmodel-testing"))
     docs(project(":loader:loader"))
     docs(project(":loader:loader-ktx"))
