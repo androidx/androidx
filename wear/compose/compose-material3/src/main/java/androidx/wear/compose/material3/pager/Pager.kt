@@ -155,7 +155,7 @@ internal fun HorizontalPager(
  *   position will be maintained based on the key, which means if you add/remove items before the
  *   current visible item the item with the given key will be kept as the first visible one. If null
  *   is passed the position in the list will represent the key.
- * @param pageContent A composable function that defines the content of each page displayed by the
+ * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
 @ExperimentalWearFoundationApi
@@ -170,7 +170,7 @@ internal fun VerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageContent: @Composable PagerScope.(page: Int) -> Unit
+    content: @Composable PagerScope.(page: Int) -> Unit
 ) {
     VerticalPager(
         state = state,
@@ -187,7 +187,7 @@ internal fun VerticalPager(
             page = page,
             pagerState = state,
             contentScrimColor = contentScrimColor,
-            content = { pageContent(page) }
+            content = { content(page) }
         )
     }
 }
