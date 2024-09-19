@@ -30,10 +30,10 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.testrule.CameraTestActivityScenarioRule
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -69,8 +69,8 @@ class PreviewViewStreamStateTest(
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
     @get:Rule
-    val activityRule: ActivityScenarioRule<FakeActivity> =
-        ActivityScenarioRule(FakeActivity::class.java)
+    val activityRule: CameraTestActivityScenarioRule<FakeActivity> =
+        CameraTestActivityScenarioRule(FakeActivity::class.java)
 
     @get:Rule
     val cameraPipeConfigTestRule =

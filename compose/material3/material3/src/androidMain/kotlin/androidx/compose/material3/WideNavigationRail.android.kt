@@ -75,7 +75,7 @@ import java.util.UUID
 // Logic forked from androidx.compose.ui.window.DialogProperties. Removed dismissOnClickOutside
 // and usePlatformDefaultWidth as they are not relevant for fullscreen experience.
 /**
- * Properties used to customize the behavior of a [ModalExpandedNavigationRail].
+ * Properties used to customize the behavior of a [DismissibleModalWideNavigationRail].
  *
  * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the modal
  *   navigation rail's window.
@@ -84,7 +84,7 @@ import java.util.UUID
  */
 @Immutable
 @ExperimentalMaterial3ExpressiveApi
-actual class ModalExpandedNavigationRailProperties(
+actual class ModalWideNavigationRailProperties(
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     @get:Suppress("GetterSetterNames") actual val shouldDismissOnBackPress: Boolean = true,
 ) {
@@ -97,7 +97,7 @@ actual class ModalExpandedNavigationRailProperties(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ModalExpandedNavigationRailProperties) return false
+        if (other !is ModalWideNavigationRailProperties) return false
         if (securePolicy != other.securePolicy) return false
 
         return true
@@ -112,10 +112,10 @@ actual class ModalExpandedNavigationRailProperties(
 
 @Immutable
 @ExperimentalMaterial3ExpressiveApi
-actual object ModalExpandedNavigationRailDefaults {
+actual object DismissibleModalWideNavigationRailDefaults {
 
-    /** Properties used to customize the behavior of a [ModalExpandedNavigationRail]. */
-    actual val Properties = ModalExpandedNavigationRailProperties()
+    /** Properties used to customize the behavior of a [DismissibleModalWideNavigationRail]. */
+    actual val Properties = ModalWideNavigationRailProperties()
 }
 
 // Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
@@ -124,7 +124,7 @@ actual object ModalExpandedNavigationRailDefaults {
 @Composable
 internal actual fun ModalWideNavigationRailDialog(
     onDismissRequest: () -> Unit,
-    properties: ModalExpandedNavigationRailProperties,
+    properties: ModalWideNavigationRailProperties,
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
     predictiveBackState: RailPredictiveBackState,
@@ -330,7 +330,7 @@ private class ModalWideNavigationRailDialogLayout(
 @ExperimentalMaterial3ExpressiveApi
 private class ModalWideNavigationRailDialogWrapper(
     private var onDismissRequest: () -> Unit,
-    private var properties: ModalExpandedNavigationRailProperties,
+    private var properties: ModalWideNavigationRailProperties,
     private val composeView: View,
     layoutDirection: LayoutDirection,
     density: Density,
@@ -456,7 +456,7 @@ private class ModalWideNavigationRailDialogWrapper(
 
     fun updateParameters(
         onDismissRequest: () -> Unit,
-        properties: ModalExpandedNavigationRailProperties,
+        properties: ModalWideNavigationRailProperties,
         layoutDirection: LayoutDirection
     ) {
         this.onDismissRequest = onDismissRequest

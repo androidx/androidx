@@ -85,6 +85,13 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         clickOnItem(0, "0", 6)
     }
 
+    @Test
+    fun clickWith100MovesOnLateItem() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at 0 will be hit tested late.
+        clickOnItem(0, "0", 100)
+    }
+
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
     @Test
     fun clickWithMoveOnEarlyItemFyi() {
@@ -95,10 +102,25 @@ class ComposeOneFingerInputUIOnlyBenchmark {
     }
 
     @Test
+    fun clickWith100MovesOnEarlyItemFyi() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at NumItems - 1 will be hit tested early.
+        val lastItem = NumItems - 1
+        clickOnItem(lastItem, "$lastItem", 100)
+    }
+
+    @Test
     fun clickWithMoveAndFlingHistoryOnLateItem() {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at 0 will be hit tested late.
         clickOnItem(0, "0", 6, true)
+    }
+
+    @Test
+    fun clickWith100MovesAndFlingHistoryOnLateItem() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at 0 will be hit tested late.
+        clickOnItem(0, "0", 100, true)
     }
 
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
@@ -108,6 +130,14 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         // at NumItems - 1 will be hit tested early.
         val lastItem = NumItems - 1
         clickOnItem(lastItem, "$lastItem", 6, true)
+    }
+
+    @Test
+    fun clickWith100MovesAndFlingHistoryOnEarlyItemFyi() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at NumItems - 1 will be hit tested early.
+        val lastItem = NumItems - 1
+        clickOnItem(lastItem, "$lastItem", 100, true)
     }
 
     private fun clickOnItem(

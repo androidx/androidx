@@ -183,10 +183,12 @@ class AnimateBoundsTest {
             // Wait until first animated frame, for test stability
             do {
                 rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
             } while (expectedSmallSize.round() == boxSize)
 
             // Advance to approx. the middle of the animation (minus the first animated frame)
             rule.mainClock.advanceTimeBy(durationMillis / 2L - frameTime)
+            rule.waitForIdle()
 
             val expectedMidIntSize = (expectedLargeSize + expectedSmallSize).times(0.5f).round()
             assertEquals(expectedMidIntSize, boxSize)

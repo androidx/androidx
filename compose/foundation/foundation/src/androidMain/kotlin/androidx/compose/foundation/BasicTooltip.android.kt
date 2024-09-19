@@ -16,16 +16,16 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.gestures.LongPressResult
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.gestures.waitForLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
+@ExperimentalFoundationApi
 actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
@@ -96,6 +97,7 @@ actual fun BasicTooltipBox(
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun WrappedAnchor(
     enableUserInput: Boolean,
     state: BasicTooltipState,
@@ -115,6 +117,7 @@ private fun WrappedAnchor(
 }
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 private fun TooltipPopup(
     positionProvider: PopupPositionProvider,
     state: BasicTooltipState,
@@ -144,25 +147,20 @@ private fun TooltipPopup(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.handleGestures(enabled: Boolean, state: BasicTooltipState): Modifier =
     if (enabled) {
         this.pointerInput(state) {
                 coroutineScope {
                     awaitEachGesture {
-                        val longPressTimeout = viewConfiguration.longPressTimeoutMillis
                         val pass = PointerEventPass.Initial
 
                         // wait for the first down press
                         val inputType = awaitFirstDown(pass = pass).type
 
                         if (inputType == PointerType.Touch || inputType == PointerType.Stylus) {
-                            try {
-                                // listen to if there is up gesture
-                                // within the longPressTimeout limit
-                                withTimeout(longPressTimeout) {
-                                    waitForUpOrCancellation(pass = pass)
-                                }
-                            } catch (_: PointerEventTimeoutCancellationException) {
+                            val longPress = waitForLongPress(pass = pass)
+                            if (longPress is LongPressResult.Success) {
                                 // handle long press - Show the tooltip
                                 launch { state.show(MutatePriority.UserInput) }
 
@@ -200,6 +198,7 @@ private fun Modifier.handleGestures(enabled: Boolean, state: BasicTooltipState):
             }
     } else this
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.anchorSemantics(
     label: String,
     enabled: Boolean,

@@ -54,11 +54,15 @@ package androidx.health.connect.client {
   @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi public interface HealthConnectFeatures {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
+    field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
+    field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
     field public static final int FEATURE_STATUS_UNAVAILABLE = 1; // 0x1
   }
 
   public static final class HealthConnectFeatures.Companion {
+    field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
+    field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
     field public static final int FEATURE_STATUS_UNAVAILABLE = 1; // 0x1
   }
@@ -463,6 +467,61 @@ package androidx.health.connect.client.records {
   public static final class ElevationGainedRecord.Companion {
   }
 
+  public abstract class ExerciseCompletionGoal {
+  }
+
+  public static final class ExerciseCompletionGoal.ActiveCaloriesBurnedGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.ActiveCaloriesBurnedGoal(androidx.health.connect.client.units.Energy activeCalories);
+    method public androidx.health.connect.client.units.Energy getActiveCalories();
+    property public final androidx.health.connect.client.units.Energy activeCalories;
+  }
+
+  public static final class ExerciseCompletionGoal.DistanceAndDurationGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.DistanceAndDurationGoal(androidx.health.connect.client.units.Length distance, java.time.Duration duration);
+    method public androidx.health.connect.client.units.Length getDistance();
+    method public java.time.Duration getDuration();
+    property public final androidx.health.connect.client.units.Length distance;
+    property public final java.time.Duration duration;
+  }
+
+  public static final class ExerciseCompletionGoal.DistanceGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.DistanceGoal(androidx.health.connect.client.units.Length distance);
+    method public androidx.health.connect.client.units.Length getDistance();
+    property public final androidx.health.connect.client.units.Length distance;
+  }
+
+  public static final class ExerciseCompletionGoal.DurationGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.DurationGoal(java.time.Duration duration);
+    method public java.time.Duration getDuration();
+    property public final java.time.Duration duration;
+  }
+
+  public static final class ExerciseCompletionGoal.ManualCompletion extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    field public static final androidx.health.connect.client.records.ExerciseCompletionGoal.ManualCompletion INSTANCE;
+  }
+
+  public static final class ExerciseCompletionGoal.RepetitionsGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.RepetitionsGoal(java.time.Duration repetitions);
+    method public java.time.Duration getRepetitions();
+    property public final java.time.Duration repetitions;
+  }
+
+  public static final class ExerciseCompletionGoal.StepsGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.StepsGoal(int steps);
+    method public int getSteps();
+    property public final int steps;
+  }
+
+  public static final class ExerciseCompletionGoal.TotalCaloriesBurnedGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    ctor public ExerciseCompletionGoal.TotalCaloriesBurnedGoal(androidx.health.connect.client.units.Energy totalCalories);
+    method public androidx.health.connect.client.units.Energy getTotalCalories();
+    property public final androidx.health.connect.client.units.Energy totalCalories;
+  }
+
+  public static final class ExerciseCompletionGoal.UnknownGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
+    field public static final androidx.health.connect.client.records.ExerciseCompletionGoal.UnknownGoal INSTANCE;
+  }
+
   public final class ExerciseLap {
     ctor public ExerciseLap(java.time.Instant startTime, java.time.Instant endTime, optional androidx.health.connect.client.units.Length? length);
     method public java.time.Instant getEndTime();
@@ -471,6 +530,61 @@ package androidx.health.connect.client.records {
     property public final java.time.Instant endTime;
     property public final androidx.health.connect.client.units.Length? length;
     property public final java.time.Instant startTime;
+  }
+
+  public abstract class ExercisePerformanceTarget {
+  }
+
+  public static final class ExercisePerformanceTarget.AmrapTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    field public static final androidx.health.connect.client.records.ExercisePerformanceTarget.AmrapTarget INSTANCE;
+  }
+
+  public static final class ExercisePerformanceTarget.CadenceTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.CadenceTarget(double minCadence, double maxCadence);
+    method public double getMaxCadence();
+    method public double getMinCadence();
+    property public final double maxCadence;
+    property public final double minCadence;
+  }
+
+  public static final class ExercisePerformanceTarget.HeartRateTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.HeartRateTarget(double minHeartRate, double maxHeartRate);
+    method public double getMaxHeartRate();
+    method public double getMinHeartRate();
+    property public final double maxHeartRate;
+    property public final double minHeartRate;
+  }
+
+  public static final class ExercisePerformanceTarget.PowerTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.PowerTarget(androidx.health.connect.client.units.Power minPower, androidx.health.connect.client.units.Power maxPower);
+    method public androidx.health.connect.client.units.Power getMaxPower();
+    method public androidx.health.connect.client.units.Power getMinPower();
+    property public final androidx.health.connect.client.units.Power maxPower;
+    property public final androidx.health.connect.client.units.Power minPower;
+  }
+
+  public static final class ExercisePerformanceTarget.RateOfPerceivedExertionTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.RateOfPerceivedExertionTarget(int rpe);
+    method public int getRpe();
+    property public final int rpe;
+  }
+
+  public static final class ExercisePerformanceTarget.SpeedTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.SpeedTarget(androidx.health.connect.client.units.Velocity minSpeed, androidx.health.connect.client.units.Velocity maxSpeed);
+    method public androidx.health.connect.client.units.Velocity getMaxSpeed();
+    method public androidx.health.connect.client.units.Velocity getMinSpeed();
+    property public final androidx.health.connect.client.units.Velocity maxSpeed;
+    property public final androidx.health.connect.client.units.Velocity minSpeed;
+  }
+
+  public static final class ExercisePerformanceTarget.UnknownTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    field public static final androidx.health.connect.client.records.ExercisePerformanceTarget.UnknownTarget INSTANCE;
+  }
+
+  public static final class ExercisePerformanceTarget.WeightTarget extends androidx.health.connect.client.records.ExercisePerformanceTarget {
+    ctor public ExercisePerformanceTarget.WeightTarget(androidx.health.connect.client.units.Mass mass);
+    method public androidx.health.connect.client.units.Mass getMass();
+    property public final androidx.health.connect.client.units.Mass mass;
   }
 
   public final class ExerciseRoute {
@@ -608,6 +722,7 @@ package androidx.health.connect.client.records {
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute);
+    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute, optional String? plannedExerciseSessionId);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.ExerciseRouteResult getExerciseRouteResult();
@@ -615,6 +730,7 @@ package androidx.health.connect.client.records {
     method public java.util.List<androidx.health.connect.client.records.ExerciseLap> getLaps();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public String? getNotes();
+    method public String? getPlannedExerciseSessionId();
     method public java.util.List<androidx.health.connect.client.records.ExerciseSegment> getSegments();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
@@ -626,6 +742,7 @@ package androidx.health.connect.client.records {
     property public final java.util.List<androidx.health.connect.client.records.ExerciseLap> laps;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public final String? notes;
+    property public final String? plannedExerciseSessionId;
     property public final java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
@@ -1048,6 +1165,77 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
+  public final class PlannedExerciseBlock {
+    ctor public PlannedExerciseBlock(int repetitions, java.util.List<androidx.health.connect.client.records.PlannedExerciseStep> steps, optional String? description);
+    method public String? getDescription();
+    method public int getRepetitions();
+    method public java.util.List<androidx.health.connect.client.records.PlannedExerciseStep> getSteps();
+    property public final String? description;
+    property public final int repetitions;
+    property public final java.util.List<androidx.health.connect.client.records.PlannedExerciseStep> steps;
+  }
+
+  public final class PlannedExerciseSessionRecord implements androidx.health.connect.client.records.Record {
+    ctor public PlannedExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType);
+    ctor public PlannedExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title);
+    ctor public PlannedExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title, optional String? notes);
+    ctor public PlannedExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public PlannedExerciseSessionRecord(java.time.LocalDate startDate, java.time.Duration duration, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType);
+    ctor public PlannedExerciseSessionRecord(java.time.LocalDate startDate, java.time.Duration duration, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title);
+    ctor public PlannedExerciseSessionRecord(java.time.LocalDate startDate, java.time.Duration duration, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title, optional String? notes);
+    ctor public PlannedExerciseSessionRecord(java.time.LocalDate startDate, java.time.Duration duration, java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks, int exerciseType, optional String? title, optional String? notes, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> getBlocks();
+    method public String? getCompletedExerciseSessionId();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public int getExerciseType();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public String? getNotes();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    method public String? getTitle();
+    method public boolean hasExplicitTime();
+    property public final java.util.List<androidx.health.connect.client.records.PlannedExerciseBlock> blocks;
+    property public final String? completedExerciseSessionId;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final int exerciseType;
+    property public final boolean hasExplicitTime;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public final String? notes;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    property public final String? title;
+    field public static final androidx.health.connect.client.records.PlannedExerciseSessionRecord.Companion Companion;
+  }
+
+  public static final class PlannedExerciseSessionRecord.Companion {
+  }
+
+  public final class PlannedExerciseStep {
+    ctor public PlannedExerciseStep(int exerciseType, int exercisePhase, androidx.health.connect.client.records.ExerciseCompletionGoal completionGoal, java.util.List<? extends androidx.health.connect.client.records.ExercisePerformanceTarget> performanceTargets, optional String? description);
+    method public androidx.health.connect.client.records.ExerciseCompletionGoal getCompletionGoal();
+    method public String? getDescription();
+    method public int getExercisePhase();
+    method public int getExerciseType();
+    method public java.util.List<androidx.health.connect.client.records.ExercisePerformanceTarget> getPerformanceTargets();
+    property public final androidx.health.connect.client.records.ExerciseCompletionGoal completionGoal;
+    property public final String? description;
+    property public final int exercisePhase;
+    property public final int exerciseType;
+    property public final java.util.List<androidx.health.connect.client.records.ExercisePerformanceTarget> performanceTargets;
+    field public static final androidx.health.connect.client.records.PlannedExerciseStep.Companion Companion;
+    field public static final int EXERCISE_PHASE_ACTIVE = 3; // 0x3
+    field public static final int EXERCISE_PHASE_COOLDOWN = 4; // 0x4
+    field public static final int EXERCISE_PHASE_RECOVERY = 5; // 0x5
+    field public static final int EXERCISE_PHASE_REST = 2; // 0x2
+    field public static final int EXERCISE_PHASE_UNKNOWN = 0; // 0x0
+    field public static final int EXERCISE_PHASE_WARMUP = 1; // 0x1
+  }
+
+  public static final class PlannedExerciseStep.Companion {
+  }
+
   public final class PowerRecord implements androidx.health.connect.client.records.Record {
     ctor public PowerRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PowerRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
@@ -1132,6 +1320,42 @@ package androidx.health.connect.client.records {
   }
 
   public static final class SexualActivityRecord.Companion {
+  }
+
+  public final class SkinTemperatureRecord implements androidx.health.connect.client.records.Record {
+    ctor public SkinTemperatureRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> deltas, optional androidx.health.connect.client.units.Temperature? baseline, optional int measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Temperature? getBaseline();
+    method public java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> getDeltas();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public int getMeasurementLocation();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final androidx.health.connect.client.units.Temperature? baseline;
+    property public final java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> deltas;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final int measurementLocation;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.SkinTemperatureRecord.Companion Companion;
+    field public static final int MEASUREMENT_LOCATION_FINGER = 1; // 0x1
+    field public static final int MEASUREMENT_LOCATION_TOE = 2; // 0x2
+    field public static final int MEASUREMENT_LOCATION_UNKNOWN = 0; // 0x0
+    field public static final int MEASUREMENT_LOCATION_WRIST = 3; // 0x3
+  }
+
+  public static final class SkinTemperatureRecord.Companion {
+  }
+
+  public static final class SkinTemperatureRecord.Delta {
+    ctor public SkinTemperatureRecord.Delta(java.time.Instant time, androidx.health.connect.client.units.TemperatureDelta delta);
+    method public androidx.health.connect.client.units.TemperatureDelta getDelta();
+    method public java.time.Instant getTime();
+    property public final androidx.health.connect.client.units.TemperatureDelta delta;
+    property public final java.time.Instant time;
   }
 
   public final class SleepSessionRecord implements androidx.health.connect.client.records.Record {
@@ -1643,6 +1867,22 @@ package androidx.health.connect.client.units {
   public static final class Temperature.Companion {
     method public androidx.health.connect.client.units.Temperature celsius(double value);
     method public androidx.health.connect.client.units.Temperature fahrenheit(double value);
+  }
+
+  public final class TemperatureDelta implements java.lang.Comparable<androidx.health.connect.client.units.TemperatureDelta> {
+    method public static androidx.health.connect.client.units.TemperatureDelta celsius(double value);
+    method public int compareTo(androidx.health.connect.client.units.TemperatureDelta other);
+    method public static androidx.health.connect.client.units.TemperatureDelta fahrenheit(double value);
+    method public double getCelsius();
+    method public double getFahrenheit();
+    property public final double inCelsius;
+    property public final double inFahrenheit;
+    field public static final androidx.health.connect.client.units.TemperatureDelta.Companion Companion;
+  }
+
+  public static final class TemperatureDelta.Companion {
+    method public androidx.health.connect.client.units.TemperatureDelta celsius(double value);
+    method public androidx.health.connect.client.units.TemperatureDelta fahrenheit(double value);
   }
 
   public final class Velocity implements java.lang.Comparable<androidx.health.connect.client.units.Velocity> {

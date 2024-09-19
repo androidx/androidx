@@ -48,15 +48,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
-        errorLine1="    private val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
         errorLine1="            val pinnedItems ="
         errorLine2="            ^">
@@ -192,15 +183,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field countPerType with type Map&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val countPerType = mutableMapOf&lt;Any?, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="return type List&lt;Integer> of calculateLazyLayoutPinnedIndices: replace with IntList"
         errorLine1="): List&lt;Int> {"
         errorLine2="   ~~~~~~~~~">
@@ -219,56 +201,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field placeablesCache with type HashMap&lt;Integer, List&lt;Placeable>>: replace with IntObjectMap"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
         errorLine1="            val pinnedItems ="
         errorLine2="            ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method findOrComposeLazyListHeader has parameter headerIndexes with type List&lt;Integer>: replace with IntList"
-        errorLine1="    headerIndexes: List&lt;Int>,"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListHeaders.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field _headerIndexes with type List&lt;Integer>: replace with IntList"
-        errorLine1="    private var _headerIndexes: MutableList&lt;Int>? = null"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of getHeaderIndexes: replace with IntList"
-        errorLine1="    val headerIndexes: List&lt;Int>"
-        errorLine2="                       ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measureLazyList has parameter headerIndexes with type List&lt;Integer>: replace with IntList"
-        errorLine1="    headerIndexes: List&lt;Int>,"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
     </issue>
 
     <issue

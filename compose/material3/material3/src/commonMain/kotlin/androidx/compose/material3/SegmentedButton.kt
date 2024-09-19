@@ -34,6 +34,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
@@ -113,6 +114,9 @@ import kotlinx.coroutines.launch
  *   services.
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors] Button in different states
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *     * content
+ *
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
@@ -132,6 +136,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
     border: BorderStroke =
         SegmentedButtonDefaults.borderStroke(colors.borderColor(enabled, checked)),
+    contentPadding: PaddingValues = SegmentedButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },
     label: @Composable () -> Unit,
@@ -160,7 +165,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
         border = border,
         interactionSource = interactionSource
     ) {
-        SegmentedButtonContent(icon, label)
+        SegmentedButtonContent(icon = icon, content = label, contentPadding = contentPadding)
     }
 }
 
@@ -190,6 +195,8 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  *   services.
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors] Button in different states
+ * @param contentPadding the spacing values to apply internally between the container and the
+ *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
@@ -209,6 +216,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
     border: BorderStroke =
         SegmentedButtonDefaults.borderStroke(colors.borderColor(enabled, selected)),
+    contentPadding: PaddingValues = SegmentedButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },
     label: @Composable () -> Unit,
@@ -238,8 +246,68 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
         border = border,
         interactionSource = interactionSource
     ) {
-        SegmentedButtonContent(icon, label)
+        SegmentedButtonContent(icon, label, contentPadding)
     }
+}
+
+@Composable
+@Deprecated(message = "kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
+    border: BorderStroke =
+        SegmentedButtonDefaults.borderStroke(colors.borderColor(enabled, checked)),
+    interactionSource: MutableInteractionSource? = null,
+    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },
+    label: @Composable () -> Unit,
+) {
+    SegmentedButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        shape = shape,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        border = border,
+        contentPadding = SegmentedButtonDefaults.ContentPadding,
+        interactionSource = interactionSource,
+        icon = icon,
+        label = label
+    )
+}
+
+@Composable
+@Deprecated(message = "kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
+    border: BorderStroke =
+        SegmentedButtonDefaults.borderStroke(colors.borderColor(enabled, selected)),
+    interactionSource: MutableInteractionSource? = null,
+    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },
+    label: @Composable () -> Unit,
+) {
+    SegmentedButton(
+        selected = selected,
+        onClick = onClick,
+        shape = shape,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        border = border,
+        contentPadding = SegmentedButtonDefaults.ContentPadding,
+        interactionSource = interactionSource,
+        icon = icon,
+        label = label
+    )
 }
 
 /**
@@ -317,11 +385,9 @@ fun MultiChoiceSegmentedButtonRow(
 private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
     content: @Composable () -> Unit,
+    contentPadding: PaddingValues,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
-    ) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(contentPadding)) {
         val typography = OutlinedSegmentedButtonTokens.LabelTextFont.value
         // TODO Load the motionScheme tokens from the component tokens file
         val animationSpec = MotionSchemeKeyTokens.FastSpatial.value<Int>()
@@ -539,6 +605,9 @@ object SegmentedButtonDefaults {
 
     /** Icon size to use for icons used in [SegmentedButton] */
     val IconSize = OutlinedSegmentedButtonTokens.IconSize
+
+    /** The default content padding used by Segmented Buttons */
+    val ContentPadding = ButtonDefaults.TextButtonContentPadding
 
     /** And icon to indicate the segmented button is checked or selected */
     @Composable

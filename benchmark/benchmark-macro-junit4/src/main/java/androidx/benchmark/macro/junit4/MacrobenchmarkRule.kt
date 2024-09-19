@@ -115,7 +115,7 @@ public class MacrobenchmarkRule : TestRule {
             compilationMode = compilationMode,
             iterations = iterations,
             startupMode = startupMode,
-            perfettoConfig = null,
+            experimentalConfig = null,
             setupBlock = setupBlock,
             measureBlock = measureBlock
         )
@@ -183,7 +183,7 @@ public class MacrobenchmarkRule : TestRule {
             metrics = metrics,
             compilationMode = compilationMode,
             iterations = iterations,
-            perfettoConfig = experimentalConfig.perfettoConfig,
+            experimentalConfig = experimentalConfig,
             startupMode = startupMode,
             setupBlock = setupBlock,
             measureBlock = measureBlock

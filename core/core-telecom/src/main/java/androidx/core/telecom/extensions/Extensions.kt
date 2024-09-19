@@ -40,4 +40,6 @@ internal object Extensions {
 
     /** Represents the [ParticipantExtension] extension */
     internal const val PARTICIPANT = 1
+    /** Represents the [LocalCallSilenceExtension] extension */
+    internal const val LOCAL_CALL_SILENCE = 2
 }

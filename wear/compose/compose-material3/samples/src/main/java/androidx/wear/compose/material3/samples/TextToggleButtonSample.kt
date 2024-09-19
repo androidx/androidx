@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,13 +28,42 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.TextToggleButton
+import androidx.wear.compose.material3.TextToggleButtonDefaults
 import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Sampled
 @Composable
 fun TextToggleButtonSample() {
+    val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(true) }
-    TextToggleButton(checked = checked, onCheckedChange = { checked = !checked }) {
+    TextToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = !checked },
+        interactionSource = interactionSource,
+        shape =
+            TextButtonDefaults.animatedShape(
+                interactionSource = interactionSource,
+            ),
+    ) {
+        Text(text = if (checked) "On" else "Off")
+    }
+}
+
+@Sampled
+@Composable
+fun TextToggleButtonVariantSample() {
+    val interactionSource = remember { MutableInteractionSource() }
+    var checked by remember { mutableStateOf(true) }
+    TextToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = !checked },
+        interactionSource = interactionSource,
+        shape =
+            TextToggleButtonDefaults.animatedToggleButtonShape(
+                interactionSource = interactionSource,
+                checked = checked
+            )
+    ) {
         Text(text = if (checked) "On" else "Off")
     }
 }

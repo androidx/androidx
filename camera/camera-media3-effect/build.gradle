@@ -23,8 +23,8 @@ plugins {
 
 dependencies {
     api(project(":camera:camera-core"))
-    implementation(libs.media3Common)
-    implementation(libs.media3Effect)
+    implementation("androidx.media3:media3-common:1.5.0-alpha01")
+    implementation("androidx.media3:media3-effect:1.5.0-alpha01")
 
     testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -42,8 +42,10 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(project(":camera:camera-testing"))
 }
 android {
+    compileSdk 35
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.media3.effect"
 }

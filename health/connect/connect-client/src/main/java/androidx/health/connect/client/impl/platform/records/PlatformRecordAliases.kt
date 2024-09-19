@@ -265,6 +265,15 @@ internal typealias PlatformSexualActivityRecordBuilder =
 internal typealias PlatformSexualActivityProtectionUsed =
     android.health.connect.datatypes.SexualActivityRecord.SexualActivityProtectionUsed
 
+internal typealias PlatformSkinTemperatureRecord =
+    android.health.connect.datatypes.SkinTemperatureRecord
+
+internal typealias PlatformSkinTemperatureDelta =
+    android.health.connect.datatypes.SkinTemperatureRecord.Delta
+
+internal typealias PlatformSkinTemperatureRecordBuilder =
+    android.health.connect.datatypes.SkinTemperatureRecord.Builder
+
 internal typealias PlatformSleepSessionRecord = android.health.connect.datatypes.SleepSessionRecord
 
 internal typealias PlatformSleepSessionRecordBuilder =
@@ -347,6 +356,9 @@ internal typealias PlatformPower = android.health.connect.datatypes.units.Power
 internal typealias PlatformPressure = android.health.connect.datatypes.units.Pressure
 
 internal typealias PlatformTemperature = android.health.connect.datatypes.units.Temperature
+
+internal typealias PlatformTemperatureDelta =
+    android.health.connect.datatypes.units.TemperatureDelta
 
 internal typealias PlatformVelocity = android.health.connect.datatypes.units.Velocity
 

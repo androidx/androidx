@@ -32,6 +32,7 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":datastore:datastore-core"))
+    androidTestImplementation(project(":datastore:datastore-guava"))
     androidTestImplementation(project(":internal-testutils-datastore"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
@@ -40,6 +41,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 

@@ -53,7 +53,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -170,7 +170,7 @@ class WindowAreaControllerImplTest {
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo: WindowAreaInfo? =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -241,7 +241,7 @@ class WindowAreaControllerImplTest {
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo: WindowAreaInfo? =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -286,7 +286,7 @@ class WindowAreaControllerImplTest {
             extensions.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
             val windowAreaInfo: WindowAreaInfo? =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -337,7 +337,7 @@ class WindowAreaControllerImplTest {
 
             val windowAreaInfo =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -389,7 +389,7 @@ class WindowAreaControllerImplTest {
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -451,7 +451,7 @@ class WindowAreaControllerImplTest {
             extensionComponent.updateRearDisplayPresentationStatusListeners(STATUS_UNAVAILABLE)
             val windowAreaInfo: WindowAreaInfo? =
                 async {
-                        return@async controller.windowAreaInfos.firstOrNull()?.firstOrNull {
+                        return@async controller.windowAreaInfos.first().firstOrNull {
                             it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
                         }
                     }
@@ -531,7 +531,7 @@ class WindowAreaControllerImplTest {
             testActivity = activity
             this.rearDisplaySessionConsumer = rearDisplaySessionConsumer
             testActivity!!.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            rearDisplaySessionConsumer.accept(WindowAreaComponent.SESSION_STATE_ACTIVE)
+            rearDisplaySessionConsumer.accept(SESSION_STATE_ACTIVE)
         }
 
         override fun endRearDisplaySession() {

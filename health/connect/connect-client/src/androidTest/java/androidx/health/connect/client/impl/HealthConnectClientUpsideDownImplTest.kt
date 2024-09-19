@@ -16,7 +16,6 @@
 
 package androidx.health.connect.client.impl
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -75,7 +74,6 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFeatureAvailabilityApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class HealthConnectClientUpsideDownImplTest {
 
@@ -117,12 +115,26 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun allFeatures_belowUExt13_noneSupported() {
+    fun getFeatureStatus_featuresAddedInExt13_areAvailableInExt13() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13)
+
+        for (feature in
+            setOf(
+                HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
+                HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE
+            )) {
+            assertThat(healthConnectClient.features.getFeatureStatus(feature))
+                .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_AVAILABLE)
+        }
+    }
+
+    @Test
+    fun getFeatureStatus_belowUExt13_noneIsAvailable() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < 13)
 
         val features =
             listOf(
-                HealthConnectFeatures.FEATURE_HEALTH_DATA_BACKGROUND_READ,
+                HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
                 HealthConnectFeatures.FEATURE_HEALTH_DATA_HISTORIC_READ,
                 HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE,
                 HealthConnectFeatures.FEATURE_PLANNED_EXERCISE

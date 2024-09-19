@@ -18,16 +18,16 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.DismissibleModalWideNavigationRail
+import androidx.compose.material3.DismissibleModalWideNavigationRailState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalExpandedNavigationRail
-import androidx.compose.material3.ModalExpandedNavigationRailState
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.WideNavigationRail
 import androidx.compose.material3.WideNavigationRailItem
-import androidx.compose.material3.rememberModalExpandedNavigationRailState
+import androidx.compose.material3.rememberDismissibleModalWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
@@ -204,15 +204,15 @@ internal class NavigationRailTestCase(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ModalExpandedRailTestCase() : LayeredComposeTestCase(), ToggleableTestCase {
-    private lateinit var state: ModalExpandedNavigationRailState
+    private lateinit var state: DismissibleModalWideNavigationRailState
     private lateinit var scope: CoroutineScope
 
     @Composable
     override fun MeasuredContent() {
-        state = rememberModalExpandedNavigationRailState()
+        state = rememberDismissibleModalWideNavigationRailState()
         scope = rememberCoroutineScope()
 
-        ModalExpandedNavigationRail(
+        DismissibleModalWideNavigationRail(
             onDismissRequest = {},
             railState = state,
         ) {

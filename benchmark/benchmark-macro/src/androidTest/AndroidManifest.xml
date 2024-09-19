@@ -14,18 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-     <!--
-       The Macro Benchmark Sample needs to launch activities in
-       `androidx.benchmark.integration.macrobenchmark.target` APK.
-
-        The Macro Benchmark Library uses `PackageManager` to query for activities. This requires
-        the test APK to declare that `androidx.benchmark.integration.macrobecnhmark.target` be
-        visible to the APK (given Android 11's package visibility rules).
-     -->
-    <queries>
-        <package android:name="androidx.benchmark.integration.macro.target" />
-    </queries>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application>
         <activity
             android:name="androidx.benchmark.macro.TrivialStartupActivity"
@@ -43,5 +33,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- Disable receiver so we can test against an app without it -->
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:enabled="false"
+            tools:replace="android:enabled" />
     </application>
 </manifest>

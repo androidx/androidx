@@ -337,6 +337,9 @@ public open class ListenableWatchFaceControlClient(
             previewImageUpdateRequestedListener
         )
 
+    override fun hasComplicationDataCache(): Boolean =
+        watchFaceControlClient.hasComplicationDataCache()
+
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
 

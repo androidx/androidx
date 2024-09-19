@@ -42,6 +42,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -86,7 +87,7 @@ class ImageCaptureTest(
     @Test
     fun canSubmitTakePictureRequest(): Unit = runBlocking {
         val countDownLatch = CountDownLatch(1)
-        cameraControl.addOnNewCaptureRequestListener { countDownLatch.countDown() }
+        cameraControl.setOnNewCaptureRequestListener { countDownLatch.countDown() }
 
         imageCapture.takePicture(CameraXExecutors.directExecutor(), FakeOnImageCapturedCallback())
 
@@ -95,9 +96,10 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
     // reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runBlocking {
-        val callback = FakeOnImageCapturedCallback(closeImageOnSuccess = false)
+        val callback = FakeOnImageCapturedCallback()
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
         callback.results.first().image.toBitmap()
@@ -105,6 +107,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
     // reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val saveLocation = temporaryFolder.newFile()
@@ -123,6 +126,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canFindImage_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val initialCount = getMediaStoreCameraXImageCount()

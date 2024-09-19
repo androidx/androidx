@@ -18,6 +18,7 @@ package androidx.glance.appwidget.demos
 
 import android.content.Context
 import android.widget.RemoteViews
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -44,6 +45,15 @@ class RemoteViewsWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.White),
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally

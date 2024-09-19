@@ -23,8 +23,6 @@
     <style name="FloatingDialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
         <item name="android:dialogTheme">@style/FloatingDialogTheme</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
     <style name="FloatingDialogTheme">

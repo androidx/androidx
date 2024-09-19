@@ -63,7 +63,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.digital_clock_style_12,
             R.string.digital_clock_style_12_screen_reader,
-            Icon.createWithResource(this, R.drawable.red_style)
+            { Icon.createWithResource(this, R.drawable.red_style) }
         )
     }
 
@@ -73,7 +73,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.digital_clock_style_24,
             R.string.digital_clock_style_24_screen_reader,
-            Icon.createWithResource(this, R.drawable.red_style)
+            { Icon.createWithResource(this, R.drawable.red_style) }
         )
     }
 
@@ -91,7 +91,8 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         UserStyleSetting.Option.Id("On"),
                         resources,
                         R.string.digital_complication_on_screen_name,
-                        Icon.createWithResource(this, R.drawable.on),
+                        R.string.digital_complication_on_screen_name,
+                        { Icon.createWithResource(this, R.drawable.on) },
                         listOf(
                             ComplicationSlotOverlay(
                                 COMPLICATION1_ID,
@@ -107,7 +108,8 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         UserStyleSetting.Option.Id("Off"),
                         resources,
                         R.string.digital_complication_off_screen_name,
-                        Icon.createWithResource(this, R.drawable.off),
+                        R.string.digital_complication_on_screen_name,
+                        { Icon.createWithResource(this, R.drawable.off) },
                         listOf(
                             ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
                             ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
@@ -137,7 +139,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.colors_style_red,
             R.string.colors_style_red_screen_reader,
-            Icon.createWithResource(this, R.drawable.red_style)
+            { Icon.createWithResource(this, R.drawable.red_style) }
         )
     }
 
@@ -147,7 +149,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.colors_style_green,
             R.string.colors_style_green_screen_reader,
-            Icon.createWithResource(this, R.drawable.green_style)
+            { Icon.createWithResource(this, R.drawable.green_style) }
         )
     }
 
@@ -157,7 +159,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.colors_style_blue,
             R.string.colors_style_blue_screen_reader,
-            Icon.createWithResource(this, R.drawable.blue_style)
+            { Icon.createWithResource(this, R.drawable.blue_style) }
         )
     }
 
@@ -204,7 +206,8 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         UserStyleSetting.Option.Id("One"),
                         resources,
                         R.string.analog_complication_one_screen_name,
-                        Icon.createWithResource(this, R.drawable.one),
+                        R.string.analog_complication_one_screen_name,
+                        { Icon.createWithResource(this, R.drawable.one) },
                         listOf(
                             ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
                             ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
@@ -215,7 +218,8 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         UserStyleSetting.Option.Id("Two"),
                         resources,
                         R.string.analog_complication_two_screen_name,
-                        Icon.createWithResource(this, R.drawable.two),
+                        R.string.analog_complication_two_screen_name,
+                        { Icon.createWithResource(this, R.drawable.two) },
                         listOf(
                             ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
                             ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
@@ -226,7 +230,8 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         UserStyleSetting.Option.Id("Three"),
                         resources,
                         R.string.analog_complication_three_screen_name,
-                        Icon.createWithResource(this, R.drawable.three),
+                        R.string.analog_complication_three_screen_name,
+                        { Icon.createWithResource(this, R.drawable.three) },
                         listOf(
                             ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
                             ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
@@ -244,7 +249,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.style_digital_watch,
             R.string.style_digital_watch_screen_reader,
-            icon = Icon.createWithResource(this, R.drawable.d),
+            iconProvider = { Icon.createWithResource(this, R.drawable.d) },
             childSettings =
                 listOf(digitalClockStyleSetting, colorStyleSetting, digitalComplicationSettings)
         )
@@ -256,7 +261,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             resources,
             R.string.style_analog_watch,
             R.string.style_analog_watch_screen_reader,
-            icon = Icon.createWithResource(this, R.drawable.a),
+            iconProvider = { Icon.createWithResource(this, R.drawable.a) },
             childSettings = listOf(colorStyleSetting, drawHoursSetting, analogComplicationSettings)
         )
     }

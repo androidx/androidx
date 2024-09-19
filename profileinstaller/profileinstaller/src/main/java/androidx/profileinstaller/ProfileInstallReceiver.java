@@ -89,12 +89,25 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
      * the operation to be performed.
      */
     private static final @NonNull String EXTRA_BENCHMARK_OPERATION = "EXTRA_BENCHMARK_OPERATION";
-
     /**
      * The value that requests the shader cache be dropped.
      */
     private static final @NonNull String EXTRA_BENCHMARK_OPERATION_DROP_SHADER_CACHE =
             "DROP_SHADER_CACHE";
+
+    /**
+     * The value that requests saving profile of a separate process in the package.
+     * This isn't implemented as an extra on the SAVE_PROFILE action as it would be silently ignored
+     * on apps with older versions of profileinstaller
+     */
+    private static final @NonNull String EXTRA_BENCHMARK_OPERATION_SAVE_PROFILE =
+            "SAVE_PROFILE";
+
+    /**
+     * This is the key in the {@link Bundle} of extras, which provides PID for a benchmark operation
+     */
+    private static final @NonNull String EXTRA_PID = "EXTRA_PID";
+
 
     @Override
     public void onReceive(@NonNull Context context, @Nullable Intent intent) {
@@ -121,8 +134,11 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
             if (extras != null) {
                 String operation = extras.getString(EXTRA_BENCHMARK_OPERATION);
                 ResultDiagnostics diagnostics = new ResultDiagnostics();
+
                 if (EXTRA_BENCHMARK_OPERATION_DROP_SHADER_CACHE.equals(operation)) {
                     BenchmarkOperation.dropShaderCache(context, diagnostics);
+                } else if (EXTRA_BENCHMARK_OPERATION_SAVE_PROFILE.equals(operation)) {
+                    saveProfile(extras.getInt(EXTRA_PID, Process.myPid()), diagnostics);
                 } else {
                     diagnostics.onResultReceived(
                             ProfileInstaller.RESULT_BENCHMARK_OPERATION_UNKNOWN,
@@ -146,8 +162,24 @@ public class ProfileInstallReceiver extends BroadcastReceiver {
      * profile save`
      */
     static void saveProfile(@NonNull ProfileInstaller.DiagnosticsCallback callback) {
+        saveProfile(Process.myPid(), callback);
+    }
+
+    /**
+     * Sends SIGUSR1 signal to a specific subprocess, so that the app will dump its profiles to be
+     * used for profile collection.
+     *
+     * On user builds, this signal can't be sent by a separate (e.g. test) app or shell
+     * process, so instead we use this broadcast to do so from within the app.
+     *
+     * Unfortunately, this isn't able to validate that the signal is processed correctly both
+     * because it's async, and because the only way to validate appears to be logcat. For local
+     * debugging, you should see a logcat line containing: `SIGUSR1 forcing GC (no HPROF) and
+     * profile save` in the app subprocess specified by `pid`.
+     */
+    static void saveProfile(int pid, @NonNull ProfileInstaller.DiagnosticsCallback callback) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Process.sendSignal(Process.myPid(), /* SIGUSR1 */ 10);
+            Process.sendSignal(pid, /* SIGUSR1 */ 10);
             callback.onResultReceived(ProfileInstaller.RESULT_SAVE_PROFILE_SIGNALLED, null);
         } else {
             callback.onResultReceived(ProfileInstaller.RESULT_SAVE_PROFILE_SKIPPED, null);

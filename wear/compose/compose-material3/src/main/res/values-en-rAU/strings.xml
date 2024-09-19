@@ -38,10 +38,11 @@
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Year"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Confirm"</string>
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Next"</string>
-    <!-- no translation found for wear_m3c_confirmation_failure_message (6690105830380889949) -->
+    <!-- no translation found for wear_m3c_slider_decrease_content_description (8242572466064289486) -->
     <skip />
-    <!-- no translation found for wear_m3c_confirmation_success_message (7045594078216655038) -->
+    <!-- no translation found for wear_m3c_slider_increase_content_description (3329631766954416834) -->
     <skip />
-    <!-- no translation found for wear_m3c_open_on_phone (5829463187924353601) -->
-    <skip />
+    <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Failed"</string>
+    <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Success"</string>
+    <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Open on phone"</string>
 </resources>

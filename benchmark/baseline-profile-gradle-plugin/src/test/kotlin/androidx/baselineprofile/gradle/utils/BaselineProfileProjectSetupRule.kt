@@ -159,10 +159,7 @@ class BaselineProfileProjectSetupRule(
 
                 val kotlinGradlePluginDependency =
                     if (addKotlinGradlePluginToClasspath) {
-                        """
-             "${appTargetSetupRule.props.kgpDependency}"
-                    """
-                            .trimIndent()
+                        """ "${appTargetSetupRule.props.kgpDependency}" """
                     } else {
                         null
                     }
@@ -177,16 +174,24 @@ class BaselineProfileProjectSetupRule(
 
                         // Specifies agp dependency
                         ${
-                    listOfNotNull(
-                        agpDependency,
-                        kotlinGradlePluginDependency
-                    ).joinToString("\n") { "classpath $it" }
-                }
+                            listOfNotNull(
+                                agpDependency,
+                                kotlinGradlePluginDependency,
+                            ).joinToString("\n") { "classpath $it".trim() }
+                        }
 
                         // Specifies plugin dependency
-                        classpath "androidx.baselineprofile.consumer:androidx.baselineprofile.consumer.gradle.plugin:+"
-                        classpath "androidx.baselineprofile.producer:androidx.baselineprofile.producer.gradle.plugin:+"
-                        classpath "androidx.baselineprofile.apptarget:androidx.baselineprofile.apptarget.gradle.plugin:+"
+                        ${
+                            listOf(
+                                "consumer",
+                                "producer",
+                                "apptarget",
+                            ).joinToString(separator = System.lineSeparator()) {
+                                """
+            classpath "androidx.baselineprofile.$it:androidx.baselineprofile.$it.gradle.plugin:+"
+                                """.trimIndent()
+                            }
+                        }
                     }
                 }
 
@@ -271,8 +276,27 @@ data class VariantProfile(
     val flavorDimensions: Map<String, String>,
     val buildType: String,
     val profileFileLines: Map<String, List<String>>,
-    val startupFileLines: Map<String, List<String>>
+    val startupFileLines: Map<String, List<String>>,
+    val ftlFileLines: Map<String, List<String>> = mapOf(),
 ) {
+
+    companion object {
+
+        fun release(
+            baselineProfileLines: List<String> = listOf(),
+            startupProfileLines: List<String> = listOf(),
+            ftlFileLines: List<String> = listOf(),
+        ) =
+            listOf(
+                VariantProfile(
+                    flavorDimensions = mapOf(),
+                    buildType = "release",
+                    profileFileLines = mapOf("myTest" to baselineProfileLines),
+                    startupFileLines = mapOf("myStartupTest" to startupProfileLines),
+                    ftlFileLines = mapOf("anotherTest" to ftlFileLines),
+                )
+            )
+    }
 
     val nonMinifiedVariant =
         camelCase(*flavorDimensions.map { it.value }.toTypedArray(), "nonMinified", buildType)
@@ -281,12 +305,14 @@ data class VariantProfile(
         flavor: String?,
         buildType: String = "release",
         profileFileLines: Map<String, List<String>> = mapOf(),
-        startupFileLines: Map<String, List<String>> = mapOf()
+        startupFileLines: Map<String, List<String>> = mapOf(),
+        ftlFileLines: Map<String, List<String>> = mapOf(),
     ) : this(
         flavorDimensions = if (flavor != null) mapOf("version" to flavor) else mapOf(),
         buildType = buildType,
         profileFileLines = profileFileLines,
-        startupFileLines = startupFileLines
+        startupFileLines = startupFileLines,
+        ftlFileLines = ftlFileLines
     )
 }
 
@@ -341,7 +367,7 @@ class ProducerModule(
     override val rule: ProjectSetupRule,
     override val name: String,
     private val tempFolder: File,
-    private val consumer: Module
+    private val consumer: Module,
 ) : Module {
 
     fun setupWithFreeAndPaidFlavors(
@@ -353,6 +379,7 @@ class ProducerModule(
         paidReleaseStartupProfileLines: List<String> = listOf(),
         freeAnotherReleaseStartupProfileLines: List<String> = listOf(),
         paidAnotherReleaseStartupProfileLines: List<String> = listOf(),
+        otherPluginsBlock: String = "",
     ) {
         val variantProfiles = mutableListOf<VariantProfile>()
 
@@ -400,12 +427,16 @@ class ProducerModule(
             startupProfile = paidAnotherReleaseStartupProfileLines
         )
 
-        setup(variantProfiles)
+        setup(
+            variantProfiles = variantProfiles,
+            otherPluginsBlock = otherPluginsBlock,
+        )
     }
 
     fun setupWithoutFlavors(
         releaseProfileLines: List<String> = listOf(),
         releaseStartupProfileLines: List<String> = listOf(),
+        otherPluginsBlock: String = "",
     ) {
         setup(
             variantProfiles =
@@ -416,7 +447,8 @@ class ProducerModule(
                         profileFileLines = mapOf("myTest" to releaseProfileLines),
                         startupFileLines = mapOf("myStartupTest" to releaseStartupProfileLines)
                     )
-                )
+                ),
+            otherPluginsBlock = otherPluginsBlock,
         )
     }
 
@@ -448,17 +480,21 @@ class ProducerModule(
                         ),
                 )
             ),
+        otherPluginsBlock: String = "",
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
         targetProject: Module = consumer,
-        managedDevices: List<String> = listOf()
+        managedDevices: List<String> = listOf(),
+        namespace: String = "com.example.namespace.test",
     ) {
         val managedDevicesBlock =
-            """
+            if (managedDevices.isEmpty()) ""
+            else
+                """
             testOptions.managedDevices.devices {
             ${
-            managedDevices.joinToString("\n") {
-                """
+                managedDevices.joinToString("\n") {
+                    """
                 $it(ManagedVirtualDevice) {
                     device = "Pixel 6"
                     apiLevel = 31
@@ -466,11 +502,11 @@ class ProducerModule(
                 }
 
             """.trimIndent()
+                }
             }
-        }
             }
         """
-                .trimIndent()
+                    .trimIndent()
 
         val flavors = variantProfiles.flatMap { it.flavorDimensions.toList() }
         val flavorDimensionNames = flavors.map { it.first }.toSet().joinToString { """ "$it"""" }
@@ -494,10 +530,10 @@ class ProducerModule(
             """
             buildTypes {
                 ${
-            variantProfiles
-                .filter { it.buildType.isNotBlank() && it.buildType != "release" }
-                .joinToString("\n") { " ${it.buildType} { initWith(debug) } " }
-        }
+                variantProfiles
+                    .filter { it.buildType.isNotBlank() && it.buildType != "release" }
+                    .joinToString("\n") { " ${it.buildType} { initWith(debug) } " }
+            }
             }
         """
                 .trimIndent()
@@ -517,7 +553,8 @@ class ProducerModule(
                     testResultsOutputDir = testResultsOutputDir,
                     profilesOutputDir = profilesOutputDir,
                     profileFileLines = it.profileFileLines,
-                    startupFileLines = it.startupFileLines
+                    startupFileLines = it.startupFileLines,
+                    ftlProfileLines = it.ftlFileLines,
                 )
 
                 // Gradle script to injects a fake and disable the actual task execution for
@@ -541,6 +578,7 @@ class ProducerModule(
                 plugins {
                     id("com.android.test")
                     id("androidx.baselineprofile.producer")
+                    $otherPluginsBlock
                 }
 
                 android {
@@ -550,7 +588,7 @@ class ProducerModule(
 
                     $managedDevicesBlock
 
-                    namespace 'com.example.namespace.test'
+                    namespace "${namespace.trim()}"
                     targetProjectPath = ":${targetProject.name}"
                 }
 
@@ -574,44 +612,65 @@ class ProducerModule(
         testResultsOutputDir: File,
         profilesOutputDir: File,
         profileFileLines: Map<String, List<String>>,
-        startupFileLines: Map<String, List<String>>
+        startupFileLines: Map<String, List<String>>,
+        ftlProfileLines: Map<String, List<String>>,
     ) {
-
-        val testResultProtoBuilder = TestResultProto.TestResult.newBuilder()
-
         // This function writes a profile file for each key of the map, containing for lines
         // the strings in the list in the value.
-        val writeProfiles: (Map<String, List<String>>, String) -> (Unit) = { map, fileNamePart ->
-            map.forEach {
+        fun buildProfileArtifact(
+            testNameToProfileLines: Map<String, List<String>>,
+            fileNamePart: String,
+            label: String,
+        ) =
+            testNameToProfileLines.map {
+
+                // Write the fake profile with the given list of profile rules.
+                val profileFileName = "fake-$fileNamePart-${it.key}.txt"
                 val fakeProfileFile =
-                    File(profilesOutputDir, "fake-$fileNamePart-${it.key}.txt").apply {
+                    File(profilesOutputDir, profileFileName).apply {
                         writeText(it.value.joinToString(System.lineSeparator()))
                     }
 
-                testResultProtoBuilder.addOutputArtifact(
-                    TestArtifactProto.Artifact.newBuilder()
-                        .setLabel(
-                            LabelProto.Label.newBuilder()
-                                .setLabel("additionaltestoutput.benchmark.trace")
-                                .build()
-                        )
-                        .setSourcePath(
-                            PathProto.Path.newBuilder()
-                                .setPath(fakeProfileFile.absolutePath)
-                                .build()
-                        )
-                        .build()
-                )
+                // Creates an artifact for the test result proto. Note that this can be used
+                // both as a test result artifact and a global artifact.
+                TestArtifactProto.Artifact.newBuilder()
+                    .setLabel(LabelProto.Label.newBuilder().setLabel(label).build())
+                    .setSourcePath(
+                        PathProto.Path.newBuilder().setPath(fakeProfileFile.absolutePath).build()
+                    )
+                    .build()
             }
-        }
 
-        writeProfiles(profileFileLines, "baseline-prof")
-        writeProfiles(startupFileLines, "startup-prof")
-
+        // Baseline and startup profiles are added as test results artifacts.
+        // For testing with FTL instead, we add the profile as global artifact.
         val testSuiteResultProto =
             TestSuiteResultProto.TestSuiteResult.newBuilder()
                 .setTestStatus(TestStatusProto.TestStatus.PASSED)
-                .addTestResult(testResultProtoBuilder.build())
+                .addTestResult(
+                    TestResultProto.TestResult.newBuilder()
+                        .addAllOutputArtifact(
+                            buildProfileArtifact(
+                                testNameToProfileLines = profileFileLines,
+                                fileNamePart = "baseline-prof",
+                                label = "additionaltestoutput.benchmark.trace"
+                            )
+                        )
+                        .addAllOutputArtifact(
+                            buildProfileArtifact(
+                                testNameToProfileLines = startupFileLines,
+                                fileNamePart = "startup-prof",
+                                label = "additionaltestoutput.benchmark.trace"
+                            )
+                        )
+                        .build()
+                )
+                .addAllOutputArtifact(
+                    buildProfileArtifact(
+                        testNameToProfileLines = ftlProfileLines,
+                        fileNamePart = "baseline-prof",
+                        label = "firebase.toolOutput"
+                    )
+                )
                 .build()
 
         File(testResultsOutputDir, "test-result.pb").apply {

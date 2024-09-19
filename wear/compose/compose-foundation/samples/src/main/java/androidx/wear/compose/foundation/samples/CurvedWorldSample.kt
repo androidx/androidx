@@ -18,8 +18,10 @@ package androidx.wear.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -256,6 +258,30 @@ fun CurvedFontWeight() {
                 "W$it",
                 style = CurvedTextStyle(color = Color.White, fontWeight = FontWeight(it)),
                 modifier = CurvedModifier.padding(5.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun CurvedFontHeight() {
+    Box(
+        modifier =
+            Modifier.aspectRatio(1f)
+                .fillMaxSize()
+                .padding(2.dp)
+                .border(2.dp, Color.White, CircleShape)
+    ) {
+        CurvedLayout() {
+            basicCurvedText(
+                "9⎪:⎪0",
+                style = CurvedTextStyle(color = Color.Green, fontSize = 30.sp),
+            )
+        }
+        CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.CounterClockwise) {
+            basicCurvedText(
+                "9⎪:⎪0",
+                style = CurvedTextStyle(color = Color.Green, fontSize = 30.sp),
             )
         }
     }

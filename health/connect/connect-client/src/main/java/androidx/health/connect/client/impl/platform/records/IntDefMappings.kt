@@ -31,6 +31,7 @@ import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.metadata.Metadata
@@ -308,6 +309,19 @@ internal val SDK_TO_PLATFORM_SEXUAL_ACTIVITY_PROTECTION_USED: Map<Int, Int> =
 internal val PLATFORM_TO_SDK_SEXUAL_ACTIVITY_PROTECTION_USED =
     SDK_TO_PLATFORM_SEXUAL_ACTIVITY_PROTECTION_USED.reversed()
 
+internal val SDK_TO_PLATFORM_SKIN_TEMPERATURE_MEASUREMENT_LOCATION: Map<Int, Int> =
+    mapOf(
+        SkinTemperatureRecord.MEASUREMENT_LOCATION_FINGER to
+            PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_FINGER,
+        SkinTemperatureRecord.MEASUREMENT_LOCATION_TOE to
+            PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_TOE,
+        SkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST to
+            PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST,
+    )
+
+internal val PLATFORM_TO_SDK_SKIN_TEMPERATURE_MEASUREMENT_LOCATION =
+    SDK_TO_PLATFORM_SKIN_TEMPERATURE_MEASUREMENT_LOCATION.reversed()
+
 internal val SDK_TO_PLATFORM_BLOOD_GLUCOSE_SPECIMEN_SOURCE: Map<Int, Int> =
     mapOf(
         BloodGlucoseRecord.SPECIMEN_SOURCE_INTERSTITIAL_FLUID to
@@ -567,6 +581,11 @@ internal fun Int.toPlatformSexualActivityProtectionUsed(): Int {
         ?: PlatformSexualActivityProtectionUsed.PROTECTION_USED_UNKNOWN
 }
 
+internal fun Int.toPlatformSkinTemperatureMeasurementLocation(): Int {
+    return SDK_TO_PLATFORM_SKIN_TEMPERATURE_MEASUREMENT_LOCATION[this]
+        ?: PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_UNKNOWN
+}
+
 internal fun Int.toPlatformBloodGlucoseSpecimenSource(): Int {
     return SDK_TO_PLATFORM_BLOOD_GLUCOSE_SPECIMEN_SOURCE[this]
         ?: PlatformBloodGlucoseSpecimenSource.SPECIMEN_SOURCE_UNKNOWN
@@ -651,6 +670,11 @@ internal fun Int.toSdkCervicalMucusAppearance(): Int {
 
 internal fun Int.toSdkSleepStageType(): Int {
     return PLATFORM_TO_SDK_SLEEP_STAGE_TYPE[this] ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
+}
+
+internal fun Int.toSdkSkinTemperatureMeasurementLocation(): Int {
+    return PLATFORM_TO_SDK_SKIN_TEMPERATURE_MEASUREMENT_LOCATION[this]
+        ?: SkinTemperatureRecord.MEASUREMENT_LOCATION_UNKNOWN
 }
 
 internal fun Int.toSdkRecordingMethod(): Int {

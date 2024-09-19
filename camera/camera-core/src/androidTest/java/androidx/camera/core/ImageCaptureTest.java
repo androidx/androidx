@@ -124,7 +124,7 @@ public class ImageCaptureTest {
         FakeCameraControl fakeCameraControl =
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
 
-        fakeCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureCancelled();
         });
@@ -154,7 +154,7 @@ public class ImageCaptureTest {
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
-        fakeCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
         });
@@ -302,7 +302,7 @@ public class ImageCaptureTest {
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
 
         // Simulates the case that the capture request failed after running in 300 ms.
-        fakeCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             CameraXExecutors.mainThreadExecutor().schedule(() -> {
                 fakeCameraControl.notifyAllRequestsOnCaptureFailed();
             }, 300, TimeUnit.MILLISECONDS);
@@ -395,7 +395,7 @@ public class ImageCaptureTest {
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
-        fakeCameraControl.addOnNewCaptureRequestListener(mockCaptureRequestListener);
+        fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
 
         // Act.
         mInstrumentation.runOnMainSync(
@@ -463,7 +463,7 @@ public class ImageCaptureTest {
         FakeCameraControl fakeCameraControl =
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         CountDownLatch latch = new CountDownLatch(1);
-        fakeCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             latch.countDown();
         });
 
@@ -492,7 +492,7 @@ public class ImageCaptureTest {
     private void addExtraFailureNotificationsForRetry(FakeCameraControl cameraControl,
             int retryCount) {
         if (retryCount > 0) {
-            cameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
+            cameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
                 addExtraFailureNotificationsForRetry(cameraControl, retryCount - 1);
                 cameraControl.notifyAllRequestsOnCaptureFailed();
             });

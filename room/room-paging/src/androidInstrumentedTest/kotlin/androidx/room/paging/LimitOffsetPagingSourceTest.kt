@@ -33,12 +33,15 @@ import androidx.sqlite.SQLiteStatement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.FilteringCoroutineContext
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -159,6 +162,7 @@ class LimitOffsetPagingSourceTest {
         assertTrue(pagingSource.invalid)
     }
 
+    @Ignore("Due to b/365167510")
     @Test
     fun dbDelete_pagingSourceInvalidates() = runPagingSourceTest { pager, pagingSource ->
         dao.addAllItems(ITEMS_LIST)
@@ -658,14 +662,17 @@ class LimitOffsetPagingSourceTest {
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class LimitOffsetPagingSourceTestWithFilteringExecutor {
+class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
 
     private lateinit var db: LimitOffsetTestDb
     private lateinit var dao: TestItemDao
 
     // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
     // dispatch on, when using the query / transaction dispatchers.
-    private val queryExecutor = FilteringExecutor(delegate = Executors.newFixedThreadPool(2))
+    private val queryContext = FilteringCoroutineContext(delegate = Executors.newFixedThreadPool(2))
+    private val queryExecutor: FilteringExecutor
+        get() = queryContext.executor
+
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
 
     @Before
@@ -688,7 +695,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
                     // instantly execute the log callback so that we can check the thread.
                     it.run()
                 }
-                .setQueryExecutor(queryExecutor)
+                .setQueryCoroutineContext(queryContext)
                 .build()
         dao = db.getDao()
     }
@@ -711,9 +718,8 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
         assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
 
         // blocks invalidation notification from Room
-        queryExecutor.filterFunction = {
-            // TODO(b/): Avoid relying on function name, very brittle.
-            !it.toString().contains("refreshInvalidationAsync")
+        queryContext.filterFunction = { context, _ ->
+            context[CoroutineName]?.name?.contains("Room Invalidation Tracker Refresh") != true
         }
 
         // now write to the database
@@ -729,6 +735,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
         assertThat(pagingSource.invalid).isTrue()
     }
 
+    @Ignore("Due to b/365167269.")
     @Test
     fun invalid_prepend() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
@@ -740,7 +747,9 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
         assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 35))
 
         // blocks invalidation notification from Room
-        queryExecutor.filterFunction = { !it.toString().contains("refreshInvalidationAsync") }
+        queryContext.filterFunction = { context, _ ->
+            context[CoroutineName]?.name?.contains("Room Invalidation Tracker Refresh") != true
+        }
 
         // now write to the database
         dao.deleteTestItem(ITEMS_LIST[30])

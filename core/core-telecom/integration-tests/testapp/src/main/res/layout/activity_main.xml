@@ -53,9 +53,36 @@
         <CheckBox
             android:id="@+id/streamingCheckBox"
             android:layout_width="match_parent"
-            android:layout_height="61dp"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="CAPABILITY_SUPPORTS_CALL_STREAMING" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/ParticipantsCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:padding="16dp"
+                android:text="Participants" />
+
+            <CheckBox
+                android:id="@+id/RaiseHandCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Raise Hand" />
+            <CheckBox
+                android:id="@+id/KickPartCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Kick" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/registerButton"

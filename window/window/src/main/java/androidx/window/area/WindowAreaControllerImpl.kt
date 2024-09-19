@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,
-) : WindowAreaController {
+) : WindowAreaController() {
 
     private lateinit var rearDisplaySessionConsumer: Consumer2<Int>
     private var currentRearDisplayModeStatus: WindowAreaCapability.Status =

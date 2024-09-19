@@ -285,14 +285,14 @@ private class InternalQueryProcessor(
                     }
             if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
                 val warningMsg =
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames =
                             pojoMappings.map { it.pojo.typeName.toString(context.codeLanguage) },
                         unusedColumns = unusedColumns,
                         allColumns = columnNames,
                         pojoUnusedFields = pojoUnusedFields,
                     )
-                context.logger.w(Warning.CURSOR_MISMATCH, executableElement, warningMsg)
+                context.logger.w(Warning.QUERY_MISMATCH, executableElement, warningMsg)
             }
         }
 

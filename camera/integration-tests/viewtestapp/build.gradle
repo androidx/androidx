@@ -22,6 +22,7 @@ plugins {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         applicationId "androidx.camera.integration.view"
     }
@@ -81,6 +82,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.4.0")
     implementation(libs.media3Common)
     implementation(libs.media3Effect)
+    implementation(project(":camera:camera-media3-effect"))
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")

@@ -55,7 +55,8 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
 
         val validator = ExtensionDisabledValidator()
-        assertThat(validator.shouldDisableExtension()).isEqualTo(config.shouldDisableExtension)
+        assertThat(validator.shouldDisableExtension(config.cameraId))
+            .isEqualTo(config.shouldDisableExtension)
     }
 
     class TestConfig(
@@ -63,33 +64,41 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         val device: String,
         val version: String,
         val isAdvancedInterface: Boolean,
+        val cameraId: String,
         val shouldDisableExtension: Boolean
     )
 
     companion object {
+        private const val DEFAULT_BACK_CAMERA_ID = "0"
+        private const val DEFAULT_FRONT_CAMERA_ID = "1"
+
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return listOf(
                 // Pixel 5 extension capability is disabled on basic extender
-                TestConfig("Google", "Redfin", "1.2.0", false, true),
+                TestConfig("Google", "Redfin", "1.2.0", false, DEFAULT_BACK_CAMERA_ID, true),
 
                 // Pixel 5 extension capability is enabled on advanced extender
-                TestConfig("Google", "Redfin", "1.2.0", true, false),
+                TestConfig("Google", "Redfin", "1.2.0", true, DEFAULT_BACK_CAMERA_ID, false),
 
                 // All Motorola devices should be disabled for version 1.1.0 and older.
-                TestConfig("Motorola", "Smith", "1.1.0", false, true),
-                TestConfig("Motorola", "Hawaii P", "1.1.0", false, true),
+                TestConfig("Motorola", "Smith", "1.1.0", false, DEFAULT_BACK_CAMERA_ID, true),
+                TestConfig("Motorola", "Hawaii P", "1.1.0", false, DEFAULT_BACK_CAMERA_ID, true),
 
                 // Make sure Motorola device would still be enabled for newer versions
                 // Motorola doesn't support this today but making sure there is a path to enable
-                TestConfig("Motorola", "Hawaii P", "1.2.0", false, false),
+                TestConfig("Motorola", "Hawaii P", "1.2.0", false, DEFAULT_BACK_CAMERA_ID, false),
+
+                // Samsung A52s 5G devices should be disabled for the back camera.
+                TestConfig("Samsung", "a52sxq", "1.2.0", true, DEFAULT_BACK_CAMERA_ID, true),
+                TestConfig("Samsung", "a52sxq", "1.2.0", true, DEFAULT_FRONT_CAMERA_ID, false),
 
                 // Other cases should be kept normal.
-                TestConfig("", "", "1.2.0", false, false),
+                TestConfig("", "", "1.2.0", false, DEFAULT_BACK_CAMERA_ID, false),
 
                 // Advanced extender is enabled for all devices
-                TestConfig("", "", "1.2.0", true, false),
+                TestConfig("", "", "1.2.0", true, DEFAULT_BACK_CAMERA_ID, false),
             )
         }
     }

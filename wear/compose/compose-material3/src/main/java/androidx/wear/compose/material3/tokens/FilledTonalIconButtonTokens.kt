@@ -20,7 +20,7 @@
 package androidx.wear.compose.material3.tokens
 internal object FilledTonalIconButtonTokens {
     val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val ContentColor = ColorSchemeKeyTokens.Primary
     val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContainerOpacity = 0.12f
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface

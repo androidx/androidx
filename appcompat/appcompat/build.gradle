@@ -32,7 +32,7 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
     api("androidx.savedstate:savedstate:1.2.1")
 

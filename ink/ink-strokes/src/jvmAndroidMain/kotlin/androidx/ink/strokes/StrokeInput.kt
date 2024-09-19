@@ -17,7 +17,6 @@
 package androidx.ink.strokes
 
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.InputToolType
 
@@ -135,7 +134,8 @@ public class StrokeInput {
         get() = orientationRadians != NO_ORIENTATION
 
     /**
-     * Overwrite this instance with new values.
+     * Set new values on this instance, clearing values corresponding to optional parameters that
+     * are not specified.
      *
      * @param x The `x` position coordinate of the input in the stroke's coordinate space.
      * @param y The `y` position coordinate of the input in the stroke's coordinate space.
@@ -144,7 +144,7 @@ public class StrokeInput {
      * @param toolType The type of tool used to create this input data.
      * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
      *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
-     *   real-world distance that the stylus/ fingertip must move in physical space; for mouse, this
+     *   real-world distance that the stylus/fingertip must move in physical space; for mouse, this
      *   is the visual distance that the mouse pointer must travel along the surface of the display.
      *   A value of [NO_STROKE_UNIT_LENGTH] indicates that the relationship between stroke space and
      *   physical space is unknown or ill-defined.
@@ -158,6 +158,8 @@ public class StrokeInput {
      *   end is along positive x and values increase towards the positive y-axis. Absence of
      *   [orientationRadians] data is represented with [NO_ORIENTATION].
      */
+    // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard config
+    // file instead.
     @JvmOverloads
     public fun update(
         x: Float,
@@ -177,35 +179,6 @@ public class StrokeInput {
         this.pressure = pressure
         this.tiltRadians = tiltRadians
         this.orientationRadians = orientationRadians
-    }
-
-    /** @see update */
-    // TODO: b/362469375 - Change JNI to use `update` and delete `overwrite`
-    // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard config
-    // file instead.
-    @JvmOverloads
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @Deprecated("Renaming to update")
-    public fun overwrite(
-        x: Float,
-        y: Float,
-        @IntRange(from = 0) elapsedTimeMillis: Long,
-        toolType: InputToolType = InputToolType.UNKNOWN,
-        strokeUnitLengthCm: Float = NO_STROKE_UNIT_LENGTH,
-        pressure: Float = NO_PRESSURE,
-        tiltRadians: Float = NO_TILT,
-        orientationRadians: Float = NO_ORIENTATION,
-    ) {
-        update(
-            x,
-            y,
-            elapsedTimeMillis,
-            toolType,
-            strokeUnitLengthCm,
-            pressure,
-            tiltRadians,
-            orientationRadians
-        )
     }
 
     public override fun equals(other: Any?): Boolean {

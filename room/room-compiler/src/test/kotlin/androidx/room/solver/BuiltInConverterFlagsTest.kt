@@ -25,7 +25,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_CURSOR_READER
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_STMT_READER
 import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +38,7 @@ class BuiltInConverterFlagsTest {
     fun enums_disabledInDb() {
         compile(dbAnnotation = createTypeConvertersCode(enums = DISABLED)) {
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val myEnum: MyEnum")
-            hasError(CANNOT_FIND_CURSOR_READER, "val myEnum: MyEnum")
+            hasError(CANNOT_FIND_STMT_READER, "val myEnum: MyEnum")
             hasErrorCount(2)
         }
     }
@@ -47,7 +47,7 @@ class BuiltInConverterFlagsTest {
     fun uuid_disabledInDb() {
         compile(dbAnnotation = createTypeConvertersCode(uuid = DISABLED)) {
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val uuid: UUID")
-            hasError(CANNOT_FIND_CURSOR_READER, "val uuid: UUID")
+            hasError(CANNOT_FIND_STMT_READER, "val uuid: UUID")
             hasErrorCount(2)
         }
     }
@@ -56,7 +56,7 @@ class BuiltInConverterFlagsTest {
     fun byteBuffer_disabledInDb() {
         compile(dbAnnotation = createTypeConvertersCode(byteBuffer = DISABLED)) {
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val blob: ByteBuffer")
-            hasError(CANNOT_FIND_CURSOR_READER, "val blob: ByteBuffer")
+            hasError(CANNOT_FIND_STMT_READER, "val blob: ByteBuffer")
             hasErrorCount(2)
         }
     }
@@ -83,9 +83,9 @@ class BuiltInConverterFlagsTest {
             hasError(CANNOT_FIND_COLUMN_TYPE_ADAPTER, "val blob: ByteBuffer")
             // even though it is enabled in dao or db, since pojo processing will visit the pojo,
             // we'll still get errors for these because entity disabled them
-            hasError(CANNOT_FIND_CURSOR_READER, "val uuid: UUID")
-            hasError(CANNOT_FIND_CURSOR_READER, "val myEnum: MyEnum")
-            hasError(CANNOT_FIND_CURSOR_READER, "val blob: ByteBuffer")
+            hasError(CANNOT_FIND_STMT_READER, "val uuid: UUID")
+            hasError(CANNOT_FIND_STMT_READER, "val myEnum: MyEnum")
+            hasError(CANNOT_FIND_STMT_READER, "val blob: ByteBuffer")
             hasErrorCount(6)
         }
     }

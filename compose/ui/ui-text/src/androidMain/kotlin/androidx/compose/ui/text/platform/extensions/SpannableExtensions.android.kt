@@ -345,7 +345,7 @@ internal fun flattenFontStylesAndApply(
     // Sort all span start and end points.
     // S1--S2--E1--S3--E3--E2
     val spanCount = spanStyles.size
-    val transitionOffsets = Array(spanCount * 2) { 0 }
+    val transitionOffsets = IntArray(spanCount * 2)
     spanStyles.fastForEachIndexed { idx, spanStyle ->
         transitionOffsets[idx] = spanStyle.start
         transitionOffsets[idx + spanCount] = spanStyle.end

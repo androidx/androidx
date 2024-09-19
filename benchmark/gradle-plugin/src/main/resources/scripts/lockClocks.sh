@@ -34,7 +34,7 @@ ARG_CORES=${1:-big}
 
 CPU_TARGET_FREQ_PERCENT=50
 GPU_TARGET_FREQ_PERCENT=50
-MAX_RETRIES=3
+MAX_RETRIES=10
 
 if [ "`command -v getprop`" == "" ]; then
     if [ -n "`command -v adb`" ]; then
@@ -57,6 +57,7 @@ fi
 # require root
 if [[ `id` != "uid=0"* ]]; then
     echo "Not running as root, cannot lock clocks, aborting"
+    echo "Run 'adb root' and retry"
     exit -1
 fi
 

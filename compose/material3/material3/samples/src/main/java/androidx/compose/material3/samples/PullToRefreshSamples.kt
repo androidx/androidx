@@ -366,6 +366,9 @@ fun PullToRefreshSampleCustomState() {
             override val distanceFraction
                 get() = anim.value
 
+            override val isAnimating: Boolean
+                get() = anim.isRunning
+
             override suspend fun animateToThreshold() {
                 anim.animateTo(1f, spring(dampingRatio = Spring.DampingRatioHighBouncy))
             }

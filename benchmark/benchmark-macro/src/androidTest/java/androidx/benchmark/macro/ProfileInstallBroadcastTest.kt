@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -91,5 +92,34 @@ class ProfileInstallBroadcastTest {
             errorString,
             "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated"
         )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses() {
+        assertEquals(
+            expected = ProfileInstallBroadcast.SaveProfileResult(1, null),
+            actual = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET)
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_missing() {
+        val result = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING)
+        assertEquals(0, result.processCount)
+        assertNull(result.error)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_this() {
+        // we remove the receiver in the test to enable testing against a running app without it,
+        // but this doesn't test the BENCHMARK_OPERATION code path since the test is the
+        // main process, so uses the legacy broadcast for compatibility
+        val result = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TEST)
+        assertEquals(1, result.processCount)
+        assertNotNull(result.error)
+        assertContains(result.error!!, "The save profile broadcast event was not received.")
     }
 }

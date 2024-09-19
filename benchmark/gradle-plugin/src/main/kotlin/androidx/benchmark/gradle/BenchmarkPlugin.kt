@@ -24,7 +24,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
+import org.gradle.api.Task
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 
@@ -120,21 +120,15 @@ class BenchmarkPlugin : Plugin<Project> {
 
         val adbPathProvider = componentsExtension.sdkComponents.adb.map { it.asFile.absolutePath }
 
-        if (!project.rootProject.tasks.exists("lockClocks")) {
-            project.rootProject.tasks.register("lockClocks", LockClocksTask::class.java).configure {
-                it.adbPath.set(adbPathProvider)
-                it.coresArg.set(
-                    project.providers
-                        .gradleProperty("androidx.benchmark.lockClocks.cores")
-                        .orElse("")
-                )
-            }
+        project.tasks.maybeRegister("lockClocks", LockClocksTask::class.java).configure {
+            it.adbPath.set(adbPathProvider)
+            it.coresArg.set(
+                project.providers.gradleProperty("androidx.benchmark.lockClocks.cores").orElse("")
+            )
         }
 
-        if (!project.rootProject.tasks.exists("unlockClocks")) {
-            project.rootProject.tasks
-                .register("unlockClocks", UnlockClocksTask::class.java)
-                .configure { it.adbPath.set(adbPathProvider) }
+        project.tasks.maybeRegister("unlockClocks", UnlockClocksTask::class.java).configure {
+            it.adbPath.set(adbPathProvider)
         }
 
         val extensionVariants =
@@ -236,11 +230,10 @@ class BenchmarkPlugin : Plugin<Project> {
         }
     }
 
-    private fun TaskContainer.exists(taskName: String) =
+    private fun <T : Task> TaskContainer.maybeRegister(taskName: String, type: Class<T>) =
         try {
-            named(taskName)
-            true
-        } catch (e: UnknownTaskException) {
-            false
+            named(taskName, type)
+        } catch (e: Exception) {
+            register(taskName, type)
         }
 }

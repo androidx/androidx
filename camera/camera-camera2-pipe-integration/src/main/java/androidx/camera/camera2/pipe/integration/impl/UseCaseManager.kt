@@ -30,6 +30,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
@@ -45,11 +46,14 @@ import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.adapter.ZslControl
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuckQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOnCameraGraphCloseQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.DisableAbortCapturesOnStopWithSessionProcessorQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -132,7 +136,6 @@ constructor(
     private val camera2CameraControl: Camera2CameraControl,
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraQuirks: CameraQuirks,
-    private val cameraGraphFlags: CameraGraph.Flags,
     private val cameraInternal: Provider<CameraInternal>,
     private val useCaseThreads: Provider<UseCaseThreads>,
     private val cameraInfoInternal: Provider<CameraInfoInternal>,
@@ -661,7 +664,6 @@ constructor(
             requestListener,
             cameraConfig,
             cameraQuirks,
-            cameraGraphFlags,
             zslControl,
             templateParamsOverride,
             isExtensions,
@@ -885,7 +887,6 @@ constructor(
             requestListener: ComboRequestListener,
             cameraConfig: CameraConfig,
             cameraQuirks: CameraQuirks,
-            cameraGraphFlags: CameraGraph.Flags?,
             zslControl: ZslControl,
             templateParamsOverride: TemplateParamsOverride,
             isExtensions: Boolean = false,
@@ -984,51 +985,8 @@ constructor(
                     }
                 }
             }
-            val shouldCloseCaptureSessionOnDisconnect =
-                if (isExtensions) {
-                    true
-                } else if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
-                    // If we can release Surfaces immediately, we'll finalize the session when the
-                    // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we
-                    // won't
-                    // need to explicitly close the capture session.
-                    false
-                } else {
-                    if (
-                        cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
-                            containsVideo
-                    ) {
-                        true
-                    } else {
-                        DeviceQuirks[CloseCaptureSessionOnDisconnectQuirk::class.java] != null
-                    }
-                }
-            val shouldCloseCameraDeviceOnClose =
-                DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
-            val shouldAbortCapturesOnStop =
-                if (
-                    isExtensions &&
-                        DeviceQuirks[
-                            DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java] != null
-                ) {
-                    false
-                } else {
-                    /** @see [CameraGraph.Flags.abortCapturesOnStop] */
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                }
 
-            val combinedFlags =
-                cameraGraphFlags?.copy(
-                    abortCapturesOnStop = shouldAbortCapturesOnStop,
-                    quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
-                    quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
-                )
-                    ?: CameraGraph.Flags(
-                        abortCapturesOnStop = shouldAbortCapturesOnStop,
-                        quirkCloseCaptureSessionOnDisconnect =
-                            shouldCloseCaptureSessionOnDisconnect,
-                        quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
-                    )
+            val combinedFlags = createCameraGraphFlags(cameraQuirks, containsVideo, isExtensions)
 
             // Set video stabilization mode to capture request
             var videoStabilizationMode = CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
@@ -1101,6 +1059,76 @@ constructor(
             mapping: Map<DeferrableSurface, Long>
         ): OutputStream.StreamUseHint? {
             return mapping[deferrableSurface]?.let { OutputStream.StreamUseHint(it) }
+        }
+
+        private fun createCameraGraphFlags(
+            cameraQuirks: CameraQuirks,
+            containsVideo: Boolean,
+            isExtensions: Boolean,
+        ): CameraGraph.Flags {
+            if (cameraQuirks.quirks.contains(CaptureSessionStuckQuirk::class.java)) {
+                Log.debug { "CameraPipe should be enabling CaptureSessionStuckQuirk by default" }
+            }
+            // TODO(b/276354253): Set quirkWaitForRepeatingRequestOnDisconnect flag for overrides.
+
+            // TODO(b/277310425): When creating a CameraGraph, this flag should be turned OFF when
+            //  this behavior is not needed based on the use case interaction and the device on
+            //  which the test is running.
+            val shouldFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseQuirk.getBehavior()
+
+            val shouldCloseCaptureSessionOnDisconnect =
+                when {
+                    isExtensions -> true
+                    // If we can release Surfaces immediately, we'll finalize the session when the
+                    // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we
+                    // won't need to explicitly close the capture session.
+                    CameraQuirks.isImmediateSurfaceReleaseAllowed() -> false
+                    cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
+                        containsVideo -> true
+                    DeviceQuirks[CloseCaptureSessionOnDisconnectQuirk::class.java] != null -> true
+                    else -> false
+                }
+
+            val shouldCloseCameraDeviceOnClose =
+                DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
+
+            val shouldAbortCapturesOnStop =
+                when {
+                    isExtensions &&
+                        DeviceQuirks[
+                            DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java] !=
+                            null -> false
+                    /** @see [CameraGraph.Flags.abortCapturesOnStop] */
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> true
+                    else -> false
+                }
+
+            val repeatingRequestsToCompleteBeforeNonRepeatingCapture =
+                if (
+                    cameraQuirks.quirks.contains(
+                        QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk::class.java
+                    )
+                ) {
+                    1u
+                } else {
+                    0u
+                }
+
+            return CameraGraph.Flags(
+                abortCapturesOnStop = shouldAbortCapturesOnStop,
+                awaitRepeatingRequestBeforeCapture =
+                    CameraGraph.RepeatingRequestRequirementsBeforeCapture(
+                        repeatingFramesToComplete =
+                            repeatingRequestsToCompleteBeforeNonRepeatingCapture,
+                        // TODO: b/364491700 - use CompletionBehavior.EXACT to disable CameraPipe
+                        //  internal workaround when not required. See
+                        //  Camera2Quirks.getRepeatingRequestFrameCountForCapture for details.
+                        completionBehavior = AT_LEAST,
+                    ),
+                closeCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
+                closeCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
+                finalizeSessionOnCloseBehavior = shouldFinalizeSessionOnCloseBehavior,
+            )
         }
     }
 }

@@ -20,6 +20,7 @@ import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
+import androidx.privacysandbox.tools.core.PrivacySandboxParsingException
 import java.nio.file.Path
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassMetadata

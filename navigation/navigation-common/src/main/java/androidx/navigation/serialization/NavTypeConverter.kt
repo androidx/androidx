@@ -18,7 +18,9 @@
 
 package androidx.navigation.serialization
 
+import android.net.Uri
 import android.os.Bundle
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import java.io.Serializable
 import kotlin.reflect.KType
@@ -33,13 +35,17 @@ private enum class InternalType {
     INT_NULLABLE,
     BOOL,
     BOOL_NULLABLE,
+    DOUBLE,
+    DOUBLE_NULLABLE,
     FLOAT,
     FLOAT_NULLABLE,
     LONG,
     LONG_NULLABLE,
     STRING,
+    STRING_NULLABLE,
     INT_ARRAY,
     BOOL_ARRAY,
+    DOUBLE_ARRAY,
     FLOAT_ARRAY,
     LONG_ARRAY,
     ARRAY,
@@ -64,18 +70,26 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.INT_NULLABLE -> InternalNavType.IntNullableType
             InternalType.BOOL -> NavType.BoolType
             InternalType.BOOL_NULLABLE -> InternalNavType.BoolNullableType
+            InternalType.DOUBLE -> InternalNavType.DoubleType
+            InternalType.DOUBLE_NULLABLE -> InternalNavType.DoubleNullableType
             InternalType.FLOAT -> NavType.FloatType
             InternalType.FLOAT_NULLABLE -> InternalNavType.FloatNullableType
             InternalType.LONG -> NavType.LongType
             InternalType.LONG_NULLABLE -> InternalNavType.LongNullableType
-            InternalType.STRING -> NavType.StringType
+            InternalType.STRING -> InternalNavType.StringNonNullableType
+            InternalType.STRING_NULLABLE -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
             InternalType.BOOL_ARRAY -> NavType.BoolArrayType
+            InternalType.DOUBLE_ARRAY -> InternalNavType.DoubleArrayType
             InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
             InternalType.LONG_ARRAY -> NavType.LongArrayType
             InternalType.ARRAY -> {
                 val typeParameter = getElementDescriptor(0).toInternalType()
-                if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
+                when (typeParameter) {
+                    InternalType.STRING -> NavType.StringArrayType
+                    InternalType.STRING_NULLABLE -> InternalNavType.StringNullableArrayType
+                    else -> UNKNOWN
+                }
             }
             InternalType.LIST -> {
                 val typeParameter = getElementDescriptor(0).toInternalType()
@@ -85,6 +99,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
                     InternalType.FLOAT -> NavType.FloatListType
                     InternalType.LONG -> NavType.LongListType
                     InternalType.STRING -> NavType.StringListType
+                    InternalType.STRING_NULLABLE -> InternalNavType.StringNullableListType
                     else -> UNKNOWN
                 }
             }
@@ -116,12 +131,16 @@ private fun SerialDescriptor.toInternalType(): InternalType {
             if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
         serialName == "kotlin.Boolean" ->
             if (isNullable) InternalType.BOOL_NULLABLE else InternalType.BOOL
+        serialName == "kotlin.Double" ->
+            if (isNullable) InternalType.DOUBLE_NULLABLE else InternalType.DOUBLE
         serialName == "kotlin.Float" ->
             if (isNullable) InternalType.FLOAT_NULLABLE else InternalType.FLOAT
         serialName == "kotlin.Long" ->
             if (isNullable) InternalType.LONG_NULLABLE else InternalType.LONG
-        serialName == "kotlin.String" -> InternalType.STRING
+        serialName == "kotlin.String" ->
+            if (isNullable) InternalType.STRING_NULLABLE else InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
+        serialName == "kotlin.DoubleArray" -> InternalType.DOUBLE_ARRAY
         serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
         serialName == "kotlin.FloatArray" -> InternalType.FLOAT_ARRAY
         serialName == "kotlin.LongArray" -> InternalType.LONG_ARRAY
@@ -228,6 +247,43 @@ internal object InternalNavType {
             }
         }
 
+    val DoubleType: NavType<Double> =
+        object : NavType<Double>(false) {
+            override val name: String
+                get() = "double"
+
+            override fun put(bundle: Bundle, key: String, value: Double) {
+                bundle.putDouble(key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Double {
+                return bundle[key] as Double
+            }
+
+            override fun parseValue(value: String): Double = value.toDouble()
+        }
+
+    val DoubleNullableType: NavType<Double?> =
+        object : NavType<Double?>(true) {
+            override val name: String
+                get() = "double_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Double?) {
+                if (value == null) bundle.putSerializable(key, null)
+                else DoubleType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Double? {
+                return bundle[key] as? Double
+            }
+
+            override fun parseValue(value: String): Double? {
+                return if (value == "null") null else DoubleType.parseValue(value)
+            }
+        }
+
     val FloatNullableType =
         object : NavType<Float?>(true) {
             override val name: String
@@ -266,6 +322,121 @@ internal object InternalNavType {
             override fun parseValue(value: String): Long? {
                 return if (value == "null") null else LongType.parseValue(value)
             }
+        }
+
+    val StringNonNullableType =
+        object : NavType<String>(false) {
+            override val name: String
+                get() = "string_non_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: String) {
+                bundle.putString(key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): String = bundle.getString(key) ?: "null"
+
+            // "null" is still parsed as "null"
+            override fun parseValue(value: String): String = value
+
+            // "null" is still serialized as "null"
+            override fun serializeAsValue(value: String): String = Uri.encode(value)
+        }
+
+    val StringNullableArrayType: NavType<Array<String?>?> =
+        object : CollectionNavType<Array<String?>?>(true) {
+            override val name: String
+                get() = "string_nullable[]"
+
+            override fun put(bundle: Bundle, key: String, value: Array<String?>?) {
+                bundle.putStringArray(key, value)
+            }
+
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Array<String?>? =
+                bundle[key] as Array<String?>?
+
+            // match String? behavior where null -> null, and "null" -> null
+            override fun parseValue(value: String): Array<String?> =
+                arrayOf(StringType.parseValue(value))
+
+            override fun parseValue(
+                value: String,
+                previousValue: Array<String?>?
+            ): Array<String?>? = previousValue?.plus(parseValue(value)) ?: parseValue(value)
+
+            override fun valueEquals(value: Array<String?>?, other: Array<String?>?): Boolean =
+                value.contentDeepEquals(other)
+
+            override fun serializeAsValues(value: Array<String?>?): List<String> =
+                value?.map { Uri.encode(it) } ?: emptyList()
+
+            override fun emptyCollection(): Array<String?>? = arrayOf()
+        }
+
+    val StringNullableListType: NavType<List<String?>?> =
+        object : CollectionNavType<List<String?>?>(true) {
+            override val name: String
+                get() = "List<String?>"
+
+            override fun put(bundle: Bundle, key: String, value: List<String?>?) {
+                bundle.putStringArray(key, value?.toTypedArray())
+            }
+
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<String?>? {
+                return (bundle[key] as Array<String?>?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<String?> {
+                return listOf(StringType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<String?>?): List<String?>? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<String?>?, other: List<String?>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<String?>?): List<String> =
+                value?.map { Uri.encode(it) } ?: emptyList()
+
+            override fun emptyCollection(): List<String?> = emptyList()
+        }
+
+    val DoubleArrayType: NavType<DoubleArray?> =
+        object : CollectionNavType<DoubleArray?>(true) {
+            override val name: String
+                get() = "double[]"
+
+            override fun put(bundle: Bundle, key: String, value: DoubleArray?) {
+                bundle.putDoubleArray(key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): DoubleArray? =
+                bundle[key] as DoubleArray?
+
+            override fun parseValue(value: String): DoubleArray =
+                doubleArrayOf(DoubleType.parseValue(value))
+
+            override fun parseValue(value: String, previousValue: DoubleArray?): DoubleArray =
+                previousValue?.plus(parseValue(value)) ?: parseValue(value)
+
+            override fun valueEquals(value: DoubleArray?, other: DoubleArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: DoubleArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
+
+            override fun emptyCollection(): DoubleArray = doubleArrayOf()
         }
 
     class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {

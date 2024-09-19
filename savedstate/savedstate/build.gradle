@@ -5,10 +5,10 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.PlatformIdentifier
+
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
@@ -18,16 +18,33 @@ plugins {
 androidXMultiplatform {
     android()
     desktop()
+    ios()
+    linux()
+    mac()
+
+    kotlin {
+        explicitApi = ExplicitApiMode.Strict
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
-            // TODO(b/334076622)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.8.0")
+                api(projectOrArtifact(":lifecycle:lifecycle-common"))
+            }
         }
 
         commonTest {
-            // TODO(b/334076622)
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+            }
         }
 
         jvmMain {
@@ -42,9 +59,15 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.arch.core:core-common:2.2.0")
-                implementation("androidx.lifecycle:lifecycle-common:2.6.1")
+                implementation("androidx.core:core-ktx:1.13.1")
                 api(libs.kotlinStdlib)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.robolectric)
             }
         }
 
@@ -60,8 +83,73 @@ androidXMultiplatform {
             }
         }
 
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
         desktopMain {
             dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(commonMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinTest {
+            dependsOn(nativeTest)
+        }
+
+        linuxMain {
+            dependsOn(nativeMain)
+        }
+
+        linuxTest {
+            dependsOn(nativeTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinTest)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxTest)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+            }
         }
     }
 }
@@ -71,6 +159,7 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.savedstate"
+    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
 }
 
 androidx {

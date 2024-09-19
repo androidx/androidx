@@ -16,14 +16,34 @@
 
 package androidx.window.core.layout
 
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
+import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class WindowSizeClassSelectorsTest {
 
-    val coreSet = WindowSizeClass.BREAKPOINTS_V1
+    val coreSet = BREAKPOINTS_V1
+
+    @Test
+    fun compute_window_size_class_with_floats_truncates() {
+        // coreSet does not contain 10, 10
+        val intResult =
+            coreSet.computeWindowSizeClass(
+                WIDTH_DP_MEDIUM_LOWER_BOUND,
+                HEIGHT_DP_MEDIUM_LOWER_BOUND
+            )
+        val floatResult =
+            coreSet.computeWindowSizeClass(
+                WIDTH_DP_MEDIUM_LOWER_BOUND + .9f,
+                HEIGHT_DP_MEDIUM_LOWER_BOUND + .9f
+            )
+
+        assertEquals(intResult, floatResult)
+    }
 
     @Test
     fun compute_window_size_class_returns_zero_for_default() {
@@ -149,6 +169,22 @@ class WindowSizeClassSelectorsTest {
                     WindowSizeClass(minWidthDp = 100, minHeightDp = 100)
                 )
                 .computeWindowSizeClass(200, 200)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun edge_case_matching_bucket_has_min_height_0() {
+        val expected = WindowSizeClass(WIDTH_DP_EXPANDED_LOWER_BOUND, 0)
+        val actual = BREAKPOINTS_V1.computeWindowSizeClass(1290, 400)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun edge_case_matching_bucket_has_min_width_0() {
+        val expected = WindowSizeClass(0, HEIGHT_DP_EXPANDED_LOWER_BOUND)
+        val actual = BREAKPOINTS_V1.computeWindowSizeClassPreferHeight(400, 1290)
 
         assertEquals(expected, actual)
     }

@@ -26,6 +26,7 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.extensions.Extensions
+import androidx.core.telecom.extensions.LocalCallSilenceExtension
 import androidx.core.telecom.extensions.ParticipantExtension
 import androidx.core.telecom.extensions.ParticipantExtensionImpl
 import androidx.core.telecom.extensions.RaiseHandState
@@ -47,6 +48,8 @@ class VoipCall(
     // Participant state updaters
     internal var participantStateUpdater: ParticipantExtension? = null
     internal var raiseHandStateUpdater: RaiseHandState? = null
+    // Local Call Silence
+    internal var localCallSilenceUpdater: LocalCallSilenceExtension? = null
 
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -78,6 +81,13 @@ class VoipCall(
                 Extensions.PARTICIPANT -> {
                     participantStateUpdater = addParticipantExtension()
                     participantStateUpdater!!.initializeActions(capability)
+                }
+                Extensions.LOCAL_CALL_SILENCE -> {
+                    localCallSilenceUpdater =
+                        addLocalSilenceExtension(false) {
+                            Log.i(TAG, "addLocalSilenceExtension: callId=[$callId], it=[$it]")
+                            callback?.setLocalCallSilenceState(callId, it)
+                        }
                 }
             }
         }

@@ -479,7 +479,7 @@ private fun calculateItemsOffsets(
         fun Int.reverseAware() = if (!reverseLayout) this else linesCount - this - 1
 
         val sizes = IntArray(linesCount) { index -> lines[index.reverseAware()].mainAxisSize }
-        val offsets = IntArray(linesCount) { 0 }
+        val offsets = IntArray(linesCount)
         if (isVertical) {
             with(requirePreconditionNotNull(verticalArrangement) { "null verticalArrangement" }) {
                 density.arrange(mainAxisLayoutSize, sizes, offsets)

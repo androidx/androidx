@@ -231,7 +231,11 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
-                !it.isDebuggable
+                // Note that it's possible to override benchmarkRelease and nonMinifiedRelease,
+                // so we also want to make sure we don't extended these again.
+                !it.isDebuggable &&
+                    !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) &&
+                    !it.name.startsWith(BUILD_TYPE_BENCHMARK_PREFIX)
             },
             newConfigureBlock = { base, ext ->
 
@@ -278,7 +282,11 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
-                !it.isDebuggable
+                // Note that it's possible to override benchmarkRelease and nonMinifiedRelease,
+                // so we also want to make sure we don't extended these again.
+                !it.isDebuggable &&
+                    !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) &&
+                    !it.name.startsWith(BUILD_TYPE_BENCHMARK_PREFIX)
             },
             newConfigureBlock = { base, ext ->
 
@@ -330,8 +338,13 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
             filterBlock = {
                 // Create benchmark type for non debuggable types, and without considering
-                // baseline profiles build types.
-                !it.isDebuggable && it.name !in baselineProfileExtendedToOriginalTypeMap
+                // baseline profiles build types. Note that it's possible to override
+                // benchmarkRelease and nonMinifiedRelease, so we also want to make sure we don't
+                // extended these again.
+                !it.isDebuggable &&
+                    it.name !in baselineProfileExtendedToOriginalTypeMap &&
+                    !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) &&
+                    !it.name.startsWith(BUILD_TYPE_BENCHMARK_PREFIX)
             },
             newConfigureBlock = { base, ext ->
 

@@ -74,6 +74,40 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     }
 
     @Test
+    fun decodeDouble() {
+        @Serializable class TestClass(val arg: Double)
+
+        val values = mapOf("arg" to 11E123)
+        val result =
+            decode<TestClass>(
+                values,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleType })
+            )
+        assertThat(result.arg).isEqualTo(11E123)
+    }
+
+    @Test
+    fun decodeDoubleNullable() {
+        @Serializable class TestClass(val arg: Double?)
+
+        val values = mapOf("arg" to 11E123)
+        val result =
+            decode<TestClass>(
+                values,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType })
+            )
+        assertThat(result.arg).isEqualTo(11E123)
+
+        val values2 = mapOf("arg" to null)
+        val result2 =
+            decode<TestClass>(
+                values2,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType })
+            )
+        assertThat(result2.arg).isNull()
+    }
+
+    @Test
     fun decodeLong() {
         @Serializable class TestClass(val arg: Long)
 
@@ -129,6 +163,19 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(map, listOf(navArgument("arg") { type = NavType.BoolArrayType }))
         assertThat(result.arg).isEqualTo(booleanArrayOf(false, true))
+    }
+
+    @Test
+    fun decodeDoubleArray() {
+        @Serializable class TestClass(val arg: DoubleArray)
+
+        val map = mapOf("arg" to doubleArrayOf(11E123, 11.11))
+        val result =
+            decode<TestClass>(
+                map,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleArrayType })
+            )
+        assertThat(result.arg).isEqualTo(doubleArrayOf(11E123, 11.11))
     }
 
     @Test

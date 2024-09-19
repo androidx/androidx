@@ -23,7 +23,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.os.Build
 import android.os.CancellationSignal
 import android.os.Looper
 import android.util.Log
@@ -46,7 +45,6 @@ import androidx.room.support.QueryInterceptorOpenHelperFactory
 import androidx.room.util.contains as containsCommon
 import androidx.room.util.findAndInstantiateDatabaseImpl
 import androidx.room.util.findMigrationPath as findMigrationPathExt
-import androidx.room.util.getCoroutineContext
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -62,7 +60,6 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -77,12 +74,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -502,21 +495,14 @@ actual abstract class RoomDatabase {
         assertNotSuspendingTransaction()
         runBlocking {
             connectionManager.useConnection(isReadOnly = false) { connection ->
-                val supportsDeferForeignKeys = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                if (hasForeignKeys && !supportsDeferForeignKeys) {
-                    connection.execSQL("PRAGMA foreign_keys = FALSE")
-                }
                 if (!connection.inTransaction()) {
                     invalidationTracker.sync()
                 }
                 connection.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                    if (hasForeignKeys && supportsDeferForeignKeys) {
+                    if (hasForeignKeys) {
                         execSQL("PRAGMA defer_foreign_keys = TRUE")
                     }
                     tableNames.forEach { tableName -> execSQL("DELETE FROM `$tableName`") }
-                }
-                if (hasForeignKeys && !supportsDeferForeignKeys) {
-                    connection.execSQL("PRAGMA foreign_keys = TRUE")
                 }
                 if (!connection.inTransaction()) {
                     connection.execSQL("PRAGMA wal_checkpoint(FULL)")
@@ -2067,8 +2053,8 @@ internal class TransactionElement(internal val transactionDispatcher: Continuati
  * The Flow will emit at least one value, a set of all the tables registered for observation to
  * kick-start the stream unless [emitInitialState] is set to `false`.
  *
- * If one of the tables to observe does not exist in the database, this Flow throws an
- * [IllegalArgumentException] during collection.
+ * If one of the tables to observe does not exist in the database, this functions throws an
+ * [IllegalArgumentException].
  *
  * The returned Flow can be used to create a stream that reacts to changes in the database:
  * ```
@@ -2085,37 +2071,11 @@ internal class TransactionElement(internal val transactionDispatcher: Continuati
  * @param emitInitialState Set to `false` if no initial emission is desired. Default value is
  *   `true`.
  */
+@Deprecated(
+    message = "Replaced by equivalent API in InvalidationTracker.",
+    replaceWith = ReplaceWith("this.invalidationTracker.createFlow(*tables)")
+)
 fun RoomDatabase.invalidationTrackerFlow(
     vararg tables: String,
     emitInitialState: Boolean = true
-): Flow<Set<String>> = callbackFlow {
-    // Flag to ignore invalidation until the initial state is sent.
-    val ignoreInvalidation = AtomicBoolean(emitInitialState)
-    val observer =
-        object : InvalidationTracker.Observer(tables) {
-            override fun onInvalidated(tables: Set<String>) {
-                if (ignoreInvalidation.get()) {
-                    return
-                }
-                trySend(tables)
-            }
-        }
-    // Use the database context, minus the Job since the ProducerScope has one already and the
-    // child coroutine should be tied to it.
-    val queryContext = getCoroutineContext(inTransaction = false).minusKey(Job)
-    val job =
-        launch(queryContext) {
-            invalidationTracker.addObserver(observer)
-            try {
-                if (emitInitialState) {
-                    // Initial invalidation of all tables, to kick-start the flow
-                    trySend(tables.toSet())
-                }
-                ignoreInvalidation.set(false)
-                awaitCancellation()
-            } finally {
-                invalidationTracker.removeObserver(observer)
-            }
-        }
-    awaitClose { job.cancel() }
-}
+): Flow<Set<String>> = invalidationTracker.createFlow(*tables, emitInitialState = emitInitialState)

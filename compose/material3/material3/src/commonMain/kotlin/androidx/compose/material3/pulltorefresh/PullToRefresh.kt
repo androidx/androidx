@@ -65,10 +65,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
@@ -231,6 +231,9 @@ internal class PullToRefreshModifierNode(
     var threshold: Dp,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode, NestedScrollConnection {
 
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
     private var nestedScrollNode: DelegatableNode =
         nestedScrollModifierNode(
             connection = this,
@@ -390,7 +393,7 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
-        @Composable get() = LoadingIndicatorDefaults.ContainedContainerColor
+        @Composable get() = LoadingIndicatorDefaults.containedContainerColor
 
     /** The default indicator color for [Indicator] */
     @Deprecated("Use loadingIndicatorColor instead", ReplaceWith("loadingIndicatorColor"))
@@ -403,13 +406,16 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
-        @Composable get() = LoadingIndicatorDefaults.ContainedIndicatorColor
+        @Composable get() = LoadingIndicatorDefaults.containedIndicatorColor
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
 
-    /** The default elevation for [IndicatorBox] */
+    /** The default elevation for an [IndicatorBox] that is applied to an [Indicator] */
     val Elevation = ElevationTokens.Level2
+
+    /** The default elevation for an [IndicatorBox] that is applied to a [LoadingIndicator] */
+    val LoadingIndicatorElevation = ElevationTokens.Level0
 
     /**
      * A Wrapper that handles the size, offset, clipping, shadow, and background drawing for a
@@ -452,12 +458,22 @@ object PullToRefreshDefaults {
                             this@drawWithContent.drawContent()
                         }
                     }
-                    .graphicsLayer {
-                        val showElevation = state.distanceFraction > 0f || isRefreshing
-                        translationY = state.distanceFraction * threshold.roundToPx() - size.height
-                        shadowElevation = if (showElevation) elevation.toPx() else 0f
-                        this.shape = shape
-                        clip = true
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeWithLayer(
+                                0,
+                                0,
+                                layerBlock = {
+                                    val showElevation = state.distanceFraction > 0f || isRefreshing
+                                    translationY =
+                                        state.distanceFraction * threshold.roundToPx() - size.height
+                                    shadowElevation = if (showElevation) elevation.toPx() else 0f
+                                    this.shape = shape
+                                    clip = true
+                                }
+                            )
+                        }
                     }
                     .background(color = containerColor, shape = shape),
             contentAlignment = Alignment.Center,
@@ -515,7 +531,18 @@ object PullToRefreshDefaults {
         }
     }
 
-    /** A [LoadingIndicator] indicator for [PullToRefreshBox]. */
+    /**
+     * A [LoadingIndicator] indicator for [PullToRefreshBox].
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param containerColor the container color of this indicator
+     * @param color the color of this indicator
+     * @param elevation the elevation of this indicator
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     */
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun LoadingIndicator(
@@ -524,7 +551,7 @@ object PullToRefreshDefaults {
         modifier: Modifier = Modifier,
         containerColor: Color = this.loadingIndicatorContainerColor,
         color: Color = this.loadingIndicatorColor,
-        elevation: Dp = ElevationTokens.Level0,
+        elevation: Dp = LoadingIndicatorElevation,
         threshold: Dp = PositionalThreshold
     ) {
         IndicatorBox(
@@ -605,9 +632,11 @@ interface PullToRefreshState {
      */
     @get:FloatRange(from = 0.0) val distanceFraction: Float
 
-    /** Whether the state is currently animating */
+    /**
+     * whether the state is currently animating the indicator to the threshold offset, or back to
+     * the hidden offset
+     */
     val isAnimating: Boolean
-        get() = false
 
     /**
      * Animate the distance towards the anchor or threshold position, where the indicator will be

@@ -18,7 +18,8 @@
 <resources>
     <string-array name="mediation_dropdown_menu_array">
         <item>Mediated Ad > None (default)</item>
-        <item>Runtime-Runtime Mediation</item>
+        <item>Runtime-Runtime Mediation without Overlay</item>
+        <item>Runtime-Runtime Mediation with Overlay</item>
         <item>Runtime-App Mediation</item>
     </string-array>
 </resources>

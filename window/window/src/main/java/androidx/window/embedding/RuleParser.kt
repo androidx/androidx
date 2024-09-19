@@ -23,6 +23,11 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.XmlRes
 import androidx.window.R
+import androidx.window.embedding.DividerAttributes.Companion.COLOR_SYSTEM_DEFAULT
+import androidx.window.embedding.DividerAttributes.Companion.DRAG_RANGE_VALUE_UNSPECIFIED
+import androidx.window.embedding.DividerAttributes.Companion.TYPE_VALUE_FIXED
+import androidx.window.embedding.DividerAttributes.Companion.WIDTH_SYSTEM_DEFAULT
+import androidx.window.embedding.DividerAttributes.Companion.validateXmlDividerAttributes
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.buildAspectRatioFromValue
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
@@ -106,6 +111,35 @@ internal object RuleParser {
                     } else if (lastSplitPlaceholderRule != null) {
                         rules.remove(lastSplitPlaceholderRule)
                         lastSplitPlaceholderRule += activityFilter
+                        rules.addRuleWithDuplicatedTagCheck(lastSplitPlaceholderRule)
+                    }
+                }
+                "DividerAttributes" -> {
+                    if (lastSplitPairRule == null && lastSplitPlaceholderRule == null) {
+                        throw IllegalArgumentException("Found orphaned DividerAttributes")
+                    }
+                    val dividerAttributes = parseDividerAttributes(context, parser)
+                    if (lastSplitPairRule != null) {
+                        rules.remove(lastSplitPairRule)
+                        val splitAttributes =
+                            SplitAttributes.Builder(lastSplitPairRule.defaultSplitAttributes)
+                                .setDividerAttributes(dividerAttributes)
+                                .build()
+                        lastSplitPairRule =
+                            SplitPairRule.Builder(lastSplitPairRule)
+                                .setDefaultSplitAttributes(splitAttributes)
+                                .build()
+                        rules.addRuleWithDuplicatedTagCheck(lastSplitPairRule)
+                    } else if (lastSplitPlaceholderRule != null) {
+                        rules.remove(lastSplitPlaceholderRule)
+                        val splitAttributes =
+                            SplitAttributes.Builder(lastSplitPlaceholderRule.defaultSplitAttributes)
+                                .setDividerAttributes(dividerAttributes)
+                                .build()
+                        lastSplitPlaceholderRule =
+                            SplitPlaceholderRule.Builder(lastSplitPlaceholderRule)
+                                .setDefaultSplitAttributes(splitAttributes)
+                                .build()
                         rules.addRuleWithDuplicatedTagCheck(lastSplitPlaceholderRule)
                     }
                 }
@@ -334,6 +368,42 @@ internal object RuleParser {
         }
         val packageName = context.applicationContext.packageName
         return ActivityFilter(buildClassName(packageName, activityName), activityIntentAction)
+    }
+
+    private fun parseDividerAttributes(
+        context: Context,
+        parser: XmlResourceParser
+    ): DividerAttributes {
+        context.theme.obtainStyledAttributes(parser, R.styleable.DividerAttributes, 0, 0).apply {
+            val type = getInt(R.styleable.DividerAttributes_embeddingDividerType, TYPE_VALUE_FIXED)
+            validateXmlDividerAttributes(
+                type,
+                hasValue(R.styleable.DividerAttributes_dragRangeMinRatio),
+                hasValue(R.styleable.DividerAttributes_dragRangeMaxRatio),
+            )
+
+            val widthDp =
+                getInt(R.styleable.DividerAttributes_embeddingDividerWidthDp, WIDTH_SYSTEM_DEFAULT)
+            val color =
+                getColor(R.styleable.DividerAttributes_embeddingDividerColor, COLOR_SYSTEM_DEFAULT)
+            val dragRangeMinRatio =
+                getFloat(
+                    R.styleable.DividerAttributes_dragRangeMinRatio,
+                    DRAG_RANGE_VALUE_UNSPECIFIED
+                )
+            val dragRangeMaxRatio =
+                getFloat(
+                    R.styleable.DividerAttributes_dragRangeMaxRatio,
+                    DRAG_RANGE_VALUE_UNSPECIFIED
+                )
+            return@parseDividerAttributes DividerAttributes.createDividerAttributes(
+                type,
+                widthDp,
+                color,
+                dragRangeMinRatio,
+                dragRangeMaxRatio,
+            )
+        }
     }
 
     private fun buildClassName(pkg: String, clsSeq: CharSequence?): ComponentName {

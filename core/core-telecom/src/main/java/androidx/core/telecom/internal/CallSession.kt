@@ -376,6 +376,14 @@ internal class CallSession(
         return result.getCompleted()
     }
 
+    fun sendEvent(event: String, extras: Bundle = Bundle.EMPTY) {
+        if (mPlatformInterface == null) {
+            Log.w(TAG, "sendEvent: platform interface is not set up, [$event] dropped")
+            return
+        }
+        mPlatformInterface!!.sendEvent(event, extras)
+    }
+
     suspend fun requestEndpointChange(endpoint: CallEndpointCompat): CallControlResult {
         val job: CompletableDeferred<CallControlResult> = CompletableDeferred()
         // cache the last CallEndpoint the user requested to reference in

@@ -23,6 +23,7 @@ import android.widget.LinearLayout.VERTICAL
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -130,6 +131,40 @@ class FocusSearchDownInteropTest(private val moveFocusProgrammatically: Boolean)
         rule.runOnIdle {
             assertThat(view1.isFocused).isTrue()
             assertThat(view2.isFocused).isFalse()
+        }
+    }
+
+    @Test
+    fun viewViewInLinearLayout2() {
+        // Arrange.
+        setContent {
+            Row {
+                Column {
+                    FocusableComponent(composable1)
+                    FocusableComponent(composable2)
+                }
+                Column {
+                    FocusableComponent(composable)
+                    AndroidView({
+                        LinearLayout(it).apply {
+                            orientation = VERTICAL
+                            addView(FocusableView(it).apply { view1 = this })
+                            addView(FocusableView(it).apply { view2 = this })
+                        }
+                    })
+                }
+            }
+        }
+        rule.onNodeWithTag(composable).requestFocus()
+        rule.focusSearchDown()
+
+        // Act.
+        rule.focusSearchDown()
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(view1.isFocused).isFalse()
+            assertThat(view2.isFocused).isTrue()
         }
     }
 

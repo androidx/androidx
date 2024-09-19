@@ -57,7 +57,7 @@ public class WorkManagerGcmDispatcher {
     private static final long AWAIT_TIME_IN_MILLISECONDS = AWAIT_TIME_IN_MINUTES * 60 * 1000;
 
     private final WorkTimer mWorkTimer;
-    private final StartStopTokens mStartStopTokens = new StartStopTokens();
+    private final StartStopTokens mStartStopTokens = StartStopTokens.create();
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;

@@ -1,0 +1,28 @@
+// Signature format: 4.0
+package androidx.ink.rendering.android.canvas {
+
+  public interface CanvasStrokeRenderer {
+    method public static androidx.ink.rendering.android.canvas.CanvasStrokeRenderer create();
+    field public static final androidx.ink.rendering.android.canvas.CanvasStrokeRenderer.Companion Companion;
+  }
+
+  public static final class CanvasStrokeRenderer.Companion {
+    method public androidx.ink.rendering.android.canvas.CanvasStrokeRenderer create();
+  }
+
+  public final class StrokeDrawScope {
+    method public void drawStroke(androidx.ink.strokes.Stroke stroke);
+  }
+
+}
+
+package androidx.ink.rendering.android.view {
+
+  public final class ViewStrokeRenderer {
+    ctor public ViewStrokeRenderer(androidx.ink.rendering.android.canvas.CanvasStrokeRenderer canvasStrokeRenderer, android.view.View view);
+    method public inline void drawWithStrokes(android.graphics.Canvas canvas, kotlin.jvm.functions.Function1<? super androidx.ink.rendering.android.canvas.StrokeDrawScope,kotlin.Unit> block);
+    method public void drawWithStrokes(android.graphics.Canvas canvas, kotlin.jvm.functions.Function2<? super android.graphics.Canvas,? super androidx.ink.rendering.android.canvas.StrokeDrawScope,kotlin.Unit> block);
+  }
+
+}
+

@@ -16,18 +16,13 @@
 
 package androidx.wear.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -181,21 +176,7 @@ class ConfirmationScreenshotTest {
         content: @Composable (modifier: Modifier) -> Unit
     ) {
         setContentWithTheme {
-            val originalConfiguration = LocalConfiguration.current
-            val originalContext = LocalContext.current
-            val fixedScreenSizeConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenWidthDp = screenSize.size
-                        screenHeightDp = screenSize.size
-                    }
-                }
-            originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)
-
-            CompositionLocalProvider(
-                LocalContext provides originalContext,
-                LocalConfiguration provides fixedScreenSizeConfiguration,
-            ) {
+            ScreenConfiguration(screenSize.size) {
                 content(Modifier.size(screenSize.size.dp).testTag(TEST_TAG))
             }
         }

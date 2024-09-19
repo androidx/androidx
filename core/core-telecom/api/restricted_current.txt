@@ -9,7 +9,6 @@ package androidx.core.telecom {
     method public int getDirection();
     method public CharSequence getDisplayName();
     method public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
-    method public void setPreferredStartingCallEndpoint(androidx.core.telecom.CallEndpointCompat?);
     property public final android.net.Uri address;
     property public final int callCapabilities;
     property public final int callType;
@@ -124,6 +123,7 @@ package androidx.core.telecom {
 package androidx.core.telecom.extensions {
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface CallExtensionScope {
+    method public androidx.core.telecom.extensions.LocalCallSilenceExtensionRemote addLocalCallSilenceExtension(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onIsLocallySilencedUpdated);
     method public androidx.core.telecom.extensions.ParticipantExtensionRemote addParticipantExtension(kotlin.jvm.functions.Function2<? super androidx.core.telecom.extensions.Participant?,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onActiveParticipantChanged, kotlin.jvm.functions.Function2<? super java.util.Set<? extends androidx.core.telecom.extensions.Participant>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onParticipantsUpdated);
     method public void onConnected(kotlin.jvm.functions.Function2<? super android.telecom.Call,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
   }
@@ -137,6 +137,7 @@ package androidx.core.telecom.extensions {
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface ExtensionInitializationScope {
+    method public androidx.core.telecom.extensions.LocalCallSilenceExtension addLocalSilenceExtension(boolean initialCallSilenceState, kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onLocalSilenceUpdate);
     method public androidx.core.telecom.extensions.ParticipantExtension addParticipantExtension(optional java.util.Set<androidx.core.telecom.extensions.Participant> initialParticipants, optional androidx.core.telecom.extensions.Participant? initialActiveParticipant);
     method public void onCall(kotlin.jvm.functions.Function2<? super androidx.core.telecom.CallControlScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onCall);
   }
@@ -145,6 +146,16 @@ package androidx.core.telecom.extensions {
     method public boolean isSupported();
     method public suspend Object? requestKickParticipant(androidx.core.telecom.extensions.Participant participant, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     method public void setSupported(boolean);
+    property public abstract boolean isSupported;
+  }
+
+  @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface LocalCallSilenceExtension {
+    method public suspend Object? updateIsLocallySilenced(boolean isSilenced, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface LocalCallSilenceExtensionRemote {
+    method public boolean isSupported();
+    method public suspend Object? requestLocalCallSilenceUpdate(boolean isSilenced, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     property public abstract boolean isSupported;
   }
 

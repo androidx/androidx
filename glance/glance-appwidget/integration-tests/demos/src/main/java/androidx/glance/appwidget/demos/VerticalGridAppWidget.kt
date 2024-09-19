@@ -47,23 +47,25 @@ import androidx.glance.layout.padding
 import androidx.glance.text.Text
 
 class VerticalGridAppWidget : GlanceAppWidget() {
+    private val gridModifier =
+        GlanceModifier.padding(R.dimen.external_padding)
+            .fillMaxSize()
+            .appWidgetBackground()
+            .cornerRadius(R.dimen.corner_radius)
+            .background(R.color.default_widget_background)
+    private val gridCells =
+        if (Build.VERSION.SDK_INT >= 31) {
+            GridCells.Adaptive(100.dp)
+        } else {
+            GridCells.Fixed(3)
+        }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
-        val gridCells =
-            if (Build.VERSION.SDK_INT >= 31) {
-                GridCells.Adaptive(100.dp)
-            } else {
-                GridCells.Fixed(3)
-            }
-        SampleGrid(
-            cells = gridCells,
-            modifier =
-                GlanceModifier.padding(R.dimen.external_padding)
-                    .fillMaxSize()
-                    .appWidgetBackground()
-                    .cornerRadius(R.dimen.corner_radius)
-                    .background(R.color.default_widget_background)
-        )
+        SampleGrid(gridCells, gridModifier)
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        SampleGrid(gridCells, gridModifier)
     }
 }
 

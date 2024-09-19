@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -60,6 +61,7 @@ class ImageAnalysisLockedOrientationTest(
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
         verifyRotation<LockedOrientationActivity>(lensFacing, cameraXConfig) {
             rotate(rotationDegrees)

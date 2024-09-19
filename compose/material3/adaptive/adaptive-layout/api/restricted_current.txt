@@ -114,8 +114,8 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public final class PaneExpansionStateKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(optional androidx.compose.material3.adaptive.layout.PaneExpansionStateKey key, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider keyProvider, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(optional androidx.compose.material3.adaptive.layout.PaneExpansionStateKey key, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider keyProvider, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex);
   }
 
   public final class PaneKt {

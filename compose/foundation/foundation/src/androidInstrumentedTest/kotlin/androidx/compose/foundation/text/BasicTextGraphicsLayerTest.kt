@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -35,19 +36,19 @@ class BasicTextGraphicsLayerTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun modifiersExposeGraphicsLayer() {
-        rule.setContent { BasicText("Ok") }
-        // ui-inspector 3d view requires this to be emitted
+    fun modifiersDoNotExposeGraphicsLayer() {
+        // Something that wraps the `BasicText` is required to distinguish the root graphicsLayer.
+        rule.setContent { Column { BasicText("Ok") } }
         val owners = rule.onNodeWithText("Ok").fetchGraphicsLayerOwnerViewId()
-        assertThat(owners).hasSize(1)
+        assertThat(owners).hasSize(0)
     }
 
     @Test
-    fun modifiersExposeGraphicsLayer_annotatedString() {
-        rule.setContent { BasicText(AnnotatedString("Ok")) }
-        // ui-inspector 3d view requires this to be emitted
+    fun modifiersDoNotExposeGraphicsLayer_annotatedString() {
+        // Something that wraps the `BasicText` is required to distinguish the root graphicsLayer.
+        rule.setContent { Column { BasicText(AnnotatedString("Ok")) } }
         val owners = rule.onNodeWithText("Ok").fetchGraphicsLayerOwnerViewId()
-        assertThat(owners).hasSize(1)
+        assertThat(owners).hasSize(0)
     }
 }
 

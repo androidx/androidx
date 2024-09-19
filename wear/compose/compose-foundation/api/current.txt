@@ -315,7 +315,8 @@ package androidx.wear.compose.foundation {
 
   public final class ScrollInfoProviderKt {
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.lazy.LazyListState state);
-    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state, optional float bottomButtonHeight);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.LazyColumnState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState state);
   }
 
@@ -418,12 +419,16 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   public sealed interface LazyColumnVisibleItemInfo {
+    method public Object? getContentType();
     method public int getHeight();
     method public int getIndex();
+    method public Object getKey();
     method public int getOffset();
     method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress getScrollProgress();
+    property public abstract Object? contentType;
     property public abstract int height;
     property public abstract int index;
+    property public abstract Object key;
     property public abstract int offset;
     property public abstract androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress scrollProgress;
   }
@@ -559,6 +564,31 @@ package androidx.wear.compose.foundation.lazy {
     property @FloatRange(from=0.0, to=1.0) public abstract float minElementHeight;
     property @FloatRange(from=0.0, to=1.0) public abstract float minTransitionArea;
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
+  }
+
+}
+
+package androidx.wear.compose.foundation.pager {
+
+  public final class PagerDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.wear.compose.foundation.pager.PagerState state);
+    field public static final androidx.wear.compose.foundation.pager.PagerDefaults INSTANCE;
+    field public static final float SwipeToDismissEdgeZoneFraction = 0.15f;
+  }
+
+  public final class PagerKt {
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void HorizontalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional @FloatRange(from=0.0, to=1.0) float swipeToDismissEdgeZoneFraction, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void VerticalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  public abstract class PagerState extends androidx.compose.foundation.pager.PagerState {
+    ctor public PagerState();
+    ctor public PagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction);
+  }
+
+  public final class PagerStateKt {
+    method public static androidx.wear.compose.foundation.pager.PagerState PagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, @IntRange(from=1L) kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.pager.PagerState rememberPagerState(optional @IntRange(from=0L) int initialPage, optional @FloatRange(from=-0.5, to=0.5) float initialPageOffsetFraction, @IntRange(from=1L) kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
   }
 
 }

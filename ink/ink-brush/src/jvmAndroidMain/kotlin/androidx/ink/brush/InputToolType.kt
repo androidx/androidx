@@ -21,8 +21,8 @@ import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 
 /**
- * The type of input tool used in producing [com.google.inputmethod.ink.strokes.StrokeInput], used
- * by [BrushBehavior] to define when a behavior is applicable.
+ * The type of input tool used in producing [androidx.ink.strokes.StrokeInput], used by
+ * [BrushBehavior] to define when a behavior is applicable.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 

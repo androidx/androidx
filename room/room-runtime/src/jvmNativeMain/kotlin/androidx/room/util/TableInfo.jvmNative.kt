@@ -156,8 +156,3 @@ actual constructor(
         actual override fun toString() = toStringCommon()
     }
 }
-
-/** Checks if the primary key match. */
-internal actual fun TableInfo.Column.equalsInPrimaryKey(other: TableInfo.Column): Boolean {
-    return isPrimaryKey == other.isPrimaryKey
-}

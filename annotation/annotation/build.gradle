@@ -22,6 +22,7 @@ androidXMultiplatform {
     mingwX64()
     linux()
     ios()
+    watchosDeviceArm64()
     watchos()
     tvos()
     wasmJs()

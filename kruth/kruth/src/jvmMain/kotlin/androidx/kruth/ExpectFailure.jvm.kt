@@ -131,8 +131,7 @@ class ExpectFailure : TestRule {
             throw AssertionError(
                 lenientFormat(
                     "ExpectFailure.whenTesting() caught multiple failures:\n\n%s\n\n%s\n",
-                    getStackTraceAsString(failure),
-                    getStackTraceAsString(captured)
+                    arrayOf(getStackTraceAsString(failure), getStackTraceAsString(captured))
                 )
             )
         }

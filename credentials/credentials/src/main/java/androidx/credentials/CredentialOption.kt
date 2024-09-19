@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.Discouraged
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -120,13 +119,15 @@ internal constructor(
         /**
          * Parses the [option] into an instance of [CredentialOption].
          *
+         * It is recommended to construct a CredentialOption by directly instantiating a
+         * CredentialOption subclass, instead of using this API. This API should only be used by a
+         * small subset of system apps that reconstruct an existing object for user interactions
+         * such as collecting consents.
+         *
          * @param option the framework CredentialOption object
          */
         @RequiresApi(34)
         @JvmStatic
-        @Discouraged(
-            "It is recommended to construct a CredentialOption by directly instantiating a CredentialOption subclass"
-        )
         fun createFrom(option: android.credentials.CredentialOption): CredentialOption {
             return createFrom(
                 option.type,
@@ -140,6 +141,11 @@ internal constructor(
         /**
          * Parses the raw data into an instance of [CredentialOption].
          *
+         * It is recommended to construct a CredentialOption by directly instantiating a
+         * CredentialOption subclass, instead of using this API. This API should only be used by a
+         * small subset of system apps that reconstruct an existing object for user interactions
+         * such as collecting consents.
+         *
          * @param type matches [CredentialOption.type]
          * @param requestData matches [CredentialOption.requestData], the request data in the
          *   [Bundle] format; this should be constructed and retrieved from the a given
@@ -152,9 +158,6 @@ internal constructor(
          *   provider is eligible
          */
         @JvmStatic
-        @Discouraged(
-            "It is recommended to construct a CredentialOption by directly instantiating a CredentialOption subclass"
-        )
         fun createFrom(
             type: String,
             requestData: Bundle,

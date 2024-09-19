@@ -15,4 +15,4 @@
  */
 package kotlinx.test
 
-expect annotation class IgnoreJsTarget
+expect annotation class IgnoreJsTarget()

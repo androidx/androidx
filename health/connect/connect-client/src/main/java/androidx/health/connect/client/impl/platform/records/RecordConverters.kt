@@ -16,11 +16,16 @@
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
 @file:RequiresApi(api = 34)
+@file:OptIn(ExperimentalFeatureAvailabilityApi::class)
 
 package androidx.health.connect.client.impl.platform.records
 
+import android.annotation.SuppressLint
+import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
@@ -56,6 +61,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
@@ -64,100 +70,133 @@ import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.records.isAtLeastSdkExtension13
 import kotlin.reflect.KClass
 
 // TODO(b/270559291): Validate that all class fields are being converted.
 
-fun KClass<out Record>.toPlatformRecordClass(): Class<out PlatformRecord> {
-    return SDK_TO_PLATFORM_RECORD_CLASS[this]
+internal fun KClass<out Record>.toPlatformRecordClass(): Class<out PlatformRecord> {
+    return toPlatformRecordClassExt13()
+        ?: SDK_TO_PLATFORM_RECORD_CLASS[this]
         ?: throw IllegalArgumentException("Unsupported record type $this")
 }
 
+@SuppressLint("NewApi") // Guarded by sdk extension check
+private fun KClass<out Record>.toPlatformRecordClassExt13(): Class<out PlatformRecord>? {
+    if (!isAtLeastSdkExtension13()) {
+        return null
+    }
+    return SDK_TO_PLATFORM_RECORD_CLASS_EXT_13[this]
+}
+
 fun Record.toPlatformRecord(): PlatformRecord {
+    return toPlatformRecordExt13()
+        ?: when (this) {
+            is ActiveCaloriesBurnedRecord -> toPlatformActiveCaloriesBurnedRecord()
+            is BasalBodyTemperatureRecord -> toPlatformBasalBodyTemperatureRecord()
+            is BasalMetabolicRateRecord -> toPlatformBasalMetabolicRateRecord()
+            is BloodGlucoseRecord -> toPlatformBloodGlucoseRecord()
+            is BloodPressureRecord -> toPlatformBloodPressureRecord()
+            is BodyFatRecord -> toPlatformBodyFatRecord()
+            is BodyTemperatureRecord -> toPlatformBodyTemperatureRecord()
+            is BodyWaterMassRecord -> toPlatformBodyWaterMassRecord()
+            is BoneMassRecord -> toPlatformBoneMassRecord()
+            is CervicalMucusRecord -> toPlatformCervicalMucusRecord()
+            is CyclingPedalingCadenceRecord -> toPlatformCyclingPedalingCadenceRecord()
+            is DistanceRecord -> toPlatformDistanceRecord()
+            is ElevationGainedRecord -> toPlatformElevationGainedRecord()
+            is ExerciseSessionRecord -> toPlatformExerciseSessionRecord()
+            is FloorsClimbedRecord -> toPlatformFloorsClimbedRecord()
+            is HeartRateRecord -> toPlatformHeartRateRecord()
+            is HeartRateVariabilityRmssdRecord -> toPlatformHeartRateVariabilityRmssdRecord()
+            is HeightRecord -> toPlatformHeightRecord()
+            is HydrationRecord -> toPlatformHydrationRecord()
+            is IntermenstrualBleedingRecord -> toPlatformIntermenstrualBleedingRecord()
+            is LeanBodyMassRecord -> toPlatformLeanBodyMassRecord()
+            is MenstruationFlowRecord -> toPlatformMenstruationFlowRecord()
+            is MenstruationPeriodRecord -> toPlatformMenstruationPeriodRecord()
+            is NutritionRecord -> toPlatformNutritionRecord()
+            is OvulationTestRecord -> toPlatformOvulationTestRecord()
+            is OxygenSaturationRecord -> toPlatformOxygenSaturationRecord()
+            is PowerRecord -> toPlatformPowerRecord()
+            is RespiratoryRateRecord -> toPlatformRespiratoryRateRecord()
+            is RestingHeartRateRecord -> toPlatformRestingHeartRateRecord()
+            is SexualActivityRecord -> toPlatformSexualActivityRecord()
+            is SleepSessionRecord -> toPlatformSleepSessionRecord()
+            is SpeedRecord -> toPlatformSpeedRecord()
+            is StepsCadenceRecord -> toPlatformStepsCadenceRecord()
+            is StepsRecord -> toPlatformStepsRecord()
+            is TotalCaloriesBurnedRecord -> toPlatformTotalCaloriesBurnedRecord()
+            is Vo2MaxRecord -> toPlatformVo2MaxRecord()
+            is WeightRecord -> toPlatformWeightRecord()
+            is WheelchairPushesRecord -> toPlatformWheelchairPushesRecord()
+            else -> throw IllegalArgumentException("Unsupported record $this")
+        }
+}
+
+private fun Record.toPlatformRecordExt13(): PlatformRecord? {
+    if (!isAtLeastSdkExtension13()) {
+        return null
+    }
     return when (this) {
-        is ActiveCaloriesBurnedRecord -> toPlatformActiveCaloriesBurnedRecord()
-        is BasalBodyTemperatureRecord -> toPlatformBasalBodyTemperatureRecord()
-        is BasalMetabolicRateRecord -> toPlatformBasalMetabolicRateRecord()
-        is BloodGlucoseRecord -> toPlatformBloodGlucoseRecord()
-        is BloodPressureRecord -> toPlatformBloodPressureRecord()
-        is BodyFatRecord -> toPlatformBodyFatRecord()
-        is BodyTemperatureRecord -> toPlatformBodyTemperatureRecord()
-        is BodyWaterMassRecord -> toPlatformBodyWaterMassRecord()
-        is BoneMassRecord -> toPlatformBoneMassRecord()
-        is CervicalMucusRecord -> toPlatformCervicalMucusRecord()
-        is CyclingPedalingCadenceRecord -> toPlatformCyclingPedalingCadenceRecord()
-        is DistanceRecord -> toPlatformDistanceRecord()
-        is ElevationGainedRecord -> toPlatformElevationGainedRecord()
-        is ExerciseSessionRecord -> toPlatformExerciseSessionRecord()
-        is FloorsClimbedRecord -> toPlatformFloorsClimbedRecord()
-        is HeartRateRecord -> toPlatformHeartRateRecord()
-        is HeartRateVariabilityRmssdRecord -> toPlatformHeartRateVariabilityRmssdRecord()
-        is HeightRecord -> toPlatformHeightRecord()
-        is HydrationRecord -> toPlatformHydrationRecord()
-        is IntermenstrualBleedingRecord -> toPlatformIntermenstrualBleedingRecord()
-        is LeanBodyMassRecord -> toPlatformLeanBodyMassRecord()
-        is MenstruationFlowRecord -> toPlatformMenstruationFlowRecord()
-        is MenstruationPeriodRecord -> toPlatformMenstruationPeriodRecord()
-        is NutritionRecord -> toPlatformNutritionRecord()
-        is OvulationTestRecord -> toPlatformOvulationTestRecord()
-        is OxygenSaturationRecord -> toPlatformOxygenSaturationRecord()
-        is PowerRecord -> toPlatformPowerRecord()
-        is RespiratoryRateRecord -> toPlatformRespiratoryRateRecord()
-        is RestingHeartRateRecord -> toPlatformRestingHeartRateRecord()
-        is SexualActivityRecord -> toPlatformSexualActivityRecord()
-        is SleepSessionRecord -> toPlatformSleepSessionRecord()
-        is SpeedRecord -> toPlatformSpeedRecord()
-        is StepsCadenceRecord -> toPlatformStepsCadenceRecord()
-        is StepsRecord -> toPlatformStepsRecord()
-        is TotalCaloriesBurnedRecord -> toPlatformTotalCaloriesBurnedRecord()
-        is Vo2MaxRecord -> toPlatformVo2MaxRecord()
-        is WeightRecord -> toPlatformWeightRecord()
-        is WheelchairPushesRecord -> toPlatformWheelchairPushesRecord()
-        else -> throw IllegalArgumentException("Unsupported record $this")
+        is SkinTemperatureRecord -> toPlatformSkinTemperatureRecord()
+        else -> null
     }
 }
 
 fun PlatformRecord.toSdkRecord(): Record {
+    return toSdkRecordExt13()
+        ?: when (this) {
+            is PlatformActiveCaloriesBurnedRecord -> toSdkActiveCaloriesBurnedRecord()
+            is PlatformBasalBodyTemperatureRecord -> toSdkBasalBodyTemperatureRecord()
+            is PlatformBasalMetabolicRateRecord -> toSdkBasalMetabolicRateRecord()
+            is PlatformBloodGlucoseRecord -> toSdkBloodGlucoseRecord()
+            is PlatformBloodPressureRecord -> toSdkBloodPressureRecord()
+            is PlatformBodyFatRecord -> toSdkBodyFatRecord()
+            is PlatformBodyTemperatureRecord -> toSdkBodyTemperatureRecord()
+            is PlatformBodyWaterMassRecord -> toSdkBodyWaterMassRecord()
+            is PlatformBoneMassRecord -> toSdkBoneMassRecord()
+            is PlatformCervicalMucusRecord -> toSdkCervicalMucusRecord()
+            is PlatformCyclingPedalingCadenceRecord -> toSdkCyclingPedalingCadenceRecord()
+            is PlatformDistanceRecord -> toSdkDistanceRecord()
+            is PlatformElevationGainedRecord -> toSdkElevationGainedRecord()
+            is PlatformExerciseSessionRecord -> toSdkExerciseSessionRecord()
+            is PlatformFloorsClimbedRecord -> toSdkFloorsClimbedRecord()
+            is PlatformHeartRateRecord -> toSdkHeartRateRecord()
+            is PlatformHeartRateVariabilityRmssdRecord -> toSdkHeartRateVariabilityRmssdRecord()
+            is PlatformHeightRecord -> toSdkHeightRecord()
+            is PlatformHydrationRecord -> toSdkHydrationRecord()
+            is PlatformIntermenstrualBleedingRecord -> toSdkIntermenstrualBleedingRecord()
+            is PlatformLeanBodyMassRecord -> toSdkLeanBodyMassRecord()
+            is PlatformMenstruationFlowRecord -> toSdkMenstruationFlowRecord()
+            is PlatformMenstruationPeriodRecord -> toSdkMenstruationPeriodRecord()
+            is PlatformNutritionRecord -> toSdkNutritionRecord()
+            is PlatformOvulationTestRecord -> toSdkOvulationTestRecord()
+            is PlatformOxygenSaturationRecord -> toSdkOxygenSaturationRecord()
+            is PlatformPowerRecord -> toSdkPowerRecord()
+            is PlatformRespiratoryRateRecord -> toSdkRespiratoryRateRecord()
+            is PlatformRestingHeartRateRecord -> toSdkRestingHeartRateRecord()
+            is PlatformSexualActivityRecord -> toSdkSexualActivityRecord()
+            is PlatformSleepSessionRecord -> toSdkSleepSessionRecord()
+            is PlatformSpeedRecord -> toSdkSpeedRecord()
+            is PlatformStepsCadenceRecord -> toSdkStepsCadenceRecord()
+            is PlatformStepsRecord -> toSdkStepsRecord()
+            is PlatformTotalCaloriesBurnedRecord -> toSdkTotalCaloriesBurnedRecord()
+            is PlatformVo2MaxRecord -> toSdkVo2MaxRecord()
+            is PlatformWeightRecord -> toSdkWeightRecord()
+            is PlatformWheelchairPushesRecord -> toWheelchairPushesRecord()
+            else -> throw IllegalArgumentException("Unsupported record $this")
+        }
+}
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+private fun PlatformRecord.toSdkRecordExt13(): Record? {
+    if (!isAtLeastSdkExtension13()) {
+        return null
+    }
     return when (this) {
-        is PlatformActiveCaloriesBurnedRecord -> toSdkActiveCaloriesBurnedRecord()
-        is PlatformBasalBodyTemperatureRecord -> toSdkBasalBodyTemperatureRecord()
-        is PlatformBasalMetabolicRateRecord -> toSdkBasalMetabolicRateRecord()
-        is PlatformBloodGlucoseRecord -> toSdkBloodGlucoseRecord()
-        is PlatformBloodPressureRecord -> toSdkBloodPressureRecord()
-        is PlatformBodyFatRecord -> toSdkBodyFatRecord()
-        is PlatformBodyTemperatureRecord -> toSdkBodyTemperatureRecord()
-        is PlatformBodyWaterMassRecord -> toSdkBodyWaterMassRecord()
-        is PlatformBoneMassRecord -> toSdkBoneMassRecord()
-        is PlatformCervicalMucusRecord -> toSdkCervicalMucusRecord()
-        is PlatformCyclingPedalingCadenceRecord -> toSdkCyclingPedalingCadenceRecord()
-        is PlatformDistanceRecord -> toSdkDistanceRecord()
-        is PlatformElevationGainedRecord -> toSdkElevationGainedRecord()
-        is PlatformExerciseSessionRecord -> toSdkExerciseSessionRecord()
-        is PlatformFloorsClimbedRecord -> toSdkFloorsClimbedRecord()
-        is PlatformHeartRateRecord -> toSdkHeartRateRecord()
-        is PlatformHeartRateVariabilityRmssdRecord -> toSdkHeartRateVariabilityRmssdRecord()
-        is PlatformHeightRecord -> toSdkHeightRecord()
-        is PlatformHydrationRecord -> toSdkHydrationRecord()
-        is PlatformIntermenstrualBleedingRecord -> toSdkIntermenstrualBleedingRecord()
-        is PlatformLeanBodyMassRecord -> toSdkLeanBodyMassRecord()
-        is PlatformMenstruationFlowRecord -> toSdkMenstruationFlowRecord()
-        is PlatformMenstruationPeriodRecord -> toSdkMenstruationPeriodRecord()
-        is PlatformNutritionRecord -> toSdkNutritionRecord()
-        is PlatformOvulationTestRecord -> toSdkOvulationTestRecord()
-        is PlatformOxygenSaturationRecord -> toSdkOxygenSaturationRecord()
-        is PlatformPowerRecord -> toSdkPowerRecord()
-        is PlatformRespiratoryRateRecord -> toSdkRespiratoryRateRecord()
-        is PlatformRestingHeartRateRecord -> toSdkRestingHeartRateRecord()
-        is PlatformSexualActivityRecord -> toSdkSexualActivityRecord()
-        is PlatformSleepSessionRecord -> toSdkSleepSessionRecord()
-        is PlatformSpeedRecord -> toSdkSpeedRecord()
-        is PlatformStepsCadenceRecord -> toSdkStepsCadenceRecord()
-        is PlatformStepsRecord -> toSdkStepsRecord()
-        is PlatformTotalCaloriesBurnedRecord -> toSdkTotalCaloriesBurnedRecord()
-        is PlatformVo2MaxRecord -> toSdkVo2MaxRecord()
-        is PlatformWeightRecord -> toSdkWeightRecord()
-        is PlatformWheelchairPushesRecord -> toWheelchairPushesRecord()
-        else -> throw IllegalArgumentException("Unsupported record $this")
+        is PlatformSkinTemperatureRecord -> toSdkSkinTemperatureRecord()
+        else -> null
     }
 }
 
@@ -491,6 +530,20 @@ private fun PlatformSleepSessionRecord.toSdkSleepSessionRecord() =
         title = title?.toString(),
         notes = notes?.toString(),
         stages = stages.map { it.toSdkSleepSessionStage() }.sortedBy { it.startTime },
+    )
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun PlatformSkinTemperatureRecord.toSdkSkinTemperatureRecord() =
+    SkinTemperatureRecord(
+        startTime = startTime,
+        startZoneOffset = startZoneOffset,
+        endTime = endTime,
+        endZoneOffset = endZoneOffset,
+        metadata = metadata.toSdkMetadata(),
+        measurementLocation = measurementLocation.toSdkSkinTemperatureMeasurementLocation(),
+        deltas = deltas.map { it.toSdkSkinTemperatureDelta() },
+        baseline = baseline?.toSdkTemperature()
     )
 
 private fun PlatformSpeedRecord.toSdkSpeedRecord() =
@@ -929,6 +982,26 @@ private fun SexualActivityRecord.toPlatformSexualActivityRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun SkinTemperatureRecord.toPlatformSkinTemperatureRecord() =
+    PlatformSkinTemperatureRecordBuilder(metadata.toPlatformMetadata(), startTime, endTime)
+        .apply {
+            startZoneOffset?.let { setStartZoneOffset(it) }
+            endZoneOffset?.let { setEndZoneOffset(it) }
+            baseline?.let { setBaseline(it.toPlatformTemperature()) }
+            setMeasurementLocation(
+                measurementLocation.toPlatformSkinTemperatureMeasurementLocation()
+            )
+            setDeltas(deltas.map { it.toPlatformSkinTemperatureRecordDelta() })
+        }
+        .build()
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun SkinTemperatureRecord.Delta.toPlatformSkinTemperatureRecordDelta() =
+    PlatformSkinTemperatureDelta(delta.toPlatformTemperatureDelta(), time)
+
 private fun SleepSessionRecord.toPlatformSleepSessionRecord() =
     PlatformSleepSessionRecordBuilder(metadata.toPlatformMetadata(), startTime, endTime)
         .apply {
@@ -1027,6 +1100,11 @@ private fun PlatformHeartRateSample.toSdkHeartRateSample() =
 
 private fun PlatformPowerRecordSample.toSdkPowerRecordSample() =
     PowerRecord.Sample(time, power.toSdkPower())
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun PlatformSkinTemperatureDelta.toSdkSkinTemperatureDelta() =
+    SkinTemperatureRecord.Delta(time, delta.toSdkTemperatureDelta())
 
 private fun PlatformSpeedSample.toSdkSpeedSample() = SpeedRecord.Sample(time, speed.toSdkVelocity())
 

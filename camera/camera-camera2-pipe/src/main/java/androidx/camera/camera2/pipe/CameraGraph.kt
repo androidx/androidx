@@ -31,9 +31,12 @@ import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBeha
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.EXTENSION
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.EXACT
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -253,6 +256,39 @@ public interface CameraGraph : AutoCloseable {
     }
 
     /**
+     * Defines the repeating request requirements before a non-repeating capture.
+     *
+     * If `completionBehavior` is [AT_LEAST], repeating frames are completed at least
+     * `repeatingFramesToComplete` number of times before submitting capture. However, CameraPipe
+     * may wait for more repeating capture frames if required.
+     *
+     * If [EXACT] is used, any CameraPipe behavior is overwritten and exactly
+     * `repeatingFramesToComplete` number of frames are completed before submitting capture. This
+     * can be used in conjunction with a `repeatingFramesToComplete` value of zero to disable any
+     * CameraPipe quirky behavior added as a workaround. See
+     * [Camera2Quirks.getRepeatingRequestFrameCountForCapture] for details.
+     *
+     * @param repeatingFramesToComplete Number of repeating frames to complete before submitting a
+     *   capture. A value of zero implies no such requirement.
+     * @param completionBehavior The behavior for how `repeatingFramesToComplete` is handled.
+     */
+    public class RepeatingRequestRequirementsBeforeCapture(
+        public val repeatingFramesToComplete: UInt = 0u,
+        public val completionBehavior: CompletionBehavior = AT_LEAST,
+    ) {
+        /**
+         * Defines the behavior for how [repeatingFramesToComplete] parameter of
+         * `RepeatingRequestRequirementsBeforeCapture` is handled.
+         *
+         * @see RepeatingRequestRequirementsBeforeCapture
+         */
+        public enum class CompletionBehavior {
+            AT_LEAST,
+            EXACT
+        }
+    }
+
+    /**
      * Flags define boolean values that are used to adjust the behavior and interactions with
      * camera2. These flags should default to the ideal behavior and should be overridden on
      * specific devices to be faster or to work around bad behavior.
@@ -284,10 +320,28 @@ public interface CameraGraph : AutoCloseable {
         val abortCapturesOnStop: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
 
         /**
-         * A quirk that waits for the last repeating capture request to start before stopping the
-         * current capture session. Please refer to the bugs linked here, or
-         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for
-         * more information.
+         * An override flag for quirk that requires waiting for the last repeating capture request
+         * (if any) to start before submitting a non-repeating capture request in case no repeating
+         * request has started yet.
+         *
+         * The value represents how many repeating request captures need to be completed before a
+         * non-repeating capture. Note that CameraPipe may have its own logic to. When null,
+         * CameraPipe will use its own logic to decide whether such a workaround is required. When
+         * zero or negative, CameraPipe will disable such behavior.
+         *
+         * Please refer to the bugs linked here, or
+         * [Camera2Quirks.getRepeatingRequestFrameCountForCapture] for more information. This flag
+         * provides the overrides for you to enable a workaround to fix such issues.
+         * - Bug(s): b/356792665
+         * - API levels: All
+         */
+        val awaitRepeatingRequestBeforeCapture: RepeatingRequestRequirementsBeforeCapture =
+            RepeatingRequestRequirementsBeforeCapture(),
+
+        /**
+         * Flag to wait for the last repeating capture request to start before stopping the current
+         * capture session. Please refer to the bugs linked here, or
+         * [Camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect] for more information.
          *
          * This flag provides the overrides for you to override the default behavior (CameraPipe
          * would turn on/off the quirk automatically based on device information).
@@ -295,10 +349,10 @@ public interface CameraGraph : AutoCloseable {
          * - Device(s): Camera devices on hardware level LEGACY
          * - API levels: All
          */
-        val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
+        val awaitRepeatingRequestOnDisconnect: Boolean? = null,
 
         /**
-         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
+         * Flag to finalize [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
          * CameraGraph is stopped or closed. When a CameraGraph is started, the app might wait for
          * the Surfaces to be released before setting the new Surfaces. This creates a potential
          * deadlock, and this quirk is aimed to mitigate such behavior by releasing the Surfaces
@@ -307,28 +361,28 @@ public interface CameraGraph : AutoCloseable {
          * - Device(s): All (but behaviors might differ across devices)
          * - API levels: All
          */
-        val quirkFinalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
+        val finalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
 
         /**
-         * A quirk that closes the camera capture session when the CameraGraph is stopped or closed.
-         * This is needed in cases where the app that do not wish to receive further frames, or in
-         * cases where not closing the capture session before closing the camera device might cause
-         * the camera close call itself to hang indefinitely.
+         * Flag to close the camera capture session when the CameraGraph is stopped or closed. This
+         * is needed in cases where the app that do not wish to receive further frames, or in cases
+         * where not closing the capture session before closing the camera device might cause the
+         * camera close call itself to hang indefinitely.
          * - Bug(s): b/277310425, b/277310425
          * - Device(s): Depends on the situation and the use case.
          * - API levels: All
          */
-        val quirkCloseCaptureSessionOnDisconnect: Boolean = false,
+        val closeCaptureSessionOnDisconnect: Boolean = false,
 
         /**
-         * A quirk that closes the camera device when the CameraGraph is closed. This is needed on
-         * devices where not closing the camera device before creating a new capture session can
-         * lead to crashes.
+         * Flag to close the camera device when the CameraGraph is closed. This is needed on devices
+         * where not closing the camera device before creating a new capture session can lead to
+         * crashes.
          * - Bug(s): b/282871038
          * - Device(s): Exynos7870 platforms.
          * - API levels: All
          */
-        val quirkCloseCameraDeviceOnClose: Boolean = false,
+        val closeCameraDeviceOnClose: Boolean = false,
     ) {
 
         @JvmInline
@@ -669,6 +723,63 @@ public interface CameraGraph : AutoCloseable {
          * @param cancelAf Whether to trigger AF cancel, enabled by default.
          */
         public suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A>
+    }
+
+    /**
+     * [Parameters] is a Map-like interface that stores the key-value parameter pairs from
+     * [CaptureRequest] and [Metadata] for each [CameraGraph]. Parameter are read/set directly using
+     * get/set methods in this interface.
+     *
+     * During an active [CameraGraph.Session], changes in [Parameters] may not be applied right
+     * away. Instead, the change will be applied after [CameraGraph.Session] closes. When there is
+     * no active [CameraGraph.Session], the change will be applied without having to wait for the
+     * session to close. When applying parameter changes, it will overwrite parameter values that
+     * were configured when building the request, and overwrite [Config.defaultParameters]. It will
+     * not overwrite [Config.requiredParameters].
+     *
+     * Note that [Parameters] only store values that is a result of methods from this interface. The
+     * parameter values that were set from implicit template values, or from building a request
+     * directly will not be reflected here.
+     */
+    public interface Parameters {
+        /** Get the value correspond to the given [CaptureRequest.Key]. */
+        public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+
+        /** Get the value correspond to the given [Metadata.Key]. */
+        public operator fun <T> get(key: Metadata.Key<T>): T?
+
+        /** Store the [CaptureRequest] key value pair in the class. */
+        public operator fun <T> set(key: CaptureRequest.Key<T>, value: T)
+
+        /** Store the [Metadata] key value pair in the class. */
+        public operator fun <T> set(key: Metadata.Key<T>, value: T)
+
+        /**
+         * Store the key value pairs in the class. The key is either [CaptureRequest.Key] or
+         * [Metadata.Key].
+         */
+        public fun setAll(values: Map<*, Any?>)
+
+        /** Clear all [CaptureRequest] and [Metadata] parameters stored in the class. */
+        public fun clear()
+
+        /**
+         * Remove the [CaptureRequest] key value pair associated with the given key. Returns true if
+         * a key was present and removed.
+         */
+        public fun <T> remove(key: CaptureRequest.Key<T>): Boolean
+
+        /**
+         * Remove the [Metadata] key value pair associated with the given key. Returns true if a key
+         * was present and removed.
+         */
+        public fun <T> remove(key: Metadata.Key<T>): Boolean
+
+        /**
+         * Remove all parameters that match the given keys. The key is either [CaptureRequest.Key]
+         * or [Metadata.Key].
+         */
+        public fun removeAll(keys: Set<*>): Boolean
     }
 }
 

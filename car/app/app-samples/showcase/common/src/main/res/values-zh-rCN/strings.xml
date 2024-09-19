@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"加油站"</string>
     <string name="short_route" msgid="4831864276538141265">"短路线"</string>
     <string name="less_busy" msgid="310625272281710983">"不忙"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"高承载率车辆友好"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"适合多乘员车辆"</string>
     <string name="long_route" msgid="4737969235741057506">"长路线"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"继续开始导航"</string>
     <string name="continue_route" msgid="5172258139245088080">"继续规划路线"</string>

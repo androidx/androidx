@@ -31,7 +31,7 @@ jobs:
           device-specs: Pixel2.arm:30
           use-test-config-files: true
           test-suite-tags: androidx_unit_tests
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: outputs

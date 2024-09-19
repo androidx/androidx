@@ -206,6 +206,9 @@ interface Modifier {
         internal var updatedNodeAwaitingAttachForInvalidation = false
         private var onAttachRunExpected = false
         private var onDetachRunExpected = false
+
+        internal var detachedListener: (() -> Unit)? = null
+
         /**
          * Indicates that the node is attached to a [androidx.compose.ui.layout.Layout] which is
          * part of the UI tree. This will get set to true right before [onAttach] is called, and set
@@ -273,6 +276,7 @@ interface Modifier {
                     "markAsDetached()"
             }
             onDetachRunExpected = false
+            detachedListener?.invoke()
             onDetach()
         }
 

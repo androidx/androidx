@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.click
@@ -53,7 +52,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SelectionContainerContextMenuTest {
@@ -181,7 +179,7 @@ class SelectionContainerContextMenuTest {
             assertThat(selection).isNull()
             rule.assertContextMenuItems(
                 cutState = ContextMenuItemState.DOES_NOT_EXIST,
-                copyState = ContextMenuItemState.DISABLED,
+                copyState = ContextMenuItemState.DOES_NOT_EXIST,
                 pasteState = ContextMenuItemState.DOES_NOT_EXIST,
                 selectAllState = ContextMenuItemState.ENABLED,
             )
@@ -213,7 +211,7 @@ class SelectionContainerContextMenuTest {
                 cutState = ContextMenuItemState.DOES_NOT_EXIST,
                 copyState = ContextMenuItemState.ENABLED,
                 pasteState = ContextMenuItemState.DOES_NOT_EXIST,
-                selectAllState = ContextMenuItemState.DISABLED,
+                selectAllState = ContextMenuItemState.DOES_NOT_EXIST,
             )
         }
 

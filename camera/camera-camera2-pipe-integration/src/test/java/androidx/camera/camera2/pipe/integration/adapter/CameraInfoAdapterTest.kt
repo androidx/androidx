@@ -35,7 +35,6 @@ import androidx.camera.camera2.pipe.integration.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
-import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
@@ -73,7 +72,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraInfoAdapterTest {
-    private val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
+    private val zoomControl = ZoomControl(FakeZoomCompat())
     private val cameraInfoAdapter = createCameraInfoAdapter(zoomControl = zoomControl)
 
     @get:Rule
@@ -153,7 +152,7 @@ class CameraInfoAdapterTest {
     @Test
     fun canReturnDefaultZoomState() {
         // make new ZoomControl to test first-time initialization scenario
-        val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
+        val zoomControl = ZoomControl(FakeZoomCompat())
         val cameraInfoAdapter = createCameraInfoAdapter(zoomControl = zoomControl)
 
         assertWithMessage("zoomState did not return default zoom ratio successfully")

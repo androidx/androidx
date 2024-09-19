@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,8 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,13 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
-import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.integration.demos.common.AdaptiveScreen
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Card
@@ -149,66 +142,6 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
                         Text(labels[it])
                     }
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-fun EdgeButtonBelowColumnDemo() {
-    val labels =
-        listOf(
-            "Hi",
-            "Hello World",
-            "Hello world again?",
-            "More content as we add stuff",
-            "I don't know if this will fit now, testing",
-            "Really long text that it's going to take multiple lines",
-            "And now we are really pushing it because the screen is really small",
-        )
-    val selectedLabel = remember { mutableIntStateOf(0) }
-    val bottomButtonHeight = ButtonDefaults.EdgeButtonHeightLarge
-
-    AdaptiveScreen {
-        val scrollState = rememberScrollState()
-        val focusRequester = rememberActiveFocusRequester()
-
-        ScreenScaffold(
-            scrollState = scrollState,
-            bottomButton = {
-                EdgeButton(
-                    onClick = {},
-                    buttonHeight = bottomButtonHeight,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
-                ) {
-                    Text(labels[selectedLabel.intValue], color = Color.White)
-                }
-            },
-            bottomButtonHeight = bottomButtonHeight
-        ) {
-            Column(
-                modifier =
-                    Modifier.verticalScroll(scrollState)
-                        .rotaryScrollable(
-                            RotaryScrollableDefaults.behavior(
-                                scrollableState = scrollState,
-                                flingBehavior = ScrollableDefaults.flingBehavior()
-                            ),
-                            focusRequester = focusRequester
-                        ),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                repeat(labels.size) {
-                    Card(
-                        onClick = { selectedLabel.intValue = it },
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        Text(labels[it])
-                    }
-                }
-                Spacer(Modifier.height(bottomButtonHeight))
             }
         }
     }

@@ -5765,7 +5765,7 @@ private fun Center(content: @Composable () -> Unit) {
     Layout(content) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val placeable = measurable?.measure(constraints.copyMaxDimensions())
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.

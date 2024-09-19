@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from filecmp import cmp, dircmp
 from offlinify_dackka_docs import check_library, process_input, STYLE_FILENAME

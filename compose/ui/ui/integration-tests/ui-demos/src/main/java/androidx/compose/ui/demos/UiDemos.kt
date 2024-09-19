@@ -57,6 +57,7 @@ import androidx.compose.ui.demos.gestures.DragGestureFilterDemo
 import androidx.compose.ui.demos.gestures.DragSlopExceededGestureFilterDemo
 import androidx.compose.ui.demos.gestures.EventTypesDemo
 import androidx.compose.ui.demos.gestures.HorizontalScrollersInVerticalScrollersDemo
+import androidx.compose.ui.demos.gestures.LongPressChangesHierarchyDemo
 import androidx.compose.ui.demos.gestures.LongPressDragGestureFilterDemo
 import androidx.compose.ui.demos.gestures.LongPressGestureDetectorDemo
 import androidx.compose.ui.demos.gestures.MultiButtonsWithLoggingUsingOnClick
@@ -109,6 +110,9 @@ private val GestureDemos =
                     ComposableDemo("Pressure Tap") { DetectTapPressureGesturesDemo() },
                     ComposableDemo("Double Tap") { DoubleTapGestureFilterDemo() },
                     ComposableDemo("Long Press") { LongPressGestureDetectorDemo() },
+                    ComposableDemo("Long Press (changes hierarchy)") {
+                        LongPressChangesHierarchyDemo()
+                    },
                     ComposableDemo("Scroll") { ScrollGestureFilterDemo() },
                     ComposableDemo("Drag") { DragGestureFilterDemo() },
                     ComposableDemo("Long Press Drag") { LongPressDragGestureFilterDemo() },

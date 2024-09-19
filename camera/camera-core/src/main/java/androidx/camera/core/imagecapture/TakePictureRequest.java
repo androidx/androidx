@@ -82,14 +82,14 @@ public abstract class TakePictureRequest {
      * Gets the app provided options for on-disk capture.
      */
     @Nullable
-    public abstract ImageCapture.OutputFileOptions getOutputFileOptions();
+    abstract ImageCapture.OutputFileOptions getOutputFileOptions();
 
     /**
      * A snapshot of {@link ImageCapture#getViewPortCropRect()} when
      * {@link ImageCapture#takePicture} is called.
      */
     @NonNull
-    public abstract Rect getCropRect();
+    abstract Rect getCropRect();
 
     /**
      * A snapshot of {@link ImageCapture#getSensorToBufferTransformMatrix()} when
@@ -102,14 +102,14 @@ public abstract class TakePictureRequest {
      * A snapshot of rotation degrees when {@link ImageCapture#takePicture} is called.
      */
     @ImageOutputConfig.RotationValue
-    public abstract int getRotationDegrees();
+    abstract int getRotationDegrees();
 
     /**
      * A snapshot of {@link ImageCaptureConfig#getJpegQuality()} when
      * {@link ImageCapture#takePicture} is called.
      */
     @IntRange(from = 1, to = 100)
-    public abstract int getJpegQuality();
+    abstract int getJpegQuality();
 
     /**
      * Gets the capture mode of the request.

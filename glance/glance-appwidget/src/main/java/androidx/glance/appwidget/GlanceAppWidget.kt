@@ -17,6 +17,8 @@
 package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -28,6 +30,9 @@ import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
+import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
+import androidx.glance.appwidget.action.ActionTrampolineActivity
+import androidx.glance.appwidget.action.InvisibleActionTrampolineActivity
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
@@ -53,7 +58,8 @@ import kotlinx.coroutines.CancellationException
 abstract class GlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
-    private val sessionManager: SessionManager = GlanceSessionManager
+    @get:RestrictTo(Scope.LIBRARY_GROUP)
+    protected open val sessionManager: SessionManager = GlanceSessionManager
 
     /**
      * Override this function to provide the Glance Composable.
@@ -84,8 +90,32 @@ abstract class GlanceAppWidget(
         id: GlanceId,
     )
 
+    /**
+     * Override this function to provide a Glance Composable that will be used when running this
+     * widget in preview mode. Use [provideContent] to provide the composable once the data is
+     * ready.
+     *
+     * In order to generate and publish the previews for a provider, use [setWidgetPreviews]. You
+     * can use [composeForPreview] to generate a [RemoteViews] from this Composable without
+     * publishing it.
+     *
+     * The given [widgetCategory] value will be one of
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN],
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD], or
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX], or some combination of all three. This
+     * indicates what kind of widget host this preview can be used for. [widgetCategory] corresponds
+     * to the categories passed to [setWidgetPreviews].
+     *
+     * @sample androidx.glance.appwidget.samples.providePreviewSample
+     * @see AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+     */
+    open suspend fun providePreview(context: Context, widgetCategory: Int) {}
+
     /** Defines the handling of sizes. */
     open val sizeMode: SizeMode = SizeMode.Single
+
+    /** Defines handling of sizes for previews. */
+    open val previewSizeMode: PreviewSizeMode = SizeMode.Single
 
     /** Data store for widget data specific to the view. */
     open val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
@@ -135,7 +165,7 @@ abstract class GlanceAppWidget(
         val glanceId = AppWidgetId(appWidgetId)
         sessionManager.runWithLock {
             if (!isSessionRunning(context, glanceId.toSessionKey())) {
-                startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+                startSession(context, createAppWidgetSession(glanceId, options))
                 return@runWithLock
             }
             val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
@@ -217,11 +247,23 @@ abstract class GlanceAppWidget(
         block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
     ) = runWithLock {
         if (!isSessionRunning(context, glanceId.toSessionKey())) {
-            startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+            startSession(context, createAppWidgetSession(glanceId, options))
         }
         val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
         block(session)
     }
+
+    /**
+     * Override this function to specify the components that will be used for actions and
+     * RemoteViewsService. All of the components must run in the same process.
+     *
+     * If null, then the default components will be used.
+     */
+    @get:RestrictTo(Scope.LIBRARY_GROUP) open val components: GlanceComponents? = null
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected open fun createAppWidgetSession(id: AppWidgetId, options: Bundle? = null) =
+        AppWidgetSession(this@GlanceAppWidget, id, options)
 }
 
 @RestrictTo(Scope.LIBRARY_GROUP) data class AppWidgetId(val appWidgetId: Int) : GlanceId
@@ -265,4 +307,31 @@ suspend fun GlanceAppWidget.provideContent(
             "provideContent requires a ContentReceiver and should only be called from " +
                 "GlanceAppWidget.provideGlance"
         )
+}
+
+/**
+ * Specifies which components will be used as targets for action trampolines, RunCallback actions,
+ * and RemoteViewsService when creating RemoteViews. These components must all run in the same
+ * process.
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
+class GlanceComponents(
+    val actionTrampolineActivity: ComponentName,
+    val invisibleActionTrampolineActivity: ComponentName,
+    val actionCallbackBroadcastReceiver: ComponentName,
+    val remoteViewsService: ComponentName,
+) {
+    companion object {
+        /** The default components used for GlanceAppWidget. */
+        fun getDefault(context: Context) =
+            GlanceComponents(
+                actionTrampolineActivity =
+                    ComponentName(context, ActionTrampolineActivity::class.java),
+                invisibleActionTrampolineActivity =
+                    ComponentName(context, InvisibleActionTrampolineActivity::class.java),
+                actionCallbackBroadcastReceiver =
+                    ComponentName(context, ActionCallbackBroadcastReceiver::class.java),
+                remoteViewsService = ComponentName(context, GlanceRemoteViewsService::class.java),
+            )
+    }
 }

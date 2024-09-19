@@ -20,14 +20,13 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.ink.geometry.internal.getValue
 import androidx.ink.geometry.internal.threadLocal
 import androidx.ink.nativeloader.NativeLoader
 
 /**
  * An immutable** complex shape expressed as a set of triangles. This is used to represent the shape
  * of a stroke or other complex objects. The mesh may be divided into multiple partitions, which
- * enables certain brush effects (e.g. "multi-coat"), and allows strokes to be created using greater
+ * enables certain brush effects (e.g. "multi-coat"), and allows ink to create strokes using greater
  * than 2^16 triangles (which must be rendered in multiple passes).
  *
  * A [PartitionedMesh] may optionally have one or more "outlines", which are polylines that traverse
@@ -118,7 +117,7 @@ public constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun renderGroupFormat(@IntRange(from = 0) groupIndex: Int): MeshFormat {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
+            "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
         }
         return MeshFormat(ModeledShapeNative.getRenderGroupFormat(nativeAddress, groupIndex))
     }
@@ -130,23 +129,23 @@ public constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun renderGroupMeshes(@IntRange(from = 0) groupIndex: Int): List<Mesh> {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
+            "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
         }
         return meshesByGroup[groupIndex]
     }
 
-    /** Returns the number of outlines that comprise this shape. */
+    /** Returns the number of outlines that comprise the render group at [groupIndex]. */
     @IntRange(from = 0)
     public fun getOutlineCount(@IntRange(from = 0) groupIndex: Int): Int {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
+            "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
         }
         return ModeledShapeNative.getOutlineCount(nativeAddress, groupIndex).also { check(it >= 0) }
     }
 
     /**
-     * Returns the number of vertices that are in the outline at index [outlineIndex], and within
-     * the render group at [groupIndex].
+     * Returns the number of vertices that are in the outline at [outlineIndex] in the render group
+     * at [groupIndex].
      */
     @IntRange(from = 0)
     public fun getOutlineVertexCount(
@@ -154,7 +153,7 @@ public constructor(
         @IntRange(from = 0) outlineIndex: Int,
     ): Int {
         require(outlineIndex >= 0 && outlineIndex < getOutlineCount(groupIndex)) {
-            "outlineIndex=$outlineIndex must be between 0 and outlineCount=${getOutlineCount(groupIndex)}"
+            "outlineIndex=$outlineIndex must be between 0 and getOutlineCount=${getOutlineCount(groupIndex)}"
         }
         return ModeledShapeNative.getOutlineVertexCount(nativeAddress, groupIndex, outlineIndex)
             .also { check(it >= 0) }
@@ -248,7 +247,7 @@ public constructor(
     @FloatRange(from = 0.0, to = 1.0)
     public fun computeCoverage(
         box: Box,
-        boxToThis: AffineTransform = AffineTransform.IDENTITY
+        boxToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         ModeledShapeNative.modeledShapeBoxCoverage(
             nativeAddress = nativeAddress,
@@ -381,7 +380,7 @@ public constructor(
      *
      * This is equivalent to:
      * ```
-     * this.coverage(box, boxToThis) > coverageThreshold
+     * computeCoverage(box, boxToThis) > coverageThreshold
      * ```
      *
      * but may be faster.
@@ -418,7 +417,7 @@ public constructor(
      *
      * This is equivalent to:
      * ```
-     * this.coverage(parallelogram, parallelogramToThis) > coverageThreshold
+     * computeCoverage(parallelogram, parallelogramToThis) > coverageThreshold
      * ```
      *
      * but may be faster.
@@ -458,7 +457,7 @@ public constructor(
      *
      * This is equivalent to:
      * ```
-     * this.coverage(other, otherShapeToThis) > coverageThreshold
+     * computeCoverage(other, otherShapeToThis) > coverageThreshold
      * ```
      *
      * but may be faster.
@@ -565,7 +564,7 @@ private object ModeledShapeNative {
     )
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Triangle] objects and calculate coverage
+     * JNI method to construct C++ `ModeledShape` and `Triangle` objects and calculate coverage
      * using them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
@@ -586,7 +585,7 @@ private object ModeledShapeNative {
     ): Float
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Triangle] objects and calculate coverage
+     * JNI method to construct C++ `ModeledShape` and `Triangle` objects and calculate coverage
      * using them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
@@ -605,8 +604,8 @@ private object ModeledShapeNative {
     ): Float
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Parallelogram] objects and calculate coverage
-     * using them.
+     * JNI method to construct C++ `ModeledShape` and `Quad` objects and calculate coverage using
+     * them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeParallelogramCoverage(
@@ -625,7 +624,7 @@ private object ModeledShapeNative {
         parallelogramToThisTransformF: Float,
     ): Float
 
-    /** JNI method to construct C++ two [ModeledShape] objects and calculate coverage using them. */
+    /** JNI method to construct C++ two `ModeledShape` objects and calculate coverage using them. */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeModeledShapeCoverage(
         thisShapeNativeAddress: Long,
@@ -639,8 +638,8 @@ private object ModeledShapeNative {
     ): Float
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Triangle] objects and call native
-     * [coverageIsGreaterThan] on them.
+     * JNI method to construct C++ `ModeledShape` and `Triangle` objects and call native
+     * `CoverageIsGreaterThan` on them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeTriangleCoverageIsGreaterThan(
@@ -661,8 +660,8 @@ private object ModeledShapeNative {
     ): Boolean
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Box] objects and call native
-     * [coverageIsGreaterThan] on them.
+     * JNI method to construct C++ `ModeledShape` and `Rect` objects and call native
+     * `CoverageIsGreaterThan` on them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeBoxCoverageIsGreaterThan(
@@ -681,8 +680,8 @@ private object ModeledShapeNative {
     ): Boolean
 
     /**
-     * JNI method to construct C++ [ModeledShape] and [Parallelogram] objects and call native
-     * [coverageIsGreaterThan] on them.
+     * JNI method to construct C++ `ModeledShape` and `Quad` objects and call native
+     * `CoverageIsGreaterThan` on them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeParallelogramCoverageIsGreaterThan(
@@ -703,8 +702,8 @@ private object ModeledShapeNative {
     ): Boolean
 
     /**
-     * JNI method to construct two C++ [ModeledShape] objects and call native
-     * [coverageIsGreaterThan] on them.
+     * JNI method to construct two C++ `ModeledShape` objects and call native
+     * `CoverageIsGreaterThan` on them.
      */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun modeledShapeModeledShapeCoverageIsGreaterThan(

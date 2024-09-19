@@ -16,12 +16,17 @@
 
 package androidx.window.java.area
 
+import android.app.Activity
+import android.os.Binder
 import androidx.core.util.Consumer
 import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaInfo
+import androidx.window.area.WindowAreaPresentationSessionCallback
+import androidx.window.area.WindowAreaSessionCallback
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
+import kotlinx.coroutines.flow.Flow
 
 /** An adapter for [WindowAreaController] to provide callback APIs. */
 @ExperimentalWindowApi
@@ -29,7 +34,7 @@ class WindowAreaControllerCallbackAdapter
 private constructor(
     private val controller: WindowAreaController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter
-) : WindowAreaController by controller {
+) : WindowAreaController() {
 
     constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
 
@@ -63,4 +68,33 @@ private constructor(
     fun removeWindowAreaInfoListListener(listener: Consumer<List<WindowAreaInfo>>) {
         callbackToFlowAdapter.disconnect(listener)
     }
+
+    override val windowAreaInfos: Flow<List<WindowAreaInfo>>
+        get() = controller.windowAreaInfos
+
+    override fun transferActivityToWindowArea(
+        token: Binder,
+        activity: Activity,
+        executor: Executor,
+        windowAreaSessionCallback: WindowAreaSessionCallback
+    ) =
+        controller.transferActivityToWindowArea(
+            token,
+            activity,
+            executor,
+            windowAreaSessionCallback
+        )
+
+    override fun presentContentOnWindowArea(
+        token: Binder,
+        activity: Activity,
+        executor: Executor,
+        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
+    ) =
+        controller.presentContentOnWindowArea(
+            token,
+            activity,
+            executor,
+            windowAreaPresentationSessionCallback
+        )
 }

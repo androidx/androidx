@@ -70,6 +70,7 @@ internal fun translateComposition(
     rootViewIndex: Int,
     layoutSize: DpSize,
     actionBroadcastReceiver: ComponentName? = null,
+    glanceComponents: GlanceComponents = GlanceComponents.getDefault(context),
 ) =
     translateComposition(
         TranslationContext(
@@ -80,6 +81,7 @@ internal fun translateComposition(
             itemPosition = -1,
             layoutSize = layoutSize,
             actionBroadcastReceiver = actionBroadcastReceiver,
+            glanceComponents = glanceComponents,
         ),
         element.children,
         rootViewIndex,
@@ -149,7 +151,7 @@ private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
         else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
     }
 
-private const val LAST_INVALID_VIEW_ID = 1
+private const val LAST_INVALID_VIEW_ID = -1
 
 internal data class TranslationContext(
     val context: Context,
@@ -166,9 +168,14 @@ internal data class TranslationContext(
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
     val actionTargetId: Int? = null,
-    val actionBroadcastReceiver: ComponentName? = null
+    val actionBroadcastReceiver: ComponentName? = null,
+    val glanceComponents: GlanceComponents,
 ) {
-    fun nextViewId() = lastViewId.incrementAndGet()
+    fun nextViewId() =
+        lastViewId.incrementAndGet().let {
+            check(it < TotalViewCount) { "There are too many views" }
+            FirstViewId + it
+        }
 
     fun forChild(parent: InsertedViewInfo, pos: Int): TranslationContext =
         copy(itemPosition = pos, parentContext = parent)

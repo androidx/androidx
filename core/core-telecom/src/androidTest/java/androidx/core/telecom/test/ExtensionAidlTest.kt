@@ -20,6 +20,7 @@ import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ICallDetailsListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
+import androidx.core.telecom.extensions.ILocalSilenceStateListener
 import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -77,6 +78,14 @@ class ExtensionAidlTest {
             packageName: String
         ) {
             createCallDetailsExtension(version, actions, l, packageName)
+        }
+
+        override fun onCreateLocalCallSilenceExtension(
+            version: Int,
+            actions: IntArray?,
+            l: ILocalSilenceStateListener?
+        ) {
+            TODO("Not yet implemented")
         }
 
         override fun onRemoveExtensions() {

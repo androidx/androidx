@@ -35,7 +35,7 @@ package androidx.compose.foundation {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int repeatDelayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
   }
 
-  public final class BasicTooltipDefaults {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class BasicTooltipDefaults {
     method public androidx.compose.foundation.MutatorMutex getGlobalMutatorMutex();
     property public final androidx.compose.foundation.MutatorMutex GlobalMutatorMutex;
     field public static final androidx.compose.foundation.BasicTooltipDefaults INSTANCE;
@@ -43,11 +43,11 @@ package androidx.compose.foundation {
   }
 
   public final class BasicTooltipKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.BasicTooltipState BasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
-    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.BasicTooltipState rememberBasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.BasicTooltipState BasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.BasicTooltipState rememberBasicTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 
-  @androidx.compose.runtime.Stable public interface BasicTooltipState {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BasicTooltipState {
     method public void dismiss();
     method public boolean isPersistent();
     method public boolean isVisible();
@@ -58,7 +58,7 @@ package androidx.compose.foundation {
   }
 
   public final class BasicTooltip_androidKt {
-    method @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class BorderKt {
@@ -105,6 +105,12 @@ package androidx.compose.foundation {
 
   public sealed interface CombinedClickableNode extends androidx.compose.ui.node.PointerInputModifierNode {
     method public void update(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String? onLongClickLabel, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick, androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, androidx.compose.foundation.IndicationNodeFactory? indicationNodeFactory, boolean enabled, String? onClickLabel, androidx.compose.ui.semantics.Role? role);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
+    field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
+    field public static boolean NewNestedFlingPropagationEnabled;
+    field public static boolean RemoveBasicTextGraphicsLayerEnabled;
   }
 
   public final class DarkThemeKt {
@@ -372,15 +378,17 @@ package androidx.compose.foundation.content {
 package androidx.compose.foundation.draganddrop {
 
   public final class AndroidDragAndDropSource_androidKt {
-    method public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
   }
 
   public final class DragAndDropSourceKt {
-    method public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,androidx.compose.ui.draganddrop.DragAndDropTransferData?> transferData);
+    method public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,androidx.compose.ui.draganddrop.DragAndDropTransferData?> transferData);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
   }
 
-  public interface DragAndDropSourceScope extends androidx.compose.ui.input.pointer.PointerInputScope {
-    method public void startTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData);
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DragAndDropSourceScope extends androidx.compose.ui.input.pointer.PointerInputScope {
+    method @Deprecated public void startTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData);
   }
 
   public final class DragAndDropTargetKt {
@@ -835,10 +843,6 @@ package androidx.compose.foundation.lazy {
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
-  public final class LazyListAnimateScrollScopeKt {
-    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.LazyListState state);
-  }
-
   public interface LazyListItemInfo {
     method public default Object? getContentType();
     method public int getIndex();
@@ -898,6 +902,10 @@ package androidx.compose.foundation.lazy {
     method @Deprecated public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
     method @Deprecated public void stickyHeader(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.LazyItemScope,kotlin.Unit> content);
     method public void stickyHeader(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  public final class LazyListScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope LazyLayoutScrollScope(androidx.compose.foundation.lazy.LazyListState state, androidx.compose.foundation.gestures.ScrollScope scrollScope);
   }
 
   @androidx.compose.runtime.Stable public final class LazyListState implements androidx.compose.foundation.gestures.ScrollableState {
@@ -965,10 +973,6 @@ package androidx.compose.foundation.lazy.grid {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class GridItemSpan {
     method public int getCurrentLineSpan();
     property public final int currentLineSpan;
-  }
-
-  public final class LazyGridAnimateScrollScopeKt {
-    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.grid.LazyGridState state);
   }
 
   public final class LazyGridDslKt {
@@ -1068,6 +1072,10 @@ package androidx.compose.foundation.lazy.grid {
   @kotlin.DslMarker public @interface LazyGridScopeMarker {
   }
 
+  public final class LazyGridScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope LazyLayoutScrollScope(androidx.compose.foundation.lazy.grid.LazyGridState state, androidx.compose.foundation.gestures.ScrollScope scrollScope);
+  }
+
   public final class LazyGridSpanKt {
     method public static long GridItemSpan(@IntRange(from=1L) int currentLineSpan);
   }
@@ -1126,19 +1134,6 @@ package androidx.compose.foundation.lazy.layout {
     property public final int size;
     property public final int startIndex;
     property public final T value;
-  }
-
-  public interface LazyLayoutAnimateScrollScope {
-    method public int calculateDistanceTo(int targetIndex, optional int targetOffset);
-    method public int getFirstVisibleItemIndex();
-    method public int getFirstVisibleItemScrollOffset();
-    method public int getItemCount();
-    method public int getLastVisibleItemIndex();
-    method public void snapToItem(androidx.compose.foundation.gestures.ScrollScope, int index, optional int offset);
-    property public abstract int firstVisibleItemIndex;
-    property public abstract int firstVisibleItemScrollOffset;
-    property public abstract int itemCount;
-    property public abstract int lastVisibleItemIndex;
   }
 
   public abstract class LazyLayoutIntervalContent<Interval extends androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent.Interval> {
@@ -1211,6 +1206,19 @@ package androidx.compose.foundation.lazy.layout {
     method public void markAsUrgent();
   }
 
+  public interface LazyLayoutScrollScope extends androidx.compose.foundation.gestures.ScrollScope {
+    method public int calculateDistanceTo(int targetIndex, optional int targetOffset);
+    method public int getFirstVisibleItemIndex();
+    method public int getFirstVisibleItemScrollOffset();
+    method public int getItemCount();
+    method public int getLastVisibleItemIndex();
+    method public void snapToItem(int index, optional int offset);
+    property public abstract int firstVisibleItemIndex;
+    property public abstract int firstVisibleItemScrollOffset;
+    property public abstract int itemCount;
+    property public abstract int lastVisibleItemIndex;
+  }
+
   public final class Lazy_androidKt {
     method public static Object getDefaultLazyLayoutKey(int index);
   }
@@ -1244,10 +1252,6 @@ package androidx.compose.foundation.lazy.layout {
 }
 
 package androidx.compose.foundation.lazy.staggeredgrid {
-
-  public final class LazyStaggeredGridAnimateScrollScopeKt {
-    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state);
-  }
 
   public final class LazyStaggeredGridDslKt {
     method @androidx.compose.runtime.Composable public static void LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells rows, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional float horizontalItemSpacing, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope,kotlin.Unit> content);
@@ -1301,6 +1305,10 @@ package androidx.compose.foundation.lazy.staggeredgrid {
   public sealed interface LazyStaggeredGridScope {
     method public void item(optional Object? key, optional Object? contentType, optional androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan? span, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemScope,kotlin.Unit> content);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan>? span, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
+  }
+
+  public final class LazyStaggeredGridScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope LazyLayoutScrollScope(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state, androidx.compose.foundation.gestures.ScrollScope scrollScope);
   }
 
   @androidx.compose.runtime.Stable public final class LazyStaggeredGridState implements androidx.compose.foundation.gestures.ScrollableState {
@@ -1434,11 +1442,11 @@ package androidx.compose.foundation.pager {
     property public abstract java.util.List<androidx.compose.foundation.pager.PageInfo> visiblePagesInfo;
   }
 
-  public final class PagerLazyAnimateScrollScopeKt {
-    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.pager.PagerState state);
+  public sealed interface PagerScope {
   }
 
-  public sealed interface PagerScope {
+  public final class PagerScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope LazyLayoutScrollScope(androidx.compose.foundation.pager.PagerState state, androidx.compose.foundation.gestures.ScrollScope scrollScope);
   }
 
   @androidx.compose.runtime.Stable public interface PagerSnapDistance {

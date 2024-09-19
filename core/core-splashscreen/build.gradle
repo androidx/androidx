@@ -47,6 +47,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
 androidx {

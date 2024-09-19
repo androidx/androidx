@@ -544,7 +544,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @RawQuery
                 abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap(
@@ -561,7 +561,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @MapInfo(keyColumn = "uid", keyTable = "u")
                 @RawQuery

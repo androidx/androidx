@@ -324,7 +324,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
         runBlocking {
-            val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
+            val watchFaceImpl = wrapper.watchFaceDetails!!.deferredWatchFaceImpl.await()
             val schema = watchFaceImpl.currentUserStyleRepository.schema
             assertThat(schema.userStyleSettings.map { it.id.value })
                 .containsExactly("TimeStyle", "BooleanId", "DoubleId", "LongId")
@@ -425,7 +425,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotE.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
                 .isEqualTo(ComplicationType.WEIGHTED_ELEMENTS)
 
-            val earlyInitDetails = wrapper.deferredEarlyInitDetails.await()
+            val earlyInitDetails = wrapper.watchFaceDetails!!.deferredEarlyInitDetails.await()
             val flavors = earlyInitDetails.userStyleFlavors
 
             assertThat(flavors.flavors.size).isEqualTo(1)
@@ -502,7 +502,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
 
         runBlocking {
-            val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
+            val watchFaceImpl = wrapper.watchFaceDetails!!.deferredWatchFaceImpl.await()
             val factory =
                 watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
                     .canvasComplicationFactory

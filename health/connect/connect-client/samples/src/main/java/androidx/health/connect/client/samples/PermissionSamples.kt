@@ -20,7 +20,9 @@ package androidx.health.connect.client.samples
 
 import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.Sampled
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.records.StepsRecord
@@ -42,8 +44,12 @@ fun RequestPermission(activity: ActivityResultCaller) {
     requestPermission.launch(setOf(HealthPermission.getReadPermission(StepsRecord::class)))
 }
 
+@OptIn(ExperimentalFeatureAvailabilityApi::class)
 @Sampled
-fun RequestBackgroundReadPermission(activity: ActivityResultCaller) {
+fun RequestBackgroundReadPermission(
+    features: HealthConnectFeatures,
+    activity: ActivityResultCaller
+) {
     val requestPermission =
         activity.registerForActivityResult(
             PermissionController.createRequestPermissionResultContract()
@@ -55,7 +61,13 @@ fun RequestBackgroundReadPermission(activity: ActivityResultCaller) {
             }
         }
 
-    requestPermission.launch(setOf(PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND))
+    if (
+        features.getFeatureStatus(HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND) ==
+            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+    ) {
+        // The feature is available, request background reads permission
+        requestPermission.launch(setOf(PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND))
+    }
 }
 
 @Sampled

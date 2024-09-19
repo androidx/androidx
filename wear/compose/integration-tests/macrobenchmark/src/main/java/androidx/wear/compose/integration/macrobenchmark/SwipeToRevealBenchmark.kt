@@ -24,9 +24,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
-import androidx.wear.compose.integration.macrobenchmark.test.CONTENT_DESCRIPTION
-import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
-import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -58,7 +55,7 @@ class SwipeToRevealBenchmark(private val compilationMode: CompilationMode) {
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
-                intent.action = ACTION
+                intent.action = SWIPE_TO_REVEAL_ACTIVITY
                 startActivityAndWait(intent)
             }
         ) {
@@ -78,8 +75,7 @@ class SwipeToRevealBenchmark(private val compilationMode: CompilationMode) {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val ACTION =
-            "androidx.wear.compose.integration.macrobenchmark.target.SWIPE_TO_REVEAL_ACTIVITY"
+        private const val SWIPE_TO_REVEAL_ACTIVITY = "${PACKAGE_NAME}.SWIPE_TO_REVEAL_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

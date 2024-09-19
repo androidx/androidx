@@ -133,6 +133,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
     private var viewContainingPoolingContainerListener: View? = null
     private var poolingContainerListener = PoolingContainerListener {}
+    private val frameCommitCallback = Runnable {
+        stateListenerManager.currentUiSessionState = Active
+    }
     internal var signalMeasurer: SandboxedSdkViewSignalMeasurer? = null
 
     /** Adds a state change listener to the UI session and immediately reports the current state. */
@@ -249,6 +252,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private fun removeCallbacksOnWindowDetachment() {
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
+        CompatImpl.unregisterFrameCommitCallback(viewTreeObserver, frameCommitCallback)
     }
 
     private fun removeCallbacks() {
@@ -272,10 +276,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
 
         // Wait for the next frame commit before sending an ACTIVE state change to listeners.
-        // TODO(b/338196636): Unregister this when necessary.
-        CompatImpl.registerFrameCommitCallback(viewTreeObserver) {
-            stateListenerManager.currentUiSessionState = Active
-        }
+        CompatImpl.registerFrameCommitCallback(viewTreeObserver, frameCommitCallback)
 
         if (contentView is SurfaceView) {
             contentView.holder.addCallback(surfaceChangedCallback)
@@ -637,6 +638,12 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             }
         }
 
+        fun unregisterFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Api29PlusImpl.unregisterFrameCommitCallback(observer, callback)
+            }
+        }
+
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         private object Api34PlusImpl {
 
@@ -706,6 +713,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             @JvmStatic
             fun registerFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
                 observer.registerFrameCommitCallback(callback)
+            }
+
+            @JvmStatic
+            fun unregisterFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
+                observer.unregisterFrameCommitCallback(callback)
             }
         }
     }

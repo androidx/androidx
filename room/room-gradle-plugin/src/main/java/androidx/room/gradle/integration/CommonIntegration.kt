@@ -17,59 +17,79 @@
 package androidx.room.gradle.integration
 
 import androidx.room.gradle.RoomArgumentProvider
-import androidx.room.gradle.RoomExtension
-import androidx.room.gradle.RoomGradlePlugin.Companion.capitalize
-import androidx.room.gradle.RoomGradlePlugin.Companion.check
+import androidx.room.gradle.RoomExtension.SchemaConfiguration
 import androidx.room.gradle.RoomGradlePlugin.Companion.isKspTask
-import androidx.room.gradle.RoomSchemaCopyTask
-import androidx.room.gradle.toOptions
-import kotlin.io.path.Path
-import kotlin.io.path.notExists
-import org.gradle.api.Project
+import androidx.room.gradle.RoomOptions
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 
 internal class CommonIntegration(
     private val projectLayout: ProjectLayout,
-    private val objectFactory: ObjectFactory,
+    private val providerFactory: ProviderFactory,
 ) {
-    fun configureTaskWithSchema(
-        project: Project,
-        roomExtension: RoomExtension,
-        matchName: RoomExtension.MatchName,
-        schemaDirectory: String,
-        task: Task
-    ): RoomArgumentProvider {
-        val schemaDirectoryPath = Path(schemaDirectory)
-        if (schemaDirectoryPath.notExists()) {
-            project.check(schemaDirectoryPath.toFile().mkdirs()) {
-                "Unable to create directory: $schemaDirectoryPath"
-            }
+    // Schema copy task name to annotation processing task names
+    private val copyTaskToApTaskNames = mutableMapOf<String, MutableSet<String>>()
+
+    // Annotation processing task name to `room.internal.schemaOutput` directory.
+    private val apTaskSchemaOutputDirs = mutableMapOf<String, Provider<Directory>>()
+
+    /**
+     * Wires a new matching schema config copy task to have as inputs all possible annotation
+     * processing task outputs that might generate schemas. Old schema matching schema config being
+     * replaced (due to priority) is also
+     */
+    fun configureSchemaCopyTask(
+        apTaskNames: Set<String>,
+        oldSchemaConfig: SchemaConfiguration?,
+        newSchemaConfig: SchemaConfiguration
+    ) {
+        // If a schema config is being replaced, unlink ap generating tasks from it.
+        if (oldSchemaConfig != null) {
+            copyTaskToApTaskNames
+                .getOrPut(oldSchemaConfig.copyTask.name) { mutableSetOf() }
+                .removeAll(apTaskNames)
         }
 
-        val schemaInputDir =
-            objectFactory.directoryProperty().apply { set(project.file(schemaDirectoryPath)) }
-        val schemaOutputDir =
-            projectLayout.buildDirectory.dir("intermediates/room/schemas/${task.name}")
+        // Add ap generating tasks to new schema config.
+        copyTaskToApTaskNames
+            .getOrPut(newSchemaConfig.copyTask.name) { mutableSetOf() }
+            .addAll(apTaskNames)
 
-        val copyTask =
-            roomExtension.copyTasks.getOrPut(matchName) {
-                project.tasks.register(
-                    "copyRoomSchemas${matchName.actual.capitalize()}",
-                    RoomSchemaCopyTask::class.java
-                ) {
-                    it.schemaDirectory.set(schemaInputDir)
+        newSchemaConfig.copyTask.configure { copyTask ->
+            // Reset the output directories as there might be various configure() lambdas registered
+            // during the matching process.
+            copyTask.apTaskSchemaOutputDirectories.empty()
+            // Using the up-to-date copy task to AP task names directories, link ap task outputs
+            // with copy task inputs.
+            copyTaskToApTaskNames
+                .getValue(copyTask.name)
+                .map { apTaskName ->
+                    apTaskSchemaOutputDirs.getOrPut(apTaskName) {
+                        projectLayout.buildDirectory.dir("intermediates/room/schemas/$apTaskName")
+                    }
                 }
-            }
-        copyTask.configure { it.variantSchemaOutputDirectories.from(schemaOutputDir) }
-        task.finalizedBy(copyTask)
+                .forEach { copyTask.apTaskSchemaOutputDirectories.add(it) }
+        }
+    }
 
+    /**
+     * Creates the argument provider for an annotation processing task, that will be used to wire
+     * the copy task inputs / outputs.
+     */
+    fun createArgumentProvider(
+        schemaConfiguration: SchemaConfiguration,
+        roomOptions: RoomOptions,
+        task: Task
+    ): RoomArgumentProvider {
         return RoomArgumentProvider(
             forKsp = task.isKspTask(),
-            schemaInputDir = schemaInputDir,
-            schemaOutputDir = schemaOutputDir,
-            options = roomExtension.toOptions()
+            schemaInputDir = schemaConfiguration.copyTask.flatMap { it.schemaDirectory },
+            schemaOutputDir =
+                providerFactory.provider { apTaskSchemaOutputDirs.getValue(task.name).get() },
+            options = roomOptions
         )
     }
 }

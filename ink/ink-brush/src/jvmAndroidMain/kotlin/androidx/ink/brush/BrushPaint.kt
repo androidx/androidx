@@ -208,6 +208,12 @@ public class BrushPaint(
                 SRC_ATOP -> "BrushPaint.BlendMode.SRC_ATOP"
                 SRC_IN -> "BrushPaint.BlendMode.SRC_IN"
                 SRC_OVER -> "BrushPaint.BlendMode.SRC_OVER"
+                DST_OVER -> "BrushPaint.BlendMode.DST_OVER"
+                SRC -> "BrushPaint.BlendMode.SRC"
+                DST -> "BrushPaint.BlendMode.DST"
+                SRC_OUT -> "BrushPaint.BlendMode.SRC_OUT"
+                DST_ATOP -> "BrushPaint.BlendMode.DST_ATOP"
+                XOR -> "BrushPaint.BlendMode.XOR"
                 else -> "BrushPaint.BlendMode.INVALID($value)"
             }
 

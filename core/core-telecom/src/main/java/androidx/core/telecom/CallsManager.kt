@@ -118,6 +118,12 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
 
         /**
+         * Event sent from the call producer application to the external call surfaces to notify
+         * them that the call has been successfully setup and is ready to be used.
+         */
+        internal const val EVENT_CALL_READY = "androidx.core.telecom.EVENT_CALL_READY"
+
+        /**
          * The connection is using transactional call APIs.
          *
          * The underlying connection was added as a transactional call via the
@@ -355,11 +361,10 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * callback flow will be continuously updated until the call session is established via
      * [addCall]. Once [addCall] is invoked with a
      * [CallAttributesCompat.preferredStartingCallEndpoint], the callback containing the
-     * [CallEndpointCompat] will be forced closed on behalf of the client. If the flow is canceled
-     * before adding the call, the [CallAttributesCompat.preferredStartingCallEndpoint] will be
-     * voided. If a call session isn't started, the flow should be cleaned up client-side by calling
-     * cancel() from the same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting
-     * in.
+     * [CallEndpointCompat] will stop receiving updates. If the flow is canceled before adding the
+     * call, the [CallAttributesCompat.preferredStartingCallEndpoint] will be voided. If a call
+     * session isn't started, the flow should be cleaned up client-side by calling cancel() from the
+     * same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting in.
      *
      * Note: The endpoints emitted will be sorted by the [CallEndpointCompat.type] . See
      * [CallEndpointCompat.compareTo] for the ordering. The first element in the list will be the
@@ -504,6 +509,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     coroutineContext
                 )
 
+            callSession.sendEvent(EVENT_CALL_READY)
             callSession.maybeSwitchStartingEndpoint(callAttributes.preferredStartingCallEndpoint)
 
             // Run the clients code with the session active and exposed via the CallControlScope

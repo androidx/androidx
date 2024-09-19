@@ -391,7 +391,7 @@ private class ButtonGroupMeasurePolicy(
 
         // Compute the row size and position the children.
         val mainAxisLayoutSize = max((fixedSpace + weightedSpace).coerceAtLeast(0), mainAxisMin)
-        val mainAxisPositions = IntArray(size) { 0 }
+        val mainAxisPositions = IntArray(size)
         val measureScope = this
         with(horizontalArrangement) {
             measureScope.arrange(

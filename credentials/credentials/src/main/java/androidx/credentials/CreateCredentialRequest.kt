@@ -19,7 +19,6 @@ package androidx.credentials
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.annotation.Discouraged
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
@@ -177,14 +176,15 @@ internal constructor(
             /**
              * Returns a RequestDisplayInfo from a [CreateCredentialRequest.credentialData] Bundle.
              *
+             * It is recommended to construct a DisplayInfo by direct constructor calls, instead of
+             * using this API. This API should only be used by a small subset of system apps that
+             * reconstruct an existing object for user interactions such as collecting consents.
+             *
              * @param from the raw display data in the Bundle format, retrieved from
              *   [CreateCredentialRequest.credentialData]
              */
             @JvmStatic
             @RequiresApi(23) // Icon dependency
-            @Discouraged(
-                "It is recommended to construct a DisplayInfo by directly using the DisplayInfo constructor"
-            )
             fun createFrom(from: Bundle): DisplayInfo {
                 return try {
                     val displayInfoBundle = from.getBundle(BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
@@ -215,13 +215,15 @@ internal constructor(
         /**
          * Parses the [request] into an instance of [CreateCredentialRequest].
          *
+         * It is recommended to construct a CreateCredentialRequest by directly instantiating a
+         * CreateCredentialRequest subclass, instead of using this API. This API should only be used
+         * by a small subset of system apps that reconstruct an existing object for user
+         * interactions such as collecting consents.
+         *
          * @param request the framework CreateCredentialRequest object
          */
         @JvmStatic
         @RequiresApi(34)
-        @Discouraged(
-            "It is recommended to construct a CreateCredentialRequest by directly instantiating a CreateCredentialRequest subclass"
-        )
         fun createFrom(
             request: android.credentials.CreateCredentialRequest
         ): CreateCredentialRequest {
@@ -237,6 +239,11 @@ internal constructor(
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
          * [CreatePublicKeyCredentialRequest], and [CreateCustomCredentialRequest].
+         *
+         * It is recommended to construct a CreateCredentialRequest by directly instantiating a
+         * CreateCredentialRequest subclass, instead of using this API. This API should only be used
+         * by a small subset of system apps that reconstruct an existing object for user
+         * interactions such as collecting consents.
          *
          * @param type matches [CreateCredentialRequest.type]
          * @param credentialData matches [CreateCredentialRequest.credentialData], the request data
@@ -254,9 +261,6 @@ internal constructor(
         @JvmStatic
         @JvmOverloads
         @RequiresApi(23)
-        @Discouraged(
-            "It is recommended to construct a CreateCredentialRequest by directly instantiating a CreateCredentialRequest subclass"
-        )
         fun createFrom(
             type: String,
             credentialData: Bundle,

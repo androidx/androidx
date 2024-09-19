@@ -108,6 +108,9 @@ public class ConversationItem implements Item {
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
         checkState(!mMessages.isEmpty(), "Message list cannot be empty.");
+        for (CarMessage message : mMessages) {
+            checkState(message != null, "Message list cannot contain null messages");
+        }
         this.mConversationCallbackDelegate = requireNonNull(builder.mConversationCallbackDelegate);
         this.mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
         this.mIndexable = builder.mIndexable;
@@ -299,7 +302,8 @@ public class ConversationItem implements Item {
         /**
          * Specifies a list of messages for the conversation
          *
-         * <p> The messages should be sorted from oldest to newest.
+         * <p> The messages should be sorted from oldest to newest and should not contain any null
+         * values.
          */
         @NonNull
         public Builder setMessages(@NonNull List<CarMessage> messages) {
@@ -340,13 +344,12 @@ public class ConversationItem implements Item {
          * <p>The host creates indexed lists to help users navigate through long lists more easily
          * by sorting, filtering, or some other means.
          *
-         * <p>For example, a media app may, by default, show a user's playlists sorted by date
-         * created. If the app provides these playlists via the {@code SectionedItemTemplate} and
-         * enables {@code #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
-         * playlists that start with the letter "H". When this happens, the list is reconstructed
-         * and sorted alphabetically, then shown to the user, jumping down to the letter "H". If
-         * the item is set to {@code #setIndexable(false)}, the item will not show up in this newly
-         * sorted list.
+         * <p>For example, a messaging app may show conversations by last message received. If the
+         * app provides these conversations via the {@code SectionedItemTemplate} and enables
+         * {@code #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
+         * conversations that start with a given letter they chose. The messaging app can choose
+         * to hide, for example, service messages from this filtered list by setting this {@code
+         * #setIndexable(false)}.
          *
          * <p>Individual items can be set to be included or excluded from filtered lists, but it's
          * also possible to enable/disable the creation of filtered lists as a whole via the
@@ -366,9 +369,53 @@ public class ConversationItem implements Item {
             return new ConversationItem(this);
         }
 
-        /** Returns an empty {@link Builder} instance. */
+        /** @deprecated Returns an empty {@link Builder} instance. */
+        @Deprecated
         public Builder() {
             mActions = new ArrayList<>();
+        }
+
+        /**
+         * Creates a {@link Builder} instance with the provided required params.
+         *
+         * @param id Specifies a unique identifier for the conversation
+         *
+         * <p> IDs may be used for a variety of purposes, including...
+         * <ul>
+         *     <li> Distinguishing new {@link ConversationItem}s from updated
+         *     {@link ConversationItem}s in the UI, when data is refreshed
+         *     <li> Identifying {@link ConversationItem}s in "mark as read" / "reply" callbacks
+         * </ul>
+         *
+         * @param title Title of the conversation
+         * @param self {@link Person} for the conversation
+         *
+         * <p> The {@link Person} must specify a non-null
+         * {@link Person.Builder#setName(CharSequence)} and
+         * {@link Person.Builder#setKey(String)}.
+         *
+         * @param messages Specifies a list of messages for the conversation
+         *
+         * <p> The messages should be sorted from oldest to newest and should not contain any null
+         * values.
+         *
+         * @param conversationCallback {@link ConversationCallback} for the conversation
+         */
+        @SuppressLint("ExecutorRegistration")
+        public Builder(
+                @NonNull String id,
+                @NonNull CarText title,
+                @NonNull Person self,
+                @NonNull List<CarMessage> messages,
+                @NonNull ConversationCallback conversationCallback) {
+            mId = id;
+            mTitle = title;
+            mSelf = self;
+            mMessages = messages;
+            mConversationCallbackDelegate =
+                    new ConversationCallbackDelegateImpl(requireNonNull(conversationCallback));
+            mActions = new ArrayList<>();
+
         }
 
         /** Returns a builder from the given {@link ConversationItem}. */

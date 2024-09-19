@@ -752,6 +752,8 @@ public class SearchSpecCtsTest {
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy("this.documentScore()")
                 .addInformationalRankingExpressions("this.relevanceScore()")
+                .addInformationalRankingExpressions(
+                        ImmutableSet.of("this.documentScore() * this.relevanceScore()", "1 + 1"))
                 .build();
         assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
         assertThat(searchSpec.getRankingStrategy())
@@ -759,7 +761,8 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.getAdvancedRankingExpression())
                 .isEqualTo("this.documentScore()");
         assertThat(searchSpec.getInformationalRankingExpressions()).containsExactly(
-                "this.relevanceScore()");
+                "this.relevanceScore()",
+                "this.documentScore() * this.relevanceScore()", "1 + 1").inOrder();
     }
 
     @Test
@@ -772,6 +775,8 @@ public class SearchSpecCtsTest {
         SearchSpec original = searchSpecBuilder.build();
         SearchSpec rebuild = searchSpecBuilder
                 .addInformationalRankingExpressions("this.documentScore()")
+                .addInformationalRankingExpressions(
+                        ImmutableSet.of("this.documentScore() * this.relevanceScore()", "1 + 1"))
                 .build();
 
         // Rebuild won't effect the original object
@@ -779,7 +784,8 @@ public class SearchSpecCtsTest {
                 .containsExactly("this.relevanceScore()");
 
         assertThat(rebuild.getInformationalRankingExpressions())
-                .containsExactly("this.relevanceScore()", "this.documentScore()").inOrder();
+                .containsExactly("this.relevanceScore()", "this.documentScore()",
+                        "this.documentScore() * this.relevanceScore()", "1 + 1").inOrder();
     }
 
     @Test

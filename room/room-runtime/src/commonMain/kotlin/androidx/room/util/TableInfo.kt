@@ -201,7 +201,7 @@ internal fun TableInfo.toStringCommon(): String {
 internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
     if (this === other) return true
     if (other !is TableInfo.Column) return false
-    if (!equalsInPrimaryKey(other)) return false
+    if (isPrimaryKey != other.isPrimaryKey) return false
     if (name != other.name) return false
     if (notNull != other.notNull) return false
     // Only validate default value if it was defined in an entity, i.e. if the info
@@ -230,9 +230,6 @@ internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
     }
     return affinity == other.affinity
 }
-
-/** Checks if the primary key match. */
-internal expect fun TableInfo.Column.equalsInPrimaryKey(other: TableInfo.Column): Boolean
 
 /**
  * Checks if the default values provided match. Handles the special case in which the default value

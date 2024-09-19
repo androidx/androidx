@@ -112,6 +112,10 @@ NOTE Experimental marker annotation *are themselves* experimental, meaning that
 it's considered binary compatible to refactor or remove an experimental marker
 annotation.
 
+Note: Experimental APIs are reviewed by API Council both when the APIs are first
+introduced, and when they are stabilized. API Council may have additional
+feedback during stabilization.
+
 ### `@RestrictTo` APIs {#restricted-api}
 
 Jetpack's library tooling supports hiding JVM-visible (ex. `public` and

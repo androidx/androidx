@@ -37,6 +37,8 @@ internal data class LazyColumnMeasuredItem(
     val horizontalAlignment: Alignment.Horizontal,
     /** The [LayoutDirection] of the `Layout`. */
     private val layoutDirection: LayoutDirection,
+    override val key: Any,
+    override val contentType: Any?,
 ) : LazyColumnVisibleItemInfo {
     /** The height of the item after transformations applied. */
     override val height =

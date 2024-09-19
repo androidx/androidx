@@ -40,22 +40,21 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
-import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButtonDefaults
-import androidx.wear.compose.material3.InlineSlider
-import androidx.wear.compose.material3.InlineSliderDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.SegmentedCircularProgressIndicator
+import androidx.wear.compose.material3.Slider
+import androidx.wear.compose.material3.SliderDefaults
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
+import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
 import androidx.wear.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
-import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorOnOffSample
+import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorBinarySample
 import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
@@ -90,9 +89,12 @@ val ProgressIndicatorDemos =
         ComposableDemo("Small progress values") {
             Centralize { SmallValuesProgressIndicatorSample() }
         },
+        ComposableDemo("Indeterminate progress") {
+            Centralize { IndeterminateProgressIndicatorSample() }
+        },
         ComposableDemo("Segmented progress") { Centralize { SegmentedProgressIndicatorSample() } },
-        ComposableDemo("Progress segments on/off") {
-            Centralize { SegmentedProgressIndicatorOnOffSample() }
+        ComposableDemo("Segmented binary") {
+            Centralize { SegmentedProgressIndicatorBinarySample() }
         },
         ComposableDemo("Small segmented progress") {
             Centralize { SmallSegmentedProgressIndicatorSample() }
@@ -140,13 +142,15 @@ fun CircularProgressCustomisableFullScreenDemo() {
     val startAngle = remember { mutableFloatStateOf(360f) }
     val endAngle = remember { mutableFloatStateOf(360f) }
     val enabled = remember { mutableStateOf(true) }
+    val overflowAllowed = remember { mutableStateOf(true) }
     val hasLargeStroke = remember { mutableStateOf(true) }
     val hasCustomColors = remember { mutableStateOf(false) }
     val colors =
         if (hasCustomColors.value) {
             ProgressIndicatorDefaults.colors(
                 indicatorColor = Color.Green,
-                trackColor = Color.Green.copy(alpha = 0.5f)
+                trackColor = Color.Green.copy(alpha = 0.5f),
+                overflowTrackColor = Color.Green.copy(alpha = 0.7f),
             )
         } else {
             ProgressIndicatorDefaults.colors()
@@ -166,6 +170,7 @@ fun CircularProgressCustomisableFullScreenDemo() {
             startAngle = startAngle,
             endAngle = endAngle,
             enabled = enabled,
+            overflowAllowed = overflowAllowed,
             hasLargeStroke = hasLargeStroke,
             hasCustomColors = hasCustomColors,
         )
@@ -175,8 +180,9 @@ fun CircularProgressCustomisableFullScreenDemo() {
             startAngle = startAngle.value,
             endAngle = endAngle.value,
             enabled = enabled.value,
+            allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
-            colors = colors
+            colors = colors,
         )
     }
 }
@@ -187,6 +193,7 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
     val startAngle = remember { mutableFloatStateOf(0f) }
     val endAngle = remember { mutableFloatStateOf(0f) }
     val enabled = remember { mutableStateOf(true) }
+    val overflowAllowed = remember { mutableStateOf(true) }
     val hasCustomColors = remember { mutableStateOf(false) }
     val hasLargeStroke = remember { mutableStateOf(true) }
     val numSegments = remember { mutableIntStateOf(5) }
@@ -194,7 +201,8 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
         if (hasCustomColors.value) {
             ProgressIndicatorDefaults.colors(
                 indicatorColor = Color.Green,
-                trackColor = Color.Green.copy(alpha = 0.5f)
+                trackColor = Color.Green.copy(alpha = 0.5f),
+                overflowTrackColor = Color.Green.copy(alpha = 0.7f),
             )
         } else {
             ProgressIndicatorDefaults.colors()
@@ -217,6 +225,7 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
             hasLargeStroke = hasLargeStroke,
             hasCustomColors = hasCustomColors,
             numSegments = numSegments,
+            overflowAllowed = overflowAllowed
         )
 
         SegmentedCircularProgressIndicator(
@@ -225,13 +234,13 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
             startAngle = startAngle.value,
             endAngle = endAngle.value,
             enabled = enabled.value,
+            allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
-            colors = colors
+            colors = colors,
         )
     }
 }
 
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 fun ProgressIndicatorCustomizer(
     progress: MutableState<Float>,
@@ -240,6 +249,7 @@ fun ProgressIndicatorCustomizer(
     enabled: MutableState<Boolean>,
     hasLargeStroke: MutableState<Boolean>,
     hasCustomColors: MutableState<Boolean>,
+    overflowAllowed: MutableState<Boolean>,
     numSegments: MutableState<Int>? = null,
 ) {
     ScalingLazyColumn(
@@ -249,15 +259,13 @@ fun ProgressIndicatorCustomizer(
     ) {
         item { Text(String.format("Progress: %.0f%%", progress.value * 100)) }
         item {
-            InlineSlider(
+            Slider(
                 value = progress.value,
                 onValueChange = { progress.value = it },
-                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                valueRange = 0f..1f,
-                steps = 4,
+                valueRange = 0f..2f,
+                steps = 9,
                 colors =
-                    InlineSliderDefaults.colors(
+                    SliderDefaults.sliderColors(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),
                 segmented = false
@@ -266,15 +274,13 @@ fun ProgressIndicatorCustomizer(
         if (numSegments != null) {
             item { Text("Segments: ${numSegments.value}") }
             item {
-                InlineSlider(
+                Slider(
                     value = numSegments.value.toFloat(),
                     onValueChange = { numSegments.value = it.toInt() },
-                    increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                    decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                     valueRange = 1f..12f,
                     steps = 10,
                     colors =
-                        InlineSliderDefaults.colors(
+                        SliderDefaults.sliderColors(
                             containerColor = MaterialTheme.colorScheme.background,
                         ),
                 )
@@ -282,32 +288,28 @@ fun ProgressIndicatorCustomizer(
         }
         item { Text("Start Angle: ${startAngle.value.toInt()}") }
         item {
-            InlineSlider(
+            Slider(
                 value = startAngle.value,
                 onValueChange = { startAngle.value = it },
-                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 valueRange = 0f..360f,
                 steps = 7,
                 segmented = false,
                 colors =
-                    InlineSliderDefaults.colors(
+                    SliderDefaults.sliderColors(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),
             )
         }
         item { Text("End angle: ${endAngle.value.toInt()}") }
         item {
-            InlineSlider(
+            Slider(
                 value = endAngle.value,
                 onValueChange = { endAngle.value = it },
-                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 valueRange = 0f..360f,
                 steps = 7,
                 segmented = false,
                 colors =
-                    InlineSliderDefaults.colors(
+                    SliderDefaults.sliderColors(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),
             )
@@ -334,6 +336,14 @@ fun ProgressIndicatorCustomizer(
                 checked = hasCustomColors.value,
                 onCheckedChange = { hasCustomColors.value = it },
                 label = { Text("Custom colors") },
+            )
+        }
+        item {
+            SwitchButton(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                checked = overflowAllowed.value,
+                onCheckedChange = { overflowAllowed.value = it },
+                label = { Text("Overflow") },
             )
         }
     }

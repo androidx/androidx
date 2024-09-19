@@ -99,8 +99,8 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
     public operator fun get(index: Int): StrokeInput = populate(index, StrokeInput())
 
     /**
-     * Gets the value of the i-th input and overwrites [outStrokeInput]. Requires that [index] is
-     * positive and less than [size]. Returns [outStrokeInput].
+     * Gets the value of the i-th input and overwrites [outStrokeInput], which it then returns.
+     * Requires that [index] is positive and less than [size].
      */
     public fun populate(index: Int, outStrokeInput: StrokeInput): StrokeInput {
         require(index < size && index >= 0) { "index ($index) must be in [0, size=$size)" }

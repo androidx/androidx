@@ -243,13 +243,15 @@ class NavGraphBuilderTest {
 
     @Test
     fun testNavigationNestedKClassStart() {
+        @Serializable class TestOuterClass
+
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
             navController = TestNavHostController(LocalContext.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            NavHost(navController, startDestination = TestClassArg::class) {
-                navigation<TestClassArg>(startDestination = TestClass::class) {
+            NavHost(navController, startDestination = TestOuterClass::class) {
+                navigation<TestOuterClass>(startDestination = TestClass::class) {
                     composable<TestClass> {}
                 }
             }
@@ -258,7 +260,7 @@ class NavGraphBuilderTest {
         composeTestRule.runOnUiThread {
             assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
             assertWithMessage("Destination should be added to the graph")
-                .that(TestClassArg::class in navController.graph)
+                .that(TestOuterClass::class in navController.graph)
                 .isTrue()
             assertThat(navController.graph.findStartDestination().route).isEqualTo(TEST_CLASS_ROUTE)
         }
@@ -341,7 +343,7 @@ class NavGraphBuilderTest {
             navController = TestNavHostController(LocalContext.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            NavHost(navController, startDestination = TestClassArg::class) {
+            NavHost(navController, startDestination = TestClassArg(1)) {
                 navigation<TestClassArg>(startDestination = TestClass()) {
                     composable<TestClass> {}
                 }
@@ -596,8 +598,10 @@ class NavGraphBuilderTest {
         }
         assertThat(exception)
             .isEqualTo(
-                "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
-                    "NavType. Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.compose.NavGraphBuilderTest" +
+                    ".testComposableKClassArgsMissingCustomType.TestClass could " +
+                    "not find any NavType for argument arg of type androidx" +
+                    ".navigation.compose.CustomType - typeMap received was {}"
             )
     }
 
@@ -713,8 +717,10 @@ class NavGraphBuilderTest {
         }
         assertThat(exception)
             .isEqualTo(
-                "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
-                    "NavType. Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.compose.NavGraphBuilderTest" +
+                    ".testDialogKClassArgsMissingCustomType.TestClass could not " +
+                    "find any NavType for argument arg of type androidx.navigation" +
+                    ".compose.CustomType - typeMap received was {}"
             )
     }
 

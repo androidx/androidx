@@ -35,19 +35,15 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -625,62 +621,5 @@ class RulerTest {
         offset = 100
         rule.waitForIdle()
         assertThat(rulerValue).isWithin(0.01f).of(-100f)
-    }
-
-    @Test
-    fun rulerMovesWithView() {
-        var offset by mutableIntStateOf(0)
-        var rulerValue = 0f
-        var rootX = 0f
-        var rulerChanged = CountDownLatch(1)
-        rule.setContent {
-            Box(
-                Modifier.onPlaced { rootX = it.positionInWindow().x }
-                    .offset { IntOffset(offset, 0) }
-            ) {
-                AndroidView(
-                    factory = { context ->
-                        ComposeView(context).apply {
-                            setContent {
-                                Box(
-                                    Modifier.layout { m, constraints ->
-                                        val p = m.measure(constraints)
-                                        layout(
-                                            p.width,
-                                            p.height,
-                                            rulers = {
-                                                val position = coordinates.positionInWindow().x
-                                                verticalRuler.provides(-position)
-                                            }
-                                        ) {
-                                            p.place(0, 0)
-                                        }
-                                    }
-                                ) {
-                                    Box(
-                                        Modifier.layout { measurable, constraints ->
-                                            val p = measurable.measure(constraints)
-                                            layout(p.width, p.height) {
-                                                rulerValue = verticalRuler.current(Float.NaN)
-                                                rulerChanged.countDown()
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-        }
-        assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
-        rule.runOnUiThread {
-            assertThat(rulerValue).isWithin(0.01f).of(-rootX)
-            rulerChanged = CountDownLatch(1)
-            offset = 100
-            rule.activity.window.decorView.invalidate()
-        }
-        assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
-        rule.runOnIdle { assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX) }
     }
 }

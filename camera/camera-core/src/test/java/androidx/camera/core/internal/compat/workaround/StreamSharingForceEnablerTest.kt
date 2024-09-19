@@ -81,6 +81,45 @@ class StreamSharingForceEnablerTest(
                     )
                 )
                 add(arrayOf("", "", "1", PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE, false))
+                add(arrayOf("Motorola", "Moto E20", "0", PREVIEW or VIDEO_CAPTURE, true))
+                add(arrayOf("Motorola", "Moto E20", "1", PREVIEW or VIDEO_CAPTURE, false))
+                add(
+                    arrayOf(
+                        "Motorola",
+                        "Moto E20",
+                        "0",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        false
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 4a",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 5",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 4a",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(arrayOf("Google", "Pixel 5a", "1", PREVIEW or IMAGE_CAPTURE, false))
             }
     }
 

@@ -21,7 +21,6 @@ import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.
 
 import android.graphics.Rect;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.FocusMeteringAction;
@@ -47,8 +46,6 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -79,18 +76,13 @@ public final class FakeCameraControl implements CameraControlInternal {
      * <p> {@link CameraXExecutors#directExecutor} via default, unless some other executor is set
      * via {@link #FakeCameraControl(Executor, CameraControlInternal.ControlUpdateCallback)}.
      */
-    @NonNull
-    private final Executor mExecutor;
+    @NonNull private final Executor mExecutor;
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @ImageCapture.FlashMode
     private int mFlashMode = FLASH_MODE_OFF;
     private final ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
-    @Deprecated
     private Pair<Executor, OnNewCaptureRequestListener> mOnNewCaptureRequestListener;
-    @GuardedBy("mOnNewCaptureRequestListeners")
-    private final List<Pair<Executor, OnNewCaptureRequestListener>> mOnNewCaptureRequestListeners =
-            new ArrayList<>();
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
     private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
             new ArrayList<>();
@@ -135,8 +127,7 @@ public final class FakeCameraControl implements CameraControlInternal {
      * Constructs an instance of {@link FakeCameraControl} with the
      * provided {@link ControlUpdateCallback}.
      *
-     * @param executor              {@link Executor} used to invoke the {@code
-     * controlUpdateCallback}.
+     * @param executor {@link Executor} used to invoke the {@code controlUpdateCallback}.
      * @param controlUpdateCallback {@link ControlUpdateCallback} to notify events.
      */
     public FakeCameraControl(@NonNull Executor executor,
@@ -186,38 +177,6 @@ public final class FakeCameraControl implements CameraControlInternal {
         }
         mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
-    }
-
-    /**
-     * Notifies last submitted request using {@link CameraCaptureCallback#onCaptureCompleted},
-     * which is invoked in the thread denoted by {@link #mExecutor}.
-     *
-     * @param result The {@link CameraCaptureResult} which is notified to all the callbacks.
-     */
-    public void notifyLastRequestOnCaptureCompleted(@NonNull CameraCaptureResult result) {
-        if (mSubmittedCaptureRequests.isEmpty() || mSubmittedCompleterList.isEmpty()) {
-            Logger.e(TAG,
-                    "notifyLastRequestOnCaptureCompleted: returning early since either "
-                            + "mSubmittedCaptureRequests or mSubmittedCompleterList is empty, "
-                            + "mSubmittedCaptureRequests = "
-                            + mSubmittedCaptureRequests + ", mSubmittedCompleterList"
-                            + mSubmittedCompleterList);
-            return;
-        }
-
-        CaptureConfig captureConfig = mSubmittedCaptureRequests.get(
-                mSubmittedCaptureRequests.size() - 1);
-        for (CameraCaptureCallback cameraCaptureCallback :
-                captureConfig.getCameraCaptureCallbacks()) {
-            mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(
-                    captureConfig.getId(), result));
-        }
-        mSubmittedCaptureRequests.remove(captureConfig);
-
-        CallbackToFutureAdapter.Completer<Void> completer = mSubmittedCompleterList.get(
-                mSubmittedCompleterList.size() - 1);
-        completer.set(null);
-        mSubmittedCompleterList.remove(completer);
     }
 
     /**
@@ -329,7 +288,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     public ListenableFuture<List<Void>> submitStillCaptureRequests(
             @NonNull List<CaptureConfig> captureConfigs,
             int captureMode, int flashType) {
-        Logger.d(TAG, "submitStillCaptureRequests: captureConfigs = " + captureConfigs);
         mSubmittedCaptureRequests.addAll(captureConfigs);
         mExecutor.execute(
                 () -> mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs));
@@ -341,16 +299,12 @@ public final class FakeCameraControl implements CameraControlInternal {
             }));
         }
 
-        synchronized (mOnNewCaptureRequestListeners) {
-            Logger.d(TAG, "submitStillCaptureRequests: mOnNewCaptureRequestListeners = "
-                    + mOnNewCaptureRequestListeners);
+        if (mOnNewCaptureRequestListener != null) {
+            Executor executor = Objects.requireNonNull(mOnNewCaptureRequestListener.first);
+            OnNewCaptureRequestListener listener =
+                    Objects.requireNonNull(mOnNewCaptureRequestListener.second);
 
-            for (Pair<Executor, FakeCameraControl.OnNewCaptureRequestListener> listenerPair :
-                    mOnNewCaptureRequestListeners) {
-                Executor executor = Objects.requireNonNull(listenerPair.first);
-                OnNewCaptureRequestListener listener = Objects.requireNonNull(listenerPair.second);
-                executor.execute(() -> listener.onNewCaptureRequests(captureConfigs));
-            }
+            executor.execute(() -> listener.onNewCaptureRequests(captureConfigs));
         }
         return Futures.allAsList(fakeFutures);
     }
@@ -394,58 +348,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     /**
-     * Adds a listener to be notified when there are new capture requests submitted.
-     *
-     * <p> Note that the listener will be executed on the calling thread directly using
-     * {@link CameraXExecutors#directExecutor}. To specify the execution thread, use
-     * {@link #setOnNewCaptureRequestListener(Executor, OnNewCaptureRequestListener)}.
-     *
-     * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
-     */
-    public void addOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
-        addOnNewCaptureRequestListener(CameraXExecutors.directExecutor(), listener);
-    }
-
-    /**
-     * Adds a listener to be notified when there are new capture requests submitted.
-     *
-     * @param executor {@link Executor} used to notify the {@code listener}.
-     * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
-     */
-    public void addOnNewCaptureRequestListener(@NonNull Executor executor,
-            @NonNull OnNewCaptureRequestListener listener) {
-        synchronized (mOnNewCaptureRequestListeners) {
-            mOnNewCaptureRequestListeners.add(new Pair<>(executor, listener));
-        }
-    }
-
-    /**
-     * Removes a listener set via {@link #addOnNewCaptureRequestListener}.
-     */
-    public void removeOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
-        removeOnNewCaptureRequestListeners(Collections.singletonList(listener));
-    }
-
-    /**
-     * Removes a listener set via {@link #addOnNewCaptureRequestListener}.
-     */
-    public void removeOnNewCaptureRequestListeners(
-            @NonNull List<OnNewCaptureRequestListener> listeners) {
-        synchronized (mOnNewCaptureRequestListeners) {
-            Iterator<Pair<Executor, OnNewCaptureRequestListener>> iterator =
-                    mOnNewCaptureRequestListeners.iterator();
-            while (iterator.hasNext()) {
-                Pair<Executor, OnNewCaptureRequestListener> element = iterator.next();
-                if (listeners.contains(element.second)) {
-                    iterator.remove();
-                }
-            }
-        }
-    }
-
-    /**
      * Sets a listener to be notified when there are new capture requests submitted.
      *
      * <p> Note that the listener will be executed on the calling thread directly using
@@ -453,10 +355,8 @@ public final class FakeCameraControl implements CameraControlInternal {
      * {@link #setOnNewCaptureRequestListener(Executor, OnNewCaptureRequestListener)}.
      *
      * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
-     * @deprecated Use {@link #addOnNewCaptureRequestListener(OnNewCaptureRequestListener)} instead.
+     * {@link CaptureConfig} parameters when new capture requests are submitted.
      */
-    @Deprecated // TODO: b/359458110 - Remove all usages
     public void setOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
         setOnNewCaptureRequestListener(CameraXExecutors.directExecutor(), listener);
     }
@@ -466,31 +366,17 @@ public final class FakeCameraControl implements CameraControlInternal {
      *
      * @param executor {@link Executor} used to notify the {@code listener}.
      * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
-     * @deprecated Use
-     * {@link #addOnNewCaptureRequestListener(Executor, OnNewCaptureRequestListener)}
-     * instead.
+     * {@link CaptureConfig} parameters when new capture requests are submitted.
      */
-    @Deprecated // TODO: b/359458110 - Remove all usages
     public void setOnNewCaptureRequestListener(@NonNull Executor executor,
             @NonNull OnNewCaptureRequestListener listener) {
         mOnNewCaptureRequestListener = new Pair<>(executor, listener);
-        addOnNewCaptureRequestListener(executor, listener);
     }
 
     /**
      * Clears any listener set via {@link #setOnNewCaptureRequestListener}.
-     *
-     * @deprecated Use {@link #removeOnNewCaptureRequestListener(OnNewCaptureRequestListener)}
-     * instead.
      */
-    @Deprecated // TODO: b/359458110 - Remove all usages
     public void clearNewCaptureRequestListener() {
-        if (mOnNewCaptureRequestListener == null) {
-            return;
-        }
-        removeOnNewCaptureRequestListener(
-                Objects.requireNonNull(mOnNewCaptureRequestListener.second));
         mOnNewCaptureRequestListener = null;
     }
 

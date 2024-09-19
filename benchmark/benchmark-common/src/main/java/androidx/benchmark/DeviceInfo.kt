@@ -70,6 +70,24 @@ object DeviceInfo {
                 .any { File(it).exists() }
 
     /**
+     * Null if BP capture is supported on this device, error string if it's not.
+     *
+     * Can be passed to assumeTrue()/require()
+     *
+     * Lazy to allow late init, after shell connection is set up
+     */
+    val supportsBaselineProfileCaptureError: String? by lazy {
+        if (
+            Build.VERSION.SDK_INT >= 33 || (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
+        ) {
+            null // profile capture works, no error
+        } else {
+            "Baseline Profile collection requires API 33+, or a rooted" +
+                " device running API 28 or higher and rooted adb session (via `adb root`)."
+        }
+    }
+
+    /**
      * Battery percentage required to avoid low battery warning.
      *
      * This number is supposed to be a conservative cutoff for when low-battery-triggered power

@@ -22,9 +22,11 @@ plugins {
 
 android {
     namespace "androidx.privacysandbox.ui.integration.sdkproviderutils"
+    compileSdk 35
 }
 
 dependencies {
+    implementation project(':privacysandbox:ui:ui-client')
     implementation project(':privacysandbox:ui:ui-core')
     implementation project(':privacysandbox:ui:ui-provider')
     implementation project(':privacysandbox:ui:integration-tests:testaidl')

@@ -33,7 +33,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -101,6 +105,34 @@ class AutoClosingDatabaseTest {
         db.close()
     }
 
+    @Test
+    fun twoThreadsConcurrentlyStressTest() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase("testDb")
+
+        // One nanosecond is basically 'zero' but we use it to bypass the check in setAutoClose().
+        // We use such value because it has higher probability of revealing concurrency issues,
+        // making this test more useful.
+        val db =
+            Room.databaseBuilder<TestDatabase>(context, "testDb")
+                .setAutoCloseTimeout(1, TimeUnit.NANOSECONDS)
+                .build()
+
+        List(2) { coroutineId ->
+                when (coroutineId) {
+                    0 ->
+                        launch(Dispatchers.IO) {
+                            repeat(1000) { db.getUserDao().insert(TestUser(it.toLong(), "$it")) }
+                        }
+                    1 -> launch(Dispatchers.IO) { repeat(1000) { db.getUserDao().getAll() } }
+                    else -> error("Too many repeat")
+                }
+            }
+            .joinAll()
+
+        db.close()
+    }
+
     @Database(entities = [TestUser::class], version = 1, exportSchema = false)
     abstract class TestDatabase : RoomDatabase() {
         abstract fun getUserDao(): TestUserDao
@@ -109,6 +141,8 @@ class AutoClosingDatabaseTest {
     @Dao
     interface TestUserDao {
         @Insert fun insert(user: TestUser)
+
+        @Query("SELECT * FROM user") fun getAll(): List<TestUser>
 
         @Query("SELECT * FROM user WHERE id = :id") fun get(id: Long): TestUser
     }

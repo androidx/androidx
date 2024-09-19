@@ -16,4 +16,12 @@
 
 package androidx.compose.runtime
 
+@MustBeDocumented
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
 actual annotation class TestOnly

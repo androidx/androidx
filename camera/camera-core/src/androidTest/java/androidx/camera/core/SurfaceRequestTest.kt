@@ -32,6 +32,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
@@ -84,7 +85,7 @@ class SurfaceRequestTest {
 
     @Test
     fun canRetrieveDynamicRange() {
-        val dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+        val dynamicRange = DynamicRange.HLG_10_BIT
         val request = createNewRequest(FAKE_SIZE, dynamicRange)
         Truth.assertThat(request.dynamicRange).isEqualTo(dynamicRange)
     }
@@ -93,6 +94,13 @@ class SurfaceRequestTest {
     fun dynamicRangeIsSdr_whenNotSet() {
         val request = createNewRequest(FAKE_SIZE)
         Truth.assertThat(request.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun surfaceRequestConstructor_withUnspecifiedDynamicRange_throwsException() {
+        assertThrows<IllegalArgumentException> {
+            createNewRequest(size = FAKE_SIZE, dynamicRange = DynamicRange.UNSPECIFIED)
+        }
     }
 
     @Test

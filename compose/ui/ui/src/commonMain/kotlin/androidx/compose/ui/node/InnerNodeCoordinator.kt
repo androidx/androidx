@@ -160,8 +160,6 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
         // our position in order ot know how to offset the value we provided).
         if (isShallowPlacing) return
 
-        onPlaced()
-
         layoutNode.measurePassDelegate.onNodePlaced()
     }
 

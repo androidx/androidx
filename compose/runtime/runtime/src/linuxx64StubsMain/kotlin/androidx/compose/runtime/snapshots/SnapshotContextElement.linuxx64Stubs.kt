@@ -21,6 +21,6 @@ import kotlin.coroutines.CoroutineContext
 
 internal actual class SnapshotContextElementImpl
 actual constructor(private val snapshot: Snapshot) : SnapshotContextElement {
-    override val key: CoroutineContext.Key<*>
+    actual override val key: CoroutineContext.Key<*>
         get() = implementedInJetBrainsFork()
 }

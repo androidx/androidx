@@ -145,11 +145,8 @@ fun collect(
 /** Builds a [MacrobenchmarkScope] instance after checking for the necessary pre-requisites. */
 private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
     Arguments.throwIfError()
-    require(
-        Build.VERSION.SDK_INT >= 33 || (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
-    ) {
-        "Baseline Profile collection requires API 33+, or a rooted" +
-            " device running API 28 or higher and rooted adb session (via `adb root`)."
+    require(DeviceInfo.supportsBaselineProfileCaptureError == null) {
+        DeviceInfo.supportsBaselineProfileCaptureError!!
     }
     getInstalledPackageInfo(packageName) // throws clearly if not installed
     return MacrobenchmarkScope(packageName, launchWithClearTask = true)

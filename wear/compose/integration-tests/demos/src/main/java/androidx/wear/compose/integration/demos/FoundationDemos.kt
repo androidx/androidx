@@ -23,6 +23,7 @@ import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
+import androidx.wear.compose.foundation.samples.CurvedFontHeight
 import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
@@ -36,10 +37,12 @@ import androidx.wear.compose.foundation.samples.RotaryScrollSample
 import androidx.wear.compose.foundation.samples.RotarySnapSample
 import androidx.wear.compose.foundation.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
+import androidx.wear.compose.foundation.samples.SimpleHorizontalPagerSample
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.foundation.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.foundation.samples.SimpleVerticalPagerSample
 import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
@@ -116,10 +119,18 @@ val WearFoundationDemos =
                     ComposableDemo("Curved layout direction") { CurvedLayoutDirection() },
                     ComposableDemo("Background") { CurvedBackground() },
                     ComposableDemo("Font Weight") { CurvedFontWeight() },
+                    ComposableDemo("Font Height") { CurvedFontHeight() },
                     ComposableDemo("Fonts") { CurvedFonts() },
                     ComposableDemo("Curved Icons") { CurvedIconsDemo() },
                     ComposableDemo("Letter Spacing (em)") { CurvedSpacingEmDemo() },
                     ComposableDemo("Letter Spacing (sp)") { CurvedSpacingSpDemo() },
+                )
+            ),
+            DemoCategory(
+                "Pagers",
+                listOf(
+                    ComposableDemo("Horizontal Pager") { SimpleHorizontalPagerSample() },
+                    ComposableDemo("Vertical Pager") { SimpleVerticalPagerSample() },
                 )
             ),
             ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },

@@ -40,6 +40,7 @@ import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.color.ColorProviders
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
@@ -79,6 +80,16 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                     )
             }
 
+        Content(colors, currentScheme)
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content(GlanceTheme.colors, Scheme.SystemM3)
+    }
+
+    @Composable
+    private fun Content(colors: ColorProviders, currentScheme: Scheme) {
+        var currentScheme1 = currentScheme
         GlanceTheme(colors) {
             Column(
                 GlanceModifier.fillMaxSize()
@@ -86,10 +97,10 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                     .background(GlanceTheme.colors.widgetBackground)
             ) {
                 Button(
-                    text = "Theme: $currentScheme",
+                    text = "Theme: $currentScheme1",
                     onClick = {
-                        currentScheme =
-                            when (currentScheme) {
+                        currentScheme1 =
+                            when (currentScheme1) {
                                 Scheme.SystemM3 -> Scheme.CustomM3
                                 Scheme.CustomM3 -> Scheme.CustomM2
                                 Scheme.CustomM2 -> Scheme.SystemM3

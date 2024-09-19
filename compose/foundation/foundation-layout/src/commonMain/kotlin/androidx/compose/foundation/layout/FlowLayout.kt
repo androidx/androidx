@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.ceil
 import kotlin.math.max
@@ -513,8 +515,8 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
         endIndex: Int
     ): MeasureResult {
         with(measureScope) {
-            var width: Int
-            var height: Int
+            val width: Int
+            val height: Int
             if (isHorizontal) {
                 width = mainAxisLayoutSize
                 height = crossAxisLayoutSize
@@ -522,6 +524,12 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
                 width = crossAxisLayoutSize
                 height = mainAxisLayoutSize
             }
+            val layoutDirection =
+                if (isHorizontal) {
+                    LayoutDirection.Ltr
+                } else {
+                    layoutDirection
+                }
             return layout(width, height) {
                 val crossAxisLineOffset = crossAxisOffset?.get(currentLineIndex) ?: 0
                 for (i in startIndex until endIndex) {
@@ -529,7 +537,6 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
                     val crossAxisPosition =
                         getCrossAxisPosition(
                             placeable,
-                            placeable.rowColumnParentData,
                             crossAxisLayoutSize,
                             layoutDirection,
                             beforeCrossAxisAlignmentLine
@@ -546,20 +553,15 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
 
     fun getCrossAxisPosition(
         placeable: Placeable,
-        rowColumnParentData: RowColumnParentData?,
         crossAxisLayoutSize: Int,
         layoutDirection: LayoutDirection,
         beforeCrossAxisAlignmentLine: Int
     ): Int {
-        val childCrossAlignment = rowColumnParentData?.crossAxisAlignment ?: crossAxisAlignment
+        val childCrossAlignment =
+            placeable.rowColumnParentData?.crossAxisAlignment ?: crossAxisAlignment
         return childCrossAlignment.align(
             size = crossAxisLayoutSize - placeable.crossAxisSize(),
-            layoutDirection =
-                if (isHorizontal) {
-                    LayoutDirection.Ltr
-                } else {
-                    layoutDirection
-                },
+            layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine
         )
@@ -888,8 +890,8 @@ private fun minIntrinsicMainAxisSize(
     if (children.isEmpty()) {
         return 0
     }
-    val mainAxisSizes = IntArray(children.size) { 0 }
-    val crossAxisSizes = IntArray(children.size) { 0 }
+    val mainAxisSizes = IntArray(children.size)
+    val crossAxisSizes = IntArray(children.size)
 
     for (index in children.indices) {
         val child = children[index]
@@ -1246,7 +1248,7 @@ internal fun MeasureScope.breakDownItems(
             positionInLine = if (willFitLine) nextIndexInLine else 0,
             maxMainAxisSize =
                 if (willFitLine) {
-                        (leftOver - spacing).coerceAtLeast(0)
+                        (leftOver - spacing).fastCoerceAtLeast(0)
                     } else {
                         mainAxisMax
                     }
@@ -1256,7 +1258,7 @@ internal fun MeasureScope.breakDownItems(
                         leftOverCrossAxis
                     } else {
                         (leftOverCrossAxis - currentLineCrossAxisSize - crossAxisSpacing)
-                            .coerceAtLeast(0)
+                            .fastCoerceAtLeast(0)
                     }
                     .toDp()
         )
@@ -1330,8 +1332,8 @@ internal fun MeasureScope.breakDownItems(
     }
 
     val arrayOfPlaceables: Array<Placeable?> = Array(measurables.size) { placeables[it] }
-    val crossAxisOffsets = IntArray(endBreakLineList.size) { 0 }
-    val crossAxisSizesArray = IntArray(endBreakLineList.size) { 0 }
+    val crossAxisOffsets = IntArray(endBreakLineList.size)
+    val crossAxisSizesArray = IntArray(endBreakLineList.size)
     crossAxisTotalSize = 0
 
     var startIndex = 0
@@ -1352,7 +1354,7 @@ internal fun MeasureScope.breakDownItems(
                 crossAxisOffsets,
                 currentLineIndex
             )
-        var mainAxisSize: Int
+        val mainAxisSize: Int
         if (measurePolicy.isHorizontal) {
             mainAxisSize = result.width
             crossAxisSize = result.height
@@ -1460,7 +1462,7 @@ internal fun MeasureScope.placeHelper(
             val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
             totalCrossAxisSize += totalCrossAxisSpacing
             totalCrossAxisSize =
-                totalCrossAxisSize.coerceIn(constraints.crossAxisMin, constraints.crossAxisMax)
+                totalCrossAxisSize.fastCoerceIn(constraints.crossAxisMin, constraints.crossAxisMax)
             arrange(totalCrossAxisSize, crossAxisSizes, outPosition)
         }
     } else {
@@ -1468,13 +1470,13 @@ internal fun MeasureScope.placeHelper(
             val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
             totalCrossAxisSize += totalCrossAxisSpacing
             totalCrossAxisSize =
-                totalCrossAxisSize.coerceIn(constraints.crossAxisMin, constraints.crossAxisMax)
+                totalCrossAxisSize.fastCoerceIn(constraints.crossAxisMin, constraints.crossAxisMax)
             arrange(totalCrossAxisSize, crossAxisSizes, layoutDirection, outPosition)
         }
     }
 
     val finalMainAxisTotalSize =
-        mainAxisTotalSize.coerceIn(constraints.mainAxisMin, constraints.mainAxisMax)
+        mainAxisTotalSize.fastCoerceIn(constraints.mainAxisMin, constraints.mainAxisMax)
 
     val layoutWidth: Int
     val layoutHeight: Int

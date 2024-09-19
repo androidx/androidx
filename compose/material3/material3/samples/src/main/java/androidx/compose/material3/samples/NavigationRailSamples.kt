@@ -38,17 +38,18 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DismissibleModalWideNavigationRail
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalExpandedNavigationRail
+import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
 import androidx.compose.material3.WideNavigationRailArrangement
 import androidx.compose.material3.WideNavigationRailItem
-import androidx.compose.material3.rememberModalExpandedNavigationRailState
+import androidx.compose.material3.rememberDismissibleModalWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -145,7 +146,83 @@ fun WideNavigationRailResponsiveSample() {
 @Preview
 @Sampled
 @Composable
-fun ModalExpandedNavigationRailSample() {
+fun ModalWideNavigationRailSample() {
+    var selectedItem by remember { mutableIntStateOf(0) }
+    val items = listOf("Home", "Search", "Settings")
+    val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
+    val unselectedIcons =
+        listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.StarBorder)
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(Modifier.fillMaxWidth()) {
+        ModalWideNavigationRail(
+            expanded = expanded,
+            scrimOnClick = { expanded = false },
+            // Note: the value of expandedHeaderTopPadding depends on the layout of your screen in
+            // order to achieve the best alignment.
+            expandedHeaderTopPadding = 64.dp,
+            header = {
+                IconButton(
+                    modifier =
+                        Modifier.padding(start = 24.dp).semantics {
+                            // The button must announce the expanded or collapsed state of the rail
+                            // for accessibility.
+                            stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        },
+                    onClick = { expanded = !expanded }
+                ) {
+                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail")
+                    else Icon(Icons.Filled.Menu, "Expand rail")
+                }
+            }
+        ) {
+            items.forEachIndexed { index, item ->
+                WideNavigationRailItem(
+                    railExpanded = expanded,
+                    icon = {
+                        Icon(
+                            if (selectedItem == index) selectedIcons[index]
+                            else unselectedIcons[index],
+                            contentDescription = item
+                        )
+                    },
+                    label = { Text(item) },
+                    selected = selectedItem == index,
+                    onClick = { selectedItem = index }
+                )
+            }
+        }
+
+        val textString = if (expanded) "expanded" else "collapsed"
+        Column {
+            Text(modifier = Modifier.padding(16.dp), text = "The rail is $textString.")
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text =
+                    "Note: The orientation of this demo has been locked to portrait mode, because" +
+                        " landscape mode may result in a compact height in certain devices. For" +
+                        " any compact screen dimensions, use a Navigation Bar instead."
+            )
+        }
+
+        // Lock the orientation for this demo as the navigation rail may look cut off in landscape
+        // in smaller screens.
+        val context = LocalContext.current
+        DisposableEffect(context) {
+            (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            onDispose {
+                (context as? Activity)?.requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun DismissibleModalWideNavigationRailSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
@@ -153,12 +230,12 @@ fun ModalExpandedNavigationRailSample() {
         listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.StarBorder)
     var openModalRail by rememberSaveable { mutableStateOf(false) }
     var dismissRailOnItemSelection by rememberSaveable { mutableStateOf(true) }
-    val modalRailState = rememberModalExpandedNavigationRailState()
+    val modalRailState = rememberDismissibleModalWideNavigationRailState()
     val scope = rememberCoroutineScope()
 
     Row(Modifier.fillMaxSize()) {
         if (openModalRail) {
-            ModalExpandedNavigationRail(
+            DismissibleModalWideNavigationRail(
                 onDismissRequest = { openModalRail = false },
                 railState = modalRailState
             ) {

@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.kotlinStdlibJdk8)
     implementation(libs.asm)
     implementation(libs.asmCommons)
+    implementation(libs.kotlinMetadataJvm) {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
 
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')

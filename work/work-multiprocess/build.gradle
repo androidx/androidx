@@ -42,7 +42,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0-alpha03")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
     implementation("androidx.room:room-runtime:2.6.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

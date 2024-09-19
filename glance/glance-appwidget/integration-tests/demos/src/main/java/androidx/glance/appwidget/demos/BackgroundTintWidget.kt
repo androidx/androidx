@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
@@ -45,30 +46,37 @@ class BackgroundTintWidget : GlanceAppWidget() {
         get() = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        provideContent {
-            GlanceTheme {
-                Column {
-                    Box(
-                        // Tint a <shape>
-                        modifier =
-                            GlanceModifier.size(width = 100.dp, height = 50.dp)
-                                .background(
-                                    ImageProvider(R.drawable.shape_btn_demo),
-                                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
-                                ),
-                        content = {}
-                    )
-                    Box(
-                        // tint an AVD
-                        modifier =
-                            GlanceModifier.size(width = 100.dp, height = 50.dp)
-                                .background(
-                                    ImageProvider(R.drawable.ic_android),
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
-                                ),
-                        content = {}
-                    )
-                }
+        provideContent { Content() }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent { Content() }
+    }
+
+    @Composable
+    private fun Content() {
+        GlanceTheme {
+            Column {
+                Box(
+                    // Tint a <shape>
+                    modifier =
+                        GlanceModifier.size(width = 100.dp, height = 50.dp)
+                            .background(
+                                ImageProvider(R.drawable.shape_btn_demo),
+                                colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
+                            ),
+                    content = {}
+                )
+                Box(
+                    // tint an AVD
+                    modifier =
+                        GlanceModifier.size(width = 100.dp, height = 50.dp)
+                            .background(
+                                ImageProvider(R.drawable.ic_android),
+                                colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
+                            ),
+                    content = {}
+                )
             }
         }
     }

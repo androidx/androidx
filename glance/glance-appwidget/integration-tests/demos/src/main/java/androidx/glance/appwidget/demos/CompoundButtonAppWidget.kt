@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +60,14 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) = provideContent {
+    ) = provideContent { Content() }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(
             modifier =
                 GlanceModifier.fillMaxSize()

@@ -15,78 +15,41 @@
  */
 package androidx.savedstate
 
-import android.os.Bundle
 import androidx.annotation.MainThread
-import androidx.lifecycle.Lifecycle
+import androidx.savedstate.internal.SavedStateRegistryImpl
 
-/**
- * An API for [SavedStateRegistryOwner] implementations to control [SavedStateRegistry].
- *
- * `SavedStateRegistryOwner` should call [performRestore] to restore state of [SavedStateRegistry]
- * and [performSave] to gather SavedState from it.
- */
-class SavedStateRegistryController private constructor(private val owner: SavedStateRegistryOwner) {
+public actual class SavedStateRegistryController
+private actual constructor(
+    private val impl: SavedStateRegistryImpl,
+) {
 
-    /** The [SavedStateRegistry] owned by this controller */
-    val savedStateRegistry: SavedStateRegistry = SavedStateRegistry()
+    actual val savedStateRegistry: SavedStateRegistry = SavedStateRegistry(impl)
 
-    private var attached = false
-
-    /**
-     * Perform the initial, one time attachment necessary to configure this [SavedStateRegistry].
-     * This must be called when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before
-     * you call [performRestore].
-     */
     @MainThread
-    fun performAttach() {
-        val lifecycle = owner.lifecycle
-        check(lifecycle.currentState == Lifecycle.State.INITIALIZED) {
-            ("Restarter must be created only during owner's initialization stage")
-        }
-        lifecycle.addObserver(Recreator(owner))
-        savedStateRegistry.performAttach(lifecycle)
-        attached = true
+    actual fun performAttach() {
+        impl.performAttach()
     }
 
-    /**
-     * An interface for an owner of this [SavedStateRegistry] to restore saved state.
-     *
-     * @param savedState restored state
-     */
     @MainThread
-    fun performRestore(savedState: Bundle?) {
-        // To support backward compatibility with libraries that do not explicitly
-        // call performAttach(), we make sure that work is done here
-        if (!attached) {
-            performAttach()
-        }
-        val lifecycle = owner.lifecycle
-        check(!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            ("performRestore cannot be called when owner is ${lifecycle.currentState}")
-        }
-        savedStateRegistry.performRestore(savedState)
+    actual fun performRestore(savedState: SavedState?) {
+        impl.performRestore(savedState)
     }
 
-    /**
-     * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
-     * all registered providers and merge with unconsumed state.
-     *
-     * @param outBundle Bundle in which to place a saved state
-     */
     @MainThread
-    fun performSave(outBundle: Bundle) {
-        savedStateRegistry.performSave(outBundle)
+    actual fun performSave(outBundle: SavedState) {
+        impl.performSave(outBundle)
     }
 
-    companion object {
-        /**
-         * Creates a [SavedStateRegistryController].
-         *
-         * It should be called during construction time of [SavedStateRegistryOwner]
-         */
+    actual companion object {
+
         @JvmStatic
-        fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
-            return SavedStateRegistryController(owner)
+        actual fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
+            val impl =
+                SavedStateRegistryImpl(
+                    owner = owner,
+                    onAttach = { owner.lifecycle.addObserver(Recreator(owner)) },
+                )
+            return SavedStateRegistryController(impl)
         }
     }
 }

@@ -20,6 +20,7 @@ import java.util.List;
 import androidx.core.telecom.extensions.Capability;
 import androidx.core.telecom.extensions.IParticipantStateListener;
 import androidx.core.telecom.extensions.ICallDetailsListener;
+import androidx.core.telecom.extensions.ILocalSilenceStateListener;
 
 // ICS Client -> VOIP app
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
@@ -32,4 +33,6 @@ oneway interface ICapabilityExchangeListener {
     void onCreateCallDetailsExtension(in int version, in int[] actions, in ICallDetailsListener l, in String packageName) = 1;
     // V1 - Remove extensions and release resources related to this InCallService connection
     void onRemoveExtensions() = 2;
+    // V1 - no actions, only the ability to toggle the isLocallySilenced value
+    void onCreateLocalCallSilenceExtension(in int version, in int[] actions,  in ILocalSilenceStateListener l) = 3;
 }

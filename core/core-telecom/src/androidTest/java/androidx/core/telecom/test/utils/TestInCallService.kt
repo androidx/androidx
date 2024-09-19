@@ -24,7 +24,6 @@ import android.telecom.Call
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.InCallServiceCompat
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.Collections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -116,7 +115,6 @@ internal class TestInCallService : InCallServiceCompat() {
         mCalls.clear()
     }
 
-    @ExperimentalAppActions
     fun getLastCall(): Call? {
         return if (mCalls.size == 0) {
             null

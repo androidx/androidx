@@ -16,6 +16,7 @@
 
 package androidx.pdf.viewer;
 
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -80,6 +81,7 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
     protected void onDragHandleDown(boolean isStopHandle) {
         mDragging = isStopHandle ? mSelection.getStop() : mSelection.getStart();
         mFixed = isStopHandle ? mSelection.getStart() : mSelection.getStop();
+        mPdfView.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE);
     }
 
     @Override
@@ -93,6 +95,7 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
     @Override
     protected void onDragHandleUp() {
         mSelectionActionMode.resume();
+        mPdfView.performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE);
     }
 
     @NonNull

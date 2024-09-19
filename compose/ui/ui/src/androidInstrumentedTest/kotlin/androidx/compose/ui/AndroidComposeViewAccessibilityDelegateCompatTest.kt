@@ -59,8 +59,8 @@ import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
-import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.maxTextLength
@@ -457,7 +457,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 Modifier.size(10.dp).semantics(mergeDescendants = false) {
                     testTag = tag
                     testTagsAsResourceId = true
-                    invisibleToUser()
+                    hideFromAccessibility()
                 }
             )
         }

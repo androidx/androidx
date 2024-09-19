@@ -43,7 +43,7 @@ dependencies {
     implementation("androidx.compose.material:material-ripple:1.7.0")
     implementation("androidx.compose.ui:ui-util:1.7.0")
     implementation(project(":wear:compose:compose-material-core"))
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.lifecycle:lifecycle-common:2.7.0")
 
     // This :foundation dependency can be removed once the material libraries are updated to use

@@ -17,14 +17,17 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -146,9 +149,14 @@ fun TextButton(
  * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to click
  * events. When enabled, the checked and unchecked events are propagated by [onCheckedChange].
  *
- * A simple text toggle button using the default colors:
+ * A simple text toggle button using the default colors, animated when pressed.
  *
  * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
+ *
+ * A simple text toggle button using the default colors, animated when pressed and with different
+ * shapes for the checked and unchecked states.
+ *
+ * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
  *
  * Example of a large text toggle button:
  *
@@ -158,8 +166,8 @@ fun TextButton(
  * @param modifier Modifier to be applied to the toggle button.
  * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
  *   will not be clickable.
- * @param colors [ToggleButtonColors] that will be used to resolve the container and content color
- *   for this toggle button.
+ * @param colors [TextToggleButtonColors] that will be used to resolve the container and content
+ *   color for this toggle button.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
  *   appearance or preview the toggle button in different states. Note that if `null` is provided,
@@ -175,7 +183,7 @@ fun TextToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: TextToggleButtonColors = TextButtonDefaults.textToggleButtonColors(),
+    colors: TextToggleButtonColors = TextToggleButtonDefaults.textToggleButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = TextButtonDefaults.shape,
     border: BorderStroke? = null,
@@ -216,9 +224,16 @@ object TextButtonDefaults {
     /**
      * Creates a [Shape] with a animation between two CornerBasedShapes.
      *
+     * A simple text button using the default colors, animated when pressed.
+     *
+     * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
+     *
+     * A simple text toggle button using the default colors, animated when pressed.
+     *
+     * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
      * @param interactionSource the interaction source applied to the Button.
-     * @param shape The normal shape of the IconButton.
-     * @param pressedShape The pressed shape of the IconButton.
+     * @param shape The normal shape of the TextButton.
+     * @param pressedShape The pressed shape of the TextButton.
      */
     @Composable
     fun animatedShape(
@@ -265,7 +280,7 @@ object TextButtonDefaults {
     /**
      * Creates a [TextButtonColors] as an alternative to the [filledTonal TextButtonColors], giving
      * a surface with more chroma to indicate selected or highlighted states that are not primary
-     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * calls-to-action. If the text button is disabled then the colors will default to the
      * MaterialTheme onSurface color with suitable alpha values applied.
      *
      * Example of creating a [TextButton] with [filledVariantTextButtonColors]:
@@ -279,7 +294,7 @@ object TextButtonDefaults {
     /**
      * Creates a [TextButtonColors] as an alternative to the [filledTonal TextButtonColors], giving
      * a surface with more chroma to indicate selected or highlighted states that are not primary
-     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * calls-to-action. If the text button is disabled then the colors will default to the
      * MaterialTheme onSurface color with suitable alpha values applied.
      *
      * Example of creating a [TextButton] with [filledVariantTextButtonColors]:
@@ -400,60 +415,6 @@ object TextButtonDefaults {
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
             disabledContentColor = disabledContentColor,
-        )
-
-    /**
-     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
-     * - by default, a colored background with a contrasting content color. If the button is
-     *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
-     *   [DisabledContentAlpha]) value applied.
-     */
-    @Composable
-    fun textToggleButtonColors() = MaterialTheme.colorScheme.defaultTextToggleButtonColors
-
-    /**
-     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
-     * - by default, a colored background with a contrasting content color. If the button is
-     *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
-     *   [DisabledContentAlpha]) value applied.
-     *
-     * @param checkedContainerColor the container color of this [TextToggleButton] when enabled and
-     *   checked
-     * @param checkedContentColor the content color of this [TextToggleButton] when enabled and
-     *   checked
-     * @param uncheckedContainerColor the container color of this [TextToggleButton] when enabled
-     *   and unchecked
-     * @param uncheckedContentColor the content color of this [TextToggleButton] when enabled and
-     *   unchecked
-     * @param disabledCheckedContainerColor the container color of this [TextToggleButton] when
-     *   checked and not enabled
-     * @param disabledCheckedContentColor the content color of this [TextToggleButton] when checked
-     *   and not enabled
-     * @param disabledUncheckedContainerColor the container color of this [TextToggleButton] when
-     *   unchecked and not enabled
-     * @param disabledUncheckedContentColor the content color of this [TextToggleButton] when
-     *   unchecked and not enabled
-     */
-    @Composable
-    fun textToggleButtonColors(
-        checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified,
-        uncheckedContainerColor: Color = Color.Unspecified,
-        uncheckedContentColor: Color = Color.Unspecified,
-        disabledCheckedContainerColor: Color = Color.Unspecified,
-        disabledCheckedContentColor: Color = Color.Unspecified,
-        disabledUncheckedContainerColor: Color = Color.Unspecified,
-        disabledUncheckedContentColor: Color = Color.Unspecified,
-    ): TextToggleButtonColors =
-        MaterialTheme.colorScheme.defaultTextToggleButtonColors.copy(
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-            uncheckedContainerColor = uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor,
-            disabledCheckedContainerColor = disabledCheckedContainerColor,
-            disabledCheckedContentColor = disabledCheckedContentColor,
-            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
-            disabledUncheckedContentColor = disabledUncheckedContentColor,
         )
 
     /**
@@ -579,45 +540,6 @@ object TextButtonDefaults {
                     )
                     .also { defaultTextButtonColorsCached = it }
         }
-
-    private val ColorScheme.defaultTextToggleButtonColors: TextToggleButtonColors
-        get() {
-            return defaultTextToggleButtonColorsCached
-                ?: TextToggleButtonColors(
-                        checkedContainerColor =
-                            fromToken(TextToggleButtonTokens.CheckedContainerColor),
-                        checkedContentColor = fromToken(TextToggleButtonTokens.CheckedContentColor),
-                        uncheckedContainerColor =
-                            fromToken(TextToggleButtonTokens.UncheckedContainerColor),
-                        uncheckedContentColor =
-                            fromToken(TextToggleButtonTokens.UncheckedContentColor),
-                        disabledCheckedContainerColor =
-                            fromToken(TextToggleButtonTokens.DisabledCheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha =
-                                        TextToggleButtonTokens.DisabledCheckedContainerOpacity
-                                ),
-                        disabledCheckedContentColor =
-                            fromToken(TextToggleButtonTokens.DisabledCheckedContentColor)
-                                .toDisabledColor(
-                                    disabledAlpha =
-                                        TextToggleButtonTokens.DisabledCheckedContentOpacity
-                                ),
-                        disabledUncheckedContainerColor =
-                            fromToken(TextToggleButtonTokens.DisabledUncheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha =
-                                        TextToggleButtonTokens.DisabledUncheckedContainerOpacity
-                                ),
-                        disabledUncheckedContentColor =
-                            fromToken(TextToggleButtonTokens.DisabledUncheckedContentColor)
-                                .toDisabledColor(
-                                    disabledAlpha =
-                                        TextToggleButtonTokens.DisabledUncheckedContentOpacity
-                                ),
-                    )
-                    .also { defaultTextToggleButtonColorsCached = it }
-        }
 }
 
 /**
@@ -695,6 +617,152 @@ class TextButtonColors(
 
         return result
     }
+}
+
+/** Contains the default values used by [TextToggleButton]. */
+object TextToggleButtonDefaults {
+
+    /**
+     * Creates a [Shape] with an animation between three [CornerSize]s based on the pressed state
+     * and checked/unchecked.
+     *
+     * A simple text toggle button using the default colors, animated on Press and Check/Uncheck:
+     *
+     * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
+     * @param interactionSource the interaction source applied to the Button.
+     * @param checked the current checked/unchecked state.
+     * @param uncheckedCornerSize the size of the corner when unchecked.
+     * @param checkedCornerSize the size of the corner when checked.
+     * @param pressedCornerSize the size of the corner when pressed.
+     * @param onPressAnimationSpec the spec for press animation.
+     * @param onReleaseAnimationSpec the spec for release animation.
+     */
+    @Composable
+    fun animatedToggleButtonShape(
+        interactionSource: InteractionSource,
+        checked: Boolean,
+        uncheckedCornerSize: CornerSize = UncheckedCornerSize,
+        checkedCornerSize: CornerSize = CheckedCornerSize,
+        pressedCornerSize: CornerSize = PressedCornerSize,
+        onPressAnimationSpec: FiniteAnimationSpec<Float> =
+            MaterialTheme.motionScheme.rememberFastSpatialSpec(),
+        onReleaseAnimationSpec: FiniteAnimationSpec<Float> =
+            MaterialTheme.motionScheme.slowSpatialSpec(),
+    ): Shape {
+        val pressed = interactionSource.collectIsPressedAsState()
+
+        return rememberAnimatedToggleRoundedCornerShape(
+            uncheckedCornerSize = uncheckedCornerSize,
+            checkedCornerSize = checkedCornerSize,
+            pressedCornerSize = pressedCornerSize,
+            pressed = pressed.value,
+            checked = checked,
+            onPressAnimationSpec = onPressAnimationSpec,
+            onReleaseAnimationSpec = onReleaseAnimationSpec,
+        )
+    }
+
+    /** The recommended size for an Unchecked button when animated. */
+    val UncheckedCornerSize: CornerSize = ShapeTokens.CornerFull.topEnd
+
+    /** The recommended size for a Checked button when animated. */
+    val CheckedCornerSize: CornerSize = CornerSize(percent = 30)
+
+    /** The recommended size for a Pressed button when animated. */
+    val PressedCornerSize: CornerSize = ShapeDefaults.Small.topEnd
+
+    /**
+     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
+     * - by default, a colored background with a contrasting content color. If the button is
+     *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
+     *   [DisabledContentAlpha]) value applied.
+     */
+    @Composable
+    fun textToggleButtonColors() = MaterialTheme.colorScheme.defaultTextToggleButtonColors
+
+    /**
+     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
+     * - by default, a colored background with a contrasting content color. If the button is
+     *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
+     *   [DisabledContentAlpha]) value applied.
+     *
+     * @param checkedContainerColor the container color of this [TextToggleButton] when enabled and
+     *   checked
+     * @param checkedContentColor the content color of this [TextToggleButton] when enabled and
+     *   checked
+     * @param uncheckedContainerColor the container color of this [TextToggleButton] when enabled
+     *   and unchecked
+     * @param uncheckedContentColor the content color of this [TextToggleButton] when enabled and
+     *   unchecked
+     * @param disabledCheckedContainerColor the container color of this [TextToggleButton] when
+     *   checked and not enabled
+     * @param disabledCheckedContentColor the content color of this [TextToggleButton] when checked
+     *   and not enabled
+     * @param disabledUncheckedContainerColor the container color of this [TextToggleButton] when
+     *   unchecked and not enabled
+     * @param disabledUncheckedContentColor the content color of this [TextToggleButton] when
+     *   unchecked and not enabled
+     */
+    @Composable
+    fun textToggleButtonColors(
+        checkedContainerColor: Color = Color.Unspecified,
+        checkedContentColor: Color = Color.Unspecified,
+        uncheckedContainerColor: Color = Color.Unspecified,
+        uncheckedContentColor: Color = Color.Unspecified,
+        disabledCheckedContainerColor: Color = Color.Unspecified,
+        disabledCheckedContentColor: Color = Color.Unspecified,
+        disabledUncheckedContainerColor: Color = Color.Unspecified,
+        disabledUncheckedContentColor: Color = Color.Unspecified,
+    ): TextToggleButtonColors =
+        MaterialTheme.colorScheme.defaultTextToggleButtonColors.copy(
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+        )
+
+    private val ColorScheme.defaultTextToggleButtonColors: TextToggleButtonColors
+        get() {
+            return defaultTextToggleButtonColorsCached
+                ?: TextToggleButtonColors(
+                        checkedContainerColor =
+                            fromToken(TextToggleButtonTokens.CheckedContainerColor),
+                        checkedContentColor = fromToken(TextToggleButtonTokens.CheckedContentColor),
+                        uncheckedContainerColor =
+                            fromToken(TextToggleButtonTokens.UncheckedContainerColor),
+                        uncheckedContentColor =
+                            fromToken(TextToggleButtonTokens.UncheckedContentColor),
+                        disabledCheckedContainerColor =
+                            fromToken(TextToggleButtonTokens.DisabledCheckedContainerColor)
+                                .toDisabledColor(
+                                    disabledAlpha =
+                                        TextToggleButtonTokens.DisabledCheckedContainerOpacity
+                                ),
+                        disabledCheckedContentColor =
+                            fromToken(TextToggleButtonTokens.DisabledCheckedContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha =
+                                        TextToggleButtonTokens.DisabledCheckedContentOpacity
+                                ),
+                        disabledUncheckedContainerColor =
+                            fromToken(TextToggleButtonTokens.DisabledUncheckedContainerColor)
+                                .toDisabledColor(
+                                    disabledAlpha =
+                                        TextToggleButtonTokens.DisabledUncheckedContainerOpacity
+                                ),
+                        disabledUncheckedContentColor =
+                            fromToken(TextToggleButtonTokens.DisabledUncheckedContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha =
+                                        TextToggleButtonTokens.DisabledUncheckedContentOpacity
+                                ),
+                    )
+                    .also { defaultTextToggleButtonColorsCached = it }
+        }
 }
 
 /**

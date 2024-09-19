@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -114,21 +113,11 @@ fun OverflowProgressIndicatorSample() {
                 .fillMaxSize()
     ) {
         CircularProgressIndicator(
-            // The progress is limited by 100%, 120% ends up being 20% with the track brush
-            // indicating overflow.
-            progress = { 0.2f },
+            // Overflow value of 120%
+            progress = { 1.2f },
+            allowProgressOverflow = true,
             startAngle = 120f,
             endAngle = 60f,
-            colors =
-                ProgressIndicatorDefaults.colors(
-                    trackBrush =
-                        Brush.linearGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.surfaceContainer
-                            )
-                        )
-                )
         )
     }
 }
@@ -156,6 +145,14 @@ fun SmallValuesProgressIndicatorSample() {
 
 @Sampled
 @Composable
+fun IndeterminateProgressIndicatorSample() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+@Sampled
+@Composable
 fun SegmentedProgressIndicatorSample() {
     Box(
         modifier =
@@ -172,7 +169,7 @@ fun SegmentedProgressIndicatorSample() {
 
 @Sampled
 @Composable
-fun SegmentedProgressIndicatorOnOffSample() {
+fun SegmentedProgressIndicatorBinarySample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
@@ -181,7 +178,7 @@ fun SegmentedProgressIndicatorOnOffSample() {
     ) {
         SegmentedCircularProgressIndicator(
             segmentCount = 5,
-            completed = { it % 2 != 0 },
+            segmentValue = { it % 2 != 0 },
         )
     }
 }
@@ -192,7 +189,7 @@ fun SmallSegmentedProgressIndicatorSample() {
     Box(modifier = Modifier.fillMaxSize()) {
         SegmentedCircularProgressIndicator(
             segmentCount = 8,
-            completed = { it % 2 != 0 },
+            segmentValue = { it % 2 != 0 },
             modifier = Modifier.align(Alignment.Center).size(80.dp)
         )
     }

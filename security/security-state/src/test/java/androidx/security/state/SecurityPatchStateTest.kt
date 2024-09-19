@@ -175,6 +175,12 @@ class SecurityPatchStateTest {
                         "asb_identifiers": ["ASB-A-2020"],
                         "severity": "high",
                         "components": ["system", "vendor"]
+                    }],
+                    "2020-05-01": [{
+                        "cve_identifiers": ["CVE-2020-5678"],
+                        "asb_identifiers": ["PUB-A-5678"],
+                        "severity": "moderate",
+                        "components": ["system"]
                     }]
                 },
                 "extra_field": { test: 12345 },
@@ -192,7 +198,31 @@ class SecurityPatchStateTest {
             )
 
         assertEquals(1, fixes[SecurityPatchState.Severity.HIGH]?.size)
+        assertEquals(1, fixes[SecurityPatchState.Severity.MODERATE]?.size)
         assertEquals(setOf("CVE-2020-1234"), fixes[SecurityPatchState.Severity.HIGH])
+        assertEquals(setOf("CVE-2020-5678"), fixes[SecurityPatchState.Severity.MODERATE])
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testParseVulnerabilityReport_invalidAsb_throwsIllegalArgumentException() {
+        val jsonString =
+            """
+            {
+                "vulnerabilities": {
+                    "2020-01-01": [{
+                        "cve_identifiers": ["CVE-2020-1234"],
+                        "asb_identifiers": ["ASB-123"],
+                        "severity": "high",
+                        "components": ["system", "vendor"]
+                    }]
+                },
+                "extra_field": { test: 12345 },
+                "kernel_lts_versions": {
+                    "2020-01-01": ["4.14"]
+                }
+            }
+        """
+        securityState.loadVulnerabilityReport(jsonString)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -357,7 +387,7 @@ class SecurityPatchStateTest {
     }
 
     @Test
-    fun testGetPublishedKernelVersions_ReturnsCorrectVersions() {
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersions_DifferentVersionsSameSpl() {
         val jsonInput =
             """
             {
@@ -388,6 +418,82 @@ class SecurityPatchStateTest {
         assertEquals(1, version1.getMinorVersion())
         assertEquals(234, version1.getBuildVersion())
         assertEquals(25, version1.getPatchVersion())
+
+        assertEquals(2, versions.size)
+    }
+
+    @Test
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersions_DifferentVersionsDifferentSpls() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-05-15": [{
+                        "cve_identifiers": ["CVE-5678-1234"],
+                        "asb_identifiers": ["ASB-A-2024222"],
+                        "severity": "critical",
+                        "components": ["vendor"]
+                    }]
+                },
+                "kernel_lts_versions": {
+                    "2024-04-27": ["5.10.209", "5.15.148"],
+                    "2024-06-12": ["5.15.149"],
+                    "2024-06-21": ["5.10.210"]
+                }
+            }
+        """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        val versions =
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL)
+        val version0 = versions[0] as SecurityPatchState.VersionedSecurityPatchLevel
+        val version1 = versions[1] as SecurityPatchState.VersionedSecurityPatchLevel
+
+        assertEquals(5, version0.getMajorVersion())
+        assertEquals(10, version0.getMinorVersion())
+        assertEquals(210, version0.getPatchVersion())
+        assertEquals(5, version1.getMajorVersion())
+        assertEquals(15, version1.getMinorVersion())
+        assertEquals(149, version1.getPatchVersion())
+
+        assertEquals(2, versions.size)
+    }
+
+    @Test
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersion() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-05-15": [{
+                        "cve_identifiers": ["CVE-5678-1234"],
+                        "asb_identifiers": ["ASB-A-2024222"],
+                        "severity": "critical",
+                        "components": ["vendor"]
+                    }]
+                },
+                "kernel_lts_versions": {
+                    "2021-11-05": ["5.4.86"],
+                    "2022-11-05": ["5.4.147"],
+                    "2023-11-05": ["5.4.233"]
+                }
+            }
+        """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        val versions =
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL)
+        val version0 = versions[0] as SecurityPatchState.VersionedSecurityPatchLevel
+
+        assertEquals(5, version0.getMajorVersion())
+        assertEquals(4, version0.getMinorVersion())
+        assertEquals(233, version0.getPatchVersion())
+
+        assertEquals(1, versions.size)
     }
 
     @Test
@@ -590,9 +696,30 @@ class SecurityPatchStateTest {
         assertEquals(15, spl.getDay())
     }
 
+    @Test
+    fun testDateBasedSpl_FromString_MissingDay_ReturnsCorrectDateBasedSpl() {
+        val dateString = "2023-09" // Some SPLs only have year and month.
+        val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString(dateString)
+        assertEquals(2023, spl.getYear())
+        assertEquals(9, spl.getMonth())
+        assertEquals(1, spl.getDay())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testDateBasedSpl_FromString_MissingMonth_ThrowsException() {
+        val invalidDate = "2023"
+        SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testDateBasedSpl_FromString_InvalidDate_ThrowsException() {
+        val invalidDate = "2023-13-15"
+        SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testDateBasedSpl_FromString_InvalidFormat_ThrowsException() {
-        val invalidDate = "2023-09-31" // Invalid date, September has only 30 days
+        val invalidDate = "2023/09/15"
         SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
     }
 

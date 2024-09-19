@@ -25,13 +25,26 @@
         <SplitPairFilter
             window:primaryActivityName="androidx.window.demo.embedding.SplitActivityList"
             window:secondaryActivityName="androidx.window.demo.embedding.SplitActivityDetail"/>
+        <DividerAttributes
+            window:embeddingDividerType="draggable"
+            window:embeddingDividerColor="@color/colorAccent"
+            window:embeddingDividerWidthDp="1"
+            window:dragRangeMinRatio="0.2"
+            window:dragRangeMaxRatio="0.8" />
     </SplitPairRule>
+
     <SplitPlaceholderRule
         window:placeholderActivityName="androidx.window.demo.embedding.SplitActivityListPlaceholder"
         window:stickyPlaceholder="true"
         window:finishPrimaryWithSecondary="adjacent">
         <ActivityFilter
             window:activityName="androidx.window.demo.embedding.SplitActivityList"/>
+        <DividerAttributes
+            window:embeddingDividerType="draggable"
+            window:embeddingDividerColor="@color/colorAccent"
+            window:embeddingDividerWidthDp="1"
+            window:dragRangeMinRatio="0.2"
+            window:dragRangeMaxRatio="0.8" />
     </SplitPlaceholderRule>
 
     <!-- Rules for SplitImeActivityMain -->

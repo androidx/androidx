@@ -136,13 +136,13 @@ class CapturePipelineTest {
             val torchUpdateEventList = mutableListOf<Boolean>()
             val setTorchSemaphore = Semaphore(0)
 
-            override suspend fun setTorchOnAsync(): Deferred<Result3A> {
+            override fun setTorchOnAsync(): Deferred<Result3A> {
                 torchUpdateEventList.add(true)
                 setTorchSemaphore.release()
                 return CompletableDeferred(Result3A(Result3A.Status.OK))
             }
 
-            override suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
+            override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
                 torchUpdateEventList.add(false)
                 setTorchSemaphore.release()
                 return CompletableDeferred(Result3A(Result3A.Status.OK))

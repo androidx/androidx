@@ -55,11 +55,16 @@ sealed interface LazyColumnVisibleItemInfo {
 
     /** The scroll progress of the item, indicating its position within the visible area. */
     val scrollProgress: LazyColumnItemScrollProgress
+
+    /** The key of the item which was passed to the item() or items() function. */
+    val key: Any
+
+    /** The content type of the item which was passed to the item() or items() function. */
+    val contentType: Any?
 }
 
 /** Holds the layout information for a [LazyColumn]. */
 sealed interface LazyColumnLayoutInfo {
-
     /** A list of [LazyColumnVisibleItemInfo] objects representing the visible items in the list. */
     val visibleItems: List<LazyColumnVisibleItemInfo>
 

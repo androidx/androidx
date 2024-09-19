@@ -18,6 +18,7 @@ package androidx.camera.core.internal
 
 import android.graphics.ImageFormat.JPEG
 import android.graphics.ImageFormat.JPEG_R
+import android.graphics.ImageFormat.RAW_SENSOR
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
@@ -332,6 +333,36 @@ class CameraUseCaseAdapterTest {
         adapter.addUseCases(setOf(imageCapture))
     }
 
+    @RequiresApi(23)
+    @Test(expected = CameraException::class)
+    fun useRawWithExtensions_throwsException() {
+        // Arrange: enable extensions.
+        val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
+        val cameraId = "fakeCameraId"
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, RAW_SENSOR))
+        )
+        val fakeCamera = FakeCamera(cameraId)
+        val adapter =
+            CameraUseCaseAdapter(
+                fakeCamera,
+                null,
+                RestrictedCameraInfo(fakeCamera.cameraInfoInternal, extensionsConfig),
+                null,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                FakeCameraCoordinator(),
+                fakeManager,
+                FakeUseCaseConfigFactory(),
+            )
+
+        // Act: add ImageCapture that sets Ultra HDR.
+        val imageCapture =
+            ImageCapture.Builder().setOutputFormat(ImageCapture.OUTPUT_FORMAT_RAW).build()
+        adapter.addUseCases(setOf(imageCapture))
+    }
+
     @RequiresApi(34) // Ultra HDR only supported on API 34+
     @Test(expected = CameraException::class)
     fun useUltraHdrWithCameraEffect_throwsException() {
@@ -355,6 +386,29 @@ class CameraUseCaseAdapterTest {
             ImageCapture.Builder()
                 .setOutputFormat(ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR)
                 .build()
+        adapter.addUseCases(setOf(imageCapture))
+    }
+
+    @Test(expected = CameraException::class)
+    fun useRawWithCameraEffect_throwsException() {
+        // Arrange: add an image effect.
+        val cameraId = "fakeCameraId"
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, RAW_SENSOR))
+        )
+        val adapter =
+            CameraUseCaseAdapter(
+                FakeCamera(cameraId),
+                FakeCameraCoordinator(),
+                fakeManager,
+                FakeUseCaseConfigFactory(),
+            )
+        adapter.setEffects(listOf(imageEffect))
+
+        // Act: add ImageCapture that sets Ultra HDR.
+        val imageCapture =
+            ImageCapture.Builder().setOutputFormat(ImageCapture.OUTPUT_FORMAT_RAW).build()
         adapter.addUseCases(setOf(imageCapture))
     }
 

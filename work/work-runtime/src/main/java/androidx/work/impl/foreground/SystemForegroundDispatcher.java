@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
+import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.ConstraintsState;
@@ -241,6 +242,14 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
     @MainThread
     void onTimeout(int startId, int fgsType) {
         Logger.get().info(TAG, "Foreground service timed out, FGS type: " + fgsType);
+        for (Map.Entry<WorkGenerationalId, ForegroundInfo> entry : mForegroundInfoById.entrySet()) {
+            ForegroundInfo info = entry.getValue();
+            if (info.getForegroundServiceType() == fgsType) {
+                WorkGenerationalId id = entry.getKey();
+                mWorkManagerImpl.stopForegroundWork(id,
+                        WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT);
+            }
+        }
         if (mCallback != null) {
             mCallback.stop();
         }
@@ -347,7 +356,9 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
         if (state instanceof ConstraintsState.ConstraintsNotMet) {
             String workSpecId = workSpec.id;
             Logger.get().debug(TAG, "Constraints unmet for WorkSpec " + workSpecId);
-            mWorkManagerImpl.stopForegroundWork(generationalId(workSpec));
+            mWorkManagerImpl.stopForegroundWork(
+                    generationalId(workSpec),
+                    ((ConstraintsState.ConstraintsNotMet) state).getReason());
         }
     }
 

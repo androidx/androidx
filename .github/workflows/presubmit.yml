@@ -62,7 +62,7 @@ jobs:
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: "Get changed files in push or pull_request"
         id: changed-files
@@ -138,7 +138,7 @@ jobs:
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: "Checkout androidx repo"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: "Check if the project should be built"
         id: check-ci-config
         env:
@@ -164,14 +164,14 @@ jobs:
       - name: "Upload build artifacts"
         continue-on-error: true
         if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: artifacts_${{ matrix.project }}
           path: ~/dist
       - name: "Upload daemon logs"
         continue-on-error: true
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: gradle-daemon-logs_${{ matrix.project }}
           path: ~/.gradle/daemon

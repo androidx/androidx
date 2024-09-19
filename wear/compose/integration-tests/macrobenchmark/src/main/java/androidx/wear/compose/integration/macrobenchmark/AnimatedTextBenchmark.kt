@@ -27,8 +27,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
-import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
-import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -56,7 +54,7 @@ class AnimatedTextBenchmark {
 
     @OptIn(ExperimentalMetricApi::class)
     @Test
-    fun testAnimatedText() {
+    fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics =
@@ -68,7 +66,7 @@ class AnimatedTextBenchmark {
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
-                intent.action = ANIMATED_TEXT_ACTION
+                intent.action = ANIMATED_TEXT_ACTIVITY
                 startActivityAndWait(intent)
             }
         ) {
@@ -89,6 +87,6 @@ class AnimatedTextBenchmark {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val ANIMATED_TEXT_ACTION = "$PACKAGE_NAME.ANIMATED_TEXT_ACTIVITY"
+        private const val ANIMATED_TEXT_ACTIVITY = "$PACKAGE_NAME.ANIMATED_TEXT_ACTIVITY"
     }
 }

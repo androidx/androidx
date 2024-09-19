@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
@@ -43,6 +44,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -56,8 +58,10 @@ import org.robolectric.util.ReflectionHelpers.setStaticField
 class ProcessingNodeTest {
 
     private lateinit var processingNodeIn: ProcessingNode.In
+    private var cameraCharacteristics: CameraCharacteristics =
+        mock(CameraCharacteristics::class.java)
 
-    private var node = ProcessingNode(mainThreadExecutor())
+    private var node = ProcessingNode(mainThreadExecutor(), cameraCharacteristics)
 
     @Before
     fun setUp() {
@@ -219,7 +223,12 @@ class ProcessingNodeTest {
     fun singleExecutorForLowMemoryQuirkEnabled() {
         listOf("sm-a520w", "motog3").forEach { model ->
             setStaticField(Build::class.java, "MODEL", model)
-            assertThat(isSequentialExecutor(ProcessingNode(mainThreadExecutor()).mBlockingExecutor))
+            assertThat(
+                    isSequentialExecutor(
+                        ProcessingNode(mainThreadExecutor(), cameraCharacteristics)
+                            .mBlockingExecutor
+                    )
+                )
                 .isTrue()
         }
     }
@@ -230,7 +239,7 @@ class ProcessingNodeTest {
         setStaticField(Build::class.java, "DEVICE", "a24")
 
         // Creates the ProcessingNode after updating the device name to load the correct quirks
-        node = ProcessingNode(mainThreadExecutor())
+        node = ProcessingNode(mainThreadExecutor(), cameraCharacteristics)
 
         processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(processingNodeIn)

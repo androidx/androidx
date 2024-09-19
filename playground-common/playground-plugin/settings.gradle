@@ -32,9 +32,9 @@ dependencyResolutionManagement {
             it.includeModule("com.gradle", "develocity-gradle-plugin")
             it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
             it.includeModule("org.spdx", "spdx-gradle-plugin")
-            it.includeModule("com.github.johnrengelman.shadow",
-                    "com.github.johnrengelman.shadow.gradle.plugin")
-            it.includeModule("com.github.johnrengelman", "shadow")
+            it.includeModule("com.gradleup.shadow",
+                    "com.gradleup.shadow.gradle.plugin")
+            it.includeModule("com.gradleup.shadow", "shadow-gradle-plugin")
         }
     }
 }

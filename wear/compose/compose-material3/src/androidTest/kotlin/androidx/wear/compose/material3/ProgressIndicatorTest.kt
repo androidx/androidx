@@ -77,7 +77,7 @@ class CircularProgressIndicatorTest {
     fun contains_progress_color() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 1f },
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -100,7 +100,7 @@ class CircularProgressIndicatorTest {
     fun contains_progress_incomplete_color() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 0f },
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -123,7 +123,7 @@ class CircularProgressIndicatorTest {
     fun change_start_end_angle() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 0.5f },
                 startAngle = 0f,
                 endAngle = 180f,
@@ -152,7 +152,7 @@ class CircularProgressIndicatorTest {
     fun set_small_progress_value() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 0.02f },
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -178,7 +178,7 @@ class CircularProgressIndicatorTest {
     fun set_small_stroke_width() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 0.5f },
                 strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                 colors =
@@ -204,7 +204,7 @@ class CircularProgressIndicatorTest {
     fun set_large_stroke_width() {
         setContentWithTheme {
             CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.size(SCREEN_SIZE_LARGE.dp).testTag(TEST_TAG),
                 progress = { 0.5f },
                 strokeWidth = CircularProgressIndicatorDefaults.largeStrokeWidth,
                 colors =

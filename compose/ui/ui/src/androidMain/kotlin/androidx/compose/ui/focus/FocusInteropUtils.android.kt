@@ -64,14 +64,16 @@ internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {
 }
 
 /** Returns the bounding rect of the view in the current window. */
-internal fun View.calculateBoundingRect(): androidx.compose.ui.geometry.Rect {
-    val focusedAndroidBounds = tempCoordinates.also { getLocationInWindow(it) }
-    return androidx.compose.ui.geometry.Rect(
-        focusedAndroidBounds[0].toFloat(),
-        focusedAndroidBounds[1].toFloat(),
-        focusedAndroidBounds[0].toFloat() + width,
-        focusedAndroidBounds[1].toFloat() + height
-    )
+internal fun View.calculateBoundingRectRelativeTo(view: View): androidx.compose.ui.geometry.Rect {
+    getLocationInWindow(tempCoordinates)
+    val xInWindow = tempCoordinates[0]
+    val yInWindow = tempCoordinates[1]
+    view.getLocationInWindow(tempCoordinates)
+    val targetX = tempCoordinates[0]
+    val targetY = tempCoordinates[1]
+    val x = (xInWindow - targetX).toFloat()
+    val y = (yInWindow - targetY).toFloat()
+    return androidx.compose.ui.geometry.Rect(x, y, x + width, y + height)
 }
 
 internal fun View.requestInteropFocus(direction: Int?, rect: Rect?): Boolean {

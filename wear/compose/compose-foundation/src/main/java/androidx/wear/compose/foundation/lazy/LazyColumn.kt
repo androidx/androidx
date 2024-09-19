@@ -16,6 +16,9 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.ObjectIntMap
+import androidx.collection.emptyObjectIntMap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -23,7 +26,9 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayout
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.getDefaultLazyLayoutKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -68,11 +73,18 @@ fun LazyColumn(
 
     val itemProviderLambda by
         remember(state) {
+            val scope =
+                derivedStateOf(referentialEqualityPolicy()) {
+                    LazyColumnScopeImpl(latestContent.value)
+                }
             derivedStateOf(referentialEqualityPolicy()) {
                 {
+                    val intervalContent = scope.value
+                    val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
                     LazyColumnItemProvider(
-                        scope = LazyColumnScopeImpl(latestContent.value),
-                        state = state
+                        intervalContent = intervalContent,
+                        state = state,
+                        keyIndexMap = map
                     )
                 }
             }
@@ -109,16 +121,86 @@ fun LazyColumn(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyColumnItemProvider(
-    val scope: LazyColumnScopeImpl,
+    val intervalContent: LazyLayoutIntervalContent<LazyColumnInterval>,
     val state: LazyColumnState,
+    val keyIndexMap: NearestRangeKeyIndexMap
 ) : LazyLayoutItemProvider {
     override val itemCount: Int
-        get() = scope.itemCount
+        get() = intervalContent.itemCount
 
     @Composable
     override fun Item(index: Int, key: Any) {
-        // TODO: b/352511749 - Use keys to identify items.
         val itemScope = remember(index) { LazyColumnItemScopeImpl(index, state = state) }
-        scope.withInterval(index) { localIndex, content -> content.item(itemScope, localIndex) }
+        intervalContent.withInterval(index) { localIndex, content ->
+            content.item(itemScope, localIndex)
+        }
     }
+
+    override fun getKey(index: Int): Any =
+        keyIndexMap.getKey(index) ?: intervalContent.getKey(index)
+
+    override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
+
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LazyColumnItemProvider) return false
+
+        // the identity of this class is represented by intervalContent object.
+        // having equals() allows us to skip items recomposition when intervalContent didn't change
+        return intervalContent == other.intervalContent
+    }
+
+    override fun hashCode(): Int {
+        return intervalContent.hashCode()
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal class NearestRangeKeyIndexMap(
+    nearestRange: IntRange,
+    intervalContent: LazyLayoutIntervalContent<*>
+) {
+    private val map: ObjectIntMap<Any>
+    private val keys: Array<Any?>
+    private val keysStartIndex: Int
+
+    init {
+        // Traverses the interval [list] in order to create a mapping from the key to the index for
+        // all the indexes in the passed [range].
+        val list = intervalContent.intervals
+        val first = nearestRange.first
+        val last = minOf(nearestRange.last, list.size - 1)
+        if (last < first) {
+            map = emptyObjectIntMap()
+            keys = emptyArray()
+            keysStartIndex = 0
+        } else {
+            val size = last - first + 1
+            keys = arrayOfNulls<Any?>(size)
+            keysStartIndex = first
+            map =
+                MutableObjectIntMap<Any>(size).also { map ->
+                    list.forEach(
+                        fromIndex = first,
+                        toIndex = last,
+                    ) {
+                        val keyFactory = it.value.key
+                        val start = maxOf(first, it.startIndex)
+                        val end = minOf(last, it.startIndex + it.size - 1)
+                        for (i in start..end) {
+                            val key =
+                                keyFactory?.invoke(i - it.startIndex) ?: getDefaultLazyLayoutKey(i)
+                            map[key] = i
+                            keys[i - keysStartIndex] = key
+                        }
+                    }
+                }
+        }
+    }
+
+    fun getIndex(key: Any): Int = map.getOrElse(key) { -1 }
+
+    fun getKey(index: Int) = keys.getOrElse(index - keysStartIndex) { null }
 }

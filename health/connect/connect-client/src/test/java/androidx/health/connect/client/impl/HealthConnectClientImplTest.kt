@@ -181,7 +181,7 @@ class HealthConnectClientImplTest {
     fun allFeatures_defaultVersion_unavailable() {
         val features =
             listOf(
-                HealthConnectFeatures.FEATURE_HEALTH_DATA_BACKGROUND_READ,
+                HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
                 HealthConnectFeatures.FEATURE_HEALTH_DATA_HISTORIC_READ,
                 HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE,
                 HealthConnectFeatures.FEATURE_PLANNED_EXERCISE

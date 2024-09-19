@@ -64,8 +64,8 @@ class CaptureSessionStateTest {
     private val timeSource = SystemTimeSource()
     private val cameraGraphFlags =
         CameraGraph.Flags(
-            quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
-            quirkCloseCaptureSessionOnDisconnect = false,
+            finalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+            closeCaptureSessionOnDisconnect = false,
         )
 
     private val surface1: Surface = Surface(SurfaceTexture(1))
@@ -256,7 +256,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 CameraGraph.Flags(
-                    quirkCloseCaptureSessionOnDisconnect = true,
+                    closeCaptureSessionOnDisconnect = true,
                 ),
                 this
             )

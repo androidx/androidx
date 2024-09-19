@@ -918,6 +918,7 @@ package androidx.car.app.mediaextensions {
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI";
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI";
     field public static final String KEY_DESCRIPTION_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
+    field public static final String KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST = "androidx.car.app.mediaextensions.KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST";
     field public static final String KEY_IMMERSIVE_AUDIO = "androidx.car.app.mediaextensions.KEY_IMMERSIVE_AUDIO";
     field public static final String KEY_SUBTITLE_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
   }
@@ -1076,8 +1077,9 @@ package androidx.car.app.messaging.model {
   }
 
   public static final class ConversationItem.Builder {
-    ctor public ConversationItem.Builder();
+    ctor @Deprecated public ConversationItem.Builder();
     ctor public ConversationItem.Builder(androidx.car.app.messaging.model.ConversationItem);
+    ctor public ConversationItem.Builder(String, androidx.car.app.model.CarText, androidx.core.app.Person, java.util.List<androidx.car.app.messaging.model.CarMessage!>, androidx.car.app.messaging.model.ConversationCallback);
     method public androidx.car.app.messaging.model.ConversationItem.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.messaging.model.ConversationItem build();
     method public androidx.car.app.messaging.model.ConversationItem.Builder setConversationCallback(androidx.car.app.messaging.model.ConversationCallback);

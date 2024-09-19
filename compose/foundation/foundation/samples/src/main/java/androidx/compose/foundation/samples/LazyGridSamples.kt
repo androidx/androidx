@@ -33,11 +33,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.lazy.grid.LazyLayoutScrollScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -53,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -205,28 +207,31 @@ fun GridAnimateItemSample() {
 
 @Sampled
 @Composable
-fun CustomLazyGridAnimateToItemScrollSample() {
+@Preview
+fun LazyGridCustomScrollUsingLazyLayoutScrollScopeSample() {
+    suspend fun LazyGridState.customScroll(block: suspend LazyLayoutScrollScope.() -> Unit) =
+        scroll {
+            block.invoke(LazyLayoutScrollScope(this@customScroll, this))
+        }
+
     val itemsList = (0..100).toList()
     val state = rememberLazyGridState()
     val scope = rememberCoroutineScope()
-    val animatedScrollScope = remember(state) { LazyLayoutAnimateScrollScope(state) }
 
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Button(
             onClick = {
                 scope.launch {
-                    state.scroll {
-                        with(animatedScrollScope) {
-                            snapToItem(40, 0) // teleport to item 40
-                            val distance = calculateDistanceTo(50).toFloat()
-                            var previousValue = 0f
-                            androidx.compose.animation.core.animate(
-                                0f,
-                                distance,
-                                animationSpec = tween(5_000)
-                            ) { currentValue, _ ->
-                                previousValue += scrollBy(currentValue - previousValue)
-                            }
+                    state.customScroll {
+                        snapToItem(40, 0) // teleport to item 40
+                        val distance = calculateDistanceTo(50).toFloat()
+                        var previousValue = 0f
+                        androidx.compose.animation.core.animate(
+                            0f,
+                            distance,
+                            animationSpec = tween(5_000)
+                        ) { currentValue, _ ->
+                            previousValue += scrollBy(currentValue - previousValue)
                         }
                     }
                 }

@@ -1485,8 +1485,7 @@ private open class MapWrapper<K, V>(private val parent: ScatterMap<K, V>) : Map<
 
     override fun isEmpty(): Boolean = parent.isEmpty()
 
-    // TODO: @Suppress required because of a lint check issue (b/294130025)
-    override fun get(@Suppress("MissingNullability") key: K): V? = parent[key]
+    override fun get(key: K): V? = parent[key]
 
     override fun containsValue(value: V): Boolean = parent.containsValue(value)
 

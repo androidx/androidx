@@ -18,6 +18,8 @@ package androidx.baselineprofile.gradle.utils
 
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import kotlin.io.path.Path
 import org.gradle.testkit.runner.GradleRunner
 
 internal val GRADLE_CODE_PRINT_TASK =
@@ -95,6 +97,9 @@ internal fun List<String>.require(
     return remaining
 }
 
+internal fun List<String>.containsOnly(vararg strings: String): Boolean =
+    toSet().union(setOf(*strings)).size == this.size
+
 fun camelCase(vararg strings: String): String {
     if (strings.isEmpty()) return ""
     return StringBuilder()
@@ -107,3 +112,5 @@ fun camelCase(vararg strings: String): String {
         }
         .toString()
 }
+
+fun File.toUri() = Path(canonicalPath).toUri()

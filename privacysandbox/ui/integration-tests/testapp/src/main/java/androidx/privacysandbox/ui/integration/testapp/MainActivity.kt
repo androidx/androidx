@@ -192,26 +192,8 @@ class MainActivity : AppCompatActivity() {
                         isCalledOnStartingApp = false
                         return
                     }
-                    // Mediation is enabled if Runtime-Runtime Mediation option or Runtime-App
-                    // Mediation
-                    // option is selected.
-                    val appOwnedMediationEnabled =
-                        selectedMediationOptionId == MediationOption.IN_APP_MEDIATEE.toLong()
-                    val mediationEnabled =
-                        (selectedMediationOptionId ==
-                            MediationOption.SDK_RUNTIME_MEDIATEE.toLong() ||
-                            appOwnedMediationEnabled)
 
-                    mediationOption =
-                        if (mediationEnabled) {
-                            if (appOwnedMediationEnabled) {
-                                MediationOption.IN_APP_MEDIATEE
-                            } else {
-                                MediationOption.SDK_RUNTIME_MEDIATEE
-                            }
-                        } else {
-                            MediationOption.NON_MEDIATED
-                        }
+                    mediationOption = selectedMediationOptionId.toInt()
                     loadAllAds()
                 }
 

@@ -18,10 +18,13 @@ package androidx.camera.camera2.pipe.compat
 
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.EXACT
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.max
 
 @Singleton
 internal class Camera2Quirks
@@ -38,9 +41,11 @@ constructor(
      * - Device(s): Camera devices on hardware level LEGACY
      * - API levels: All
      */
-    internal fun shouldWaitForRepeatingRequest(graphConfig: CameraGraph.Config): Boolean {
+    internal fun shouldWaitForRepeatingRequestStartOnDisconnect(
+        graphConfig: CameraGraph.Config
+    ): Boolean {
         // First, check for overrides.
-        graphConfig.flags.quirkWaitForRepeatingRequestOnDisconnect?.let {
+        graphConfig.flags.awaitRepeatingRequestOnDisconnect?.let {
             return it
         }
 
@@ -85,17 +90,37 @@ constructor(
             )
 
         /**
-         * A quirk that waits for a certain number of repeating requests to complete before allowing
-         * (single) capture requests to be issued. This is needed on some devices where issuing a
-         * capture request too early might cause it to fail prematurely.
+         * Returns the number of repeating requests frames before capture for quirks.
+         *
+         * This kind of quirk behavior requires waiting for a certain number of repeating requests
+         * to complete before allowing (single) capture requests to be issued. This is needed on
+         * some devices where issuing a capture request too early might cause it to fail prematurely
+         * or cause some other problem. A value of zero is returned when not required.
          * - Bug(s): b/287020251, b/289284907
          * - Device(s): See [SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP]
          * - API levels: Before 34 (U)
          */
-        internal fun shouldWaitForRepeatingBeforeCapture(): Boolean {
-            return SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[Build.MANUFACTURER]?.contains(
-                Build.DEVICE
-            ) == true && Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        internal fun getRepeatingRequestFrameCountForCapture(
+            graphConfigFlags: CameraGraph.Flags
+        ): Int {
+            val requirements = graphConfigFlags.awaitRepeatingRequestBeforeCapture
+
+            var frameCount = 0
+
+            if (
+                SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[Build.MANUFACTURER]?.contains(Build.DEVICE) ==
+                    true && Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            ) {
+                frameCount = max(frameCount, 10)
+            }
+
+            frameCount =
+                when (requirements.completionBehavior) {
+                    AT_LEAST -> max(frameCount, requirements.repeatingFramesToComplete.toInt())
+                    EXACT -> requirements.repeatingFramesToComplete.toInt()
+                }
+
+            return frameCount
         }
 
         /**

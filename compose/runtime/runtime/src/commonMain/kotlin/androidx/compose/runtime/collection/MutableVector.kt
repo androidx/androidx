@@ -1117,7 +1117,7 @@ private fun throwNegativeIndexException(fromIndex: Int) {
 
 private fun throwReversedIndicesException(fromIndex: Int, toIndex: Int) {
     throw IllegalArgumentException(
-        "Indices are out of order. fromIndex ($fromIndex) is " + "greater than toIndex ($toIndex)."
+        "Indices are out of order. fromIndex ($fromIndex) is greater than toIndex ($toIndex)."
     )
 }
 
@@ -1127,7 +1127,7 @@ private fun throwReversedIndicesException(fromIndex: Int, toIndex: Int) {
  * @see MutableVector.ensureCapacity
  */
 inline fun <reified T> MutableVector(capacity: Int = 16) =
-    MutableVector<T>(arrayOfNulls<T>(capacity), 0)
+    MutableVector(arrayOfNulls<T>(capacity), 0)
 
 /**
  * Create a [MutableVector] with a given [size], initializing each element using the [init]

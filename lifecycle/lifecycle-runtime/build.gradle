@@ -71,7 +71,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.arch.core:core-runtime:2.2.0")
-                implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+                implementation("androidx.profileinstaller:profileinstaller:1.4.0")
             }
         }
 

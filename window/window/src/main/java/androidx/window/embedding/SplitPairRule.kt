@@ -98,6 +98,20 @@ internal constructor(
         private var clearTop = false
         private var defaultSplitAttributes = SplitAttributes.Builder().build()
 
+        /** Creates a Builder with values initialized from the original [SplitPairRule] */
+        internal constructor(original: SplitPairRule) : this(original.filters) {
+            this.setTag(original.tag)
+                .setMinWidthDp(original.minWidthDp)
+                .setMinHeightDp(original.minHeightDp)
+                .setMinSmallestWidthDp(original.minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(original.maxAspectRatioInPortrait)
+                .setMaxAspectRatioInLandscape(original.maxAspectRatioInLandscape)
+                .setFinishPrimaryWithSecondary(original.finishPrimaryWithSecondary)
+                .setFinishSecondaryWithPrimary(original.finishSecondaryWithPrimary)
+                .setClearTop(original.clearTop)
+                .setDefaultSplitAttributes(original.defaultSplitAttributes)
+        }
+
         /**
          * Sets the smallest value of width of the parent window when the split should be used, in
          * DP. When the window size is smaller than requested here, activities in the secondary

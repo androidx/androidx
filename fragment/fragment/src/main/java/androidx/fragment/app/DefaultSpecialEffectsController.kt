@@ -831,17 +831,39 @@ internal class DefaultSpecialEffectsController(container: ViewGroup) :
                         "Unable to start transition $mergedTransition for container $container."
                     }
                     seekCancelLambda = {
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(FragmentManager.TAG, "Animating to start")
-                        }
-                        transitionImpl.animateToStart(controller!!) {
-                            transitionInfos.forEach { transitionInfo ->
-                                val operation = transitionInfo.operation
-                                val view = operation.fragment.view
-                                if (view != null) {
-                                    operation.finalState.applyState(view, container)
+                        if (transitionInfos.all { it.operation.isSeeking }) {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(FragmentManager.TAG, "Animating to start")
+                            }
+                            transitionImpl.animateToStart(controller!!) {
+                                transitionInfos.forEach { transitionInfo ->
+                                    val operation = transitionInfo.operation
+                                    val view = operation.fragment.view
+                                    if (view != null) {
+                                        operation.finalState.applyState(view, container)
+                                    }
                                 }
                             }
+                        } else {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(FragmentManager.TAG, "Completing animating immediately")
+                            }
+                            @Suppress("DEPRECATION")
+                            val cancelSignal = androidx.core.os.CancellationSignal()
+                            transitionImpl.setListenerForTransitionEnd(
+                                transitionInfos[0].operation.fragment,
+                                mergedTransition,
+                                cancelSignal
+                            ) {
+                                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                    Log.v(
+                                        FragmentManager.TAG,
+                                        "Transition for all operations has completed"
+                                    )
+                                }
+                                transitionInfos.forEach { it.operation.completeEffect(this) }
+                            }
+                            cancelSignal.cancel()
                         }
                     }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

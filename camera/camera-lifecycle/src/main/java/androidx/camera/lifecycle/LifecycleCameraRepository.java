@@ -19,6 +19,7 @@ package androidx.camera.lifecycle;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -69,6 +70,10 @@ import java.util.Set;
  * LifecycleCamera will be released.
  */
 final class LifecycleCameraRepository {
+    private static final Object INSTANCE_LOCK = new Object();
+    @GuardedBy("INSTANCE_LOCK")
+    private static LifecycleCameraRepository sInstance = null;
+
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
@@ -83,6 +88,22 @@ final class LifecycleCameraRepository {
 
     @GuardedBy("mLock")
     @Nullable CameraCoordinator mCameraCoordinator;
+
+    @VisibleForTesting
+    LifecycleCameraRepository() {
+        // LifecycleCameraRepository is designed to be used as a singleton and the constructor
+        // should only be called for testing purpose.
+    }
+
+    @NonNull
+    static LifecycleCameraRepository getInstance() {
+        synchronized (INSTANCE_LOCK) {
+            if (sInstance == null) {
+                sInstance = new LifecycleCameraRepository();
+            }
+            return sInstance;
+        }
+    }
 
     /**
      * Create a new {@link LifecycleCamera} associated with the given {@link LifecycleOwner}.

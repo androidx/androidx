@@ -22,8 +22,9 @@ import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.IgnoreEmptyDirectories
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -33,13 +34,34 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
+/**
+ * This copy task consolidates schemas files from annotation processing tasks where room-compiler
+ * runs and exports schemas, moving them to a user configured location so they can be checked-in as
+ * part of their codebase and to be used for migration tests.
+ *
+ * This task does not correctly declare outputs by design. But in practice, the [schemaDirectory] is
+ * the output of this task. This is done to avoid circular task dependencies between the annotation
+ * processing task (javac, ksp or kapt) as the [schemaDirectory] is also an input of those tasks.
+ * The circle is broken by this task not correctly defining its output and instead relying on
+ * [org.gradle.api.Task.finalizedBy]. However, this task is in most cases skipped due to its usage
+ * of `@SkipWhenEmpty` and `@IgnoreEmptyDirectories` and because room-compiler will only export
+ * schemas if the database definition changed. This is a compromise done to fix and improve various
+ * caching and inconsistency issues when exporting Room schema files from an annotation processor
+ * task.
+ *
+ * Consolidation of schemas files is done for various Android variants (e.g. debug, release, etc) or
+ * Kotlin targets (e.g. linuxX64, jvm, etc) since a user can declare a schema location for multiple
+ * annotation processing tasks due to the database definition being the same. This tasks validates
+ * that is the case with a simple checksum. See [RoomExtension.schemaDirectory] for more
+ * information.
+ */
 @DisableCachingByDefault(because = "Simple disk bound task.")
 abstract class RoomSchemaCopyTask : DefaultTask() {
     @get:InputFiles
     @get:SkipWhenEmpty
     @get:IgnoreEmptyDirectories
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val variantSchemaOutputDirectories: ConfigurableFileCollection
+    abstract val apTaskSchemaOutputDirectories: ListProperty<Directory>
 
     @get:Internal abstract val schemaDirectory: DirectoryProperty
 
@@ -47,7 +69,9 @@ abstract class RoomSchemaCopyTask : DefaultTask() {
     fun copySchemas() {
         // Map of relative path to its source file hash.
         val copiedHashes = mutableMapOf<String, MutableMap<String, String>>()
-        variantSchemaOutputDirectories.files
+        apTaskSchemaOutputDirectories
+            .get()
+            .map { it.asFile }
             .filter { it.exists() }
             .forEach { outputDir ->
                 outputDir

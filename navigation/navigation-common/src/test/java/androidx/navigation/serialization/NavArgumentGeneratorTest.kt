@@ -73,7 +73,7 @@ class NavArgumentGeneratorTest {
         val converted = serializer<TestClass>().generateNavArguments()
         val expected =
             navArgument("arg") {
-                type = NavType.StringType
+                type = InternalNavType.StringNonNullableType
                 nullable = false
             }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -116,6 +116,34 @@ class NavArgumentGeneratorTest {
         val expected =
             navArgument("arg") {
                 type = InternalNavType.BoolNullableType
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToDouble() {
+        @Serializable class TestClass(val arg: Double)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleType
+                nullable = false
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToDoubleNullable() {
+        @Serializable class TestClass(val arg: Double?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleNullableType
                 nullable = true
             }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -459,6 +487,34 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToDoubleArray() {
+        @Serializable class TestClass(val arg: DoubleArray)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleArrayType
+                nullable = false
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToDoubleArrayNullable() {
+        @Serializable class TestClass(val arg: DoubleArray?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleArrayType
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToStringArray() {
         @Serializable class TestClass(val arg: Array<String>)
 
@@ -487,22 +543,22 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToStringList() {
-        @Serializable class TestClass(val arg: List<String>)
+    fun convertToStringNullableArrayNullable() {
+        @Serializable class TestClass(val arg: Array<String?>?)
 
         val converted = serializer<TestClass>().generateNavArguments()
         val expected =
             navArgument("arg") {
-                type = NavType.StringListType
-                nullable = false
+                type = InternalNavType.StringNullableArrayType
+                nullable = true
             }
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
-    fun convertArrayListToStringList() {
-        @Serializable class TestClass(val arg: ArrayList<String>)
+    fun convertToStringList() {
+        @Serializable class TestClass(val arg: List<String>)
 
         val converted = serializer<TestClass>().generateNavArguments()
         val expected =
@@ -523,6 +579,46 @@ class NavArgumentGeneratorTest {
             navArgument("arg") {
                 type = NavType.StringListType
                 nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToStringNullableList() {
+        @Serializable class TestClass(val arg: List<String?>)
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.StringNullableListType
+                nullable = false
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToStringNullableListNullable() {
+        @Serializable class TestClass(val arg: List<String?>?)
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.StringNullableListType
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToStringList() {
+        @Serializable class TestClass(val arg: ArrayList<String>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = NavType.StringListType
+                nullable = false
             }
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
@@ -864,7 +960,7 @@ class NavArgumentGeneratorTest {
         val converted = serializer<TestClass>().generateNavArguments()
         val expected =
             navArgument("arg") {
-                type = NavType.StringType
+                type = InternalNavType.StringNonNullableType
                 nullable = false
                 unknownDefaultValuePresent = true
             }
@@ -912,8 +1008,10 @@ class NavArgumentGeneratorTest {
 
         assertThat(exception.message)
             .isEqualTo(
-                "Cannot cast arg of type kotlin.collections.LinkedHashSet to a NavType. " +
-                    "Make sure to provide custom NavType for this argument."
+                "Route androidx.navigation.serialization.NavArgumentGeneratorTest" +
+                    ".convertIllegalCustomType.TestClass could not find any NavType for " +
+                    "argument arg of type kotlin.collections.LinkedHashSet - typeMap " +
+                    "received was {}"
             )
     }
 
@@ -1173,7 +1271,7 @@ class NavArgumentGeneratorTest {
                 .generateNavArguments(mapOf(typeOf<ArrayList<Int>>() to CustomIntList))
         val expectedString =
             navArgument("arg") {
-                type = NavType.StringType
+                type = InternalNavType.StringNonNullableType
                 nullable = false
             }
         val expectedIntList =

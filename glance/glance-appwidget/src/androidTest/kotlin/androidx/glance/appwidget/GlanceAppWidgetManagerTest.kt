@@ -16,12 +16,25 @@
 
 package androidx.glance.appwidget
 
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
+import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.collection.intSetOf
 import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
+import java.io.FileInputStream
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -136,8 +149,79 @@ class GlanceAppWidgetManagerTest {
             assertThat(manager.listKnownReceivers())
                 .containsExactly(TestGlanceAppWidgetReceiver::class.java.canonicalName)
         }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    fun setWidgetPreview() = runTest {
+        disableGeneratedPreviewsRateLimit {
+            TestGlanceAppWidget.withProvidePreview(
+                previewBlock = { widgetCategory -> Text("$widgetCategory preview") }
+            ) {
+                val categories =
+                    intSetOf(
+                        WIDGET_CATEGORY_HOME_SCREEN,
+                        WIDGET_CATEGORY_KEYGUARD,
+                        WIDGET_CATEGORY_SEARCHBOX,
+                    )
+                val result =
+                    GlanceAppWidgetManager(context)
+                        .setWidgetPreviews<TestGlanceAppWidgetReceiver>(categories)
+                assertThat(result).isTrue()
+
+                categories.forEach { category ->
+                    val preview =
+                        AppWidgetManager.getInstance(context)
+                            .getWidgetPreview(
+                                ComponentName(context, TestGlanceAppWidgetReceiver::class.java),
+                                /* profile= */ null,
+                                category
+                            )
+                    assertNotNull(preview)
+
+                    val view = preview.apply(context, FrameLayout(context))
+                    val textView = assertNotNull(view.findChildByType<TextView>())
+                    assertThat(textView.text.toString()).isEqualTo("$category preview")
+                }
+            }
+        }
+    }
 }
 
 private class DummyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
+}
+
+private const val GENERATED_PREVIEW_API_MAX_CALLS_PER_INTERVAL =
+    "generated_preview_api_max_calls_per_interval"
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private inline fun disableGeneratedPreviewsRateLimit(block: () -> Unit) {
+    val automator = InstrumentationRegistry.getInstrumentation().uiAutomation
+    automator.adoptShellPermissionIdentity()
+    val initialMaxCalls =
+        automator
+            .executeShellCommand(
+                "device_config get systemui $GENERATED_PREVIEW_API_MAX_CALLS_PER_INTERVAL"
+            )
+            .use { FileInputStream(it.fileDescriptor).readBytes().toString(Charsets.UTF_8).trim() }
+    try {
+        val newValue = Int.MAX_VALUE
+        automator.executeShellCommand(
+            "device_config put systemui $GENERATED_PREVIEW_API_MAX_CALLS_PER_INTERVAL " +
+                "$newValue"
+        )
+        block()
+    } finally {
+        if (initialMaxCalls == "null") {
+            automator.executeShellCommand(
+                "device_config delete systemui $GENERATED_PREVIEW_API_MAX_CALLS_PER_INTERVAL"
+            )
+        } else {
+            automator.executeShellCommand(
+                "device_config put systemui $GENERATED_PREVIEW_API_MAX_CALLS_PER_INTERVAL " +
+                    initialMaxCalls
+            )
+        }
+        automator.dropShellPermissionIdentity()
+    }
 }

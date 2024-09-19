@@ -59,11 +59,11 @@ package androidx.window.area {
   public static final class WindowAreaCapability.Status.Companion {
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaController {
-    method public static androidx.window.area.WindowAreaController getOrCreate();
-    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
-    method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
-    method public void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract class WindowAreaController {
+    method public static final androidx.window.area.WindowAreaController getOrCreate();
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
+    method public abstract void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
+    method public abstract void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
     property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> windowAreaInfos;
     field public static final androidx.window.area.WindowAreaController.Companion Companion;
   }
@@ -619,6 +619,14 @@ package androidx.window.layout {
 
   public static final class WindowMetricsCalculator.Companion {
     method public androidx.window.layout.WindowMetricsCalculator getOrCreate();
+  }
+
+}
+
+package androidx.window.layout.adapter {
+
+  public final class WindowSizeClassFactory {
+    method public static androidx.window.core.layout.WindowSizeClass computeWindowSizeClass(java.util.Set<androidx.window.core.layout.WindowSizeClass>, androidx.window.layout.WindowMetrics windowMetrics);
   }
 
 }

@@ -98,7 +98,6 @@ class TestUseCaseCamera(
                 requestListener,
                 cameraConfig,
                 cameraQuirks,
-                null,
                 ZslControlNoOpImpl(),
                 NoOpTemplateParamsOverride,
             )
@@ -144,6 +143,7 @@ class TestUseCaseCamera(
                         templateParamsOverride = NoOpTemplateParamsOverride,
                     ),
                 useCaseGraphConfig = useCaseCameraGraphConfig,
+                threads = threads,
             )
             .apply {
                 SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->

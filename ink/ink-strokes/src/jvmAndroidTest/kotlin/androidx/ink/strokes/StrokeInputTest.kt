@@ -45,7 +45,7 @@ class StrokeInputTest {
     }
 
     @Test
-    fun overwrite_shouldReassignValues() {
+    fun update_shouldReassignValues() {
         val input = StrokeInput()
         input.update(1f, 2f, 3L, InputToolType.TOUCH)
         input.update(2f, 3f, 4L, InputToolType.STYLUS, 0.1f, 0.2f, 0.3f, 0.4f)
@@ -61,7 +61,7 @@ class StrokeInputTest {
     }
 
     @Test
-    fun overwrite_withDefaultValues_shouldReassignValues() {
+    fun update_withDefaultValues_shouldReassignValues() {
         val input = StrokeInput()
         input.update(
             x = 1f,

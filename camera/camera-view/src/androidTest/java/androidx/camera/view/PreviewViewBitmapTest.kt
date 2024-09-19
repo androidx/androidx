@@ -32,9 +32,9 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.testrule.CameraTestActivityScenarioRule
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -55,7 +55,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class PreviewViewBitmapTest(private val implName: String, private val cameraConfig: CameraXConfig) {
-    @get:Rule val activityRule = ActivityScenarioRule(FakeActivity::class.java)
+    @get:Rule val activityRule = CameraTestActivityScenarioRule(FakeActivity::class.java)
 
     @get:Rule
     var useCamera =

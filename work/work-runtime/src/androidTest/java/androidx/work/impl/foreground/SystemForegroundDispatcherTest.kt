@@ -57,6 +57,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
@@ -382,7 +383,7 @@ class SystemForegroundDispatcherTest {
         assertThat(fakeChargingTracker.isTracking, `is`(true))
         fakeChargingTracker.state = false
         verify(workManager, times(1))
-            .stopForegroundWork(eq(WorkGenerationalId(request.workSpec.id, 0)))
+            .stopForegroundWork(eq(WorkGenerationalId(request.workSpec.id, 0)), anyInt())
     }
 
     @Test
@@ -455,7 +456,33 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testTimeoutForeground() {
+        val request =
+            OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
+                .setConstraints(Constraints.Builder().setRequiresCharging(true).build())
+                .build()
+        workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata =
+            ForegroundInfo(notificationId, notification, FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
+        val intent =
+            createStartForegroundIntent(
+                context,
+                WorkGenerationalId(request.workSpec.id, 0),
+                metadata
+            )
+        dispatcher.onStartCommand(intent)
+        assertThat(fakeChargingTracker.isTracking, `is`(true))
+
         dispatcher.onTimeout(0, FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
+        verify(workManager, times(1))
+            .stopForegroundWork(
+                WorkGenerationalId(request.workSpec.id, 0),
+                WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT
+            )
         verify(dispatcherCallback, times(1)).stop()
+
+        assertThat(processor.hasWork(), `is`(false))
     }
 }

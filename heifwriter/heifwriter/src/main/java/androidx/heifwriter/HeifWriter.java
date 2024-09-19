@@ -276,6 +276,112 @@ public final class HeifWriter extends WriterBase {
         }
     }
 
+    /**
+     * Start the heif writer. Can only be called once.
+     *
+     * @throws IllegalStateException if called more than once.
+     */
+    @Override
+    public void start() {
+        super.start();
+    }
+
+    /**
+     * Add one YUV buffer to the heif file.
+     *
+     * @param format The YUV format as defined in {@link android.graphics.ImageFormat}, currently
+     *               only support YUV_420_888.
+     *
+     * @param data byte array containing the YUV data. If the format has more than one planes,
+     *             they must be concatenated.
+     *
+     * @throws IllegalStateException if not started or not configured to use buffer input.
+     */
+    @Override
+    public void addYuvBuffer(int format, @NonNull byte[] data) {
+        super.addYuvBuffer(format, data);
+    }
+
+    /**
+     * Retrieves the input surface for encoding.
+     *
+     * @return the input surface if configured to use surface input.
+     *
+     * @throws IllegalStateException if called after start or not configured to use surface input.
+     */
+    @Override
+    public @NonNull Surface getInputSurface() {
+        return super.getInputSurface();
+    }
+
+    /**
+     * Set the timestamp (in nano seconds) of the last input frame to encode.
+     *
+     * This call is only valid for surface input. Client can use this to stop the heif writer
+     * earlier before the maximum number of images are written. If not called, the writer will
+     * only stop when the maximum number of images are written.
+     *
+     * @param timestampNs timestamp (in nano seconds) of the last frame that will be written to the
+     *                    heif file. Frames with timestamps larger than the specified value will not
+     *                    be written. However, if a frame already started encoding when this is set,
+     *                    all tiles within that frame will be encoded.
+     *
+     * @throws IllegalStateException if not started or not configured to use surface input.
+     */
+    @Override
+    public void setInputEndOfStreamTimestamp(@IntRange(from = 0) long timestampNs) {
+        super.setInputEndOfStreamTimestamp(timestampNs);
+    }
+
+    /**
+     * Add one bitmap to the heif file.
+     *
+     * @param bitmap the bitmap to be added to the file.
+     * @throws IllegalStateException if not started or not configured to use bitmap input.
+     */
+    @Override
+    public void addBitmap(@NonNull Bitmap bitmap) {
+        super.addBitmap(bitmap);
+    }
+
+    /**
+     * Add Exif data for the specified image. The data must be a valid Exif data block,
+     * starting with "Exif\0\0" followed by the TIFF header (See JEITA CP-3451C Section 4.5.2.)
+     *
+     * @param imageIndex index of the image, must be a valid index for the max number of image
+     *                   specified by {@link Builder#setMaxImages(int)}.
+     * @param exifData byte buffer containing a Exif data block.
+     * @param offset offset of the Exif data block within exifData.
+     * @param length length of the Exif data block.
+     */
+    @Override
+    public void addExifData(int imageIndex, @NonNull byte[] exifData, int offset, int length) {
+        super.addExifData(imageIndex, exifData, offset, length);
+    }
+
+    /**
+     * Stop the heif writer synchronously. Throws exception if the writer didn't finish writing
+     * successfully. Upon a success return:
+     *
+     * - For buffer and bitmap inputs, all images sent before stop will be written.
+     *
+     * - For surface input, images with timestamp on or before that specified in
+     *   {@link #setInputEndOfStreamTimestamp(long)} will be written. In case where
+     *   {@link #setInputEndOfStreamTimestamp(long)} was never called, stop will block
+     *   until maximum number of images are received.
+     *
+     * @param timeoutMs Maximum time (in microsec) to wait for the writer to complete, with zero
+     *                  indicating waiting indefinitely.
+     * @see #setInputEndOfStreamTimestamp(long)
+     * @throws Exception if encountered error, in which case the output file may not be valid. In
+     *                   particular, {@link TimeoutException} is thrown when timed out, and {@link
+     *                   MediaCodec.CodecException} is thrown when encountered codec error.
+     */
+    @Override
+    public void stop(@IntRange(from = 0) long timeoutMs) throws Exception {
+        super.stop(timeoutMs);
+    }
+
     @SuppressLint("WrongConstant")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     HeifWriter(@NonNull String path,

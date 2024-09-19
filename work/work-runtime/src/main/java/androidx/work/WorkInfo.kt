@@ -20,7 +20,6 @@ import android.app.job.JobScheduler
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkInfo.State
 import java.util.UUID
 
@@ -231,6 +230,15 @@ constructor(
     }
 
     companion object {
+
+        /**
+         * The foreground worker used up its maximum execution time and timed out.
+         *
+         * Foreground workers have a maximum execution time limit depending on the [ForegroundInfo]
+         * type. See the notes on [android.content.pm.ServiceInfo] types.
+         */
+        const val STOP_REASON_FOREGROUND_SERVICE_TIMEOUT = -128
+
         /**
          * Additional stop reason, that is returned from [WorkInfo.stopReason] in cases when a
          * worker in question wasn't stopped. E.g. when a worker was just enqueued, but didn't run
@@ -337,10 +345,20 @@ constructor(
     }
 }
 
+/**
+ * Stops reason integers are divided in ranges since some corresponds to platform equivalents, while
+ * other are WorkManager specific.
+ * * `-512` - Special STOP_REASON_UNKNOWN
+ * * `-256` - Special STOP_REASON_NOT_STOPPED
+ * * `[-255, -128]` - Reserved for WM specific reasons (i.e. not reflected by JobScheduler).
+ * * `[-127, -1]` - Unused on purpose.
+ * * `[0, MAX_VALUE]` - Reserved for JobScheduler mirror reasons (i.e. JobParameters.STOP_REASON_X).
+ */
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
-    STOP_REASON_NOT_STOPPED,
     WorkInfo.STOP_REASON_UNKNOWN,
+    WorkInfo.STOP_REASON_NOT_STOPPED,
+    WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT,
     WorkInfo.STOP_REASON_CANCELLED_BY_APP,
     WorkInfo.STOP_REASON_PREEMPT,
     WorkInfo.STOP_REASON_TIMEOUT,

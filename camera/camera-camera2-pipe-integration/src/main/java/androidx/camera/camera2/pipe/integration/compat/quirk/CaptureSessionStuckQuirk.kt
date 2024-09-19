@@ -35,8 +35,8 @@ public class CaptureSessionStuckQuirk : Quirk {
     public companion object {
         /**
          * Always return false as CameraPipe handles this automatically. Please refer to
-         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for the
-         * conditions under which the quirk will be applied.
+         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect]
+         * for the conditions under which the quirk will be applied.
          */
         public fun isEnabled(): Boolean = false
     }

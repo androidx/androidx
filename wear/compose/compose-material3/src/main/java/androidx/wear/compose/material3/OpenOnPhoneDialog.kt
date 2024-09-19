@@ -123,24 +123,21 @@ fun OpenOnPhoneDialog(
     }
 
     Dialog(
-        showDialog = show,
+        show = show,
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val bottomPadding =
-                if (curvedText != null)
-                    screenHeightDp() * OpenOnPhoneDialogDefaults.ExtraBottomPaddingFraction
-                else 0f
+            val topPadding = screenHeightDp() * HeightPaddingFraction
+            val size = screenWidthDp() * SizeFraction
             Box(
-                Modifier.fillMaxSize().padding(bottom = bottomPadding.dp),
-                contentAlignment = Alignment.Center
+                Modifier.padding(top = topPadding.dp).size(size.dp).align(Alignment.TopCenter),
             ) {
                 iconContainer(
                     iconContainerColor = colors.iconContainerColor,
                     progressIndicatorColors =
-                        ProgressIndicatorColors(
+                        ProgressIndicatorDefaults.colors(
                             SolidColor(colors.progressIndicatorColor),
                             SolidColor(colors.progressTrackColor)
                         ),
@@ -233,14 +230,6 @@ object OpenOnPhoneDialogDefaults {
     /** Default timeout for the [OpenOnPhoneDialog] dialog, in milliseconds. */
     const val DurationMillis = 4000L
 
-    internal val IconDelay = 67L
-    internal val SizeFraction = 0.6f
-    internal val ExtraBottomPaddingFraction = 0.02f
-    internal val IconSize = 52.dp
-
-    internal val progressIndicatorStrokeWidth = 5.dp
-    internal val progressIndicatorPadding = 5.dp
-
     private val ColorScheme.defaultOpenOnPhoneDialogColors: OpenOnPhoneDialogColors
         get() {
             return mDefaultOpenOnPhoneDialogColorsCached
@@ -253,6 +242,9 @@ object OpenOnPhoneDialogDefaults {
                     )
                     .also { mDefaultOpenOnPhoneDialogColorsCached = it }
         }
+
+    private const val IconDelay = 67L
+    private val IconSize = 52.dp
 }
 
 /**
@@ -314,25 +306,25 @@ private fun iconContainer(
     progressIndicatorColors: ProgressIndicatorColors,
     progress: () -> Float
 ): @Composable BoxScope.() -> Unit = {
-    val size = screenWidthDp() * OpenOnPhoneDialogDefaults.SizeFraction
-    Box(Modifier.size(size.dp)) {
-        Box(
-            Modifier.fillMaxSize()
-                .padding(
-                    OpenOnPhoneDialogDefaults.progressIndicatorStrokeWidth +
-                        OpenOnPhoneDialogDefaults.progressIndicatorPadding
-                )
-                .graphicsLayer {
-                    shape = CircleShape
-                    clip = true
-                }
-                .background(iconContainerColor)
-        )
+    Box(
+        Modifier.fillMaxSize()
+            .padding(progressIndicatorStrokeWidth + progressIndicatorPadding)
+            .graphicsLayer {
+                shape = CircleShape
+                clip = true
+            }
+            .background(iconContainerColor)
+    )
 
-        CircularProgressIndicator(
-            progress = progress,
-            strokeWidth = OpenOnPhoneDialogDefaults.progressIndicatorStrokeWidth,
-            colors = progressIndicatorColors
-        )
-    }
+    CircularProgressIndicator(
+        progress = progress,
+        strokeWidth = progressIndicatorStrokeWidth,
+        colors = progressIndicatorColors
+    )
 }
+
+private const val WidthPaddingFraction = 0.176f
+private const val HeightPaddingFraction = 0.157f
+private const val SizeFraction = 1 - WidthPaddingFraction * 2
+private val progressIndicatorStrokeWidth = 5.dp
+private val progressIndicatorPadding = 5.dp

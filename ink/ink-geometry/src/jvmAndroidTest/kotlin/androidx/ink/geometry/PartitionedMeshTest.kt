@@ -38,6 +38,14 @@ class PartitionedMeshTest {
     }
 
     @Test
+    fun computeBoundingBox_reusesAllocations() {
+        val partitionedMesh = buildTestStrokeShape()
+
+        val boundingBox = partitionedMesh.computeBoundingBox()
+        assertThat(partitionedMesh.computeBoundingBox()).isSameInstanceAs(boundingBox)
+    }
+
+    @Test
     fun getRenderGroupCount_whenEmptyShape_shouldBeZero() {
         val partitionedMesh = PartitionedMesh()
 
@@ -133,11 +141,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverage] calls the correct JNI method for [PartitionedMesh]
-     * and [Triangle].
+     * Verifies that [PartitionedMesh.computeCoverage] calls the correct JNI method for
+     * [PartitionedMesh] and [Triangle].
      */
     @Test
-    fun coverage_forPartitionedMeshAndTriangle_callsJniAndReturnsFloat() {
+    fun computeCoverage_forPartitionedMeshAndTriangle_callsJniAndReturnsFloat() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingTriangle =
             ImmutableTriangle(
@@ -158,11 +166,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverage] calls the correct JNI method for [PartitionedMesh]
-     * and [Box].
+     * Verifies that [PartitionedMesh.computeCoverage] calls the correct JNI method for
+     * [PartitionedMesh] and [Box].
      */
     @Test
-    fun coverage_forPartitionedMeshAndBox_callsJniAndReturnsFloat() {
+    fun computeCoverage_forPartitionedMeshAndBox_callsJniAndReturnsFloat() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingBox =
             ImmutableBox.fromTwoPoints(ImmutableVec(0f, 0f), ImmutableVec(100f, 100f))
@@ -175,11 +183,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverage] calls the correct JNI method for [PartitionedMesh]
-     * and [Parallelogram].
+     * Verifies that [PartitionedMesh.computeCoverage] calls the correct JNI method for
+     * [PartitionedMesh] and [Parallelogram].
      */
     @Test
-    fun coverage_forPartitionedMeshAndParallelogram_callsJniAndReturnsFloat() {
+    fun computeCoverage_forPartitionedMeshAndParallelogram_callsJniAndReturnsFloat() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingParallelogram =
             ImmutableParallelogram.fromCenterAndDimensions(
@@ -203,11 +211,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverage] calls the correct JNI method for two
+     * Verifies that [PartitionedMesh.computeCoverage] calls the correct JNI method for two
      * [PartitionedMesh]es.
      */
     @Test
-    fun coverage_forTwoPartitionedMeshes_callsJniAndReturnsFloat() {
+    fun computeCoverage_forTwoPartitionedMeshes_callsJniAndReturnsFloat() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingShape =
             Stroke(
@@ -228,11 +236,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverageIsGreaterThan] calls the correct JNI method for
+     * Verifies that [PartitionedMesh.computeCoverageIsGreaterThan] calls the correct JNI method for
      * [PartitionedMesh] and [Triangle].
      */
     @Test
-    fun coverageIsGreaterThan_forPartitionedMeshAndTriangle_callsJniAndReturnsFloat() {
+    fun computeCoverageIsGreaterThan_forPartitionedMeshAndTriangle_callsJniAndReturnsFloat() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingTriangle =
             ImmutableTriangle(
@@ -256,7 +264,7 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverageIsGreaterThan] calls the correct JNI method for
+     * Verifies that [PartitionedMesh.computeCoverageIsGreaterThan] calls the correct JNI method for
      * [PartitionedMesh] and [Box].
      *
      * For this test, `partitionedMesh` consists of triangulation of a straight line [Stroke] from
@@ -266,7 +274,7 @@ class PartitionedMeshTest {
      * coverage of zero.
      */
     @Test
-    fun coverageIsGreaterThan_forPartitionedMeshAndBox_callsJniAndReturnsBoolean() {
+    fun computeCoverageIsGreaterThan_forPartitionedMeshAndBox_callsJniAndReturnsBoolean() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingBox =
             ImmutableBox.fromTwoPoints(ImmutableVec(10f, 3f), ImmutableVec(15f, 5f))
@@ -280,11 +288,11 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverageIsGreaterThan] calls the correct JNI method for
+     * Verifies that [PartitionedMesh.computeCoverageIsGreaterThan] calls the correct JNI method for
      * [PartitionedMesh] and [Parallelogram].
      */
     @Test
-    fun coverageIsGreaterThan_forPartitionedMeshAndParallelogram_callsJniAndReturnsBoolean() {
+    fun computeCoverageIsGreaterThan_forPartitionedMeshAndParallelogram_callsJniAndReturnsBoolean() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingParallelogram =
             ImmutableParallelogram.fromCenterAndDimensions(
@@ -316,7 +324,7 @@ class PartitionedMeshTest {
     }
 
     /**
-     * Verifies that [PartitionedMesh.coverage] calls the correct JNI method for two
+     * Verifies that [PartitionedMesh.computeCoverage] calls the correct JNI method for two
      * [PartitionedMesh]s.
      *
      * For this test, `partitionedMesh` consists of triangulation of a straight line [Stroke] from
@@ -327,7 +335,7 @@ class PartitionedMeshTest {
      * `partitionedMesh`, and has zero coverage.
      */
     @Test
-    fun coverageIsGreaterThan_forTwoPartitionedMeshes_callsJniAndReturnsBoolean() {
+    fun computeCoverageIsGreaterThan_forTwoPartitionedMeshes_callsJniAndReturnsBoolean() {
         val partitionedMesh = buildTestStrokeShape()
         val intersectingShape =
             Stroke(

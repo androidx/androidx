@@ -50,7 +50,7 @@ class TestScheduler(
 ) : Scheduler, TestDriver {
     @GuardedBy("lock") private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
     private val lock = Any()
-    private val startStopTokens = StartStopTokens()
+    private val startStopTokens = StartStopTokens.create()
     private val delayedWorkTracker = DelayedWorkTracker(this, runnableScheduler, clock)
 
     override fun hasLimitedSchedulingSlots() = true

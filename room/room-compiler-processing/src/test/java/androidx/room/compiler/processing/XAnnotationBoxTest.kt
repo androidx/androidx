@@ -430,7 +430,7 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        // https://github.com/google/ksp/issues/1963
+        // https://github.com/google/ksp/issues/2077
         runTest(sources = listOf(kotlinSrc, javaSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             listOf("KotlinClass", "JavaClass")

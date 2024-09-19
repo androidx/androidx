@@ -45,3 +45,11 @@ inline fun <reified T> GlanceModifier.extractModifier(): Pair<T?, GlanceModifier
     } else {
         null to this
     }
+
+/** Returns a GlanceModifier with all elements of type [T] removed. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+inline fun <reified T> GlanceModifier.removeModifiersOfType(): GlanceModifier where
+T : GlanceModifier.Element =
+    foldIn(GlanceModifier) { acc: GlanceModifier, cur: GlanceModifier ->
+        cur.takeUnless { it is T }?.let { acc.then(cur) } ?: acc
+    }

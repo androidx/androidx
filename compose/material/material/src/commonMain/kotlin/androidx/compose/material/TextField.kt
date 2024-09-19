@@ -34,11 +34,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.toTextFieldBuffer
 import androidx.compose.material.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -226,10 +226,13 @@ fun TextField(
                 if (outputTransformation == null) {
                     state.text.toString()
                 } else {
-                    val buffer = state.toTextFieldBuffer()
+                    // TODO: use constructor to create TextFieldBuffer from TextFieldState when
+                    // available
+                    lateinit var buffer: TextFieldBuffer
+                    state.edit { buffer = this }
                     // after edit completes, mutations on buffer are ineffective
                     with(outputTransformation) { buffer.transformOutput() }
-                    buffer.toString()
+                    buffer.asCharSequence().toString()
                 }
 
             TextFieldDefaults.TextFieldDecorationBox(
@@ -722,7 +725,7 @@ private class TextFieldMeasurePolicy(
         var occupiedSpaceHorizontally = 0
 
         // measure leading icon
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val looseConstraints = constraints.copyMaxDimensions()
         val leadingPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LeadingId }?.measure(looseConstraints)
         occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)

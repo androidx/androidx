@@ -17,3 +17,5 @@
 package androidx.wear.compose.integration.macrobenchmark.target
 
 internal val CONTENT_DESCRIPTION = "find-me"
+
+internal fun numberedContentDescription(n: Int) = "find-me-$n"

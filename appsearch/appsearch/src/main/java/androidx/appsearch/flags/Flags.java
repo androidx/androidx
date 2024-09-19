@@ -150,6 +150,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX =
             FLAG_PREFIX + "enable_enterprise_empty_batch_result_fix";
 
+    /** Enables abstract syntax trees to be built and used within AppSearch. */
+    public static final String FLAG_ENABLE_ABSTRACT_SYNTAX_TREES =
+            FLAG_PREFIX + "enable_abstract_syntax_trees";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -274,6 +278,11 @@ public final class Flags {
 
     /** Whether empty batch result fix for enterprise GetDocuments should be enabled. */
     public static boolean enableEnterpriseEmptyBatchResultFix() {
+        return true;
+    }
+
+    /** Whether AppSearch can create and use abstract syntax trees. */
+    public static boolean enableAbstractSyntaxTrees() {
         return true;
     }
 }

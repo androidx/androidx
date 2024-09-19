@@ -34,14 +34,15 @@
             android:hint="@string/hint_find"
             android:textColor="?attr/colorOnSurface"
             android:textColorHint="?attr/colorOutline"
-            android:paddingLeft="16dp"
+            android:paddingLeft="14dp"
             android:imeOptions="actionSearch"
             android:inputType="textFilter"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:clickable="true"
             android:focusable="true"
             android:background="@null"
-            style="@style/TextAppearance.Material3.TitleMedium">
+            style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_gravity="center_vertical">
         </androidx.pdf.widget.SearchEditText>
 
         <TextView android:id="@+id/match_status_textview"
@@ -49,7 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/query_box"
             android:paddingRight="10dp"
-            android:textColor="?attr/colorOnSurfaceVariant">
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_gravity="center_vertical">
         </TextView>
     </LinearLayout>
 

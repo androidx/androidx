@@ -266,9 +266,12 @@ internal constructor(
         if (targetValue != RevealValue.Covered) {
             resetLastState(this)
         }
-        swipeableState.animateTo(targetValue)
-        if (targetValue == RevealValue.Covered) {
-            lastActionType = RevealActionType.None
+        try {
+            swipeableState.animateTo(targetValue)
+        } finally {
+            if (targetValue == RevealValue.Covered) {
+                lastActionType = RevealActionType.None
+            }
         }
     }
 

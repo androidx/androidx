@@ -192,6 +192,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
+                        val itemProvider = itemProviderLambda()
                         val childConstraints =
                             Constraints(
                                 maxHeight = Constraints.Infinity,
@@ -214,6 +215,8 @@ internal fun rememberLazyColumnMeasurePolicy(
                             scrollProgress = scrollProgress,
                             horizontalAlignment = horizontalAlignment,
                             layoutDirection = layoutDirection,
+                            key = itemProvider.getKey(index),
+                            contentType = itemProvider.getContentType(index),
                         )
                     }
 
@@ -221,6 +224,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
+                        val itemProvider = itemProviderLambda()
                         val childConstraints =
                             Constraints(
                                 maxHeight = Constraints.Infinity,
@@ -244,6 +248,8 @@ internal fun rememberLazyColumnMeasurePolicy(
                                 scrollProgress = scrollProgress,
                                 horizontalAlignment = horizontalAlignment,
                                 layoutDirection = layoutDirection,
+                                key = itemProvider.getKey(index),
+                                contentType = itemProvider.getContentType(index),
                             )
                         item.offset -= item.height
                         return item

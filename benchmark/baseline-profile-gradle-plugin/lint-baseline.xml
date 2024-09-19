@@ -2,15 +2,6 @@
 <issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="                    project.properties.filterKeys { k ->"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/producer/tasks/CollectBaselineProfileTask.kt"/>
-    </issue>
-
-    <issue
         id="InternalAgpApiUsage"
         message="Avoid using internal Android Gradle Plugin APIs"
         errorLine1="import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet"

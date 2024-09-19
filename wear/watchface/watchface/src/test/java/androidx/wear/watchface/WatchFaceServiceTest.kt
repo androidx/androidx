@@ -755,7 +755,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
             engineWrapper.deferredValidation.awaitWithTimeout()
         }
 
@@ -1894,11 +1895,12 @@ public class WatchFaceServiceTest {
             )
         )
         // Initially the chin size is set to zero.
-        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        val mutableWatchState = engineWrapper.watchFaceDetails!!.mutableWatchState
+        assertThat(mutableWatchState.chinHeight).isEqualTo(0)
         // When window insets are delivered to the watch face.
         engineWrapper.onApplyWindowInsets(getChinWindowInsets(chinHeight = 12))
         // Then the chin size is updated.
-        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        assertThat(mutableWatchState.chinHeight).isEqualTo(12)
     }
 
     @Test
@@ -3164,6 +3166,62 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun overrideComplicationData() {
+        initWallpaperInteractiveWatchFaceInstance(
+            complicationSlots = listOf(mockComplication, mockComplication2)
+        )
+        // Set initial complications.
+        val liveComplication1 =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("Live complication1"))
+                .setDataSource(ComponentName("one.com", "one"))
+                .build()
+        val liveComplication2 =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("Live complication2"))
+                .setDataSource(ComponentName("two.com", "one"))
+                .build()
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID, liveComplication1),
+                IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID2, liveComplication2)
+            )
+        )
+        reset(mockCanvasComplication)
+        reset(mockCanvasComplication2)
+
+        // Preview complications set by the editor.
+        val previewComplication1 =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("Preview complication1"))
+                .setDataSource(ComponentName("one.com", "one"))
+                .build()
+        val previewComplication2 =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("Preview complication2"))
+                .setDataSource(ComponentName("two.com", "one"))
+                .build()
+        interactiveWatchFaceInstance.overrideComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID, previewComplication1),
+                IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID2, previewComplication2)
+            )
+        )
+
+        // The updates should be synchronous.
+        verify(mockCanvasComplication)
+            .loadData(
+                previewComplication1.toApiComplicationData(),
+                loadDrawablesAsynchronous = false
+            )
+        verify(mockCanvasComplication2)
+            .loadData(
+                previewComplication2.toApiComplicationData(),
+                loadDrawablesAsynchronous = false
+            )
+    }
+
+    @Test
     public fun overrideComplicationData_onEditSessionFinished() {
         initWallpaperInteractiveWatchFaceInstance(
             complicationSlots = listOf(mockComplication, mockComplication2)
@@ -3224,11 +3282,11 @@ public class WatchFaceServiceTest {
 
         // MOCK_COMPLICATION_ID was unchanged so we should load the origional.
         verify(mockCanvasComplication)
-            .loadData(liveComplication1.toApiComplicationData(), loadDrawablesAsynchronous = true)
+            .loadData(liveComplication1.toApiComplicationData(), loadDrawablesAsynchronous = false)
         // MOCK_COMPLICATION_ID was changed so we should load empty to prevent the user from seeing
         // a glimpse of the old complication.
         verify(mockCanvasComplication2)
-            .loadData(EmptyComplicationData(), loadDrawablesAsynchronous = true)
+            .loadData(EmptyComplicationData(), loadDrawablesAsynchronous = false)
     }
 
     @Test
@@ -3412,7 +3470,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check the ComplicationData was cached.
             val leftComplicationData =
@@ -3545,7 +3604,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check only the right ComplicationData was cached.
             val leftComplicationData =
@@ -3668,7 +3728,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             watchFaceImpl2.complicationSlotsManager.selectComplicationDataForInstant(
                 Instant.ofEpochSecond(999)
@@ -3819,7 +3880,10 @@ public class WatchFaceServiceTest {
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
-        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
+        runBlocking {
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
+        }
 
         assertThat(
                 watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
@@ -5542,7 +5606,7 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-        assertThat(engineWrapper.deferredWatchFaceImpl.isCompleted).isFalse()
+        assertThat(engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.isCompleted).isFalse()
 
         engineWrapper.onDestroy()
         assertThat(onDestroyCalled).isTrue()
@@ -7125,7 +7189,10 @@ public class WatchFaceServiceTest {
         )
 
         // This shouldn't crash.
-        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
+        runBlocking {
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
+        }
 
         engineWrapper.onDestroy()
     }
@@ -7458,7 +7525,8 @@ public class WatchFaceServiceTest {
             )
 
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
             engineWrapper.deferredValidation.awaitWithTimeout()
         }
 

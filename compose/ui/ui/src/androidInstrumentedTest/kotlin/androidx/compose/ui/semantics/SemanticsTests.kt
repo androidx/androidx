@@ -1254,7 +1254,7 @@ private fun SimpleSubcomposeLayout(
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
 
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val looseConstraints = constraints.copyMaxDimensions()
 
         layout(layoutWidth, layoutHeight) {
             val placeablesOne =

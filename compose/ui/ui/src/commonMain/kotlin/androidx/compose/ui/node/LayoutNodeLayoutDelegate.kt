@@ -509,6 +509,8 @@ internal class LayoutNodeLayoutDelegate(
             isPlaced = true
             with(layoutNode) {
                 if (!wasPlaced) {
+                    innerCoordinator.onPlaced()
+
                     // if the node was not placed previous remeasure request could have been ignored
                     if (measurePending) {
                         requestRemeasure(forceRequest = true)
@@ -597,6 +599,10 @@ internal class LayoutNodeLayoutDelegate(
                     // visible, so we need to relayout the parent to get the `placeOrder`.
                     parent?.requestRelayout()
                 }
+            } else {
+                // Call onPlaced callback on each placement, even if it was already placed,
+                // but without subtree invalidation.
+                layoutNode.innerCoordinator.onPlaced()
             }
 
             if (parent != null) {

@@ -40,9 +40,8 @@ dependencies {
     implementation(project(":compose:material3:material3-common"))
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation("androidx.compose.ui:ui:1.2.1")
+    implementation("androidx.compose.ui:ui-tooling:1.4.1")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
-
-    debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
 }
 
 androidx {

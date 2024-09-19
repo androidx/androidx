@@ -182,7 +182,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             }
         }
 
-        val accumulatedOffsetPerLane = IntArray(laneCount) { 0 }
+        val accumulatedOffsetPerLane = IntArray(laneCount)
         if (shouldSetupAnimation && previousKeyToIndexMap != null) {
             if (movingInFromStartBound.isNotEmpty()) {
                 movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
@@ -315,7 +315,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 val itemInfo = keyToItemInfoMap[item.key]!!
                 val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
                 val mainAxisOffset =
-                    if (isLookingAhead) positionedItems.last().let { it.mainAxisOffset }
+                    if (isLookingAhead) positionedItems.last().mainAxisOffset
                     else {
                         itemInfo.layoutMaxOffset - item.mainAxisSizeWithSpacings
                     } + accumulatedOffset

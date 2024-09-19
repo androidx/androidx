@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import android.os.Build
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -163,8 +164,15 @@ class FocusTransactionsTest {
                     assertThat(view.isFocused).isTrue()
                 }
                 Touch -> {
-                    assertThat(root.focusOwner.rootState).isEqualTo(Inactive)
-                    assertThat(view.isFocused).isFalse()
+                    // On devices pre-P, clearFocus() will cause a subsequent requestFocus()
+                    // the causes another request for focus on the ComposeView.
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                        assertThat(root.focusOwner.rootState).isEqualTo(ActiveParent)
+                        assertThat(view.isFocused).isTrue()
+                    } else {
+                        assertThat(root.focusOwner.rootState).isEqualTo(Inactive)
+                        assertThat(view.isFocused).isFalse()
+                    }
                 }
                 else -> error("invalid input mode")
             }

@@ -39,7 +39,7 @@ package androidx.room
  * )
  * ```
  *
- * Normally, Room would print a [RoomWarnings.CURSOR_MISMATCH] warning since the query result has
+ * Normally, Room would print a [RoomWarnings.QUERY_MISMATCH] warning since the query result has
  * additional columns that are not used in the response. You can annotate the method with
  * [RewriteQueriesToDropUnusedColumns] to inform Room to rewrite your query at compile time to avoid
  * fetching extra columns.

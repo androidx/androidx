@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens
 import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.DisabledLabelTextColor
@@ -222,6 +223,38 @@ class SegmentedButtonTest {
             }
             .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
             .assertHeightIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun segmentedButton_contentPadding_correctSizing() {
+        val itemSize = 60.dp
+
+        rule
+            .setMaterialContentForSizeAssertions(
+                parentMaxWidth = 300.dp,
+                parentMaxHeight = 100.dp
+            ) {
+                MultiChoiceSegmentedButtonRow {
+                    SegmentedButton(
+                        contentPadding = PaddingValues(24.dp),
+                        checked = false,
+                        onCheckedChange = {},
+                        shape = RectangleShape
+                    ) {
+                        Text(modifier = Modifier.width(60.dp), text = "Day")
+                    }
+                    SegmentedButton(
+                        contentPadding = PaddingValues(20.dp),
+                        checked = false,
+                        onCheckedChange = {},
+                        shape = RectangleShape
+                    ) {
+                        Text(modifier = Modifier.width(30.dp), text = "Month")
+                    }
+                }
+            }
+            .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
+            .assertHeightIsEqualTo(68.dp)
     }
 
     @Test

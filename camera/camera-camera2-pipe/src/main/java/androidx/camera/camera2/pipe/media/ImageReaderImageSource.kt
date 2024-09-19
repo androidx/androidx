@@ -70,7 +70,7 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
         // As an example, if the consumer requests "40", the ImageReader will be created with
         // a capacity of "42", which will allow the consumer to hold exactly 40 images without
         // stalling the camera pipeline.
-        val imageReaderCapacity = capacity + IMAGE_SOURCE_CAPACITY
+        val imageReaderCapacity = capacity + ImageReaderImageSource.IMAGE_SOURCE_CAPACITY_MARGIN
 
         if (cameraStream.outputs.size == 1) {
             val output = cameraStream.outputs.single()
@@ -130,7 +130,7 @@ public class ImageReaderImageSource(
     private val maxImages: Int,
 ) : ImageSource {
     public companion object {
-        private const val IMAGE_SOURCE_CAPACITY_MARGIN = 2
+        public const val IMAGE_SOURCE_CAPACITY_MARGIN: Int = 2
         public const val IMAGE_SOURCE_CAPACITY: Int =
             IMAGEREADER_MAX_CAPACITY - IMAGE_SOURCE_CAPACITY_MARGIN
 

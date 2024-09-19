@@ -18,8 +18,11 @@
 
 package androidx.glance.appwidget.samples
 
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
 import android.content.Context
 import androidx.annotation.Sampled
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,6 +36,7 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.LocalAppWidgetOptions
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.text.Text
@@ -165,6 +169,41 @@ fun provideGlancePeriodicWorkSample() {
                 updateAll(applicationContext)
             }
             return Result.success()
+        }
+    }
+}
+
+/** This sample demonstrates how to implement [GlanceAppWidget.providePreview], */
+@Sampled
+fun providePreviewSample() {
+    class MyWidgetWithPreview : GlanceAppWidget() {
+        override suspend fun provideGlance(context: Context, id: GlanceId) {
+            provideContent {
+                val widgetCategory =
+                    LocalAppWidgetOptions.current.getInt(
+                        AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY
+                    )
+                Content(isPreview = false, widgetCategory)
+            }
+        }
+
+        override suspend fun providePreview(context: Context, widgetCategory: Int) {
+            provideContent { Content(isPreview = true, widgetCategory) }
+        }
+
+        @Composable
+        fun Content(
+            isPreview: Boolean,
+            widgetCategory: Int,
+        ) {
+            val text = if (isPreview) "preview" else "bound widget"
+            Text("This is a $text.")
+            // Avoid showing personal information if this preview or widget is showing on the
+            // lockscreen/keyguard.
+            val isKeyguardWidget = widgetCategory.and(WIDGET_CATEGORY_KEYGUARD) != 0
+            if (!isKeyguardWidget) {
+                Text("Some personal info.")
+            }
         }
     }
 }

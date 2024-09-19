@@ -31,31 +31,73 @@ import androidx.work.impl.model.generationalId
 // with the same workSpecId in the set to differentiate between past and future run requests.
 class StartStopToken(val id: WorkGenerationalId)
 
-class StartStopTokens {
-    private val lock = Any()
-    private val runs = mutableMapOf<WorkGenerationalId, StartStopToken>()
+interface StartStopTokens {
+    fun tokenFor(id: WorkGenerationalId): StartStopToken
 
-    fun tokenFor(id: WorkGenerationalId): StartStopToken {
-        return synchronized(lock) { runs.getOrPut(id) { StartStopToken(id) } }
-    }
+    fun remove(id: WorkGenerationalId): StartStopToken?
 
-    fun remove(id: WorkGenerationalId): StartStopToken? {
-        return synchronized(lock) { runs.remove(id) }
-    }
+    fun remove(workSpecId: String): List<StartStopToken>
 
-    fun remove(workSpecId: String): List<StartStopToken> {
-        return synchronized(lock) {
-            val toRemove = runs.filterKeys { it.workSpecId == workSpecId }
-            toRemove.keys.forEach { runs.remove(it) }
-            toRemove.values.toList()
-        }
-    }
-
-    fun contains(id: WorkGenerationalId): Boolean {
-        return synchronized(lock) { runs.contains(id) }
-    }
+    fun contains(id: WorkGenerationalId): Boolean
 
     fun tokenFor(spec: WorkSpec) = tokenFor(spec.generationalId())
 
     fun remove(spec: WorkSpec) = remove(spec.generationalId())
+
+    companion object {
+        @JvmStatic
+        @JvmOverloads
+        fun create(synchronized: Boolean = true): StartStopTokens {
+            val tokens = StartStopTokensImpl()
+            return if (synchronized) {
+                SynchronizedStartStopTokensImpl(tokens)
+            } else {
+                tokens
+            }
+        }
+    }
+}
+
+private class StartStopTokensImpl : StartStopTokens {
+    private val runs = mutableMapOf<WorkGenerationalId, StartStopToken>()
+
+    override fun tokenFor(id: WorkGenerationalId): StartStopToken {
+        return runs.getOrPut(id) { StartStopToken(id) }
+    }
+
+    override fun remove(id: WorkGenerationalId): StartStopToken? {
+        return runs.remove(id)
+    }
+
+    override fun remove(workSpecId: String): List<StartStopToken> {
+        val toRemove = runs.filterKeys { it.workSpecId == workSpecId }
+        toRemove.keys.forEach { runs.remove(it) }
+        return toRemove.values.toList()
+    }
+
+    override fun contains(id: WorkGenerationalId): Boolean {
+        return runs.contains(id)
+    }
+}
+
+private class SynchronizedStartStopTokensImpl(private val delegate: StartStopTokens) :
+    StartStopTokens {
+
+    private val lock = Any()
+
+    override fun tokenFor(id: WorkGenerationalId): StartStopToken {
+        return synchronized(lock) { delegate.tokenFor(id) }
+    }
+
+    override fun remove(id: WorkGenerationalId): StartStopToken? {
+        return synchronized(lock) { delegate.remove(id) }
+    }
+
+    override fun remove(workSpecId: String): List<StartStopToken> {
+        return synchronized(lock) { delegate.remove(workSpecId) }
+    }
+
+    override fun contains(id: WorkGenerationalId): Boolean {
+        return synchronized(lock) { delegate.contains(id) }
+    }
 }

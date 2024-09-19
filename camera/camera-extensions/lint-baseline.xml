@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.5.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha06)" variant="all" version="8.5.0-alpha06">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,33 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/compat/workaround/OnEnableDisableSessionDurationCheck.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureOutputSurfaceOccupiedQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/CaptureOutputSurfaceOccupiedQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CrashWhenOnDisableTooSoon implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/CrashWhenOnDisableTooSoon.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class GetAvailableKeysNeedsOnInit implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/GetAvailableKeysNeedsOnInit.java"/>
     </issue>
 
 </issues>

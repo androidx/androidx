@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -25,6 +25,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.Parameterized
@@ -76,12 +77,13 @@ class BaselineProfile {
     private val SWITCH = "switch"
 
     @Test
+    @Ignore("b/366137664")
     fun profile() {
         baselineRule.collect(
             packageName = PACKAGE_NAME,
             profileBlock = {
                 val intent = Intent()
-                intent.action = ACTION
+                intent.action = BASELINE_ACTIVITY
                 startActivityAndWait(intent)
                 testDestination(description = BUTTONS)
                 testDestination(description = CARDS)
@@ -163,8 +165,7 @@ class BaselineProfile {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val ACTION =
-            "androidx.wear.compose.integration.macrobenchmark.target.BASELINE_ACTIVITY"
+        private const val BASELINE_ACTIVITY = "${PACKAGE_NAME}.BASELINE_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

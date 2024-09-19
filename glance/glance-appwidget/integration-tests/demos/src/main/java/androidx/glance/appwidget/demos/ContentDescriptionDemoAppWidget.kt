@@ -62,6 +62,15 @@ import androidx.glance.text.TextStyle
  */
 class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         var setTopLevelContentDescriptionPerItem by remember { mutableStateOf(false) }
 
         GlanceTheme {

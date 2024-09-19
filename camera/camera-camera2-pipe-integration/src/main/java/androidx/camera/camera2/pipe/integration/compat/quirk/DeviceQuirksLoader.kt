@@ -187,6 +187,14 @@ public object DeviceQuirksLoader {
         ) {
             quirks.add(ZslDisablerQuirk())
         }
+        if (
+            quirkSettings.shouldEnableQuirk(
+                SmallDisplaySizeQuirk::class.java,
+                SmallDisplaySizeQuirk.load()
+            )
+        ) {
+            quirks.add(SmallDisplaySizeQuirk())
+        }
         return quirks
     }
 }

@@ -18,14 +18,14 @@ package androidx.room.gradle.integration
 
 import androidx.room.gradle.RoomArgumentProvider
 import androidx.room.gradle.RoomExtension
-import androidx.room.gradle.RoomExtension.Companion.findPair
+import androidx.room.gradle.RoomExtension.SchemaConfiguration
 import androidx.room.gradle.RoomGradlePlugin.Companion.capitalize
 import androidx.room.gradle.RoomGradlePlugin.Companion.check
+import androidx.room.gradle.RoomSimpleCopyTask
+import androidx.room.gradle.toOptions
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.AndroidTest
 import com.android.build.api.variant.ComponentIdentity
-import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTest
 import com.google.devtools.ksp.gradle.KspTaskJvm
 import org.gradle.api.Project
@@ -34,13 +34,13 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.internal.KaptTask
 
 internal class AndroidPluginIntegration(private val common: CommonIntegration) {
-    private val agpPluginIds =
-        listOf("com.android.application", "com.android.library", "com.android.dynamic-feature")
+    private val agpBasePluginId = "com.android.base"
+
+    // Map of variant name to schema configuration
+    private val configuredVariants = mutableMapOf<String, SchemaConfiguration>()
 
     fun withAndroid(project: Project, roomExtension: RoomExtension) {
-        agpPluginIds.forEach { agpPluginId ->
-            project.plugins.withId(agpPluginId) { configureRoomForAndroid(project, roomExtension) }
-        }
+        project.plugins.withId(agpBasePluginId) { configureRoomForAndroid(project, roomExtension) }
     }
 
     private fun configureRoomForAndroid(project: Project, roomExtension: RoomExtension) {
@@ -55,16 +55,19 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
                 "version 8.1.0 or higher (found ${componentsExtension.pluginVersion})."
         }
         componentsExtension.onVariants { variant ->
-            project.check(roomExtension.schemaDirectories.isNotEmpty(), isFatal = true) {
-                "The Room Gradle plugin was applied but no schema location was specified. " +
-                    "Use the `room { schemaDirectory(...) }` DSL to specify one."
-            }
             configureAndroidVariant(project, roomExtension, variant)
             (variant as? HasUnitTest)?.unitTest?.let {
                 configureAndroidVariant(project, roomExtension, it)
             }
-            (variant as? HasAndroidTest)?.androidTest?.let {
+            @Suppress("DEPRECATION") // usage of HasAndroidTest
+            (variant as? com.android.build.api.variant.HasAndroidTest)?.androidTest?.let {
                 configureAndroidVariant(project, roomExtension, it)
+            }
+        }
+        project.afterEvaluate {
+            project.check(roomExtension.schemaConfigurations.isNotEmpty(), isFatal = true) {
+                "The Room Gradle plugin was applied but no schema location was specified. " +
+                    "Use the `room { schemaDirectory(...) }` DSL to specify one."
             }
         }
     }
@@ -74,29 +77,55 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
         roomExtension: RoomExtension,
         variant: ComponentIdentity
     ) {
-        val (matchedName, schemaDirectory) = findSchemaDirectory(project, roomExtension, variant)
+        val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name)
 
-        val configureTask: (Task) -> RoomArgumentProvider = { task ->
-            common.configureTaskWithSchema(
-                project,
-                roomExtension,
-                matchedName,
-                schemaDirectory,
-                task
+        forSchemaConfiguration(roomExtension, variant) { newConfig ->
+            val oldConfig = configuredVariants.put(variant.name, newConfig)
+            common.configureSchemaCopyTask(androidVariantTaskNames.taskNames, oldConfig, newConfig)
+        }
+
+        val argProviderFactory: (Task) -> RoomArgumentProvider = factory@{ apTask ->
+            val config = configuredVariants[variant.name]
+            project.check(config != null, isFatal = true) {
+                "No matching Room schema directory for Android variant '${variant.name}'."
+            }
+
+            apTask.finalizedBy(config.copyTask)
+            common.createArgumentProvider(
+                schemaConfiguration = config,
+                roomOptions = roomExtension.toOptions(),
+                task = apTask
             )
         }
-        val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name)
-        configureJavaTasks(project, androidVariantTaskNames, configureTask)
-        configureKaptTasks(project, androidVariantTaskNames, configureTask)
-        configureKspTasks(project, androidVariantTaskNames, configureTask)
+        configureJavaTasks(project, androidVariantTaskNames, argProviderFactory)
+        configureKaptTasks(project, androidVariantTaskNames, argProviderFactory)
+        configureKspTasks(project, androidVariantTaskNames, argProviderFactory)
 
-        if (variant is AndroidTest) {
-            variant.sources.assets?.addStaticSourceDirectory(schemaDirectory)
+        // Wires a task that will copy schemas from user configured location to the AGP
+        // generated directory to be used as assets inputs of an Android Test app, enabling
+        // MigrationTestHelper to automatically pick them up.
+        @Suppress("DEPRECATION") // Usage of AndroidTest
+        if (variant is com.android.build.api.variant.AndroidTest) {
+            variant.sources.assets?.addGeneratedSourceDirectory(
+                project.tasks.register(
+                    "copyRoomSchemasToAndroidTestAssets${variant.name.capitalize()}",
+                    RoomSimpleCopyTask::class.java
+                )
+            ) {
+                val config = configuredVariants[variant.name]
+                project.check(config != null, isFatal = true) {
+                    "No matching Room schema directory for Android variant '${variant.name}'."
+                }
+                it.inputDirectory.set(config.copyTask.flatMap { it.schemaDirectory })
+                // Return the directory property AGP will set for the task to copy the schemas to
+                // so that they are included as assets of the Android test app.
+                return@addGeneratedSourceDirectory it.outputDirectory
+            }
         }
     }
 
     /**
-     * Find schema location for variant from user declared location with priority:
+     * Call [block] when schema config for variant matches, with the following priority:
      * * Full variant name specified, e.g. `schemaLocation("demoDebug", "...")`
      * * Flavor name, e.g. `schemaLocation("demo", "...")`
      * * Build type name, e.g. `schemaLocation("debug", "...")`
@@ -106,46 +135,43 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
      * 'android' prefix, i.e. `schemaLocation("androidDemo", "...")`,
      * `schemaLocation("androidDebug", "...")`, etc.
      */
-    private fun findSchemaDirectory(
-        project: Project,
+    private fun forSchemaConfiguration(
         roomExtension: RoomExtension,
-        variantIdentity: ComponentIdentity
-    ): Pair<RoomExtension.MatchName, String> {
-        val schemaDirectories = roomExtension.schemaDirectories
-        val kmpPrefix = "android"
-        val matchedPair =
-            schemaDirectories.findPair(variantIdentity.name)
-                ?: schemaDirectories.findPair(kmpPrefix + variantIdentity.name.capitalize())
-                ?: variantIdentity.flavorName?.let {
-                    schemaDirectories.findPair(it)
-                        ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
+        variant: ComponentIdentity,
+        block: (SchemaConfiguration) -> Unit
+    ) {
+        var currentPriority = Int.MAX_VALUE
+        roomExtension.schemaConfigurations.configureEach { config ->
+            val kmpPrefix = "android"
+            val newPriority =
+                when {
+                    config.matches(variant.name) -> 0
+                    config.matches(kmpPrefix + variant.name.capitalize()) -> 1
+                    config.matches(variant.flavorName) -> 2
+                    config.matches(variant.flavorName?.let { (kmpPrefix + it.capitalize()) }) -> 3
+                    config.matches(variant.buildType) -> 4
+                    config.matches(variant.buildType?.let { (kmpPrefix + it.capitalize()) }) -> 5
+                    config.matches(kmpPrefix) -> 6
+                    config.matches(RoomExtension.ALL_MATCH) -> 7
+                    else -> return@configureEach
                 }
-                ?: variantIdentity.buildType?.let {
-                    schemaDirectories.findPair(it)
-                        ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
-                }
-                ?: schemaDirectories.findPair(kmpPrefix)
-                ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
-        project.check(matchedPair != null, isFatal = true) {
-            "No matching Room schema directory for Android variant '${variantIdentity.name}'."
+            if (currentPriority < newPriority) {
+                return@configureEach
+            }
+            currentPriority = newPriority
+
+            block.invoke(config)
         }
-        val (matchedName, schemaDirectoryProvider) = matchedPair
-        val schemaDirectory = schemaDirectoryProvider.get()
-        project.check(schemaDirectory.isNotEmpty()) {
-            "The Room schema directory path for Android variant '${variantIdentity.name}' " +
-                "must not be empty."
-        }
-        return matchedName to schemaDirectory
     }
 
     private fun configureJavaTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        configureBlock: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider
     ) =
-        project.tasks.withType(JavaCompile::class.java) { task ->
+        project.tasks.withType(JavaCompile::class.java).configureEach { task ->
             if (androidVariantsTaskNames.isJavaCompile(task.name)) {
-                val argProvider = configureBlock.invoke(task)
+                val argProvider = argumentProviderFactory.invoke(task)
                 task.options.compilerArgumentProviders.add(argProvider)
             }
         }
@@ -153,12 +179,12 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureKaptTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        configureBlock: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider
     ) =
         project.plugins.withId("kotlin-kapt") {
-            project.tasks.withType(KaptTask::class.java) { task ->
+            project.tasks.withType(KaptTask::class.java).configureEach { task ->
                 if (androidVariantsTaskNames.isKaptTask(task.name)) {
-                    val argProvider = configureBlock.invoke(task)
+                    val argProvider = argumentProviderFactory.invoke(task)
                     // TODO: Update once KT-58009 is fixed.
                     try {
                         // Because of KT-58009, we need to add a `listOf(argProvider)` instead
@@ -176,27 +202,27 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureKspTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        configureBlock: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider
     ) =
         project.plugins.withId("com.google.devtools.ksp") {
-            project.tasks.withType(KspTaskJvm::class.java) { task ->
+            project.tasks.withType(KspTaskJvm::class.java).configureEach { task ->
                 if (androidVariantsTaskNames.isKspTaskJvm(task.name)) {
-                    val argProvider = configureBlock.invoke(task)
+                    val argProvider = argumentProviderFactory.invoke(task)
                     task.commandLineArgumentProviders.add(argProvider)
                 }
             }
         }
 
-    internal class AndroidVariantsTaskNames(
-        private val variantName: String,
-    ) {
-        private val javaCompileName by lazy { "compile${variantName.capitalize()}JavaWithJavac" }
+    private class AndroidVariantsTaskNames(variantName: String) {
+        private val javaCompileName = "compile${variantName.capitalize()}JavaWithJavac"
 
-        private val kaptTaskName by lazy { "kapt${variantName.capitalize()}Kotlin" }
+        private val kaptTaskName = "kapt${variantName.capitalize()}Kotlin"
 
-        private val kspTaskJvmName by lazy { "ksp${variantName.capitalize()}Kotlin" }
+        private val kspTaskJvmName = "ksp${variantName.capitalize()}Kotlin"
 
-        private val kspTaskAndroidName by lazy { "ksp${variantName.capitalize()}KotlinAndroid" }
+        private val kspTaskAndroidName = "ksp${variantName.capitalize()}KotlinAndroid"
+
+        val taskNames = setOf(javaCompileName, kaptTaskName, kspTaskJvmName, kspTaskAndroidName)
 
         fun isJavaCompile(taskName: String) = taskName == javaCompileName
 

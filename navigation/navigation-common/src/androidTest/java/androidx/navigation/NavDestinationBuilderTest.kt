@@ -324,6 +324,25 @@ class NavDestinationTest {
                     "from KClass"
             )
     }
+
+    @Test
+    fun navDestinationUnknownArgumentNavType() {
+        @Serializable class CustomType
+        @Serializable class TestClass(val arg: CustomType)
+
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                NavDestinationBuilder(NoOpNavigator(), TestClass::class, emptyMap()).build()
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Route androidx.navigation.NavDestinationTest" +
+                    ".navDestinationUnknownArgumentNavType.TestClass could not find " +
+                    "any NavType for argument arg of type androidx.navigation" +
+                    ".NavDestinationTest.navDestinationUnknownArgumentNavType" +
+                    ".CustomType - typeMap received was {}"
+            )
+    }
 }
 
 private const val DESTINATION_ID = 1

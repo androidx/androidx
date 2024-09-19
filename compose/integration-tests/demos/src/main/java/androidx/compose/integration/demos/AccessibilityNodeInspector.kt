@@ -640,11 +640,11 @@ private inline fun KeyValueRowLayout(
         measurePolicy = { measurables, constraints ->
             val contentPaddingPx = contentPadding.roundToPx()
             val (keyMeasurable, valueMeasurable) = measurables
-            val keyConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+            val keyConstraints = constraints.copyMaxDimensions()
             // contentPadding will either act as the spacing between items if they fit on the same
             // line, or indent if content wraps, so inset the constraints either way.
             val valueConstraints =
-                constraints.copy(minWidth = 0, minHeight = 0).offset(horizontal = -contentPaddingPx)
+                constraints.copyMaxDimensions().offset(horizontal = -contentPaddingPx)
             val keyPlaceable = keyMeasurable.measure(keyConstraints)
             val valuePlaceable = valueMeasurable.measure(valueConstraints)
             val wrap =

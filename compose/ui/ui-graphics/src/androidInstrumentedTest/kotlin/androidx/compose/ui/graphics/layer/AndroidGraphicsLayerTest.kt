@@ -901,6 +901,60 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testConcaveOutlineClip() {
+        val bgColor = Color.White
+        val targetColor = Color.Red
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val rectPath =
+                    Path().apply {
+                        addRect(
+                            Rect(
+                                left = 0f,
+                                top = size.height / 2,
+                                right = size.width,
+                                bottom = size.height,
+                            )
+                        )
+                    }
+
+                val tabPath =
+                    Path().apply {
+                        addRect(
+                            Rect(
+                                left = size.width / 4,
+                                top = 0f,
+                                right = size.width / 2 + size.width / 4,
+                                bottom = size.height / 2,
+                            )
+                        )
+                    }
+
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setPathOutline(rectPath + tabPath)
+                        clip = true
+                    }
+                drawRect(bgColor)
+                drawLayer(layer)
+            },
+            verify = { pixmap ->
+                val width = pixmap.width
+                val height = pixmap.height
+                assertEquals(bgColor, pixmap[0, 0])
+                assertEquals(bgColor, pixmap[width / 4 - 2, 0])
+                assertEquals(targetColor, pixmap[width / 4, 0])
+                assertEquals(targetColor, pixmap[width / 2 + width / 4 - 1, 0])
+                assertEquals(bgColor, pixmap[width / 2 + width / 4 + 2, 0])
+                assertEquals(bgColor, pixmap[width - 1, 0])
+                assertEquals(targetColor, pixmap[0, height - 1])
+                assertEquals(targetColor, pixmap[width - 1, height - 1])
+            }
+        )
+    }
+
     // Test requires validation of elevation shadows which require readback operations from
     // the PixelCopy APIs
     @Test

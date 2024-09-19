@@ -31,7 +31,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.pdf.R
 import androidx.pdf.ViewState
@@ -153,6 +155,13 @@ public open class PdfViewerFragment : Fragment() {
     private var isSearchMenuAdjusted = false
 
     /**
+     * Specify whether [documentUri] is updated before fragment went in STARTED state.
+     *
+     * If true, we'll trigger a loadFile() operation as soon as fragment reaches STARTED state.
+     */
+    private var pendingDocumentLoad: Boolean = false
+
+    /**
      * The URI of the PDF document to display defaulting to `null`.
      *
      * When this property is set, the fragment begins loading the PDF document. A visual indicator
@@ -160,7 +169,7 @@ public open class PdfViewerFragment : Fragment() {
      * [onLoadDocumentSuccess] callback is invoked. If an error occurs during the loading phase, the
      * [onLoadDocumentError] callback is invoked with the exception.
      *
-     * <p>Note: This property should only be set when the fragment is in the started state.
+     * <p>Note: This property is recommended to be set when the fragment is in the started state.
      */
     public var documentUri: Uri? = null
         set(value) {
@@ -185,14 +194,20 @@ public open class PdfViewerFragment : Fragment() {
      * is enabled. Deactivating text search mode hides the search menu, clears search results, and
      * removes any search-related highlights.
      *
-     * <p>Note: This property should only be set once the [documentUri] is set.
+     * <p>Note: This property should only be set once fragment is in the started state. Updating it
+     * before will trigger an [IllegalStateException] which will be delivered through
+     * [onLoadDocumentError] to host.
      */
     public var isTextSearchActive: Boolean = false
         set(value) {
-            Preconditions.checkNotNull(
-                documentUri,
-                "Property can be only be toggled if URI is set already!"
-            )
+            if (!isFileRestoring && !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                onLoadDocumentError(
+                    IllegalStateException(
+                        "Property can only be toggled after fragment's STARTED state"
+                    )
+                )
+                return
+            }
             field = value
 
             // Clear selection
@@ -341,6 +356,23 @@ public open class PdfViewerFragment : Fragment() {
                 }
             }
         }
+
+        loadPendingDocumentIfRequired()
+    }
+
+    private fun loadPendingDocumentIfRequired() {
+        lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    // Check if we're pending on loading a document
+                    if (pendingDocumentLoad) {
+                        // Trigger load file
+                        documentUri?.let { loadFile(it) }
+                    }
+                }
+            }
+        )
     }
 
     override fun onStart() {
@@ -618,10 +650,19 @@ public open class PdfViewerFragment : Fragment() {
         findInFileView!!.searchModel.selectedMatch().addObserver(selectedMatchObserver)
 
         annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
+
+        fastScrollView?.setOnFastScrollActiveListener {
+            annotationButton?.let { button ->
+                if (button.visibility == View.VISIBLE) {
+                    button.hide()
+                }
+            }
+        }
     }
 
     /** Restores the contents of this Viewer when it is automatically restored by android. */
     private fun restoreContents(savedState: Bundle?) {
+        pendingDocumentLoad = savedState?.getBoolean(KEY_PENDING_DOCUMENT_LOAD) ?: false
         val dataBundle = savedState?.getBundle(KEY_DATA)
         if (dataBundle != null) {
             try {
@@ -672,6 +713,7 @@ public open class PdfViewerFragment : Fragment() {
             it.selectedMatch().removeObserver(selectedMatchObserver!!)
             it.query().removeObserver(searchQueryObserver!!)
         }
+        fastScrollView?.setOnFastScrollActiveListener(null)
 
         pdfLoaderCallbacks?.searchModel = null
 
@@ -728,16 +770,19 @@ public open class PdfViewerFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBundle(KEY_DATA, fileData?.asBundle())
-        layoutHandler?.let { outState.putInt(KEY_LAYOUT_REACH, it.pageLayoutReach) }
-        outState.putBoolean(KEY_SHOW_ANNOTATION, isAnnotationIntentResolvable)
-        pdfLoaderCallbacks?.selectionModel?.let {
-            outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
+        outState.apply {
+            putBundle(KEY_DATA, fileData?.asBundle())
+            layoutHandler?.let { putInt(KEY_LAYOUT_REACH, it.pageLayoutReach) }
+            putBoolean(KEY_SHOW_ANNOTATION, isAnnotationIntentResolvable)
+            pdfLoaderCallbacks?.selectionModel?.let {
+                putParcelable(KEY_PAGE_SELECTION, it.selection().get())
+            }
+            putBoolean(
+                KEY_ANNOTATION_BUTTON_VISIBILITY,
+                (annotationButton?.visibility == View.VISIBLE)
+            )
+            putBoolean(KEY_PENDING_DOCUMENT_LOAD, pendingDocumentLoad)
         }
-        outState.putBoolean(
-            KEY_ANNOTATION_BUTTON_VISIBILITY,
-            (annotationButton?.visibility == View.VISIBLE)
-        )
     }
 
     private fun showLoadingErrorView(error: Throwable) {
@@ -748,11 +793,15 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun loadFile(fileUri: Uri) {
-        Preconditions.checkNotNull(fileUri)
-        Preconditions.checkArgument(
-            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
-            "Cannot load the URI until the fragment has reached least the STARTED state!"
-        )
+        // Early return if fragment is not in STARTED state
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            // Update state to mark an early return
+            pendingDocumentLoad = true
+            return
+        }
+        // Update state as loadFile is triggered after in-or-after STARTED state
+        pendingDocumentLoad = false
+
         arguments =
             Bundle().apply {
                 putParcelable(KEY_DOCUMENT_URI, fileUri)
@@ -872,5 +921,6 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_PAGE_SELECTION: String = "currentPageSelection"
         private const val KEY_DOCUMENT_URI: String = "documentUri"
         private const val KEY_ANNOTATION_BUTTON_VISIBILITY = "isAnnotationVisible"
+        private const val KEY_PENDING_DOCUMENT_LOAD = "pendingDocumentLoad"
     }
 }

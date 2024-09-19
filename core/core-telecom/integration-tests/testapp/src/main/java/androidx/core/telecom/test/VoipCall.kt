@@ -28,6 +28,7 @@ class VoipCall {
 
     var mAdapter: CallListAdapter? = null
     var mCallControl: CallControlScope? = null
+    var mParticipantControl: ParticipantControl? = null
     var mCurrentEndpoint: CallEndpointCompat? = null
     var mAvailableEndpoints: List<CallEndpointCompat>? = ArrayList()
     var mIsMuted = false
@@ -57,12 +58,20 @@ class VoipCall {
         mCallControl = callControl
     }
 
+    fun setParticipantControl(participantControl: ParticipantControl) {
+        mParticipantControl = participantControl
+    }
+
     fun setCallAdapter(adapter: CallListAdapter?) {
         mAdapter = adapter
     }
 
     fun setCallId(callId: String) {
         mTelecomCallId = callId
+    }
+
+    fun onParticipantsChanged(participants: List<ParticipantState>) {
+        mAdapter?.updateParticipants(mTelecomCallId, participants)
     }
 
     fun onCallEndpointChanged(endpoint: CallEndpointCompat) {
