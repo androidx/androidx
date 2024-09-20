@@ -32,7 +32,7 @@ internal constructor(
      * @param tolerance an inclusive upper bound on the difference between the subject and object
      *   allowed by the check, which must be a non-negative value.
      */
-    fun isWithin(tolerance: Long): TolerantLongComparison {
+    open fun isWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {
@@ -58,7 +58,7 @@ internal constructor(
      * @param tolerance an exclusive lower bound on the difference between the subject and object
      *   allowed by the check, which must be a non-negative value.
      */
-    fun isNotWithin(tolerance: Long): TolerantLongComparison {
+    open fun isNotWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
             override fun of(expected: Long) {
                 requireNonNull(actual) {

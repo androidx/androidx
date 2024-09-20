@@ -264,9 +264,9 @@ open class androidx.kruth/IntegerSubject : androidx.kruth/ComparableSubject<kotl
 }
 
 open class androidx.kruth/LongSubject : androidx.kruth/ComparableSubject<kotlin/Long> { // androidx.kruth/LongSubject|null[0]
-    final fun isNotWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isNotWithin|isNotWithin(kotlin.Long){}[0]
-    final fun isWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isWithin|isWithin(kotlin.Long){}[0]
     open fun isEquivalentAccordingToCompareTo(kotlin/Long?) // androidx.kruth/LongSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(kotlin.Long?){}[0]
+    open fun isNotWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isNotWithin|isNotWithin(kotlin.Long){}[0]
+    open fun isWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isWithin|isWithin(kotlin.Long){}[0]
 
     abstract class TolerantLongComparison { // androidx.kruth/LongSubject.TolerantLongComparison|null[0]
         abstract fun of(kotlin/Long) // androidx.kruth/LongSubject.TolerantLongComparison.of|of(kotlin.Long){}[0]
