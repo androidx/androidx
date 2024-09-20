@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.pager
+package androidx.wear.compose.material3
 
 import androidx.annotation.FloatRange
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.pager.PagerDefaults as ComposePagerDefaults
 import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,13 +46,145 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.ActiveFocusListener
+import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
-import androidx.wear.compose.material3.DefaultTouchExplorationStateProvider
-import androidx.wear.compose.material3.MaterialTheme
 import kotlin.math.absoluteValue
+
+/**
+ * [HorizontalPagerScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [HorizontalPagerScaffold] lay out the structure of a
+ * Pager and coordinate transitions of the [HorizontalPageIndicator] and [TimeText] components.
+ *
+ * [HorizontalPagerScaffold] displays the [HorizontalPageIndicator] at the center-end of the screen
+ * by default and coordinates showing/hiding [TimeText] and [HorizontalPageIndicator] according to
+ * whether the Pager is being paged, this is determined by the [PagerState].
+ *
+ * Example of using [AppScaffold] and [HorizontalPagerScaffold]:
+ *
+ * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
+ * @param pagerState The state of the pager controlling the page content.
+ * @param modifier The modifier to be applied to the scaffold.
+ * @param pageIndicator A composable function that defines the page indicator to be displayed. By
+ *   default, it uses a [HorizontalPageIndicator].
+ * @param pageIndicatorAnimationSpec - An optional parameter to set whether the page indicator
+ *   should fade out when paging has finished. This is useful for when the underlying page content
+ *   conflicts with the page indicator. By default this is null, so the page indicator will be
+ *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimation] ensures the
+ *   indicator only shows during paging, and fades out when the Pager is idle.
+ * @param content A composable function that takes the current page index as a parameter and defines
+ *   the content to be displayed on that page.
+ */
+@Composable
+fun HorizontalPagerScaffold(
+    pagerState: PagerState,
+    modifier: Modifier = Modifier,
+    pageIndicator: (@Composable BoxScope.() -> Unit)? = { HorizontalPageIndicator(pagerState) },
+    pageIndicatorAnimationSpec: AnimationSpec<Float>? = null,
+    content: @Composable PagerScope.(page: Int) -> Unit,
+) =
+    PagerScaffoldImpl(
+        scrollInfoProvider = ScrollInfoProvider(pagerState, orientation = Orientation.Horizontal),
+        pagerContent = { AnimatedHorizontalPager(pagerState, content = content) },
+        modifier = modifier,
+        pagerState = pagerState,
+        pageIndicator = pageIndicator,
+        pageIndicatorAnimationSpec = pageIndicatorAnimationSpec,
+    )
+
+/**
+ * [VerticalPagerScaffold] is one of the Wear Material3 scaffold components.
+ *
+ * The scaffold components [AppScaffold] and [VerticalPagerScaffold] lay out the structure of a
+ * Pager and coordinate transitions of the [VerticalPageIndicator] and [TimeText] components.
+ *
+ * [VerticalPagerScaffold] displays the [VerticalPageIndicator] at the center-end of the screen by
+ * default and coordinates showing/hiding [TimeText] and [VerticalPageIndicator] according to
+ * whether the Pager is being paged, this is determined by the [PagerState].
+ *
+ * Example of using [AppScaffold] and [VerticalPagerScaffold]:
+ *
+ * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
+ * @param pagerState The state of the pager controlling the page content.
+ * @param modifier The modifier to be applied to the scaffold.
+ * @param pageIndicator A composable function that defines the page indicator to be displayed. By
+ *   default, it uses a [VerticalPageIndicator].
+ * @param pageIndicatorAnimationSpec - An optional parameter to set whether the page indicator
+ *   should fade out when paging has finished. This is useful for when the underlying page content
+ *   conflicts with the page indicator. By default this is null, so the page indicator will be
+ *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimation] ensures the
+ *   indicator only shows during paging, and fades out when the Pager is idle.
+ * @param content A composable function that takes the current page index as a parameter and defines
+ *   the content to be displayed on that page.
+ */
+@Composable
+fun VerticalPagerScaffold(
+    pagerState: PagerState,
+    modifier: Modifier = Modifier,
+    pageIndicator: (@Composable BoxScope.() -> Unit)? = { VerticalPageIndicator(pagerState) },
+    pageIndicatorAnimationSpec: AnimationSpec<Float>? = null,
+    content: @Composable PagerScope.(page: Int) -> Unit,
+) =
+    PagerScaffoldImpl(
+        scrollInfoProvider = ScrollInfoProvider(pagerState, orientation = Orientation.Vertical),
+        pagerContent = { AnimatedVerticalPager(pagerState, content = content) },
+        modifier = modifier,
+        pagerState = pagerState,
+        pageIndicator = pageIndicator,
+        pageIndicatorAnimationSpec = pageIndicatorAnimationSpec,
+    )
+
+/** Contains default values used for [HorizontalPagerScaffold] and [VerticalPagerScaffold]. */
+object PagerScaffoldDefaults {
+    /**
+     * The default value for the indicator fade out animation spec. Use this to fade out the page
+     * indicator when paging has stopped.
+     */
+    val FadeOutAnimation: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
+}
+
+@Composable
+private fun PagerScaffoldImpl(
+    scrollInfoProvider: ScrollInfoProvider,
+    pagerContent: @Composable () -> Unit,
+    pagerState: PagerState,
+    modifier: Modifier,
+    pageIndicator: (@Composable BoxScope.() -> Unit)?,
+    pageIndicatorAnimationSpec: AnimationSpec<Float>?,
+) {
+    val scaffoldState = LocalScaffoldState.current
+    val key = remember { Any() }
+
+    key(scrollInfoProvider) {
+        DisposableEffect(key) { onDispose { scaffoldState.removeScreen(key) } }
+
+        ActiveFocusListener { focused ->
+            if (focused) {
+                scaffoldState.addScreen(key, null, scrollInfoProvider)
+            } else {
+                scaffoldState.removeScreen(key)
+            }
+        }
+    }
+
+    scaffoldState.UpdateIdlingDetectorIfNeeded()
+
+    Box(modifier = modifier.fillMaxSize()) {
+        pagerContent()
+
+        AnimatedIndicator(
+            isVisible = {
+                scaffoldState.screenStage.value != ScreenStage.Idle || pagerState.isScrollInProgress
+            },
+            animationSpec = pageIndicatorAnimationSpec,
+            content = pageIndicator,
+        )
+    }
+}
 
 /**
  * A full-screen horizontally scrolling Pager optimized for Wear OS devices. This component wraps
@@ -87,21 +223,19 @@ import kotlin.math.absoluteValue
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
-@ExperimentalWearFoundationApi
 @Composable
-internal fun HorizontalPager(
+internal fun AnimatedHorizontalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentScrimColor: Color = MaterialTheme.colorScheme.background,
-    beyondViewportPageCount: Int = ComposePagerDefaults.BeyondViewportPageCount,
-    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
+    flingBehavior: TargetedFlingBehavior = snapWithSpringBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
     @FloatRange(from = 0.0, to = 1.0)
-    swipeToDismissEdgeZoneFraction: Float =
-        androidx.wear.compose.foundation.pager.PagerDefaults.SwipeToDismissEdgeZoneFraction,
+    swipeToDismissEdgeZoneFraction: Float = PagerDefaults.SwipeToDismissEdgeZoneFraction,
     content: @Composable PagerScope.(page: Int) -> Unit
 ) {
     val touchExplorationStateProvider = remember { DefaultTouchExplorationStateProvider() }
@@ -158,15 +292,14 @@ internal fun HorizontalPager(
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
-@ExperimentalWearFoundationApi
 @Composable
-internal fun VerticalPager(
+internal fun AnimatedVerticalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentScrimColor: Color = MaterialTheme.colorScheme.background,
-    beyondViewportPageCount: Int = ComposePagerDefaults.BeyondViewportPageCount,
-    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
+    flingBehavior: TargetedFlingBehavior = snapWithSpringBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
@@ -192,22 +325,20 @@ internal fun VerticalPager(
     }
 }
 
-internal object PagerDefaults {
-    @Composable
-    fun flingBehavior(
-        state: PagerState,
-    ): TargetedFlingBehavior {
-        return ComposePagerDefaults.flingBehavior(
-            state = state,
-            pagerSnapDistance = PagerSnapDistance.atMost(1),
-            snapAnimationSpec = spring(dampingRatio = 1f, stiffness = 200f),
-            snapPositionalThreshold = 0.35f,
-        )
-    }
+@Composable
+internal fun snapWithSpringBehavior(
+    state: PagerState,
+): TargetedFlingBehavior {
+    return PagerDefaults.snapFlingBehavior(
+        state = state,
+        pagerSnapDistance = PagerSnapDistance.atMost(1),
+        snapAnimationSpec = spring(dampingRatio = 1f, stiffness = 200f),
+        snapPositionalThreshold = 0.35f,
+    )
 }
 
 @Composable
-internal fun AnimatedPageContent(
+private fun AnimatedPageContent(
     orientation: Orientation,
     page: Int,
     pagerState: PagerState,

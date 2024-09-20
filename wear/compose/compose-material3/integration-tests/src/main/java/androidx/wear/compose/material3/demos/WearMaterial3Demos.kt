@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
 import androidx.wear.compose.material3.samples.LazyColumnTargetMorphingHeightSample
 import androidx.wear.compose.material3.samples.ScaffoldSample
@@ -43,6 +44,7 @@ import androidx.wear.compose.material3.samples.SwipeToRevealNonAnchoredSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
 import androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
+import androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
 
 val WearMaterial3Demos =
     Material3DemoCategory(
@@ -71,7 +73,20 @@ val WearMaterial3Demos =
             Material3DemoCategory("Alert Dialog", AlertDialogs),
             Material3DemoCategory("Confirmation", Comfirmations),
             Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
-            ComposableDemo("Scaffold") { ScaffoldSample() },
+            Material3DemoCategory(
+                "Scaffold",
+                listOf(
+                    ComposableDemo("Screen Scaffold") { ScaffoldSample() },
+                    ComposableDemo("Horizontal Pager Scaffold") { HorizontalPagerScaffoldSample() },
+                    ComposableDemo("Horizontal Pager Scaffold (Fade Out Indicator)") {
+                        HorizontalPagerScaffoldFadeOutIndicatorDemo()
+                    },
+                    ComposableDemo("Vertical Pager Scaffold") { VerticalPagerScaffoldSample() },
+                    ComposableDemo("Vertical Pager Scaffold (Fade Out Indicator)") {
+                        VerticalPagerScaffoldFadeOutIndicatorDemo()
+                    },
+                )
+            ),
             Material3DemoCategory("ScrollAway", ScrollAwayDemos),
             ComposableDemo("Compact Button") { CompactButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },

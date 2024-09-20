@@ -58,12 +58,12 @@ import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.curvedBox
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
+import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.radialSize
 import androidx.wear.compose.foundation.size
 import androidx.wear.compose.foundation.weight
-import androidx.wear.compose.material3.pager.HorizontalPager
-import androidx.wear.compose.material3.pager.VerticalPager
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.materialcore.BoundsLimiter
 import androidx.wear.compose.materialcore.isLayoutDirectionRtl
