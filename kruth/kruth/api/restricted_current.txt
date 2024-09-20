@@ -372,30 +372,30 @@ package androidx.kruth {
   public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
     ctor protected StringSubject(androidx.kruth.FailureMetadata metadata, String? actual);
     method public void contains(CharSequence? charSequence);
-    method public void containsMatch(String regex);
-    method public void containsMatch(java.util.regex.Pattern regex);
-    method public final void containsMatch(kotlin.text.Regex regex);
-    method public void doesNotContain(CharSequence charSequence);
-    method public void doesNotContainMatch(String regex);
-    method public void doesNotContainMatch(java.util.regex.Pattern regex);
-    method public final void doesNotContainMatch(kotlin.text.Regex regex);
-    method public void doesNotMatch(String regex);
-    method public void doesNotMatch(java.util.regex.Pattern regex);
-    method public final void doesNotMatch(kotlin.text.Regex regex);
-    method public void endsWith(String string);
+    method public void containsMatch(String? regex);
+    method public void containsMatch(java.util.regex.Pattern? regex);
+    method public final void containsMatch(kotlin.text.Regex? regex);
+    method public void doesNotContain(CharSequence? charSequence);
+    method public void doesNotContainMatch(String? regex);
+    method public void doesNotContainMatch(java.util.regex.Pattern? regex);
+    method public final void doesNotContainMatch(kotlin.text.Regex? regex);
+    method public void doesNotMatch(String? regex);
+    method public void doesNotMatch(java.util.regex.Pattern? regex);
+    method public final void doesNotMatch(kotlin.text.Regex? regex);
+    method public void endsWith(String? string);
     method public void hasLength(int expectedLength);
     method public androidx.kruth.StringSubject.CaseInsensitiveStringComparison ignoringCase();
     method public void isEmpty();
     method public void isNotEmpty();
-    method public void matches(String regex);
-    method public void matches(java.util.regex.Pattern regex);
-    method public final void matches(kotlin.text.Regex regex);
-    method public void startsWith(String string);
+    method public void matches(String? regex);
+    method public void matches(java.util.regex.Pattern? regex);
+    method public final void matches(kotlin.text.Regex? regex);
+    method public void startsWith(String? string);
   }
 
   public final class StringSubject.CaseInsensitiveStringComparison {
     method public void contains(CharSequence? expected);
-    method public void doesNotContain(CharSequence expected);
+    method public void doesNotContain(CharSequence? expected);
     method public void isEqualTo(String? expected);
     method public void isNotEqualTo(String? unexpected);
   }
