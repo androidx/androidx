@@ -36,7 +36,7 @@ internal actual class RememberedCoroutineScope
 actual constructor(
     private val parentContext: CoroutineContext,
     private val overlayContext: CoroutineContext,
-) : CoroutineScope {
+) : CoroutineScope, RememberObserver {
     // The goal of this implementation is to make cancellation as cheap as possible if the
     // coroutineContext property was never accessed, consisting only of taking a monitor lock and
     // setting a volatile field.
@@ -92,6 +92,18 @@ actual constructor(
                 context.cancel(ForgottenCoroutineScopeException())
             }
         }
+    }
+
+    override fun onRemembered() {
+        // Do nothing
+    }
+
+    override fun onForgotten() {
+        cancelIfCreated()
+    }
+
+    override fun onAbandoned() {
+        cancelIfCreated()
     }
 
     companion object {
