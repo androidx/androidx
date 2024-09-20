@@ -28,7 +28,7 @@ import androidx.core.telecom.util.ExperimentalAppActions
  * not transmitting audio input data to remote users. This allows applications to do stuff like
  * nudge the user when they are silenced but talking into the microphone.
  *
- * @see ExtensionInitializationScope.addLocalSilenceExtension
+ * @see ExtensionInitializationScope.addLocalCallSilenceExtension
  */
 @ExperimentalAppActions
 public interface LocalCallSilenceExtension {

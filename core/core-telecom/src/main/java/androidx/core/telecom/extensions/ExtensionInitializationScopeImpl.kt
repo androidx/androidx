@@ -64,7 +64,7 @@ internal class ExtensionInitializationScopeImpl : ExtensionInitializationScope {
         return participant
     }
 
-    override fun addLocalSilenceExtension(
+    override fun addLocalCallSilenceExtension(
         initialCallSilenceState: Boolean,
         onLocalSilenceUpdate: (suspend (Boolean) -> Unit)
     ): LocalCallSilenceExtension {

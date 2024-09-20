@@ -84,7 +84,7 @@ class VoipCall(
                 }
                 Extensions.LOCAL_CALL_SILENCE -> {
                     localCallSilenceUpdater =
-                        addLocalSilenceExtension(false) {
+                        addLocalCallSilenceExtension(false) {
                             Log.i(TAG, "addLocalSilenceExtension: callId=[$callId], it=[$it]")
                             callback?.setLocalCallSilenceState(callId, it)
                         }

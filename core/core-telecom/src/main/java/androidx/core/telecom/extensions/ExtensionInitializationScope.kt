@@ -117,7 +117,7 @@ public interface ExtensionInitializationScope {
      * @return The interface used by this application to further update the local call silence
      *   extension state to remote surfaces
      */
-    public fun addLocalSilenceExtension(
+    public fun addLocalCallSilenceExtension(
         initialCallSilenceState: Boolean,
         onLocalSilenceUpdate: (suspend (Boolean) -> Unit),
     ): LocalCallSilenceExtension
