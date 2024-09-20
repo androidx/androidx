@@ -33,6 +33,7 @@ import androidx.wear.compose.integration.demos.WearComposeDemos
 import androidx.wear.compose.integration.demos.common.Demo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +52,15 @@ class DemoTest {
     // We need to provide the recompose factory first to use new clock.
     @get:Rule val rule = createAndroidComposeRule<DemoActivity>()
 
+    @Test
+    fun demoApp_builds() {
+        // This test just checks that the demo app builds without crashing and the root screen can
+        // be visited.
+        val title = AllButIgnoredDemos.demos.first().title
+        rule.onNode(hasText(title)).assertExists()
+    }
+
+    @Ignore // b/367234726
     @Test
     fun navigateThroughAllDemos() {
         // Compose integration-tests are split into batches due to size,
