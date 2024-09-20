@@ -933,6 +933,7 @@ class AndroidGraphicsLayerTest {
                         }
                         setPathOutline(outlinePath)
                         clip = true
+                        shadowElevation = 20f
                     }
                 drawRect(bgColor)
                 drawLayer(layer)
@@ -952,6 +953,45 @@ class AndroidGraphicsLayerTest {
                 assertEquals(targetColor, pixmap[width / 2, layerSize.height + 2])
                 assertEquals(targetColor, pixmap[width / 2 + width / 4 - 2, layerSize.height + 2])
                 assertEquals(targetColor, pixmap[width / 2, layerSize.height + 2])
+            }
+        )
+    }
+
+    @Test
+    fun testRectOutlineClipsOutsideBounds() {
+        val bgColor = Color.Black
+        val targetColor = Color.Red
+        var outlineSize = Size.Zero
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val containerSize = size
+                outlineSize = Size(containerSize.width, containerSize.height - 10f)
+                val layerSize = IntSize(size.width.toInt(), size.height.toInt() / 2)
+
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) {
+                            drawRect(
+                                targetColor,
+                                size = Size(layerSize.width.toFloat(), layerSize.height * 2f)
+                            )
+                        }
+                        setRectOutline(Offset.Zero, outlineSize)
+                        clip = true
+                    }
+                drawRect(bgColor)
+                drawLayer(layer)
+            },
+            verify = { pixmap ->
+                val width = pixmap.width
+                val height = pixmap.height
+                assertEquals(targetColor, pixmap[0, 0])
+                assertEquals(targetColor, pixmap[width - 2, 0])
+                assertEquals(targetColor, pixmap[0, (outlineSize.height - 2).toInt()])
+                assertEquals(targetColor, pixmap[width - 2, (outlineSize.height - 2).toInt()])
+
+                assertEquals(bgColor, pixmap[0, height - 2])
+                assertEquals(bgColor, pixmap[width - 2, height - 2])
             }
         )
     }

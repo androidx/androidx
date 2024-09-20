@@ -16,6 +16,7 @@
 package androidx.compose.ui.graphics.layer
 
 import android.graphics.Outline as AndroidOutline
+import android.graphics.RectF
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.CornerRadius
@@ -38,12 +39,14 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.layer.LayerManager.Companion.isRobolectric
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastRoundToInt
 import org.jetbrains.annotations.TestOnly
@@ -57,6 +60,17 @@ internal constructor(
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
     private var drawBlock: DrawScope.() -> Unit = {}
+
+    // Wrapper draw lambda used to record path clipping operations within the displaylist of
+    // the layer itself. This is used in cases where an unsupported outline is
+    private val clipDrawBlock: DrawScope.() -> Unit = {
+        val path = outlinePath
+        if (usePathForClip && clip && path != null) {
+            clipPath(path, block = drawBlock)
+        } else {
+            drawBlock()
+        }
+    }
 
     private var androidOutline: AndroidOutline? = null
     private var outlineDirty = true
@@ -419,7 +433,7 @@ internal constructor(
         childDependenciesTracker.withTracking(
             onDependencyRemoved = { it.onRemovedFromParentLayer() }
         ) {
-            impl.record(density, layoutDirection, this, drawBlock)
+            impl.record(density, layoutDirection, this, clipDrawBlock)
         }
     }
 
@@ -495,9 +509,9 @@ internal constructor(
             return
         }
 
+        configureOutlineAndClip()
         recreateDisplayListIfNeeded()
 
-        configureOutlineAndClip()
         val useZ = shadowElevation > 0f
         if (useZ) {
             canvas.enableZ()
@@ -509,7 +523,7 @@ internal constructor(
             transformCanvas(androidCanvas)
         }
 
-        val willClipPath = usePathForClip || (softwareRendered && clip)
+        val willClipPath = softwareRendered && clip
         if (willClipPath) {
             canvas.save()
             when (val tmpOutline = outline) {
@@ -552,40 +566,56 @@ internal constructor(
         discardContentIfReleasedAndHaveNoParentLayerUsages()
     }
 
+    private var pathBounds: RectF? = null
+
+    private fun obtainPathBounds(): RectF = pathBounds ?: RectF().also { pathBounds = it }
+
+    // Suppress deprecation for Path#computeBounds(RectF, boolean) as new API is hidden behind
+    // flag currently
+    @Suppress("deprecation")
     private fun configureOutlineAndClip() {
         if (outlineDirty) {
             val outlineIsNeeded = clip || shadowElevation > 0f
             if (!outlineIsNeeded) {
                 impl.clip = false
-                impl.setOutline(null)
+                impl.setOutline(null, IntSize.Zero)
             } else {
                 val tmpPath = outlinePath
                 if (tmpPath != null) {
+                    val bounds = obtainPathBounds()
+                    tmpPath.asAndroidPath().computeBounds(bounds, false)
                     val androidOutline =
                         updatePathOutline(tmpPath)?.apply { alpha = this@GraphicsLayer.alpha }
-                    impl.setOutline(androidOutline)
+                    impl.setOutline(
+                        androidOutline,
+                        IntSize(bounds.width().fastRoundToInt(), bounds.height().fastRoundToInt())
+                    )
                     if (usePathForClip && clip) {
                         impl.clip = false
+                        // We are clipping manually so we need to re-record the displaylist
+                        impl.discardDisplayList()
                     } else {
                         impl.clip = clip
                     }
                 } else {
                     impl.clip = clip
+                    var tmpOutlineSize = Size.Zero
                     val roundRectOutline =
                         obtainAndroidOutline()
                             .apply {
                                 resolveOutlinePosition { outlineTopLeft, outlineSize ->
-                                    setRoundRect(
-                                        outlineTopLeft.x.fastRoundToInt(),
-                                        outlineTopLeft.y.fastRoundToInt(),
-                                        (outlineTopLeft.x + outlineSize.width).fastRoundToInt(),
-                                        (outlineTopLeft.y + outlineSize.height).fastRoundToInt(),
-                                        roundRectCornerRadius
-                                    )
+                                    tmpOutlineSize = outlineSize
+                                    val left = outlineTopLeft.x.fastRoundToInt()
+                                    val top = outlineTopLeft.y.fastRoundToInt()
+                                    val right =
+                                        (outlineTopLeft.x + outlineSize.width).fastRoundToInt()
+                                    val bottom =
+                                        (outlineTopLeft.y + outlineSize.height).fastRoundToInt()
+                                    setRoundRect(left, top, right, bottom, roundRectCornerRadius)
                                 }
                             }
                             .apply { alpha = this@GraphicsLayer.alpha }
-                    impl.setOutline(roundRectOutline)
+                    impl.setOutline(roundRectOutline, tmpOutlineSize.roundToIntSize())
                 }
             }
         }
@@ -929,7 +959,7 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.setPathOutline
      * @see GraphicsLayer.setRoundRectOutline
      */
-    fun setOutline(outline: AndroidOutline?)
+    fun setOutline(outline: AndroidOutline?, outlineSize: IntSize)
 
     /** Draw the GraphicsLayer into the provided canvas */
     fun draw(canvas: Canvas)

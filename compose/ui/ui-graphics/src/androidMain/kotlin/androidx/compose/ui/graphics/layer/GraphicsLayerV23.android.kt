@@ -57,6 +57,7 @@ internal class GraphicsLayerV23(
     private var layerPaint: android.graphics.Paint? = null
     private var matrix: android.graphics.Matrix? = null
     private var outlineIsProvided = false
+    private var outlineSize = IntSize.Zero
 
     private fun obtainLayerPaint(): android.graphics.Paint =
         layerPaint ?: android.graphics.Paint().also { layerPaint = it }
@@ -301,7 +302,8 @@ internal class GraphicsLayerV23(
         }
     }
 
-    override fun setOutline(outline: Outline?) {
+    override fun setOutline(outline: Outline?, outlineSize: IntSize) {
+        this.outlineSize = outlineSize
         renderNode.setOutline(outline)
         outlineIsProvided = outline != null
         applyClip()
@@ -318,7 +320,11 @@ internal class GraphicsLayerV23(
         layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
-        val recordingCanvas = renderNode.start(size.width, size.height)
+        val recordingCanvas =
+            renderNode.start(
+                maxOf(size.width, outlineSize.width),
+                maxOf(size.height, outlineSize.height)
+            )
         try {
             canvasHolder.drawInto(recordingCanvas) {
                 canvasDrawScope.draw(density, layoutDirection, this, size.toSize(), layer, block)
