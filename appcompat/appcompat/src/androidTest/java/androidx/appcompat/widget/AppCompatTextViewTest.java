@@ -567,9 +567,9 @@ public class AppCompatTextViewTest
      * Run a command and confirm that the result of the command was a visible change to at least
      * one pixel or exact similarity
      *
-     * @param subject view to change
+     * @param subject    view to change
      * @param expectSame when true, expect pixels to be identical, otherwise expect differences
-     * @param command comamnd to be called. it is not dispatched
+     * @param command    comamnd to be called. it is not dispatched
      */
     public void runCommandAndAssertBitmapChangedOrSame(TextView subject, Boolean expectSame,
             Runnable command) {
@@ -965,7 +965,8 @@ public class AppCompatTextViewTest
     }
 
     @RequiresApi(26)
-    private static class NoOpTextClassifier implements TextClassifier {}
+    private static class NoOpTextClassifier implements TextClassifier {
+    }
 
     class TestCase {
         public final int id;
@@ -981,6 +982,7 @@ public class AppCompatTextViewTest
      * Find a character which has 3em width.
      *
      * The search range is from 'a' to 'r'.
+     *
      * @param p a paint
      * @return the character which has 3em width.
      */
@@ -988,7 +990,7 @@ public class AppCompatTextViewTest
         char threeEmChar = '\0';
         p.setTextSize(100.0f);  // Make 1EM = 100px
         for (char c = 'a'; c <= 'r'; c++) {
-            final float charWidth = p.measureText(new char[] { c }, 0, 1);
+            final float charWidth = p.measureText(new char[]{c}, 0, 1);
             if (charWidth != 100.0f && charWidth != 300.0f) {
                 throw new RuntimeException("Char width must be 1em or 3em. Test setup error?");
             }
@@ -1299,6 +1301,10 @@ public class AppCompatTextViewTest
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Test
     public void testTextFontWeight() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return;
+        }
+
         final AppCompatTextView textView = mActivity.findViewById(
                 R.id.text_view_text_font_weight);
 
