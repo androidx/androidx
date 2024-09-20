@@ -235,7 +235,7 @@ abstract class AndroidXExtension(
         val ALLOWED_EXTRA_PREFIXES = listOf("-alpha", "-beta", "-rc", "-dev", "-SNAPSHOT")
         val extra = version.extra
         if (extra != null) {
-            if (!version.isSnapshot() && project.isVersionExtraCheckEnabled()) {
+            if (!version.isSnapshot()) {
                 if (ALLOWED_EXTRA_PREFIXES.any { extra.startsWith(it) }) {
                     for (potentialPrefix in ALLOWED_EXTRA_PREFIXES) {
                         if (extra.startsWith(potentialPrefix)) {
