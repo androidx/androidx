@@ -169,7 +169,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.lifecycle.viewmodel.savedstate"
-    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
 }
 
 androidx {
