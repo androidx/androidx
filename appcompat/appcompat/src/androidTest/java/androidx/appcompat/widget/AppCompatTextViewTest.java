@@ -1295,4 +1295,17 @@ public class AppCompatTextViewTest
         view.setCustomSelectionActionModeCallback(null);
         assertNull(view.getCustomSelectionActionModeCallback());
     }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @Test
+    public void testTextFontWeight() {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.text_view_text_font_weight);
+
+        if (textView.getTypeface() == null) return;
+
+        final int textFontWeight = textView.getTypeface().getWeight();
+
+        assertEquals(textFontWeight, 900);
+    }
 }
