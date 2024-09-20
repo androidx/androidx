@@ -33,7 +33,7 @@ internal abstract class AbstractMainTestClock(
     override var autoAdvance: Boolean = true
 
     override fun advanceTimeByFrame() {
-        advanceDispatcher(frameDelayMillis)
+        advanceScheduler(frameDelayMillis)
     }
 
     override fun advanceTimeBy(milliseconds: Long, ignoreFrameDuration: Boolean) {
@@ -43,14 +43,14 @@ internal abstract class AbstractMainTestClock(
             } else {
                 ceil(milliseconds.toDouble() / frameDelayMillis).toLong() * frameDelayMillis
             }
-        advanceDispatcher(actualDelay)
+        advanceScheduler(actualDelay)
     }
 
     override fun advanceTimeUntil(timeoutMillis: Long, condition: () -> Boolean) {
         val startTime = currentTime
         runOnUiThread {
             while (!condition()) {
-                advanceDispatcher(frameDelayMillis)
+                advanceScheduler(frameDelayMillis)
                 if (currentTime - startTime > timeoutMillis) {
                     throw ComposeTimeoutException(
                         "Condition still not satisfied after $timeoutMillis ms"
@@ -60,14 +60,11 @@ internal abstract class AbstractMainTestClock(
         }
     }
 
-    private fun advanceDispatcher(millis: Long) {
+    private fun advanceScheduler(millis: Long) {
         runOnUiThread {
+            // advanceTimeBy() runs all tasks up to, but not including, the new time
             testScheduler.advanceTimeBy(millis)
-
-            // Since coroutines 1.6.0
-            // `advanceTimeBy` doesn't run the tasks that are scheduled at exactly
-            // `currentTime + delayTimeMillis`. See `advanceTimeBy`.
-            // Therefore we also call `runCurrent` as it's done in TestCoroutineDispatcher
+            // So finish with a call to runCurrent() to run all tasks at the new time
             testScheduler.runCurrent()
         }
     }
