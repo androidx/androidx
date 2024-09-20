@@ -16,9 +16,7 @@
 
 package androidx.build
 
-import androidx.build.checkapi.shouldConfigureApiTasks
 import groovy.lang.Closure
-import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -107,12 +105,6 @@ abstract class AndroidXExtension(
         val explanationBuilder = mutableListOf<String>()
         chooseLibraryGroup(explanationBuilder)
         return explanationBuilder
-    }
-
-    private fun lazyReadFile(fileName: String): Provider<String> {
-        val fileProperty =
-            project.objects.fileProperty().fileValue(File(project.getSupportRootFolder(), fileName))
-        return project.providers.fileContents(fileProperty).asText
     }
 
     private fun chooseLibraryGroup(explanationBuilder: MutableList<String>? = null): LibraryGroup? {
@@ -364,7 +356,7 @@ abstract class AndroidXExtension(
     }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
-        return !legacyDisableKotlinStrictApiMode && shouldConfigureApiTasks()
+        return !legacyDisableKotlinStrictApiMode && runApiTasks is RunApiTasks.Yes
     }
 
     fun extraLicense(closure: Closure<Any>): License {
@@ -397,12 +389,6 @@ abstract class AndroidXExtension(
 
     override val kotlinBomVersion: Provider<String>
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
-
-    /**
-     * Whether to validate the androidx configuration block using validateProjectParser. This should
-     * always be set to true unless we are temporarily working around a bug.
-     */
-    var runProjectParser: Boolean = true
 
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
