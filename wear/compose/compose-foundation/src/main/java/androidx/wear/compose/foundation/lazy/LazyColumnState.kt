@@ -69,6 +69,12 @@ class LazyColumnState : ScrollableState {
     internal var scrollToBeConsumed = 0f
         private set
 
+    override var canScrollForward: Boolean by mutableStateOf(false)
+        private set
+
+    override var canScrollBackward: Boolean by mutableStateOf(false)
+        private set
+
     internal var anchorItemIndex by mutableIntStateOf(0)
         private set
 
@@ -100,6 +106,8 @@ class LazyColumnState : ScrollableState {
         anchorItemScrollOffset = measureResult.anchorItemScrollOffset
         lastMeasuredAnchorItemHeight = measureResult.lastMeasuredItemHeight
         layoutInfoState.value = measureResult
+        canScrollBackward = measureResult.canScrollBackward
+        canScrollForward = measureResult.canScrollForward
         nearestRange = calculateNearestItemsRange(anchorItemIndex)
     }
 
@@ -161,6 +169,8 @@ private val EmptyLazyColumnMeasureResult =
         visibleItems = emptyList(),
         totalItemsCount = 0,
         lastMeasuredItemHeight = Int.MIN_VALUE,
+        canScrollForward = false,
+        canScrollBackward = false,
         measureResult =
             object : MeasureResult {
                 override val width: Int = 0

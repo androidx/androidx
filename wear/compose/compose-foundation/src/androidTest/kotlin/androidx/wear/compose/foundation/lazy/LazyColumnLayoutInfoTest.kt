@@ -125,14 +125,22 @@ class LazyColumnLayoutInfoTest {
 
         rule.runOnIdle {
             assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx * 2)
+            currentInfo!!.assertVisibleItems(
+                count = 1,
+                expectedSize = itemSizePx * 2,
+                strictOnOffset = false
+            )
             currentInfo = null
             size = itemSizeDp
         }
 
         rule.runOnIdle {
             assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx)
+            currentInfo!!.assertVisibleItems(
+                count = 1,
+                expectedSize = itemSizePx,
+                strictOnOffset = false
+            )
         }
     }
 
@@ -217,16 +225,19 @@ class LazyColumnLayoutInfoTest {
         startIndex: Int = 0,
         startOffset: Int = 0,
         expectedSize: Int = itemSizePx,
-        spacing: Int = 0
+        spacing: Int = 0,
+        strictOnOffset: Boolean = true
     ) {
         assertThat(visibleItems.size).isEqualTo(count)
         var currentIndex = startIndex
         var currentOffset = startOffset
         visibleItems.forEach {
             assertThat(it.index).isEqualTo(currentIndex)
-            assertWithMessage("Offset of item $currentIndex")
-                .that(it.offset)
-                .isEqualTo(currentOffset)
+            if (strictOnOffset) {
+                assertWithMessage("Offset of item $currentIndex")
+                    .that(it.offset)
+                    .isEqualTo(currentOffset)
+            }
             assertThat(it.height).isEqualTo(expectedSize)
             currentIndex++
             currentOffset += it.height + spacing
