@@ -392,7 +392,8 @@ internal class GraphicsViewLayer(
         this.y = y
     }
 
-    override fun setOutline(outline: Outline?) {
+    override fun setOutline(outline: Outline?, outlineSize: IntSize) {
+        // outlineSize is not required for this GraphicsLayer implementation
         // b/18175261 On the initial Lollipop release invalidateOutline
         // would not invalidate shadows. As a workaround there is a reflective call to
         // invoke View#rebuildOutline directly. However, if the reflection fails

@@ -223,7 +223,8 @@ internal class GraphicsLayerV29(
         this.size = size.toSize()
     }
 
-    override fun setOutline(outline: Outline?) {
+    override fun setOutline(outline: Outline?, outlineSize: IntSize) {
+        // outlineSize is not required for this GraphicsLayer implementation
         renderNode.setOutline(outline)
         outlineIsProvided = outline != null
         applyClip()
