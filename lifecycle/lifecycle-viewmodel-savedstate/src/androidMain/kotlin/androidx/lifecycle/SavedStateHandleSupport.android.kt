@@ -25,9 +25,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
-private const val VIEWMODEL_KEY = "androidx.lifecycle.internal.SavedStateHandlesVM"
-private const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHandlesProvider"
-
 /**
  * Enables the support of [SavedStateHandle] in a component.
  *
