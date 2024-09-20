@@ -42,15 +42,15 @@ import kotlinx.coroutines.withContext
  * when data changes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-expect abstract class LimitOffsetPagingSource<Value : Any>(
+public expect abstract class LimitOffsetPagingSource<Value : Any>(
     sourceQuery: RoomRawQuery,
     db: RoomDatabase,
     vararg tables: String
 ) : PagingSource<Int, Value> {
-    val sourceQuery: RoomRawQuery
-    val db: RoomDatabase
+    public val sourceQuery: RoomRawQuery
+    public val db: RoomDatabase
 
-    val itemCount: Int
+    public val itemCount: Int
 
     protected open fun convertRows(statement: SQLiteStatement, itemCount: Int): List<Value>
 }

@@ -34,7 +34,7 @@ import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 /** The default itemCount value */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val INITIAL_ITEM_COUNT = -1
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val INITIAL_ITEM_COUNT: Int = -1
 
 /**
  * Calculates query limit based on LoadType.
@@ -43,7 +43,7 @@ import kotlin.jvm.JvmName
  * with OFFSET = 0, LIMIT = prevKey.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getLimit(params: LoadParams<Int>, key: Int): Int {
+public fun getLimit(params: LoadParams<Int>, key: Int): Int {
     return when (params) {
         is Prepend ->
             if (key < params.loadSize) {
@@ -74,7 +74,7 @@ fun getLimit(params: LoadParams<Int>, key: Int): Int {
  * [getClippedRefreshKey] may return key = 60. If loadSize = 10, then items 31-40 will be loaded.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
+public fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
     return when (params) {
         is Prepend ->
             if (key < params.loadSize) {
@@ -107,7 +107,7 @@ fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
  *   to return List<Value>
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-suspend fun <Value : Any> queryDatabase(
+public suspend fun <Value : Any> queryDatabase(
     params: LoadParams<Int>,
     sourceQuery: RoomRawQuery,
     db: RoomDatabase,
@@ -158,7 +158,7 @@ suspend fun <Value : Any> queryDatabase(
  * integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-suspend fun queryItemCount(sourceQuery: RoomRawQuery, db: RoomDatabase): Int {
+public suspend fun queryItemCount(sourceQuery: RoomRawQuery, db: RoomDatabase): Int {
     val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
     return db.useReaderConnection { connection ->
         connection.usePrepared(countQuery) { stmt ->
@@ -180,7 +180,7 @@ suspend fun queryItemCount(sourceQuery: RoomRawQuery, db: RoomDatabase): Int {
  */
 @Suppress("AutoBoxing")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun <Value : Any> PagingState<Int, Value>.getClippedRefreshKey(): Int? {
+public fun <Value : Any> PagingState<Int, Value>.getClippedRefreshKey(): Int? {
     return when (val anchorPosition = anchorPosition) {
         null -> null
         /**
