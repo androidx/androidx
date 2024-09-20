@@ -90,7 +90,7 @@ class CardTest {
                 shape = shape,
                 shapeColor = cardColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 

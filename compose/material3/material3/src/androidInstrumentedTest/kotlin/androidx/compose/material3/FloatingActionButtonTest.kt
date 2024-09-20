@@ -71,6 +71,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
@@ -777,13 +778,11 @@ class FloatingActionButtonTest {
                         )
                     ),
                 backgroundColor = Color.Red,
-                sizeX = with(rule.density) { 60.dp.toPx() },
-                sizeY = with(rule.density) { 60.dp.toPx() },
-                shapeSizeX = with(rule.density) { 60.dp.toPx() },
-                shapeSizeY = with(rule.density) { 60.dp.toPx() },
-                centerX = with(rule.density) { 70.dp.toPx() },
-                centerY = with(rule.density) { 70.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 3.dp.toPx() }
+                backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeAndBackgroundCenter =
+                    with(rule.density) { Offset(70.dp.toPx(), 70.dp.toPx()) },
+                antiAliasingGap = with(rule.density) { 3.dp.toPx() }
             )
     }
 
@@ -839,13 +838,11 @@ class FloatingActionButtonTest {
                         )
                     ),
                 backgroundColor = Color.Red,
-                sizeX = with(rule.density) { 60.dp.toPx() },
-                sizeY = with(rule.density) { 60.dp.toPx() },
-                shapeSizeX = with(rule.density) { 60.dp.toPx() },
-                shapeSizeY = with(rule.density) { 60.dp.toPx() },
-                centerX = with(rule.density) { 50.dp.toPx() },
-                centerY = with(rule.density) { 50.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeAndBackgroundCenter =
+                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
 
@@ -901,13 +898,11 @@ class FloatingActionButtonTest {
                         )
                     ),
                 backgroundColor = Color.Red,
-                sizeX = with(rule.density) { 60.dp.toPx() },
-                sizeY = with(rule.density) { 60.dp.toPx() },
-                shapeSizeX = with(rule.density) { 60.dp.toPx() },
-                shapeSizeY = with(rule.density) { 60.dp.toPx() },
-                centerX = with(rule.density) { 30.dp.toPx() },
-                centerY = with(rule.density) { 30.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
+                shapeAndBackgroundCenter =
+                    with(rule.density) { Offset(30.dp.toPx(), 30.dp.toPx()) },
+                antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
 
@@ -958,13 +953,11 @@ class FloatingActionButtonTest {
                 shape = CircleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                sizeX = with(rule.density) { 100.dp.toPx() },
-                sizeY = with(rule.density) { 100.dp.toPx() },
-                shapeSizeX = with(rule.density) { 100.dp.toPx() },
-                shapeSizeY = with(rule.density) { 100.dp.toPx() },
-                centerX = with(rule.density) { 50.dp.toPx() },
-                centerY = with(rule.density) { 50.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                backgroundSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
+                shapeSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
+                shapeAndBackgroundCenter =
+                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
 
@@ -1004,13 +997,11 @@ class FloatingActionButtonTest {
                 shape = CircleShape,
                 shapeColor = Color.Blue,
                 backgroundColor = Color.Red,
-                sizeX = with(rule.density) { 100.dp.toPx() },
-                sizeY = with(rule.density) { 100.dp.toPx() },
-                shapeSizeX = with(rule.density) { 100.dp.toPx() },
-                shapeSizeY = with(rule.density) { 100.dp.toPx() },
-                centerX = with(rule.density) { 50.dp.toPx() },
-                centerY = with(rule.density) { 50.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                backgroundSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
+                shapeSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
+                shapeAndBackgroundCenter =
+                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
 }

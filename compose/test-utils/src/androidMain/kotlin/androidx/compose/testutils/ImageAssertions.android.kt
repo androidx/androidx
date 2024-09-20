@@ -18,6 +18,7 @@ package androidx.compose.testutils
 
 import android.graphics.Bitmap
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -35,8 +37,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
-import org.junit.Assert
 
 /**
  * A helper function to run asserts on [Bitmap].
@@ -127,11 +130,11 @@ private fun ImageBitmap.containsColor(expectedColor: Color): Boolean {
 fun Path.contains(offset: Offset): Boolean {
     val path = android.graphics.Path()
     path.addRect(
-        offset.x - 0.01f,
-        offset.y - 0.01f,
-        offset.x + 0.01f,
-        offset.y + 0.01f,
-        android.graphics.Path.Direction.CW
+        /* left = */ offset.x - 0.01f,
+        /* top = */ offset.y - 0.01f,
+        /* right = */ offset.x + 0.01f,
+        /* bottom = */ offset.y + 0.01f,
+        /* dir = */ android.graphics.Path.Direction.CW
     )
     if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
         return !path.isEmpty
@@ -140,24 +143,29 @@ fun Path.contains(offset: Offset): Boolean {
 }
 
 /**
- * Asserts that the given [shape] is drawn within the bitmap with the size the dimensions
- * [shapeSizeX] x [shapeSizeY], centered at ([centerX], [centerY]) with the color [shapeColor]. The
- * bitmap area examined is [sizeX] x [sizeY], centered at ([centerX], [centerY]) and everything
- * outside the shape is expected to be color [backgroundColor].
+ * Asserts that the given [shape] is drawn in the bitmap with size [shapeSize] in the color
+ * [shapeColor], in front of the [backgroundShape] that has size [backgroundSize].
+ *
+ * The size of a [Shape] is its rectangular bounding box. The centers of both the [shape] and the
+ * [backgroundShape] are at [shapeAndBackgroundCenter]. Pixels that are outside the background area
+ * are not checked. Pixels that are outside the [shape] and inside the [backgroundShape] must be
+ * [backgroundColor]. Pixels that are inside the [shape] must be [shapeColor].
+ *
+ * To avoid the pixels on the edge of a shape, where anti-aliasing means the pixel is neither the
+ * shape color nor the background color, a gap size can be given with [antiAliasingGap]. Pixels that
+ * are close to the border of the shape are not checked. A larger [antiAliasingGap] means more
+ * pixels are left unchecked, and a gap of 0 pixels means all pixels are tested.
  *
  * @param density current [Density] or the screen
- * @param shape defines the [Shape]
- * @param shapeColor the color of the shape
- * @param backgroundColor the color of the background
- * @param backgroundShape defines the [Shape] of the background
- * @param sizeX width of the area filled with the [backgroundShape]
- * @param sizeY height of the area filled with the [backgroundShape]
- * @param shapeSizeX width of the area filled with the [shape]
- * @param shapeSizeY height of the area filled with the [shape]
- * @param centerX the X position of the center of the [shape] inside the [sizeX]
- * @param centerY the Y position of the center of the [shape] inside the [sizeY]
- * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
- *   untested as it is likely anti-aliased. The default is 1 pixel
+ * @param shape the [Shape] of the foreground
+ * @param shapeColor the color of the foreground shape
+ * @param shapeSize the [Size] of the [shape]
+ * @param shapeAndBackgroundCenter the center of both the [shape] and the [backgroundShape]
+ * @param backgroundShape the [Shape] of the background
+ * @param backgroundColor the color of the background shape
+ * @param backgroundSize the [Size] of the [backgroundShape]
+ * @param antiAliasingGap The size of the border area from the shape outline to leave it untested as
+ *   it is likely anti-aliased. Only works for convex shapes. The default is 1 pixel
  */
 // TODO (mount, malkov) : to investigate why it flakes when shape is not rect
 fun ImageBitmap.assertShape(
@@ -166,48 +174,51 @@ fun ImageBitmap.assertShape(
     shapeColor: Color,
     backgroundColor: Color,
     backgroundShape: Shape = RectangleShape,
-    sizeX: Float = width.toFloat(),
-    sizeY: Float = height.toFloat(),
-    shapeSizeX: Float = sizeX,
-    shapeSizeY: Float = sizeY,
-    centerX: Float = width / 2f,
-    centerY: Float = height / 2f,
-    shapeOverlapPixelCount: Float = 1.0f
+    backgroundSize: Size = Size(width.toFloat(), height.toFloat()),
+    shapeSize: Size = backgroundSize,
+    shapeAndBackgroundCenter: Offset = Offset(width / 2f, height / 2f),
+    antiAliasingGap: Float = 1.0f
 ) {
-    val width = width
-    val height = height
     val pixels = toPixelMap()
-    Assert.assertTrue(centerX + sizeX / 2 <= width)
-    Assert.assertTrue(centerX - sizeX / 2 >= 0.0f)
-    Assert.assertTrue(centerY + sizeY / 2 <= height)
-    Assert.assertTrue(centerY - sizeY / 2 >= 0.0f)
-    val outline = shape.createOutline(Size(shapeSizeX, shapeSizeY), LayoutDirection.Ltr, density)
-    val path = Path()
-    path.addOutline(outline)
-    val shapeOffset = Offset((centerX - shapeSizeX / 2f), (centerY - shapeSizeY / 2f))
-    val backgroundPath = Path()
-    backgroundPath.addOutline(
-        backgroundShape.createOutline(Size(sizeX, sizeY), LayoutDirection.Ltr, density)
-    )
-    for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
-        for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
+
+    // the bounding box of the foreground shape in the bitmap
+    val foregroundBounds =
+        Rect(
+            left = shapeAndBackgroundCenter.x - shapeSize.width / 2f,
+            top = shapeAndBackgroundCenter.y - shapeSize.height / 2f,
+            right = shapeAndBackgroundCenter.x + shapeSize.width / 2f,
+            bottom = shapeAndBackgroundCenter.y + shapeSize.height / 2f,
+        )
+    // the bounding box of the background shape in the bitmap
+    val backgroundBounds =
+        Rect(
+            left = shapeAndBackgroundCenter.x - backgroundSize.width / 2f,
+            top = shapeAndBackgroundCenter.y - backgroundSize.height / 2f,
+            right = shapeAndBackgroundCenter.x + backgroundSize.width / 2f,
+            bottom = shapeAndBackgroundCenter.y + backgroundSize.height / 2f,
+        )
+
+    // Assert that the checked area is fully enclosed in the bitmap
+    assert(backgroundBounds.top >= 0.0f) { "background is out of bounds (top side)" }
+    assert(backgroundBounds.right <= width) { "background is out of bounds (right side)" }
+    assert(backgroundBounds.bottom <= height) { "background is out of bounds (bottom side)" }
+    assert(backgroundBounds.left >= 0.0f) { "background is out of bounds (left side)" }
+
+    // Convert the shapes into a paths
+    val foregroundPath = shape.asPath(foregroundBounds, density)
+    val backgroundPath = backgroundShape.asPath(backgroundBounds, density)
+
+    for (y in backgroundBounds.top until backgroundBounds.bottom) {
+        for (x in backgroundBounds.left until backgroundBounds.right) {
             val point = Offset(x.toFloat(), y.toFloat())
-            if (
-                !backgroundPath.contains(
-                    pixelFartherFromCenter(point, sizeX, sizeY, shapeOverlapPixelCount)
-                )
-            ) {
+            val pointFarther =
+                pointFartherFromAnchor(point, shapeAndBackgroundCenter, antiAliasingGap)
+            val pointCloser = pointCloserToAnchor(point, shapeAndBackgroundCenter, antiAliasingGap)
+            if (!backgroundPath.contains(pointFarther)) {
                 continue
             }
-            val offset = point - shapeOffset
-            val isInside =
-                path.contains(
-                    pixelFartherFromCenter(offset, shapeSizeX, shapeSizeY, shapeOverlapPixelCount)
-                )
-            val isOutside =
-                !path.contains(
-                    pixelCloserToCenter(offset, shapeSizeX, shapeSizeY, shapeOverlapPixelCount)
-                )
+            val isInside = foregroundPath.contains(pointFarther)
+            val isOutside = !foregroundPath.contains(pointCloser)
             if (isInside) {
                 pixels.assertPixelColor(shapeColor, x, y)
             } else if (isOutside) {
@@ -218,18 +229,24 @@ fun ImageBitmap.assertShape(
 }
 
 /**
- * Asserts that the bitmap is fully occupied by the given [shape] with the color [shapeColor]
- * without [horizontalPadding] and [verticalPadding] from the sides. The padded area is expected to
- * have [backgroundColor].
+ * Asserts that the given [shape] is drawn in the bitmap in the color [shapeColor] on a background
+ * of [backgroundColor].
+ *
+ * The whole background of the bitmap should be filled with the [backgroundColor]. The [shape]'s
+ * size is that of the bitmap, minus the [horizontalPadding] and [verticalPadding] on all sides. The
+ * shape must be aligned in the center.
+ *
+ * To avoid the pixels on the edge of a shape, where anti-aliasing means the pixel is neither the
+ * shape color nor the background color, a gap size can be given with [antiAliasingGap]. Pixels that
+ * are close to the border of the shape are not checked. A larger [antiAliasingGap] means more
+ * pixels are left unchecked, and a gap of 0 pixels means all pixels are tested.
  *
  * @param density current [Density] or the screen
- * @param horizontalPadding the symmetrical padding to be applied from both left and right sides
- * @param verticalPadding the symmetrical padding to be applied from both top and bottom sides
- * @param backgroundColor the color of the background
- * @param shapeColor the color of the shape
- * @param shape defines the [Shape]
- * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
- *   untested as it is likely anti-aliased. The default is 1 pixel
+ * @param shape the [Shape] of the foreground
+ * @param shapeColor the color of the foreground shape
+ * @param backgroundColor the color of the background shape
+ * @param antiAliasingGap The size of the border area from the shape outline to leave it untested as
+ *   it is likely anti-aliased. Only works for convex shapes. The default is 1 pixel
  */
 fun ImageBitmap.assertShape(
     density: Density,
@@ -238,73 +255,67 @@ fun ImageBitmap.assertShape(
     backgroundColor: Color,
     shapeColor: Color,
     shape: Shape = RectangleShape,
-    shapeOverlapPixelCount: Float = 1.0f
+    antiAliasingGap: Float = 1.0f
 ) {
-    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
-    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
+    val shapeSize =
+        Size(
+            width - with(density) { horizontalPadding.toPx() * 2 },
+            height - with(density) { verticalPadding.toPx() * 2 }
+        )
     return assertShape(
         density = density,
         shape = shape,
         shapeColor = shapeColor,
         backgroundColor = backgroundColor,
         backgroundShape = RectangleShape,
-        shapeSizeX = width.toFloat() - fullHorizontalPadding,
-        shapeSizeY = height.toFloat() - fullVerticalPadding,
-        shapeOverlapPixelCount = shapeOverlapPixelCount
+        shapeSize = shapeSize,
+        antiAliasingGap = antiAliasingGap
     )
+}
+
+private fun Shape.asPath(bounds: Rect, density: Density): Path {
+    return android.graphics.Path().asComposePath().apply {
+        addOutline(createOutline(bounds.size, LayoutDirection.Ltr, density))
+        // Translate only modifies segments already added, so call it after addOutline
+        translate(bounds.topLeft)
+    }
 }
 
 private infix fun Float.until(until: Float): IntRange {
     val from = this.roundToInt()
     val to = until.roundToInt()
     if (from <= Int.MIN_VALUE) return IntRange.EMPTY
-    return from..(to - 1)
+    return from until to
 }
 
-private fun pixelCloserToCenter(
-    offset: Offset,
-    shapeSizeX: Float,
-    shapeSizeY: Float,
-    delta: Float
-): Offset {
-    val centerX = shapeSizeX / 2f
-    val centerY = shapeSizeY / 2f
-    val d = delta
+private fun pointCloserToAnchor(point: Offset, anchor: Offset, delta: Float): Offset {
     val x =
         when {
-            offset.x > centerX -> offset.x - d
-            offset.x < centerX -> offset.x + d
-            else -> offset.x
+            point.x > anchor.x -> max(point.x - delta, anchor.x)
+            point.x < anchor.x -> min(point.x + delta, anchor.x)
+            else -> point.x
         }
     val y =
         when {
-            offset.y > centerY -> offset.y - d
-            offset.y < centerY -> offset.y + d
-            else -> offset.y
+            point.y > anchor.y -> max(point.y - delta, anchor.y)
+            point.y < anchor.y -> min(point.y + delta, anchor.y)
+            else -> point.y
         }
     return Offset(x, y)
 }
 
-private fun pixelFartherFromCenter(
-    offset: Offset,
-    shapeSizeX: Float,
-    shapeSizeY: Float,
-    delta: Float
-): Offset {
-    val centerX = shapeSizeX / 2f
-    val centerY = shapeSizeY / 2f
-    val d = delta
+private fun pointFartherFromAnchor(point: Offset, anchor: Offset, delta: Float): Offset {
     val x =
         when {
-            offset.x > centerX -> offset.x + d
-            offset.x < centerX -> offset.x - d
-            else -> offset.x
+            point.x > anchor.x -> point.x + delta
+            point.x < anchor.x -> point.x - delta
+            else -> point.x
         }
     val y =
         when {
-            offset.y > centerY -> offset.y + d
-            offset.y < centerY -> offset.y - d
-            else -> offset.y
+            point.y > anchor.y -> point.y + delta
+            point.y < anchor.y -> point.y - delta
+            else -> point.y
         }
     return Offset(x, y)
 }

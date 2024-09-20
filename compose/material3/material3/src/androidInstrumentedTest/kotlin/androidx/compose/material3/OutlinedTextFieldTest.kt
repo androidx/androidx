@@ -1501,7 +1501,7 @@ class OutlinedTextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(rule.density) { 3.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 3.dp.toPx() }
             )
     }
 

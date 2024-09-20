@@ -357,7 +357,7 @@ class SnackbarTest {
                 shape = shape,
                 shapeColor = snackBarColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
 

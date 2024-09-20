@@ -32,7 +32,6 @@ import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
@@ -53,7 +52,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -97,7 +95,7 @@ class CardTest {
                 shape = shape,
                 shapeColor = cardColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 

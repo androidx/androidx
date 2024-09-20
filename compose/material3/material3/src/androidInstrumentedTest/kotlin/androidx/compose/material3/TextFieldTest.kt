@@ -1558,7 +1558,7 @@ class TextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(rule.density) { 3.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 3.dp.toPx() }
             )
     }
 
@@ -1601,7 +1601,7 @@ class TextFieldTest {
                 shapeColor = Color.Blue,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
 
         rule.onNodeWithTag(TextFieldTag).performClick()
@@ -1615,7 +1615,7 @@ class TextFieldTest {
                 shapeColor = Color.Blue,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 
