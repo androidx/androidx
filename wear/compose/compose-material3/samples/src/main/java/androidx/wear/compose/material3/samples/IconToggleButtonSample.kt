@@ -29,6 +29,8 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
+import androidx.wear.compose.material3.samples.icons.WifiOffIcon
+import androidx.wear.compose.material3.samples.icons.WifiOnIcon
 
 @Sampled
 @Composable
@@ -58,11 +60,15 @@ fun IconToggleButtonVariantSample() {
         onCheckedChange = { checked = !checked },
         interactionSource = interactionSource,
         shape =
-            IconToggleButtonDefaults.animatedToggleButtonShape(
+            IconToggleButtonDefaults.variantAnimatedShape(
                 interactionSource = interactionSource,
                 checked = checked
             ),
     ) {
-        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+        if (checked) {
+            WifiOnIcon()
+        } else {
+            WifiOffIcon()
+        }
     }
 }

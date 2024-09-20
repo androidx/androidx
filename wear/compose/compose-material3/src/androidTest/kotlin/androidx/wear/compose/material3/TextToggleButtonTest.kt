@@ -302,21 +302,7 @@ class TextToggleButtonTest {
                 content = {},
                 modifier =
                     Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.DefaultButtonSize)
-            )
-        }
-
-    @Test
-    fun gives_small_correct_tapSize() =
-        rule.verifyTapSize(48.dp) {
-            TextToggleButton(
-                enabled = true,
-                checked = true,
-                onCheckedChange = {},
-                content = {},
-                modifier =
-                    Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.SmallButtonSize)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.DefaultButtonSize)
             )
         }
 
@@ -330,7 +316,21 @@ class TextToggleButtonTest {
                 content = {},
                 modifier =
                     Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.LargeButtonSize)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.LargeButtonSize)
+            )
+        }
+
+    @Test
+    fun gives_extraLarge_correct_tapSize() =
+        rule.verifyTapSize(72.dp) {
+            TextToggleButton(
+                enabled = true,
+                checked = true,
+                onCheckedChange = {},
+                content = {},
+                modifier =
+                    Modifier.testTag(TEST_TAG)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.ExtraLargeButtonSize)
             )
         }
 
@@ -344,21 +344,7 @@ class TextToggleButtonTest {
                 content = {},
                 modifier =
                     Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.DefaultButtonSize)
-            )
-        }
-
-    @Test
-    fun gives_small_correct_size() =
-        rule.verifyActualSize(48.dp) {
-            TextToggleButton(
-                enabled = true,
-                checked = true,
-                onCheckedChange = {},
-                content = {},
-                modifier =
-                    Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.SmallButtonSize)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.DefaultButtonSize)
             )
         }
 
@@ -372,7 +358,21 @@ class TextToggleButtonTest {
                 content = {},
                 modifier =
                     Modifier.testTag(TEST_TAG)
-                        .touchTargetAwareSize(TextButtonDefaults.LargeButtonSize)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.LargeButtonSize)
+            )
+        }
+
+    @Test
+    fun gives_extraLarge_correct_size() =
+        rule.verifyActualSize(72.dp) {
+            TextToggleButton(
+                enabled = true,
+                checked = true,
+                onCheckedChange = {},
+                content = {},
+                modifier =
+                    Modifier.testTag(TEST_TAG)
+                        .touchTargetAwareSize(TextToggleButtonDefaults.ExtraLargeButtonSize)
             )
         }
 

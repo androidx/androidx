@@ -51,3 +51,21 @@ fun CheckIcon() {
         modifier = Modifier.size(ButtonDefaults.IconSize)
     )
 }
+
+@Composable
+fun WifiOnIcon(modifier: Modifier = Modifier) {
+    Icon(
+        painter = painterResource(R.drawable.ic_wifi_on),
+        contentDescription = "Wifi on",
+        modifier = modifier.size(ButtonDefaults.IconSize)
+    )
+}
+
+@Composable
+fun WifiOffIcon(modifier: Modifier = Modifier) {
+    Icon(
+        painter = painterResource(R.drawable.ic_wifi_off),
+        contentDescription = "Wifi off",
+        modifier = modifier.size(ButtonDefaults.IconSize)
+    )
+}

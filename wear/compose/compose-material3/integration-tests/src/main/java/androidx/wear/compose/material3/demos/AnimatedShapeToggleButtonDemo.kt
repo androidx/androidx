@@ -83,7 +83,7 @@ fun AnimatedShapeToggleButtonDemo() {
                 TextToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
                     shape =
-                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                        TextToggleButtonDefaults.variantAnimatedShape(
                             interactionSource1,
                             checked = checked.value,
                         ),
@@ -98,7 +98,7 @@ fun AnimatedShapeToggleButtonDemo() {
                 IconToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
                     shape =
-                        IconToggleButtonDefaults.animatedToggleButtonShape(
+                        IconToggleButtonDefaults.variantAnimatedShape(
                             interactionSource1,
                             checked = checked.value,
                         ),

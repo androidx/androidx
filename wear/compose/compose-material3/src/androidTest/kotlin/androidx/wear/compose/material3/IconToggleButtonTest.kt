@@ -298,7 +298,7 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.DefaultButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.DefaultButtonSize)
             )
         }
 
@@ -310,19 +310,7 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.SmallButtonSize)
-            )
-        }
-
-    @Test
-    fun gives_extraSmall_correct_tapSize() =
-        rule.verifyTapSize(48.dp) {
-            IconToggleButton(
-                enabled = true,
-                checked = true,
-                onCheckedChange = {},
-                content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.SmallButtonSize)
             )
         }
 
@@ -334,7 +322,19 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.LargeButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.LargeButtonSize)
+            )
+        }
+
+    @Test
+    fun gives_extraLarge_correct_tapSize() =
+        rule.verifyTapSize(72.dp) {
+            IconToggleButton(
+                enabled = true,
+                checked = true,
+                onCheckedChange = {},
+                content = {},
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.ExtraLargeButtonSize)
             )
         }
 
@@ -346,7 +346,7 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.DefaultButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.DefaultButtonSize)
             )
         }
 
@@ -358,19 +358,19 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.SmallButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.SmallButtonSize)
             )
         }
 
     @Test
-    fun gives_extraSmall_correct_size() =
-        rule.verifyActualSize(32.dp) {
+    fun gives_extraLarge_correct_size() =
+        rule.verifyActualSize(72.dp) {
             IconToggleButton(
                 enabled = true,
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.ExtraLargeButtonSize)
             )
         }
 
@@ -382,7 +382,7 @@ class IconToggleButtonTest {
                 checked = true,
                 onCheckedChange = {},
                 content = {},
-                modifier = it.touchTargetAwareSize(IconButtonDefaults.LargeButtonSize)
+                modifier = it.touchTargetAwareSize(IconToggleButtonDefaults.LargeButtonSize)
             )
         }
 
