@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo
+import androidx.wear.compose.foundation.lazy.LazyColumnState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
@@ -158,6 +160,23 @@ fun ScrollIndicator(
 ) =
     IndicatorImpl(
         state = ScalingLazyColumnStateAdapter(state = state),
+        indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
+        indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
+        paddingHorizontal = ScrollIndicatorDefaults.edgePadding,
+        modifier = modifier,
+        reverseDirection = reverseDirection,
+        positionAnimationSpec = positionAnimationSpec
+    )
+
+@Composable
+fun ScrollIndicator(
+    state: LazyColumnState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false,
+    positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec
+) =
+    IndicatorImpl(
+        state = WearLazyColumnStateAdapter(state = state),
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
         paddingHorizontal = ScrollIndicatorDefaults.edgePadding,
@@ -507,6 +526,8 @@ internal class ScalingLazyColumnStateAdapter(private val state: ScalingLazyListS
     IndicatorState {
     private var currentSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
+
+    // TODO: b/368270238 - Fix calculation on a small content size.
     override val positionFraction: Float
         get() {
             val layoutInfo: ScalingLazyListLayoutInfo = state.layoutInfo
@@ -613,6 +634,86 @@ internal class ScalingLazyColumnStateAdapter(private val state: ScalingLazyListS
 }
 
 /**
+ * An implementation of [IndicatorState] to display the amount and position of a
+ * [androidx.compose.foundation.lazy.LazyColumn] component via its [LazyColumnState].
+ *
+ * @param state the [LazyColumnState] to adapt.
+ * @VisibleForTesting
+ */
+internal class WearLazyColumnStateAdapter(private val state: LazyColumnState) : IndicatorState {
+    private var latestSizeFraction: Float = 0f
+    private var previousItemsCount: Int = 0
+
+    // TODO: b/368270238 - Fix calculation on a small content size.
+    override val positionFraction: Float
+        get() =
+            with(state.layoutInfo) {
+                if (visibleItems.isEmpty()) {
+                    0f
+                } else {
+                    val decimalFirstItemIndex = decimalFirstItemIndex()
+                    val decimalLastItemIndex = decimalLastItemIndex()
+
+                    val decimalLastItemIndexDistanceFromEnd = totalItemsCount - decimalLastItemIndex
+
+                    if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                        0.0f
+                    } else {
+                        decimalFirstItemIndex /
+                            (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                    }
+                }
+            }
+
+    // Represents the fraction of total items currently visible within the LazyColumn.
+    // Initially calculated based on the visible items and updated only when the total number
+    // of items in the LazyColumn changes.
+    override val sizeFraction: Float
+        get() =
+            with(state.layoutInfo) {
+                if (totalItemsCount == 0) return@with 0.0f
+
+                if (previousItemsCount != totalItemsCount) {
+                    previousItemsCount = totalItemsCount
+                    val decimalFirstItemIndex = decimalFirstItemIndex()
+                    val decimalLastItemIndex = decimalLastItemIndex()
+
+                    latestSizeFraction =
+                        ((decimalLastItemIndex - decimalFirstItemIndex) / totalItemsCount.toFloat())
+                            .coerceIn(minSizeFraction, maxSizeFraction)
+                }
+                return@with latestSizeFraction
+            }
+
+    override fun hashCode(): Int {
+        return state.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other as? WearLazyColumnStateAdapter)?.state == state
+    }
+
+    private fun LazyColumnLayoutInfo.decimalLastItemIndex(): Float =
+        visibleItems.lastOrNull()?.let { lastItem ->
+            // Coerce item sizes to at least 1 to avoid divide by zero for zero height items.
+            val lastItemVisibleSize =
+                (viewportSize.height - lastItem.offset)
+                    .coerceAtMost(lastItem.height)
+                    .coerceAtLeast(0)
+            return lastItem.index.toFloat() +
+                lastItemVisibleSize.toFloat() / lastItem.height.coerceAtLeast(1).toFloat()
+        } ?: 0f
+
+    private fun LazyColumnLayoutInfo.decimalFirstItemIndex(): Float =
+        visibleItems.firstOrNull()?.let { firstItem ->
+            // Coerce item size to at least 1 to avoid divide by zero for zero height items.
+            return firstItem.index.toFloat() -
+                firstItem.offset.coerceAtMost(0).toFloat() /
+                    firstItem.height.coerceAtLeast(1).toFloat()
+        } ?: 0f
+}
+
+/**
  * An implementation of [IndicatorState] to display the amount and position of a [LazyColumn]
  * component via its [LazyListState].
  *
@@ -623,6 +724,7 @@ internal class LazyColumnStateAdapter(private val state: LazyListState) : Indica
     private var latestSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
 
+    // TODO: b/368270238 - Fix calculation on a small content size.
     override val positionFraction: Float
         get() {
             return if (state.layoutInfo.visibleItemsInfo.isEmpty()) {
