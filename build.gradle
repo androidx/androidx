@@ -29,6 +29,4 @@ buildscript {
     SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
 }
 
-apply from: "buildSrc/dependencies.gradle"
-
 apply plugin: AndroidXRootPlugin

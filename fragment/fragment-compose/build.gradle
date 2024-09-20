@@ -53,7 +53,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:ui:ui-text"))
     androidTestImplementation(project(":compose:ui:ui-unit"))
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.hamcrestCore)
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.junit)

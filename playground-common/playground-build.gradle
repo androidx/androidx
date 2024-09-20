@@ -47,7 +47,5 @@ buildscript {
     ext.repos = [:]
 }
 
-apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
-
 apply plugin: AndroidXRootPlugin
 apply plugin: AndroidXPlaygroundRootPlugin

@@ -25,9 +25,9 @@ dependencies {
     implementation(project(":core:core-animation"))
     implementation(project(":core:core-animation-testing"))
 
-    implementation(libs.testExtJunit, excludes.espresso)
-    implementation(libs.testCore, excludes.espresso)
-    implementation(libs.testRules, excludes.espresso)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRules)
 }
 
 android {

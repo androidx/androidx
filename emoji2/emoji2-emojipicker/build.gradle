@@ -39,8 +39,8 @@ dependencies {
     implementation("androidx.emoji2:emoji2:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
 
-    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

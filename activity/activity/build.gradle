@@ -35,7 +35,7 @@ dependencies {
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.hamcrestCore)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.leakcanaryInstrumentation)
