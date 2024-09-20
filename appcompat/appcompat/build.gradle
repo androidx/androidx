@@ -45,7 +45,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")

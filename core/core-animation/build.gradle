@@ -34,8 +34,8 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.tracing:tracing:1.0.0")
 
-    androidTestImplementation(libs.testExtJunit, excludes.espresso)
-    androidTestImplementation(libs.testRules, excludes.espresso)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
 }
 
 androidx {

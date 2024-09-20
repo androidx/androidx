@@ -45,7 +45,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito)
 
     // Hamcrest matchers:
-    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib)
 }
 
 ext {
