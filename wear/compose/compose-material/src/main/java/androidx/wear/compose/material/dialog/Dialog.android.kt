@@ -16,16 +16,12 @@
 
 package androidx.wear.compose.material.dialog
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -48,7 +44,6 @@ import androidx.wear.compose.material.QUICK
 import androidx.wear.compose.material.RAPID
 import androidx.wear.compose.material.STANDARD_IN
 import androidx.wear.compose.material.STANDARD_OUT
-import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
@@ -176,26 +171,7 @@ private fun Dialog(
             val backgroundScrimAlpha by animateBackgroundScrimAlpha(transition)
             val contentAlpha by animateContentAlpha(transition)
             val scale by animateDialogScale(transition)
-            Scaffold(
-                vignette = {
-                    AnimatedVisibility(
-                        visible = transition.targetState == DialogVisibility.Display,
-                        enter =
-                            fadeIn(
-                                animationSpec =
-                                    TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
-                            ),
-                        exit =
-                            fadeOut(
-                                animationSpec =
-                                    TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
-                            ),
-                    ) {
-                        Vignette(vignettePosition = VignettePosition.TopAndBottom)
-                    }
-                },
-                modifier = modifier,
-            ) {
+            Box(modifier = modifier) {
                 SwipeToDismissBox(
                     state = rememberSwipeToDismissBoxState(),
                     modifier =
@@ -219,6 +195,7 @@ private fun Dialog(
                         ) {
                             content()
                             positionIndicator()
+                            Vignette(vignettePosition = VignettePosition.TopAndBottom)
                         }
                     }
                 }
