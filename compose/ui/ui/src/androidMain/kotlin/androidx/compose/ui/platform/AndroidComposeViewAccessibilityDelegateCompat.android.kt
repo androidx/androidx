@@ -73,6 +73,7 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.Role.Companion.Carousel
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.CustomActions
@@ -3199,7 +3200,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private object Api29Impl {
         @JvmStatic
         fun addPageActions(info: AccessibilityNodeInfoCompat, semanticsNode: SemanticsNode) {
-            if (semanticsNode.enabled()) {
+            val role = semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Role)
+            if (semanticsNode.enabled() && role != Carousel) {
                 semanticsNode.unmergedConfig.getOrNull(PageUp)?.let {
                     info.addAction(
                         AccessibilityActionCompat(android.R.id.accessibilityActionPageUp, it.label)
