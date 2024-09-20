@@ -19,6 +19,7 @@ package androidx.camera.lifecycle
 import android.app.Application
 import android.content.Context
 import androidx.annotation.MainThread
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -36,6 +37,9 @@ import androidx.core.util.Preconditions
 import androidx.lifecycle.LifecycleOwner
 import androidx.tracing.trace
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A singleton which can be used to bind the lifecycle of cameras to any [LifecycleOwner] within an
@@ -207,5 +211,13 @@ private constructor(private val lifecycleCameraProvider: LifecycleCameraProvider
         @ExperimentalCameraProviderConfiguration
         public fun configureInstance(cameraXConfig: CameraXConfig): Unit =
             trace("CX:configureInstance") { sAppInstance.configure(cameraXConfig) }
+
+        @JvmStatic
+        @VisibleForTesting
+        @ExperimentalCameraProviderConfiguration
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun clearConfiguration(timeout: Duration = 10.seconds) {
+            sAppInstance.shutdownAsync().get(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+        }
     }
 }

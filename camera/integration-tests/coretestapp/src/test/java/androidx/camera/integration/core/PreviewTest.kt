@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.core
 
-import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Handler
@@ -25,16 +24,13 @@ import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.integration.core.util.getFakeConfigCameraProvider
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.fakes.FakeAppConfig
-import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.rules.FakeCameraTestRule
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import org.junit.After
+import kotlinx.coroutines.test.runTest
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -47,9 +43,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class PreviewTest(
     @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var camera: FakeCamera
+    @get:Rule val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
+
     private lateinit var preview: Preview
 
     companion object {
@@ -62,15 +57,8 @@ class PreviewTest(
             )
     }
 
-    @After
-    fun tearDown() {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-        }
-    }
-
     @Test
-    fun bindPreview_surfaceRequested() {
+    fun bindPreview_surfaceRequested() = runTest {
         val countDownLatch = CountDownLatch(1)
 
         preview = bindPreview { countDownLatch.countDown() }
@@ -79,7 +67,7 @@ class PreviewTest(
     }
 
     @Test
-    fun bindPreview_surfaceUpdatedWithCaptureFrames_afterCaptureSessionConfigured() {
+    fun bindPreview_surfaceUpdatedWithCaptureFrames_afterCaptureSessionConfigured() = runTest {
         val countDownLatch = CountDownLatch(5)
 
         preview = bindPreview { request ->
@@ -101,30 +89,20 @@ class PreviewTest(
             }
         }
 
-        repeat(5) { camera.simulateCaptureFrameAsync().get(3, TimeUnit.SECONDS) }
+        repeat(5) {
+            fakeCameraRule
+                .getFakeCamera(lensFacing)
+                .simulateCaptureFrameAsync()
+                .get(3, TimeUnit.SECONDS)
+        }
 
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
 
     private fun bindPreview(surfaceProvider: Preview.SurfaceProvider): Preview {
-        cameraProvider = getFakeConfigCameraProvider(context)
-
         val preview = Preview.Builder().build()
-
         preview.setSurfaceProvider(CameraXExecutors.directExecutor(), surfaceProvider)
-
-        cameraProvider.bindToLifecycle(
-            FakeLifecycleOwner().apply { startAndResume() },
-            CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-            preview
-        )
-        camera =
-            when (lensFacing) {
-                CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
-                CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
-                else -> throw AssertionError("Unsupported lens facing: $lensFacing")
-            }
-
+        fakeCameraRule.bindUseCases(lensFacing = lensFacing, useCases = listOf(preview))
         return preview
     }
 }
