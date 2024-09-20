@@ -110,7 +110,11 @@ class ResultWriterTest {
                     "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse,
                     "artMainlineVersion": ${context.artMainlineVersion},
                     "osCodenameAbbreviated": "${context.osCodenameAbbreviated}",
-                    "compilationMode": "${PackageInfo.compilationMode}"
+                    "compilationMode": "${PackageInfo.compilationMode}",
+                    "payload": {
+                        "customKey1": "custom value 1",
+                        "customKey2": "custom value 2"
+                    }
                 },
                 "benchmarks": [
                     {

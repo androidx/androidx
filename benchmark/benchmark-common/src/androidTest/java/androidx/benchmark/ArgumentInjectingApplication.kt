@@ -59,6 +59,10 @@ class ArgumentInjectingApplication : Application() {
                     "additionalTestOutputDir",
                     InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath
                 )
+                // these extra payload values are validated in the ResultWriterTest to ensure
+                // they are passed into the output.
+                putString("androidx.benchmark.output.payload.customKey1", "custom value 1")
+                putString("androidx.benchmark.output.payload.customKey2", "custom value 2")
             }
         // Since we don't care about measurement accuracy in these correctness test, enable method
         // tracing to occur multiple times without killing the process.

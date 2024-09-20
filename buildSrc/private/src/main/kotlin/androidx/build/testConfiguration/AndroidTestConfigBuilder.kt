@@ -17,6 +17,7 @@
 package androidx.build.testConfiguration
 
 import com.google.gson.GsonBuilder
+import groovy.xml.XmlUtil
 
 class ConfigBuilder {
     lateinit var configName: String
@@ -118,17 +119,34 @@ class ConfigBuilder {
         if (!isPostsubmit && (isMicrobenchmark || isMacrobenchmark)) {
             sb.append(BENCHMARK_PRESUBMIT_INST_ARGS)
         }
+        val instrumentationArgsList = mutableListOf<InstrumentationArg>()
         instrumentationArgsMap
             .filter { it.key !in INST_ARG_BLOCKLIST }
-            .forEach { (key, value) ->
-                sb.append(
-                    """
-                    <option name="instrumentation-arg" key="$key" value="$value" />
-
-                    """
-                        .trimIndent()
+            .forEach { (key, value) -> instrumentationArgsList.add(InstrumentationArg(key, value)) }
+        if (isMicrobenchmark || isMacrobenchmark) {
+            instrumentationArgsList.add(
+                InstrumentationArg("androidx.benchmark.output.payload.testApkSha256", testApkSha256)
+            )
+            if (isMacrobenchmark) {
+                instrumentationArgsList.add(
+                    InstrumentationArg(
+                        "androidx.benchmark.output.payload.appApkSha256",
+                        checkNotNull(appApkSha256) {
+                            "app apk sha should be provided for macrobenchmarks."
+                        }
+                    )
                 )
             }
+        }
+        instrumentationArgsList.forEach { (key, value) ->
+            sb.append(
+                """
+                    <option name="instrumentation-arg" key="${XmlUtil.escapeXml(key)}" value="${XmlUtil.escapeXml(value)}" />
+
+                    """
+                    .trimIndent()
+            )
+        }
         sb.append(SETUP_INCLUDE).append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
         initialSetupApks.forEach { apk -> sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk)) }
         sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
