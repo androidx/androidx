@@ -35,21 +35,6 @@ interface AndroidXConfiguration {
      * Specified using `kotlinTarget` in the `androidx` DSL.
      */
     val kotlinBomVersion: Provider<String>
-
-    /**
-     * Target Kotlin API version passed to the Kotlin compiler by test variants.
-     *
-     * Specified using `kotlinTestTarget` in the `androidx` DSL.
-     */
-    val kotlinTestApiVersion: Provider<KotlinVersion>
-
-    /**
-     * Version of the Kotlin BOM used by test variants to resolve dependencies in the
-     * `org.jetbrains.kotlin` group.
-     *
-     * Specified using `kotlinTestTarget` in the `androidx` DSL.
-     */
-    val kotlinTestBomVersion: Provider<String>
 }
 
 enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {

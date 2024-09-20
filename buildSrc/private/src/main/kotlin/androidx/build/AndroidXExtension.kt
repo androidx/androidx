@@ -82,7 +82,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
             if (project.shouldForceKotlin20Target().get()) KotlinTarget.KOTLIN_2_0
             else KotlinTarget.DEFAULT
         )
-        kotlinTestTarget.set(kotlinTarget)
     }
 
     /**
@@ -432,18 +431,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     override val kotlinBomVersion: Provider<String>
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
-
-    /**
-     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation of
-     * tests.
-     */
-    abstract val kotlinTestTarget: Property<KotlinTarget>
-
-    override val kotlinTestApiVersion: Provider<KotlinVersion>
-        get() = kotlinTestTarget.map { it.apiVersion }
-
-    override val kotlinTestBomVersion: Provider<String>
-        get() = kotlinTestTarget.map { project.getVersionByName(it.catalogVersion) }
 
     /**
      * Whether to validate the androidx configuration block using validateProjectParser. This should

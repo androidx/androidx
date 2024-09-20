@@ -351,23 +351,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     /** Configures the project to use the Kotlin version specified by `androidx.kotlinTarget`. */
     private fun Project.configureKotlinVersion() {
         val kotlinVersionStringProvider = androidXConfiguration.kotlinBomVersion
-        val kotlinTestVersionStringProvider = androidXConfiguration.kotlinTestBomVersion
 
         // Resolve unspecified Kotlin versions to the target version.
         configurations.configureEach { configuration ->
-            val useVersionStringProvider =
-                if (configuration.isTest()) {
-                    kotlinTestVersionStringProvider
-                } else {
-                    kotlinVersionStringProvider
-                }
             configuration.resolutionStrategy { strategy ->
                 strategy.eachDependency { details ->
                     if (
                         details.requested.group == "org.jetbrains.kotlin" &&
                             details.requested.version == null
                     ) {
-                        details.useVersion(useVersionStringProvider.get())
+                        details.useVersion(kotlinVersionStringProvider.get())
                     }
                 }
             }
@@ -377,26 +370,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             KotlinVersion.fromVersion(version.substringBeforeLast('.'))
         }
 
-        fun KotlinCompilationTask<*>.isTestCompilation() =
-            multiplatformExtension?.targets?.any { target ->
-                target.compilations.findByName("test")?.compileKotlinTaskName == name
-            } ?: false
-
         // Set the Kotlin compiler's API and language version to ensure bytecode is compatible.
         val kotlinVersionProvider = kotlinVersionStringProvider.toKotlinVersionProvider()
-        val kotlinTestVersionProvider = kotlinTestVersionStringProvider.toKotlinVersionProvider()
         tasks.configureEach { task ->
             if (task is KotlinCompilationTask<*>) {
-                // We can't directly determine if a Task is compiling test code, but we can scrape
-                // the names of all the compilation units and compare them to Task names.
-                val useVersionProvider =
-                    if (task.isTestCompilation()) {
-                        kotlinTestVersionProvider
-                    } else {
-                        kotlinVersionProvider
-                    }
-                task.compilerOptions.apiVersion.set(useVersionProvider)
-                task.compilerOptions.languageVersion.set(useVersionProvider)
+                task.compilerOptions.apiVersion.set(kotlinVersionProvider)
+                task.compilerOptions.languageVersion.set(kotlinVersionProvider)
             }
         }
 
