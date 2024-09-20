@@ -78,6 +78,7 @@ import androidx.compose.ui.unit.dp
  *   [Shapes.extraLarge] and smaller than [CircleShape].
  */
 // TODO: Update new shape descriptions to list what components leverage them by default.
+// TODO(b/368578382): Update 'increased' variant kdocs to reference design documentation.
 @Immutable
 class Shapes
 @ExperimentalMaterial3ExpressiveApi
@@ -293,6 +294,7 @@ object ShapeDefaults {
     /** An extra extra large (XXL) sized corner shape */
     val ExtraExtraLarge: CornerBasedShape = RoundedCornerShape(48.dp)
 
+    // TODO(b/368578382): Update 'increased' variant kdocs to reference design documentation.
     /** A non-rounded corner size */
     internal val CornerNone: CornerSize = CornerSize(0.dp)
 
