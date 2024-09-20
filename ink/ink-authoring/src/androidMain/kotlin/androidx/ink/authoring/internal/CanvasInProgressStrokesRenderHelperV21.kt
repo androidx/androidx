@@ -27,6 +27,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
+import androidx.core.graphics.withMatrix
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
@@ -146,7 +147,9 @@ internal class CanvasInProgressStrokesRenderHelperV21(
         assertOnUiThread()
         val canvas =
             checkNotNull(canvasForCurrentDraw) { "Can only render during Callback.onDraw." }
-        renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+        canvas.withMatrix(strokeToMainViewTransform) {
+            renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+        }
     }
 
     override fun afterDrawInModifiedRegion() = Unit

@@ -20,6 +20,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 import java.nio.ShortBuffer
 import java.util.Collections
@@ -170,47 +171,30 @@ private object MeshNative {
         NativeLoader.load()
     }
 
-    external fun freeNative(
-        nativeAddress: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun freeNative(nativeAddress: Long)
 
     /**
      * Returns a direct [ByteBuffer] wrapped around the contents of `ink::Mesh::RawVertexData`. It
      * will be writeable, so be sure to only expose a read-only wrapper of it.
      */
-    external fun createRawVertexBuffer(
-        nativeAddress: Long
-    ): ByteBuffer? // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun createRawVertexBuffer(nativeAddress: Long): ByteBuffer?
 
-    external fun getVertexStride(
-        nativeAddress: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getVertexStride(nativeAddress: Long): Int
 
-    external fun getVertexCount(
-        nativeAddress: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getVertexCount(nativeAddress: Long): Int
 
     /** Like [createRawVertexBuffer], but with `ink::Mesh::RawIndexData`. */
-    external fun createRawTriangleIndexBuffer(
-        nativeAddress: Long
-    ): ByteBuffer? // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun createRawTriangleIndexBuffer(nativeAddress: Long): ByteBuffer?
 
-    external fun getTriangleCount(
-        nativeAddress: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getTriangleCount(nativeAddress: Long): Int
 
-    external fun getAttributeCount(
-        nativeAddress: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getAttributeCount(nativeAddress: Long): Int
 
     /**
      * Sets the given [BoxAccumulator] to the bounds of the mesh, including resetting the object if
      * the mesh has no bounds.
      */
-    external fun fillBounds(
-        nativeAddress: Long,
-        boxAccumulator: BoxAccumulator
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun fillBounds(nativeAddress: Long, boxAccumulator: BoxAccumulator)
 
     /**
      * Set the given [offsets] and [scales] arrays (each of which must have at least
@@ -221,7 +205,7 @@ private object MeshNative {
      *   number of [ComponentUnpackingParams] in the [MeshAttributeUnpackingParams] that should be
      *   created for this attribute.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun fillAttributeUnpackingParams(
         nativeAddress: Long,
         attributeIndex: Int,
@@ -232,17 +216,10 @@ private object MeshNative {
     /**
      * Return the address of a newly allocated copy of the `ink::MeshFormat` belonging to this mesh.
      */
-    external fun allocCopyOfFormat(
-        nativeAddress: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun allocCopyOfFormat(nativeAddress: Long): Long
 
-    external fun fillPosition(
-        nativeAddress: Long,
-        vertexIndex: Int,
-        outPosition: MutableVec
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    external fun fillPosition(nativeAddress: Long, vertexIndex: Int, outPosition: MutableVec)
 
-    @VisibleForTesting
-    external fun allocNativeNewEmptyMesh():
-        Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @VisibleForTesting @UsedByNative external fun allocNativeNewEmptyMesh(): Long
 }

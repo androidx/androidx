@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A utility for working with a signed angle. A positive value represents rotation from the positive
@@ -72,11 +73,7 @@ public object Angle {
     @AngleRadiansFloat
     public val FULL_TURN_RADIANS: Float = FULL_TURN_RADIANS_DOUBLE.toFloat()
 
-    private external fun nativeNormalized(
-        radians: Float
-    ): Float // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeNormalized(radians: Float): Float
 
-    private external fun nativeNormalizedAboutZero(
-        radians: Float
-    ): Float // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeNormalizedAboutZero(radians: Float): Float
 }

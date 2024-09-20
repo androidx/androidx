@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * Contains functions for intersection of ink geometry classes. For Kotlin callers, these are
@@ -613,7 +614,7 @@ public object Intersection {
         meshToParallelogram: AffineTransform,
     ): Boolean = parallelogram.intersects(this, meshToParallelogram)
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeVecSegmentIntersects(
         vecX: Float,
         vecY: Float,
@@ -623,7 +624,7 @@ public object Intersection {
         segmentEndY: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeVecTriangleIntersects(
         vecX: Float,
         vecY: Float,
@@ -635,7 +636,7 @@ public object Intersection {
         triangleP2Y: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeVecParallelogramIntersects(
         vecX: Float,
         vecY: Float,
@@ -647,7 +648,7 @@ public object Intersection {
         parallelogramShearFactor: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeVecBoxIntersects(
         vecX: Float,
         vecY: Float,
@@ -657,7 +658,7 @@ public object Intersection {
         boxYMax: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeSegmentSegmentIntersects(
         segment1StartX: Float,
         segment1StartY: Float,
@@ -669,7 +670,7 @@ public object Intersection {
         segment2EndY: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeSegmentTriangleIntersects(
         segmentStartX: Float,
         segmentStartY: Float,
@@ -683,7 +684,7 @@ public object Intersection {
         triangleP2Y: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeSegmentBoxIntersects(
         segmentStartX: Float,
         segmentStartY: Float,
@@ -695,7 +696,7 @@ public object Intersection {
         boxYMax: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeSegmentParallelogramIntersects(
         segmentStartX: Float,
         segmentStartY: Float,
@@ -709,7 +710,7 @@ public object Intersection {
         parallelogramShearFactor: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeTriangleTriangleIntersects(
         triangle1P0X: Float,
         triangle1P0Y: Float,
@@ -725,7 +726,7 @@ public object Intersection {
         triangle2P2Y: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeTriangleBoxIntersects(
         triangleP0X: Float,
         triangleP0Y: Float,
@@ -739,7 +740,7 @@ public object Intersection {
         boxYMax: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeTriangleParallelogramIntersects(
         triangleP0X: Float,
         triangleP0Y: Float,
@@ -755,7 +756,7 @@ public object Intersection {
         parallelogramShearFactor: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeBoxBoxIntersects(
         box1XMin: Float,
         box1YMin: Float,
@@ -767,7 +768,7 @@ public object Intersection {
         box2YMax: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeBoxParallelogramIntersects(
         boxXMin: Float,
         boxYMin: Float,
@@ -781,7 +782,7 @@ public object Intersection {
         parallelogramShearFactor: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeParallelogramParallelogramIntersects(
         parallelogram1CenterX: Float,
         parallelogram1CenterY: Float,
@@ -797,7 +798,7 @@ public object Intersection {
         parallelogram2ShearFactor: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshVecIntersects(
         nativeMeshAddress: Long,
         vecX: Float,
@@ -810,7 +811,7 @@ public object Intersection {
         meshToVecF: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshSegmentIntersects(
         nativeMeshAddress: Long,
         segmentStartX: Float,
@@ -825,7 +826,7 @@ public object Intersection {
         meshToSegmentF: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshTriangleIntersects(
         nativeMeshAddress: Long,
         triangleP0X: Float,
@@ -842,7 +843,7 @@ public object Intersection {
         meshToTriangleF: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshBoxIntersects(
         nativeMeshAddress: Long,
         boxXMin: Float,
@@ -857,7 +858,7 @@ public object Intersection {
         meshToBoxF: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshParallelogramIntersects(
         nativeMeshAddress: Long,
         parallelogramCenterX: Float,
@@ -874,7 +875,7 @@ public object Intersection {
         meshToParallelogramF: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeMeshModeledShapeIntersects(
         thisModeledShapeAddress: Long,
         otherModeledShapeAddress: Long,

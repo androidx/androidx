@@ -28,7 +28,6 @@ import androidx.ink.brush.color.toArgb
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.MutableVec
 import androidx.ink.geometry.PartitionedMesh
-import androidx.ink.geometry.populateMatrix
 import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.InProgressStroke
@@ -95,24 +94,24 @@ internal class CanvasPathRenderer(
         @FloatRange(from = 0.0) brushSize: Float,
         firstInput: StrokeInput,
         lastInput: StrokeInput,
-        strokeToCanvasTransform: Matrix,
     ) {
         val paint = paintCache.obtain(brushPaint, color.toArgb(), brushSize, firstInput, lastInput)
-        canvas.save()
-        try {
-            canvas.concat(strokeToCanvasTransform)
-            canvas.drawPath(path, paint)
-        } finally {
-            canvas.restore()
-        }
+        canvas.drawPath(path, paint)
     }
 
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: AffineTransform) {
-        strokeToCanvasTransform.populateMatrix(scratchMatrix)
+    override fun draw(
+        canvas: Canvas,
+        stroke: Stroke,
+        @Suppress("UNUSED_PARAMETER") strokeToScreenTransform: AffineTransform,
+    ) {
         draw(canvas, stroke, scratchMatrix)
     }
 
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: Matrix) {
+    override fun draw(
+        canvas: Canvas,
+        stroke: Stroke,
+        @Suppress("UNUSED_PARAMETER") strokeToScreenTransform: Matrix,
+    ) {
         if (stroke.inputs.isEmpty()) return // nothing to draw
         stroke.inputs.populate(0, scratchFirstInput)
         stroke.inputs.populate(stroke.inputs.size - 1, scratchLastInput)
@@ -125,7 +124,6 @@ internal class CanvasPathRenderer(
                 stroke.brush.size,
                 scratchFirstInput,
                 scratchLastInput,
-                strokeToCanvasTransform,
             )
         }
     }
@@ -133,16 +131,15 @@ internal class CanvasPathRenderer(
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: AffineTransform,
+        @Suppress("UNUSED_PARAMETER") strokeToScreenTransform: AffineTransform,
     ) {
-        strokeToCanvasTransform.populateMatrix(scratchMatrix)
         draw(canvas, inProgressStroke, scratchMatrix)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: Matrix,
+        @Suppress("UNUSED_PARAMETER") strokeToScreenTransform: Matrix,
     ) {
         val brush =
             checkNotNull(inProgressStroke.brush) {
@@ -161,7 +158,6 @@ internal class CanvasPathRenderer(
                 brush.size,
                 scratchFirstInput,
                 scratchLastInput,
-                strokeToCanvasTransform,
             )
         }
     }

@@ -278,7 +278,14 @@ internal class InProgressStrokesManagerTest {
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
 
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         assertThat(latencyDataRecorder.recordedData)
             .comparingElementsUsing(latencyDataEqual)
@@ -312,7 +319,14 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         // We already checked the reported LatencyData in a previous test. The clock ticked once.
         latencyDataRecorder.recordedData.clear()
         // Reset the fake clock, since we only care about latency reports from here onward. The
@@ -325,8 +339,8 @@ internal class InProgressStrokesManagerTest {
         val moveEvent1 = MotionEvent.obtain(321, 325, MotionEvent.ACTION_MOVE, 12f, 22f, 0)
         val moveEvent2 = MotionEvent.obtain(321, 329, MotionEvent.ACTION_MOVE, 12f, 22f, 0)
 
-        manager.addToStroke(moveEvent1, 0, inProgressStrokeId, null)
-        manager.addToStroke(moveEvent2, 0, inProgressStrokeId, null)
+        manager.addToStroke(moveEvent1, moveEvent1.getPointerId(0), inProgressStrokeId, null)
+        manager.addToStroke(moveEvent2, moveEvent2.getPointerId(0), inProgressStrokeId, null)
 
         assertThat(latencyDataRecorder.recordedData)
             .comparingElementsUsing(latencyDataEqual)
@@ -376,7 +390,14 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         // We already checked the reported LatencyData in a previous test. The clock ticked once.
         latencyDataRecorder.recordedData.clear()
         // Reset the fake clock, since we only care about latency reports from here onward. The
@@ -389,7 +410,7 @@ internal class InProgressStrokesManagerTest {
         val moveEvent = MotionEvent.obtain(321, 325, MotionEvent.ACTION_MOVE, 12f, 22f, 0)
         moveEvent.addBatch(329, 14f, 24f, 1f, 1f, 0)
 
-        manager.addToStroke(moveEvent, 0, inProgressStrokeId, null)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), inProgressStrokeId, null)
 
         assertThat(latencyDataRecorder.recordedData)
             .comparingElementsUsing(latencyDataEqual)
@@ -436,7 +457,14 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         // We already checked the reported LatencyData in a previous test.
         latencyDataRecorder.recordedData.clear()
         // Reset the fake clock, since we only care about latency reports from here onward. The
@@ -450,7 +478,12 @@ internal class InProgressStrokesManagerTest {
         val predictedMoveEvent = MotionEvent.obtain(321, 329, MotionEvent.ACTION_MOVE, 16f, 26f, 0)
         predictedMoveEvent.addBatch(333, 18f, 28f, 1f, 1f, 0)
 
-        manager.addToStroke(realMoveEvent, 0, inProgressStrokeId, predictedMoveEvent)
+        manager.addToStroke(
+            realMoveEvent,
+            realMoveEvent.getPointerId(0),
+            inProgressStrokeId,
+            predictedMoveEvent,
+        )
 
         // Now we should have latency data for all three input events.
         assertThat(latencyDataRecorder.recordedData)
@@ -509,7 +542,14 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         // We already checked the reported LatencyData in a previous test.
         latencyDataRecorder.recordedData.clear()
         // Reset the fake clock, since we only care about latency reports from here onward. The
@@ -526,7 +566,12 @@ internal class InProgressStrokesManagerTest {
         val predictedMoveEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_MOVE, 16f, 26f, 0)
         predictedMoveEvent.addBatch(337, 18f, 28f, 1f, 1f, 0)
 
-        manager.addToStroke(realMoveEvent, 0, inProgressStrokeId, predictedMoveEvent)
+        manager.addToStroke(
+            realMoveEvent,
+            realMoveEvent.getPointerId(0),
+            inProgressStrokeId,
+            predictedMoveEvent,
+        )
 
         // Now we should have latency data for all three input events.
         assertThat(latencyDataRecorder.recordedData)
@@ -596,7 +641,14 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         // We already checked the reported LatencyData in a previous test.
         latencyDataRecorder.recordedData.clear()
@@ -617,8 +669,18 @@ internal class InProgressStrokesManagerTest {
         val realMoveEvent2 = MotionEvent.obtain(321, 337, MotionEvent.ACTION_MOVE, 18f, 28f, 0)
         val predictedMoveEvent2 = MotionEvent.obtain(321, 341, MotionEvent.ACTION_MOVE, 20f, 30f, 0)
 
-        manager.addToStroke(realMoveEvent1, 0, inProgressStrokeId, predictedMoveEvent1)
-        manager.addToStroke(realMoveEvent2, 0, inProgressStrokeId, predictedMoveEvent2)
+        manager.addToStroke(
+            realMoveEvent1,
+            realMoveEvent1.getPointerId(0),
+            inProgressStrokeId,
+            predictedMoveEvent1,
+        )
+        manager.addToStroke(
+            realMoveEvent2,
+            realMoveEvent2.getPointerId(0),
+            inProgressStrokeId,
+            predictedMoveEvent2,
+        )
 
         // Now we should have latency data for all the input events, even the old predictions that
         // were
@@ -716,13 +778,20 @@ internal class InProgressStrokesManagerTest {
         // Set the pen down at t=321ms.
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         // Now move the pen at t=325ms and t=329ms.
         val moveEvent1 = MotionEvent.obtain(321, 325, MotionEvent.ACTION_MOVE, 12f, 22f, 0)
         val moveEvent2 = MotionEvent.obtain(321, 329, MotionEvent.ACTION_MOVE, 12f, 22f, 0)
-        manager.addToStroke(moveEvent1, 0, inProgressStrokeId, null)
-        manager.addToStroke(moveEvent2, 0, inProgressStrokeId, null)
+        manager.addToStroke(moveEvent1, moveEvent1.getPointerId(0), inProgressStrokeId, null)
+        manager.addToStroke(moveEvent2, moveEvent2.getPointerId(0), inProgressStrokeId, null)
 
         // We already checked the reported LatencyData in a previous test.
         latencyDataRecorder.recordedData.clear()
@@ -731,7 +800,7 @@ internal class InProgressStrokesManagerTest {
         // Finally, lift up the pen at t=333ms.
         val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
 
-        manager.finishStroke(upEvent, 0, inProgressStrokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId)
 
         assertThat(latencyDataRecorder.recordedData)
             .comparingElementsUsing(latencyDataEqual)
@@ -766,7 +835,15 @@ internal class InProgressStrokesManagerTest {
         setUpMockInProgressStrokesRenderHelperForSynchronousOperation(manager, clock)
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         @Suppress("UNUSED_VARIABLE")
-        val unused = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val unused =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         val modifiedRegionCaptor = argumentCaptor<MutableBox>()
         verify(inProgressStrokesRenderHelper)
@@ -787,7 +864,15 @@ internal class InProgressStrokesManagerTest {
         setUpMockInProgressStrokesRenderHelperForSynchronousOperation(manager, clock)
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         @Suppress("UNUSED_VARIABLE")
-        val unused = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val unused =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         val modifiedRegionCaptor = argumentCaptor<MutableBox>()
         verify(inProgressStrokesRenderHelper)
@@ -809,14 +894,21 @@ internal class InProgressStrokesManagerTest {
         setUpMockInProgressStrokesRenderHelperForSynchronousOperation(manager, clock)
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         // The specifics of this are validated in a test focused on startStroke.
         verify(inProgressStrokesRenderHelper).prepareToDrawInModifiedRegion(any())
         verify(inProgressStrokesRenderHelper).drawInModifiedRegion(any<InProgressStroke>(), any())
         verify(inProgressStrokesRenderHelper).afterDrawInModifiedRegion()
 
         val moveEvent = MotionEvent.obtain(321, 325, MotionEvent.ACTION_MOVE, 10f, 20f, 0)
-        manager.addToStroke(moveEvent, 0, inProgressStrokeId, null)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), inProgressStrokeId, null)
 
         // Each being called a second time - the first time was from startStroke.
         val modifiedRegionCaptor = argumentCaptor<MutableBox>()
@@ -841,9 +933,16 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
-        manager.finishStroke(upEvent, 0, inProgressStrokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId)
         manager.onStrokeCohortHandoffToHwuiComplete() // Unpause input processing to finish handoff.
 
         verify(inProgressStrokesRenderHelper).clear()
@@ -859,9 +958,16 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
-        manager.finishStroke(upEvent, 0, inProgressStrokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId)
         manager.onStrokeCohortHandoffToHwuiComplete() // Unpause input processing to finish handoff.
 
         verify(inProgressStrokesRenderHelper, never()).clear()
@@ -882,7 +988,15 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         @Suppress("UNUSED_VARIABLE")
-        val unused = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val unused =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         assertThat(inProgressStrokePool.obtainCount).isEqualTo(1)
         assertThat(inProgressStrokePool.recycleCount).isEqualTo(0)
@@ -904,9 +1018,16 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
-        manager.finishStroke(upEvent, 0, inProgressStrokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId)
         manager.onStrokeCohortHandoffToHwuiComplete() // Unpause input processing to finish handoff.
 
         assertThat(inProgressStrokePool.obtainCount).isEqualTo(1)
@@ -937,7 +1058,14 @@ internal class InProgressStrokesManagerTest {
             repeat(cohortSize) {
                 val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
                 cohortStrokeIds.add(
-                    manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+                    manager.startStroke(
+                        downEvent,
+                        downEvent.getPointerId(0),
+                        Matrix(),
+                        Matrix(),
+                        makeBrush(),
+                        0f,
+                    )
                 )
                 assertThat(inProgressStrokePool.obtainCount).isEqualTo(it + 1) // it is 0-based
             }
@@ -950,7 +1078,7 @@ internal class InProgressStrokesManagerTest {
                 // together.
                 assertThat(inProgressStrokePool.recycleCount).isEqualTo(0)
                 val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
-                manager.finishStroke(upEvent, 0, strokeId)
+                manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
             }
             manager.onStrokeCohortHandoffToHwuiComplete() // Unpause input processing to finish
             // handoff.
@@ -982,7 +1110,15 @@ internal class InProgressStrokesManagerTest {
 
         val downTime = clock.getNextMillisTime()
         val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
-        val strokeId = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         val upEvent =
@@ -994,7 +1130,7 @@ internal class InProgressStrokesManagerTest {
                 22f,
                 0
             )
-        manager.finishStroke(upEvent, 0, strokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
 
@@ -1022,7 +1158,15 @@ internal class InProgressStrokesManagerTest {
 
         val downTime = clock.getNextMillisTime()
         val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
-        val strokeId = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         clock.advanceByMillis(1000)
@@ -1035,7 +1179,7 @@ internal class InProgressStrokesManagerTest {
                 40f,
                 0
             )
-        manager.addToStroke(moveEvent, 0, strokeId, null)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         clock.advanceByMillis(1000)
@@ -1048,7 +1192,7 @@ internal class InProgressStrokesManagerTest {
                 60f,
                 0
             )
-        manager.finishStroke(upEvent, 0, strokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
 
@@ -1191,7 +1335,7 @@ internal class InProgressStrokesManagerTest {
             assertThrows(IllegalArgumentException::class.java) {
                 manager.startStroke(
                     downEvent,
-                    pointerIndex = 0,
+                    pointerId = downEvent.getPointerId(0),
                     motionEventToWorldTransform = Matrix(),
                     strokeToWorldTransform = Matrix().apply { setScale(0f, 0f) },
                     brush = makeBrush(),
@@ -1199,6 +1343,138 @@ internal class InProgressStrokesManagerTest {
                 )
             }
         assertThat(error).hasMessageThat().contains("strokeToWorldTransform must be invertible")
+    }
+
+    @Test
+    fun startStroke_withInvalidPointerId_throwsException() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val downTime = clock.getNextMillisTime()
+        val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                manager.startStroke(
+                    downEvent,
+                    pointerId = 10,
+                    motionEventToWorldTransform = Matrix(),
+                    strokeToWorldTransform = Matrix(),
+                    brush = makeBrush(),
+                    strokeUnitLengthCm = 1f,
+                )
+            }
+        assertThat(error).hasMessageThat().contains("Pointer id 10 is not present in event.")
+    }
+
+    @Test
+    fun addToStroke_withInvalidPointerId_throwsException() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val downTime = clock.getNextMillisTime()
+        val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                pointerId = downEvent.getPointerId(0),
+                motionEventToWorldTransform = Matrix(),
+                strokeToWorldTransform = Matrix(),
+                brush = makeBrush(),
+                strokeUnitLengthCm = 1f,
+            )
+        val moveEvent =
+            MotionEvent.obtain(downTime, downTime + 1000L, MotionEvent.ACTION_MOVE, 10f, 20f, 0)
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                manager.addToStroke(
+                    moveEvent,
+                    pointerId = 10,
+                    strokeId = strokeId,
+                    prediction = null
+                )
+            }
+        assertThat(error).hasMessageThat().contains("Pointer id 10 is not present in event.")
+    }
+
+    @Test
+    fun addToStroke_withMissingStrokeId_throwsException() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val downTime = clock.getNextMillisTime()
+        val moveEvent =
+            MotionEvent.obtain(downTime, downTime + 1000L, MotionEvent.ACTION_MOVE, 10f, 20f, 0)
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                manager.addToStroke(
+                    moveEvent,
+                    pointerId = moveEvent.getPointerId(0),
+                    strokeId = InProgressStrokeId(),
+                    prediction = null,
+                )
+            }
+        assertThat(error).hasMessageThat().startsWith("Stroke with ID")
+    }
+
+    @Test
+    fun addToStroke_withMissingStrokeId_strokeInputBatchApi_throwsException() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                manager.addToStroke(
+                    ImmutableStrokeInputBatch.EMPTY,
+                    InProgressStrokeId(),
+                    ImmutableStrokeInputBatch.EMPTY,
+                )
+            }
+        assertThat(error).hasMessageThat().startsWith("Stroke with ID")
+    }
+
+    @Test
+    fun finishStroke_withMissingStrokeId_isIgnored() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val downTime = clock.getNextMillisTime()
+        val moveEvent =
+            MotionEvent.obtain(downTime, downTime + 1000L, MotionEvent.ACTION_MOVE, 10f, 20f, 0)
+        // No error is thrown.
+        manager.finishStroke(
+            moveEvent,
+            pointerId = moveEvent.getPointerId(0),
+            strokeId = InProgressStrokeId(),
+        )
+    }
+
+    @Test
+    fun finishStroke_withMissingStrokeId_strokeInputBatchApi_isIgnored() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        manager.finishStroke(StrokeInput(), InProgressStrokeId())
+    }
+
+    @Test
+    fun finishStroke_withInvalidPointerId_throwsException() {
+        val clock = FakeClock()
+        val (manager, _, _) = makeAsyncManager(LatencyDataRecorder(), clock)
+        val downTime = clock.getNextMillisTime()
+        val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                pointerId = downEvent.getPointerId(0),
+                motionEventToWorldTransform = Matrix(),
+                strokeToWorldTransform = Matrix(),
+                brush = makeBrush(),
+                strokeUnitLengthCm = 1f,
+            )
+        val upEvent =
+            MotionEvent.obtain(downTime, downTime + 1000L, MotionEvent.ACTION_UP, 10f, 20f, 0)
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                manager.finishStroke(upEvent, pointerId = 10, strokeId = strokeId)
+            }
+        assertThat(error).hasMessageThat().contains("Pointer id 10 is not present in event.")
     }
 
     @Test
@@ -1226,7 +1502,7 @@ internal class InProgressStrokesManagerTest {
         val strokeId =
             manager.startStroke(
                 downEvent,
-                0,
+                downEvent.getPointerId(0),
                 motionEventToWorldTransform,
                 strokeToWorldTransform,
                 makeBrush(),
@@ -1243,7 +1519,7 @@ internal class InProgressStrokesManagerTest {
                 20f,
                 0
             )
-        manager.finishStroke(upEvent, 0, strokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
 
@@ -1286,7 +1562,15 @@ internal class InProgressStrokesManagerTest {
 
         val downTime = clock.getNextMillisTime()
         val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
-        val strokeId = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         val upEvent =
@@ -1298,7 +1582,7 @@ internal class InProgressStrokesManagerTest {
                 22f,
                 0
             )
-        manager.finishStroke(upEvent, 0, strokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         assertThat(finishedStrokes).isEmpty()
@@ -1346,7 +1630,8 @@ internal class InProgressStrokesManagerTest {
         // Start a new stroke with the above brush.
         val downTime = clock.getNextMillisTime()
         val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
-        val strokeId = manager.startStroke(downEvent, 0, Matrix(), Matrix(), brush, 0f)
+        val strokeId =
+            manager.startStroke(downEvent, downEvent.getPointerId(0), Matrix(), Matrix(), brush, 0f)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
 
@@ -1362,7 +1647,7 @@ internal class InProgressStrokesManagerTest {
                 22f,
                 0
             )
-        manager.finishStroke(upEvent, 0, strokeId)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
         assertThat(finishedStrokes).isEmpty()
@@ -1401,9 +1686,16 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val moveEvent = MotionEvent.obtain(321, 325, MotionEvent.ACTION_MOVE, 10f, 20f, 0)
-        manager.addToStroke(moveEvent, 0, inProgressStrokeId, null)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), inProgressStrokeId, null)
         val cancelEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_CANCEL, 12f, 22f, 0)
         manager.cancelStroke(inProgressStrokeId, cancelEvent)
     }
@@ -1455,9 +1747,23 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId1 =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val inProgressStrokeId2 =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         assertThat(manager.flush(1000, TimeUnit.MILLISECONDS, cancelAllInProgress = false)).isTrue()
 
@@ -1487,9 +1793,25 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         @Suppress("UNUSED_VARIABLE")
-        val unused1 = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val unused1 =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         @Suppress("UNUSED_VARIABLE")
-        val unused2 = manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+        val unused2 =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
 
         assertThat(manager.flush(1000, TimeUnit.MILLISECONDS, cancelAllInProgress = true)).isTrue()
 
@@ -1522,12 +1844,26 @@ internal class InProgressStrokesManagerTest {
 
         val downEvent = MotionEvent.obtain(321, 321, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val inProgressStrokeId1 =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val inProgressStrokeId2 =
-            manager.startStroke(downEvent, 0, Matrix(), Matrix(), makeBrush(), 0f)
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                makeBrush(),
+                0f
+            )
         val upEvent = MotionEvent.obtain(321, 333, MotionEvent.ACTION_UP, 12f, 22f, 0)
-        manager.finishStroke(upEvent, 0, inProgressStrokeId1)
-        manager.finishStroke(upEvent, 0, inProgressStrokeId2)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId1)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), inProgressStrokeId2)
 
         // These strokes aren't still in progress, they just haven't been handed off yet, so they
         // shouldn't be canceled.

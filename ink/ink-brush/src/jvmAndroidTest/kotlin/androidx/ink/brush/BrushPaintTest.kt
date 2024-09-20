@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.ink.geometry.Angle
+import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -473,9 +474,8 @@ class BrushPaintTest {
 
     // endregion
 
-    private external fun matchesNativeCustomPaint(
-        brushPaintNativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    private external fun matchesNativeCustomPaint(brushPaintNativePointer: Long): Boolean
 
     private fun makeTestTextureUri(version: Int = 0) =
         "ink://ink/texture:test-texture" + if (version == 0) "" else ":" + version

@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 
@@ -25,16 +26,12 @@ import kotlin.jvm.JvmStatic
  * [BrushBehavior] to define when a behavior is applicable.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-
-// TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard config file
-// instead.
+@UsedByNative
 public class InputToolType
 private constructor(
+    @UsedByNative
     @JvmField
-    @field:RestrictTo(
-        RestrictTo.Scope.LIBRARY_GROUP
-    ) // NonPublicApi // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in
-    // Proguard config file instead.
+    @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public val value: Int
 ) {
 
@@ -64,8 +61,7 @@ private constructor(
          */
         @JvmStatic
         @JvmName("from")
-        // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-        // config file instead.
+        @UsedByNative
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun from(value: Int): InputToolType {
             return when (value) {

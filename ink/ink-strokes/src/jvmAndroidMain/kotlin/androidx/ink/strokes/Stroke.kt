@@ -21,6 +21,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.geometry.PartitionedMesh
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * An immutable object comprised of a [StrokeInputBatch] that represents a user-drawn (or sometimes
@@ -182,12 +183,10 @@ private object StrokeJni {
         NativeLoader.load()
     }
 
-    external fun createWithBrushAndInputs(
-        brushNativePointer: Long,
-        inputs: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    external fun createWithBrushAndInputs(brushNativePointer: Long, inputs: Long): Long
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun createWithBrushInputsAndShape(
         brushNativePointer: Long,
         inputs: Long,
@@ -198,20 +197,14 @@ private object StrokeJni {
      * Returns the address of a new `ink::StrokeInputBatch` that is a shallow copy of the inputs
      * belonging to the `ink::Stroke` given by the [nativeAddress].
      */
-    external fun allocShallowCopyOfInputs(
-        nativeAddress: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun allocShallowCopyOfInputs(nativeAddress: Long): Long
 
     /**
      * Returns the address of a new `ink::ModeledShape` that is a shallow copy of the shape
      * belonging to the `ink::Stroke` given by the [nativeAddress].
      */
-    external fun allocShallowCopyOfShape(
-        nativeAddress: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun allocShallowCopyOfShape(nativeAddress: Long): Long
 
     /** Deletes the `ink::Stroke` given by the [nativeAddress]. */
-    external fun free(
-        nativeAddress: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun free(nativeAddress: Long)
 }

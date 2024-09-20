@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.ink.geometry.Angle
+import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
 import kotlin.IllegalArgumentException
 import kotlin.test.assertFailsWith
@@ -364,14 +365,14 @@ class BrushTipTest {
      * Creates an expected C++ BrushTip with no behaviors and returns true if every property of the
      * Kotlin BrushTip's JNI-created C++ counterpart is equivalent to the expected C++ BrushTip.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun matchesNativeNoBehaviorTip(nativePointerToActualBrushTip: Long): Boolean
 
     /**
      * Creates an expected C++ BrushTip with a single behavior and returns true if every property of
      * the Kotlin BrushTip's JNI-created C++ counterpart is equivalent to the expected C++ BrushTip.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun matchesNativeSingleBehaviorTip(
         nativePointerToActualBrushTip: Long
     ): Boolean
@@ -381,6 +382,6 @@ class BrushTipTest {
      * of the Kotlin BrushTip's JNI-created C++ counterpart is equivalent to the expected C++
      * BrushTip.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun matchesNativeMultiBehaviorTip(nativePointerToActualBrushTip: Long): Boolean
 }

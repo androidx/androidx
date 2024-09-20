@@ -40,6 +40,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
+import androidx.core.graphics.withMatrix
 import androidx.graphics.lowlatency.CanvasFrontBufferedRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.ink.authoring.ExperimentalLatencyDataApi
@@ -308,15 +309,15 @@ internal class CanvasInProgressStrokesRenderHelperV29(
         assertOnRenderThread()
         check(onDrawState.duringDraw) { "Can only render during Callback.onDraw." }
 
-        renderer.draw(
+        val canvas =
             if (useOffScreenFrameBuffer) {
                 checkNotNull(onDrawState.offScreenCanvas)
             } else {
                 checkNotNull(onDrawState.frontBufferCanvas)
-            },
-            inProgressStroke,
-            strokeToMainViewTransform,
-        )
+            }
+        canvas.withMatrix(strokeToMainViewTransform) {
+            renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+        }
     }
 
     @WorkerThread

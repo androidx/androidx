@@ -27,6 +27,8 @@ import android.view.Gravity
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
+import androidx.core.graphics.withMatrix
+import androidx.core.graphics.withTranslation
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.BoxAccumulator
@@ -143,33 +145,27 @@ class CanvasStrokeRendererTestActivity : Activity() {
 
             // Draw Stroke next to InProgressStroke, with a small gap between them.
             val stroke = inProgressStroke.toImmutable()
-            renderer.draw(
-                canvas,
-                stroke,
-                ImmutableAffineTransform.translate(ImmutableVec(finishedStrokeTranslateX, 0f)),
-            )
+            canvas.withTranslation(finishedStrokeTranslateX) {
+                renderer.draw(
+                    canvas,
+                    stroke,
+                    ImmutableAffineTransform.translate(ImmutableVec(finishedStrokeTranslateX, 0f)),
+                )
+            }
 
             // Draw the InProgressStroke and Stroke again in a second row with a non-trivial
             // transform
             // and using android.graphics.Matrix instead of AffineTransform.
-            renderer.draw(
-                canvas,
-                inProgressStroke,
+            val transform =
                 Matrix().apply {
                     setSkew(0.5f, 0f)
                     postScale(1f, scaleValueY)
                     postTranslate(0f, scaledStrokeTranslateY)
-                },
-            )
-            renderer.draw(
-                canvas,
-                stroke,
-                Matrix().apply {
-                    setSkew(0.5f, 0f)
-                    postScale(1f, scaleValueY)
-                    postTranslate(finishedStrokeTranslateX, scaledStrokeTranslateY)
-                },
-            )
+                }
+            canvas.withMatrix(transform) { renderer.draw(canvas, inProgressStroke, transform) }
+
+            transform.postTranslate(finishedStrokeTranslateX, 0f)
+            canvas.withMatrix(transform) { renderer.draw(canvas, stroke, transform) }
         }
     }
 

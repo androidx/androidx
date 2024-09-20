@@ -19,13 +19,13 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A helper class for accumulating the minimum bounding boxes of zero or more geometry objects. In
  * colloquial terms, this can be used to find the smallest Box that contains a set of objects.
  */
-// TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
-// instead.
+@UsedByNative
 public class BoxAccumulator {
     /**
      * The bounds, which are valid only if [hasBounds] is `true`. When [hasBounds] is `false`, this
@@ -79,9 +79,7 @@ public class BoxAccumulator {
     }
 
     /** Reset this object to have no bounds. Returns the same instance to chain function calls. */
-    // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
-    // instead.
-
+    @UsedByNative
     public fun reset(): BoxAccumulator {
         hasBounds = false
         _bounds.setXBounds(Float.NaN, Float.NaN).setYBounds(Float.NaN, Float.NaN)
@@ -247,9 +245,7 @@ public class BoxAccumulator {
      *
      * @return `this`
      */
-    // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
-    // instead.
-
+    @UsedByNative
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun overwriteFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
@@ -290,7 +286,7 @@ private object BoxAccumulatorNative {
      * Helper method to construct a native C++ [Envelope] and [Segment], add the native [Segment] to
      * the native [Envelope], and update [output] using the result.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeAddSegment(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
@@ -308,7 +304,7 @@ private object BoxAccumulatorNative {
      * Helper method to construct a native C++ [Envelope] and [Triangle], add the native [Triangle]
      * to the native [Envelope], and update [output] using the result.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeAddTriangle(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
@@ -328,7 +324,7 @@ private object BoxAccumulatorNative {
      * Helper method to construct a native C++ [Envelope] and [Parallelogram], add the native
      * [Parallelogram] to the native [Envelope], and update [output] using the result.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeAddParallelogram(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
@@ -348,7 +344,7 @@ private object BoxAccumulatorNative {
      * Helper method to construct a native C++ [Envelope] and [Point], add the native [Point] to the
      * native [Envelope], and update [output] using the result.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeAddPoint(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
@@ -364,7 +360,7 @@ private object BoxAccumulatorNative {
      * Helper method to construct a native C++ [Envelope] using [this], add the optional box to the
      * native [Envelope], and update [output] using the result.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeAddOptionalBox(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,

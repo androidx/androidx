@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.InputToolType
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A single input specifying position, time since the start of the stream, and optionally
@@ -34,30 +35,22 @@ public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** The y-coordinate of the input position in stroke space. */
     public var y: Float = 0F
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** Time elapsed since the start of the stroke. */
     public var elapsedTimeMillis: Long = 0L
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** The input device used to generate this stroke input. */
     public var toolType: InputToolType = InputToolType.UNKNOWN
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /**
      * The physical distance in centimeters that the pointer must travel in order to produce an
@@ -70,9 +63,7 @@ public class StrokeInput {
      */
     public var strokeUnitLengthCm: Float = NO_STROKE_UNIT_LENGTH
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /**
      * Pressure value in the normalized, unitless range of [0, 1] indicating the force exerted
@@ -83,9 +74,7 @@ public class StrokeInput {
      */
     public var pressure: Float = NO_PRESSURE
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** Whether the [pressure] field contains a valid pressure value. */
     @get:JvmName("hasPressure")
@@ -101,9 +90,7 @@ public class StrokeInput {
      */
     public var tiltRadians: Float = NO_TILT
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** Whether the [tiltRadians] field contains a valid tilt value. */
     @get:JvmName("hasTilt")
@@ -124,9 +111,7 @@ public class StrokeInput {
      */
     public var orientationRadians: Float = NO_ORIENTATION
         private set
-        get // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard
-
-    // config file instead.
+        @UsedByNative get
 
     /** Whether the [orientationRadians] field contains a valid orientation value. */
     @get:JvmName("hasOrientation")
@@ -158,8 +143,7 @@ public class StrokeInput {
      *   end is along positive x and values increase towards the positive y-axis. Absence of
      *   [orientationRadians] data is represented with [NO_ORIENTATION].
      */
-    // TODO: b/355248266 - @UsedByNative("stroke_input_jni_helper.cc") must go in Proguard config
-    // file instead.
+    @UsedByNative
     @JvmOverloads
     public fun update(
         x: Float,

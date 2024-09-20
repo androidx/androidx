@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,12 +32,8 @@ import kotlin.math.sin
  * immutable alternative.
  */
 public class MutableVec(
-    override var x:
-        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard
-    // config file instead.
-    override var y:
-        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard
-    // config file instead.
+    @set:UsedByNative override var x: Float,
+    @set:UsedByNative override var y: Float,
 ) : Vec() {
 
     public constructor() : this(0F, 0F)

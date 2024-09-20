@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.geometry.internal.threadLocal
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * An immutable** complex shape expressed as a set of triangles. This is used to represent the shape
@@ -526,35 +527,23 @@ private object ModeledShapeNative {
         NativeLoader.load()
     }
 
-    external fun alloc(): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun alloc(): Long
 
-    external fun free(
-        nativeAddress: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun free(nativeAddress: Long)
 
-    external fun getNativeAddressesOfMeshes(
-        nativeAddress: Long,
-        groupIndex: Int
-    ): LongArray // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    external fun getNativeAddressesOfMeshes(nativeAddress: Long, groupIndex: Int): LongArray
 
-    external fun getRenderGroupCount(
-        nativeAddress: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getRenderGroupCount(nativeAddress: Long): Int
 
-    external fun getRenderGroupFormat(
-        nativeAddress: Long,
-        groupIndex: Int
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getRenderGroupFormat(nativeAddress: Long, groupIndex: Int): Long
 
-    external fun getOutlineCount(
-        nativeAddress: Long,
-        groupIndex: Int
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getOutlineCount(nativeAddress: Long, groupIndex: Int): Int
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun getOutlineVertexCount(nativeAddress: Long, groupIndex: Int, outlineIndex: Int): Int
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun fillOutlineMeshIndexAndMeshVertexIndex(
         nativeAddress: Long,
         groupIndex: Int,
@@ -567,7 +556,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Triangle` objects and calculate coverage
      * using them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeTriangleCoverage(
         nativeAddress: Long,
         triangleP0X: Float,
@@ -588,7 +577,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Triangle` objects and calculate coverage
      * using them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeBoxCoverage(
         nativeAddress: Long,
         boxXMin: Float,
@@ -607,7 +596,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Quad` objects and calculate coverage using
      * them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeParallelogramCoverage(
         nativeAddress: Long,
         parallelogramCenterX: Float,
@@ -625,7 +614,7 @@ private object ModeledShapeNative {
     ): Float
 
     /** JNI method to construct C++ two `ModeledShape` objects and calculate coverage using them. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeModeledShapeCoverage(
         thisShapeNativeAddress: Long,
         otherShapeNativeAddress: Long,
@@ -641,7 +630,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Triangle` objects and call native
      * `CoverageIsGreaterThan` on them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeTriangleCoverageIsGreaterThan(
         nativeAddress: Long,
         triangleP0X: Float,
@@ -663,7 +652,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Rect` objects and call native
      * `CoverageIsGreaterThan` on them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeBoxCoverageIsGreaterThan(
         nativeAddress: Long,
         boxXMin: Float,
@@ -683,7 +672,7 @@ private object ModeledShapeNative {
      * JNI method to construct C++ `ModeledShape` and `Quad` objects and call native
      * `CoverageIsGreaterThan` on them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeParallelogramCoverageIsGreaterThan(
         nativeAddress: Long,
         parallelogramCenterX: Float,
@@ -705,7 +694,7 @@ private object ModeledShapeNative {
      * JNI method to construct two C++ `ModeledShape` objects and call native
      * `CoverageIsGreaterThan` on them.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun modeledShapeModeledShapeCoverageIsGreaterThan(
         thisShapeNativeAddress: Long,
         otherShapeNativeAddress: Long,
@@ -718,11 +707,7 @@ private object ModeledShapeNative {
         otherShapeToThisTransformF: Float,
     ): Boolean
 
-    external fun initializeSpatialIndex(
-        nativeAddress: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun initializeSpatialIndex(nativeAddress: Long)
 
-    external fun isSpatialIndexInitialized(
-        nativeAddress: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun isSpatialIndexInitialized(nativeAddress: Long): Boolean
 }

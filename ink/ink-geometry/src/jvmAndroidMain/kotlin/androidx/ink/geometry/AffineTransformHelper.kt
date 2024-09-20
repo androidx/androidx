@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /** Helper functions for AffineTransform. */
 internal object AffineTransformHelper {
@@ -25,7 +26,7 @@ internal object AffineTransformHelper {
         NativeLoader.load()
     }
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeApplyParallelogram(
         affineTransformA: Float,
         affineTransformB: Float,

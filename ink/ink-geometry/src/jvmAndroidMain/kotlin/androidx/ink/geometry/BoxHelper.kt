@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /** Helper functions for MutableBox and ImmutableBox. */
 internal object BoxHelper {
@@ -25,7 +26,7 @@ internal object BoxHelper {
         NativeLoader.load()
     }
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeCenter(
         rectXMin: Float,
         rectYMin: Float,
@@ -34,7 +35,7 @@ internal object BoxHelper {
         out: MutableVec,
     )
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeContainsPoint(
         rectXMin: Float,
         rectYMin: Float,
@@ -44,7 +45,7 @@ internal object BoxHelper {
         pointY: Float,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeContainsBox(
         rectXMin: Float,
         rectYMin: Float,

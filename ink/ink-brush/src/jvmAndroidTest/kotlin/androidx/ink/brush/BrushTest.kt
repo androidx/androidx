@@ -19,6 +19,7 @@ package androidx.ink.brush
 import androidx.ink.brush.color.Color
 import androidx.ink.brush.color.colorspace.ColorSpaces
 import androidx.ink.brush.color.toArgb
+import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -355,17 +356,13 @@ class BrushTest {
      * property of the Kotlin Brush's JNI-created C++ counterpart is equivalent to the expected C++
      * Brush.
      */
-    private external fun matchesDefaultBrush(
-        actualBrushNativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun matchesDefaultBrush(actualBrushNativePointer: Long): Boolean
 
     /**
      * Creates an expected C++ Brush with custom values and returns true if every property of the
      * Kotlin Brush's JNI-created C++ counterpart is equivalent to the expected C++ Brush.
      */
-    private external fun matchesCustomBrush(
-        actualBrushNativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun matchesCustomBrush(actualBrushNativePointer: Long): Boolean
 
     /** Brush with every field different from default values. */
     private fun buildTestBrush(): Brush =

@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.geometry.Angle
 import androidx.ink.geometry.AngleRadiansFloat
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmSynthetic
@@ -342,7 +343,7 @@ public class BrushTip(
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeCreateBrushTip(
         scaleX: Float,
         scaleY: Float,
@@ -361,13 +362,11 @@ public class BrushTip(
      * Only call during init{} so to keep this BrushTip object immutable after construction and
      * equivalent across Kotlin and C++.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeAppendBehavior(tipNativePointer: Long, behaviorNativePointer: Long)
 
     /** Release the underlying memory allocated in [nativeCreateBrushTip]. */
-    private external fun nativeFreeBrushTip(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFreeBrushTip(nativePointer: Long)
 
     // Companion object gets initialized before anything else.
     public companion object {

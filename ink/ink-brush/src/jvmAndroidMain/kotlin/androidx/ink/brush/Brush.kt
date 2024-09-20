@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.Float
 import kotlin.jvm.JvmStatic
 
@@ -317,7 +318,7 @@ internal constructor(
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeCreateBrush(
         familyNativePointer: Long,
         colorRed: Float,
@@ -330,9 +331,7 @@ internal constructor(
     ): Long
 
     /** Release the underlying memory allocated in [nativeCreateBrush]. */
-    private external fun nativeFreeBrush(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFreeBrush(nativePointer: Long)
 
     public companion object {
         init {

@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.geometry.AngleRadiansFloat
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.Suppress
 import kotlin.jvm.JvmField
@@ -74,22 +75,18 @@ public class BrushPaint(
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
-    private external fun nativeCreateBrushPaint(
-        textureLayersCount: Int
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeCreateBrushPaint(textureLayersCount: Int): Long
 
     /**
      * Appends a texture layer to a *mutable* C++ BrushPaint object as referenced by
      * [nativePointer]. Only call during `init{}` so to keep this BrushPaint object immutable after
      * construction and equivalent across Kotlin and C++.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeAppendTextureLayer(nativePointer: Long, textureLayerPointer: Long)
 
     /** Release the underlying memory allocated in [nativeCreateBrushPaint]. */
-    private external fun nativeFreeBrushPaint(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFreeBrushPaint(nativePointer: Long)
 
     /** Specification of how the texture should apply to the stroke. */
     public class TextureMapping private constructor(@JvmField internal val value: Int) {
@@ -639,7 +636,7 @@ public class BrushPaint(
                 )
         }
 
-        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        @UsedByNative
         private external fun nativeCreateTextureLayer(
             colorTextureUri: String,
             sizeX: Float,
@@ -655,9 +652,7 @@ public class BrushPaint(
         ): Long
 
         /** Release the underlying memory allocated in [nativeCreateTextureLayer]. */
-        private external fun nativeFreeTextureLayer(
-            nativePointer: Long
-        ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        @UsedByNative private external fun nativeFreeTextureLayer(nativePointer: Long)
 
         // To be extended by extension methods.
         public companion object
