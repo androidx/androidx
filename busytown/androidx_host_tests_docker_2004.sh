@@ -10,5 +10,4 @@ impl/build.sh test allHostTests zipOwnersFiles createModuleInfo \
     -Pandroidx.displayTestOutput=false \
     "$@"
 
-
 echo "Completing $0 at $(date)"
