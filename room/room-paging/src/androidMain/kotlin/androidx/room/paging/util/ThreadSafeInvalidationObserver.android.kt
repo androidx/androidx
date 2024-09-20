@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ThreadSafeInvalidationObserver(
+public class ThreadSafeInvalidationObserver(
     tables: Array<out String>,
-    val onInvalidated: () -> Unit,
+    public val onInvalidated: () -> Unit,
 ) : InvalidationTracker.Observer(tables = tables as Array<String>) {
     private val registered: AtomicBoolean = AtomicBoolean(false)
 
@@ -32,7 +32,7 @@ class ThreadSafeInvalidationObserver(
         onInvalidated()
     }
 
-    fun registerIfNecessary(db: RoomDatabase) {
+    public fun registerIfNecessary(db: RoomDatabase) {
         if (registered.compareAndSet(false, true)) {
             db.invalidationTracker.addWeakObserver(this)
         }

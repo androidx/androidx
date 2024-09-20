@@ -33,7 +33,7 @@ import androidx.room.RoomSQLiteQuery
  */
 @get:Suppress("AcronymName")
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-val INVALID = LoadResult.Invalid<Any, Any>()
+public val INVALID: LoadResult<Any, Any> = LoadResult.Invalid<Any, Any>()
 
 /**
  * calls RoomDatabase.query() to return a cursor and then calls convertRows() to extract and return
@@ -50,7 +50,7 @@ val INVALID = LoadResult.Invalid<Any, Any>()
  * @param convertRows the function to iterate data with provided [Cursor] to return List<Value>
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun <Value : Any> queryDatabase(
+public fun <Value : Any> queryDatabase(
     params: LoadParams<Int>,
     sourceQuery: RoomSQLiteQuery,
     db: RoomDatabase,
@@ -98,7 +98,7 @@ fun <Value : Any> queryDatabase(
  * integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun queryItemCount(sourceQuery: RoomSQLiteQuery, db: RoomDatabase): Int {
+public fun queryItemCount(sourceQuery: RoomSQLiteQuery, db: RoomDatabase): Int {
     val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
     val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(countQuery, sourceQuery.argCount)
     sqLiteQuery.copyArgumentsFrom(sourceQuery)

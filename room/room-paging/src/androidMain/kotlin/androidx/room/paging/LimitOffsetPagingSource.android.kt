@@ -36,19 +36,19 @@ import androidx.sqlite.db.SupportSQLiteQuery
  * when data changes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual abstract class LimitOffsetPagingSource<Value : Any>
+public actual abstract class LimitOffsetPagingSource<Value : Any>
 actual constructor(
-    actual val sourceQuery: RoomRawQuery,
-    actual val db: RoomDatabase,
+    public actual val sourceQuery: RoomRawQuery,
+    public actual val db: RoomDatabase,
     vararg tables: String,
 ) : PagingSource<Int, Value>() {
-    constructor(
+    public constructor(
         sourceQuery: RoomSQLiteQuery,
         db: RoomDatabase,
         vararg tables: String,
     ) : this(sourceQuery = sourceQuery.toRoomRawQuery(), db = db, tables = tables)
 
-    constructor(
+    public constructor(
         supportSQLiteQuery: SupportSQLiteQuery,
         db: RoomDatabase,
         vararg tables: String,
@@ -60,7 +60,7 @@ actual constructor(
 
     private val implementation = CommonLimitOffsetImpl(tables, this, ::convertRows)
 
-    actual val itemCount: Int
+    public actual val itemCount: Int
         get() = implementation.itemCount.value
 
     override val jumpingSupported: Boolean
