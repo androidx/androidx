@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -43,14 +44,17 @@ import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.absoluteValue
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -1039,6 +1043,39 @@ class DraggableTest {
         }
 
         rule.waitForIdle()
+    }
+
+    @Test
+    fun nestedDraggable_childStopsConsuming_shouldAllowParentToConsume() {
+        var parentDeltas by mutableFloatStateOf(0.0f)
+        var childDeltas by mutableFloatStateOf(0.0f)
+
+        val parentDraggableController = DraggableState { parentDeltas += it }
+        val childDraggableController = DraggableState { childDeltas += it }
+
+        rule.setContent {
+            Box(
+                Modifier.size(400.dp)
+                    .draggable(parentDraggableController, orientation = Orientation.Vertical)
+            ) {
+                if (childDeltas.absoluteValue < 80.0f) {
+                    Box(
+                        Modifier.testTag("childDraggable")
+                            .size(400.dp)
+                            .draggable(childDraggableController, orientation = Orientation.Vertical)
+                    )
+                }
+            }
+        }
+
+        rule.onRoot().performTouchInput { swipeUp() }
+
+        rule.onNodeWithTag("childDraggable").assertDoesNotExist()
+
+        rule.runOnIdle {
+            assertThat(parentDeltas).isNonZero()
+            assertThat(childDeltas).isNonZero()
+        }
     }
 
     @Test
