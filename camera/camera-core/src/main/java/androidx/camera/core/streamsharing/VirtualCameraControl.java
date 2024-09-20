@@ -22,9 +22,12 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.imagecapture.CameraCapturePipeline;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ForwardingCameraControl;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,9 +57,23 @@ public class VirtualCameraControl extends ForwardingCameraControl {
             @ImageCapture.CaptureMode int captureMode,
             @ImageCapture.FlashType int flashType) {
         checkArgument(captureConfigs.size() == 1, "Only support one capture config.");
-        return Futures.allAsList(singletonList(mStreamSharingControl.jpegSnapshot(
-                getJpegQuality(captureConfigs.get(0)),
-                getRotationDegrees(captureConfigs.get(0)))));
+
+        ListenableFuture<CameraCapturePipeline> capturePipeline = getCameraCapturePipelineAsync(
+                captureMode, flashType);
+
+        ListenableFuture<Void> captureFuture = FutureChain.from(
+                capturePipeline
+        ).transformAsync(v -> capturePipeline.get().invokePreCapture(),
+                CameraXExecutors.directExecutor()
+        ).transformAsync(v ->
+                        mStreamSharingControl.jpegSnapshot(
+                                getJpegQuality(captureConfigs.get(0)),
+                                getRotationDegrees(captureConfigs.get(0))),
+                CameraXExecutors.directExecutor()
+        ).transformAsync(v -> capturePipeline.get().invokePostCapture(),
+                CameraXExecutors.directExecutor());
+
+        return Futures.allAsList(singletonList(captureFuture));
     }
 
     private int getJpegQuality(@NonNull CaptureConfig captureConfig) {

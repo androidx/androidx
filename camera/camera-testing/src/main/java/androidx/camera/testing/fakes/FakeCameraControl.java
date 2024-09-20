@@ -23,12 +23,14 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.imagecapture.CameraCapturePipeline;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -39,6 +41,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.testing.impl.FakeCameraCapturePipeline;
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Pair;
@@ -94,6 +97,9 @@ public final class FakeCameraControl implements CameraControlInternal {
     private boolean mTorchEnabled = false;
     private int mExposureCompensation = -1;
     private ScreenFlash mScreenFlash;
+
+    private final FakeCameraCapturePipeline mFakeCameraCapturePipeline =
+            new FakeCameraCapturePipeline();
 
     @Nullable
     private FocusMeteringAction mLastSubmittedFocusMeteringAction = null;
@@ -307,6 +313,14 @@ public final class FakeCameraControl implements CameraControlInternal {
             executor.execute(() -> listener.onNewCaptureRequests(captureConfigs));
         }
         return Futures.allAsList(fakeFutures);
+    }
+
+    @NonNull
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public ListenableFuture<CameraCapturePipeline> getCameraCapturePipelineAsync(int captureMode,
+            int flashType) {
+        return Futures.immediateFuture(mFakeCameraCapturePipeline);
     }
 
     @NonNull

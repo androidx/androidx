@@ -47,6 +47,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.integration.core.util.CameraPipeUtil
+import androidx.camera.integration.core.util.CameraPipeUtil.ignoreTestForCameraPipe
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -72,7 +73,6 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -207,8 +207,11 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     }
 
     @Test
-    @Ignore("b/368353487 - not supported yet")
     fun flashEnabledInRequest_whenCapturedWithFlashOnAndSharedEffect() {
+        implName.ignoreTestForCameraPipe(
+            "TODO: b/368559255 - Enable when implemented in camera-pipe"
+        )
+
         verifyRequestAeOrFlashModeForFlashModeCapture(
             ImageCapture.FLASH_MODE_ON,
             addSharedEffect = true

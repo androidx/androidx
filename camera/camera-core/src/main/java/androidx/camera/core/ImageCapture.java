@@ -537,6 +537,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onCameraControlReady() {
+        Logger.d(TAG, "onCameraControlReady");
         trySetFlashModeToCameraControl();
         setScreenFlashToCameraControl();
     }
@@ -595,6 +596,8 @@ public final class ImageCapture extends UseCase {
      *                                  without a {@code ScreenFlash} instance or front camera.
      */
     public void setFlashMode(@FlashMode int flashMode) {
+        Logger.d(TAG, "setFlashMode: flashMode = " + flashMode);
+
         if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
                 && flashMode != FLASH_MODE_OFF) {
             if (flashMode == FLASH_MODE_SCREEN) {

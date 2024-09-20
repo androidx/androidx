@@ -49,6 +49,7 @@ import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.Logger;
+import androidx.camera.core.imagecapture.CameraCapturePipeline;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -390,6 +391,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         }
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
+        Logger.d(TAG, "setFlashMode: mFlashMode = " + mFlashMode);
 
         // Disable ZSL when flash mode is ON or AUTO.
         mZslControl.setZslDisabledByFlashMode(mFlashMode == FLASH_MODE_ON
@@ -509,6 +511,27 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 mFlashModeChangeSessionUpdateFuture)).transformAsync(
                     v -> mCamera2CapturePipeline.submitStillCaptures(captureConfigs, captureMode,
                         flashMode, flashType), mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<CameraCapturePipeline> getCameraCapturePipelineAsync(
+            @ImageCapture.CaptureMode int captureMode, @ImageCapture.FlashType int flashType) {
+        if (!isControlInUse()) {
+            Logger.w(TAG, "Camera is not active.");
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
+
+        int flashMode = getFlashMode();
+        return FutureChain.from(
+                Futures.nonCancellationPropagating(mFlashModeChangeSessionUpdateFuture)
+        ).transformAsync(
+                v -> Futures.immediateFuture(mCamera2CapturePipeline.getCameraCapturePipeline(
+                        captureMode, flashMode, flashType
+                )),
+                mExecutor
+        );
     }
 
     /** {@inheritDoc} */
