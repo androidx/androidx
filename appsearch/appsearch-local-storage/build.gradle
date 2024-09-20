@@ -92,7 +92,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoAndroid)
-    //TODO(b/149787478) upgrade and link to Dependencies.kt
     androidTestImplementation(libs.junit)
 }
 

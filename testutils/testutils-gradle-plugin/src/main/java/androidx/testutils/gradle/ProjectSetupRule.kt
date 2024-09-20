@@ -212,7 +212,6 @@ data class ProjectProps(
     val buildToolsVersion: String,
     val minSdkVersion: String,
     val debugKeystore: String,
-    var navigationRuntime: String,
     val kotlinStblib: String,
     val kgpVersion: String,
     val kgpDependency: String,
@@ -264,7 +263,6 @@ data class ProjectProps(
                 compileSdk = properties.getProperty("compileSdk"),
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
-                navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
                 kgpVersion = properties.getProperty("kgpVersion"),
                 kgpDependency =

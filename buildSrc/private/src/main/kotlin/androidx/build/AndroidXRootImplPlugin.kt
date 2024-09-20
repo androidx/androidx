@@ -58,7 +58,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
     private fun Project.configureRootProject() {
         project.validateAllAndroidxArgumentsAreRecognized()
         tasks.register("listAndroidXProperties", ListAndroidXPropertiesTask::class.java)
-        setDependencyVersions()
         configureKtfmtCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
         maybeRegisterFilterableTask()
@@ -153,13 +152,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             dependencyAnalysis.structure { it.ignoreKtx(true) }
         }
         project.configureTasksForKotlinWeb()
-    }
-
-    private fun Project.setDependencyVersions() {
-        androidx.build.dependencies.kotlinGradlePluginVersion = getVersionByName("kotlin")
-        androidx.build.dependencies.kspVersion = getVersionByName("ksp")
-        androidx.build.dependencies.agpVersion = getVersionByName("androidGradlePlugin")
-        androidx.build.dependencies.guavaVersion = getVersionByName("guavaJre")
     }
 
     private fun Project.configureTasksForKotlinWeb() {
