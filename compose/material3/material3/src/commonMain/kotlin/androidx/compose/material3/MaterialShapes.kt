@@ -47,7 +47,8 @@ import kotlin.math.sin
  * @param progress the [Morph]'s progress
  * @param path a [Path] to rewind and set with the new path data. In case provided, this Path would
  *   be the returned one.
- * @param startAngle an angle to rotate the [Path] to start drawing from
+ * @param startAngle the angle (in degrees) from which to begin drawing the generated path. By
+ *   default, it is set to 0 degrees, meaning the [Path] begins drawing at the 3 o'clock position.
  */
 @ExperimentalMaterial3ExpressiveApi
 fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Path {
@@ -57,8 +58,10 @@ fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Pat
 /**
  * Returns a [Path] that is remembered across compositions for this [RoundedPolygon].
  *
- * @param startAngle an angle to rotate the Material shape's path to start drawing from. The
- *   rotation pivot is set to be the shape's centerX and centerY coordinates.
+ * @param startAngle the angle (in degrees) from which to begin drawing the generated path. By
+ *   default, it is set to 0 degrees, meaning the [Path] begins drawing at the 3 o'clock position.
+ *   The returned path is rotated by this angle around the [RoundedPolygon]'s centroid (centerX,
+ *   centerY).
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
@@ -72,8 +75,10 @@ fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
 /**
  * Returns a [Shape] that is remembered across compositions for this [RoundedPolygon].
  *
- * @param startAngle an angle to rotate the Material shape's path to start drawing from. The
- *   rotation pivot is always set to be the shape's centerX and centerY coordinates.
+ * @param startAngle the angle (in degrees) from which to begin drawing the generated shape's path.
+ *   By default, it is set to 0 degrees, meaning the shape's path begins drawing at the 3 o'clock
+ *   position. The returned path is rotated by this angle around the [RoundedPolygon]'s centroid
+ *   (centerX, centerY).
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
