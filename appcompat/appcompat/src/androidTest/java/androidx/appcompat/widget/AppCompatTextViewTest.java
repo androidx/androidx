@@ -1296,13 +1296,9 @@ public class AppCompatTextViewTest
         assertNull(view.getCustomSelectionActionModeCallback());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public void testTextFontWeight() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P){
-            return;
-        }
-
         final AppCompatTextView textView = mActivity.findViewById(
                 R.id.text_view_text_font_weight);
 
