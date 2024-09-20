@@ -17,6 +17,7 @@
 package androidx.build
 
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -140,6 +141,21 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
 
             val group = LibraryGroup(groupName, atomicGroupVersion)
             LibraryGroupAssociation(name, group, overrideApplyToProjects)
+        }
+    }
+
+    companion object {
+        internal fun registerOrGet(project: Project): Provider<LibraryVersionsService> {
+            val tomlFileName = "libraryversions.toml"
+            val toml = project.lazyReadFile(tomlFileName)
+
+            return project.gradle.sharedServices.registerIfAbsent(
+                "libraryVersionsService",
+                LibraryVersionsService::class.java
+            ) { spec ->
+                spec.parameters.tomlFileName = tomlFileName
+                spec.parameters.tomlFileContents = toml
+            }
         }
     }
 }

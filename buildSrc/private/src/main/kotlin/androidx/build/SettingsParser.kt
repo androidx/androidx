@@ -64,12 +64,4 @@ object SettingsParser {
     private fun createFilePathFromGradlePath(gradlePath: String): String {
         return gradlePath.trimStart(':').replace(':', '/')
     }
-
-    /** Represents an included project from the main settings.gradle file. */
-    data class IncludedProject(
-        /** Gradle path of the project (using : as separator) */
-        val gradlePath: String,
-        /** File path for the project, relative to support root folder. */
-        val filePath: String
-    )
 }

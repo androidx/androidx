@@ -26,6 +26,7 @@ import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.setUpCheckDocsTask
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.gradle.isRoot
 import androidx.build.license.addLicensesToPublishedArtifacts
 import androidx.build.license.configureExternalDependencyLicenseCheck
@@ -37,6 +38,7 @@ import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.addToModuleInfo
 import androidx.build.testConfiguration.configureTestConfigGeneration
+import androidx.build.transform.configureAarAsJarForConfiguration
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.api.artifact.SingleArtifact
@@ -97,6 +99,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
@@ -132,8 +135,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     override fun apply(project: Project) {
         if (project.isRoot)
             throw Exception("Root project should use AndroidXRootImplPlugin instead")
-        val androidXExtension =
-            project.extensions.create<AndroidXExtension>(EXTENSION_NAME, project)
+        val androidXExtension = initializeAndroidXExtension(project)
 
         val androidXKmpExtension =
             project.extensions.create<AndroidXMultiplatformExtension>(
@@ -228,6 +230,31 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.workaroundPrebuiltTakingPrecedenceOverProject()
         project.configureSamplesProject()
         project.configureMaxDepVersions(androidXExtension)
+    }
+
+    private fun initializeAndroidXExtension(project: Project): AndroidXExtension {
+        val versionService = LibraryVersionsService.registerOrGet(project).get()
+        val listProjectsService = ListProjectsService.registerOrGet(project)
+        return project.extensions
+            .create<AndroidXExtension>(
+                EXTENSION_NAME,
+                project,
+                versionService.libraryVersions,
+                versionService.libraryGroups.values.toList(),
+                versionService.libraryGroupsByGroupId,
+                versionService.overrideLibraryGroupsByProjectPath,
+                listProjectsService.map { it.allPossibleProjects },
+                { getHeadShaProvider(project) },
+                { configurationName: String ->
+                    configureAarAsJarForConfiguration(project, configurationName)
+                }
+            )
+            .apply {
+                kotlinTarget.set(
+                    if (project.shouldForceKotlin20Target().get()) KotlinTarget.KOTLIN_2_0
+                    else KotlinTarget.DEFAULT
+                )
+            }
     }
 
     private fun Project.registerProjectOrArtifact() {

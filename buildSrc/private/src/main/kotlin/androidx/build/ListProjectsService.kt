@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -30,7 +31,20 @@ abstract class ListProjectsService : BuildService<ListProjectsService.Parameters
     // Note that this might be more than the full list of projects configured in this build:
     // a) Configuration-on-demand can disable projects mentioned in settings.gradle
     // B) Playground builds use their own settings.gradle files
-    val allPossibleProjects: List<SettingsParser.IncludedProject> by lazy {
+    val allPossibleProjects: List<IncludedProject> by lazy {
         SettingsParser.findProjects(parameters.settingsFile.get())
+    }
+
+    companion object {
+        internal fun registerOrGet(project: Project): Provider<ListProjectsService> {
+            // service that can compute full list of projects in settings.gradle
+            val settings = project.lazyReadFile("settings.gradle")
+            return project.gradle.sharedServices.registerIfAbsent(
+                "listProjectsService",
+                ListProjectsService::class.java
+            ) { spec ->
+                spec.parameters.settingsFile = settings
+            }
+        }
     }
 }
