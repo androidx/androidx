@@ -29,7 +29,7 @@ protected actual constructor(metadata: FailureMetadata, actual: String?) :
     internal actual constructor(actual: String?, metadata: FailureMetadata) : this(metadata, actual)
 
     /** Fails if the string does not contain the given sequence. */
-    actual open fun contains(charSequence: CharSequence) = commonContains(charSequence)
+    actual open fun contains(charSequence: CharSequence?) = commonContains(charSequence)
 
     /** Fails if the string does not have the given length. */
     actual open fun hasLength(expectedLength: Int) = commonHasLength(expectedLength)

@@ -345,12 +345,12 @@ package androidx.kruth {
     method public final androidx.kruth.IntegerSubject that(int actual);
     method public final androidx.kruth.PrimitiveIntArraySubject that(int[]? actual);
     method public final androidx.kruth.BooleanSubject that(Boolean? actual);
-    method public final androidx.kruth.ClassSubject that(Class<? extends java.lang.Object?> actual);
+    method public final androidx.kruth.ClassSubject that(Class<? extends java.lang.Object?>? actual);
     method public final androidx.kruth.DoubleSubject that(Double? actual);
     method public final androidx.kruth.FloatSubject that(Float? actual);
     method public final <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public final androidx.kruth.StringSubject that(String? actual);
-    method public final androidx.kruth.BigDecimalSubject that(java.math.BigDecimal actual);
+    method public final androidx.kruth.BigDecimalSubject that(java.math.BigDecimal? actual);
     method public final <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
     method public final androidx.kruth.LongSubject that(long actual);
     method public final androidx.kruth.PrimitiveLongArraySubject that(long[]? actual);
@@ -361,7 +361,7 @@ package androidx.kruth {
     method public final <T extends java.lang.Long> androidx.kruth.LongSubject that(T actual);
     method public final <T extends java.lang.Integer> androidx.kruth.IntegerSubject that(T actual);
     method public final <T> androidx.kruth.ObjectArraySubject<T> that(T[]? actual);
-    method public final androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
+    method public final androidx.kruth.StandardSubjectBuilder withMessage(String? messageToPrepend);
     field public static final androidx.kruth.StandardSubjectBuilder.Companion Companion;
   }
 
@@ -371,7 +371,7 @@ package androidx.kruth {
 
   public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
     ctor protected StringSubject(androidx.kruth.FailureMetadata metadata, String? actual);
-    method public void contains(CharSequence charSequence);
+    method public void contains(CharSequence? charSequence);
     method public void containsMatch(String regex);
     method public void containsMatch(java.util.regex.Pattern regex);
     method public final void containsMatch(kotlin.text.Regex regex);

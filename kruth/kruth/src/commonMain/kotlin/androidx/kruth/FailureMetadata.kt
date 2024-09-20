@@ -104,10 +104,10 @@ internal constructor(
      * @param message A message to append to a list of messages stored in this [FailureMetadata],
      *   which are prepended to the list of [Fact] when reporting a failure via [fail].
      */
-    internal fun withMessage(message: String): FailureMetadata =
+    internal fun withMessage(message: String?): FailureMetadata =
         FailureMetadata(
             failureStrategy = failureStrategy,
-            messagesToPrepend = messagesToPrepend + message,
+            messagesToPrepend = messagesToPrepend + (message ?: "null"),
             steps = steps
         )
 
