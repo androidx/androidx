@@ -384,12 +384,29 @@ internal class CompositionScopedCoroutineScopeCanceller(val coroutineScope: Coro
     }
 
     override fun onForgotten() {
-        coroutineScope.cancel(LeftCompositionCancellationException())
+        val coroutineScope = coroutineScope
+        if (coroutineScope is RememberedCoroutineScope) {
+            coroutineScope.cancelIfCreated()
+        } else {
+            coroutineScope.cancel(LeftCompositionCancellationException())
+        }
     }
 
     override fun onAbandoned() {
-        coroutineScope.cancel(LeftCompositionCancellationException())
+        val coroutineScope = coroutineScope
+        if (coroutineScope is RememberedCoroutineScope) {
+            coroutineScope.cancelIfCreated()
+        } else {
+            coroutineScope.cancel(LeftCompositionCancellationException())
+        }
     }
+}
+
+internal expect class RememberedCoroutineScope(
+    parentContext: CoroutineContext,
+    overlayContext: CoroutineContext,
+) : CoroutineScope {
+    fun cancelIfCreated()
 }
 
 @PublishedApi
@@ -411,7 +428,7 @@ internal fun createCompositionCoroutineScope(
         )
     } else {
         val applyContext = composer.applyCoroutineContext
-        CoroutineScope(applyContext + Job(applyContext[Job]) + coroutineContext)
+        RememberedCoroutineScope(applyContext, coroutineContext)
     }
 
 /**
