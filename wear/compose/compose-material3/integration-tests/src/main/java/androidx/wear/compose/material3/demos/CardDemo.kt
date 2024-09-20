@@ -16,10 +16,18 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.samples.AppCardSample
@@ -43,6 +51,7 @@ fun CardDemo() {
         item { CardSample() }
         item { CardWithOnLongClickSample { showOnLongClickToast(context) } }
         item { OutlinedCardSample() }
+        item { VerticallyCenteredBaseCard() }
         item { ListHeader { Text("App card") } }
         item { AppCardSample() }
         item { AppCardWithIconSample() }
@@ -59,6 +68,23 @@ fun CardDemo() {
         item { OutlinedTitleCardWithSubtitleAndTimeDemo() }
         item { ListHeader { Text("Image card") } }
         item { TitleCardWithImageBackgroundSample() }
+    }
+}
+
+@Composable
+private fun VerticallyCenteredBaseCard() {
+    // Provide a demo of a base Card with vertically centered content
+    Card(
+        onClick = {},
+    ) {
+        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+            Text(
+                "ABCD",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
