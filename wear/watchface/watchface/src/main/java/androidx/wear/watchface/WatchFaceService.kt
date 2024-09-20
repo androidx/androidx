@@ -2426,6 +2426,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 // createWatchFace.
                 uiThreadCoroutineScope.launch {
                     createWatchFaceImpl(
+                        wfDetails,
                         complicationSlotsManager,
                         currentUserStyleRepository,
                         deferredWatchFace,
@@ -2504,13 +2505,13 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         @UiThread
         private suspend fun createWatchFaceImpl(
+            wfDetails: WatchFaceDetails,
             complicationSlotsManager: ComplicationSlotsManager,
             currentUserStyleRepository: CurrentUserStyleRepository,
             deferredWatchFace: CompletableDeferred<WatchFace>,
             initStyleAndComplicationsDone: CompletableDeferred<Unit>,
             watchState: WatchState
         ) {
-            val wfDetails = watchFaceDetails!!
             val broadcastsObserver =
                 BroadcastsObserver(
                     watchState,
