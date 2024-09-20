@@ -16,8 +16,6 @@
 
 package androidx.kruth
 
-import androidx.kruth.Fact.Companion.fact
-
 /**
  * Propositions for [Comparable] typed subjects.
  *
@@ -77,7 +75,7 @@ internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsEquivalentAccordin
     requireNonNull(other)
 
     if (actual.compareTo(other) != 0) {
-        failWithActualInternal(fact("Expected value that sorts equal to", other))
+        failWithActualInternal("expected value that sorts equal to", other)
     }
 }
 
@@ -86,31 +84,33 @@ internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsGreaterThan(other:
     requireNonNull(other)
 
     if (actual <= other) {
-        failWithActualInternal(fact("Expected to be greater than", other))
+        failWithActualInternal("expected to be greater than", other)
     }
 }
 
 internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsLessThan(other: T?) {
-    requireNonNull(actual) { "Expected to be less than $other, but was $actual" }
-    requireNonNull(other) { "Expected to be less than $other, but was $actual" }
+    requireNonNull(actual)
+    requireNonNull(other)
 
     if (actual >= other) {
-        failWithActualInternal(fact("Expected to be less than", other))
+        failWithActualInternal("expected to be less than", other)
     }
 }
 
 internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsAtMost(other: T?) {
-    requireNonNull(actual) { "Expected to be at most $other, but was $actual" }
-    requireNonNull(other) { "Expected to be at most $other, but was $actual" }
+    requireNonNull(actual)
+    requireNonNull(other)
+
     if (actual > other) {
-        failWithActualInternal(fact("Expected to be at most", other))
+        failWithActualInternal("expected to be at most", other)
     }
 }
 
 internal fun <T : Comparable<T>> ComparableSubject<T>.commonIsAtLeast(other: T?) {
-    requireNonNull(actual) { "Expected to be at least $other, but was $actual" }
-    requireNonNull(other) { "Expected to be at least $other, but was $actual" }
+    requireNonNull(actual)
+    requireNonNull(other)
+
     if (actual < other) {
-        failWithActualInternal(fact("Expected to be at least", other))
+        failWithActualInternal("expected to be at least", other)
     }
 }

@@ -27,9 +27,22 @@ internal const val HUMAN_UNDERSTANDABLE_EMPTY_STRING = "\"\" (empty String)"
  * Used for better behaviour compatibility with Truth, which uses Guava's checkNotNull.
  */
 @OptIn(ExperimentalContracts::class)
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun <T : Any> requireNonNull(value: T?): T {
+    contract { returns() implies (value != null) }
+
+    return value ?: throw NullPointerException()
+}
+
+/**
+ * Same as [requireNotNull] but throws [NullPointerException] instead of [IllegalArgumentException].
+ *
+ * Used for better behaviour compatibility with Truth, which uses Guava's checkNotNull.
+ */
+@OptIn(ExperimentalContracts::class)
 internal inline fun <T : Any> requireNonNull(
     value: T?,
-    lazyMessage: () -> Any = { "Required value was null." },
+    lazyMessage: () -> Any,
 ): T {
     contract { returns() implies (value != null) }
 
