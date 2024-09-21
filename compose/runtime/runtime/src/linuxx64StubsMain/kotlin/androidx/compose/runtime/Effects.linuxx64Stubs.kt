@@ -23,11 +23,28 @@ internal actual class RememberedCoroutineScope
 actual constructor(
     parentContext: CoroutineContext,
     overlayContext: CoroutineContext,
-) : CoroutineScope {
+) : CoroutineScope, RememberObserver {
+    // Implementation note:
+    // This implementation should initialize the context lazily,
+    // already cancelled if cancelIfCreated was previously invoked.
     override val coroutineContext: CoroutineContext
         get() = implementedInJetBrainsFork()
 
+    // Implementation note:
+    // This implementation should be nearly free if coroutineContext has not yet been accessed.
     actual fun cancelIfCreated() {
         implementedInJetBrainsFork()
+    }
+
+    override fun onRemembered() {
+        // Do nothing
+    }
+
+    override fun onForgotten() {
+        cancelIfCreated()
+    }
+
+    override fun onAbandoned() {
+        cancelIfCreated()
     }
 }
