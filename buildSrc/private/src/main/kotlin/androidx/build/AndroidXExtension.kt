@@ -17,8 +17,6 @@
 package androidx.build
 
 import androidx.build.checkapi.shouldConfigureApiTasks
-import androidx.build.gitclient.getHeadShaProvider
-import androidx.build.transform.configureAarAsJarForConfiguration
 import groovy.lang.Closure
 import java.io.File
 import org.gradle.api.GradleException
@@ -30,59 +28,28 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
-abstract class AndroidXExtension(val project: Project) : ExtensionAware, AndroidXConfiguration {
-
-    @JvmField val LibraryVersions: Map<String, Version>
-
-    @JvmField val AllLibraryGroups: List<LibraryGroup>
-
-    private val libraryGroupsByGroupId: Map<String, LibraryGroup>
-    private val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
-
+abstract class AndroidXExtension(
+    val project: Project,
+    @Suppress("unused", "PropertyName") // used from build.gradle
+    @JvmField
+    val LibraryVersions: Map<String, Version>,
+    @Suppress("unused") // used from build.gradle
+    @JvmField
+    val AllLibraryGroups: List<LibraryGroup>,
+    private val libraryGroupsByGroupId: Map<String, LibraryGroup>,
+    private val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>,
+    private val allPossibleProjects: Provider<List<IncludedProject>>,
+    private val headShaProvider: () -> Provider<String>,
+    private val configureAarAsJarForConfigurationDelegate: (String) -> Unit,
+) : ExtensionAware, AndroidXConfiguration {
     val mavenGroup: LibraryGroup?
-
-    private val listProjectsService: Provider<ListProjectsService>
-    private val versionService: LibraryVersionsService
-
     val deviceTests = DeviceTests.register(project.extensions)
 
     init {
-        val tomlFileName = "libraryversions.toml"
-        val toml = lazyReadFile(tomlFileName)
-
-        versionService =
-            project.gradle.sharedServices
-                .registerIfAbsent("libraryVersionsService", LibraryVersionsService::class.java) {
-                    spec ->
-                    spec.parameters.tomlFileName = tomlFileName
-                    spec.parameters.tomlFileContents = toml
-                }
-                .get()
-        AllLibraryGroups = versionService.libraryGroups.values.toList()
-        LibraryVersions = versionService.libraryVersions
-        libraryGroupsByGroupId = versionService.libraryGroupsByGroupId
-        overrideLibraryGroupsByProjectPath = versionService.overrideLibraryGroupsByProjectPath
-
         // Always set a known default based on project path. see: b/302183954
         setDefaultGroupFromProjectPath()
         mavenGroup = chooseLibraryGroup()
         chooseProjectVersion()
-
-        // service that can compute full list of projects in settings.gradle
-        val settings = lazyReadFile("settings.gradle")
-        listProjectsService =
-            project.gradle.sharedServices.registerIfAbsent(
-                "listProjectsService",
-                ListProjectsService::class.java
-            ) { spec ->
-                spec.parameters.settingsFile = settings
-            }
-
-        kotlinTarget.set(
-            if (project.shouldForceKotlin20Target().get()) KotlinTarget.KOTLIN_2_0
-            else KotlinTarget.DEFAULT
-        )
-        kotlinTestTarget.set(kotlinTarget)
     }
 
     /**
@@ -91,7 +58,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
      */
     val mavenCoordinatesToProjectPathMap: Map<String, String> by lazy {
         val newProjectMap: MutableMap<String, String> = mutableMapOf()
-        listProjectsService.get().allPossibleProjects.forEach {
+        allPossibleProjects.get().forEach {
             val group =
                 overrideLibraryGroupsByProjectPath[it.gradlePath]
                     ?: getLibraryGroupFromProjectPath(it.gradlePath, null)
@@ -122,12 +89,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     internal var projectDirectlySpecifiesMavenVersion: Boolean = false
 
-    fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
-        val allProjects = listProjectsService.get().allPossibleProjects
-        val ourGroup = chooseLibraryGroup()
-        if (ourGroup == null) return listOf()
+    fun getOtherProjectsInSameGroup(): List<IncludedProject> {
+        val ourGroup = chooseLibraryGroup() ?: return listOf()
         val otherProjectsInSameGroup =
-            allProjects.filter { otherProject ->
+            allPossibleProjects.get().filter { otherProject ->
                 if (otherProject.gradlePath == project.path) {
                     false
                 } else {
@@ -169,7 +134,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         projectPath: String,
         explanationBuilder: MutableList<String>? = null
     ): LibraryGroup? {
-        val overridden = overrideLibraryGroupsByProjectPath.get(projectPath)
+        val overridden = overrideLibraryGroupsByProjectPath[projectPath]
         explanationBuilder?.add(
             "Library group (in libraryversions.toml) having" +
                 " overrideInclude=[\"$projectPath\"] is $overridden"
@@ -413,10 +378,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     }
 
     fun configureAarAsJarForConfiguration(name: String) {
-        configureAarAsJarForConfiguration(project, name)
+        configureAarAsJarForConfigurationDelegate(name)
     }
 
-    fun getReferenceSha(): Provider<String> = getHeadShaProvider(project)
+    fun getReferenceSha(): Provider<String> = headShaProvider()
 
     /**
      * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
@@ -432,18 +397,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     override val kotlinBomVersion: Provider<String>
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
-
-    /**
-     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation of
-     * tests.
-     */
-    abstract val kotlinTestTarget: Property<KotlinTarget>
-
-    override val kotlinTestApiVersion: Provider<KotlinVersion>
-        get() = kotlinTestTarget.map { it.apiVersion }
-
-    override val kotlinTestBomVersion: Provider<String>
-        get() = kotlinTestTarget.map { project.getVersionByName(it.catalogVersion) }
 
     /**
      * Whether to validate the androidx configuration block using validateProjectParser. This should
