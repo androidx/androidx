@@ -562,6 +562,35 @@ class PKeySetTest {
     }
 
     @Test
+    fun buildPKeySetFunction() {
+        val contract: Boolean
+        val set = buildPKeySet {
+            contract = true
+            add(1KeySuffix)
+            add(2KeySuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
+    fun buildPKeySetWithCapacityFunction() {
+        val contract: Boolean
+        val set = buildPKeySet(20) {
+            contract = true
+            add(1KeySuffix)
+            add(2KeySuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, set.size)
+        assertTrue(set.capacity >= 18)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
     fun insertManyRemoveMany() {
         val set = mutablePKeySetOf()
 

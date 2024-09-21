@@ -715,6 +715,36 @@ class LongListTest {
     }
 
     @Test
+    fun buildLongListFunction() {
+        val contract: Boolean
+        val l = buildLongList {
+            contract = true
+            add(2L)
+            add(10L)
+        }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+    }
+
+    @Test
+    fun buildLongListWithCapacityFunction() {
+        val contract: Boolean
+        val l =
+            buildLongList(20) {
+                contract = true
+                add(2L)
+                add(10L)
+            }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertTrue(l.content.size >= 20)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+    }
+
+    @Test
     fun binarySearchLongList() {
         val l = mutableLongListOf(-2L, -1L, 2L, 10L, 10L)
         assertEquals(0, l.binarySearch(-2))

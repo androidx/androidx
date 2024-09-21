@@ -228,6 +228,36 @@ class LongIntMapTest {
     }
 
     @Test
+    fun buildLongIntMapFunction() {
+        val contract: Boolean
+        val map = buildLongIntMap {
+            contract = true
+            put(1L, 1)
+            put(2L, 2)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals(1, map[1L])
+        assertEquals(2, map[2L])
+    }
+
+    @Test
+    fun buildLongObjectMapWithCapacityFunction() {
+        val contract: Boolean
+        val map =
+            buildLongIntMap(20) {
+                contract = true
+                put(1L, 1)
+                put(2L, 2)
+            }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals(1, map[1L])
+        assertEquals(2, map[2L])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableLongIntMap()
         map[1L] = 1

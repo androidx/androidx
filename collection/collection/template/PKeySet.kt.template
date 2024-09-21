@@ -23,12 +23,15 @@
     "PrivatePropertyName",
     "NOTHING_TO_INLINE"
 )
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
 
 import androidx.annotation.IntRange
 import androidx.collection.internal.requirePrecondition
 import androidx.collection.internal.throwNoSuchElementException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -124,6 +127,40 @@ public fun mutablePKeySetOf(element1: PKey, element2: PKey, element3: PKey): Mut
  */
 public fun mutablePKeySetOf(vararg elements: PKey): MutablePKeySet =
     MutablePKeySet(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [PKeySet] by populating a [MutablePKeySet] using the given
+ * [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutablePKeySet] can be populated.
+ */
+public inline fun buildPKeySet(
+    builderAction: MutablePKeySet.() -> Unit,
+): PKeySet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutablePKeySet().apply(builderAction)
+}
+
+/**
+ * Builds a new [PKeySet] by populating a [MutablePKeySet] using the given
+ * [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutablePKeySet] can be populated.
+ */
+public inline fun buildPKeySet(
+    initialCapacity: Int,
+    builderAction: MutablePKeySet.() -> Unit,
+): PKeySet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutablePKeySet(initialCapacity).apply(builderAction)
+}
 
 /**
  * [PKeySet] is a container with a [Set]-like interface designed to avoid

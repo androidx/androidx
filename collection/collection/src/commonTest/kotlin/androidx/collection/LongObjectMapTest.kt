@@ -228,6 +228,36 @@ class LongObjectMapTest {
     }
 
     @Test
+    fun buildLongObjectMapFunction() {
+        val contract: Boolean
+        val map = buildLongObjectMap {
+            contract = true
+            put(1L, "World")
+            put(2L, "Monde")
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals("World", map[1L])
+        assertEquals("Monde", map[2L])
+    }
+
+    @Test
+    fun buildLongObjectMapWithCapacityFunction() {
+        val contract: Boolean
+        val map =
+            buildLongObjectMap(20) {
+                contract = true
+                put(1L, "World")
+                put(2L, "Monde")
+            }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals("World", map[1L])
+        assertEquals("Monde", map[2L])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableLongObjectMap<String>()
         map[1L] = "World"

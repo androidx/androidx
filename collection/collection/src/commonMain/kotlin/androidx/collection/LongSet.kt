@@ -23,11 +23,14 @@
     "PrivatePropertyName",
     "NOTHING_TO_INLINE"
 )
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
 
 import androidx.annotation.IntRange
 import androidx.collection.internal.requirePrecondition
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -97,6 +100,38 @@ public fun mutableLongSetOf(element1: Long, element2: Long, element3: Long): Mut
 /** Returns a new [MutableLongSet] with the specified elements. */
 public fun mutableLongSetOf(vararg elements: Long): MutableLongSet =
     MutableLongSet(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [LongSet] by populating a [MutableLongSet] using the given [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableLongSet] can be populated.
+ */
+public inline fun buildLongSet(
+    builderAction: MutableLongSet.() -> Unit,
+): LongSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongSet().apply(builderAction)
+}
+
+/**
+ * Builds a new [LongSet] by populating a [MutableLongSet] using the given [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableLongSet] can be populated.
+ */
+public inline fun buildLongSet(
+    initialCapacity: Int,
+    builderAction: MutableLongSet.() -> Unit,
+): LongSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongSet(initialCapacity).apply(builderAction)
+}
 
 /**
  * [LongSet] is a container with a [Set]-like interface designed to avoid allocations, including

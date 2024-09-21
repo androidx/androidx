@@ -229,6 +229,36 @@ class ObjectIntTest {
     }
 
     @Test
+    fun buildObjectIntMapFunction() {
+        val contract: Boolean
+        val map = buildObjectIntMap {
+            contract = true
+            put("Hello", 1)
+            put("Bonjour", 2)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals(1, map["Hello"])
+        assertEquals(2, map["Bonjour"])
+    }
+
+    @Test
+    fun buildObjectIntMapWithCapacityFunction() {
+        val contract: Boolean
+        val map =
+            buildObjectIntMap(20) {
+                contract = true
+                put("Hello", 1)
+                put("Bonjour", 2)
+            }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals(1, map["Hello"])
+        assertEquals(2, map["Bonjour"])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableObjectIntMap<String>()
         map["Hello"] = 1

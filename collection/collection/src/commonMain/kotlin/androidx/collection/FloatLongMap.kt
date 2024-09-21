@@ -15,11 +15,15 @@
  */
 
 @file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
 
 import androidx.collection.internal.requirePrecondition
 import androidx.collection.internal.throwNoSuchElementException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
@@ -210,6 +214,40 @@ public fun mutableFloatLongMapOf(
         map[key4] = value4
         map[key5] = value5
     }
+
+/**
+ * Builds a new [FloatLongMap] by populating a [MutableFloatLongMap] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableFloatLongMap] can be populated.
+ */
+public inline fun buildFloatLongMap(
+    builderAction: MutableFloatLongMap.() -> Unit,
+): FloatLongMap {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableFloatLongMap().apply(builderAction)
+}
+
+/**
+ * Builds a new [FloatLongMap] by populating a [MutableFloatLongMap] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of pairs added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableFloatLongMap] can be populated.
+ */
+public inline fun buildFloatLongMap(
+    initialCapacity: Int,
+    builderAction: MutableFloatLongMap.() -> Unit,
+): FloatLongMap {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableFloatLongMap(initialCapacity).apply(builderAction)
+}
 
 /**
  * [FloatLongMap] is a container with a [Map]-like interface for [Float] primitive keys and [Long]

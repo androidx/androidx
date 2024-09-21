@@ -23,11 +23,14 @@
     "PrivatePropertyName",
     "NOTHING_TO_INLINE"
 )
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
 
 import androidx.annotation.IntRange
 import androidx.collection.internal.requirePrecondition
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -96,6 +99,38 @@ public fun mutableIntSetOf(element1: Int, element2: Int, element3: Int): Mutable
 /** Returns a new [MutableIntSet] with the specified elements. */
 public fun mutableIntSetOf(vararg elements: Int): MutableIntSet =
     MutableIntSet(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [IntSet] by populating a [MutableIntSet] using the given [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableIntSet] can be populated.
+ */
+public inline fun buildIntSet(
+    builderAction: MutableIntSet.() -> Unit,
+): IntSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableIntSet().apply(builderAction)
+}
+
+/**
+ * Builds a new [IntSet] by populating a [MutableIntSet] using the given [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableIntSet] can be populated.
+ */
+public inline fun buildIntSet(
+    initialCapacity: Int,
+    builderAction: MutableIntSet.() -> Unit,
+): IntSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableIntSet(initialCapacity).apply(builderAction)
+}
 
 /**
  * [IntSet] is a container with a [Set]-like interface designed to avoid allocations, including

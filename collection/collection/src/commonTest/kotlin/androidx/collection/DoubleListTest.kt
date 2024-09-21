@@ -715,6 +715,36 @@ class DoubleListTest {
     }
 
     @Test
+    fun buildDoubleListFunction() {
+        val contract: Boolean
+        val l = buildDoubleList {
+            contract = true
+            add(2.0)
+            add(10.0)
+        }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertEquals(2.0, l[0])
+        assertEquals(10.0, l[1])
+    }
+
+    @Test
+    fun buildDoubleListWithCapacityFunction() {
+        val contract: Boolean
+        val l =
+            buildDoubleList(20) {
+                contract = true
+                add(2.0)
+                add(10.0)
+            }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertTrue(l.content.size >= 20)
+        assertEquals(2.0, l[0])
+        assertEquals(10.0, l[1])
+    }
+
+    @Test
     fun binarySearchDoubleList() {
         val l = mutableDoubleListOf(-2.0, -1.0, 2.0, 10.0, 10.0)
         assertEquals(0, l.binarySearch(-2))
