@@ -24,6 +24,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.imagecapture.CameraCapturePipeline;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -122,6 +123,13 @@ public class ForwardingCameraControl implements CameraControlInternal {
                 captureConfigs,
                 captureMode,
                 flashType);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<CameraCapturePipeline> getCameraCapturePipelineAsync(
+            @ImageCapture.CaptureMode int captureMode, @ImageCapture.FlashType int flashType) {
+        return mCameraControlInternal.getCameraCapturePipelineAsync(captureMode, flashType);
     }
 
     @NonNull

@@ -45,10 +45,15 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.FakeCameraCapturePipeline
+import androidx.camera.testing.impl.FakeCameraCapturePipeline.InvocationType.POST_CAPTURE
+import androidx.camera.testing.impl.FakeCameraCapturePipeline.InvocationType.PRE_CAPTURE
 import androidx.camera.testing.impl.fakes.FakeDeferrableSurface
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -96,6 +101,14 @@ class VirtualCameraAdapterTest {
     private lateinit var adapter: VirtualCameraAdapter
     private var snapshotTriggered = false
 
+    private enum class Event {
+        PRE_CAPTURE,
+        SNAPSHOT,
+        POST_CAPTURE,
+    }
+
+    private val events = CopyOnWriteArrayList<Event>()
+
     @Before
     fun setUp() {
         adapter =
@@ -103,6 +116,7 @@ class VirtualCameraAdapterTest {
                 _,
                 _ ->
                 snapshotTriggered = true
+                events.add(Event.SNAPSHOT)
                 Futures.immediateFuture(null)
             }
     }
@@ -130,6 +144,41 @@ class VirtualCameraAdapterTest {
 
         // The StreamSharing.Control is called to take a snapshot.
         assertThat(snapshotTriggered).isTrue()
+    }
+
+    @Test
+    fun submitStillCaptureRequests_invokesPreAndPostCapturesInCorrectSequence() {
+        // Arrange.
+        adapter.bindChildren()
+
+        val cameraControl = child1.camera!!.cameraControl as CameraControlInternal
+
+        val fakeCameraCapturePipeline =
+            cameraControl
+                .getCameraCapturePipelineAsync(CAPTURE_MODE_MINIMIZE_LATENCY, FLASH_MODE_AUTO)
+                .get(100, TimeUnit.MILLISECONDS) as FakeCameraCapturePipeline
+
+        fakeCameraCapturePipeline.addInvocationListener(
+            object : FakeCameraCapturePipeline.InvocationListener {
+                override fun onInvoked(invocationType: FakeCameraCapturePipeline.InvocationType) {
+                    when (invocationType) {
+                        PRE_CAPTURE -> events.add(Event.PRE_CAPTURE)
+                        POST_CAPTURE -> events.add(Event.POST_CAPTURE)
+                    }
+                }
+            }
+        )
+
+        // Act: submit a still capture request from a child.
+
+        cameraControl.submitStillCaptureRequests(
+            listOf(CaptureConfig.Builder().build()),
+            CAPTURE_MODE_MINIMIZE_LATENCY,
+            FLASH_MODE_AUTO
+        )
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(events).isEqualTo(listOf(Event.PRE_CAPTURE, Event.SNAPSHOT, Event.POST_CAPTURE))
     }
 
     @Test

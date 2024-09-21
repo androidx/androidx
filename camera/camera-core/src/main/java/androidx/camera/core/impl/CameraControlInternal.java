@@ -31,6 +31,7 @@ import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.ImageCapture.FlashType;
 import androidx.camera.core.ImageCapture.ScreenFlash;
+import androidx.camera.core.imagecapture.CameraCapturePipeline;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -116,6 +117,30 @@ public interface CameraControlInternal extends CameraControl {
             @NonNull List<CaptureConfig> captureConfigs,
             @CaptureMode int captureMode,
             @FlashType int flashType);
+
+    /**
+     * Returns a {@link ListenableFuture} of {@link CameraCapturePipeline} instance (no-op by
+     * default) based on the capture parameters provided.
+     */
+    @NonNull
+    default ListenableFuture<CameraCapturePipeline> getCameraCapturePipelineAsync(
+            @CaptureMode int captureMode, @FlashType int flashType) {
+        return Futures.immediateFuture(
+                new CameraCapturePipeline() {
+                    @NonNull
+                    @Override
+                    public ListenableFuture<Void> invokePreCapture() {
+                        return Futures.immediateFuture(null);
+                    }
+
+                    @NonNull
+                    @Override
+                    public ListenableFuture<Void> invokePostCapture() {
+                        return Futures.immediateFuture(null);
+                    }
+                }
+        );
+    }
 
     /**
      * Gets the current SessionConfig.
