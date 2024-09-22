@@ -3706,6 +3706,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mInterceptingOnItemTouchListener = null;
         if (findInterceptingOnItemTouchListener(e)) {
             cancelScroll();
+            MotionEvent cancelEvent = MotionEvent.obtain(e);
+            cancelEvent.setAction(MotionEvent.ACTION_CANCEL);
+            final int listenerCount = mOnItemTouchListeners.size();
+            for (int i = 0; i < listenerCount; i++) {
+                final OnItemTouchListener listener = mOnItemTouchListeners.get(i);
+                if (listener == null || listener == mInterceptingOnItemTouchListener) {
+                    continue;
+                } else {
+                    listener.onInterceptTouchEvent(this, cancelEvent);
+                }
+            }
             return true;
         }
 

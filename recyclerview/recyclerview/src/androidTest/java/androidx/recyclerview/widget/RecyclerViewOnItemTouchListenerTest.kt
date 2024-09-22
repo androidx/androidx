@@ -131,6 +131,18 @@ class RecyclerViewOnItemTouchListenerTest {
         listenerInterceptsMove_correctListenerCalls(true)
     }
 
+    @Test
+    fun listenerInterceptsMove_rvChildClicks_correctListenerCallsAndSendsCancel() {
+        val actionCancelFromMove1 = MotionEventItem(100, ACTION_CANCEL, 500f, 400f)
+        val secondOnItemTouchListener = MyOnItemTouchListener()
+        recyclerView.addOnItemTouchListener(secondOnItemTouchListener)
+
+        listenerInterceptsMove_correctListenerCalls(true)
+
+        assertThat(secondOnItemTouchListener.motionEventItems)
+            .isEqualTo(listOf(ActionDown to true, actionCancelFromMove1 to true))
+    }
+
     private fun listenerInterceptsMove_correctListenerCalls(childClickable: Boolean) {
         childView.isClickable = childClickable
         onItemTouchListener.motionEventItemToStartIntecepting = ActionMove1
