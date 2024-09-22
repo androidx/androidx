@@ -48,6 +48,7 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
             val backLambda =
                 computeKotlinArgumentMapping(node, method)
                     .orEmpty()
+                    .asSequence()
                     .filter { (_, parameter) -> parameter.name == "onBack" }
                     .keys
                     .filterIsInstance<ULambdaExpression>()
