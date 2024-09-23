@@ -63,6 +63,7 @@ import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 /**
  * [AndroidXMultiplatformExtension] is an extension that wraps specific functionality of the Kotlin
@@ -681,8 +682,14 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         return if (project.enableWasmJs()) {
             kotlinExtension.wasmJs("wasmJs") {
                 block?.execute(this)
-                binaries.executable()
-                browser {}
+                binaries.library()
+                browser {
+                    testTask {
+                        it.useKarma { useChromeHeadless() }
+                        // TODO(b/367673246) Enable when ChromeHeadless is in AndroidX
+                        it.enabled = false
+                    }
+                }
                 project.configureWasm()
             }
         } else {
@@ -710,31 +717,22 @@ private fun Project.configureWasm() {
     }
 
     // Use DSL API when https://youtrack.jetbrains.com/issue/KT-70029 is closed for all tasks below
-    tasks.named("wasmJsDevelopmentExecutableCompileSync", DefaultIncrementalSyncTask::class.java) {
+    tasks.named("wasmJsDevelopmentLibraryCompileSync", DefaultIncrementalSyncTask::class.java) {
         it.destinationDirectory.set(
             file(layout.buildDirectory.dir("js/packages/wasm-js/dev/kotlin"))
         )
     }
-    tasks.named("wasmJsProductionExecutableCompileSync", DefaultIncrementalSyncTask::class.java) {
+    tasks.named("wasmJsProductionLibraryCompileSync", DefaultIncrementalSyncTask::class.java) {
         it.destinationDirectory.set(
             file(layout.buildDirectory.dir("js/packages/wasm-js/prod/kotlin"))
         )
     }
-    tasks.named(
-        "wasmJsTestTestDevelopmentExecutableCompileSync",
-        DefaultIncrementalSyncTask::class.java
-    ) {
-        it.destinationDirectory.set(
-            file(layout.buildDirectory.dir("js/packages/wasm-js-test/dev/kotlin"))
-        )
-    }
-    tasks.named(
-        "wasmJsTestTestProductionExecutableCompileSync",
-        DefaultIncrementalSyncTask::class.java
-    ) {
-        it.destinationDirectory.set(
-            file(layout.buildDirectory.dir("js/packages/wasm-js-test/prod/kotlin"))
-        )
+
+    // Compiler Arg needed for tests only: https://youtrack.jetbrains.com/issue/KT-59081
+    tasks.withType(Kotlin2JsCompile::class.java).configureEach { task ->
+        if (task.name.lowercase().contains("test")) {
+            task.compilerOptions.freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
+        }
     }
 }
 
