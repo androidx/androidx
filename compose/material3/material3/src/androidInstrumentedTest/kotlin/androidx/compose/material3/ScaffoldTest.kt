@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -39,6 +40,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -151,7 +153,7 @@ class ScaffoldTest {
                             .height(50.dp)
                             .background(color = Color.Red)
                             .onGloballyPositioned { positioned: LayoutCoordinates ->
-                                appbarPosition = positioned.positionInParent()
+                                appbarPosition = positioned.positionInWindow()
                                 appbarSize = positioned.size
                             }
                     )
@@ -164,7 +166,7 @@ class ScaffoldTest {
                 Box(
                     Modifier.fillMaxSize().background(color = Color.Blue).onGloballyPositioned {
                         positioned: LayoutCoordinates ->
-                        contentPosition = positioned.positionInParent()
+                        contentPosition = positioned.positionInWindow()
                         contentSize = positioned.size
                     }
                 )
@@ -340,7 +342,7 @@ class ScaffoldTest {
             Box(Modifier.requiredSize(10.dp, 40.dp)) {
                 Scaffold(
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
-                    topBar = { Box(Modifier.requiredSize(0.dp)) }
+                    topBar = { Box(Modifier.requiredHeight(0.dp).fillMaxWidth()) }
                 ) { paddingValues ->
                     // top is like the collapsed top app bar (i.e. 0dp) + rounding error
                     assertDpIsWithinThreshold(
