@@ -20,7 +20,6 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 import static androidx.work.multiprocess.RemoteClientUtilsKt.map;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -69,7 +68,6 @@ import java.util.concurrent.Executor;
  * The implementation of the {@link RemoteWorkManager} which sets up the
  * {@link android.content.ServiceConnection} and dispatches the request.
  */
-@SuppressLint("BanKeepAnnotation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
