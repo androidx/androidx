@@ -19,8 +19,8 @@ package androidx.cursoradapter.widget;
 import android.database.Cursor;
 import android.widget.Filter;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The CursorFilter delegates most of the work to the
