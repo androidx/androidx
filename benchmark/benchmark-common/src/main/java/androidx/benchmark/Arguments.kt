@@ -41,12 +41,23 @@ object Arguments {
      * Note that when StartupMode.COLD is used, additional work must be performed during target app
      * startup to initialize tracing.
      */
-    private val _perfettoSdkTracingEnable: Boolean
     val perfettoSdkTracingEnable: Boolean
         get() = perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
 
-    /** Allows tests to override whether full tracing is enabled */
+    private val _perfettoSdkTracingEnable: Boolean
     @VisibleForTesting var perfettoSdkTracingEnableOverride: Boolean? = null
+
+    /**
+     * Base URL for help articles for Startup Insights.
+     *
+     * This property should only be used while the Startup Insights feature is under development. It
+     * can be overridden for testing purposes using [startupInsightsHelpUrlBaseOverride].
+     */
+    val startupInsightsHelpUrlBase: String?
+        get() = startupInsightsHelpUrlBaseOverride ?: _startupInsightsHelpUrlBase
+
+    private val _startupInsightsHelpUrlBase: String?
+    @VisibleForTesting var startupInsightsHelpUrlBaseOverride: String? = null
 
     val enabledRules: Set<RuleType>
 
@@ -174,6 +185,9 @@ object Arguments {
                 // fullTracing.enable is the legacy/compat name
                 ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
                 ?: false
+
+        _startupInsightsHelpUrlBase =
+            arguments.getBenchmarkArgument("startupInsights.helpUrlBase", defaultValue = null)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")

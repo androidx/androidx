@@ -17,6 +17,8 @@
 package androidx.benchmark.macro
 
 import androidx.benchmark.Insight
+import androidx.benchmark.StartupInsightsConfig
+import java.net.URLEncoder
 import perfetto.protos.AndroidStartupMetric.SlowStartReason
 import perfetto.protos.AndroidStartupMetric.ThresholdValue.ThresholdUnit
 
@@ -26,7 +28,10 @@ import perfetto.protos.AndroidStartupMetric.ThresholdValue.ThresholdUnit
  *
  * TODO(353692849): add unit tests
  */
-internal fun createInsightsIdeSummary(rawInsights: List<List<SlowStartReason>>): List<Insight> {
+internal fun createInsightsIdeSummary(
+    rawInsights: List<List<SlowStartReason>>,
+    startupInsightsConfig: StartupInsightsConfig?
+): List<Insight> {
     fun createInsightString(
         criterion: SlowStartReason,
         observed: List<IndexedValue<SlowStartReason>>
@@ -49,7 +54,20 @@ internal fun createInsightsIdeSummary(rawInsights: List<List<SlowStartReason>>):
             }
 
         val criterionString = buildString {
-            append(requireNotNull(criterion.reason))
+            val reasonHelpUrlBase = startupInsightsConfig?.reasonHelpUrlBase
+            if (reasonHelpUrlBase != null) {
+                append("[")
+                append(requireNotNull(criterion.reason).replace("]", "\\]"))
+                append("]")
+                append("(")
+                append(reasonHelpUrlBase.replace(")", "\\)")) // base url
+                val reasonId = requireNotNull(criterion.reason_id).name
+                append(URLEncoder.encode(reasonId, Charsets.UTF_8.name())) // reason id as a suffix
+                append(")")
+            } else {
+                append(requireNotNull(criterion.reason))
+            }
+
             val thresholdValue = requireNotNull(expectedValue.value_)
             append(" (expected: ")
             if (thresholdUnit == ThresholdUnit.TRUE_OR_FALSE) {

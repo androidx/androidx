@@ -105,9 +105,10 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Enable using experimental APIs from within same version group
         freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
         ]
     }
 }
