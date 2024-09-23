@@ -21,12 +21,8 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.os.Looper
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
-import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdateImpl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
@@ -58,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -81,19 +76,6 @@ class FlashControlTest {
         )
     }
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
-    private val aeFpsRange =
-        AeFpsRange(
-            CameraQuirks(
-                FakeCameraMetadata(),
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata(),
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
-            )
-        )
     private lateinit var state3AControl: State3AControl
     private lateinit var torchControl: TorchControl
     private lateinit var flashControl: FlashControl
@@ -135,7 +117,6 @@ class FlashControlTest {
             State3AControl(
                     cameraProperties,
                     NoOpAutoFlashAEModeDisabler,
-                    aeFpsRange,
                 )
                 .apply { requestControl = fakeRequestControl }
 
@@ -171,7 +152,6 @@ class FlashControlTest {
                 State3AControl(
                         fakeCameraProperties,
                         NoOpAutoFlashAEModeDisabler,
-                        aeFpsRange,
                     )
                     .apply { requestControl = fakeRequestControl },
                 fakeUseCaseThreads,

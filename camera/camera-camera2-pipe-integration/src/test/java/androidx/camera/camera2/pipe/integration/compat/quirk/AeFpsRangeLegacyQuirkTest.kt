@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.integration.compat.workaround
+package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,81 +35,77 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class AeFpsRangeTest {
+class AeFpsRangeLegacyQuirkTest {
     @Test
     fun validEntryExists_correctRangeIsSelected() {
         val availableFpsRanges: Array<Range<Int>> =
             arrayOf(Range(25, 30), Range(7, 33), Range(15, 30), Range(11, 22), Range(30, 30))
-        val aeFpsRange: AeFpsRange =
-            createAeFpsRange(
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                 availableFpsRanges
             )
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isEqualTo(Range(15, 30))
+        assertThat(aeFpsRangeQuirk!!.targetAeFpsRange).isEqualTo(Range(15, 30))
     }
 
     @Test
     fun noValidEntry_doesNotSetFpsRange() {
         val availableFpsRanges: Array<Range<Int>> =
             arrayOf(Range(25, 25), Range(7, 33), Range(15, 24), Range(11, 22))
-        val aeFpsRange =
-            createAeFpsRange(
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                 availableFpsRanges
             )
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isNull()
+        assertThat(aeFpsRangeQuirk!!.targetAeFpsRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
     }
 
     @Test
     fun availableArrayIsNull_doesNotSetFpsRange() {
-        val aeFpsRange =
-            createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null)
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isNull()
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null)
+        assertThat(aeFpsRangeQuirk!!.targetAeFpsRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
     }
 
     @Test
     fun limitedDevices_doesNotSetFpsRange() {
         val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
-        val aeFpsRange =
-            createAeFpsRange(
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 availableFpsRanges
             )
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isNull()
+        assertThat(aeFpsRangeQuirk).isNull()
     }
 
     @Test
     fun fullDevices_doesNotSetFpsRange() {
         val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
-        val aeFpsRange =
-            createAeFpsRange(
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 availableFpsRanges
             )
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isNull()
+        assertThat(aeFpsRangeQuirk).isNull()
     }
 
     @Test
     fun level3Devices_doesNotSetFpsRange() {
         val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
-        val aeFpsRange =
-            createAeFpsRange(
+        val aeFpsRangeQuirk =
+            createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
                 availableFpsRanges
             )
-        val pick = getAeFpsRange(aeFpsRange)
-        assertThat(pick).isNull()
+        assertThat(aeFpsRangeQuirk).isNull()
     }
 
-    private fun createAeFpsRange(
+    private fun createAeFpsRangeQuirk(
         hardwareLevel: Int,
         availableFpsRanges: Array<Range<Int>>?
-    ): AeFpsRange {
+    ): AeFpsRangeQuirk? {
         val streamConfigurationMap = StreamConfigurationMapBuilder.newBuilder().build()
 
         val metadata =
@@ -119,18 +117,15 @@ class AeFpsRangeTest {
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap
                 )
             )
-        return AeFpsRange(
-            CameraQuirks(
+        return CameraQuirks(
                 metadata,
                 StreamConfigurationMapCompat(
                     streamConfigurationMap,
                     OutputSizesCorrector(metadata, streamConfigurationMap)
                 )
             )
-        )
-    }
-
-    private fun getAeFpsRange(aeFpsRange: AeFpsRange): Range<Int>? {
-        return aeFpsRange.getTargetAeFpsRange()
+            .quirks
+            .getAll(AeFpsRangeQuirk::class.java)
+            .firstOrNull()
     }
 }

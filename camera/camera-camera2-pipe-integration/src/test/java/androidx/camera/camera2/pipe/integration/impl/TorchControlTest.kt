@@ -20,11 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
-import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -52,7 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -82,19 +77,6 @@ class TorchControlTest {
             // Set a CompletableDeferred without set it to completed.
             setTorchResult = CompletableDeferred()
         }
-    private val aeFpsRange =
-        AeFpsRange(
-            CameraQuirks(
-                FakeCameraMetadata(),
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata(),
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
-            )
-        )
 
     private lateinit var torchControl: TorchControl
 
@@ -108,7 +90,6 @@ class TorchControlTest {
                 State3AControl(
                         fakeCameraProperties,
                         NoOpAutoFlashAEModeDisabler,
-                        aeFpsRange,
                     )
                     .apply { requestControl = fakeUseCaseCameraRequestControl },
                 fakeUseCaseThreads,
@@ -128,7 +109,6 @@ class TorchControlTest {
                     State3AControl(
                             fakeCameraProperties,
                             NoOpAutoFlashAEModeDisabler,
-                            aeFpsRange,
                         )
                         .apply { requestControl = fakeUseCaseCameraRequestControl },
                     fakeUseCaseThreads,
@@ -150,7 +130,6 @@ class TorchControlTest {
                     State3AControl(
                             fakeCameraProperties,
                             NoOpAutoFlashAEModeDisabler,
-                            aeFpsRange,
                         )
                         .apply { requestControl = fakeUseCaseCameraRequestControl },
                     fakeUseCaseThreads,
@@ -173,7 +152,6 @@ class TorchControlTest {
                     State3AControl(
                             fakeCameraProperties,
                             NoOpAutoFlashAEModeDisabler,
-                            aeFpsRange,
                         )
                         .apply { requestControl = fakeUseCaseCameraRequestControl },
                     fakeUseCaseThreads,
@@ -207,7 +185,6 @@ class TorchControlTest {
                     State3AControl(
                             fakeCameraProperties,
                             NoOpAutoFlashAEModeDisabler,
-                            aeFpsRange,
                         )
                         .apply { requestControl = fakeUseCaseCameraRequestControl },
                     fakeUseCaseThreads,

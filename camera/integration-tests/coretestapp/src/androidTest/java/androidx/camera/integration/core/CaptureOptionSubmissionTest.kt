@@ -39,8 +39,10 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
@@ -62,6 +64,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -140,11 +143,6 @@ class CaptureOptionSubmissionTest(
 
     @Test
     fun canSubmitSupportedAeTargetFpsRanges_whenTargetFrameRateSetToPreviewOnly() = runBlocking {
-        assumeTrue(
-            "TODO(b/332235883): Enable for legacy when the bug is resolved",
-            !isHwLevelLegacy()
-        )
-
         // At least 2 FPS ranges should be checked as the submitted range may just be from template
         getSupportedFpsRanges().forEach { targetFpsRange ->
             if (targetFpsRange.upper > 30) {
@@ -178,11 +176,6 @@ class CaptureOptionSubmissionTest(
     @Test
     fun canSubmitSupportedAeTargetFpsRanges_whenTargetFrameRateSetToVideoCaptureOnly() =
         runBlocking {
-            assumeTrue(
-                "TODO(b/332235883): Enable for legacy when the bug is resolved",
-                !isHwLevelLegacy()
-            )
-
             // At least 2 FPS ranges should be checked as the submitted range may be from template
             getSupportedFpsRanges().forEach { targetFpsRange ->
                 if (targetFpsRange.upper > 30) {
@@ -201,6 +194,8 @@ class CaptureOptionSubmissionTest(
 
                 bindUseCases(
                     listOf(
+                        // Binds Preview together to ensure that a repeating will be started
+                        Preview.Builder(),
                         VideoCapture.Builder(Recorder.Builder().build())
                             .setTargetFrameRate(targetFpsRange),
                     )
@@ -218,15 +213,48 @@ class CaptureOptionSubmissionTest(
             }
         }
 
+    @Test
+    fun canApplyAeFpsRangeWorkaround() = runBlocking {
+        val targetFpsRange = getAeFpsRangeFromQuirks()
+        assumeFalse(
+            "AeFpsRange workaround is applied only on LEGACY level devices.",
+            targetFpsRange == null
+        )
+
+        var lastSubmittedFpsRange: Range<Int>? = null
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                    lastSubmittedFpsRange = it
+                }
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+            }
+
+        bindUseCases(listOf(Preview.Builder()))
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+                "Test failed for targetFpsRange = $targetFpsRange" +
+                    ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+            )
+            .that(isCompleted)
+            .isTrue()
+    }
+
+    private fun getAeFpsRangeFromQuirks(): Range<Int>? = runBlocking {
+        val camera =
+            withContext(Dispatchers.Main) {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
+            }
+
+        val quirks = (camera.cameraInfo as CameraInfoInternal).cameraQuirks
+        quirks.getAll(AeFpsRangeQuirk::class.java).firstOrNull()?.targetAeFpsRange
+    }
+
     // TODO: b/332464991 - Add a FPS test adding different FPS ranges to Preview & VideoCapture
 
     @Test
     fun canSetAeTargetFpsRangeWithCamera2Interop() = runBlocking {
-        assumeTrue(
-            "TODO(b/332235883): Enable for legacy when the bug is resolved",
-            !isHwLevelLegacy()
-        )
-
         // At least 2 FPS ranges should be checked as the submitted range may just be from template
         getSupportedFpsRanges().forEach { targetFpsRange ->
             if (targetFpsRange.upper > 30) {
@@ -276,13 +304,12 @@ class CaptureOptionSubmissionTest(
 
     @Test
     fun canOverwriteFpsRangeWithCamera2Interop_whenAnotherSetViaSetTargetFrameRate() = runBlocking {
+        val targetFpsRange = getSupportedFpsRanges().firstOrNull { it.upper <= 30 }
+        val interopFpsRange = getSupportedFpsRanges().lastOrNull { it.upper <= 30 }
         assumeTrue(
-            "TODO(b/332235883): Enable for legacy when the bug is resolved",
-            !isHwLevelLegacy()
+            "Run the test only when two different supported FPS ranges can be found.",
+            targetFpsRange != null && interopFpsRange != null && targetFpsRange != interopFpsRange
         )
-
-        val targetFpsRange = getSupportedFpsRanges().first { it.upper <= 30 }
-        val interopFpsRange = getSupportedFpsRanges().last { it.upper <= 30 }
 
         var lastSubmittedFpsRange: Range<Int>? = null
         val result =
@@ -295,14 +322,14 @@ class CaptureOptionSubmissionTest(
 
         bindUseCases(
             listOf(
-                Preview.Builder().setTargetFrameRate(targetFpsRange),
+                Preview.Builder().setTargetFrameRate(targetFpsRange!!),
                 // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't needed
                 // when they are bound.
                 ImageCapture.Builder().also {
                     Camera2Interop.Extender(it)
                         .setCaptureRequestOption(
                             CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                            interopFpsRange
+                            interopFpsRange!!
                         )
                 }
             )

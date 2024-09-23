@@ -31,7 +31,6 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
@@ -128,7 +127,6 @@ object FakeCameraInfoAdapterCreator {
             State3AControl(
                     cameraProperties,
                     NoOpAutoFlashAEModeDisabler,
-                    AeFpsRange(fakeCameraQuirks),
                 )
                 .apply { requestControl = fakeRequestControl }
         return CameraInfoAdapter(

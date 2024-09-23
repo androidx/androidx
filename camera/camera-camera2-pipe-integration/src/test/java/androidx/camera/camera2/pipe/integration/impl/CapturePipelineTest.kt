@@ -44,9 +44,6 @@ import androidx.camera.camera2.pipe.integration.adapter.CaptureResultAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.ZslControl
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
-import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage
 import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage.Companion.doNotLockAe3ABehavior
@@ -55,7 +52,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashA
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
-import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlashImpl
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -114,7 +110,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.StreamConfigurationMapBuilder
 import org.robolectric.util.ReflectionHelpers
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
@@ -328,18 +323,6 @@ class CapturePipelineTest {
             State3AControl(
                     fakeCameraProperties,
                     NoOpAutoFlashAEModeDisabler,
-                    AeFpsRange(
-                        CameraQuirks(
-                            FakeCameraMetadata(),
-                            StreamConfigurationMapCompat(
-                                StreamConfigurationMapBuilder.newBuilder().build(),
-                                OutputSizesCorrector(
-                                    FakeCameraMetadata(),
-                                    StreamConfigurationMapBuilder.newBuilder().build()
-                                )
-                            )
-                        )
-                    ),
                 )
                 .apply { requestControl = fakeRequestControl }
 

@@ -39,7 +39,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
-import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
 import androidx.camera.camera2.interop.Camera2CameraControl;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
@@ -141,7 +140,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private volatile int mFlashMode = FLASH_MODE_OFF;
 
     // Workarounds
-    private final AeFpsRange mAeFpsRange;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler;
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
@@ -210,7 +208,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         }
 
         // Workarounds
-        mAeFpsRange = new AeFpsRange(cameraQuirks);
         mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
@@ -686,8 +683,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         // AF Mode is assigned in mFocusMeteringControl.
         mFocusMeteringControl.addFocusMeteringOptions(builder);
-
-        mAeFpsRange.addAeFpsRangeOptions(builder);
 
         mZoomControl.addZoomOption(builder);
 

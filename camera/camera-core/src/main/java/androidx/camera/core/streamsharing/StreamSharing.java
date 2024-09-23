@@ -414,6 +414,9 @@ public class StreamSharing extends UseCase {
         if (streamSpec.getImplementationOptions() != null) {
             builder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
+        // Applies the AE fps range to the session config builder according to the stream spec and
+        // quirk values.
+        applyExpectedFrameRateRange(builder, streamSpec);
         return builder;
     }
 
