@@ -18,7 +18,6 @@ package androidx.camera.media3.effect
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.core.util.Consumer
@@ -32,6 +31,15 @@ import java.util.concurrent.Executor
  * allows the media3 [Effect] to be applied to the CameraX pipeline on the fly without restarting
  * the camera.
  *
+ * Code sample:
+ * ```
+ * media3Effect = Media3Effect(requireContext(), PREVIEW or VIDEO_CAPTURE, executor) {
+ *   Log.e(TAG, "Error in Media3Effect: $it")
+ * }
+ * media3Effect.setEffects(listOf(Brightness(1.5f)))
+ * cameraController.setEffects(setOf(media3Effect))
+ * ```
+ *
  * @param context the Android context
  * @param targets the target UseCase to which this effect should be applied. For details, see
  *   [CameraEffect].
@@ -40,7 +48,6 @@ import java.util.concurrent.Executor
  *   be the error thrown by this [Media3Effect]. This is invoked on the provided executor.
  */
 @SuppressLint("UnsafeOptInUsageError")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Media3Effect(
     context: Context,
     targets: Int,
