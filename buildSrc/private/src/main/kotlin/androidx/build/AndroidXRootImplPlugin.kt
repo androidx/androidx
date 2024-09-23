@@ -176,20 +176,22 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.args.addAll(listOf("--ignore-engines", "--verbose"))
             if (project.useYarnOffline()) {
                 it.args.add("--offline")
-                println(
+                it.doFirst {
+                    println(
+                        """
+                    Fetching yarn packages from the offline mirror: ${offlineMirrorStorage.path}.
+                    Your build will fail if a package is not in the offline mirror. To fix, run:
+
+                    $TERMINAL_RED./gradlew kotlinNpmInstall -Pandroidx.yarnOfflineMode=false &&
+                    ./gradlew kotlinUpgradeYarnLock$TERMINAL_RESET
+
+                    this will download the dependencies from the internet and update the lockfile.
+                    Don't forget to upload the changes to Gerrit!
                     """
-        Fetching yarn packages from the offline mirror: ${offlineMirrorStorage.path}.
-        Your build will fail if a yarn dependency is not in the offline mirror. To fix, run:
-
-           $TERMINAL_RED./gradlew kotlinNpmInstall -Pandroidx.yarnOfflineMode=false &&
-            ./gradlew kotlinUpgradeYarnLock$TERMINAL_RESET
-
-        this will download the dependencies from the internet and update the lockfile.
-        Don't forget to upload the changes to Gerrit!
-        """
-                        .trimIndent()
-                        .replace("\n", " ")
-                )
+                            .trimIndent()
+                            .replace("\n", " ")
+                    )
+                }
             }
         }
     }
