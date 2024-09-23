@@ -46,6 +46,11 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.pdf.R;
 import androidx.pdf.ViewState;
+import androidx.pdf.data.Range;
+import androidx.pdf.metrics.EventCallback;
+import androidx.pdf.metrics.EventState;
+import androidx.pdf.metrics.GestureRecordingProcessor;
+import androidx.pdf.metrics.PositionState;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.util.GestureTrackingView;
 import androidx.pdf.util.MathUtils;
@@ -225,6 +230,14 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private Rect mPaddingOnLastViewportUpdate;
     private PdfSelectionModel mPdfSelectionModel;
     private PointF mRestoreLookAtPoint;
+    private EventCallback mEventCallback;
+
+    /**
+     * We disregard an initial zoom change for logging purposes. We do not want to treat ZoomView's
+     * initial fit-to-zoom or restore-zoom change as a user zoom gesture.
+     */
+    private boolean mTrackedInitialZoom = false;
+    private boolean mStableZoomChanged = false;
 
     {
         mScroller = new RelativeScroller(getContext());
@@ -415,6 +428,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
 
     public void setPdfSelectionModel(@NonNull PdfSelectionModel pdfSelectionModel) {
         mPdfSelectionModel = pdfSelectionModel;
+    }
+
+    public void setMetricEventCallback(
+            @Nullable EventCallback eventCallback) {
+        mEventCallback = eventCallback;
     }
 
     /** Exposes this view's position as an observable value. */
@@ -905,14 +923,52 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         if (position == null || !paginatedView.getModel().isInitialized()) {
             return;
         }
-
-        // Change the resolution of the bitmaps only when a gesture is not in progress.
-        if (position.stable || this.getStableZoom() == 0f) {
-            this.setStableZoom(position.zoom);
+        Range prevVisiblePages = paginatedView.getPageRangeHandler().getVisiblePages();
+        boolean isInitialDocumentLoad = false;
+        // If visiblePages is equal to null, this is the first time we're requesting page assets.
+        if (prevVisiblePages == null) {
+            prevVisiblePages = new Range();
+            isInitialDocumentLoad = true;
         }
 
         paginatedView.setViewArea(this.getVisibleAreaInContentCoords());
         paginatedView.refreshPageRangeInVisibleArea(position, this.getHeight());
+
+        mStableZoomChanged = false;
+        // Change the resolution of the bitmaps only when a gesture is not in progress.
+        // Only update zoom if the gesture is stable (not in progress) or if the stable zoom is not
+        // yet set.
+        if (position.stable || this.getStableZoom() == 0f) {
+            if (this.getStableZoom() != position.zoom) {
+                handleStableZoomChange(position.zoom);
+            }
+        }
+
+        // Did any new pages become visible?
+        // On the first load, treat all visible pages as newly visible. Otherwise, discount pages
+        // that were visible previously
+        Range visiblePages = paginatedView.getPageRangeHandler().getVisiblePages();
+        Range newlyVisiblePages = isInitialDocumentLoad
+                ? visiblePages
+                : GestureRecordingProcessor.Companion
+                        .getNewlyVisiblePages(visiblePages, prevVisiblePages);
+        // We're loading new assets on scroll when:
+        // * New pages are visible AND
+        // * Scroll position has settled OR we're actively scrolling at a stable zoom level
+        boolean loadingNewAssetsOnScroll = GestureRecordingProcessor.Companion
+                .loadingNewAssetsOnScroll(newlyVisiblePages, position, this.getStableZoom());
+        PositionState scrollPositionState = new PositionState(
+                loadingNewAssetsOnScroll ? EventState.NEW_ASSETS_LOADED : EventState.NO_EVENT,
+                newlyVisiblePages);
+        PositionState zoomPositionState = new PositionState(
+                mStableZoomChanged ? EventState.ZOOM_CHANGED : EventState.NO_EVENT,
+                paginatedView.getPageRangeHandler().getVisiblePages());
+
+        // Start Event Tracking based upon current vs new state, after gesture is completed.
+        GestureRecordingProcessor gestureRecordingProcessor =
+                new GestureRecordingProcessor(mEventCallback, mStableZoom);
+        gestureRecordingProcessor.processNewPositionState(scrollPositionState, zoomPositionState);
+
         paginatedView.handleGonePages(false);
         paginatedView.loadInvisibleNearPageRange(this.getStableZoom());
 
@@ -946,6 +1002,24 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
                     paginatedView.getPageRangeHandler().getVisiblePages().getLast()
             );
         }
+    }
+
+    private void handleStableZoomChange(float newZoom) {
+        // If the stable zoom has already been set (not the initial setting)
+        if (this.getStableZoom() != 0f) {
+            markStableZoomChangeIfNeeded();
+        }
+        // Update the stable zoom level to the current position's zoom
+        this.setStableZoom(newZoom);
+    }
+
+    private void markStableZoomChangeIfNeeded() {
+        if (mTrackedInitialZoom) {
+            // Mark that a stable zoom change has occurred
+            mStableZoomChanged = true;
+        }
+        // Mark that we've now tracked the initial zoom change
+        mTrackedInitialZoom = true;
     }
 
     /**

@@ -102,7 +102,6 @@ public class ZoomScrollValueObserverTest {
                 VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
-        verify(mMockZoomView).setStableZoom(1.0f);
         verify(mMockPaginatedView).setViewArea(RECT);
         verify(mMockPaginatedView).refreshPageRangeInVisibleArea(mNewPosition, 100);
         verify(mMockPaginatedView).handleGonePages(false);

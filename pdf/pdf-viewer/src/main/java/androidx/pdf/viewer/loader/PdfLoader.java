@@ -193,7 +193,7 @@ public class PdfLoader {
 
     /**
      * Renders bitmaps for the given tiles - once it is ready, will call the
-     * {@link PdfLoaderCallbacks#setPageBitmap} callback.
+     * {@link PdfLoaderCallbacks#setTileBitmap} callback.
      */
     public void loadTileBitmaps(int pageNum, @NonNull Dimensions pageSize,
             @NonNull Iterable<TileInfo> tiles) {

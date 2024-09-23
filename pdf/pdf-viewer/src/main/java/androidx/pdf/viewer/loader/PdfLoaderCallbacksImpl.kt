@@ -31,6 +31,7 @@ import androidx.pdf.data.DisplayData
 import androidx.pdf.data.PdfStatus
 import androidx.pdf.data.Range
 import androidx.pdf.find.FindInFileView
+import androidx.pdf.metrics.EventCallback
 import androidx.pdf.models.Dimensions
 import androidx.pdf.models.GotoLink
 import androidx.pdf.models.LinkRects
@@ -68,7 +69,8 @@ public class PdfLoaderCallbacksImpl(
     private val fragmentContainerView: View?,
     private val onRequestPassword: (Boolean) -> Unit,
     private val onDocumentLoaded: () -> Unit,
-    private val onDocumentLoadFailure: (Throwable) -> Unit
+    private val onDocumentLoadFailure: (Throwable) -> Unit,
+    private var eventCallback: EventCallback?,
 ) : PdfLoaderCallbacks {
     private val pageElevationInPixels: Int = PaginationUtils.getPageElevationInPixels(context)
 
@@ -145,6 +147,7 @@ public class PdfLoaderCallbacksImpl(
     }
 
     override fun requestPassword(incorrect: Boolean) {
+        eventCallback?.onViewerReset()
         onRequestPassword(onScreen)
 
         if (viewState.get() != ViewState.NO_VIEW) {
@@ -214,6 +217,7 @@ public class PdfLoaderCallbacksImpl(
     }
 
     override fun documentNotLoaded(status: PdfStatus) {
+        eventCallback?.onViewerReset()
         if (viewState.get() != ViewState.NO_VIEW) {
             dismissPasswordDialog()
             when (status) {
@@ -237,6 +241,7 @@ public class PdfLoaderCallbacksImpl(
     }
 
     override fun pageBroken(page: Int) {
+        eventCallback?.onPageCleared(page)
         if (viewState.get() != ViewState.NO_VIEW) {
             if (page < paginatedView.model.numPages) {
                 pageViewFactory!!
@@ -299,12 +304,14 @@ public class PdfLoaderCallbacksImpl(
             viewState.set(ViewState.VIEW_READY)
         }
         if (viewState.get() != ViewState.NO_VIEW && isPageCreated(pageNum)) {
+            eventCallback?.onPageBitmapDelivered(pageNum)
             getPage(pageNum)?.getPageView()?.setPageBitmap(bitmap)
         }
     }
 
     override fun setTileBitmap(pageNum: Int, tileInfo: TileBoard.TileInfo, bitmap: Bitmap) {
         if (viewState.get() != ViewState.NO_VIEW && isPageCreated(pageNum)) {
+            eventCallback?.onTileBitmapDelivered(pageNum, tileInfo)
             getPage(pageNum)?.getPageView()?.setTileBitmap(tileInfo, bitmap)
         }
     }
