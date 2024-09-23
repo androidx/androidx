@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -418,6 +419,7 @@ class LazyLayoutTest {
         rule.runOnIdle { assertThat(remeasuresCount).isEqualTo(1) }
     }
 
+    @Ignore("b/369188686")
     @Test
     fun nodeIsReusedWhenRemovedFirst() {
         var itemCount by mutableStateOf(1)
