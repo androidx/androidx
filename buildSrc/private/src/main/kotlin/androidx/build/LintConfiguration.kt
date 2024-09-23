@@ -211,7 +211,6 @@ private fun Project.findLintProject(path: String): Project? {
 
 private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     val extension = project.androidXExtension
-    val isMultiplatform = project.multiplatformExtension != null
     val lintChecksProject = findLintProject(":lint-checks") ?: return
     project.dependencies.add("lintChecks", lintChecksProject)
 
@@ -261,13 +260,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("VisibleForTests")
         } else {
             fatal.add("VisibleForTests")
-        }
-
-        if (isMultiplatform) {
-            // Disable classfile-based checks because lint cannot find the class files for
-            // multiplatform projects and `SourceSet.java.classesDirectory` is not configurable.
-            // This is not ideal, but it's better than having no lint checks at all.
-            disable.add("LintError")
         }
 
         // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
