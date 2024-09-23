@@ -16,17 +16,8 @@
 
 package androidx.privacysandbox.tools.core.model
 
-/** Result of parsing a Kotlin interface. */
-data class AnnotatedInterface(
+data class Constant(
+    val name: String,
     val type: Type,
-    /**
-     * Direct super types of this interface.
-     *
-     * When there are no explicit parents, the list should be empty (ie. not containing kotlin.Any).
-     */
-    val superTypes: List<Type> = emptyList(),
-    val methods: List<Method> = emptyList(),
-    val constants: List<Constant> = emptyList(),
-) {
-    val inheritsSandboxedUiAdapter = superTypes.contains(Types.sandboxedUiAdapter)
-}
+    val value: Any,
+)

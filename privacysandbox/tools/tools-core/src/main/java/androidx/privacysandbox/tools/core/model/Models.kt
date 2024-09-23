@@ -63,6 +63,7 @@ object Types {
     val string = Type(packageName = "kotlin", simpleName = "String")
     val char = Type(packageName = "kotlin", simpleName = "Char")
     val short = Type(packageName = "kotlin", simpleName = "Short")
+    val byte = Type(packageName = "kotlin", simpleName = "Byte")
     val primitiveTypes = setOf(unit, boolean, int, long, float, double, string, char, short)
 
     val any = Type("kotlin", simpleName = "Any")

@@ -21,6 +21,8 @@ import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.core.PrivacySandboxParsingException
+import androidx.privacysandbox.tools.core.model.Constant
+import androidx.privacysandbox.tools.core.model.Types
 import java.nio.file.Path
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassMetadata
@@ -32,40 +34,70 @@ import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 
 data class AnnotatedClasses(
-    val services: Set<KmClass>,
-    val values: Set<KmClass>,
-    val callbacks: Set<KmClass>,
-    val interfaces: Set<KmClass>,
+    val services: Set<ClassAndConstants>,
+    val values: Set<ClassAndConstants>,
+    val callbacks: Set<ClassAndConstants>,
+    val interfaces: Set<ClassAndConstants>,
+)
+
+data class ClassAndConstants(
+    val kClass: KmClass,
+    val constants: List<Constant>?,
 )
 
 internal object AnnotatedClassReader {
     val annotations = listOf(PrivacySandboxService::class)
 
     fun readAnnotatedClasses(stubClassPath: Path): AnnotatedClasses {
-        val services = mutableSetOf<KmClass>()
-        val values = mutableSetOf<KmClass>()
-        val callbacks = mutableSetOf<KmClass>()
-        val interfaces = mutableSetOf<KmClass>()
-        stubClassPath
-            .toFile()
-            .walk()
-            .filter { it.extension == "class" }
-            .map { toClassNode(it.readBytes()) }
-            .forEach { classNode ->
-                if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
-                    services.add(parseKotlinMetadata(classNode))
-                }
-                // TODO(b/323369085): Validate that enum variants don't have methods
-                if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
-                    values.add(parseKotlinMetadata(classNode))
-                }
-                if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
-                    callbacks.add(parseKotlinMetadata(classNode))
-                }
-                if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
-                    interfaces.add(parseKotlinMetadata(classNode))
-                }
+        val companionPaths = mutableMapOf<String, String>()
+        val classNodeByPath = mutableMapOf<String, ClassNode>()
+        for (classFile in
+            stubClassPath.toFile().walk().filter { it.isFile && it.extension == "class" }) {
+            val classNode = toClassNode(classFile.readBytes())
+            classNodeByPath[classNode.name] = classNode
+            if (
+                !(classNode.isAnnotatedWith<PrivacySandboxService>() ||
+                    classNode.isAnnotatedWith<PrivacySandboxValue>() ||
+                    classNode.isAnnotatedWith<PrivacySandboxInterface>() ||
+                    classNode.isAnnotatedWith<PrivacySandboxCallback>())
+            ) {
+                continue
             }
+            val kotlinMetadata = parseKotlinMetadata(classNode)
+            if (kotlinMetadata.companionObject != null) {
+                val companionName = kotlinMetadata.companionObject!!
+                companionPaths[kotlinMetadata.name] = "${kotlinMetadata.name}$${companionName}"
+            }
+        }
+
+        val services = mutableSetOf<ClassAndConstants>()
+        val values = mutableSetOf<ClassAndConstants>()
+        val callbacks = mutableSetOf<ClassAndConstants>()
+        val interfaces = mutableSetOf<ClassAndConstants>()
+        classNodeByPath.values.forEach { classNode ->
+            val companionNode = companionPaths[classNode.name]?.let { classNodeByPath[it] }
+            val constants =
+                companionNode
+                    ?.let { companion ->
+                        companion.fields
+                            .filter { it.name != "\$\$INSTANCE" }
+                            .map { Constant(it.name, getConstType(it.desc), it.value) }
+                    }
+                    ?.toList()
+            if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
+                services.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+            }
+            // TODO(b/323369085): Validate that enum variants don't have methods
+            if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
+                values.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+            }
+            if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
+                callbacks.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+            }
+            if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
+                interfaces.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+            }
+        }
         return AnnotatedClasses(
             services = services.toSet(),
             values = values.toSet(),
@@ -138,4 +170,27 @@ internal object AnnotatedClassReader {
             }
             return attributes
         }
+
+    private fun getConstType(desc: String): androidx.privacysandbox.tools.core.model.Type {
+        if (desc == "Ljava/lang/String;") {
+            return Types.string
+        } else if (desc == "I") {
+            return Types.int
+        } else if (desc == "Z") {
+            return Types.boolean
+        } else if (desc == "B") {
+            return Types.byte
+        } else if (desc == "C") {
+            return Types.char
+        } else if (desc == "D") {
+            return Types.double
+        } else if (desc == "F") {
+            return Types.float
+        } else if (desc == "J") {
+            return Types.long
+        } else if (desc == "S") {
+            return Types.short
+        }
+        throw PrivacySandboxParsingException("Unrecognised constant type: '$desc'")
+    }
 }
