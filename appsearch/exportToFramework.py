@@ -179,9 +179,6 @@ class ExportToFramework:
             .replace(
                     'androidx.core.util.ObjectsCompat',
                     'java.util.Objects')
-            .replace(
-                'import androidx.core.os.ParcelCompat',
-                'import android.os.Parcel')
             # Preconditions.checkNotNull is replaced with Objects.requireNonNull. We add both
             # imports and let google-java-format sort out which one is unused.
             .replace(
@@ -198,10 +195,6 @@ class ExportToFramework:
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)
         contents = re.sub(r'@RequiresFeature\([^)]*\)', '', contents, flags=re.DOTALL)
-
-        contents = re.sub(
-                r'ParcelCompat\.readParcelable\(.*?([a-zA-Z.()]+),.*?([a-zA-Z.()]+),.*?([a-zA-Z.()]+)\)',
-                r'\1.readParcelable(\2)', contents, flags=re.DOTALL)
 
         # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
         # to allow the same documentation to compile for both.
