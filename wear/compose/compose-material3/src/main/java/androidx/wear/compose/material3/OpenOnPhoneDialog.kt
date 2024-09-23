@@ -84,7 +84,7 @@ import kotlinx.coroutines.delay
  * @param durationMillis The duration in milliseconds for which the dialog is displayed. Defaults to
  *   [OpenOnPhoneDialogDefaults.DurationMillis].
  * @param content A slot for displaying an icon inside the open on phone dialog, which can be
- *   animated. Defaults to [OpenOnPhoneDialogDefaults.Icon].
+ *   animated. Defaults to [OpenOnPhoneDialogDefaults.OpenOnPhoneIcon].
  */
 @Composable
 fun OpenOnPhoneDialog(
@@ -95,7 +95,7 @@ fun OpenOnPhoneDialog(
     colors: OpenOnPhoneDialogColors = OpenOnPhoneDialogDefaults.colors(),
     properties: DialogProperties = DialogProperties(),
     durationMillis: Long = OpenOnPhoneDialogDefaults.DurationMillis,
-    content: @Composable BoxScope.() -> Unit = OpenOnPhoneDialogDefaults.Icon,
+    content: @Composable BoxScope.() -> Unit = OpenOnPhoneDialogDefaults.OpenOnPhoneIcon,
 ) {
     var progress by remember(show) { mutableFloatStateOf(0f) }
     val animatable = remember { Animatable(0f) }
@@ -160,7 +160,7 @@ object OpenOnPhoneDialogDefaults {
      * animation.
      */
     @OptIn(ExperimentalAnimationGraphicsApi::class)
-    val Icon: @Composable BoxScope.() -> Unit = {
+    val OpenOnPhoneIcon: @Composable BoxScope.() -> Unit = {
         val animation =
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_open_on_phone_animation)
         var atEnd by remember { mutableStateOf(false) }
