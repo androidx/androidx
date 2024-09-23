@@ -109,6 +109,7 @@ package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
     field public static boolean DragGesturePickUpEnabled;
+    field public static boolean DraggableAddDownEventFixEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean NewNestedFlingPropagationEnabled;
     field public static boolean RemoveBasicTextGraphicsLayerEnabled;
