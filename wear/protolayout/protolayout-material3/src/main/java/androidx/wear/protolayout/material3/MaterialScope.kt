@@ -45,26 +45,21 @@ import androidx.wear.protolayout.material3.Shape.ShapeToken
 // TODO: b/350927030 - Customization setters of shape and typography, which are not fully
 // customizable.
 // TODO: b/369116159 - Add samples on usage.
-// customizable.
+@MaterialScopeMarker
 public open class MaterialScope
 /**
  * @param context The Android Context for the Tile service
  * @param deviceConfiguration The device parameters for where the components will be rendered
+ * @param theme The theme to be used. If not set, default Material theme will be applied
  * @param allowDynamicTheme If dynamic colors theme should be used on components, meaning that
- *   colors will follow the system theme if enabled on the device. If not set, defaults to using the
- *   system theme
- * @param customColorScheme The customized colors to be used. If not set, default Material theme
- *   would be applied
  */
 internal constructor(
     internal val context: Context,
     /** The device parameters for where the components will be rendered. */
     public val deviceConfiguration: DeviceParameters,
-    internal val allowDynamicTheme: Boolean = true,
-    customColorScheme: Map<Int, ColorProp> = emptyMap()
-) {
-    internal val theme: MaterialTheme = MaterialTheme(customColorScheme)
-}
+    internal val theme: MaterialTheme = DEFAULT_MATERIAL_THEME,
+    internal val allowDynamicTheme: Boolean = true
+)
 
 /**
  * Retrieves the [Corner] shape from the default Material theme with shape token name.
@@ -126,6 +121,8 @@ public fun primaryScope(
             allowDynamicTheme = allowDynamicTheme
         )
         .layout()
+
+@DslMarker public annotation class MaterialScopeMarker
 
 /** This maps to `android.provider.Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES`. */
 @VisibleForTesting

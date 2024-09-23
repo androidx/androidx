@@ -1,6 +1,20 @@
 // Signature format: 4.0
 package androidx.wear.protolayout.material3 {
 
+  public final class ButtonGroupDefaults {
+    field public static final androidx.wear.protolayout.LayoutElementBuilders.Spacer DEFAULT_SPACER_BETWEEN_BUTTON_GROUPS;
+    field @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public static final float DEFAULT_SPACER_WIDTH_DP = 4.0f;
+    field public static final androidx.wear.protolayout.material3.ButtonGroupDefaults INSTANCE;
+  }
+
+  public final class ButtonGroupKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement buttonGroup(androidx.wear.protolayout.material3.MaterialScope, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension width, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension height, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float spacing, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.ButtonGroupScope,kotlin.Unit> content);
+  }
+
+  @androidx.wear.protolayout.material3.MaterialScopeMarker public final class ButtonGroupScope {
+    method public void buttonGroupItem(kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> content);
+  }
+
   public final class ColorTokens {
     field public static final int BACKGROUND = 0; // 0x0
     field public static final int ERROR = 1; // 0x1
@@ -33,7 +47,7 @@ package androidx.wear.protolayout.material3 {
     field public static final int TERTIARY_DIM = 27; // 0x1b
   }
 
-  public class MaterialScope {
+  @androidx.wear.protolayout.material3.MaterialScopeMarker public class MaterialScope {
     method public final androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     property public final androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration;
   }
@@ -42,6 +56,9 @@ package androidx.wear.protolayout.material3 {
     method public static androidx.wear.protolayout.ColorBuilders.ColorProp getColorProp(androidx.wear.protolayout.material3.MaterialScope, int colorToken);
     method public static androidx.wear.protolayout.ModifiersBuilders.Corner getCorner(androidx.wear.protolayout.material3.MaterialScope, int shapeToken);
     method public static boolean isDynamicThemeEnabled(android.content.Context);
+  }
+
+  @kotlin.DslMarker public @interface MaterialScopeMarker {
   }
 
   public final class Shape {

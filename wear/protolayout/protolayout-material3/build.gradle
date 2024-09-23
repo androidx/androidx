@@ -45,6 +45,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.truth)
+    testImplementation(project(":wear:protolayout:protolayout-proto"))
 }
 
 android {
