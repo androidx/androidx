@@ -694,8 +694,8 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.OpenOnPhoneDialogColors colors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.OpenOnPhoneDialogColors colors(optional long iconColor, optional long iconContainerColor, optional long progressIndicatorColor, optional long progressTrackColor, optional long textColor);
     method @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> curvedText(optional String text, optional androidx.wear.compose.foundation.CurvedTextStyle style);
-    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> getIcon();
-    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> Icon;
+    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> getOpenOnPhoneIcon();
+    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> OpenOnPhoneIcon;
     field public static final long DurationMillis = 4000L; // 0xfa0L
     field public static final androidx.wear.compose.material3.OpenOnPhoneDialogDefaults INSTANCE;
   }
