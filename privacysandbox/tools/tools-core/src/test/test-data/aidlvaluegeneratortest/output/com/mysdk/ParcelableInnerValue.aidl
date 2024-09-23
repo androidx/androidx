@@ -8,6 +8,7 @@ parcelable ParcelableInnerValue {
     Bundle maybeBundleProperty;
     ParcelableInnerEnum enumProperty;
     boolean booleanProperty;
+    byte[] maybeByteProperty;
     float[] maybeFloatProperty;
     int intProperty;
     long longProperty;
