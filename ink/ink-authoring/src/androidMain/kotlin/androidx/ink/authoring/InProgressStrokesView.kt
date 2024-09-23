@@ -55,7 +55,6 @@ import kotlin.math.hypot
 private const val CM_PER_INCH = 2.54f
 
 /** Displays in-progress ink strokes as [MotionEvent] user inputs are provided to it. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @OptIn(ExperimentalLatencyDataApi::class)
 public class InProgressStrokesView
 @JvmOverloads
@@ -75,6 +74,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * This must be set to its desired value before the first call to [startStroke] or [eagerInit].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
     public var useHighLatencyRenderHelper: Boolean = false
 
@@ -87,6 +88,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * This must be set to its desired value before the first call to [startStroke] or [eagerInit].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
     public var useNewTPlusRenderHelper: Boolean = false
 
@@ -100,6 +103,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * If handoff is ever needed as soon as safely possible, call [requestHandoff].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public var handoffDebounceTimeMs: Long = 0L
         @UiThread
         set(value) {
@@ -124,6 +129,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      */
     // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
     // like it on the getter so suppress its complaint.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalInkCustomBrushApi
     @get:ExperimentalInkCustomBrushApi
@@ -189,12 +197,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     /**
      * Allows a test to easily wait until all in-progress strokes are completed and handed off.
-     * There is no reason to set this in non-test code. The recommended approach is to include this
-     * small object within production code, but actually registering it and making use of it would
-     * be exclusive to test code.
-     *
-     * https://developer.android.com/training/testing/espresso/idling-resource#integrate-recommended-approach
+     * There is no reason to set this in non-test code.
      */
+    @VisibleForTesting
     public var inProgressStrokeCounter: CountingIdlingResource? = null
         set(value) {
             field = value
@@ -218,6 +223,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * minimize the amount of computation in this callback, and should also avoid allocations (since
      * allocation may trigger the garbage collector).
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
     // like it on the getter so suppress its complaint.
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -419,6 +427,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @throws IllegalArgumentException if [motionEventToWorldTransform] or [strokeToWorldTransform]
      *   is not invertible.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @JvmOverloads
     public fun startStroke(
         event: MotionEvent,
@@ -469,11 +478,10 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * Start building a stroke with the provided [input].
      *
      * @param input The [StrokeInput] that started a stroke.
-     * @param brush Brush specification for the stroke being started. Note that if
-     *   [motionEventToWorldTransform] and [strokeToWorldTransform] combine to a [MotionEvent] to
-     *   stroke coordinates transform that scales stroke coordinate units to be very different in
-     *   size than screen pixels, then it is recommended to update the value of [Brush.epsilon] to
-     *   reflect that.
+     * @param brush Brush specification for the stroke being started. Note that if stroke coordinate
+     *   units (the [StrokeInput.x] and [StrokeInput.y] fields of [input] are scaled to be very
+     *   different in size than screen pixels, then it is recommended to update the value of
+     *   [Brush.epsilon] to reflect that.
      * @return The Stroke ID of the stroke being built, later used to identify which stroke is being
      *   added to, finished, or canceled.
      */
@@ -491,6 +499,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   and the time of the next frame, as generated by
      *   [androidx.input.motionprediction.MotionEventPredictor.predict].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @JvmOverloads
     public fun addToStroke(
         event: MotionEvent,
@@ -555,6 +564,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param pointerIndex the index of the relevant pointer.
      * @param strokeId the stroke that is to be finished with the latest event.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun finishStroke(
         event: MotionEvent,
         pointerIndex: Int,
@@ -671,7 +681,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         finishedStrokesView.removeStrokes(strokeIds)
     }
 
-    public override fun onAttachedToWindow() {
+    protected override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         addView(finishedStrokesView)
     }

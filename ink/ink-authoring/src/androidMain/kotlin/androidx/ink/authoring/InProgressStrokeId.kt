@@ -16,15 +16,15 @@
 
 package androidx.ink.authoring
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 
 /**
- * Stroke identifier, unique within an app's lifetime.
+ * Identifier for a stroke that is being authored via [InProgressStrokesView], returned from
+ * [InProgressStrokesView.startStroke] and an input to some of its other functions. This identifier
+ * is unique within the app process lifetime.
  *
- * Can be used for equality checks and as a map key.
+ * It can be used for equality checks and as a map key.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @Suppress("ClassShouldBeObject") // Multiple instances of this class are required as IDs.
 public class InProgressStrokeId @VisibleForTesting public constructor() {
 
