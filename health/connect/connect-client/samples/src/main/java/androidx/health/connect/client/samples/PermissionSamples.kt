@@ -24,6 +24,7 @@ import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_HISTORY
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.records.StepsRecord
 
@@ -67,6 +68,29 @@ fun RequestBackgroundReadPermission(
     ) {
         // The feature is available, request background reads permission
         requestPermission.launch(setOf(PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND))
+    }
+}
+
+@OptIn(ExperimentalFeatureAvailabilityApi::class)
+@Sampled
+fun RequestHistoryReadPermission(features: HealthConnectFeatures, activity: ActivityResultCaller) {
+    val requestPermission =
+        activity.registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract()
+        ) { grantedPermissions: Set<String> ->
+            if (PERMISSION_READ_HEALTH_DATA_HISTORY in grantedPermissions) {
+                // It will be possible to read data older than 30 days from now on
+            } else {
+                // Permission denied, it won't be possible to read data older than 30 days
+            }
+        }
+
+    if (
+        features.getFeatureStatus(HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY) ==
+            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+    ) {
+        // The feature is available, request history read permissions
+        requestPermission.launch(setOf(PERMISSION_READ_HEALTH_DATA_HISTORY))
     }
 }
 

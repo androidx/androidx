@@ -16,6 +16,7 @@
 package androidx.health.connect.client.permission
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
@@ -162,6 +163,24 @@ internal constructor(
          */
         const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND =
             PERMISSION_PREFIX + "READ_HEALTH_DATA_IN_BACKGROUND"
+
+        /**
+         * A permission that allows to read the entire history of health data (of any type).
+         *
+         * An attempt to read data older than 30 days without this permission will result in an
+         * error. This applies for the following api methods: [HealthConnectClient.readRecord],
+         * [HealthConnectClient.readRecords], [HealthConnectClient.aggregate],
+         * [HealthConnectClient.aggregateGroupByPeriod],
+         * [HealthConnectClient.aggregateGroupByDuration] and [HealthConnectClient.getChanges].
+         *
+         * This feature is dependent on the version of HealthConnect installed on the device. To
+         * check if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+         * [HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY] as an argument.
+         *
+         * @sample androidx.health.connect.client.samples.RequestHistoryReadPermission
+         */
+        const val PERMISSION_READ_HEALTH_DATA_HISTORY =
+            PERMISSION_PREFIX + "READ_HEALTH_DATA_HISTORY"
 
         // Read permissions for ACTIVITY.
         internal const val READ_ACTIVE_CALORIES_BURNED =
