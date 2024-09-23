@@ -18,9 +18,12 @@ package androidx.wear.protolayout.material3
 
 import android.content.Context
 import android.provider.Settings
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.ColorBuilders.ColorProp
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.ModifiersBuilders.Corner
 import androidx.wear.protolayout.material3.ColorTokens.ColorToken
 import androidx.wear.protolayout.material3.Shape.ShapeToken
@@ -37,6 +40,11 @@ import androidx.wear.protolayout.material3.Shape.ShapeToken
 // TODO: b/352308384 - Add helper to read the exported Json or XML file from the Material Theme
 //    Builder tool.
 // TODO: b/350927030 - Customization setters of shape and typography, which are not fully
+// TODO: b/352308384 - Add helper to read the exported Json or XML file from the Material Theme
+//    Builder tool.
+// TODO: b/350927030 - Customization setters of shape and typography, which are not fully
+// customizable.
+// TODO: b/369116159 - Add samples on usage.
 // customizable.
 public open class MaterialScope
 /**
@@ -91,6 +99,33 @@ public fun Context.isDynamicThemeEnabled(): Boolean {
         Settings.Secure.getString(contentResolver, THEME_CUSTOMIZATION_OVERLAY_PACKAGES)
     return (!overlaySetting.isNullOrEmpty() && overlaySetting != "{}")
 }
+
+/**
+ * Creates a top-level receiver scope [MaterialScope] that calls the given [layout] to support for
+ * opinionated defaults.
+ *
+ * @param context The Android Context for the Tile service
+ * @param deviceConfiguration The device parameters for where the components will be rendered
+ * @param allowDynamicTheme If dynamic colors theme should be used on components, meaning that
+ *   colors will follow the system theme if enabled on the device. If not set, defaults to using the
+ *   system theme
+ * @param layout Scoped slot for the content of layout to be displayed
+ */
+// TODO: b/369350414 - Allow for overriding colors theme.
+@JvmOverloads
+@RestrictTo(Scope.LIBRARY_GROUP)
+public fun primaryScope(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    allowDynamicTheme: Boolean = true,
+    layout: MaterialScope.() -> LayoutElement
+): LayoutElement =
+    MaterialScope(
+            context = context,
+            deviceConfiguration = deviceConfiguration,
+            allowDynamicTheme = allowDynamicTheme
+        )
+        .layout()
 
 /** This maps to `android.provider.Settings.Secure.THEME_CUSTOMIZATION_OVERLAY_PACKAGES`. */
 @VisibleForTesting
