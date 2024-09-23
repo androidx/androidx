@@ -1,32 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
-
-    <issue
-        id="NewApi"
-        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
-        errorLine1="        val id = idsToProcess.removeLastKt()"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
-        errorLine1="        val current = continuations.removeLastKt()"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/EnqueueUtils.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
-        errorLine1="            val id = idsToProcess.removeLastKt()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkerWrapper.kt"/>
-    </issue>
+<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
 
     <issue
         id="BanSynchronizedMethods"

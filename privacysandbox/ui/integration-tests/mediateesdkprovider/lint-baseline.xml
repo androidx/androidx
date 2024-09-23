@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="`&lt;androidx.privacysandbox.ui.integration.mediateesdkprovider.SdkProviderImpl>` requires API level 5 (current min is 0)"
+        errorLine1="        &lt;property android:name=&quot;android.sdksandbox.PROPERTY_SDK_PROVIDER_CLASS_NAME&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+</issues>
