@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,10 +47,9 @@ android {
 }
 
 androidx {
-    name = "Jetpack Camera Feature Combination Library"
-    publish = Publish.NONE
+    name = "Camera Feature Combination Query"
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
-    runApiTasks = new RunApiTasks.Yes()
-    description = "Camera feature combination components for the Jetpack Camera Library, a library " +
+    description = "Camera feature combination components for the Camera Library, a library " +
             "providing a seamless experience for querying camera features across all of Android."
 }
