@@ -494,6 +494,40 @@ class ShortNavigationBarTest {
     }
 
     @Test
+    fun item_customColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val customColors =
+                ShortNavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.Red,
+                    unselectedTextColor = Color.Green,
+                )
+
+            ShortNavigationBar {
+                ShortNavigationBarItem(
+                    colors = customColors,
+                    icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
+                    label = {
+                        Truth.assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.ItemActiveLabelTextColor.value)
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+                ShortNavigationBarItem(
+                    colors = customColors,
+                    icon = {
+                        Truth.assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationBarTokens.ItemInactiveIconColor.value)
+                    },
+                    label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
+                    selected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+
+    @Test
     fun itemContent_topIconPosition_sizeAndPosition() {
         var minSize: Dp? = null
         rule.setMaterialContent(lightColorScheme()) {
