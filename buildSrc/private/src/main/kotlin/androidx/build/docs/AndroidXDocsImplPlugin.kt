@@ -786,6 +786,8 @@ private val hiddenAnnotations: List<String> =
 
 val validNullabilityAnnotations =
     listOf(
+        "org.jspecify.annotations.NonNull",
+        "org.jspecify.annotations.Nullable",
         "androidx.annotation.Nullable",
         "android.annotation.Nullable",
         "androidx.annotation.NonNull",

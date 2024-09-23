@@ -367,6 +367,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 "checkerframework" to "https://checkerframework.org/api/",
                 "chromium" to
                     "https://developer.android.com/develop/connectivity/cronet/reference/",
+                "jspecify" to "https://jspecify.dev/docs/api/",
             )
     }
 }
