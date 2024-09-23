@@ -43,9 +43,16 @@ public interface FunctionNode extends Node {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
+            FUNCTION_NAME_GET_SEARCH_STRING_PARAMETER,
             FUNCTION_NAME_HAS_PROPERTY,
     })
     @interface FunctionName {}
+
+    /**
+     * Name of the query function represented by
+     * {@link androidx.appsearch.ast.query.GetSearchStringParameterNode}.
+     */
+    String FUNCTION_NAME_GET_SEARCH_STRING_PARAMETER = "getSearchStringParameter";
 
     /**
      * Name of the query function represented by
