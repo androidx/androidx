@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text
 
+import android.os.Build
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -2932,6 +2933,52 @@ class ParagraphIntegrationTest {
         // The ellipsizer may reserve multiple characters for drawing HORIZONTAL ELLIPSIS
         // character (U+2026). We can only expect the visible end is not the end of the line.
         assertThat(paragraph.getLineEnd(1, true)).isNotEqualTo(text.length)
+    }
+
+    @Test
+    fun getLineStartEllipsisCount() {
+        val text = "aaaaabbbbbccccc"
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 10.sp),
+                maxLines = 1,
+                overflow = TextOverflow.StartEllipsis,
+                width = 50f
+            )
+
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        assertThat(paragraph.isLineEllipsized(0)).isTrue()
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(paragraph.getLineEnd(0)).isEqualTo(text.length)
+        } else {
+            assertThat(paragraph.getLineEnd(0)).isEqualTo(5)
+        }
+    }
+
+    @Test
+    fun getLineMiddleEllipsisCount() {
+        val text = "aaaaabbbbbccccc"
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 10.sp),
+                maxLines = 1,
+                overflow = TextOverflow.MiddleEllipsis,
+                width = 50f
+            )
+
+        assertThat(paragraph.lineCount).isEqualTo(1)
+
+        assertThat(paragraph.isLineEllipsized(0)).isTrue()
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            assertThat(paragraph.getLineEnd(0)).isEqualTo(text.length)
+        } else {
+            assertThat(paragraph.getLineEnd(0)).isEqualTo(5)
+        }
     }
 
     @Test

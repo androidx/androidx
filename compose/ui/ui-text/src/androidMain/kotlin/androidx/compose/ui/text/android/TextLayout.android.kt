@@ -119,7 +119,7 @@ constructor(
     width: Float,
     val textPaint: TextPaint,
     @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
-    ellipsize: TextUtils.TruncateAt? = null,
+    private val ellipsize: TextUtils.TruncateAt? = null,
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
     lineSpacingMultiplier: Float = DEFAULT_LINESPACING_MULTIPLIER,
     @Px lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
@@ -457,13 +457,13 @@ constructor(
      * returns the length of the text.
      */
     fun getLineEnd(lineIndex: Int): Int =
-        if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
-            layout.getLineEnd(lineIndex)
-        } else {
+        if (layout.isLineEllipsized(lineIndex) && ellipsize == TextUtils.TruncateAt.END) {
             // Layout#getLineEnd usually gets the end of text for the last line even if ellipsis
             // happens. However, if LF character is included in the ellipsized region, getLineEnd
             // returns LF character offset. So, use end of text for line end here.
             layout.text.length
+        } else {
+            layout.getLineEnd(lineIndex)
         }
 
     /**
@@ -471,10 +471,10 @@ constructor(
      * whitespaces are not counted as visible characters.
      */
     fun getLineVisibleEnd(lineIndex: Int): Int =
-        if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
-            layoutHelper.getLineVisibleEnd(lineIndex)
-        } else {
+        if (layout.isLineEllipsized(lineIndex) && ellipsize == TextUtils.TruncateAt.END) {
             layout.getLineStart(lineIndex) + layout.getEllipsisStart(lineIndex)
+        } else {
+            layoutHelper.getLineVisibleEnd(lineIndex)
         }
 
     fun isLineEllipsized(lineIndex: Int) = layout.isLineEllipsized(lineIndex)
