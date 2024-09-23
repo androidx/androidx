@@ -50,6 +50,7 @@ class AidlValueGeneratorTest {
                     ValueProperty("booleanProperty", Types.boolean),
                     ValueProperty("longProperty", Types.long),
                     ValueProperty("maybeFloatProperty", Types.float.asNullable()),
+                    ValueProperty("maybeByteProperty", Types.byte.asNullable()),
                     ValueProperty("enumProperty", innerEnum.type),
                     ValueProperty("bundleProperty", Types.bundle),
                     ValueProperty("maybeBundleProperty", Types.bundle.asNullable())

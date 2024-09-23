@@ -282,6 +282,7 @@ private constructor(
             Char::class.qualifiedName -> primitive("char")
             // TODO: AIDL doesn't support short, make sure it's handled correctly.
             Short::class.qualifiedName -> primitive("int")
+            Byte::class.qualifiedName -> primitive("byte")
             Unit::class.qualifiedName -> primitive("void")
             List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
             Types.bundle.qualifiedName -> bundleAidlType
