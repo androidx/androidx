@@ -41,8 +41,8 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.kotlinStdlibJdk8)
-    testImplementation(libs.androidLint)
-    testImplementation(libs.androidLintTests)
+    testImplementation(libs.androidLintPrev)
+    testImplementation(libs.androidLintPrevTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }

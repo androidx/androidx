@@ -30,8 +30,8 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    api(libs.androidLint)
-    api(libs.androidLintTests)
+    api(libs.androidLintPrev)
+    api(libs.androidLintPrevTests)
     api(libs.junit)
     api(libs.truth)
 }

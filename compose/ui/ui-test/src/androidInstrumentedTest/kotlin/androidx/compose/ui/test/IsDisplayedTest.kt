@@ -84,10 +84,10 @@ class IsDisplayedTest(val config: TestConfig) {
             Box(
                 modifier =
                     with(Modifier) { width?.let { requiredWidth(it) } ?: fillMaxWidth() }
-                        .then(
-                            with(Modifier) { height?.let { requiredHeight(it) } ?: fillMaxHeight() }
-                        )
-                        .background(colors[i % colors.size])
+                        .let {
+                            with(it) { height?.let { requiredHeight(it) } ?: fillMaxHeight() }
+                                .background(colors[i % colors.size])
+                        }
             )
         }
     }

@@ -85,7 +85,7 @@ class LambdaStructuralEqualityDetector : Detector(), SourceCodeScanner {
         }
 
     private fun KtExpression.isFunctionType(): Boolean =
-        analyze(this) { getKtType()?.isFunctionType == true }
+        analyze(this) { expressionType?.isFunctionType == true }
 
     companion object {
         private const val BriefDescription =

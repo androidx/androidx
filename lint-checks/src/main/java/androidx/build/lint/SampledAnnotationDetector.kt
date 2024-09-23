@@ -42,6 +42,7 @@ import com.android.tools.lint.detector.api.PartialResult
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
@@ -239,6 +240,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
  *
  * Checks KDoc in all applicable UDeclarations - this includes classes, functions, fields...
  */
+@OptIn(KaExperimentalApi::class)
 private class KDocSampleLinkHandler(private val context: JavaContext) {
     fun visitDeclaration(node: UDeclaration) {
         val source = node.sourcePsi
@@ -248,7 +250,7 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
         // expect declaration for analysis.
         if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
             analyze(source) {
-                val member = (source as? KtDeclaration)?.getSymbol() ?: return
+                val member = (source as? KtDeclaration)?.symbol ?: return
                 val expect = member.getExpectsForActual().singleOrNull() ?: return
                 val declaration = expect.psi ?: return
                 // Recursively handle everything inside the expect declaration, for example if it
