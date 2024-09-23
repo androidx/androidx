@@ -142,6 +142,11 @@ val taskNamesKnownToDuplicateOutputs =
         "wasmJsBrowserDevelopmentRun",
         "wasmJsBrowserProductionWebpack",
         "wasmJsBrowserProductionRun",
+
+        // Remove when https://youtrack.jetbrains.com/issue/KT-71688 is resolved and set
+        // destinationDirectory to the project's build directory
+        "wasmJsTestTestDevelopmentExecutableCompileSync",
+        "wasmJsTestTestProductionExecutableCompileSync",
     )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
