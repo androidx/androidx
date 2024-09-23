@@ -35,6 +35,7 @@ androidXMultiplatform {
         implementation("androidx.fragment:fragment-ktx:1.3.0")
         implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
         implementation(project(":core:core"))
+        implementation(project(":core:core-ktx"))
         implementation(project(":ink:ink-nativeloader"))
         implementation(project(":ink:ink-geometry"))
         implementation(project(":ink:ink-brush"))

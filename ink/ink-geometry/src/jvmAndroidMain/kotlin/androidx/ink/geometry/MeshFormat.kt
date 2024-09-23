@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /** Determines how the raw data of a [Mesh] is represented. */
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
@@ -52,21 +53,19 @@ public constructor(private var nativeAddress: Long) {
         nativeFree(nativeAddress)
     }
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeIsPackedEquivalent(
         firstNativeAddress: Long,
         secondNativeAddress: Long,
     ): Boolean
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeIsUnpackedEquivalent(
         firstNativeAddress: Long,
         secondNativeAddress: Long,
     ): Boolean
 
-    private external fun nativeFree(
-        nativeAddress: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFree(nativeAddress: Long)
 
     public companion object {
         init {

@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.ink.geometry.internal.testutil
+package androidx.ink.nativeloader
 
-import androidx.ink.geometry.MeshFormat
-import androidx.ink.nativeloader.UsedByNative
+import androidx.annotation.RestrictTo
+import kotlin.annotation.AnnotationTarget
+import kotlin.annotation.Target
 
-internal fun BuildTestMeshFormatA(): MeshFormat {
-    return MeshFormat(nativeBuildMeshFormatA())
-}
-
-internal fun BuildTestMeshFormatB(): MeshFormat {
-    return MeshFormat(nativeBuildMeshFormatB())
-}
-
-@UsedByNative private external fun nativeBuildMeshFormatA(): Long
-
-@UsedByNative private external fun nativeBuildMeshFormatB(): Long
+/**
+ * Use this to annotate methods, fields, and types that are referenced by name from native code to
+ * prevent them from being removed as unused.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@MustBeDocumented
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+)
+public annotation class UsedByNative

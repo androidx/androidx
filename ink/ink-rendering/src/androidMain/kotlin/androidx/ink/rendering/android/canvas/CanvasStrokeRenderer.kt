@@ -52,63 +52,67 @@ import androidx.ink.strokes.Stroke
 public interface CanvasStrokeRenderer {
 
     /**
-     * Render a single [stroke] on the provided [canvas], with its positions transformed by
-     * [strokeToCanvasTransform].
+     * Render a single [stroke] on the provided [canvas].
      *
-     * To avoid needing to calculate and maintain [strokeToCanvasTransform], consider using
+     * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
      *
-     * The [strokeToCanvasTransform] should represent the complete transformation from stroke
-     * coordinates to the canvas, modulo translation. Any existing transforms applied to [canvas]
-     * should be undone prior to calling [draw].
+     * The [strokeToScreenTransform] should represent the complete transformation from stroke
+     * coordinates to the screen, modulo translation. This transform will not be applied to the
+     * [canvas] in any way, as it may be made up of several individual transforms applied to the
+     * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
+     * blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: AffineTransform)
+    public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform)
 
     /**
-     * Render a single [stroke] on the provided [canvas], with its positions transformed by
-     * [strokeToCanvasTransform].
+     * Render a single [stroke] on the provided [canvas].
      *
-     * To avoid needing to calculate and maintain [strokeToCanvasTransform], consider using
+     * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
      *
-     * The [strokeToCanvasTransform] must be affine. It should represent the complete transformation
-     * from stroke coordinates to the canvas, modulo translation. Any existing transforms applied to
-     * [canvas] should be undone prior to calling [draw].
+     * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
+     * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
+     * to the [canvas] in any way, as it may be made up of several individual transforms applied to
+     * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
+     * appear blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: Matrix)
+    public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix)
 
     /**
-     * Render a single [inProgressStroke] on the provided [canvas], with its positions transformed
-     * by [strokeToCanvasTransform].
+     * Render a single [inProgressStroke] on the provided [canvas].
      *
-     * The [strokeToCanvasTransform] should represent the complete transformation from stroke
-     * coordinates to the canvas, modulo translation. Any existing transforms applied to [canvas]
-     * should be undone prior to calling [draw].
+     * The [strokeToScreenTransform] should represent the complete transformation from stroke
+     * coordinates to the canvas, modulo translation. This transform will not be applied to the
+     * [canvas] in any way, as it may be made up of several individual transforms applied to the
+     * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
+     * blurry or aliased.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: AffineTransform,
+        strokeToScreenTransform: AffineTransform,
     )
 
     /**
-     * Render a single [inProgressStroke] on the provided [canvas], with its positions transformed
-     * by [strokeToCanvasTransform].
+     * Render a single [inProgressStroke] on the provided [canvas].
      *
-     * The [strokeToCanvasTransform] must be affine. It should represent the complete transformation
-     * from stroke coordinates to the canvas, modulo translation. Any existing transforms applied to
-     * [canvas] should be undone prior to calling [draw].
+     * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
+     * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
+     * to the [canvas] in any way, as it may be made up of several individual transforms applied to
+     * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
+     * appear blurry or aliased.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: Matrix,
+        strokeToScreenTransform: Matrix,
     )
 
     /**

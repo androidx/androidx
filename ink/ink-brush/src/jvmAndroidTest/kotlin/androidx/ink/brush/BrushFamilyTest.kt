@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -138,18 +139,15 @@ class BrushFamilyTest {
      * Kotlin BrushFamily's JNI-created C++ counterpart is equivalent to the expected C++
      * BrushFamily.
      */
-    private external fun matchesDefaultFamily(
-        brushFamilyNativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun matchesDefaultFamily(brushFamilyNativePointer: Long): Boolean
 
     /**
      * Creates an expected C++ BrushFamily with custom values and returns true if every property of
      * the Kotlin BrushFamily's JNI-created C++ counterpart is equivalent to the expected C++
      * BrushFamily.
      */
-    private external fun matchesMultiBehaviorTipFamily(
-        brushFamilyNativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    private external fun matchesMultiBehaviorTipFamily(brushFamilyNativePointer: Long): Boolean
 
     private val customUri = "/brush-family:inkpen:1"
 

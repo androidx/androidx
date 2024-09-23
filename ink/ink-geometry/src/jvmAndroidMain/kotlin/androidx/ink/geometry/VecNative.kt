@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /** Helper functions for Vec. */
 internal object VecNative {
@@ -25,20 +26,16 @@ internal object VecNative {
         NativeLoader.load()
     }
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun unitVec(
         vecX: Float,
         vecY: Float,
         immutableVecClass: Class<ImmutableVec>,
     ): ImmutableVec
 
-    external fun populateUnitVec(
-        vecX: Float,
-        vecY: Float,
-        output: MutableVec
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun populateUnitVec(vecX: Float, vecY: Float, output: MutableVec)
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun absoluteAngleBetween(
         firstVecX: Float,
         firstVecY: Float,
@@ -46,7 +43,7 @@ internal object VecNative {
         secondVecY: Float,
     ): Float
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun signedAngleBetween(
         firstVecX: Float,
         firstVecY: Float,

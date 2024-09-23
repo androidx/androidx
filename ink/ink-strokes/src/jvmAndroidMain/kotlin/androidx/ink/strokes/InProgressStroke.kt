@@ -24,6 +24,7 @@ import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MeshFormat
 import androidx.ink.geometry.MutableVec
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
@@ -466,20 +467,14 @@ public class InProgressStroke {
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
-    private external fun nativeCreateInProgressStroke():
-        Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeCreateInProgressStroke(): Long
 
-    private external fun nativeClear(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeClear(nativePointer: Long)
 
-    private external fun nativeStart(
-        nativePointer: Long,
-        brushNativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeStart(nativePointer: Long, brushNativePointer: Long)
 
     /** Returns null on success or an error message string on failure. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeEnqueueInputs(
         nativePointer: Long,
         realInputsPointer: Long,
@@ -487,39 +482,25 @@ public class InProgressStroke {
     ): String?
 
     /** Returns null on success or an error message string on failure. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeUpdateShape(nativePointer: Long, currentElapsedTime: Long): String?
 
-    private external fun nativeFinishInput(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFinishInput(nativePointer: Long)
 
-    private external fun nativeIsInputFinished(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeIsInputFinished(nativePointer: Long): Boolean
 
-    private external fun nativeNeedsUpdate(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeNeedsUpdate(nativePointer: Long): Boolean
 
     /** Returns the native pointer for an `ink::Stroke`, to be wrapped by a [Stroke]. */
-    private external fun nativeCopyToStroke(
-        nativePointer: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeCopyToStroke(nativePointer: Long): Long
 
-    private external fun nativeInputCount(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeInputCount(nativePointer: Long): Int
 
-    private external fun nativeRealInputCount(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeRealInputCount(nativePointer: Long): Int
 
-    private external fun nativePredictedInputCount(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativePredictedInputCount(nativePointer: Long): Int
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeFillInputs(
         nativePointer: Long,
         mutableStrokeInputBatchPointer: Long,
@@ -531,7 +512,7 @@ public class InProgressStroke {
      * The [toolTypeClass] parameter is passed as a convenience to native JNI code, to avoid it
      * needing to do a reflection-based FindClass lookup.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetAndOverwriteInput(
         nativePointer: Long,
         input: StrokeInput,
@@ -539,12 +520,10 @@ public class InProgressStroke {
         toolTypeClass: Class<InputToolType>,
     )
 
-    private external fun nativeBrushCoatCount(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeBrushCoatCount(nativePointer: Long): Int
 
     /** Writes the bounding region to [outEnvelope]. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetMeshBounds(
         nativePointer: Long,
         coatIndex: Int,
@@ -552,13 +531,11 @@ public class InProgressStroke {
     )
 
     /** Returns the number of mesh partitions. */
-    private external fun nativeGetMeshPartitionCount(
-        nativePointer: Long,
-        coatIndex: Int
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    private external fun nativeGetMeshPartitionCount(nativePointer: Long, coatIndex: Int): Int
 
     /** Returns the number of vertices in the mesh at [partitionIndex]. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetVertexCount(
         nativePointer: Long,
         coatIndex: Int,
@@ -569,7 +546,7 @@ public class InProgressStroke {
      * Returns a direct [ByteBuffer] wrapped around the contents of [RawVertexData] for the mesh at
      * [partitionIndex]. It will be writeable, so be sure to only expose a read-only wrapper of it.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetRawVertexData(
         nativePointer: Long,
         coatIndex: Int,
@@ -581,14 +558,14 @@ public class InProgressStroke {
      * at [partitionIndex]. It will be writeable, so be sure to only expose a read-only wrapper of
      * it.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetRawTriangleIndexData(
         nativePointer: Long,
         coatIndex: Int,
         partitionIndex: Int,
     ): ByteBuffer?
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetTriangleIndexStride(
         nativePointer: Long,
         coatIndex: Int,
@@ -599,7 +576,7 @@ public class InProgressStroke {
      * Return the address of a newly allocated copy of the `ink::MeshFormat` belonging to the mesh
      * at [partitionIndex].
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeAllocMeshFormatCopy(
         nativePointer: Long,
         coatIndex: Int,
@@ -607,26 +584,22 @@ public class InProgressStroke {
     ): Long
 
     /** Writes the updated region to [outEnvelope]. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeFillUpdatedRegion(nativePointer: Long, outEnvelope: BoxAccumulator)
 
-    private external fun nativeResetUpdatedRegion(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeResetUpdatedRegion(nativePointer: Long)
 
-    private external fun nativeGetOutlineCount(
-        nativePointer: Long,
-        coatIndex: Int
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
+    private external fun nativeGetOutlineCount(nativePointer: Long, coatIndex: Int): Int
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeGetOutlineVertexCount(
         nativePointer: Long,
         coatIndex: Int,
         outlineIndex: Int,
     ): Int
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeFillOutlinePosition(
         nativePointer: Long,
         coatIndex: Int,
@@ -636,9 +609,7 @@ public class InProgressStroke {
     )
 
     /** Release the underlying memory allocated in [nativeCreateInProgressStroke]. */
-    private external fun nativeFreeInProgressStroke(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFreeInProgressStroke(nativePointer: Long)
 
     // Companion object gets initialized before anything else.
     public companion object {

@@ -42,6 +42,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
+import androidx.core.graphics.withMatrix
 import androidx.graphics.CanvasBufferedRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.hardware.SyncFenceCompat
@@ -650,11 +651,10 @@ internal class CanvasInProgressStrokesRenderHelperV33(
             inProgressStroke: InProgressStroke,
             strokeToMainViewTransform: Matrix,
         ) {
-            renderer.draw(
-                checkNotNull(renderThreadState.offScreenCanvas),
-                inProgressStroke,
-                strokeToMainViewTransform,
-            )
+            val canvas = checkNotNull(renderThreadState.offScreenCanvas)
+            canvas.withMatrix(strokeToMainViewTransform) {
+                renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+            }
         }
 
         @WorkerThread

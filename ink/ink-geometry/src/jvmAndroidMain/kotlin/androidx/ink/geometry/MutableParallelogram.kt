@@ -18,6 +18,7 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * Mutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
@@ -67,9 +68,7 @@ private constructor(
     public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO, 0f)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-
-    // TODO: b/355248266 - @UsedByNative("parallelogram_jni_helper.cc") must go in Proguard config
-    // file instead.
+    @UsedByNative
     public fun setCenterDimensionsRotationAndShear(
         centerX: Float,
         centerY: Float,

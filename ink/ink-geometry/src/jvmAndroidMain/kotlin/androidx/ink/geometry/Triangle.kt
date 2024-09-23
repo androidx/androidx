@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A triangle defined by its three corners [p0], [p1] and [p2]. The order of these points matter - a
@@ -200,7 +201,7 @@ private object TriangleNative {
     }
 
     /** Helper method to check if a native `ink::Triangle` contains the native `ink::Point`. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun nativeContains(
         triangleP0X: Float,
         triangleP0Y: Float,

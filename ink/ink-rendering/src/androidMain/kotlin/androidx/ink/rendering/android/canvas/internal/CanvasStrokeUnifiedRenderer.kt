@@ -59,29 +59,29 @@ internal class CanvasStrokeUnifiedRenderer(
         throw IllegalArgumentException("Cannot draw $stroke")
     }
 
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: AffineTransform) {
-        getDelegateRendererOrThrow(stroke).draw(canvas, stroke, strokeToCanvasTransform)
+    override fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform) {
+        getDelegateRendererOrThrow(stroke).draw(canvas, stroke, strokeToScreenTransform)
     }
 
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: Matrix) {
-        getDelegateRendererOrThrow(stroke).draw(canvas, stroke, strokeToCanvasTransform)
-    }
-
-    override fun draw(
-        canvas: Canvas,
-        inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: AffineTransform,
-    ) {
-        val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToCanvasTransform)
+    override fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix) {
+        getDelegateRendererOrThrow(stroke).draw(canvas, stroke, strokeToScreenTransform)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: Matrix,
+        strokeToScreenTransform: AffineTransform,
     ) {
         val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToCanvasTransform)
+        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform)
+    }
+
+    override fun draw(
+        canvas: Canvas,
+        inProgressStroke: InProgressStroke,
+        strokeToScreenTransform: Matrix,
+    ) {
+        val delegateRenderer = meshRenderer ?: pathRenderer
+        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform)
     }
 }

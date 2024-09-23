@@ -76,14 +76,6 @@ constructor(private val renderer: CanvasStrokeRenderer) {
      */
     private val localToScreenTransform = Matrix()
 
-    /**
-     * Pre-allocated inverse of [localToScreenTransform] calculated once per call to [drawStroke].
-     *
-     * TODO: b/353302113 - Delete once the renderer can draw without modifying canvas transform
-     *   state.
-     */
-    private val screenToLocalTransform = Matrix()
-
     /** Overwrite this object for reuse. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun onDrawStart(canvasToScreenTransform: Matrix, newCanvas: Canvas) {
@@ -107,16 +99,6 @@ constructor(private val renderer: CanvasStrokeRenderer) {
             // (Local -> Screen) = (Initial -> Screen) * (Local -> Initial)
             postConcat(initialCanvasToScreenTransform)
         }
-
-        // Second, apply the inverse of (Local -> Screen) to the [Canvas], since the renderer will
-        // apply the provided transform to the [Canvas]. This cancels the two out.
-        // TODO: b/353302113 - Do not modify Canvas transform when new draw API is available.
-        canvas.save()
-        localToScreenTransform.invert(screenToLocalTransform)
-        canvas.concat(screenToLocalTransform)
-
         renderer.draw(canvas, stroke, localToScreenTransform)
-
-        canvas.restore()
     }
 }

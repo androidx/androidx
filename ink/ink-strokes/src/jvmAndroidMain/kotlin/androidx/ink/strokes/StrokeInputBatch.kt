@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 /**
  * A read-only view of an object that stores multiple [StrokeInput] values together in a more
@@ -398,50 +399,31 @@ private object StrokeInputBatchNative {
         NativeLoader.load()
     }
 
-    external fun createNativePeer():
-        Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun createNativePeer(): Long
 
-    external fun freeNativePeer(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun freeNativePeer(nativePointer: Long)
 
-    external fun getSize(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getSize(nativePointer: Long): Int
 
-    external fun getToolType(
-        nativePointer: Long
-    ): Int // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getToolType(nativePointer: Long): Int
 
-    external fun getDurationMillis(
-        nativePointer: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getDurationMillis(nativePointer: Long): Long
 
-    external fun getStrokeUnitLengthCm(
-        nativePointer: Long
-    ): Float // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun getStrokeUnitLengthCm(nativePointer: Long): Float
 
-    external fun hasStrokeUnitLength(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun hasStrokeUnitLength(nativePointer: Long): Boolean
 
-    external fun hasPressure(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun hasPressure(nativePointer: Long): Boolean
 
-    external fun hasTilt(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun hasTilt(nativePointer: Long): Boolean
 
-    external fun hasOrientation(
-        nativePointer: Long
-    ): Boolean // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun hasOrientation(nativePointer: Long): Boolean
 
     /**
      * The [toolTypeClass] parameter is passed as a convenience to native JNI code, to avoid it
      * needing to do a reflection-based FindClass lookup.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun populate(
         nativePointer: Long,
         index: Int,
@@ -455,11 +437,9 @@ private object MutableStrokeInputBatchNative {
         NativeLoader.load()
     }
 
-    external fun clear(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun clear(nativePointer: Long)
 
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     external fun appendSingle(
         nativePointer: Long,
         type: Int,
@@ -472,12 +452,7 @@ private object MutableStrokeInputBatchNative {
         orientation: Float,
     ): String?
 
-    external fun appendBatch(
-        nativePointer: Long,
-        addedNativePointer: Long
-    ): String? // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun appendBatch(nativePointer: Long, addedNativePointer: Long): String?
 
-    external fun copy(
-        nativePointer: Long
-    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative external fun copy(nativePointer: Long): Long
 }

@@ -43,6 +43,7 @@ import androidx.ink.geometry.MeshAttributeUnpackingParams
 import androidx.ink.geometry.MeshFormat
 import androidx.ink.geometry.populateMatrix
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.InProgressStroke
@@ -165,8 +166,8 @@ internal class CanvasMeshRenderer(
     private val scratchFirstInput = StrokeInput()
     private val scratchLastInput = StrokeInput()
 
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: AffineTransform) {
-        strokeToCanvasTransform.populateMatrix(scratchMatrix)
+    override fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform) {
+        strokeToScreenTransform.populateMatrix(scratchMatrix)
         draw(canvas, stroke, scratchMatrix)
     }
 
@@ -175,21 +176,19 @@ internal class CanvasMeshRenderer(
      *
      * @param canvas The [Canvas] to draw to.
      * @param stroke The [Stroke] to draw.
-     * @param strokeToCanvasTransform The transform [Matrix] to convert from [Stroke] actual
-     *   coordinates to the coordinates of [canvas]. It is important to pass this here to be applied
-     *   internally rather than applying it to [canvas] in calling code, to ensure anti-aliasing has
-     *   the information it needs to render properly. In addition, any transforms previously applied
-     *   to [canvas] must only be translations, or rotations in multiples of 90 degrees. If you are
-     *   not transforming [canvas] yourself then this will be correct, as the [android.view.View]
-     *   hierarchy applies only translations by default. If you are rendering in a
+     * @param strokeToScreenTransform The transform [Matrix] to convert from [Stroke] coordinates to
+     *   the coordinates of pixels on the screen used to display the stroke. It is important to pass
+     *   this here to be applied internally rather than applying it to [canvas] in calling code, to
+     *   ensure anti-aliasing has the information it needs to render properly. Also, any additional
+     *   transforms applied to [canvas] must only be translations. If you are rendering in a
      *   [android.view.View] where it (or one of its ancestors) is rotated or scaled within its
      *   parent, or if you are applying rotation or scaling transforms to [canvas] yourself, then
-     *   care must be taken to undo those transforms before calling this method, and calling this
-     *   method with a full stroke-to-screen (modulo translation or multi-90 degree rotation)
-     *   transform. Without this, anti-aliasing at the edge of strokes will not render properly.
+     *   care must be taken so that these transformations are reflected in the
+     *   [strokeToScreenTransform]. Without this, anti-aliasing at the edge of strokes will not
+     *   render properly.
      */
-    override fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: Matrix) {
-        require(strokeToCanvasTransform.isAffine) { "strokeToCanvasTransform must be affine" }
+    override fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix) {
+        require(strokeToScreenTransform.isAffine) { "strokeToScreenTransform must be affine" }
         if (stroke.inputs.isEmpty()) return // nothing to draw
         stroke.inputs.populate(0, scratchFirstInput)
         stroke.inputs.populate(stroke.inputs.size - 1, scratchLastInput)
@@ -212,7 +211,7 @@ internal class CanvasMeshRenderer(
                 drawFromStroke(
                     canvas,
                     mesh,
-                    strokeToCanvasTransform,
+                    strokeToScreenTransform,
                     stroke.brush.composeColor,
                     blendMode,
                     androidPaint,
@@ -275,16 +274,7 @@ internal class CanvasMeshRenderer(
                 cachedMeshData.androidMesh
             }
 
-        canvas.save()
-        try {
-            canvas.concat(meshToCanvasTransform)
-            canvas.drawMesh(androidMesh, blendMode, paint)
-        } finally {
-            // If any exceptions occur while drawing, restore the canvas so that restore is always
-            // called
-            // after canvas.save().
-            canvas.restore()
-        }
+        canvas.drawMesh(androidMesh, blendMode, paint)
 
         if (!uniformBugFixed) {
             val currentTimeMillis = getDurationTimeMillis()
@@ -307,63 +297,54 @@ internal class CanvasMeshRenderer(
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: AffineTransform,
+        strokeToScreenTransform: AffineTransform,
     ) {
-        strokeToCanvasTransform.populateMatrix(scratchMatrix)
+        strokeToScreenTransform.populateMatrix(scratchMatrix)
         draw(canvas, inProgressStroke, scratchMatrix)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
-        strokeToCanvasTransform: Matrix,
+        strokeToScreenTransform: Matrix,
     ) {
         val brush =
             checkNotNull(inProgressStroke.brush) {
                 "Attempting to draw an InProgressStroke that has not been started."
             }
-        require(strokeToCanvasTransform.isAffine) { "strokeToCanvasTransform must be affine" }
+        require(strokeToScreenTransform.isAffine) { "strokeToScreenTransform must be affine" }
         val inputCount = inProgressStroke.getInputCount()
         if (inputCount == 0) return // nothing to draw
         inProgressStroke.populateInput(scratchFirstInput, 0)
         inProgressStroke.populateInput(scratchLastInput, inputCount - 1)
         fillObjectToCanvasLinearComponent(
-            strokeToCanvasTransform,
+            strokeToScreenTransform,
             objectToCanvasLinearComponentScratch
         )
         val brushCoatCount = inProgressStroke.getBrushCoatCount()
-        canvas.save()
-        try {
-            canvas.concat(strokeToCanvasTransform)
-            for (coatIndex in 0 until brushCoatCount) {
-                val brushPaint = brush.family.coats[coatIndex].paint
-                val blendMode = finalBlendMode(brushPaint)
-                val androidPaint =
-                    paintCache.obtain(
-                        brushPaint,
-                        AndroidColor.WHITE,
-                        brush.size,
-                        scratchFirstInput,
-                        scratchLastInput,
-                    )
-                val inProgressMeshData = obtainInProgressMeshData(inProgressStroke, coatIndex)
-                for (meshIndex in 0 until inProgressMeshData.androidMeshes.size) {
-                    val androidMesh = inProgressMeshData.androidMeshes[meshIndex] ?: continue
-                    updateAndroidMesh(
-                        androidMesh,
-                        inProgressStroke.getMeshFormat(coatIndex, meshIndex),
-                        objectToCanvasLinearComponentScratch,
-                        brush.composeColor,
-                        attributeUnpackingParams = null,
-                    )
-                    canvas.drawMesh(androidMesh, blendMode, androidPaint)
-                }
+        for (coatIndex in 0 until brushCoatCount) {
+            val brushPaint = brush.family.coats[coatIndex].paint
+            val blendMode = finalBlendMode(brushPaint)
+            val androidPaint =
+                paintCache.obtain(
+                    brushPaint,
+                    AndroidColor.WHITE,
+                    brush.size,
+                    scratchFirstInput,
+                    scratchLastInput,
+                )
+            val inProgressMeshData = obtainInProgressMeshData(inProgressStroke, coatIndex)
+            for (meshIndex in 0 until inProgressMeshData.androidMeshes.size) {
+                val androidMesh = inProgressMeshData.androidMeshes[meshIndex] ?: continue
+                updateAndroidMesh(
+                    androidMesh,
+                    inProgressStroke.getMeshFormat(coatIndex, meshIndex),
+                    objectToCanvasLinearComponentScratch,
+                    brush.composeColor,
+                    attributeUnpackingParams = null,
+                )
+                canvas.drawMesh(androidMesh, blendMode, androidPaint)
             }
-        } finally {
-            // If any exceptions occur while drawing, restore the canvas so that restore is always
-            // called
-            // after canvas.save().
-            canvas.restore()
         }
     }
 
@@ -726,7 +707,7 @@ internal class CanvasMeshRenderer(
      * @throws IllegalArgumentException If an unrecognized format was passed in, i.e. when
      *   [nativeIsMeshFormatRenderable] returns false.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun fillSkiaMeshSpecData(
         meshFormatNativeAddress: Long,
         isPacked: Boolean,
@@ -753,7 +734,7 @@ internal class CanvasMeshRenderer(
      *
      * [fillSkiaMeshSpecData] throws IllegalArgumentException when this method returns false.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeIsMeshFormatRenderable(
         meshFormatNativeAddress: Long,
         isPacked: Boolean,

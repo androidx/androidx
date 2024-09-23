@@ -61,8 +61,8 @@ import org.mockito.kotlin.whenever
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 @SdkSuppress(
-    minSdkVersion = Build.VERSION_CODES.TIRAMISU,
     maxSdkVersion = Build.VERSION_CODES.TIRAMISU,
+    minSdkVersion = Build.VERSION_CODES.TIRAMISU
 )
 class CanvasInProgressStrokesRenderHelperV33Test {
 
@@ -233,7 +233,14 @@ class CanvasInProgressStrokesRenderHelperV33Test {
         withActivity { activity ->
             val brush = Brush(family = StockBrushes.markerLatest, size = 10f, epsilon = 0.1f)
             val stroke = Stroke(brush, ImmutableStrokeInputBatch.EMPTY)
-            val handingOff = mapOf(InProgressStrokeId() to FinishedStroke(stroke, Matrix()))
+            val handingOff =
+                mapOf(
+                    InProgressStrokeId() to
+                        FinishedStroke(
+                            stroke,
+                            Matrix(),
+                        )
+                )
             activity.renderHelper.requestStrokeCohortHandoffToHwui(handingOff)
             verify(callback).setPauseStrokeCohortHandoffs(true)
             verify(callback).onStrokeCohortHandoffToHwui(handingOff)

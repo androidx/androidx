@@ -18,6 +18,7 @@ package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -141,16 +142,14 @@ constructor(
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative
     private external fun nativeCreateBrushCoat(
         tipNativePointers: LongArray,
         paintNativePointer: Long,
     ): Long
 
     /** Release the underlying memory allocated in [nativeCreateBrushCoat]. */
-    private external fun nativeFreeBrushCoat(
-        nativePointer: Long
-    ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    @UsedByNative private external fun nativeFreeBrushCoat(nativePointer: Long)
 
     // Companion object gets initialized before anything else.
     public companion object {

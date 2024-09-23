@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.withMatrix
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
@@ -89,10 +90,12 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
 
             // The empty stroke should of course not be visible, but the [draw] call should succeed.
             renderer.draw(canvas, emptyStroke, Matrix.IDENTITY_MATRIX)
+
             // Expected result: pink stroke on left, large green rotated stroke on right.
-            renderer.draw(canvas, stroke, transform)
+            canvas.withMatrix(transform) { renderer.draw(canvas, stroke, transform) }
+
             canvas.translate(xBetweenStrokes, 0F)
-            renderer.draw(canvas, stroke2, transform2)
+            canvas.withMatrix(transform2) { renderer.draw(canvas, stroke2, transform2) }
         }
     }
 }

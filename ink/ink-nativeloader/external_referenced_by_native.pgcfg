@@ -1,0 +1,46 @@
+# Proguard configuration to retain stuff outside of Ink that is called
+# from JNI code via reflection (e.g. Get[Static]MethodID (including in method
+# signatures), Get[Static]FieldID, FindClass). Stuff in Ink that's
+# called this way should be annotated with Ink's @UsedByNative instead.
+# (This includes methods referenced in GetMethodID and classes in those methods'
+# signatures.)
+
+# All the classes referenced in calls to ink::jni::ThrowException. These need
+# to be preserved from pruning as well as renaming, since the objects are
+# originating on the C++ side without necessarily having a reference to the
+# class on the JVM side (though it would be extremely surprising if any
+# of these actually got pruned).
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.IllegalArgumentException {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.IllegalStateException {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.IndexOutOfBoundsException {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.NoSuchElementException {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.NullPointerException {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.OutOfMemoryError {
+    <init>(java.lang.String);
+}
+
+-if class androidx.ink.nativeloader.NativeLoader
+-keep class java.lang.UnsupportedOperationException {
+    <init>(java.lang.String);
+}
