@@ -76,6 +76,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -3103,6 +3104,34 @@ class LookaheadScopeTest {
             // Round to int, since it may return -0.0f
             assertEquals(0, lookingAheadPositionExcludingDmp.y.fastRoundToInt())
         }
+
+    @Test
+    fun testApproachUsingContentNotComposedInLookahead() {
+        var items by mutableStateOf(List(500) { it })
+        rule.setContent {
+            LookaheadScope {
+                LazyColumn(Modifier.requiredHeight(400.dp)) {
+                    items(items, key = { it }) {
+                        Box(
+                            Modifier.animateItem(
+                                fadeInSpec = null,
+                                placementSpec = tween(15),
+                                fadeOutSpec = tween(15)
+                            )
+                        ) {
+                            Box { Text("Item $it") }
+                        }
+                    }
+                }
+            }
+        }
+
+        repeat(30) {
+            rule.waitForIdle()
+            items = items.shuffled()
+            Snapshot.sendApplyNotifications()
+        }
+    }
 
     @Test
     fun testLookaheadAndApproachCoordinatesAreConsistentOnFirstPass_usingAlign() =

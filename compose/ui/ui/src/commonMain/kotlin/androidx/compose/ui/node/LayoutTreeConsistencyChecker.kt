@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
@@ -81,7 +82,9 @@ internal class LayoutTreeConsistencyChecker(
                     parent.measurePending ||
                     parent.layoutPending ||
                     parentLayoutState == LayoutNode.LayoutState.Measuring ||
-                    parentLayoutState == LayoutNode.LayoutState.LayingOut
+                    parentLayoutState == LayoutNode.LayoutState.LayingOut ||
+                    postponedMeasureRequests.fastAny { it.node == this } ||
+                    layoutState == LayoutNode.LayoutState.Measuring
             }
         }
         if (isPlacedInLookahead == true) {
