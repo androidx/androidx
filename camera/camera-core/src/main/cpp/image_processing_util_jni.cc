@@ -461,6 +461,7 @@ Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroid420ToBitmap(
             height);
 
     if (result != 0) {
+        AndroidBitmap_unlockPixels(env,bitmap);
         return -1;
     }
 
