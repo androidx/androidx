@@ -173,6 +173,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureLint()
         project.configureKtfmt()
         project.configureKotlinVersion()
+        project.configureJavaFormat()
 
         // Avoid conflicts between full Guava and LF-only Guava.
         project.configureGuavaUpgradeHandler()
