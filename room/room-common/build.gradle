@@ -36,6 +36,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
