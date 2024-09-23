@@ -25,6 +25,7 @@ package androidx.compose.foundation.gestures
 //  functions public
 
 import androidx.compose.foundation.ComposeFoundationFlags.DragGesturePickUpEnabled
+import androidx.compose.foundation.ComposeFoundationFlags.DraggableAddDownEventFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -167,20 +168,32 @@ suspend fun AwaitPointerEventScope.awaitDragOrCancellation(
  * @see detectHorizontalDragGestures
  * @see detectDragGesturesAfterLongPress to detect gestures after long press
  */
+@OptIn(ExperimentalFoundationApi::class)
 suspend fun PointerInputScope.detectDragGestures(
     onDragStart: (Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
     onDragCancel: () -> Unit = {},
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
 ) =
-    detectDragGestures(
-        onDragStart = { _, slopTriggerChange, _ -> onDragStart(slopTriggerChange.position) },
-        onDragEnd = { onDragEnd.invoke() },
-        onDragCancel = onDragCancel,
-        shouldAwaitTouchSlop = { true },
-        orientationLock = null,
-        onDrag = onDrag
-    )
+    if (DraggableAddDownEventFixEnabled) {
+        detectDragGestures(
+            onDragStart = { _, slopTriggerChange, _ -> onDragStart(slopTriggerChange.position) },
+            onDragEnd = { onDragEnd.invoke() },
+            onDragCancel = onDragCancel,
+            shouldAwaitTouchSlop = { true },
+            orientationLock = null,
+            onDrag = onDrag
+        )
+    } else {
+        legacyDetectDragGestures(
+            onDragStart = { change, _ -> onDragStart(change.position) },
+            onDragEnd = { onDragEnd.invoke() },
+            onDragCancel = onDragCancel,
+            shouldAwaitTouchSlop = { true },
+            orientationLock = null,
+            onDrag = onDrag
+        )
+    }
 
 /**
  * A Gesture detector that waits for pointer down and touch slop in the direction specified by
@@ -297,6 +310,67 @@ internal suspend fun PointerInputScope.detectDragGestures(
 
         if (drag != null) {
             onDragStart.invoke(down, drag, overSlop)
+            onDrag(drag, overSlop)
+            val upEvent =
+                drag(
+                    pointerId = drag.id,
+                    onDrag = {
+                        onDrag(it, it.positionChange())
+                        it.consume()
+                    },
+                    orientation = orientationLock,
+                    motionConsumed = { it.isConsumed }
+                )
+            if (upEvent == null) {
+                onDragCancel()
+            } else {
+                onDragEnd(upEvent)
+            }
+        }
+    }
+}
+
+internal suspend fun PointerInputScope.legacyDetectDragGestures(
+    onDragStart: (change: PointerInputChange, initialDelta: Offset) -> Unit,
+    onDragEnd: (change: PointerInputChange) -> Unit,
+    onDragCancel: () -> Unit,
+    shouldAwaitTouchSlop: () -> Boolean,
+    orientationLock: Orientation?,
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+) {
+    var overSlop: Offset
+
+    awaitEachGesture {
+        val initialDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+        val awaitTouchSlop = shouldAwaitTouchSlop()
+
+        if (!awaitTouchSlop) {
+            initialDown.consume()
+        }
+        val down = awaitFirstDown(requireUnconsumed = false)
+        var drag: PointerInputChange?
+        var initialDelta = Offset.Zero
+        overSlop = Offset.Zero
+
+        if (awaitTouchSlop) {
+            do {
+                drag =
+                    awaitPointerSlopOrCancellation(
+                        down.id,
+                        down.type,
+                        orientation = orientationLock
+                    ) { change, over ->
+                        change.consume()
+                        overSlop = over
+                    }
+            } while (drag != null && !drag.isConsumed)
+            initialDelta = overSlop
+        } else {
+            drag = initialDown
+        }
+
+        if (drag != null) {
+            onDragStart.invoke(drag, initialDelta)
             onDrag(drag, overSlop)
             val upEvent =
                 drag(

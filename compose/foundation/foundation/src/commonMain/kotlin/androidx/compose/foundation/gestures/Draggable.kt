@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ComposeFoundationFlags.DraggableAddDownEventFixEnabled
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.DragEvent.DragCancelled
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -457,6 +460,7 @@ internal abstract class DragGestureNode(
         pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
         return SuspendingPointerInputModifierNode {
             // re-create tracker when pointer input block restarts. This lazily creates the tracker
@@ -486,6 +490,26 @@ internal abstract class DragGestureNode(
                     }
                 }
 
+            val onLegacyDragStart: (change: PointerInputChange, initialDelta: Offset) -> Unit =
+                { startEvent, initialDelta ->
+                    if (canDrag.invoke(startEvent)) {
+                        if (!isListeningForEvents) {
+                            if (channel == null) {
+                                channel = Channel(capacity = Channel.UNLIMITED)
+                            }
+                            startListeningForEvents()
+                        }
+                        val overSlopOffset = initialDelta
+                        val xSign = sign(startEvent.position.x)
+                        val ySign = sign(startEvent.position.y)
+                        val adjustedStart =
+                            startEvent.position -
+                                Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
+
+                        channel?.trySend(DragStarted(adjustedStart))
+                    }
+                }
+
             val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
                 velocityTracker.addPointerInputChange(upEvent)
                 val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
@@ -507,14 +531,25 @@ internal abstract class DragGestureNode(
 
             coroutineScope {
                 try {
-                    detectDragGestures(
-                        orientationLock = orientationLock,
-                        onDragStart = onDragStart,
-                        onDragEnd = onDragEnd,
-                        onDragCancel = onDragCancel,
-                        shouldAwaitTouchSlop = shouldAwaitTouchSlop,
-                        onDrag = onDrag
-                    )
+                    if (DraggableAddDownEventFixEnabled) {
+                        detectDragGestures(
+                            orientationLock = orientationLock,
+                            onDragStart = onDragStart,
+                            onDragEnd = onDragEnd,
+                            onDragCancel = onDragCancel,
+                            shouldAwaitTouchSlop = shouldAwaitTouchSlop,
+                            onDrag = onDrag
+                        )
+                    } else {
+                        legacyDetectDragGestures(
+                            orientationLock = orientationLock,
+                            onDragStart = onLegacyDragStart,
+                            onDragEnd = onDragEnd,
+                            onDragCancel = onDragCancel,
+                            shouldAwaitTouchSlop = shouldAwaitTouchSlop,
+                            onDrag = onDrag
+                        )
+                    }
                 } catch (cancellation: CancellationException) {
                     channel?.trySend(DragCancelled)
                     if (!isActive) throw cancellation
