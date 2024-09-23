@@ -31,14 +31,15 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":navigation:navigation-runtime"))
+    androidTestImplementation(project(":benchmark:benchmark-common"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-navigation"))
+    androidTestImplementation(project(":navigation:navigation-common"))
+    androidTestImplementation(project(":navigation:navigation-runtime"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinStdlib)
 }
 

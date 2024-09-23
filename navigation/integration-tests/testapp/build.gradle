@@ -22,11 +22,22 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation(project(":navigation:navigation-common"))
+    implementation(project(":navigation:navigation-fragment"))
+    implementation(project(":navigation:navigation-runtime"))
+    implementation(project(":navigation:navigation-ui"))
     implementation("androidx.appcompat:appcompat:1.1.0")
-    api(project(":fragment:fragment-ktx"))
-    api(project(":transition:transition-ktx"))
-    implementation(project(":navigation:navigation-fragment-ktx"))
-    implementation(project(":navigation:navigation-ui-ktx"))
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.1")
+    implementation("androidx.core:core:1.13.0")
+    implementation("androidx.customview:customview:1.1.0")
+    implementation("androidx.drawerlayout:drawerlayout:1.1.1")
+    implementation("androidx.fragment:fragment:1.8.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
+    implementation("androidx.transition:transition:1.5.1")
+    implementation("com.google.android.material:material:1.4.0")
     implementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
     })

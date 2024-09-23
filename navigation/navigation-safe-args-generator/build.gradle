@@ -47,8 +47,11 @@ dependencies {
     implementation(libs.javapoet)
     implementation(libs.kotlinPoet)
 
-    testImplementation(libs.junit)
     testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.guava)
+    testImplementation(libs.hamcrestCore)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
     testImplementation(project(":room:room-compiler-processing-testing"), {
         exclude group: "androidx.room", module: "room-compiler-processing"
     })
