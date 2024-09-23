@@ -68,8 +68,9 @@ abstract class AndroidXExtension(
         newProjectMap
     }
 
-    var name: Property<String?> = project.objects.property(String::class.java)
+    val name: Property<String?> = project.objects.property(String::class.java)
 
+    /** The name for this artifact to be used in .pom files. */
     fun setName(newName: String) {
         name.set(newName)
     }
@@ -85,7 +86,8 @@ abstract class AndroidXExtension(
             chooseProjectVersion()
         }
 
-    internal var projectDirectlySpecifiesMavenVersion: Boolean = false
+    var projectDirectlySpecifiesMavenVersion: Boolean = false
+        private set
 
     fun getOtherProjectsInSameGroup(): List<IncludedProject> {
         val ourGroup = chooseLibraryGroup() ?: return listOf()
@@ -263,16 +265,16 @@ abstract class AndroidXExtension(
             version.isAlpha()
     }
 
-    private var versionIsSet = false
+    /** Whether the version for this artifact has been set */
+    var versionIsSet = false
+        private set
 
-    fun isVersionSet(): Boolean {
-        return versionIsSet
-    }
-
+    /** Description for this artifact to use in .pom files */
     var description: String? = null
+    /** The year when the development of this library started to use in .pom files */
     var inceptionYear: String? = null
 
-    /* The main license to add when publishing. Default is Apache 2. */
+    /** The main license to add when publishing. Default is Apache 2. */
     var license: License =
         License().apply {
             name = "The Apache Software License, Version 2.0"
@@ -284,7 +286,7 @@ abstract class AndroidXExtension(
     // Should only be used to override LibraryType.publish, if a library isn't ready to publish yet
     var publish: Publish = Publish.UNSET
 
-    internal fun shouldPublish(): Boolean =
+    fun shouldPublish(): Boolean =
         if (publish != Publish.UNSET) {
             publish.shouldPublish()
         } else if (type != LibraryType.UNSET) {
@@ -293,7 +295,7 @@ abstract class AndroidXExtension(
             false
         }
 
-    internal fun shouldRelease(): Boolean =
+    fun shouldRelease(): Boolean =
         if (publish != Publish.UNSET) {
             publish.shouldRelease()
         } else if (type != LibraryType.UNSET) {
@@ -302,7 +304,7 @@ abstract class AndroidXExtension(
             false
         }
 
-    internal fun ifReleasing(action: () -> Unit) {
+    fun ifReleasing(action: () -> Unit) {
         project.afterEvaluate {
             if (shouldRelease()) {
                 action()
@@ -310,8 +312,7 @@ abstract class AndroidXExtension(
         }
     }
 
-    internal fun isPublishConfigured(): Boolean =
-        (publish != Publish.UNSET || type.publish != Publish.UNSET)
+    fun isPublishConfigured(): Boolean = (publish != Publish.UNSET || type.publish != Publish.UNSET)
 
     fun shouldPublishSbom(): Boolean {
         // IDE plugins are used by and ship inside Studio
@@ -330,12 +331,19 @@ abstract class AndroidXExtension(
     var doNotDocumentReason: String? = null
 
     var type: LibraryType = LibraryType.UNSET
+
+    /** Whether this project should fail on javac compilation warnings */
     var failOnDeprecationWarnings = true
 
+    /**
+     * Whether Kotlin Strict API mode is enabled, see
+     * [kotlin 1.4 release notes](https://kotlinlang.org/docs/whatsnew14.html#explicit-api-mode-for-library-authors)
+     */
     var legacyDisableKotlinStrictApiMode = false
 
     var bypassCoordinateValidation = false
 
+    /** Whether Metalava should use K2 Kotlin front-end for source analysis */
     var metalavaK2UastEnabled = true
 
     val additionalDeviceTestApkKeys = mutableListOf<String>()
@@ -394,7 +402,9 @@ abstract class AndroidXExtension(
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
 
-    internal var samplesProjects: MutableCollection<Project> = mutableSetOf()
+    /** List of documentation samples projects for this project. */
+    var samplesProjects: MutableCollection<Project> = mutableSetOf()
+        private set
 
     /**
      * Used to register a project that will be providing documentation samples for this project. Can
@@ -411,7 +421,6 @@ class License {
 }
 
 abstract class DeviceTests {
-
     companion object {
         private const val EXTENSION_NAME = "deviceTests"
 
@@ -421,8 +430,15 @@ abstract class DeviceTests {
         }
     }
 
+    /** Whether this project's Android on device tests should be run in CI. */
     var enabled = true
+    /** The app project that this project's Android on device tests require to be able to run. */
     var targetAppProject: Project? = null
     var targetAppVariant = "debug"
+
+    /**
+     * Whether this project's Android on device tests should also run on a physical Android device
+     * when run in CI.
+     */
     var enableAlsoRunningOnPhysicalDevices = false
 }

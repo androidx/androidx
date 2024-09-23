@@ -154,7 +154,7 @@ object Release {
             )
             return
         }
-        if (!androidXExtension.isVersionSet()) {
+        if (!androidXExtension.versionIsSet) {
             throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenVersion set up"
             )
