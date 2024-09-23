@@ -31,9 +31,6 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
-    api(project(":navigation:navigation-common-ktx")) {
-        because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
-    }
 }
 
 androidx {

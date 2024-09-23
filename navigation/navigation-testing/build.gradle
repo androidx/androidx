@@ -32,27 +32,34 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
-    api("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
-    implementation(libs.kotlinSerializationCore)
+    api("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
 
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinSerializationCore)
+    implementation(project(":navigation:navigation-common"))
+    implementation("androidx.core:core-ktx:1.8.0")
+    implementation("androidx.lifecycle:lifecycle-common:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2")
+
+    androidTestRuntimeOnly(libs.kotlinTestJunit)
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.6.2")
     androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
     })
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testExtTruth)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinTestJunit)
 
-    testImplementation(libs.testCore)
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
+    testRuntimeOnly(libs.testCore)
+    testRuntimeOnly(libs.kotlinTestJunit)
+    testImplementation(libs.junit)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
     testImplementation(libs.truth)
-    testImplementation(libs.kotlinTestJunit)
     testImplementation(libs.robolectric)
 }
 
