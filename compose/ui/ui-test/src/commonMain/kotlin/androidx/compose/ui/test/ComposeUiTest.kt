@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
@@ -193,10 +194,12 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * Accessibility checks are platform dependent, refer to the documentation of the platform
      * specific variant of [ComposeUiTest] to see if it is supported and how you can configure it.
      *
+     * On Android, this requires API 34+ (Android U), and currently does not work on Robolectric.
+     *
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
      * @see disableAccessibilityChecks
      */
-    fun enableAccessibilityChecks()
+    @RequiresApi(34) fun enableAccessibilityChecks()
 
     /**
      * Disables accessibility checks.
@@ -204,7 +207,7 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
      * @see enableAccessibilityChecks
      */
-    fun disableAccessibilityChecks()
+    @RequiresApi(34) fun disableAccessibilityChecks()
 }
 
 /**

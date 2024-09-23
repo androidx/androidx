@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.AndroidComposeUiTestEnvironment
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -326,8 +327,12 @@ private constructor(
      *
      * The default value is `null`.
      *
+     * This requires API 34+ (Android U), and currently does not work on Robolectric.
+     *
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
      */
+    @get:RequiresApi(34)
+    @set:RequiresApi(34)
     var accessibilityValidator: AccessibilityValidator?
         get() = composeTest.accessibilityValidator
         set(value) {
@@ -382,9 +387,12 @@ private constructor(
      * This will create and set an [accessibilityValidator] if there isn't one yet, or will do
      * nothing if an `accessibilityValidator` is already set.
      *
+     * This requires API 34+ (Android U), and currently does not work on Robolectric.
+     *
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeTestRule_sample
      * @see disableAccessibilityChecks
      */
+    @RequiresApi(34)
     override fun enableAccessibilityChecks() = composeTest.enableAccessibilityChecks()
 
     /**
@@ -395,6 +403,7 @@ private constructor(
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
      * @see enableAccessibilityChecks
      */
+    @RequiresApi(34)
     override fun disableAccessibilityChecks() = composeTest.disableAccessibilityChecks()
 
     override fun onNode(

@@ -16,10 +16,13 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.RequiresApi
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 
 internal actual fun createPlatformTestContext(): PlatformTestContext = PlatformTestContext()
 
 internal actual class PlatformTestContext(
+    @get:RequiresApi(34)
+    @set:RequiresApi(34)
     var accessibilityValidator: AccessibilityValidator? = null
 )
