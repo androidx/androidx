@@ -79,9 +79,10 @@ class AssertShapeTest {
             shape = CircleShape,
             shapeColor = Color.Red,
             shapeSize = Size(50f, 40f),
+            shapeCenter = Offset(60f, 40f),
             backgroundShape = RectangleShape,
             backgroundSize = Size(40f, 60f),
-            anchor = Offset(60f, 40f),
+            backgroundCenter = Offset(60f, 40f),
             antiAliasingGap = 1.21f,
         )
     }
@@ -98,6 +99,104 @@ class AssertShapeTest {
         )
     }
 
+    @Test
+    fun testAssertShape_rectOnRect_partialOverlap_1() =
+        testAssertShape_partialOverlap_1(RectangleShape, RectangleShape)
+
+    @Test
+    fun testAssertShape_circleOnRect_partialOverlap_1() =
+        testAssertShape_partialOverlap_1(CircleShape, RectangleShape, 1.2f)
+
+    @Test
+    fun testAssertShape_circleOnCircle_partialOverlap_1() =
+        testAssertShape_partialOverlap_1(CircleShape, CircleShape, 1.2f)
+
+    private fun testAssertShape_partialOverlap_1(
+        shape: Shape,
+        backgroundShape: Shape,
+        antiAliasingGap: Float = 1f,
+    ) {
+        //    +-----+
+        // +--| . . |--+
+        // |  |     |  |
+        // +--| . . |--+
+        //    +-----+
+        testAssertShape(
+            shape = shape,
+            shapeColor = Color.Red,
+            shapeSize = Size(20f, 30f),
+            backgroundShape = backgroundShape,
+            backgroundSize = Size(30f, 20f),
+            antiAliasingGap = antiAliasingGap,
+        )
+    }
+
+    @Test
+    fun testAssertShape_rectOnRect_partialOverlap_2() =
+        testAssertShape_partialOverlap_2(RectangleShape, RectangleShape)
+
+    @Test
+    fun testAssertShape_circleOnRect_partialOverlap_2() =
+        testAssertShape_partialOverlap_2(CircleShape, RectangleShape, 1.2f)
+
+    @Test
+    fun testAssertShape_circleOnCircle_partialOverlap_2() =
+        testAssertShape_partialOverlap_2(CircleShape, CircleShape, 1.2f)
+
+    private fun testAssertShape_partialOverlap_2(
+        shape: Shape,
+        backgroundShape: Shape,
+        antiAliasingGap: Float = 1f,
+    ) {
+        //    +-----+
+        //    |  + .|----+
+        //    |  .  |    |
+        //    |  + .|----+
+        //    +-----+
+        testAssertShape(
+            shape = shape,
+            shapeColor = Color.Red,
+            shapeSize = Size(20f, 30f),
+            backgroundShape = backgroundShape,
+            backgroundSize = Size(30f, 20f),
+            backgroundCenter = Offset(65f, 50f),
+            antiAliasingGap = antiAliasingGap,
+        )
+    }
+
+    @Test
+    fun testAssertShape_rectOnRect_partialOverlap_3() =
+        testAssertShape_partialOverlap_3(RectangleShape, RectangleShape)
+
+    @Test
+    fun testAssertShape_circleOnRect_partialOverlap_3() =
+        testAssertShape_partialOverlap_3(CircleShape, RectangleShape, 1.2f)
+
+    @Test
+    fun testAssertShape_circleOnCircle_partialOverlap_3() =
+        testAssertShape_partialOverlap_3(CircleShape, CircleShape, 1.2f)
+
+    private fun testAssertShape_partialOverlap_3(
+        shape: Shape,
+        backgroundShape: Shape,
+        antiAliasingGap: Float = 1f,
+    ) {
+        //    +-----+
+        //    |  + .|---+
+        //    |  .  |   |
+        //    +-----+   |
+        //       +------+
+        testAssertShape(
+            shape = shape,
+            shapeColor = Color.Red,
+            shapeSize = Size(20f, 20f),
+            backgroundShape = backgroundShape,
+            backgroundSize = Size(20f, 20f),
+            backgroundCenter = Offset(60f, 60f),
+            antiAliasingGap = antiAliasingGap,
+        )
+    }
+
     /**
      * Tests [ImageBitmap.assertShape] by creating a bitmap reflecting the asserted values, and then
      * asserting that bitmap with assertShape.
@@ -107,10 +206,11 @@ class AssertShapeTest {
         shape: Shape,
         shapeColor: Color,
         shapeSize: Size,
+        shapeCenter: Offset = Offset(bitmapSize.width / 2f, bitmapSize.height / 2f),
         backgroundShape: Shape = RectangleShape,
         backgroundColor: Color = Color.Yellow,
         backgroundSize: Size = shapeSize,
-        anchor: Offset = Offset(bitmapSize.width / 2f, bitmapSize.height / 2f),
+        backgroundCenter: Offset = Offset(bitmapSize.width / 2f, bitmapSize.height / 2f),
         antiAliasingGap: Float = 1f,
     ) {
         val bitmap =
@@ -119,20 +219,22 @@ class AssertShapeTest {
                 shape = shape,
                 shapeColor = shapeColor,
                 shapeSize = shapeSize,
+                shapeCenter = shapeCenter,
                 backgroundShape = backgroundShape,
                 backgroundColor = backgroundColor,
                 backgroundSize = backgroundSize,
-                anchor = anchor
+                backgroundCenter = backgroundCenter,
             )
         bitmap.assertShape(
             density = Density(1f),
             shape = shape,
             shapeColor = shapeColor,
-            backgroundColor = backgroundColor,
-            backgroundShape = backgroundShape,
-            backgroundSize = backgroundSize,
             shapeSize = shapeSize,
-            shapeAndBackgroundCenter = anchor,
+            shapeCenter = shapeCenter,
+            backgroundShape = backgroundShape,
+            backgroundColor = backgroundColor,
+            backgroundSize = backgroundSize,
+            backgroundCenter = backgroundCenter,
             antiAliasingGap = antiAliasingGap,
         )
     }
@@ -160,10 +262,11 @@ class AssertShapeTest {
                 shape = RectangleShape,
                 shapeColor = Color.Red,
                 shapeSize = Size(4f, 4f),
+                shapeCenter = Offset(6f, 4f),
                 backgroundShape = RectangleShape,
                 backgroundColor = Color.Yellow,
                 backgroundSize = Size(8f, 6f),
-                anchor = Offset(6f, 4f)
+                backgroundCenter = Offset(6f, 4f),
             )
         bitmap.assertPixels(IntSize(10, 10)) { pos ->
             // If the pixel is within the (larger) background area..
@@ -191,10 +294,11 @@ class AssertShapeTest {
             shape = RectangleShape,
             shapeColor = Color.Red,
             shapeSize = Size(4f, 4f),
+            shapeCenter = Offset(6f, 4f),
             backgroundShape = RectangleShape,
             backgroundColor = Color.Yellow,
             backgroundSize = Size(8f, 6f),
-            anchor = Offset(6f, 4f)
+            backgroundCenter = Offset(6f, 4f),
         )
     }
 
@@ -203,15 +307,16 @@ class AssertShapeTest {
         shape: Shape,
         shapeColor: Color,
         shapeSize: Size,
+        shapeCenter: Offset,
         backgroundShape: Shape,
         backgroundColor: Color,
         backgroundSize: Size,
-        anchor: Offset,
+        backgroundCenter: Offset,
     ): ImageBitmap {
         val bitmap = ImageBitmap(bitmapSize.width, bitmapSize.height)
         val canvas = Canvas(bitmap)
-        canvas.drawShape(backgroundShape, backgroundColor, backgroundSize, anchor)
-        canvas.drawShape(shape, shapeColor, shapeSize, anchor)
+        canvas.drawShape(backgroundShape, backgroundColor, backgroundSize, backgroundCenter)
+        canvas.drawShape(shape, shapeColor, shapeSize, shapeCenter)
         return bitmap
     }
 
@@ -221,11 +326,11 @@ class AssertShapeTest {
         shape: Shape,
         color: Color,
         size: Size,
-        anchor: Offset,
+        center: Offset,
         density: Density = Density(1f),
         layoutDirection: LayoutDirection = LayoutDirection.Ltr
     ) {
-        val backgroundOffset = anchor - (size / 2f).asOffset()
+        val backgroundOffset = center - (size / 2f).asOffset()
         val backgroundOutline = shape.createOutline(size, layoutDirection, density)
         CanvasDrawScope().draw(density, layoutDirection, this, size) {
             translate(backgroundOffset.x, backgroundOffset.y) {

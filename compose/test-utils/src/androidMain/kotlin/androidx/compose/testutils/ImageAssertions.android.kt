@@ -17,6 +17,7 @@
 package androidx.compose.testutils
 
 import android.graphics.Bitmap
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -120,115 +122,6 @@ private fun ImageBitmap.containsColor(expectedColor: Color): Boolean {
 }
 
 /**
- * Tests to see if the given point is within the path. (That is, whether the point would be in the
- * visible portion of the path if the path was used with [Canvas.clipPath].)
- *
- * The `point` argument is interpreted as an offset from the origin.
- *
- * Returns true if the point is in the path, and false otherwise.
- */
-fun Path.contains(offset: Offset): Boolean {
-    val path = android.graphics.Path()
-    path.addRect(
-        /* left = */ offset.x - 0.01f,
-        /* top = */ offset.y - 0.01f,
-        /* right = */ offset.x + 0.01f,
-        /* bottom = */ offset.y + 0.01f,
-        /* dir = */ android.graphics.Path.Direction.CW
-    )
-    if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
-        return !path.isEmpty
-    }
-    return false
-}
-
-/**
- * Asserts that the given [shape] is drawn in the bitmap with size [shapeSize] in the color
- * [shapeColor], in front of the [backgroundShape] that has size [backgroundSize].
- *
- * The size of a [Shape] is its rectangular bounding box. The centers of both the [shape] and the
- * [backgroundShape] are at [shapeAndBackgroundCenter]. Pixels that are outside the background area
- * are not checked. Pixels that are outside the [shape] and inside the [backgroundShape] must be
- * [backgroundColor]. Pixels that are inside the [shape] must be [shapeColor].
- *
- * To avoid the pixels on the edge of a shape, where anti-aliasing means the pixel is neither the
- * shape color nor the background color, a gap size can be given with [antiAliasingGap]. Pixels that
- * are close to the border of the shape are not checked. A larger [antiAliasingGap] means more
- * pixels are left unchecked, and a gap of 0 pixels means all pixels are tested.
- *
- * @param density current [Density] or the screen
- * @param shape the [Shape] of the foreground
- * @param shapeColor the color of the foreground shape
- * @param shapeSize the [Size] of the [shape]
- * @param shapeAndBackgroundCenter the center of both the [shape] and the [backgroundShape]
- * @param backgroundShape the [Shape] of the background
- * @param backgroundColor the color of the background shape
- * @param backgroundSize the [Size] of the [backgroundShape]
- * @param antiAliasingGap The size of the border area from the shape outline to leave it untested as
- *   it is likely anti-aliased. Only works for convex shapes. The default is 1 pixel
- */
-// TODO (mount, malkov) : to investigate why it flakes when shape is not rect
-fun ImageBitmap.assertShape(
-    density: Density,
-    shape: Shape,
-    shapeColor: Color,
-    backgroundColor: Color,
-    backgroundShape: Shape = RectangleShape,
-    backgroundSize: Size = Size(width.toFloat(), height.toFloat()),
-    shapeSize: Size = backgroundSize,
-    shapeAndBackgroundCenter: Offset = Offset(width / 2f, height / 2f),
-    antiAliasingGap: Float = 1.0f
-) {
-    val pixels = toPixelMap()
-
-    // the bounding box of the foreground shape in the bitmap
-    val foregroundBounds =
-        Rect(
-            left = shapeAndBackgroundCenter.x - shapeSize.width / 2f,
-            top = shapeAndBackgroundCenter.y - shapeSize.height / 2f,
-            right = shapeAndBackgroundCenter.x + shapeSize.width / 2f,
-            bottom = shapeAndBackgroundCenter.y + shapeSize.height / 2f,
-        )
-    // the bounding box of the background shape in the bitmap
-    val backgroundBounds =
-        Rect(
-            left = shapeAndBackgroundCenter.x - backgroundSize.width / 2f,
-            top = shapeAndBackgroundCenter.y - backgroundSize.height / 2f,
-            right = shapeAndBackgroundCenter.x + backgroundSize.width / 2f,
-            bottom = shapeAndBackgroundCenter.y + backgroundSize.height / 2f,
-        )
-
-    // Assert that the checked area is fully enclosed in the bitmap
-    assert(backgroundBounds.top >= 0.0f) { "background is out of bounds (top side)" }
-    assert(backgroundBounds.right <= width) { "background is out of bounds (right side)" }
-    assert(backgroundBounds.bottom <= height) { "background is out of bounds (bottom side)" }
-    assert(backgroundBounds.left >= 0.0f) { "background is out of bounds (left side)" }
-
-    // Convert the shapes into a paths
-    val foregroundPath = shape.asPath(foregroundBounds, density)
-    val backgroundPath = backgroundShape.asPath(backgroundBounds, density)
-
-    for (y in backgroundBounds.top until backgroundBounds.bottom) {
-        for (x in backgroundBounds.left until backgroundBounds.right) {
-            val point = Offset(x.toFloat(), y.toFloat())
-            val pointFarther =
-                pointFartherFromAnchor(point, shapeAndBackgroundCenter, antiAliasingGap)
-            val pointCloser = pointCloserToAnchor(point, shapeAndBackgroundCenter, antiAliasingGap)
-            if (!backgroundPath.contains(pointFarther)) {
-                continue
-            }
-            val isInside = foregroundPath.contains(pointFarther)
-            val isOutside = !foregroundPath.contains(pointCloser)
-            if (isInside) {
-                pixels.assertPixelColor(shapeColor, x, y)
-            } else if (isOutside) {
-                pixels.assertPixelColor(backgroundColor, x, y)
-            }
-        }
-    }
-}
-
-/**
  * Asserts that the given [shape] is drawn in the bitmap in the color [shapeColor] on a background
  * of [backgroundColor].
  *
@@ -255,22 +148,142 @@ fun ImageBitmap.assertShape(
     backgroundColor: Color,
     shapeColor: Color,
     shape: Shape = RectangleShape,
-    antiAliasingGap: Float = 1.0f
-) {
-    val shapeSize =
-        Size(
-            width - with(density) { horizontalPadding.toPx() * 2 },
-            height - with(density) { verticalPadding.toPx() * 2 }
-        )
-    return assertShape(
+    antiAliasingGap: Float = with(density) { 1.dp.toPx() }
+) =
+    assertShape(
         density = density,
         shape = shape,
         shapeColor = shapeColor,
         backgroundColor = backgroundColor,
         backgroundShape = RectangleShape,
-        shapeSize = shapeSize,
+        shapeSize =
+            Size(
+                width - with(density) { horizontalPadding.toPx() * 2 },
+                height - with(density) { verticalPadding.toPx() * 2 }
+            ),
         antiAliasingGap = antiAliasingGap
     )
+
+/**
+ * Asserts that the given [shape] and [backgroundShape] are drawn in the bitmap according to the
+ * given parameters.
+ *
+ * The [shape]'s bounding box should have size [shapeSize] and be centered at [shapeCenter]. The
+ * [backgroundShape]'s bounding box should have size [backgroundSize] and be centered at
+ * [backgroundCenter].
+ *
+ * Pixels that are outside the background area are not checked. Pixels that are outside the [shape]
+ * and inside the [backgroundShape] must be [backgroundColor]. Pixels that are inside the [shape]
+ * must be [shapeColor].
+ *
+ * If [backgroundColor] is `null`, only pixels inside the [shape] are checked.
+ *
+ * Because pixels on the edge of a shape are anti-aliased, pixels that are close the shape's edges
+ * are not checked. Use [antiAliasingGap] to ignore more (or less) pixels around the shape's edges.
+ * A larger [antiAliasingGap] means more pixels are left unchecked, and a gap of 0 pixels means all
+ * pixels are tested.
+ */
+// TODO (mount, malkov) : to investigate why it flakes when shape is not rect
+fun ImageBitmap.assertShape(
+    density: Density,
+    shape: Shape,
+    shapeColor: Color,
+    shapeSize: Size = Size(width.toFloat(), height.toFloat()),
+    shapeCenter: Offset = Offset(width / 2f, height / 2f),
+    backgroundShape: Shape = RectangleShape,
+    backgroundColor: Color?,
+    backgroundSize: Size = Size(width.toFloat(), height.toFloat()),
+    backgroundCenter: Offset = Offset(width / 2f, height / 2f),
+    antiAliasingGap: Float = with(density) { 1.dp.toPx() }
+) {
+    val pixels = toPixelMap()
+
+    // the bounding box of the foreground shape in the bitmap
+    val shapeBounds =
+        Rect(
+            left = shapeCenter.x - shapeSize.width / 2f,
+            top = shapeCenter.y - shapeSize.height / 2f,
+            right = shapeCenter.x + shapeSize.width / 2f,
+            bottom = shapeCenter.y + shapeSize.height / 2f,
+        )
+    // the bounding box of the background shape in the bitmap
+    val backgroundBounds =
+        Rect(
+            left = backgroundCenter.x - backgroundSize.width / 2f,
+            top = backgroundCenter.y - backgroundSize.height / 2f,
+            right = backgroundCenter.x + backgroundSize.width / 2f,
+            bottom = backgroundCenter.y + backgroundSize.height / 2f,
+        )
+
+    // Convert the shapes into a paths
+    val foregroundPath = shape.asPath(shapeBounds, density)
+    val backgroundPath = backgroundShape.asPath(backgroundBounds, density)
+
+    forEachPixelIn(shapeBounds, backgroundBounds, antiAliasingGap) { x, y, inFgBounds, inBgBounds ->
+        if (inFgBounds && !inBgBounds) {
+            // Only consider the foreground shape
+            if (foregroundPath.contains(x, y, shapeCenter, antiAliasingGap)) {
+                pixels.assertPixelColor(shapeColor, x, y)
+            }
+        } else if (inBgBounds && !inFgBounds) {
+            // Only consider the background shape, if there is one
+            if (
+                backgroundColor != null &&
+                    backgroundPath.contains(x, y, backgroundCenter, antiAliasingGap)
+            ) {
+                pixels.assertPixelColor(backgroundColor, x, y)
+            }
+        } else if (inFgBounds /* && inBgBounds */) {
+            // Need to consider both the foreground and background (if there is one)
+            if (foregroundPath.contains(x, y, shapeCenter, antiAliasingGap)) {
+                pixels.assertPixelColor(shapeColor, x, y)
+            } else if (
+                backgroundColor != null &&
+                    foregroundPath.notContains(x, y, shapeCenter, antiAliasingGap) &&
+                    backgroundPath.contains(x, y, backgroundCenter, antiAliasingGap)
+            ) {
+                pixels.assertPixelColor(backgroundColor, x, y)
+            }
+        }
+    }
+}
+
+private fun ImageBitmap.forEachPixelIn(
+    shapeBounds: Rect,
+    backgroundBounds: Rect,
+    margin: Float,
+    block: (x: Int, y: Int, inShapeBounds: Boolean, inBackgroundBounds: Boolean) -> Unit
+) {
+    // Iterate over all pixels in the background. Usually that's all we have to do.
+    for (y in rowIndices(backgroundBounds)) {
+        for (x in columnIndices(backgroundBounds)) {
+            block.invoke(x, y, shapeBounds.contains(x, y, margin), true)
+        }
+    }
+    // While checking the background area, we potentially checked a lot of foreground area at the
+    // same time. Try to avoid checking pixels again.
+    val shapeBoundsToCheck = shapeBounds.subtract(backgroundBounds)
+    for (y in rowIndices(shapeBoundsToCheck)) {
+        for (x in columnIndices(shapeBoundsToCheck)) {
+            // Anything contained in the background is already checked
+            if (!backgroundBounds.contains(x, y, margin)) {
+                block.invoke(x, y, true, false)
+            }
+        }
+    }
+}
+
+private fun ImageBitmap.rowIndices(bounds: Rect): IntRange =
+    bounds.top.coerceAtLeast(0f) until bounds.bottom.coerceAtMost(height.toFloat())
+
+private fun ImageBitmap.columnIndices(bounds: Rect): IntRange =
+    bounds.left.coerceAtLeast(0f) until bounds.right.coerceAtMost(width.toFloat())
+
+private infix fun Float.until(until: Float): IntRange {
+    val from = this.roundToInt()
+    val to = until.roundToInt()
+    if (from <= Int.MIN_VALUE) return IntRange.EMPTY
+    return from until to
 }
 
 private fun Shape.asPath(bounds: Rect, density: Density): Path {
@@ -281,41 +294,102 @@ private fun Shape.asPath(bounds: Rect, density: Density): Path {
     }
 }
 
-private infix fun Float.until(until: Float): IntRange {
-    val from = this.roundToInt()
-    val to = until.roundToInt()
-    if (from <= Int.MIN_VALUE) return IntRange.EMPTY
-    return from until to
+private fun Path.contains(x: Int, y: Int, center: Offset, margin: Float): Boolean =
+    contains(pointFartherFromAnchor(x, y, center, margin))
+
+private fun Path.notContains(x: Int, y: Int, center: Offset, margin: Float): Boolean =
+    !contains(pointCloserToAnchor(x, y, center, margin))
+
+/**
+ * Tests to see if the given point is within the path. (That is, whether the point would be in the
+ * visible portion of the path if the path was used with [Canvas.clipPath].)
+ *
+ * The `point` argument is interpreted as an offset from the origin.
+ *
+ * Returns true if the point is in the path, and false otherwise.
+ */
+@VisibleForTesting
+internal fun Path.contains(offset: Offset): Boolean {
+    val path = android.graphics.Path()
+    path.addRect(
+        /* left = */ offset.x - 0.01f,
+        /* top = */ offset.y - 0.01f,
+        /* right = */ offset.x + 0.01f,
+        /* bottom = */ offset.y + 0.01f,
+        /* dir = */ android.graphics.Path.Direction.CW
+    )
+    if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
+        return !path.isEmpty
+    }
+    return false
 }
 
-private fun pointCloserToAnchor(point: Offset, anchor: Offset, delta: Float): Offset {
-    val x =
+private fun pointCloserToAnchor(x: Int, y: Int, anchor: Offset, delta: Float): Offset {
+    val xx =
         when {
-            point.x > anchor.x -> max(point.x - delta, anchor.x)
-            point.x < anchor.x -> min(point.x + delta, anchor.x)
-            else -> point.x
+            x > anchor.x -> max(x - delta, anchor.x)
+            x < anchor.x -> min(x + delta, anchor.x)
+            else -> x.toFloat()
         }
-    val y =
+    val yy =
         when {
-            point.y > anchor.y -> max(point.y - delta, anchor.y)
-            point.y < anchor.y -> min(point.y + delta, anchor.y)
-            else -> point.y
+            y > anchor.y -> max(y - delta, anchor.y)
+            y < anchor.y -> min(y + delta, anchor.y)
+            else -> y.toFloat()
         }
-    return Offset(x, y)
+    return Offset(xx, yy)
 }
 
-private fun pointFartherFromAnchor(point: Offset, anchor: Offset, delta: Float): Offset {
-    val x =
+private fun pointFartherFromAnchor(x: Int, y: Int, anchor: Offset, delta: Float): Offset {
+    val xx =
         when {
-            point.x > anchor.x -> point.x + delta
-            point.x < anchor.x -> point.x - delta
-            else -> point.x
+            x > anchor.x -> x + delta
+            x < anchor.x -> x - delta
+            else -> x.toFloat()
         }
-    val y =
+    val yy =
         when {
-            point.y > anchor.y -> point.y + delta
-            point.y < anchor.y -> point.y - delta
-            else -> point.y
+            y > anchor.y -> y + delta
+            y < anchor.y -> y - delta
+            else -> y.toFloat()
         }
-    return Offset(x, y)
+    return Offset(xx, yy)
+}
+
+private fun Rect.contains(x: Int, y: Int, margin: Float): Boolean =
+    left <= x + margin && top <= y + margin && right >= x - margin && bottom >= y - margin
+
+private fun Rect.subtract(other: Rect): Rect {
+    // Subtraction can only happen if the other rect is overlapping entirely in a dimension
+    if (other.left <= this.left && other.right >= this.right) {
+        // Other rect potentially overlaps over entire width
+        return if (other.top <= this.top && other.bottom >= this.bottom) {
+            // Subtract everything
+            Rect.Zero
+        } else if (other.top <= this.top && other.bottom > this.top) {
+            // Subtract from the top
+            Rect(this.left, other.bottom, this.right, this.bottom)
+        } else if (other.top < this.bottom && other.bottom >= this.bottom) {
+            // Subtract from the bottom
+            Rect(this.left, this.top, this.right, other.top)
+        } else {
+            // Subtract nothing
+            this
+        }
+    } else if (other.top <= this.top && other.bottom >= this.bottom) {
+        // Other rect potentially overlaps over entire height
+        return if (other.left <= this.left && other.right > this.left) {
+            // Subtract from the left
+            Rect(other.right, this.top, this.right, this.bottom)
+        } else if (other.left < this.right && other.right >= this.right) {
+            // Subtract from the right
+            Rect(this.left, this.top, other.left, this.bottom)
+        } else {
+            // Subtract nothing
+            this
+        }
+    } else {
+        // Subtract nothing
+        return this
+    }
 }
