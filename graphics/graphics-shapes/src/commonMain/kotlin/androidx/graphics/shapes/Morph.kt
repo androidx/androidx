@@ -217,10 +217,8 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
 
             // Measure polygons, returns lists of measured cubics for each polygon, which
             // we then use to match start/end curves
-            val measuredPolygon1 =
-                MeasuredPolygon.measurePolygon(AngleMeasurer(p1.centerX, p1.centerY), p1)
-            val measuredPolygon2 =
-                MeasuredPolygon.measurePolygon(AngleMeasurer(p2.centerX, p2.centerY), p2)
+            val measuredPolygon1 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p1)
+            val measuredPolygon2 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p2)
 
             // features1 and 2 will contain the list of corners (just the inner circular curve)
             // along with the progress at the middle of those corners. These measurement values
