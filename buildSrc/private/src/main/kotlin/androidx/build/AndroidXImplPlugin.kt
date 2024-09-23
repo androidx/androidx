@@ -99,7 +99,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
@@ -182,7 +181,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(Zip::class.java).configureEach { it.configureForHermeticBuild() }
         project.tasks.withType(Copy::class.java).configureEach { it.configureForHermeticBuild() }
 
-        val allHostTests = project.tasks.register("allHostTests").get()
+        val allHostTests = project.tasks.register("allHostTests")
         // copy host side test results to DIST
         project.tasks.withType(AbstractTestTask::class.java) { task ->
             configureTestTask(project, task, allHostTests)
@@ -320,9 +319,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureTestTask(
         project: Project,
         task: AbstractTestTask,
-        anchorTask: Task,
+        anchorTask: TaskProvider<Task>,
     ) {
-        if (task.name !in listOf("jvmStubsTest")) anchorTask.dependsOn(task)
+        anchorTask.configure { it.dependsOn(task) }
         val ignoreFailuresProperty =
             project.providers.gradleProperty(TEST_FAILURES_DO_NOT_FAIL_TEST_TASK)
         val ignoreFailures = ignoreFailuresProperty.isPresent
