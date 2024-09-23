@@ -47,12 +47,19 @@ public interface LimitConfig {
      * <p>This limit has two purposes:
      * <ol>
      *     <li>Protect icing lib's docid space from being overwhelmed by a single app. The
-     *     overall docid limit is currently 2^20 (~1 million)
+     *     overall docid limit is currently 2^22 (~4 million)
      *     <li>Prevent apps from using a very large amount of data on the system by storing too many
      *     documents.
      * </ol>
      */
-    int getMaxDocumentCount();
+    int getPerPackageDocumentCountLimit();
+
+    /**
+     * The number of total documents in the index at which AppSearch should start rationing docid
+     * space by limiting packages to add {@link #getPerPackageDocumentCountLimit()} documents to
+     * the index.
+     */
+    int getDocumentCountLimitStartThreshold();
 
     /**
      * The maximum number of suggestion results a single app is allowed to search.
