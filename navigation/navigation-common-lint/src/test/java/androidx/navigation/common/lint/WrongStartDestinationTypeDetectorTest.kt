@@ -17,9 +17,8 @@
 package androidx.navigation.common.lint
 
 import androidx.navigation.lint.common.NAVIGATION_STUBS
-import androidx.navigation.lint.common.TEST_CODE
+import androidx.navigation.lint.common.TEST_CLASS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
-import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -636,4 +635,4 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
         mutableListOf(WrongStartDestinationTypeDetector.WrongStartDestinationType)
 }
 
-private val STUBS = arrayOf(TEST_CODE, *NAVIGATION_STUBS)
+private val STUBS = arrayOf(TEST_CLASS.bytecode, *NAVIGATION_STUBS)
