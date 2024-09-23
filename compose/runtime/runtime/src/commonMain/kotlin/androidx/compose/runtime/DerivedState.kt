@@ -32,6 +32,7 @@ import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.current
+import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.newWritableRecord
 import androidx.compose.runtime.snapshots.sync
 import androidx.compose.runtime.snapshots.withCurrent
@@ -84,9 +85,9 @@ private class DerivedSnapshotState<T>(
     private val calculation: () -> T,
     override val policy: SnapshotMutationPolicy<T>?
 ) : StateObjectImpl(), DerivedState<T> {
-    private var first: ResultRecord<T> = ResultRecord()
+    private var first: ResultRecord<T> = ResultRecord(currentSnapshot().id)
 
-    class ResultRecord<T> : StateRecord(), DerivedState.Record<T> {
+    class ResultRecord<T>(snapshotId: Int) : StateRecord(snapshotId), DerivedState.Record<T> {
         companion object {
             val Unset = Any()
         }
@@ -105,7 +106,9 @@ private class DerivedSnapshotState<T>(
             resultHash = other.resultHash
         }
 
-        override fun create(): StateRecord = ResultRecord<T>()
+        override fun create(): StateRecord = create(currentSnapshot().id)
+
+        override fun create(snapshotId: Int): StateRecord = ResultRecord<T>(snapshotId)
 
         fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean {
             val snapshotChanged = sync {

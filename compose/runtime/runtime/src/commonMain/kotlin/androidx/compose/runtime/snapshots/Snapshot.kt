@@ -1036,7 +1036,7 @@ internal constructor(
                                 ?: mutableListOf<Pair<StateObject, StateRecord>>().also {
                                     mergedRecords = it
                                 })
-                            .add(state to current.create())
+                            .add(state to current.create(id))
 
                         // If we revert to current then the state is no longer modified.
                         (statesToRemove
@@ -1050,7 +1050,7 @@ internal constructor(
                                 })
                             .add(
                                 if (merged != previous) state to merged
-                                else state to previous.create()
+                                else state to previous.create(id)
                             )
                     }
                 }
@@ -1225,9 +1225,11 @@ internal fun currentSnapshot(): Snapshot = threadSnapshot.get() ?: currentGlobal
 class SnapshotApplyConflictException(@Suppress("unused") val snapshot: Snapshot) : Exception()
 
 /** Snapshot local value of a state object. */
-abstract class StateRecord {
+abstract class StateRecord(
     /** The snapshot id of the snapshot in which the record was created. */
-    internal var snapshotId: Int = currentSnapshot().id
+    internal var snapshotId: Int
+) {
+    constructor() : this(currentSnapshot().id)
 
     /**
      * Reference of the next state record. State records are stored in a linked list.
@@ -1248,8 +1250,19 @@ abstract class StateRecord {
     /** Copy the value into this state record from another for the same state object. */
     abstract fun assign(value: StateRecord)
 
-    /** Create a new state record for the same state object. */
+    /**
+     * Create a new state record for the same state object. Consider also implementing the [create]
+     * overload that provides snapshotId for faster record construction when snapshot id is known.
+     */
     abstract fun create(): StateRecord
+
+    /**
+     * Create a new state record for the same state object and provided [snapshotId]. This allows to
+     * implement an optimized version of [create] to avoid accessing [currentSnapshot] when snapshot
+     * id is known. The default implementation provides a backwards compatible behavior, and should
+     * be overridden if [StateRecord] subclass supports this optimization.
+     */
+    open fun create(snapshotId: Int): StateRecord = create().also { it.snapshotId = snapshotId }
 }
 
 /**
@@ -2262,8 +2275,7 @@ internal fun <T : StateRecord> T.newOverwritableRecordLocked(state: StateObject)
     // result of readable().
     @Suppress("UNCHECKED_CAST")
     return (usedLocked(state) as T?)?.apply { snapshotId = Int.MAX_VALUE }
-        ?: create().apply {
-            snapshotId = Int.MAX_VALUE
+        ?: create(Int.MAX_VALUE).apply {
             this.next = state.firstStateRecord
             state.prependStateRecord(this as T)
         } as T

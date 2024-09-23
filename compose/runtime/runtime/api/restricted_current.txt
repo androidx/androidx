@@ -1123,8 +1123,10 @@ package androidx.compose.runtime.snapshots {
 
   public abstract class StateRecord {
     ctor public StateRecord();
+    ctor public StateRecord(int snapshotId);
     method public abstract void assign(androidx.compose.runtime.snapshots.StateRecord value);
     method public abstract androidx.compose.runtime.snapshots.StateRecord create();
+    method public androidx.compose.runtime.snapshots.StateRecord create(int snapshotId);
   }
 
 }

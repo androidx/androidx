@@ -22,11 +22,13 @@ package androidx.compose.runtime
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
+import androidx.compose.runtime.snapshots.GlobalSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
+import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
 import androidx.compose.runtime.snapshots.withCurrent
@@ -122,12 +124,11 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
     StateObjectImpl(), MutableFloatState, SnapshotMutableState<Float> {
 
     private var next =
-        FloatStateStateRecord(value).also {
-            if (Snapshot.isInSnapshot) {
-                it.next =
-                    FloatStateStateRecord(value).also { next ->
-                        next.snapshotId = Snapshot.PreexistingSnapshotId
-                    }
+        currentSnapshot().let { snapshot ->
+            FloatStateStateRecord(snapshot.id, value).also {
+                if (snapshot !is GlobalSnapshot) {
+                    it.next = FloatStateStateRecord(Snapshot.PreexistingSnapshotId, value)
+                }
             }
         }
 
@@ -173,11 +174,14 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
     override fun toString(): String =
         next.withCurrent { "MutableFloatState(value=${it.value})@${hashCode()}" }
 
-    private class FloatStateStateRecord(var value: Float) : StateRecord() {
+    private class FloatStateStateRecord(snapshotId: Int, var value: Float) :
+        StateRecord(snapshotId) {
         override fun assign(value: StateRecord) {
             this.value = (value as FloatStateStateRecord).value
         }
 
-        override fun create(): StateRecord = FloatStateStateRecord(value)
+        override fun create(): StateRecord = create(currentSnapshot().id)
+
+        override fun create(snapshotId: Int): StateRecord = FloatStateStateRecord(snapshotId, value)
     }
 }
