@@ -35,28 +35,33 @@ android {
 }
 
 dependencies {
-    api(project(":navigation:navigation-runtime"))
     api(libs.playFeatureDelivery)
+    api("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
+    api(project(":navigation:navigation-common"))
+    api(project(":navigation:navigation-runtime"))
+
+    implementation("androidx.core:core-ktx:1.2.0")
     implementation(libs.kotlinSerializationCore)
+
+    testRuntimeOnly(libs.testCore)
+    testRuntimeOnly(libs.testRunner)
+    testRuntimeOnly(libs.robolectric)
 
     testImplementation(project(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation(libs.testCore)
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.kotlinCoroutinesTest)
 
+    androidTestImplementation("androidx.annotation:annotation:1.7.0")
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
