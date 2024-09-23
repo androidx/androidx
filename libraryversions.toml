@@ -167,7 +167,7 @@ WEAR_REMOTE_INTERACTIONS = "1.1.0-beta01"
 WEAR_TILES = "1.5.0-alpha01"
 WEAR_TOOLING_PREVIEW = "1.0.0-rc01"
 WEAR_WATCHFACE = "1.3.0-alpha04"
-WEBKIT = "1.12.0-beta01"
+WEBKIT = "1.13.0-alpha01"
 # Adding a comment to prevent merge conflicts for Window artifact
 WINDOW = "1.4.0-alpha04"
 WINDOW_EXTENSIONS = "1.4.0-beta01"
