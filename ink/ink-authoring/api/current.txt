@@ -14,11 +14,14 @@ package androidx.ink.authoring {
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
     method public void addFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
+    method public void addToStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId);
+    method public void addToStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? prediction);
     method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId);
     method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId, optional androidx.ink.strokes.StrokeInputBatch prediction);
     method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId);
     method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? event);
     method public void eagerInit();
+    method public void finishStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId);
     method public void finishStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.authoring.InProgressStrokeId strokeId);
     method public java.util.Map<androidx.ink.authoring.InProgressStrokeId,androidx.ink.strokes.Stroke> getFinishedStrokes();
     method public androidx.test.espresso.idling.CountingIdlingResource? getInProgressStrokeCounter();
@@ -31,6 +34,9 @@ package androidx.ink.authoring {
     method public void setMaskPath(android.graphics.Path?);
     method public void setMotionEventToViewTransform(android.graphics.Matrix);
     method public void setRendererFactory(kotlin.jvm.functions.Function0<? extends androidx.ink.rendering.android.canvas.CanvasStrokeRenderer>);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform);
+    method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform, optional android.graphics.Matrix strokeToWorldTransform);
     method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush);
     property public final androidx.test.espresso.idling.CountingIdlingResource? inProgressStrokeCounter;
     property public final android.graphics.Path? maskPath;

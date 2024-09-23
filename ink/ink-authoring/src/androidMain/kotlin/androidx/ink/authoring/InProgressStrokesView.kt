@@ -399,11 +399,30 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /**
-     * Start building a stroke with the [event] data for [pointerId].
+     * Start building a stroke using a particular pointer within a [MotionEvent]. This would
+     * typically be followed by many calls to [addToStroke], and the sequence would end with a call
+     * to either [finishStroke] or [cancelStroke].
      *
-     * @param event The first [MotionEvent] as part of a Stroke's input data, typically an
-     *   ACTION_DOWN.
-     * @param pointerId The id of the relevant pointer in the [event].
+     * In most circumstances, prefer to use this function over [startStroke] that accepts a
+     * [StrokeInput].
+     *
+     * For optimum performance, it is strongly recommended to call [View.requestUnbufferedDispatch]
+     * using [event] and the [View] that generated [event] alongside calling this function. When
+     * requested this way, unbuffered dispatch mode will automatically end when the gesture is
+     * complete.
+     *
+     * @param event The first [MotionEvent] as part of a Stroke's input data, typically one with a
+     *   [MotionEvent.getActionMasked] value of [MotionEvent.ACTION_DOWN] or
+     *   [MotionEvent.ACTION_POINTER_DOWN], but not restricted to those action types.
+     * @param pointerId The identifier of the pointer within [event] to be used for inking, as
+     *   determined by [MotionEvent.getPointerId] and used as an input to
+     *   [MotionEvent.findPointerIndex]. Note that this is the ID of the pointer, not its index.
+     * @param brush Brush specification for the stroke being started. Note that the overall scaling
+     *   factor of [motionEventToWorldTransform] and [strokeToWorldTransform] combined should be
+     *   related to the value of [Brush.epsilon] - in general, the larger the combined
+     *   `motionEventToStrokeTransform` scaling factor is, the smaller on screen the stroke units
+     *   are, so [Brush.epsilon] should be a larger quantity of stroke units to maintain a similar
+     *   screen size.
      * @param motionEventToWorldTransform The matrix that transforms [event] coordinates into the
      *   client app's "world" coordinates, which typically is defined by how a client app's document
      *   is panned/zoomed/rotated. This defaults to the identity matrix, in which case the world
@@ -412,22 +431,18 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   density (e.g. scaled by 1 / [android.util.DisplayMetrics.density]) and any pan/zoom/rotate
      *   gestures that have been applied to the "camera" which portrays the "world" on the device
      *   screen. This matrix must be invertible.
-     * @param strokeToWorldTransform An optional matrix that transforms this stroke into the client
-     *   app's "world" coordinates, which allows the coordinates of the stroke to be defined in
-     *   something other than world coordinates. Defaults to the identity matrix, in which case the
-     *   stroke coordinate space is the same as world coordinate space. This matrix must be
-     *   invertible.
-     * @param brush Brush specification for the stroke being started. Note that if
-     *   [motionEventToWorldTransform] and [strokeToWorldTransform] combine to a [MotionEvent] to
-     *   stroke coordinates transform that scales stroke coordinate units to be very different in
-     *   size than screen pixels, then it is recommended to update the value of [Brush.epsilon] to
-     *   reflect that.
-     * @return The Stroke ID of the stroke being built, later used to identify which stroke is being
-     *   added to, finished, or canceled.
+     * @param strokeToWorldTransform Allows an object-specific (stroke-specific) coordinate space to
+     *   be defined in relation to the caller's "world" coordinate space. This defaults to the
+     *   identity matrix, which is typical for many use cases at the time of stroke construction. In
+     *   typical use cases, stroke coordinates and world coordinates may start to differ from one
+     *   another after stroke creation as a particular stroke is manipulated within the world, e.g.
+     *   it may be moved, scaled, or rotated relative to other content within an app's document.
+     *   This matrix must be invertible.
+     * @return The [InProgressStrokeId] of the stroke being built, later used to identify which
+     *   stroke is being updated with [addToStroke] or ended with [finishStroke] or [cancelStroke].
      * @throws IllegalArgumentException if [motionEventToWorldTransform] or [strokeToWorldTransform]
      *   is not invertible.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @JvmOverloads
     public fun startStroke(
         event: MotionEvent,
@@ -475,31 +490,44 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /**
-     * Start building a stroke with the provided [input].
+     * Start building a stroke with the provided [input]. This would typically be followed by many
+     * calls to [addToStroke], and the sequence would end with a call to either [finishStroke] or
+     * [cancelStroke].
+     *
+     * In most circumstances, the [startStroke] overload that accepts a [MotionEvent] is more
+     * convenient. However, this overload using a [StrokeInput] is available for cases where the
+     * input data may not come directly from a [MotionEvent], such as receiving events over a
+     * network connection.
+     *
+     * If there is a way to request unbuffered dispatch from the source of the input data used here,
+     * equivalent to [View.requestUnbufferedDispatch] for unbuffered [MotionEvent] data, then be
+     * sure to request it for optimal performance.
      *
      * @param input The [StrokeInput] that started a stroke.
      * @param brush Brush specification for the stroke being started. Note that if stroke coordinate
-     *   units (the [StrokeInput.x] and [StrokeInput.y] fields of [input] are scaled to be very
+     *   units (the [StrokeInput.x] and [StrokeInput.y] fields of [input]) are scaled to be very
      *   different in size than screen pixels, then it is recommended to update the value of
      *   [Brush.epsilon] to reflect that.
-     * @return The Stroke ID of the stroke being built, later used to identify which stroke is being
-     *   added to, finished, or canceled.
+     * @return The [InProgressStrokeId] of the stroke being built, later used to identify which
+     *   stroke is being updated with [addToStroke] or ended with [finishStroke] or [cancelStroke].
      */
     public fun startStroke(input: StrokeInput, brush: Brush): InProgressStrokeId =
         inProgressStrokesManager.startStroke(input, brush)
 
     /**
-     * Add [event] data for [pointerId] to already started stroke with [strokeId].
+     * Add input data, from a particular pointer within a [MotionEvent], to an existing stroke.
      *
-     * @param event the next [MotionEvent] as part of a Stroke's input data, typically an
-     *   ACTION_MOVE.
-     * @param pointerId the id of the relevant pointer in the [event].
-     * @param strokeId the Stroke that is to be built upon with [event].
-     * @param prediction optional predicted [MotionEvent] containing predicted inputs between event
-     *   and the time of the next frame, as generated by
-     *   [androidx.input.motionprediction.MotionEventPredictor.predict].
+     * @param event The next [MotionEvent] as part of a stroke's input data, typically one with
+     *   [MotionEvent.getActionMasked] of [MotionEvent.ACTION_MOVE].
+     * @param pointerId The identifier of the pointer within [event] to be used for inking, as
+     *   determined by [MotionEvent.getPointerId] and used as an input to
+     *   [MotionEvent.findPointerIndex]. Note that this is the ID of the pointer, not its index.
+     * @param strokeId The [InProgressStrokeId] of the stroke to be built upon.
+     * @param prediction Predicted [MotionEvent] containing predicted inputs between [event] and the
+     *   time of the next frame. This value typically comes from
+     *   [androidx.input.motionprediction.MotionEventPredictor.predict]. It is technically optional,
+     *   but it is strongly recommended to achieve the best performance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @JvmOverloads
     public fun addToStroke(
         event: MotionEvent,
@@ -515,12 +543,13 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         )
 
     /**
-     * Add [inputs] to already started stroke with [strokeId].
+     * Add input data from a [StrokeInputBatch] to an existing stroke.
      *
-     * @param inputs the next [StrokeInputBatch] to be added to the stroke.
-     * @param strokeId the Stroke that is to be built upon with [inputs].
-     * @param prediction optional [StrokeInputBatch] containing predicted inputs after this portion
-     *   of the stroke.
+     * @param inputs The next [StrokeInputBatch] to be added to the stroke.
+     * @param strokeId The [InProgressStrokeId] of the stroke to be built upon.
+     * @param prediction Predicted [StrokeInputBatch] containing predicted inputs between [inputs]
+     *   and the time of the next frame. This can technically be empty, but it is strongly
+     *   recommended for it to be non-empty to achieve the best performance.
      */
     @JvmOverloads
     public fun addToStroke(
@@ -558,13 +587,22 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     }
 
     /**
-     * Complete the building of a stroke.
+     * Complete the building of a stroke, with the last input data coming from a particular pointer
+     * of a [MotionEvent].
      *
-     * @param event the last [MotionEvent] as part of a stroke, typically an ACTION_UP.
-     * @param pointerId the id of the relevant pointer in the [event].
-     * @param strokeId the stroke that is to be finished with the latest event.
+     * When the stroke no longer needs to be rendered by this [InProgressStrokesView] and can
+     * instead be rendered anywhere in the [View] hierarchy using [CanvasStrokeRenderer], the
+     * resulting [Stroke] object will be passed to the [InProgressStrokesFinishedListener] instances
+     * registered with this [InProgressStrokesView] using [addFinishedStrokesListener].
+     *
+     * @param event The last [MotionEvent] as part of a stroke's input data, typically one with
+     *   [MotionEvent.getActionMasked] of [MotionEvent.ACTION_UP] or
+     *   [MotionEvent.ACTION_POINTER_UP], but can also be other actions.
+     * @param pointerId The identifier of the pointer within [event] to be used for inking, as
+     *   determined by [MotionEvent.getPointerId] and used as an input to
+     *   [MotionEvent.findPointerIndex]. Note that this is the ID of the pointer, not its index.
+     * @param strokeId The [InProgressStrokeId] of the stroke to be finished.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun finishStroke(
         event: MotionEvent,
         pointerId: Int,
@@ -572,18 +610,36 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     ): Unit = inProgressStrokesManager.finishStroke(event, pointerId, strokeId)
 
     /**
-     * Complete the building of a stroke.
+     * Complete the building of a stroke, with the last input data coming from a [StrokeInput].
      *
-     * @param input the last [StrokeInput] in the stroke.
-     * @param strokeId the stroke that is to be finished with the latest event.
+     * @param input The last [StrokeInput] in the stroke.
+     * @param strokeId The [InProgressStrokeId] of the stroke to be finished.
      */
     public fun finishStroke(input: StrokeInput, strokeId: InProgressStrokeId): Unit =
         inProgressStrokesManager.finishStroke(input, strokeId)
 
     /**
-     * Cancel the building of a stroke.
+     * Cancel the building of a stroke. It will no longer be visible within this
+     * [InProgressStrokesView], and no completed [Stroke] object will come through
+     * [InProgressStrokesFinishedListener].
      *
-     * @param strokeId the stroke to cancel.
+     * This is typically done for one of three reasons:
+     * 1. A [MotionEvent] with [MotionEvent.getActionMasked] of [MotionEvent.ACTION_CANCEL]. This
+     *    tends to be when an entire gesture has been canceled, for example when a parent [View]
+     *    uses [android.view.ViewGroup.onInterceptTouchEvent] to intercept and handle the gesture
+     *    itself.
+     * 2. A [MotionEvent] with [MotionEvent.getFlags] containing [MotionEvent.FLAG_CANCELED]. This
+     *    tends to be when the system has detected an unintentional touch, such as from the user
+     *    resting their palm on the screen while writing or drawing, after some events from that
+     *    unintentional pointer have already been delivered.
+     * 3. An app's business logic reinterprets a gesture previously used for inking as something
+     *    else, and the earlier inking may be seen as unintentional. For example, an app that uses
+     *    single-pointer gestures for inking and dual-pointer gestures for pan/zoom/rotate will
+     *    start inking when the first pointer goes down, but when the second pointer goes down it
+     *    may want to cancel the stroke from the first pointer rather than leave the small ink marks
+     *    on the screen.
+     *
+     * @param strokeId The [InProgressStrokeId] of the stroke to be canceled.
      * @param event The [MotionEvent] that led to this cancellation, if applicable.
      */
     @JvmOverloads
