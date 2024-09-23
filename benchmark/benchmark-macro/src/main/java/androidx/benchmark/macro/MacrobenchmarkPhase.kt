@@ -91,9 +91,14 @@ internal fun PerfettoTraceProcessor.runPhase(
     val measurements = mutableListOf<List<Metric.Measurement>>()
     val insights = mutableListOf<List<AndroidStartupMetric.SlowStartReason>>()
     val profilerResultFiles = mutableListOf<Profiler.ResultFile>()
+    val captureInfo =
+        Metric.CaptureInfo.forLocalCapture(
+            targetPackageName = packageName,
+            startupMode = startupMode
+        )
     try {
         // Configure metrics in the Phase.
-        metrics.forEach { it.configure(packageName) }
+        metrics.forEach { it.configure(captureInfo) }
         List(iterations) { iteration ->
             // Wake the device to ensure it stays awake with large iteration count
             inMemoryTrace("wake device") { scope.device.wakeUp() }
@@ -182,17 +187,7 @@ internal fun PerfettoTraceProcessor.runPhase(
                     measurements +=
                         metrics
                             // capture list of Measurements
-                            .map {
-                                it.getMeasurements(
-                                    Metric.CaptureInfo(
-                                        targetPackageName = packageName,
-                                        testPackageName = macrobenchmarkPackageName,
-                                        startupMode = startupMode,
-                                        apiLevel = Build.VERSION.SDK_INT
-                                    ),
-                                    this
-                                )
-                            }
+                            .map { it.getMeasurements(captureInfo, this) }
                             // merge together
                             .reduceOrNull() { sum, element -> sum.merge(element) } ?: emptyList()
                 }

@@ -260,7 +260,16 @@ object DeviceInfo {
      *
      * See b/303660864
      */
-    private val ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING = 340000000L.until(341513000)
+    private val ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING = 340000000L.until(341513000)
+
+    /**
+     * Starting with an API 35 change cherry-picked to mainline, ART traces class init.
+     *
+     * Fix cherry picked into 341511000
+     *
+     * See b/292294133
+     */
+    const val ART_MAINLINE_MIN_VERSION_CLASS_INIT_TRACING = 341511000L
 
     /**
      * Used when mainline version failed to detect, but this is accepted due to low API level (<34)
@@ -283,7 +292,13 @@ object DeviceInfo {
 
     val methodTracingAffectsMeasurements =
         Build.VERSION.SDK_INT in 26..30 || // b/313868903
-            artMainlineVersion in ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING // b/303660864
+            artMainlineVersion in ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING // b/303660864
+
+    fun isClassInitTracingAvailable(targetApiLevel: Int, targetArtMainlineVersion: Long?): Boolean =
+        targetApiLevel >= 35 ||
+            (targetApiLevel >= 31 &&
+                (targetArtMainlineVersion == null ||
+                    targetArtMainlineVersion >= ART_MAINLINE_MIN_VERSION_CLASS_INIT_TRACING))
 
     val supportsCpuEventCounters =
         Build.VERSION.SDK_INT < CpuEventCounter.MIN_API_ROOT_REQUIRED || isRooted
