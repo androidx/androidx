@@ -22,6 +22,8 @@
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -143,6 +145,7 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-text:ui-text-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

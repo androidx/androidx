@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -54,6 +56,7 @@ androidx {
     inceptionYear = "2023"
     description = "Contains the sample code for the AndroidX Compose Material Adaptive Navigation" +
                   " Suite."
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

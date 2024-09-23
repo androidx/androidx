@@ -131,6 +131,9 @@ open annotation class androidx.annotation/RestrictTo : kotlin/Annotation { // an
         enum entry SUBCLASSES // androidx.annotation/RestrictTo.Scope.SUBCLASSES|null[0]
         enum entry TESTS // androidx.annotation/RestrictTo.Scope.TESTS|null[0]
 
+        final val entries // androidx.annotation/RestrictTo.Scope.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.annotation/RestrictTo.Scope> // androidx.annotation/RestrictTo.Scope.entries.<get-entries>|<get-entries>#static(){}[0]
+
         final fun valueOf(kotlin/String): androidx.annotation/RestrictTo.Scope // androidx.annotation/RestrictTo.Scope.valueOf|valueOf#static(kotlin.String){}[0]
         final fun values(): kotlin/Array<androidx.annotation/RestrictTo.Scope> // androidx.annotation/RestrictTo.Scope.values|values#static(){}[0]
     }

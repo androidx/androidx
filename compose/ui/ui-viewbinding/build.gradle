@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -55,6 +57,7 @@ androidx {
     description = "Compose integration with ViewBinding"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT")
+
 package androidx.compose.material3
 
 @OptIn(ExperimentalMaterial3Api::class)

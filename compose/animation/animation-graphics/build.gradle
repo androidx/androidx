@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -118,6 +120,7 @@ androidx {
     description = "Compose Animation Graphics Library for using animated-vector resources in Compose"
     metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation-graphics:animation-graphics-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {
