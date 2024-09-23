@@ -24,6 +24,8 @@ package androidx.graphics.shapes
 internal abstract class Feature(val cubics: List<Cubic>) {
     internal abstract fun transformed(f: PointTransformer): Feature
 
+    internal abstract fun reversed(): Feature
+
     /**
      * Edges have only a list of the cubic curves which make up the edge. Edges lie between corners
      * and have no vertex or concavity; the curves are simply straight lines (represented by Cubic
@@ -40,6 +42,16 @@ internal abstract class Feature(val cubics: List<Cubic>) {
                     }
                 }
             )
+
+        override fun reversed(): Edge {
+            val reversedCubics = mutableListOf<Cubic>()
+
+            for (i in cubics.lastIndex downTo 0) {
+                reversedCubics.add(cubics[i].reverse())
+            }
+
+            return Edge(reversedCubics)
+        }
 
         override fun toString(): String = "Edge"
     }
@@ -70,6 +82,16 @@ internal abstract class Feature(val cubics: List<Cubic>) {
                 roundedCenter.transformed(f),
                 convex
             )
+        }
+
+        override fun reversed(): Corner {
+            val reversedCubics = mutableListOf<Cubic>()
+
+            for (i in cubics.lastIndex downTo 0) {
+                reversedCubics.add(cubics[i].reverse())
+            }
+
+            return Corner(reversedCubics, vertex, roundedCenter, !convex)
         }
 
         override fun toString(): String {
