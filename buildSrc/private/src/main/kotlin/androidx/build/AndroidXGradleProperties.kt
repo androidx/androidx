@@ -45,11 +45,6 @@ const val DISPLAY_TEST_OUTPUT = "androidx.displayTestOutput"
 /** Setting this property changes "url" property in publishing maven artifact metadata */
 const val ALTERNATIVE_PROJECT_URL = "androidx.alternativeProjectUrl"
 
-/**
- * Check that version extra meets the specified rules (version is in format major.minor.patch-extra)
- */
-const val VERSION_EXTRA_CHECK_ENABLED = "androidx.versionExtraCheckEnabled"
-
 /** Validate the project structure against Jetpack guidelines */
 const val VALIDATE_PROJECT_STRUCTURE = "androidx.validateProjectStructure"
 
@@ -157,7 +152,6 @@ val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
         ALTERNATIVE_PROJECT_URL,
-        VERSION_EXTRA_CHECK_ENABLED,
         VALIDATE_PROJECT_STRUCTURE,
         ENABLE_COMPOSE_COMPILER_METRICS,
         ENABLE_COMPOSE_COMPILER_REPORTS,
@@ -209,12 +203,6 @@ fun Project.shouldAddGroupConstraints() = booleanPropertyProvider(ADD_GROUP_CONS
  */
 fun Project.getAlternativeProjectUrl(): String? =
     project.providers.gradleProperty(ALTERNATIVE_PROJECT_URL).getOrNull()
-
-/**
- * Check that version extra meets the specified rules (version is in format major.minor.patch-extra)
- */
-fun Project.isVersionExtraCheckEnabled(): Boolean =
-    findBooleanProperty(VERSION_EXTRA_CHECK_ENABLED) ?: true
 
 /** Validate the project structure against Jetpack guidelines */
 fun Project.isValidateProjectStructureEnabled(): Boolean =

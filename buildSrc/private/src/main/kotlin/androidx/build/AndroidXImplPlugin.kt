@@ -1551,8 +1551,6 @@ fun Project.validateProjectParser(androidXExtension: AndroidXExtension) {
     // If configuration fails, we don't want to validate the ProjectParser
     // (otherwise it could report a confusing, unnecessary error)
     project.gradle.taskGraph.whenReady {
-        if (!androidXExtension.runProjectParser) return@whenReady
-
         val parsed = project.parse()
         val errorPrefix = "ProjectParser error parsing ${project.path}."
         check(androidXExtension.type == parsed.libraryType) {
