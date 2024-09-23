@@ -3,6 +3,11 @@ package androidx.ink.rendering.android.canvas {
 
   public interface CanvasStrokeRenderer {
     method public static androidx.ink.rendering.android.canvas.CanvasStrokeRenderer create();
+    method public void draw(android.graphics.Canvas canvas, androidx.ink.strokes.InProgressStroke inProgressStroke, android.graphics.Matrix strokeToScreenTransform);
+    method public void draw(android.graphics.Canvas canvas, androidx.ink.strokes.InProgressStroke inProgressStroke, androidx.ink.geometry.AffineTransform strokeToScreenTransform);
+    method public void draw(android.graphics.Canvas canvas, androidx.ink.strokes.Stroke stroke, android.graphics.Matrix strokeToScreenTransform);
+    method public void draw(android.graphics.Canvas canvas, androidx.ink.strokes.Stroke stroke, androidx.ink.geometry.AffineTransform strokeToScreenTransform);
+    method @Px public default int strokeModifiedRegionOutsetPx();
     field public static final androidx.ink.rendering.android.canvas.CanvasStrokeRenderer.Companion Companion;
   }
 

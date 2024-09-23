@@ -32,6 +32,39 @@ import androidx.ink.strokes.Stroke
 /**
  * Renders strokes to a [Canvas].
  *
+ * Instead of calling the [draw] methods here directly, it may be simpler to pass an instance of
+ * [CanvasStrokeRenderer] to [androidx.ink.rendering.android.view.ViewStrokeRenderer] and use it to
+ * calculate transform matrix values.
+ *
+ * An example of how to use [CanvasStrokeRenderer.draw] directly:
+ * ```
+ * class MyView {
+ *   // Update these according to app business logic, and call `MyView.invalidate()`
+ *   val worldToViewTransform = Matrix() // Call e.g. `setScale(2F)` to zoom in 2x
+ *   val strokesWithTransforms = mutableMapOf<Stroke, Matrix>()
+ *
+ *   private val strokeToViewTransform = Matrix() // reusable scratch object
+ *   private val renderer = CanvasStrokeRenderer.create()
+ *
+ *   fun onDraw(canvas: Canvas) {
+ *     for ((stroke, strokeToWorldTransform) in strokesWithTransforms) {
+ *       // Combine worldToViewTransform (drawing surface being panned/zoomed/rotated) with
+ *       // strokeToWorldTransform (stroke itself being moved/scaled/rotated within the drawing
+ *       // surface) to get the overall transform of this stroke.
+ *       strokeToViewTransform.set(strokeToWorldTransform)
+ *       strokeToViewTransform.postConcat(worldToViewTransform)
+ *
+ *       canvas.withMatrix(strokeToViewTransform) {
+ *         // If coordinates of MyView are scaled/rotated from screen coordinates, then those
+ *         // scale/rotation values should be multiplied into the strokeToScreenTransform
+ *         // argument to renderer.draw.
+ *         renderer.draw(canvas, stroke, strokeToViewTransform)
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ *
  * In almost all cases, a developer should use an implementation of this interface obtained from
  * [CanvasStrokeRenderer.create].
  *
@@ -64,7 +97,6 @@ public interface CanvasStrokeRenderer {
      * blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform)
 
     /**
@@ -80,7 +112,6 @@ public interface CanvasStrokeRenderer {
      * appear blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix)
 
     /**
@@ -92,7 +123,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -108,7 +138,6 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -125,9 +154,7 @@ public interface CanvasStrokeRenderer {
      * lowest value that avoids the artifacts, as larger values will be less performant, and effects
      * that rely on larger values will be less compatible with stroke geometry operations.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @Px
-    public fun strokeModifiedRegionOutsetPx(): Int = 3
+    @Px public fun strokeModifiedRegionOutsetPx(): Int = 3
 
     public companion object {
 
