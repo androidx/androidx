@@ -180,7 +180,7 @@ val NAV_DESTINATION_BUILDER =
     bytecodeStub(
         "NavDestinationBuilder.kt",
         "androidx/navigation",
-        0xa93da28c,
+        0x3353d8ff,
         """
 package androidx.navigation
 
@@ -191,30 +191,34 @@ public open class NavDestinationBuilder<out D : NavDestination> {
     public constructor(
         route: KClass<*>?,
     ): this()
+
+    public inline fun <reified T : Any> deepLink() {}
 }
 """,
         """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
-                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuGS4eOHa
-                S1KLS4S4Q4Cke1FiQQZQVpSLOzk/Vy+1IjG3ICdViA0k512ixKDFAABW1JNV
-                jAAAAA==
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuES5uJPz
+                c/VSKxJzC3JShdhCUkHCSgxaDABdSlZNbgAAAA==
                 """,
         """
                 androidx/navigation/NavDestinationBuilder.class:
-                H4sIAAAAAAAA/41SXU8TQRQ9s0u7y1JlqVIKioKiQk3cSnyREhKBmDRWNGL6
-                wtOUjnVgO5vszDY89rf4D3wy8cE0PvqjjHeWNRoikZf7ce49c+7euz9+fv0G
-                4BnWGTa46qeJ7J9Fio/kgBuZqOiAj/aFNlLl6W4m475IPTCGre39rc7/Ka2d
-                zgkf8SjmahC96Z2IY9NiCC9iHqYYyttSSbPD4K5vdCsowwtQgs8wZT5KzfD4
-                CnrFiKSxtN45TUwsVZSKDzFpRK/2Yq51a6PLsHxJcbuxk9fXOkk6iE6E6aVc
-                Kh1xpRKTC+joIItj3otFK4BjpyulSWYEw8IlegxzvyuvheF9bjhhznDk0uqZ
-                NdPWgIGdEn4mbdakqP+UoTsZ1wOn7gSTce6c0Aa+U2B+rT4ZNwJ/Mg7ZCms4
-                TWfTabq7nl/7/qnshFO7836tWglLS37V8d06a5Zz3LOvb5Lgvv3UK1yR2fHq
-                /1z1k1NDF9pL+rSC2Y5U4iAb9kT63q6IodpJjnnc5am0eQFOH8oBvZGlFK+9
-                y5SRQ9FWI6klld/ylA+FEemLPztnCA6TLD0WL6XlLxac7jnjr0as0k1Kdpvk
-                mf2FyK5SFtn1ki81vmD6c16+R7acgx7uk62cNyDATH6NMiFuTn5OmVOQZy+S
-                g5xcO28oyDYKMUf1tbz7Gh5YGTvCdQrcAnbxMPcreER+j6pVIt44gtvGzTbm
-                2/TsAoWot7GIpSMwjVu4fQRfY0ZjWeOOxl0NTyPUmNOo/AKnk/kd0QMAAA==
+                H4sIAAAAAAAA/41SXU8TQRQ9M0vb7VJkW6WUKgpYtS3qVmJihKaJQIzVikZI
+                X3ia0gEHtrtmd9vwyJM/xH/gk4kPpuHRH2W8sy1BUaLJ5n6fe+7eO99/fP0G
+                4DEeMFSE1w181T12PDFQByJSvudsicGmDCPlxe56X7ldGaTAGFbrm6utf0PW
+                Gq1DMRCOK7wD503nUO5Fawz2xVgKEwzJuvJU1GAwypV2BkmkLCRgMkxE71XI
+                sPwffOMRiaNYbh35kas8J5D7LnE4rzZcEYZrlTbD/CXJerUR50stPzhwDmXU
+                CYTyQkd4nh/FBKGz1Xdd0XHlmgWup0sEfj+SDLOX8DGYXSk/tJR3xDBX31n9
+                cyONsiadKqnSfum8ljUZsmdNX8tIdEUkqB3vDQy6GtMirQWolur5sdJejazu
+                I4bB8GTB4gVuDU9ixW1tmHzkaG3rnJkvDE+qljk8sdkCq/IaX+E1Yz1l5k8/
+                Jbk9sT5j5nMZO1E0c9w0CqyWjOOplzO2WeS19JJlMtsqaKTx4vSjqdlXaKBN
+                vcX/eCAsHn+HofDXSz48iugBbPhd2vA07UVu9XsdGezoCzDkWv6ecNsiUNof
+                B9Pb6oB69AOyS+/6XqR6sukNVKgo/VYEoicjGTw7PymDte33gz35XGn83BjT
+                HiF+KcQinTyhNw6DpqYXSvIueY7+B9KJ6hekP5PBcY9kMg6mUCaZGRXAwmR8
+                sSRFjBj8lDw+Bk9fBFsxOD8qGIO1ZSNL+UpcPYWqptEjXAHsLHLEyePeT8a9
+                DaP+e2dO9GedOfnXMBPzGWOOUeer5I8sA8uxvoP7pFtUm6cpZndhNFFoYq6J
+                Iq6TiRtNzOPmLliIW1jYxWSov8UQSyFuh0iFsENkQ2RC5OJI6Se1hWe7hgQA
+                AA==
                 """
     )
 

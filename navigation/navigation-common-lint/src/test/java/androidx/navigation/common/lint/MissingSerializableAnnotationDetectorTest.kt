@@ -516,6 +516,68 @@ src/androidx/test/TestGraph.kt:37: Error: To use this class or object as a type-
             )
     }
 
+    @Test
+    fun testDeeplink_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.*
+
+                @Serializable class TestClass
+                @Serializable class DeepLink
+
+                fun navigation() {
+                    val builder = NavDestinationBuilder<NavGraph>(route = TestClass::class)
+                    builder.deepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testDeeplink_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.*
+
+                @Serializable class TestClass
+                class DeepLink
+
+                fun navigation() {
+                    val builder = NavDestinationBuilder<NavGraph>(route = TestClass::class)
+                    builder.deepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+            )
+            .run()
+            .expect(
+                """
+src/com/example/TestClass.kt:7: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+class DeepLink
+      ~~~~~~~~
+1 errors, 0 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
     val SERIALIZABLE_TEST_CODE_SOURCE =
         """
 package androidx.testSerializable
@@ -527,8 +589,8 @@ import kotlinx.serialization.Serializable
 @Serializable data object TestDataObject
 @Serializable object Outer {
     @Serializable data object InnerObject
-    @Serializable data class InnerClass
-    data class InnerClassNotUsed
+    @Serializable class InnerClass
+    class InnerClassNotUsed
 }
 
 // interface should not require @Serializable
@@ -546,6 +608,34 @@ interface TestInterface
 }
         """
             .trimIndent()
+
+    internal val K_SERIALIZER =
+        bytecodeStub(
+            "KSerializer.kt",
+            "kotlinx/serialization",
+            0xdfbaa177,
+            """
+package kotlinx.serialization
+
+public interface KSerializer<T>
+        """,
+            """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuES5uJPz
+                c/VSKxJzC3JShdhCUkHCSgxaDABdSlZNbgAAAA==
+                """,
+            """
+                kotlinx/serialization/KSerializer.class:
+                H4sIAAAAAAAA/4VQO0/DMBi8zy19hFfKs0wIsSAGUiomQEgsSBFFSLRi6eS2
+                pnKbOlLsVhVTfhcDysyPQnxpGRAMeLj77nzy2f74fHsHcIE64Wgcu0ibeWBV
+                omWkX6XTsQnu299SJWUQ4eS6c9kayZkMImmGwWNvpPru6uavRfB/e2UUCbXW
+                sih4UE4OpJOcFJNZge9BOVRzAIHG7M91rho8Dc4Jh1nqeaIuPGbhZ2nlpZ6l
+                p8VKlvrUFA2Rx5qE49a/T+FO6lBes/HDPRs7QrWth0a6aaIIXjueJn11pyMW
+                B09T4/REPWure5G6NSZ2i4NtiYuxguUqYJdRMO8teAf7iy8mlDhT7qIQohKi
+                GsLDKo9YC7GOjS7IYhM+71vULLYstr8A6rZa9Z8BAAA=
+                """
+        )
 
     internal val SERIALIZABLE_ANNOTATION =
         bytecodeStub(
@@ -591,5 +681,5 @@ public annotation class Serializable(
     val TEST_CLASS = kotlin(TEST_CODE_SOURCE)
 
     val TEST_SERIALIZABLE_CLASS = kotlin(SERIALIZABLE_TEST_CODE_SOURCE)
-    val STUBS = arrayOf(*NAVIGATION_STUBS, SERIALIZABLE_ANNOTATION)
+    val STUBS = arrayOf(*NAVIGATION_STUBS, SERIALIZABLE_ANNOTATION, K_SERIALIZER)
 }
