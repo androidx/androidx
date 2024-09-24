@@ -23,6 +23,8 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.test.R
 import com.google.common.truth.Truth
 import org.junit.Assert.fail
@@ -60,14 +62,15 @@ public class IconWireSizeAndDimensionsTest {
     @Test
     public fun estimateWireSizeInBytesAndValidateIconDimensions_BooleanUserStyleSetting_IconOK() {
         val setting =
-            UserStyleSetting.BooleanUserStyleSetting(
-                UserStyleSetting.Id("ID1"),
-                "displayName",
-                "description",
-                testIcon,
-                listOf(WatchFaceLayer.BASE),
-                false
-            )
+            UserStyleSetting.BooleanUserStyleSetting.Builder(
+                    UserStyleSetting.Id("ID1"),
+                    listOf(WatchFaceLayer.BASE),
+                    false,
+                    "displayName",
+                    "description"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -80,14 +83,15 @@ public class IconWireSizeAndDimensionsTest {
     @Test
     public fun estimateWireSizeInBytesAndValidateIconDimensions_BooleanUserStyleSetting_IconBad() {
         val setting =
-            UserStyleSetting.BooleanUserStyleSetting(
-                UserStyleSetting.Id("ID1"),
-                "displayName",
-                "description",
-                testIcon,
-                listOf(WatchFaceLayer.BASE),
-                false
-            )
+            UserStyleSetting.BooleanUserStyleSetting.Builder(
+                    UserStyleSetting.Id("ID1"),
+                    listOf(WatchFaceLayer.BASE),
+                    false,
+                    "displayName",
+                    "description"
+                )
+                .setIcon(testIcon)
+                .build()
 
         try {
             setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 10, 20)
@@ -104,16 +108,16 @@ public class IconWireSizeAndDimensionsTest {
     @Test
     public fun estimateWireSizeInBytes_DoubleRangeUserStyleSetting() {
         val setting =
-            UserStyleSetting.DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            UserStyleSetting.DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         Truth.assertThat(
                 setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
             )
@@ -123,40 +127,44 @@ public class IconWireSizeAndDimensionsTest {
     @Test
     public fun estimateWireSizeInBytes_ListUserStyleSetting() {
         val classicStyleOption =
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                UserStyleSetting.Option.Id("classic_style"),
-                "Classic",
-                "Classic screen reader name",
-                testIcon
-            )
+            UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                    UserStyleSetting.Option.Id("classic_style"),
+                    "Classic",
+                    "Classic screen reader name"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val modernStyleOption =
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                UserStyleSetting.Option.Id("modern_style"),
-                "Modern",
-                "Modern screen reader name",
-                testIcon
-            )
+            UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                    UserStyleSetting.Option.Id("modern_style"),
+                    "Modern",
+                    "Modern screen reader name"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val gothicStyleOption =
-            UserStyleSetting.ListUserStyleSetting.ListOption(
-                UserStyleSetting.Option.Id("gothic_style"),
-                "Gothic",
-                "Gothic screen reader name",
-                testIcon
-            )
+            UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                    UserStyleSetting.Option.Id("gothic_style"),
+                    "Gothic",
+                    "Gothic screen reader name"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val watchHandStyleList = listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
         val setting =
-            UserStyleSetting.ListUserStyleSetting(
-                UserStyleSetting.Id("hand_style_setting"),
-                "Hand Style",
-                "Hand visual look",
-                /* icon = */ testIcon,
-                watchHandStyleList,
-                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            )
+            UserStyleSetting.ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("hand_style_setting"),
+                    watchHandStyleList,
+                    listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    "Hand Style",
+                    "Hand visual look"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -169,16 +177,17 @@ public class IconWireSizeAndDimensionsTest {
     @Test
     public fun estimateWireSizeInBytes_LongRangeUserStyleSetting() {
         val setting =
-            UserStyleSetting.LongRangeUserStyleSetting(
-                UserStyleSetting.Id("watch_hand_length_style_setting"),
-                "Hand length",
-                "Scale of watch hands",
-                testIcon,
-                1,
-                100,
-                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-                2
-            )
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("watch_hand_length_style_setting"),
+                    1,
+                    100,
+                    2,
+                    listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    "Hand length",
+                    "Scale of watch hands"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -202,60 +211,68 @@ public class IconWireSizeAndDimensionsTest {
     }
 
     @Test
-    @Suppress("Deprecation")
     public fun estimateWireSizeInBytes_ComplicationSlotsUserStyleSetting() {
         val leftComplicationID = 101
         val rightComplicationID = 102
         val setting =
-            UserStyleSetting.ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting"),
-                "Complications",
-                "Number and position",
-                icon = testIcon,
-                complicationConfig =
-                    listOf(
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
-                            "Both",
-                            "Both screen reader name",
-                            testIcon,
-                            listOf()
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting"),
+                    complicationConfig =
+                        listOf(
+                            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                                    UserStyleSetting.Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
+                                    listOf(),
+                                    "Both",
+                                    "Both screen reader name"
+                                )
+                                .setIcon(testIcon)
+                                .build(),
+                            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                                    UserStyleSetting.Option.Id("NO_COMPLICATIONS"),
+                                    listOf(
+                                        ComplicationSlotOverlay.Builder(leftComplicationID)
+                                            .setEnabled(false)
+                                            .build(),
+                                        ComplicationSlotOverlay.Builder(rightComplicationID)
+                                            .setEnabled(false)
+                                            .build()
+                                    ),
+                                    "None",
+                                    "None screen reader name"
+                                )
+                                .setIcon(testIcon)
+                                .build(),
+                            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                                    UserStyleSetting.Option.Id("LEFT_COMPLICATION"),
+                                    listOf(
+                                        ComplicationSlotOverlay.Builder(rightComplicationID)
+                                            .setEnabled(false)
+                                            .build()
+                                    ),
+                                    "Left",
+                                    "Left screen reader name"
+                                )
+                                .setIcon(testIcon)
+                                .build(),
+                            ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                                    UserStyleSetting.Option.Id("RIGHT_COMPLICATION"),
+                                    listOf(
+                                        ComplicationSlotOverlay.Builder(leftComplicationID)
+                                            .setEnabled(false)
+                                            .build()
+                                    ),
+                                    "Right",
+                                    "Right screen reader name"
+                                )
+                                .setIcon(testIcon)
+                                .build()
                         ),
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("NO_COMPLICATIONS"),
-                            "None",
-                            "None screen reader name",
-                            testIcon,
-                            listOf(
-                                UserStyleSetting.ComplicationSlotsUserStyleSetting
-                                    .ComplicationSlotOverlay(leftComplicationID, enabled = false),
-                                UserStyleSetting.ComplicationSlotsUserStyleSetting
-                                    .ComplicationSlotOverlay(rightComplicationID, enabled = false)
-                            )
-                        ),
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("LEFT_COMPLICATION"),
-                            "Left",
-                            "Left screen reader name",
-                            testIcon,
-                            listOf(
-                                UserStyleSetting.ComplicationSlotsUserStyleSetting
-                                    .ComplicationSlotOverlay(rightComplicationID, enabled = false)
-                            )
-                        ),
-                        UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("RIGHT_COMPLICATION"),
-                            "Right",
-                            "Right screen reader name",
-                            testIcon,
-                            listOf(
-                                UserStyleSetting.ComplicationSlotsUserStyleSetting
-                                    .ComplicationSlotOverlay(leftComplicationID, enabled = false)
-                            )
-                        )
-                    ),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .setIcon(testIcon)
+                .build()
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

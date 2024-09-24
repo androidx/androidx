@@ -58,224 +58,253 @@ import kotlinx.coroutines.launch
 open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
 
     internal val twelveHourClockOption by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id("12_style"),
-            resources,
-            R.string.digital_clock_style_12,
-            R.string.digital_clock_style_12_screen_reader,
-            { Icon.createWithResource(this, R.drawable.red_style) }
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id("12_style"),
+                resources,
+                R.string.digital_clock_style_12,
+                R.string.digital_clock_style_12_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
+            .build()
     }
 
     internal val twentyFourHourClockOption by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id("24_style"),
-            resources,
-            R.string.digital_clock_style_24,
-            R.string.digital_clock_style_24_screen_reader,
-            { Icon.createWithResource(this, R.drawable.red_style) }
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id("24_style"),
+                resources,
+                R.string.digital_clock_style_24,
+                R.string.digital_clock_style_24_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
+            .build()
     }
 
     @Suppress("Deprecation")
     private val digitalComplicationSettings by lazy {
-        ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("DigitalComplications"),
-            resources,
-            R.string.digital_complications_setting,
-            R.string.digital_complications_setting_description,
-            icon = null,
-            complicationConfig =
+        ComplicationSlotsUserStyleSetting.Builder(
+                UserStyleSetting.Id("DigitalComplications"),
                 listOf(
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("On"),
-                        resources,
-                        R.string.digital_complication_on_screen_name,
-                        R.string.digital_complication_on_screen_name,
-                        { Icon.createWithResource(this, R.drawable.on) },
-                        listOf(
-                            ComplicationSlotOverlay(
-                                COMPLICATION1_ID,
-                                enabled = true,
-                                complicationSlotBounds =
-                                    ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            UserStyleSetting.Option.Id("On"),
+                            listOf(
+                                ComplicationSlotOverlay(
+                                    COMPLICATION1_ID,
+                                    enabled = true,
+                                    complicationSlotBounds =
+                                        ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+                                ),
+                                ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
                             ),
-                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
-                        ),
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("Off"),
-                        resources,
-                        R.string.digital_complication_off_screen_name,
-                        R.string.digital_complication_on_screen_name,
-                        { Icon.createWithResource(this, R.drawable.off) },
-                        listOf(
-                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
-                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                            resources,
+                            R.string.digital_complication_on_screen_name,
+                            R.string.digital_complication_on_screen_name
                         )
-                    )
+                        .setIcon { Icon.createWithResource(this, R.drawable.on) }
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            UserStyleSetting.Option.Id("Off"),
+                            listOf(
+                                ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
+                                ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                            ),
+                            resources,
+                            R.string.digital_complication_off_screen_name,
+                            R.string.digital_complication_off_screen_name
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.off) }
+                        .build()
                 ),
-            listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+                listOf(WatchFaceLayer.COMPLICATIONS),
+                resources,
+                R.string.digital_complications_setting,
+                R.string.digital_complications_setting_description
+            )
+            .build()
     }
 
     internal val digitalClockStyleSetting by lazy {
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id("digital_clock_style"),
-            resources,
-            R.string.digital_clock_style_name,
-            R.string.digital_clock_style_description,
-            null,
-            listOf(twelveHourClockOption, twentyFourHourClockOption),
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-        )
+        UserStyleSetting.ListUserStyleSetting.Builder(
+                UserStyleSetting.Id("digital_clock_style"),
+                listOf(twelveHourClockOption, twentyFourHourClockOption),
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                resources,
+                R.string.digital_clock_style_name,
+                R.string.digital_clock_style_description
+            )
+            .build()
     }
 
     internal val redStyle by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id(RED_STYLE),
-            resources,
-            R.string.colors_style_red,
-            R.string.colors_style_red_screen_reader,
-            { Icon.createWithResource(this, R.drawable.red_style) }
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id(RED_STYLE),
+                resources,
+                R.string.colors_style_red,
+                R.string.colors_style_red_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
+            .build()
     }
 
     internal val greenStyle by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id(GREEN_STYLE),
-            resources,
-            R.string.colors_style_green,
-            R.string.colors_style_green_screen_reader,
-            { Icon.createWithResource(this, R.drawable.green_style) }
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id(GREEN_STYLE),
+                resources,
+                R.string.colors_style_green,
+                R.string.colors_style_green_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
+            .build()
     }
 
     internal val blueStyle by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id(BLUE_STYLE),
-            resources,
-            R.string.colors_style_blue,
-            R.string.colors_style_blue_screen_reader,
-            { Icon.createWithResource(this, R.drawable.blue_style) }
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id(BLUE_STYLE),
+                resources,
+                R.string.colors_style_blue,
+                R.string.colors_style_blue_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
+            .build()
     }
 
     internal val colorStyleSetting by lazy {
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            resources,
-            R.string.colors_style_setting,
-            R.string.colors_style_setting_description,
-            icon = null,
-            options = listOf(redStyle, greenStyle, blueStyle),
-            listOf(
-                WatchFaceLayer.BASE,
-                WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+        UserStyleSetting.ListUserStyleSetting.Builder(
+                UserStyleSetting.Id(COLOR_STYLE_SETTING),
+                listOf(redStyle, greenStyle, blueStyle),
+                listOf(
+                    WatchFaceLayer.BASE,
+                    WatchFaceLayer.COMPLICATIONS,
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                ),
+                resources,
+                R.string.colors_style_setting,
+                R.string.colors_style_setting_description
             )
-        )
+            .build()
     }
 
     internal val drawHoursSetting by lazy {
-        UserStyleSetting.BooleanUserStyleSetting(
-            UserStyleSetting.Id(HOURS_STYLE_SETTING),
-            resources,
-            R.string.watchface_draw_hours_setting,
-            R.string.watchface_draw_hours_setting_description,
-            icon = null,
-            listOf(WatchFaceLayer.BASE),
-            defaultValue = true,
-            watchFaceEditorData = null
-        )
+        UserStyleSetting.BooleanUserStyleSetting.Builder(
+                UserStyleSetting.Id(HOURS_STYLE_SETTING),
+                listOf(WatchFaceLayer.BASE),
+                defaultValue = true,
+                resources,
+                R.string.watchface_draw_hours_setting,
+                R.string.watchface_draw_hours_setting_description
+            )
+            .build()
     }
 
-    @Suppress("Deprecation")
     private val analogComplicationSettings by lazy {
-        ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id("AnalogComplications"),
-            resources,
-            R.string.watchface_complications_setting,
-            R.string.watchface_complications_setting_description,
-            icon = null,
-            complicationConfig =
+        ComplicationSlotsUserStyleSetting.Builder(
+                UserStyleSetting.Id("AnalogComplications"),
                 listOf(
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("One"),
-                        resources,
-                        R.string.analog_complication_one_screen_name,
-                        R.string.analog_complication_one_screen_name,
-                        { Icon.createWithResource(this, R.drawable.one) },
-                        listOf(
-                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            UserStyleSetting.Option.Id("One"),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(COMPLICATION1_ID)
+                                    .setEnabled(true)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION2_ID)
+                                    .setEnabled(false)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION3_ID)
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            resources,
+                            R.string.analog_complication_one_screen_name,
+                            R.string.analog_complication_one_screen_name
                         )
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("Two"),
-                        resources,
-                        R.string.analog_complication_two_screen_name,
-                        R.string.analog_complication_two_screen_name,
-                        { Icon.createWithResource(this, R.drawable.two) },
-                        listOf(
-                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
-                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                        .setIcon { Icon.createWithResource(this, R.drawable.one) }
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            UserStyleSetting.Option.Id("Two"),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(COMPLICATION1_ID)
+                                    .setEnabled(true)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION2_ID)
+                                    .setEnabled(true)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION3_ID)
+                                    .setEnabled(false)
+                                    .build(),
+                            ),
+                            resources,
+                            R.string.analog_complication_two_screen_name,
+                            R.string.analog_complication_two_screen_name
                         )
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        UserStyleSetting.Option.Id("Three"),
-                        resources,
-                        R.string.analog_complication_three_screen_name,
-                        R.string.analog_complication_three_screen_name,
-                        { Icon.createWithResource(this, R.drawable.three) },
-                        listOf(
-                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
-                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = true)
+                        .setIcon { Icon.createWithResource(this, R.drawable.two) }
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            UserStyleSetting.Option.Id("Three"),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(COMPLICATION1_ID)
+                                    .setEnabled(true)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION2_ID)
+                                    .setEnabled(true)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(COMPLICATION3_ID)
+                                    .setEnabled(true)
+                                    .build()
+                            ),
+                            resources,
+                            R.string.analog_complication_three_screen_name,
+                            R.string.analog_complication_three_screen_name
                         )
-                    )
+                        .setIcon { Icon.createWithResource(this, R.drawable.three) }
+                        .build()
                 ),
-            listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+                listOf(WatchFaceLayer.COMPLICATIONS),
+                resources,
+                R.string.watchface_complications_setting,
+                R.string.watchface_complications_setting_description
+            )
+            .build()
     }
 
     internal val digitalWatchFaceType by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id("digital"),
-            resources,
-            R.string.style_digital_watch,
-            R.string.style_digital_watch_screen_reader,
-            iconProvider = { Icon.createWithResource(this, R.drawable.d) },
-            childSettings =
+        ListOption.Builder(
+                UserStyleSetting.Option.Id("digital"),
+                resources,
+                R.string.style_digital_watch,
+                R.string.style_digital_watch_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.d) }
+            .setChildSettings(
                 listOf(digitalClockStyleSetting, colorStyleSetting, digitalComplicationSettings)
-        )
+            )
+            .build()
     }
 
     internal val analogWatchFaceType by lazy {
-        ListOption(
-            UserStyleSetting.Option.Id("analog"),
-            resources,
-            R.string.style_analog_watch,
-            R.string.style_analog_watch_screen_reader,
-            iconProvider = { Icon.createWithResource(this, R.drawable.a) },
-            childSettings = listOf(colorStyleSetting, drawHoursSetting, analogComplicationSettings)
-        )
+        ListOption.Builder(
+                UserStyleSetting.Option.Id("analog"),
+                resources,
+                R.string.style_analog_watch,
+                R.string.style_analog_watch_screen_reader
+            )
+            .setIcon { Icon.createWithResource(this, R.drawable.a) }
+            .setChildSettings(
+                listOf(digitalClockStyleSetting, colorStyleSetting, digitalComplicationSettings)
+            )
+            .build()
     }
 
     internal val watchFaceType by lazy {
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id("clock_type"),
-            resources,
-            R.string.clock_type,
-            R.string.clock_type_description,
-            icon = null,
-            options = listOf(digitalWatchFaceType, analogWatchFaceType),
-            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-        )
+        UserStyleSetting.ListUserStyleSetting.Builder(
+                UserStyleSetting.Id("clock_type"),
+                options = listOf(digitalWatchFaceType, analogWatchFaceType),
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                resources,
+                R.string.clock_type,
+                R.string.clock_type_description
+            )
+            .build()
     }
 
     public override fun createUserStyleSchema() =

@@ -48,31 +48,31 @@ public class UserStyleSettingWithStringResourcesTest {
         Icon.createWithBitmap(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
 
     private val colorStyleSetting =
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id("color_style_setting"),
-            context.resources,
-            R.string.colors_style_setting,
-            R.string.colors_style_setting_description,
-            icon = null,
-            options =
-                listOf(
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("red_style"),
-                        context.resources,
-                        R.string.red_style_name,
-                        R.string.red_style_name,
-                        null
+        ListUserStyleSetting.Builder(
+                UserStyleSetting.Id("color_style_setting"),
+                options =
+                    listOf(
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("red_style"),
+                                context.resources,
+                                R.string.red_style_name,
+                                R.string.red_style_name
+                            )
+                            .build(),
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("green_style"),
+                                context.resources,
+                                R.string.green_style_name,
+                                R.string.green_style_name
+                            )
+                            .build()
                     ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("green_style"),
-                        context.resources,
-                        R.string.green_style_name,
-                        R.string.green_style_name,
-                        null
-                    )
-                ),
-            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-        )
+                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                context.resources,
+                R.string.colors_style_setting,
+                R.string.colors_style_setting_description
+            )
+            .build()
 
     @Test
     public fun stringResources_en() {
@@ -81,14 +81,14 @@ public class UserStyleSettingWithStringResourcesTest {
 
         assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("red_style"))
-                        as UserStyleSetting.ListUserStyleSetting.ListOption)
+                        as ListOption)
                     .displayName
             )
             .isEqualTo("Red Style")
 
         assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("green_style"))
-                        as UserStyleSetting.ListUserStyleSetting.ListOption)
+                        as ListOption)
                     .displayName
             )
             .isEqualTo("Green Style")
@@ -107,14 +107,14 @@ public class UserStyleSettingWithStringResourcesTest {
 
         assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("red_style"))
-                        as UserStyleSetting.ListUserStyleSetting.ListOption)
+                        as ListOption)
                     .displayName
             )
             .isEqualTo("Stile rosso")
 
         assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("green_style"))
-                        as UserStyleSetting.ListUserStyleSetting.ListOption)
+                        as ListOption)
                     .displayName
             )
             .isEqualTo("Stile verde")
@@ -123,38 +123,37 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun listOptionsWithIndices() {
         val listUserStyleSetting =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("list"),
-                context.resources,
-                R.string.colors_style_setting,
-                R.string.colors_style_setting_description,
-                icon = null,
-                options =
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("list"),
                     listOf(
-                        ListOption(
-                            UserStyleSetting.Option.Id("one"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null
-                        ),
-                        ListOption(
-                            UserStyleSetting.Option.Id("two"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null
-                        ),
-                        ListOption(
-                            UserStyleSetting.Option.Id("three"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null
-                        )
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("one"),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name,
+                            )
+                            .build(),
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("two"),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name
+                            )
+                            .build(),
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("three"),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name
+                            )
+                            .build()
                     ),
-                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            )
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    context.resources,
+                    R.string.colors_style_setting,
+                    R.string.colors_style_setting_description
+                )
+                .build()
 
         val option0 = listUserStyleSetting.options[0] as ListOption
         assertThat(option0.displayName).isEqualTo("1st option")
@@ -173,13 +172,8 @@ public class UserStyleSettingWithStringResourcesTest {
     @Suppress("deprecation")
     public fun listUserStyleSettingWireFormatRoundTrip_noScreenReaderName() {
         val listUserStyleSetting =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("list"),
-                context.resources,
-                R.string.colors_style_setting,
-                R.string.colors_style_setting_description,
-                icon = null,
-                options =
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("list"),
                     listOf(
                         ListOption(
                             UserStyleSetting.Option.Id("one"),
@@ -188,8 +182,12 @@ public class UserStyleSettingWithStringResourcesTest {
                             icon = null
                         )
                     ),
-                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            )
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    context.resources,
+                    R.string.colors_style_setting,
+                    R.string.colors_style_setting_description,
+                )
+                .build()
 
         val listUserStyleSettingAfterRoundTrip =
             ListUserStyleSetting(listUserStyleSetting.toWireFormat())
@@ -203,40 +201,39 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun complicationSlotsOptionsWithIndices() {
         val complicationSetting =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting1"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig =
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting1"),
                     listOf(
-                        ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("one"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null,
-                            emptyList()
-                        ),
-                        ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("two"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null,
-                            emptyList()
-                        ),
-                        ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("three"),
-                            context.resources,
-                            R.string.ith_option,
-                            R.string.ith_option_screen_reader_name,
-                            icon = null,
-                            emptyList()
-                        )
+                        ComplicationSlotsOption.Builder(
+                                UserStyleSetting.Option.Id("one"),
+                                emptyList(),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name
+                            )
+                            .build(),
+                        ComplicationSlotsOption.Builder(
+                                UserStyleSetting.Option.Id("two"),
+                                emptyList(),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name
+                            )
+                            .build(),
+                        ComplicationSlotsOption.Builder(
+                                UserStyleSetting.Option.Id("three"),
+                                emptyList(),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name,
+                            )
+                            .build()
                     ),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
 
         val option0 = complicationSetting.options[0] as ComplicationSlotsOption
         assertThat(option0.displayName).isEqualTo("1st option")
@@ -258,43 +255,41 @@ public class UserStyleSettingWithStringResourcesTest {
         val schema =
             UserStyleSchema(
                 listOf(
-                    ListUserStyleSetting(
-                        one,
-                        context.resources,
-                        R.string.ith_style,
-                        R.string.ith_style_screen_reader_name,
-                        icon = null,
-                        options =
+                    ListUserStyleSetting.Builder(
+                            one,
                             listOf(
-                                ListOption(
-                                    UserStyleSetting.Option.Id("one"),
-                                    context.resources,
-                                    R.string.ith_option,
-                                    R.string.ith_option_screen_reader_name,
-                                    icon = null
-                                )
+                                ListOption.Builder(
+                                        UserStyleSetting.Option.Id("one"),
+                                        context.resources,
+                                        R.string.ith_option,
+                                        R.string.ith_option_screen_reader_name,
+                                    )
+                                    .build()
                             ),
-                        listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-                    ),
-                    ComplicationSlotsUserStyleSetting(
-                        two,
-                        context.resources,
-                        R.string.ith_style,
-                        R.string.ith_style_screen_reader_name,
-                        icon = null,
-                        complicationConfig =
+                            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                            context.resources,
+                            R.string.ith_style,
+                            R.string.ith_style_screen_reader_name,
+                        )
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.Builder(
+                            two,
                             listOf(
-                                ComplicationSlotsOption(
-                                    UserStyleSetting.Option.Id("one"),
-                                    context.resources,
-                                    R.string.ith_option,
-                                    R.string.ith_option_screen_reader_name,
-                                    icon = null,
-                                    emptyList()
-                                )
+                                ComplicationSlotsOption.Builder(
+                                        UserStyleSetting.Option.Id("one"),
+                                        emptyList(),
+                                        context.resources,
+                                        R.string.ith_option,
+                                        R.string.ith_option_screen_reader_name
+                                    )
+                                    .build()
                             ),
-                        listOf(WatchFaceLayer.COMPLICATIONS)
-                    )
+                            listOf(WatchFaceLayer.COMPLICATIONS),
+                            context.resources,
+                            R.string.ith_style,
+                            R.string.ith_style_screen_reader_name
+                        )
+                        .build()
                 )
             )
 
@@ -305,16 +300,12 @@ public class UserStyleSettingWithStringResourcesTest {
     }
 
     @Test
-    @Suppress("deprecation")
     public fun complicationsUserStyleSettingWireFormatRoundTrip_noScreenReaderName_filledByDisplayName() {
         val complicationSetting =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting1"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig =
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting1"),
                     listOf(
+                        @Suppress("deprecation")
                         ComplicationSlotsOption(
                             UserStyleSetting.Option.Id("one"),
                             context.resources,
@@ -323,8 +314,11 @@ public class UserStyleSettingWithStringResourcesTest {
                             emptyList()
                         )
                     ),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
 
         val complicationSettingAfterRoundTrip =
             ComplicationSlotsUserStyleSetting(complicationSetting.toWireFormat())
@@ -338,15 +332,16 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun booleanUserStyleSetting_lazyIcon() {
         val userStyleSetting =
-            UserStyleSetting.BooleanUserStyleSetting(
-                UserStyleSetting.Id("setting"),
-                context.resources,
-                displayNameResourceId = 10,
-                descriptionResourceId = 11,
-                iconProvider = { icon_10x10 },
-                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS),
-                defaultValue = true
-            )
+            UserStyleSetting.BooleanUserStyleSetting.Builder(
+                    UserStyleSetting.Id("setting"),
+                    affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS),
+                    defaultValue = true,
+                    context.resources,
+                    10,
+                    11
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
     }
@@ -354,25 +349,26 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun complicationSlotsUserStyleSetting_lazyIcon() {
         val userStyleSetting =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting1"),
-                context.resources,
-                displayNameResourceId = 10,
-                descriptionResourceId = 11,
-                iconProvider = { icon_10x10 },
-                complicationConfig =
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting1"),
                     listOf(
-                        ComplicationSlotsOption(
-                            UserStyleSetting.Option.Id("one"),
-                            context.resources,
-                            displayNameResourceId = R.string.ith_option,
-                            screenReaderNameResourceId = R.string.ith_option_screen_reader_name,
-                            iconProvider = { icon_10x10 },
-                            emptyList()
-                        )
+                        ComplicationSlotsOption.Builder(
+                                UserStyleSetting.Option.Id("one"),
+                                emptyList(),
+                                context.resources,
+                                R.string.ith_option,
+                                R.string.ith_option_screen_reader_name
+                            )
+                            .setIcon { icon_10x10 }
+                            .build()
                     ),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    context.resources,
+                    10,
+                    11
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
     }
@@ -380,14 +376,15 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun complicationSlotsOption_lazyIcon() {
         val userStyleOption =
-            ComplicationSlotsOption(
-                UserStyleSetting.Option.Id("one"),
-                context.resources,
-                displayNameResourceId = R.string.ith_option,
-                screenReaderNameResourceId = R.string.ith_option_screen_reader_name,
-                iconProvider = { icon_10x10 },
-                emptyList()
-            )
+            ComplicationSlotsOption.Builder(
+                    UserStyleSetting.Option.Id("one"),
+                    emptyList(),
+                    context.resources,
+                    R.string.ith_option,
+                    R.string.ith_option_screen_reader_name
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleOption.icon).isEqualTo(icon_10x10)
     }
@@ -395,17 +392,18 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun doubleRangeUserStyleSetting_lazyIcon() {
         val userStyleSetting =
-            UserStyleSetting.DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("setting"),
-                context.resources,
-                displayNameResourceId = 10,
-                descriptionResourceId = 11,
-                iconProvider = { icon_10x10 },
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                defaultValue = 0.75
-            )
+            UserStyleSetting.DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("setting"),
+                    0.0,
+                    1.0,
+                    defaultValue = 0.75,
+                    listOf(WatchFaceLayer.BASE),
+                    context.resources,
+                    10,
+                    11
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
     }
@@ -413,17 +411,18 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun longRangeUserStyleSetting_lazyIcon() {
         val userStyleSetting =
-            UserStyleSetting.LongRangeUserStyleSetting(
-                UserStyleSetting.Id("setting"),
-                context.resources,
-                displayNameResourceId = 10,
-                descriptionResourceId = 11,
-                iconProvider = { icon_10x10 },
-                0,
-                100,
-                listOf(WatchFaceLayer.BASE),
-                defaultValue = 75
-            )
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("setting"),
+                    0,
+                    100,
+                    defaultValue = 75,
+                    listOf(WatchFaceLayer.BASE),
+                    context.resources,
+                    10,
+                    11
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
     }
@@ -431,24 +430,25 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun listUserStyleSetting_lazyIcon() {
         val userStyleSetting =
-            UserStyleSetting.ListUserStyleSetting(
-                UserStyleSetting.Id("setting"),
-                context.resources,
-                displayNameResourceId = 10,
-                descriptionResourceId = 11,
-                iconProvider = { icon_10x10 },
-                options =
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("setting"),
                     listOf(
-                        ListOption(
-                            UserStyleSetting.Option.Id("red_style"),
-                            context.resources,
-                            displayNameResourceId = R.string.red_style_name,
-                            screenReaderNameResourceId = R.string.red_style_name,
-                            iconProvider = { null }
-                        )
+                        ListOption.Builder(
+                                UserStyleSetting.Option.Id("red_style"),
+                                context.resources,
+                                R.string.red_style_name,
+                                R.string.red_style_name
+                            )
+                            .setIcon { icon_10x10 }
+                            .build()
                     ),
-                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            )
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    context.resources,
+                    10,
+                    11
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
     }
@@ -456,13 +456,14 @@ public class UserStyleSettingWithStringResourcesTest {
     @Test
     public fun listOption_lazyIcon() {
         val userStyleOption =
-            ListOption(
-                UserStyleSetting.Option.Id("red_style"),
-                context.resources,
-                displayNameResourceId = R.string.red_style_name,
-                screenReaderNameResourceId = R.string.red_style_name,
-                iconProvider = { icon_10x10 }
-            )
+            ListOption.Builder(
+                    UserStyleSetting.Option.Id("red_style"),
+                    context.resources,
+                    R.string.red_style_name,
+                    R.string.red_style_name
+                )
+                .setIcon { icon_10x10 }
+                .build()
 
         assertThat(userStyleOption.icon).isEqualTo(icon_10x10)
     }

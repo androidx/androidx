@@ -52,28 +52,34 @@ class WatchFaceServiceAndroidTest {
             val schema =
                 UserStyleSchema(
                     listOf(
-                        UserStyleSetting.ListUserStyleSetting(
-                            UserStyleSetting.Id("someId"),
-                            "displayName",
-                            "description",
-                            Icon.createWithResource(
-                                context,
-                                androidx.wear.watchface.test.R.drawable.example_icon_24
-                            ),
-                            listOf(
-                                UserStyleSetting.ListUserStyleSetting.ListOption(
-                                    UserStyleSetting.Option.Id("red_style"),
-                                    displayName = "Red",
-                                    screenReaderName = "Red watchface style",
-                                    icon =
-                                        Icon.createWithResource(
-                                            context,
-                                            androidx.wear.watchface.test.R.drawable.example_icon_24
-                                        ),
+                        UserStyleSetting.ListUserStyleSetting.Builder(
+                                UserStyleSetting.Id("someId"),
+                                listOf(
+                                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                                            UserStyleSetting.Option.Id("red_style"),
+                                            "Red",
+                                            "Red watchface style"
+                                        )
+                                        .setIcon {
+                                            Icon.createWithResource(
+                                                context,
+                                                androidx.wear.watchface.test.R.drawable
+                                                    .example_icon_24
+                                            )
+                                        }
+                                        .build()
+                                ),
+                                listOf(WatchFaceLayer.BASE),
+                                "displayName",
+                                "description"
+                            )
+                            .setIcon {
+                                Icon.createWithResource(
+                                    context,
+                                    androidx.wear.watchface.test.R.drawable.example_icon_24
                                 )
-                            ),
-                            listOf(WatchFaceLayer.BASE)
-                        )
+                            }
+                            .build()
                     )
                 )
 
