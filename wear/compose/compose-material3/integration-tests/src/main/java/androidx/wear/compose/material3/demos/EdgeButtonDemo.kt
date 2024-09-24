@@ -72,7 +72,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
             bottomButton = {
                 EdgeButton(
                     onClick = {},
-                    buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                    preferredHeight = ButtonDefaults.EdgeButtonHeightLarge,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
                 ) {
                     Text(labels[selectedLabel.intValue], color = Color.White)
@@ -120,7 +120,7 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
             bottomButton = {
                 EdgeButton(
                     onClick = {},
-                    buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                    preferredHeight = ButtonDefaults.EdgeButtonHeightLarge,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
                 ) {
                     Text(labels[selectedLabel.intValue], color = Color.White)
@@ -215,7 +215,7 @@ fun EdgeButtonMultiDemo() {
             EdgeButton(
                 onClick = {},
                 enabled = colorNames[color] != "D",
-                buttonHeight = sizes[size],
+                preferredHeight = sizes[size],
                 colors = colors[color],
                 border =
                     if (colorNames[color] == "O")
@@ -257,7 +257,7 @@ fun EdgeButtonConfigurableDemo() {
             bottomButton = {
                 EdgeButton(
                     onClick = {},
-                    buttonHeight = sizes[selectedSize].second,
+                    preferredHeight = sizes[selectedSize].second,
                     colors = colors[selectedColor].second,
                     border =
                         if (colors[selectedColor].first == "Outlined")

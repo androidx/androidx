@@ -47,7 +47,7 @@ fun EdgeButtonSample() {
         Text("Confirm", Modifier.align(Alignment.Center))
         EdgeButton(
             onClick = { /* Do something */ },
-            buttonHeight = ButtonDefaults.EdgeButtonHeightMedium,
+            preferredHeight = ButtonDefaults.EdgeButtonHeightMedium,
             modifier = Modifier.align(Alignment.BottomEnd)
         ) {
             Icon(
@@ -68,7 +68,7 @@ fun EdgeButtonListSample() {
         bottomButton = {
             EdgeButton(
                 onClick = {},
-                buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                preferredHeight = ButtonDefaults.EdgeButtonHeightLarge,
                 colors = buttonColors(containerColor = Color.DarkGray)
             ) {
                 Text("Ok", textAlign = TextAlign.Center)

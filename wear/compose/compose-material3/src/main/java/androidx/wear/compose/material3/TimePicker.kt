@@ -332,7 +332,7 @@ fun TimePicker(
                         }
                         .focusRequester(focusRequesterConfirmButton)
                         .focusable(),
-                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+                preferredHeight = ButtonDefaults.EdgeButtonHeightSmall,
                 colors =
                     buttonColors(
                         contentColor = colors.confirmButtonContentColor,

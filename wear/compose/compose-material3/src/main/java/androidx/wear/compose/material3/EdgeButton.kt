@@ -107,7 +107,7 @@ import kotlin.math.sqrt
  * @param modifier Modifier to be applied to the button. When animating the button to appear/
  *   disappear from the screen, a Modifier.height can be used to change the height of the component,
  *   but that won't change the space available for the content (though it may be scaled)
- * @param buttonHeight Defines the base size of the button, see the 4 standard sizes specified in
+ * @param preferredHeight Defines the base size of the button, see the 4 standard sizes specified in
  *   [ButtonDefaults]. This is used to determine the size constraints passed on to the content, and
  *   the size of the edge button if no height Modifier is specified. Note that if a height Modifier
  *   is specified for the EdgeButton, that will determine the size of the container, and the content
@@ -130,7 +130,7 @@ import kotlin.math.sqrt
 fun EdgeButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    buttonHeight: Dp = ButtonDefaults.EdgeButtonHeightSmall,
+    preferredHeight: Dp = ButtonDefaults.EdgeButtonHeightSmall,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
@@ -143,10 +143,10 @@ fun EdgeButton(
     val screenWidthDp = screenWidthDp().dp
 
     val contentShapeHelper =
-        remember(buttonHeight) {
+        remember(preferredHeight) {
             ShapeHelper(density).apply {
                 // Compute the inner size using only the screen size and the buttonSize parameter
-                val size = with(density) { DpSize(screenWidthDp, buttonHeight).toSize() }
+                val size = with(density) { DpSize(screenWidthDp, preferredHeight).toSize() }
                 update(size)
             }
         }
@@ -178,7 +178,7 @@ fun EdgeButton(
                         } else {
                             screenWidthDp.roundToPx()
                         }
-                    val buttonHeightPx = with(density) { buttonHeight.roundToPx() }
+                    val buttonHeightPx = with(density) { preferredHeight.roundToPx() }
                     val size =
                         IntSize(
                             buttonWidthPx,
