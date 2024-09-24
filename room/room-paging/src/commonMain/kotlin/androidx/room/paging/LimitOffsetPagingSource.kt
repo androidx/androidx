@@ -27,7 +27,6 @@ import androidx.room.paging.util.INITIAL_ITEM_COUNT
 import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
 import androidx.room.useReaderConnection
-import androidx.sqlite.SQLiteStatement
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -52,13 +51,16 @@ public expect abstract class LimitOffsetPagingSource<Value : Any>(
 
     public val itemCount: Int
 
-    protected open fun convertRows(statement: SQLiteStatement, itemCount: Int): List<Value>
+    protected open suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int
+    ): List<Value>
 }
 
 internal class CommonLimitOffsetImpl<Value : Any>(
     private val tables: Array<out String>,
     private val pagingSource: LimitOffsetPagingSource<Value>,
-    private val convertRows: (SQLiteStatement, Int) -> List<Value>
+    private val convertRows: suspend (RoomRawQuery, Int) -> List<Value>
 ) {
     private val db = pagingSource.db
     private val sourceQuery = pagingSource.sourceQuery
@@ -116,7 +118,6 @@ internal class CommonLimitOffsetImpl<Value : Any>(
                 queryDatabase(
                     params = params,
                     sourceQuery = sourceQuery,
-                    db = db,
                     itemCount = tempCount,
                     convertRows = convertRows,
                 )
@@ -132,7 +133,6 @@ internal class CommonLimitOffsetImpl<Value : Any>(
             queryDatabase(
                 params = params,
                 sourceQuery = sourceQuery,
-                db = db,
                 itemCount = tempCount,
                 convertRows = convertRows
             )

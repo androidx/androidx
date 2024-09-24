@@ -29,7 +29,6 @@ import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomRawQuery
 import androidx.room.useReaderConnection
-import androidx.sqlite.SQLiteStatement
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
@@ -110,9 +109,8 @@ public fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
 public suspend fun <Value : Any> queryDatabase(
     params: LoadParams<Int>,
     sourceQuery: RoomRawQuery,
-    db: RoomDatabase,
     itemCount: Int,
-    convertRows: (SQLiteStatement, Int) -> List<Value>
+    convertRows: suspend (RoomRawQuery, Int) -> List<Value>
 ): LoadResult<Int, Value> {
     val key = params.key ?: 0
     val limit = getLimit(params, key)
@@ -123,16 +121,13 @@ public suspend fun <Value : Any> queryDatabase(
         } else {
             limit
         }
-    val limitOffsetQuery = "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset"
+    val limitOffsetQuery =
+        RoomRawQuery(
+            sql = "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset",
+            onBindStatement = sourceQuery.getBindingFunction()
+        )
 
-    val data: List<Value> =
-        db.useReaderConnection { connection ->
-            connection.usePrepared(limitOffsetQuery) { stmt ->
-                sourceQuery.getBindingFunction().invoke(stmt)
-                convertRows(stmt, rowsCount)
-            }
-        }
-
+    val data: List<Value> = convertRows(limitOffsetQuery, rowsCount)
     val nextPosToLoad = offset + data.size
     val nextKey =
         if (data.isEmpty() || data.size < limit || nextPosToLoad >= itemCount) {

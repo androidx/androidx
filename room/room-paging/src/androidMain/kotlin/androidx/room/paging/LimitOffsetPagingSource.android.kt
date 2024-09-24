@@ -25,8 +25,9 @@ import androidx.room.RoomRawQuery
 import androidx.room.RoomSQLiteQuery
 import androidx.room.paging.CommonLimitOffsetImpl.Companion.BUG_LINK
 import androidx.room.paging.util.getClippedRefreshKey
-import androidx.sqlite.SQLiteStatement
+import androidx.room.util.performSuspending
 import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.use
 
 /**
  * An implementation of [PagingSource] to perform a LIMIT OFFSET query
@@ -78,7 +79,15 @@ actual constructor(
         )
     }
 
-    protected actual open fun convertRows(statement: SQLiteStatement, itemCount: Int): List<Value> {
-        return convertRows(SQLiteStatementCursor(statement, itemCount))
+    protected actual open suspend fun convertRows(
+        limitOffsetQuery: RoomRawQuery,
+        itemCount: Int
+    ): List<Value> {
+        return performSuspending(db, isReadOnly = true, inTransaction = false) { connection ->
+            connection.prepare(limitOffsetQuery.sql).use { statement ->
+                limitOffsetQuery.getBindingFunction().invoke(statement)
+                convertRows(SQLiteStatementCursor(statement, itemCount))
+            }
+        }
     }
 }
