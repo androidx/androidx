@@ -83,7 +83,7 @@ internal object ApiStubParser {
             type = type,
             superTypes = superTypes,
             methods = service.functions.map(this::parseMethod),
-            constants = interfaceAndConstants.constants?.toList() ?: listOf(),
+            constants = interfaceAndConstants.constants,
         )
     }
 
@@ -117,9 +117,17 @@ internal object ApiStubParser {
         }
 
         return if (value.isData) {
-            AnnotatedDataClass(type, parseProperties(type, value))
+            AnnotatedDataClass(
+                type,
+                constants = classAndConstants.constants,
+                properties = parseProperties(type, value)
+            )
         } else {
-            AnnotatedEnumClass(type, value.enumEntries.toList())
+            AnnotatedEnumClass(
+                type,
+                constants = classAndConstants.constants,
+                variants = value.enumEntries.toList()
+            )
         }
     }
 

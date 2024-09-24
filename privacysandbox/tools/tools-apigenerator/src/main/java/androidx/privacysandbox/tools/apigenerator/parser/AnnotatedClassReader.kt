@@ -42,62 +42,51 @@ data class AnnotatedClasses(
 
 data class ClassAndConstants(
     val kClass: KmClass,
-    val constants: List<Constant>?,
+    val constants: List<Constant>,
 )
 
 internal object AnnotatedClassReader {
     val annotations = listOf(PrivacySandboxService::class)
 
     fun readAnnotatedClasses(stubClassPath: Path): AnnotatedClasses {
-        val companionPaths = mutableMapOf<String, String>()
-        val classNodeByPath = mutableMapOf<String, ClassNode>()
-        for (classFile in
-            stubClassPath.toFile().walk().filter { it.isFile && it.extension == "class" }) {
-            val classNode = toClassNode(classFile.readBytes())
-            classNodeByPath[classNode.name] = classNode
-            if (
-                !(classNode.isAnnotatedWith<PrivacySandboxService>() ||
-                    classNode.isAnnotatedWith<PrivacySandboxValue>() ||
-                    classNode.isAnnotatedWith<PrivacySandboxInterface>() ||
-                    classNode.isAnnotatedWith<PrivacySandboxCallback>())
-            ) {
-                continue
-            }
-            val kotlinMetadata = parseKotlinMetadata(classNode)
-            if (kotlinMetadata.companionObject != null) {
-                val companionName = kotlinMetadata.companionObject!!
-                companionPaths[kotlinMetadata.name] = "${kotlinMetadata.name}$${companionName}"
-            }
-        }
-
         val services = mutableSetOf<ClassAndConstants>()
         val values = mutableSetOf<ClassAndConstants>()
         val callbacks = mutableSetOf<ClassAndConstants>()
         val interfaces = mutableSetOf<ClassAndConstants>()
-        classNodeByPath.values.forEach { classNode ->
-            val companionNode = companionPaths[classNode.name]?.let { classNodeByPath[it] }
-            val constants =
-                companionNode
-                    ?.let { companion ->
-                        companion.fields
-                            .filter { it.name != "\$\$INSTANCE" }
-                            .map { Constant(it.name, getConstType(it.desc), it.value) }
-                    }
-                    ?.toList()
-            if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
-                services.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+
+        stubClassPath
+            .toFile()
+            .walk()
+            .filter { it.isFile && it.extension == "class" }
+            .map { toClassNode(it.readBytes()) }
+            .forEach { classNode ->
+                // Data classes and enum classes store their constants on the object itself, rather
+                // than in the companion's class file, so we extract the constants from amongst the
+                // other fields on the annotated value/interface.
+                // Thankfully, data class fields are always non-static, and enum variants are always
+                // of the enum's type (hence not primitive or string, which consts must be).
+                // The const-allowed-types check also filters out the Companion and the VALUES
+                // array.
+                val constants =
+                    classNode.fields
+                        .filter { it.access.hasFlag(PUBLIC_STATIC_FINAL_ACCESS) }
+                        .filter { it.desc in constAllowedTypes.keys }
+                        .map { Constant(it.name, getConstType(it.desc), it.value) }
+                        .toList()
+                if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
+                    services.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+                }
+                // TODO(b/323369085): Validate that enum variants don't have methods
+                if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
+                    values.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+                }
+                if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
+                    callbacks.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+                }
+                if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
+                    interfaces.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
+                }
             }
-            // TODO(b/323369085): Validate that enum variants don't have methods
-            if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
-                values.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
-            }
-            if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
-                callbacks.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
-            }
-            if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
-                interfaces.add(ClassAndConstants(parseKotlinMetadata(classNode), constants))
-            }
-        }
         return AnnotatedClasses(
             services = services.toSet(),
             values = values.toSet(),
@@ -171,26 +160,31 @@ internal object AnnotatedClassReader {
             return attributes
         }
 
+    private val constAllowedTypes =
+        mapOf(
+            "Ljava/lang/String;" to Types.string,
+            "I" to Types.int,
+            "Z" to Types.boolean,
+            "B" to Types.byte,
+            "C" to Types.char,
+            "D" to Types.double,
+            "F" to Types.float,
+            "J" to Types.long,
+            "S" to Types.short
+        )
+
     private fun getConstType(desc: String): androidx.privacysandbox.tools.core.model.Type {
-        if (desc == "Ljava/lang/String;") {
-            return Types.string
-        } else if (desc == "I") {
-            return Types.int
-        } else if (desc == "Z") {
-            return Types.boolean
-        } else if (desc == "B") {
-            return Types.byte
-        } else if (desc == "C") {
-            return Types.char
-        } else if (desc == "D") {
-            return Types.double
-        } else if (desc == "F") {
-            return Types.float
-        } else if (desc == "J") {
-            return Types.long
-        } else if (desc == "S") {
-            return Types.short
-        }
-        throw PrivacySandboxParsingException("Unrecognised constant type: '$desc'")
+        return constAllowedTypes[desc]
+            ?: throw PrivacySandboxParsingException("Unrecognised constant type: '$desc'")
     }
 }
+
+// See https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.5
+// TODO: Once we upgrade to Java 22 we can import these constants from
+//  java.lang.classfile
+private const val PUBLIC_STATIC_FINAL_ACCESS =
+    0x0001 or // public
+        0x0008 or // static
+        0x0010 // final
+
+private fun Int.hasFlag(flag: Int) = flag and this == flag

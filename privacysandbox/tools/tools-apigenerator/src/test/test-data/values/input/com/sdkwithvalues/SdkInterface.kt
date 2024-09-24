@@ -34,12 +34,21 @@ data class InnerSdkValue(
     val maybeNumber: Int?,
     val maybeInterface: MyInterface?,
     val maybeBundle: Bundle?,
-)
+) {
+    companion object {
+        const val DEFAULT_USER_ID = 42
+        const val DEFAULT_SEPARATOR = '"'
+    }
+}
 
 @PrivacySandboxValue
 enum class RequestFlag {
     UP,
-    DOWN,
+    DOWN;
+
+    companion object {
+        const val STEP_SIZE = 5
+    }
 }
 
 @PrivacySandboxValue

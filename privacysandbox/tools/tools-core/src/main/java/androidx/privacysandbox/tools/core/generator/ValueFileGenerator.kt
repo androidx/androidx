@@ -19,6 +19,8 @@ package androidx.privacysandbox.tools.core.generator
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.Constant
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -44,10 +46,49 @@ class ValueFileGenerator {
                                 .build()
                         }
                     )
+                    if (value.constants.isNotEmpty()) {
+                        addType(
+                            TypeSpec.companionObjectBuilder().build {
+                                addProperties(value.constants.map(::generateConstant))
+                            }
+                        )
+                    }
                 }
             is AnnotatedEnumClass ->
                 TypeSpec.enumBuilder(value.type.poetClassName()).build {
                     value.variants.forEach(::addEnumConstant)
+                    if (value.constants.isNotEmpty()) {
+                        addType(
+                            TypeSpec.companionObjectBuilder().build {
+                                addProperties(value.constants.map(::generateConstant))
+                            }
+                        )
+                    }
                 }
         }
+}
+
+fun generateConstant(constant: Constant): PropertySpec {
+    var value = constant.value
+    // JVM bytecode stores boolean values as 0 or 1, so we convert this back to Boolean.
+    if (constant.type.simpleName == "Boolean") {
+        value = value != 0
+    }
+    if (constant.type.simpleName == "String") {
+        // Escape strings using KotlinPoet
+        value = CodeBlock.of("%S", value)
+    }
+    // JVM bytecode stores char values as a u16, so we convert this back to Char.
+    if (constant.type.simpleName == "Char") {
+        val char = (value as Int).toChar()
+        // Use KotlinPoet to handle most escape sequences, but we need to handle single-quote
+        // ourselves since Poet thinks this is a String.
+        val escapedAsString = CodeBlock.of("%S", char).toString().replace("'", "\\'")
+        val escapedChar = escapedAsString.substring(1, escapedAsString.length - 1)
+        value = "'$escapedChar'"
+    }
+
+    return PropertySpec.builder(constant.name, constant.type.poetTypeName(), KModifier.CONST)
+        .initializer("%L", value)
+        .build()
 }

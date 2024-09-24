@@ -138,8 +138,8 @@ class ValueParserTest {
             .isEqualTo(
                 setOf(
                     AnnotatedEnumClass(
-                        Type(packageName = "com.mysdk", simpleName = "MyEnum"),
-                        listOf("FOO", "BAR")
+                        type = Type(packageName = "com.mysdk", simpleName = "MyEnum"),
+                        variants = listOf("FOO", "BAR")
                     )
                 )
             )

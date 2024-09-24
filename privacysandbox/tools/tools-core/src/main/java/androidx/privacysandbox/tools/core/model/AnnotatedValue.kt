@@ -16,14 +16,19 @@
 
 package androidx.privacysandbox.tools.core.model
 
-sealed class AnnotatedValue(open val type: Type)
+sealed class AnnotatedValue(
+    open val type: Type,
+    open val constants: List<Constant> = emptyList(),
+)
 
 data class AnnotatedDataClass(
     override val type: Type,
+    override val constants: List<Constant> = emptyList(),
     val properties: List<ValueProperty>,
 ) : AnnotatedValue(type)
 
 data class AnnotatedEnumClass(
     override val type: Type,
+    override val constants: List<Constant> = emptyList(),
     val variants: List<String>,
 ) : AnnotatedValue(type)
