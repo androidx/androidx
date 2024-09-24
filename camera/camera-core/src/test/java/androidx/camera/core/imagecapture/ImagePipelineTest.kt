@@ -379,6 +379,7 @@ class ImagePipelineTest {
                 ROTATION_DEGREES,
                 JPEG_QUALITY,
                 captureMode,
+                false,
                 listOf()
             )
 

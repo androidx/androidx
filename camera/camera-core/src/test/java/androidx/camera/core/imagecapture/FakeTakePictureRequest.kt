@@ -129,6 +129,10 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         return JPEG_QUALITY
     }
 
+    override fun isSimultaneousCapture(): Boolean {
+        return false
+    }
+
     internal override fun getCaptureMode(): Int {
         return ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
     }

@@ -299,15 +299,17 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         ProcessingRequest request = mCurrentRequest;
 
         // If simultaneous capture RAW + JPEG, only reset when both images are processed.
-        boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
+        boolean isSimultaneousCaptureEnabled = mInputEdge != null
+                && mInputEdge.getOutputFormats().size() > 1;
         if (isSimultaneousCaptureEnabled && mCurrentRequest != null) {
             mCurrentRequest.getTakePictureRequest()
                     .markFormatProcessStatusInSimultaneousCapture(
                             imageProxy.getFormat(), true);
         }
-        boolean isProcessed = !isSimultaneousCaptureEnabled
-                || (isSimultaneousCaptureEnabled && mCurrentRequest.getTakePictureRequest()
-                .isFormatProcessedInSimultaneousCapture());
+        boolean isProcessed =
+                !isSimultaneousCaptureEnabled || (mCurrentRequest != null
+                        && mCurrentRequest.getTakePictureRequest()
+                        .isFormatProcessedInSimultaneousCapture());
         if (isProcessed) {
             mCurrentRequest = null;
         }

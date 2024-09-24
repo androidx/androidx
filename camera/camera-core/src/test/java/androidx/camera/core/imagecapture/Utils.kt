@@ -117,7 +117,8 @@ object Utils {
         cropRect: Rect,
         sensorToBufferTransform: Matrix,
         rotationDegrees: Int,
-        jpegQuality: Int
+        jpegQuality: Int,
+        isSimultaneousCapture: Boolean = false
     ): TakePictureRequest {
         var onDiskCallback: ImageCapture.OnImageSavedCallback? = null
         var onMemoryCallback: ImageCapture.OnImageCapturedCallback? = null
@@ -137,6 +138,7 @@ object Utils {
             rotationDegrees,
             jpegQuality,
             ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
+            isSimultaneousCapture,
             listOf()
         )
     }
