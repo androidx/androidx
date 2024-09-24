@@ -57,7 +57,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
         node: UCallExpression,
         method: PsiMethod
     ) {
-        val receiver = node.receiver?.getExpressionType()?.canonicalText ?: return
+        val receiver = node.receiver?.getExpressionType()?.canonicalText
         // get the destination Type
         val kClazzType =
             when {

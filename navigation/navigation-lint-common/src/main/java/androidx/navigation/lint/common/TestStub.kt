@@ -410,6 +410,72 @@ FM7DXUZGIaVQUSgq5OnWFY4oHP0JmQ7w4mgGAAA=
 """
     )
 
+val NAV_DEEP_LINK =
+    bytecodeStub(
+        "NavDeeplink.kt",
+        "androidx/navigation",
+        0x73e1868d,
+        """
+package androidx.navigation
+
+class NavDeepLink {
+    class Builder {
+        inline fun <reified T : Any> setUriPattern() {}
+    }
+}
+
+inline fun <reified T : Any> navDeepLink(): NavDeepLink = NavDeepLink()
+""",
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg8uESTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIK8AIFXFJTC3Iy87KBXE4g
+                1yO/uMS7hEuSizs5P1cvtSIxtyAnVYgLpMoHrEqJQYsBAHVeaUuBAAAA
+                """,
+        """
+                androidx/navigation/NavDeepLink＄Builder.class:
+                H4sIAAAAAAAA/41RTW/TQBB9u86nm7ZOoJCUj0IJlPaA0woJiZYiWoRwFQqi
+                IZecNvEStknWyN5EPebED+EfcELigKIe+VGIWTcXegEfZt58vDc7nl+/f/wE
+                8BgbDBtCh3GkwjNfi4nqC6Mi7R+LyUspPzeVHtQPxmoYyjgPxuCdionwh0L3
+                /bfdU9kzeTgMuT2lldlncB5utkvIIucigzxDxnxSCcNm8z9n7DIsJtJ8iNU7
+                YYyMNUNtr/W0eXnq7j4NYqjUVf1j/RKBBQzl5iAyQ6X9N9KIUBhBwnw0cWhn
+                Zk3RGlDvgPJnykYNQuE2w/PZtOLyKne5N5u6vGABd2fT6my6wxvsIHv+NUeZ
+                oxXPWeWNzLpbmE29bJVtUfH1+ZeCldlhqXiLYe0fi+dxkyE/355haV6ipw8e
+                DQz9wMMolAzL1CuPx6OujFuiO6RMpRn1xLAtYmXjebJ4ovpamHFMuBRoLePD
+                oUgSSSdwT6Jx3JOvlO2rvR9ro0ayrRJFxBdaRyZ9WoJtcDqd/TitQJcke4ci
+                3y5EPrv1HYVvafku2dxFEutkS3NchAt4ZSxQlafkJ1Th5B1n728qJ2up1wjZ
+                eYtYSkWcCxHcS7tLFNcJuSnjFm6jhvtpZQ0PyD+j/DIN9jpwApQDVAJcwVWC
+                WAlI+3oHLEEVtQ5yCdwEq4kFCym48QehdXScDAMAAA==
+                """,
+        """
+                androidx/navigation/NavDeepLink.class:
+                H4sIAAAAAAAA/4VQTU/bQBB9s05sYlwItIXQLz5UCdpDHVAlJIqQgKqSpZRK
+                Lcolp028oouddeXdRBzzW/oPeqrUQxX1yI9CHYfcubyZ9/bN6s3c3v35C+A9
+                tgmb0qRlodOb2MixvpJOFya+kOOPSv3oaJMFIELzWo5lnEtzFX/pX6uBC+AR
+                /GNttDsheHtvuhHq8EPUEBBq7ru2hO3OA39/IKx0ssLl2sSflZOpdJI1MRx7
+                HI8qaFQAAmWs3+iKtblL9wk700kUipYIRXM6CcWCaE0nB6JNR+Sd1f/99EVT
+                VM4DquaDs5HOU1USdh8I9XruDNAiLM0fOGH2LnO82nmRKsIyO9XFaNhX5aXs
+                56ysdoqBzLuy1BWfi1FijCrPc2mt4oOE34pROVCfdPW28XVknB6qrraazafG
+                FG4WxmIfgg85X7y6K+NzZvGMA/W3v7HwixuBF4z+TKzhJWN0b0ADIVcPrxhD
+                1jbYu864OZt6hi2uh6wvsjfqwUvwKMFSgmU0ucVKglU87oEsnuBpDzWL0GLN
+                wrdY/w9v8crnPwIAAA==
+                """,
+        """
+                androidx/navigation/NavDeeplinkKt.class:
+                H4sIAAAAAAAA/41SW2sTQRT+zmyayza222o1qZfaNpVWxE1FEE0piCIubivY
+                EJA8TbLbME0yK7uT0Mc8+Xt8ExQk+OiPEs+sPqgP2oc5851zvnOd+fb90xcA
+                D3GHsCl1lCYqOve1nKqBNCrR/rGcPo/jdyOlh69MCUTwzuRU+iOpB/7r3lnc
+                Z6tDWNQ/iSETCdu7e+E/sllSi/D4oP0k/Dtb6/BCsRv/oZRQJhQPlFbmkODs
+                7nWqcLHoooIqz9BQjdPGHy1TQFgJh4nhUf2j2MhIGsmFxHjq8IbIiooVYO7Q
+                AsHOc2VRk1G0T7g3n1Xd+cwVNZFf3ny2vmaFaNKWW57PPFGju6LpvPz6vmxj
+                HvDWLzAstcmWXfrtMe4PDaHwLIliwjLT4uPJuBenbdkbsWU1TPpy1JGpsvov
+                Y+VEDbQ0k5Sxe5JM0n78QllH/c1EGzWOOypTzHyqdWLyNjLsQ6CAfGqvjgUU
+                Wb+dfxjBDQGu0/qMytuPuPTBbgSbLIvsEbzsLcbVHJexhGXWtnNOiU8jRxvY
+                4fsRczzOvdKFE2A1wOUAV7AW4CquBaih3gVlWMf1LgoZFjLcyHAzw60fGWE6
+                NbwCAAA=
+                """
+    )
+
 val TEST_NAV_HOST =
     bytecodeStub(
         "TestNavHost.kt",

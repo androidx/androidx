@@ -29,7 +29,7 @@ import com.android.tools.lint.detector.api.Issue
  */
 class TypeSafeDestinationMissingAnnotationDetector :
     BaseTypeSafeDestinationMissingAnnotationDetector(
-        methodNames = listOf("navigation", "deepLink"),
+        methodNames = listOf("navigation", "deepLink", "setUriPattern", "navDeepLink"),
         constructorNames =
             listOf(
                 "androidx.navigation.NavDestinationBuilder",

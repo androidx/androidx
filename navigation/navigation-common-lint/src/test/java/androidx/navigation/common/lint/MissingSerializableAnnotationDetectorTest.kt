@@ -18,6 +18,7 @@ package androidx.navigation.common.lint
 
 import androidx.navigation.lint.common.K_SERIALIZER
 import androidx.navigation.lint.common.NAVIGATION_STUBS
+import androidx.navigation.lint.common.NAV_DEEP_LINK
 import androidx.navigation.lint.common.SERIALIZABLE_ANNOTATION
 import androidx.navigation.lint.common.SERIALIZABLE_TEST_CLASS
 import androidx.navigation.lint.common.TEST_CLASS
@@ -572,6 +573,127 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
             .expect(
                 """
 src/com/example/TestClass.kt:7: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+class DeepLink
+      ~~~~~~~~
+1 errors, 0 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testDeeplinkBuilderSetUriPattern_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.Serializable
+
+                @Serializable class DeepLink
+
+                fun navigation() {
+                    val builder = NavDeepLink.Builder()
+                    builder.setUriPattern<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testDeeplinkBuilderSetUriPattern_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+
+                class DeepLink
+
+                fun navigation() {
+                    val builder = NavDeepLink.Builder()
+                    builder.setUriPattern<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expect(
+                """
+src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+class DeepLink
+      ~~~~~~~~
+1 errors, 0 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testNavDeepLink_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.Serializable
+
+                @Serializable class DeepLink
+
+                fun navigation() {
+                    navDeepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testNavDeepLink_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+
+                class DeepLink
+
+                fun navigation() {
+                    navDeepLink<DeepLink>()
+
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expect(
+                """
+src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
 class DeepLink
       ~~~~~~~~
 1 errors, 0 warnings
