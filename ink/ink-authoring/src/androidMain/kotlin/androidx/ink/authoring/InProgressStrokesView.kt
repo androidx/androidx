@@ -75,8 +75,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * This must be set to its desired value before the first call to [startStroke] or [eagerInit].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
     public var useHighLatencyRenderHelper: Boolean = false
 
@@ -89,8 +89,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * This must be set to its desired value before the first call to [startStroke] or [eagerInit].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @Deprecated("Prefer to allow the underlying implementation details to be chosen automatically.")
     public var useNewTPlusRenderHelper: Boolean = false
 
@@ -104,8 +104,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * If handoff is ever needed as soon as safely possible, call [requestHandoff].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public var handoffDebounceTimeMs: Long = 0L
         @UiThread
         set(value) {
@@ -130,13 +130,13 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      */
     // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
     // like it on the getter so suppress its complaint.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalInkCustomBrushApi
     @get:ExperimentalInkCustomBrushApi
     @set:ExperimentalInkCustomBrushApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public var textureBitmapStore: TextureBitmapStore = TextureBitmapStore { null }
         set(value) {
             check(!isInitialized()) { "Cannot set textureBitmapStore after initialization." }
@@ -224,15 +224,15 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * minimize the amount of computation in this callback, and should also avoid allocations (since
      * allocation may trigger the garbage collector).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
     // like it on the getter so suppress its complaint.
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalLatencyDataApi
     @get:ExperimentalLatencyDataApi
     @set:ExperimentalLatencyDataApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public var latencyDataCallback: LatencyDataCallback? = null
 
     private val renderHelperCallback =

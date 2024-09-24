@@ -24,7 +24,7 @@ import kotlin.annotation.Target
  * Use this to annotate methods, fields, and types that are referenced by name from native code to
  * prevent them from being removed as unused.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @MustBeDocumented
 @Target(
     AnnotationTarget.FUNCTION,

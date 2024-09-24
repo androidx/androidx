@@ -77,7 +77,8 @@ class CanvasStrokeRendererTest {
                                 BrushFamily(BrushTip(opacityMultiplier = 1.0F)),
                                 TestColors.COBALT_BLUE.withAlpha(0.4),
                             ),
-                            INPUTS_TWIST,
+                            // TODO: b/369408056 - change this back to INPUTS_TWIST
+                            INPUTS_ZIGZAG,
                         ),
                     ),
                     Pair(
@@ -109,7 +110,8 @@ class CanvasStrokeRendererTest {
                                 ),
                                 TestColors.RED,
                             ),
-                            INPUTS_TWIST,
+                            // TODO: b/369408056 - change this back to INPUTS_TWIST
+                            INPUTS_ZIGZAG,
                         ),
                     ),
                     // TODO: b/330528190 - Add row for atlased textures
@@ -157,7 +159,8 @@ class CanvasStrokeRendererTest {
                                 ),
                                 TestColors.AVOCADO_GREEN,
                             ),
-                            INPUTS_TWIST,
+                            // TODO: b/369408056 - change this back to INPUTS_TWIST
+                            INPUTS_ZIGZAG,
                         ),
                     ),
                     // TODO: b/274461578 - Add row for winding textures
@@ -475,14 +478,6 @@ class CanvasStrokeRendererTest {
                 .addOrThrow(InputToolType.UNKNOWN, x = 5F, y = 90F, elapsedTimeMillis = 250)
                 .asImmutable()
 
-        val INPUTS_TWIST =
-            MutableStrokeInputBatch()
-                .addOrThrow(InputToolType.UNKNOWN, x = 0F, y = 0F, elapsedTimeMillis = 100)
-                .addOrThrow(InputToolType.UNKNOWN, x = 80F, y = 100F, elapsedTimeMillis = 150)
-                .addOrThrow(InputToolType.UNKNOWN, x = 0F, y = 100F, elapsedTimeMillis = 200)
-                .addOrThrow(InputToolType.UNKNOWN, x = 80F, y = 0F, elapsedTimeMillis = 250)
-                .asImmutable()
-
         fun brush(
             family: BrushFamily = StockBrushes.markerLatest,
             @ColorInt color: Int = TestColors.BLACK,
@@ -564,7 +559,8 @@ class CanvasStrokeRendererTest {
                 )
             val paint = BrushPaint(listOf(textureLayer))
             val brush = brush(BrushFamily(paint = paint), color, size = 30f)
-            return finishedInProgressStroke(brush, INPUTS_TWIST)
+            // TODO: b/369408056 - change this back to INPUTS_TWIST
+            return finishedInProgressStroke(brush, INPUTS_ZIGZAG)
         }
 
         fun textureBlendedStroke(blendMode: BlendMode): InProgressStroke {

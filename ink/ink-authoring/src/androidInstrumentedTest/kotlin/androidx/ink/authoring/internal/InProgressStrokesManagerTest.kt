@@ -300,10 +300,10 @@ internal class InProgressStrokesManagerTest {
                         osDetectsEvent = 321_000_000
                         // The clock ticked once to record this time.
                         strokesViewGetsAction = 777_001
+                        // And twice more for this one.
+                        canvasFrontBufferStrokesRenderHelperData.finishesDrawCalls = 777_003
                         // And once more for this one.
-                        canvasFrontBufferStrokesRenderHelperData.finishesDrawCalls = 777_002
-                        // And once more for this one.
-                        estimatedPixelPresentationTime = 777_003
+                        estimatedPixelPresentationTime = 777_004
                     }
                 )
             )
@@ -815,11 +815,11 @@ internal class InProgressStrokesManagerTest {
                         osDetectsEvent = 333_000_000
                         // The clock ticked once to get this time.
                         strokesViewGetsAction = 334_000_001
-                        // And twice for this one - once on the UI thread and once on the render
+                        // And thrice for this one - twice on the UI thread and once on the render
                         // thread.
-                        canvasFrontBufferStrokesRenderHelperData.finishesDrawCalls = 334_000_003
-                        // And once more for this one.
-                        estimatedPixelPresentationTime = 334_000_004
+                        canvasFrontBufferStrokesRenderHelperData.finishesDrawCalls = 334_000_004
+                        // And once more to get the estimated time.
+                        estimatedPixelPresentationTime = 334_000_005
                     }
                 )
             )

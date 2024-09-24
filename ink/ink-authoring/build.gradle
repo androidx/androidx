@@ -32,6 +32,7 @@ androidXMultiplatform {
     androidMain {
       dependencies {
         implementation("androidx.collection:collection:1.4.3")
+        implementation("androidx.graphics:graphics-core:1.0.0")
         implementation("androidx.fragment:fragment-ktx:1.3.0")
         implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
         implementation(project(":core:core"))
@@ -41,7 +42,6 @@ androidXMultiplatform {
         implementation(project(":ink:ink-brush"))
         implementation(project(":ink:ink-strokes"))
         implementation(project(":ink:ink-rendering"))
-        implementation(project(":graphics:graphics-core"))
       }
     }
 

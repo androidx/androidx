@@ -933,16 +933,10 @@ internal class InProgressStrokesManager(
                     it,
                 )
             }
-            // TODO: b/287041801 - Don't necessarily always immediately [updateShape] after
-            // [enqueueInputs].
-            updateShape(getNanoTime() / 1_000_000L - strokeState.startEventTimeMillis).onFailure {
-                // TODO(b/306361370): Throw here once input is more sanitized.
-                Log.w(
-                    InProgressStrokesManager::class.simpleName,
-                    "Error during InProgressStroke.updateShape",
-                    it,
-                )
-            }
+            // Rather than updating the shape immediately, we enqueue the inputs and wait to update
+            // the
+            // shape until we have handled all the inputs in threadSharedState.inputActions. This is
+            // being done to reduce that amount of updateShape calls.
         }
         action.realInputs.clear()
         action.predictedInputs.clear()
@@ -985,8 +979,8 @@ internal class InProgressStrokesManager(
                         it,
                     )
                 }
-            // TODO: b/287041801 - Don't necessarily always immediately [updateShape] after
-            // [enqueueInputs].
+            // We update the finished stroke immediately after enqueueing because we know we are not
+            // going to be receiving any other inputs.
             strokeState.inProgressStroke
                 .updateShape(getNanoTime() / 1_000_000L - strokeState.startEventTimeMillis)
                 .onFailure {
@@ -1210,7 +1204,22 @@ internal class InProgressStrokesManager(
             handleAction(nextInputAction)
             renderThreadState.handledActions.add(nextInputAction)
         }
-
+        val nowMillis = getNanoTime() / 1_000_000L
+        for (strokeState in renderThreadState.toDrawStrokes.values) {
+            val inProgressStroke = strokeState.inProgressStroke
+            if (inProgressStroke.getNeedsUpdate()) {
+                inProgressStroke
+                    .updateShape(nowMillis - strokeState.startEventTimeMillis)
+                    .onFailure {
+                        // TODO(b/306361370): Throw here once input is more sanitized.
+                        Log.w(
+                            InProgressStrokesManager::class.simpleName,
+                            "Error during InProgressStroke.updateShape after handleAction",
+                            it,
+                        )
+                    }
+            }
+        }
         if (inProgressStrokesRenderHelper.contentsPreservedBetweenDraws) {
             // The updated region for each stroke must be drawn into for all strokes, not just
             // itself, to
