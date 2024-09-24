@@ -55,6 +55,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -129,6 +130,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -141,7 +143,6 @@ import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1849,6 +1850,66 @@ class ScrollableTest {
     }
 
     @Test
+    fun scrollable_nestedFling_parentShouldFlingWithVelocityLeft_whenInnerDisappears() {
+        var postFlingCalled = false
+        var postFlingAvailableVelocity = Velocity.Zero
+        var postFlingConsumedVelocity = Velocity.Zero
+        var flingDelta by mutableFloatStateOf(0.0f)
+        var preFlingVelocity = Velocity.Zero
+
+        val topConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    // accumulate deltas for second fling only
+                    if (source == NestedScrollSource.SideEffect) {
+                        flingDelta += available.y
+                    }
+                    return super.onPreScroll(available, source)
+                }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    preFlingVelocity = available
+                    return super.onPreFling(available)
+                }
+
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity
+                ): Velocity {
+                    postFlingCalled = true
+                    postFlingAvailableVelocity = available
+                    postFlingConsumedVelocity = consumed
+                    return super.onPostFling(consumed, available)
+                }
+            }
+
+        val columnState = ScrollState(with(rule.density) { (50 * 200.dp).roundToPx() })
+
+        rule.setContent {
+            Box(Modifier.nestedScroll(topConnection)) {
+                if (flingDelta.absoluteValue < 100) {
+                    Column(Modifier.testTag("column").verticalScroll(columnState)) {
+                        repeat(100) { Box(Modifier.size(200.dp)) }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("column").performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        // removed scrollable
+        rule.onNodeWithTag("column").assertDoesNotExist()
+        rule.runOnIdle {
+            // we fired a post fling call after the disappearance
+            assertThat(postFlingCalled).isTrue()
+
+            // fling velocity in onPostFling is correctly propagated
+            assertThat(postFlingConsumedVelocity + postFlingAvailableVelocity)
+                .isEqualTo(preFlingVelocity)
+        }
+    }
+
+    @Test
     fun scrollable_bothOrientations_proxiesPostFling() {
         val velocityFlung = 5000f
         val outerState = ScrollableState(consumeScrollDelta = { 0f })
@@ -2518,77 +2579,6 @@ class ScrollableTest {
             assertThat(middleDelta).isEqualTo(0)
             assertThat(outerDelta).isEqualTo(innerDelta / 2f)
         }
-    }
-
-    @Test
-    @Ignore("b/175010956") // re-enable when we come back to fling continuation fix
-    fun nestedScrollable_shouldImmediateScrollIfChildIsFlinging() {
-        var innerDelta = 0f
-        var middleDelta = 0f
-        var outerDelta = 0f
-        var touchSlop = 0f
-
-        val outerStateController = ScrollableState {
-            outerDelta += it
-            0f
-        }
-
-        val middleController = ScrollableState {
-            middleDelta += it
-            0f
-        }
-
-        val innerController = ScrollableState {
-            innerDelta += it
-            it / 2f
-        }
-
-        rule.setContentAndGetScope {
-            touchSlop = LocalViewConfiguration.current.touchSlop
-            Box(
-                modifier =
-                    Modifier.testTag("outerScrollable")
-                        .size(600.dp)
-                        .background(Color.Red)
-                        .scrollable(outerStateController, orientation = Orientation.Vertical),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                Box(
-                    modifier =
-                        Modifier.testTag("middleScrollable")
-                            .size(300.dp)
-                            .background(Color.Blue)
-                            .scrollable(middleController, orientation = Orientation.Vertical),
-                    contentAlignment = Alignment.BottomStart
-                ) {
-                    Box(
-                        modifier =
-                            Modifier.testTag("innerScrollable")
-                                .size(50.dp)
-                                .background(Color.Yellow)
-                                .scrollable(innerController, orientation = Orientation.Vertical)
-                    )
-                }
-            }
-        }
-
-        rule.mainClock.autoAdvance = false
-        rule.onNodeWithTag("innerScrollable").performTouchInput { swipeUp() }
-
-        rule.mainClock.advanceTimeByFrame()
-        rule.mainClock.advanceTimeByFrame()
-
-        val previousOuter = outerDelta
-
-        rule.onNodeWithTag("outerScrollable").performTouchInput {
-            down(topCenter)
-            // Move less than touch slop, should start immediately
-            moveBy(Offset(0f, touchSlop / 2))
-        }
-
-        rule.mainClock.autoAdvance = true
-
-        rule.runOnIdle { assertThat(outerDelta).isEqualTo(previousOuter + touchSlop / 2) }
     }
 
     @Test

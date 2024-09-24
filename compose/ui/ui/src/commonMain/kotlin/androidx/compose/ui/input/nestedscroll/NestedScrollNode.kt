@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.findNearestAncestor
+import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 
@@ -48,6 +49,8 @@ internal class NestedScrollNode(
     init {
         resolvedDispatcher = dispatcher ?: NestedScrollDispatcher() // Resolve null dispatcher
     }
+
+    internal var lastKnownValidParentNode: NestedScrollNode? = null
 
     internal val parentNestedScrollNode: NestedScrollNode?
         get() = if (isAttached) findNearestAncestor() else null
@@ -94,11 +97,12 @@ internal class NestedScrollNode(
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-
         val selfConsumed = connection.onPostFling(consumed, available)
+        // if we receive an onPostFling after detaching this node, use the last known parent
+        // if this parent is also detached it will send the signal through the detached parents
+        val parent = if (isAttached) parentConnection else lastKnownValidParentNode
         val parentConsumed =
-            parentConnection?.onPostFling(consumed + selfConsumed, available - selfConsumed)
-                ?: Velocity.Zero
+            parent?.onPostFling(consumed + selfConsumed, available - selfConsumed) ?: Velocity.Zero
         return selfConsumed + parentConsumed
     }
 
@@ -128,6 +132,9 @@ internal class NestedScrollNode(
     }
 
     override fun onDetach() {
+        // cache parent for detached clean up access in the dispatcher and in this node.
+        lastKnownValidParentNode = findNearestAttachedAncestor()
+        resolvedDispatcher.lastKnownValidParentNode = lastKnownValidParentNode
         resetDispatcherFields()
     }
 
@@ -137,6 +144,9 @@ internal class NestedScrollNode(
      */
     private fun updateDispatcherFields() {
         resolvedDispatcher.nestedScrollNode = this
+        // reset lastKnownValidParentNodes
+        resolvedDispatcher.lastKnownValidParentNode = null
+        lastKnownValidParentNode = null
         resolvedDispatcher.calculateNestedScrollScope = { nestedCoroutineScope }
         resolvedDispatcher.scope = coroutineScope
     }
@@ -154,4 +164,17 @@ internal class NestedScrollNode(
         this.connection = connection
         updateDispatcher(dispatcher)
     }
+}
+
+private fun <T : TraversableNode> T.findNearestAttachedAncestor(): T? {
+    var node: T? = null
+    traverseAncestors {
+        if (it.node.isAttached) {
+            node = it
+            false
+        } else {
+            true
+        }
+    }
+    return node
 }

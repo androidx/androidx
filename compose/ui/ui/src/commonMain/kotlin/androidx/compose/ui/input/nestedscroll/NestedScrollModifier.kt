@@ -106,6 +106,9 @@ class NestedScrollDispatcher {
 
     internal var nestedScrollNode: NestedScrollNode? = null
 
+    // caches last known parent for fling clean up use.
+    internal var lastKnownValidParentNode: NestedScrollNode? = null
+
     // lambda to calculate the most outer nested scroll scope for this dispatcher on demand
     internal var calculateNestedScrollScope: () -> CoroutineScope? = { scope }
 
@@ -142,7 +145,9 @@ class NestedScrollDispatcher {
 
     /**
      * Parent to be set when attached to nested scrolling chain. `null` is valid and means there no
-     * nested scrolling parent above
+     * nested scrolling parent above. The last known attached parent might be used in case this
+     * dispatcher is not attached to any node, that is [nestedScrollNode?.parentNestedScrollNode] is
+     * null.
      */
     internal val parent: NestedScrollConnection?
         get() = nestedScrollNode?.parentNestedScrollNode
@@ -204,7 +209,17 @@ class NestedScrollDispatcher {
      * @return velocity that has been consumed by all the ancestors
      */
     suspend fun dispatchPostFling(consumed: Velocity, available: Velocity): Velocity {
-        return parent?.onPostFling(consumed, available) ?: Velocity.Zero
+        // lastKnownValidParentNode can be used to send clean up signals.
+        // If this dispatcher's regular parent is not present it means either it never attached or
+        // it was detached. If it was detached we have information about its last known parent so
+        // we use it to send the post fling signal. We don't need to do the same for the other
+        // methods because the problem with parity in this API comes from a node that detaches
+        // during a fling.
+        return if (parent == null) {
+            lastKnownValidParentNode?.onPostFling(consumed, available) ?: Velocity.Zero
+        } else {
+            parent?.onPostFling(consumed, available) ?: Velocity.Zero
+        }
     }
 }
 
