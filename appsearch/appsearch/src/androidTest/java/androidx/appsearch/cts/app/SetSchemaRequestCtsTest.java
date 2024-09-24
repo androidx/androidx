@@ -33,11 +33,16 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.collection.ArrayMap;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -49,6 +54,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class SetSchemaRequestCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testBuildSetSchemaRequest() {
         AppSearchSchema.StringPropertyConfig prop1 =
@@ -105,66 +113,9 @@ public class SetSchemaRequestCtsTest {
         AppSearchSchema schema3 =
                 new AppSearchSchema.Builder("type3").addProperty(requiredProp).build();
 
-        Migrator expectedMigrator1 = new Migrator() {
-            @Override
-            public boolean shouldMigrate(int currentVersion, int finalVersion) {
-                return true;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-        };
-        Migrator expectedMigrator2 = new Migrator() {
-            @Override
-            public boolean shouldMigrate(int currentVersion, int finalVersion) {
-                return true;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-        };
-        Migrator expectedMigrator3 = new Migrator() {
-            @Override
-            public boolean shouldMigrate(int currentVersion, int finalVersion) {
-                return true;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onUpgrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-
-            @NonNull
-            @Override
-            public GenericDocument onDowngrade(int currentVersion, int finalVersion,
-                    @NonNull GenericDocument document) {
-                return document;
-            }
-        };
+        Migrator expectedMigrator1 = new NoOpMigrator();
+        Migrator expectedMigrator2 = new NoOpMigrator();
+        Migrator expectedMigrator3 = new NoOpMigrator();
         Map<String, Migrator> migratorMap = new ArrayMap<>();
         migratorMap.put("type1", expectedMigrator1);
         migratorMap.put("type2", expectedMigrator2);
@@ -1142,6 +1093,164 @@ public class SetSchemaRequestCtsTest {
         assertThat(properties).hasSize(1);
         assertThat(((AppSearchSchema.StringPropertyConfig) properties.get(0)).getTokenizerType())
                 .isEqualTo(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_RFC822);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testSetSchemaRequestBuilder_copyConstructor() {
+        AppSearchSchema.StringPropertyConfig prop1 =
+                new AppSearchSchema.StringPropertyConfig.Builder("prop1")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build();
+        AppSearchSchema schema1 =
+                new AppSearchSchema.Builder("type1").addProperty(prop1).build();
+        AppSearchSchema schema2 =
+                new AppSearchSchema.Builder("type2").addProperty(prop1).build();
+        AppSearchSchema schema3 =
+                new AppSearchSchema.Builder("type3").addProperty(prop1).build();
+        AppSearchSchema schema4 =
+                new AppSearchSchema.Builder("type4").addProperty(prop1).build();
+
+        PackageIdentifier packageIdentifier =
+                new PackageIdentifier("com.package.foo", new byte[]{100});
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1, schema2)
+                .addSchemas(Arrays.asList(schema3, schema4))
+                .setSchemaTypeDisplayedBySystem("type2", /*displayed=*/ false)
+                .setSchemaTypeVisibilityForPackage("type1", /*visible=*/ true,
+                        packageIdentifier)
+                .addRequiredPermissionsForSchemaTypeVisibility("type3",
+                        Collections.singleton(SetSchemaRequest.READ_CONTACTS))
+                .setPubliclyVisibleSchema("type4", packageIdentifier)
+                .addSchemaTypeVisibleToConfig("type1", new SchemaVisibilityConfig.Builder().build())
+                .setMigrator("type2", new NoOpMigrator())
+                .setForceOverride(true)
+                .setVersion(142857)
+                .build();
+
+        SetSchemaRequest requestCopy = new SetSchemaRequest.Builder(request).build();
+        assertThat(requestCopy.getSchemas()).isEqualTo(request.getSchemas());
+        assertThat(requestCopy.getSchemasNotDisplayedBySystem()).isEqualTo(
+                request.getSchemasNotDisplayedBySystem());
+        assertThat(requestCopy.getSchemasVisibleToPackages()).isEqualTo(
+                request.getSchemasVisibleToPackages());
+        assertThat(requestCopy.getRequiredPermissionsForSchemaTypeVisibility()).isEqualTo(
+                request.getRequiredPermissionsForSchemaTypeVisibility());
+        assertThat(requestCopy.getPubliclyVisibleSchemas()).isEqualTo(
+                request.getPubliclyVisibleSchemas());
+        assertThat(requestCopy.getSchemasVisibleToConfigs()).isEqualTo(
+                request.getSchemasVisibleToConfigs());
+        assertThat(requestCopy.getMigrators()).isEqualTo(request.getMigrators());
+        assertThat(requestCopy.getVersion()).isEqualTo(request.getVersion());
+        assertThat(requestCopy.isForceOverride()).isEqualTo(request.isForceOverride());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testSetSchemaRequestBuilder_copyConstructor_usesDeepCopies() {
+        // Previously, the copy constructor did not make deep copies of all fields, so modifying the
+        // builder could affect the request that the builder was created from
+        AppSearchSchema.StringPropertyConfig prop1 =
+                new AppSearchSchema.StringPropertyConfig.Builder("prop1")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build();
+        AppSearchSchema schema1 =
+                new AppSearchSchema.Builder("type1").addProperty(prop1).build();
+        AppSearchSchema schema2 =
+                new AppSearchSchema.Builder("type2").addProperty(prop1).build();
+        AppSearchSchema schema3 =
+                new AppSearchSchema.Builder("type3").addProperty(prop1).build();
+        AppSearchSchema schema4 =
+                new AppSearchSchema.Builder("type4").addProperty(prop1).build();
+
+        PackageIdentifier packageIdentifier =
+                new PackageIdentifier("com.package.foo", new byte[]{100});
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1, schema2, schema3, schema4)
+                .setSchemaTypeVisibilityForPackage("type1", /*visible=*/ true,
+                        packageIdentifier)
+                .addRequiredPermissionsForSchemaTypeVisibility("type3",
+                        Collections.singleton(SetSchemaRequest.READ_CONTACTS))
+                .addSchemaTypeVisibleToConfig("type1", new SchemaVisibilityConfig.Builder().build())
+                .build();
+
+        PackageIdentifier otherPackageIdentifier =
+                new PackageIdentifier("com.package.bar", new byte[]{100});
+
+        // Create a copy builder and modify the visibility settings
+        SetSchemaRequest.Builder unused = new SetSchemaRequest.Builder(request)
+                .setSchemaTypeVisibilityForPackage("type1", /*visible=*/ true,
+                        otherPackageIdentifier)
+                .addRequiredPermissionsForSchemaTypeVisibility("type3", Collections.singleton(
+                        SetSchemaRequest.READ_SMS))
+                .addSchemaTypeVisibleToConfig("type1",
+                        new SchemaVisibilityConfig.Builder().addAllowedPackage(
+                                otherPackageIdentifier).build());
+
+        // Validate that changing the copy builder did not affect the original request
+        assertThat(request.getSchemasVisibleToPackages()).containsExactly("type1",
+                Collections.singleton(packageIdentifier));
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly("type3",
+                Collections.singleton(Collections.singleton(SetSchemaRequest.READ_CONTACTS)));
+        assertThat(request.getSchemasVisibleToConfigs()).containsExactly("type1",
+                Collections.singleton(new SchemaVisibilityConfig.Builder().build()));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testSetSchemaRequestBuilder_clearSchemas() {
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("type1").build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("type2").build();
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1, schema2)
+                .clearSchemas()
+                .build();
+        assertThat(request.getSchemas()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testSetSchemaRequestBuilder_clearMigrators() {
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("type1").build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("type2").build();
+        Migrator migrator = new NoOpMigrator();
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1, schema2)
+                .setMigrator("type1", migrator)
+                .setMigrator("type2", migrator)
+                .clearMigrators()
+                .build();
+        assertThat(request.getMigrators()).isEmpty();
+    }
+
+    /** Migrator that does nothing. */
+    private static class NoOpMigrator extends Migrator {
+        @Override
+        public boolean shouldMigrate(int currentVersion, int finalVersion) {
+            return false;
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onUpgrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            return document;
+        }
+
+        @NonNull
+        @Override
+        public GenericDocument onDowngrade(int currentVersion, int finalVersion,
+                @NonNull GenericDocument document) {
+            return document;
+        }
     }
 
     // @exportToFramework:startStrip()

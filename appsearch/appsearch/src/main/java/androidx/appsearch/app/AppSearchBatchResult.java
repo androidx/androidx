@@ -19,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -130,6 +132,18 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         private ArrayMap<KeyType, AppSearchResult<ValueType>> mFailures = new ArrayMap<>();
         private ArrayMap<KeyType, AppSearchResult<ValueType>> mAll = new ArrayMap<>();
         private boolean mBuilt = false;
+
+        /** Creates a new {@link Builder}. */
+        public Builder() {
+        }
+
+        /** Creates a new {@link Builder} from the given {@link AppSearchBatchResult}. */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        public Builder(@NonNull AppSearchBatchResult<KeyType, ValueType> appSearchBatchResult) {
+            mSuccesses.putAll(appSearchBatchResult.mSuccesses);
+            mFailures.putAll(appSearchBatchResult.mFailures);
+            mAll.putAll(appSearchBatchResult.mAll);
+        }
 
         /**
          * Associates the {@code key} with the provided successful return value.

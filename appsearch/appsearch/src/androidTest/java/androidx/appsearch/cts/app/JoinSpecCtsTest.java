@@ -20,10 +20,17 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 public class JoinSpecCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Test
     public void testBuild() {
@@ -63,5 +70,36 @@ public class JoinSpecCtsTest {
                 .isEqualTo(empty.getFilterSchemas());
         assertThat(joinSpec.getNestedSearchSpec().getFilterNamespaces())
                 .isEqualTo(empty.getFilterNamespaces());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testJoinSpecBuilder_copyConstructor() {
+        SearchSpec originalNestedSearchSpec = new SearchSpec.Builder()
+                .addFilterSchemas("Action", "CallAction")
+                .build();
+        JoinSpec joinSpec = new JoinSpec.Builder("entityId")
+                .setMaxJoinedResultCount(5)
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setNestedSearch("joe", originalNestedSearchSpec)
+                .build();
+        JoinSpec joinSpecCopy = new JoinSpec.Builder(joinSpec).build();
+        assertThat(joinSpecCopy.getNestedQuery()).isEqualTo(joinSpec.getNestedQuery());
+        assertThat(joinSpecCopy.getNestedSearchSpec()).isEqualTo(joinSpec.getNestedSearchSpec());
+        assertThat(joinSpecCopy.getChildPropertyExpression()).isEqualTo(
+                joinSpec.getChildPropertyExpression());
+        assertThat(joinSpecCopy.getMaxJoinedResultCount()).isEqualTo(
+                joinSpec.getMaxJoinedResultCount());
+        assertThat(joinSpecCopy.getAggregationScoringStrategy()).isEqualTo(
+                joinSpec.getAggregationScoringStrategy());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testJoinSpecBuilder_setChildPropertyExpression() {
+        JoinSpec joinSpec = new JoinSpec.Builder("entityId")
+                .setChildPropertyExpression("entityId2")
+                .build();
+        assertThat(joinSpec.getChildPropertyExpression()).isEqualTo("entityId2");
     }
 }

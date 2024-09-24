@@ -51,7 +51,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -89,10 +88,10 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @Param(id = 2) @NonNull List<PropertyConfigParcel> propertyConfigParcels,
             @Param(id = 3) @NonNull List<String> parentTypes,
             @Param(id = 4) @NonNull String description) {
-        mSchemaType = Objects.requireNonNull(schemaType);
-        mPropertyConfigParcels = Objects.requireNonNull(propertyConfigParcels);
-        mParentTypes = Objects.requireNonNull(parentTypes);
-        mDescription = Objects.requireNonNull(description);
+        mSchemaType = Preconditions.checkNotNull(schemaType);
+        mPropertyConfigParcels = Preconditions.checkNotNull(propertyConfigParcels);
+        mParentTypes = Preconditions.checkNotNull(parentTypes);
+        mDescription = Preconditions.checkNotNull(description);
     }
 
     @Override
@@ -225,7 +224,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
 
     /** Builder for {@link AppSearchSchema objects}. */
     public static final class Builder {
-        private final String mSchemaType;
+        private String mSchemaType;
         private String mDescription = "";
         private ArrayList<PropertyConfigParcel> mPropertyConfigParcels = new ArrayList<>();
         private LinkedHashSet<String> mParentTypes = new LinkedHashSet<>();
@@ -235,6 +234,31 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Creates a new {@link AppSearchSchema.Builder}. */
         public Builder(@NonNull String schemaType) {
             mSchemaType = Preconditions.checkNotNull(schemaType);
+        }
+
+        /**
+         * Creates a new {@link AppSearchSchema.Builder} from the given {@link AppSearchSchema}.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        public Builder(@NonNull AppSearchSchema schema) {
+            mSchemaType = schema.getSchemaType();
+            mDescription = schema.getDescription();
+            mPropertyConfigParcels.addAll(schema.mPropertyConfigParcels);
+            mParentTypes.addAll(schema.mParentTypes);
+            for (int i = 0; i < mPropertyConfigParcels.size(); i++) {
+                mPropertyNames.add(mPropertyConfigParcels.get(i).getName());
+            }
+        }
+
+        /** Sets the schema type name. */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public AppSearchSchema.Builder setSchemaType(@NonNull String schemaType) {
+            Preconditions.checkNotNull(schemaType);
+            resetIfBuilt();
+            mSchemaType = schemaType;
+            return this;
         }
 
         /**
@@ -250,7 +274,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         @CanIgnoreReturnValue
         @NonNull
         public AppSearchSchema.Builder setDescription(@NonNull String description) {
-            Objects.requireNonNull(description);
+            Preconditions.checkNotNull(description);
             resetIfBuilt();
             mDescription = description;
             return this;
@@ -267,6 +291,19 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 throw new IllegalSchemaException("Property defined more than once: " + name);
             }
             mPropertyConfigParcels.add(propertyConfig.mPropertyConfigParcel);
+            return this;
+        }
+
+        /**
+         * Clears all properties from the given type.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public AppSearchSchema.Builder clearProperties() {
+            resetIfBuilt();
+            mPropertyConfigParcels.clear();
+            mPropertyNames.clear();
             return this;
         }
 
@@ -338,6 +375,18 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             Preconditions.checkNotNull(parentSchemaType);
             resetIfBuilt();
             mParentTypes.add(parentSchemaType);
+            return this;
+        }
+
+        /**
+         * Clears all parent types from the given type.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public AppSearchSchema.Builder clearParentTypes() {
+            resetIfBuilt();
+            mParentTypes.clear();
             return this;
         }
 
@@ -872,7 +921,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public StringPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1111,7 +1160,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public LongPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1211,7 +1260,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public DoublePropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1273,7 +1322,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public BooleanPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1335,7 +1384,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public BytesPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1459,7 +1508,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public DocumentPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 
@@ -1721,7 +1770,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             @NonNull
             public EmbeddingPropertyConfig.Builder setDescription(@NonNull String description) {
-                mDescription = Objects.requireNonNull(description);
+                mDescription = Preconditions.checkNotNull(description);
                 return this;
             }
 

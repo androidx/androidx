@@ -20,10 +20,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 public class AppSearchBatchResultCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testIsSuccess_true() {
         AppSearchBatchResult<String, Integer> result =
@@ -115,5 +123,24 @@ public class AppSearchBatchResultCtsTest {
                 "keyFailure3",
                 AppSearchResult.newFailedResult(
                         AppSearchResult.RESULT_INVALID_ARGUMENT, "message3"));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+    public void testAppSearchBatchResultBuilder_copyConstructor() {
+        AppSearchBatchResult<String, Integer> result =
+                new AppSearchBatchResult.Builder<String, Integer>()
+                        .setSuccess("keySuccess1", 1)
+                        .setSuccess("keySuccess2", 2)
+                        .setFailure(
+                                "keyFailure1", AppSearchResult.RESULT_UNKNOWN_ERROR, "message1")
+                        .setFailure(
+                                "keyFailure2", AppSearchResult.RESULT_INTERNAL_ERROR, "message2")
+                        .build();
+        AppSearchBatchResult<String, Integer> resultCopy = new AppSearchBatchResult.Builder<>(
+                result).build();
+        assertThat(resultCopy.getAll()).isEqualTo(result.getAll());
+        assertThat(resultCopy.getSuccesses()).isEqualTo(result.getSuccesses());
+        assertThat(resultCopy.getFailures()).isEqualTo(result.getFailures());
     }
 }

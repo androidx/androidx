@@ -282,7 +282,7 @@ public final class JoinSpec extends AbstractSafeParcelable {
 
         private String mNestedQuery = "";
         private SearchSpec mNestedSearchSpec = EMPTY_SEARCH_SPEC;
-        private final String mChildPropertyExpression;
+        private String mChildPropertyExpression;
         private int mMaxJoinedResultCount = DEFAULT_MAX_JOINED_RESULT_COUNT;
         @AggregationScoringStrategy
         private int mAggregationScoringStrategy =
@@ -291,7 +291,7 @@ public final class JoinSpec extends AbstractSafeParcelable {
         /**
          * Create a specification for the joining operation in search.
          *
-         * <p> The child property expressions Specifies how to join documents. Documents with
+         * <p> The child property expression specifies how to join documents. Documents with
          * a child property expression equal to the qualified id of the parent will be retrieved.
          *
          * <p> Property expressions differ from {@link PropertyPath} as property expressions may
@@ -317,8 +317,8 @@ public final class JoinSpec extends AbstractSafeParcelable {
             mChildPropertyExpression = childPropertyExpression;
         }
 
-        /** @exportToFramework:hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        /** Creates a new {@link Builder} from the given {@link JoinSpec}. */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
         public Builder(@NonNull JoinSpec joinSpec) {
             Preconditions.checkNotNull(joinSpec);
             mNestedQuery = joinSpec.getNestedQuery();
@@ -326,6 +326,33 @@ public final class JoinSpec extends AbstractSafeParcelable {
             mChildPropertyExpression = joinSpec.getChildPropertyExpression();
             mMaxJoinedResultCount = joinSpec.getMaxJoinedResultCount();
             mAggregationScoringStrategy = joinSpec.getAggregationScoringStrategy();
+        }
+
+        /**
+         * Sets the child property expression.
+         *
+         * <p> The child property expression specifies how to join documents. Documents with
+         * a child property expression equal to the qualified id of the parent will be retrieved.
+         *
+         * <p> Property expressions differ from {@link PropertyPath} as property expressions may
+         * refer to document properties or nested document properties such as "person.business.id"
+         * as well as a property expression. Currently the only property expression is
+         * "this.qualifiedId()". {@link PropertyPath} objects may only reference document properties
+         * and nested document properties.
+         *
+         * <p> In order to join a child document to a parent document, the child document must
+         * contain the parent's qualified id at the property expression specified by this
+         * method.
+         *
+         * @param childPropertyExpression the property to match in the child documents.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setChildPropertyExpression(@NonNull String childPropertyExpression) {
+            Preconditions.checkNotNull(childPropertyExpression);
+            mChildPropertyExpression = childPropertyExpression;
+            return this;
         }
 
         /**
@@ -356,7 +383,6 @@ public final class JoinSpec extends AbstractSafeParcelable {
             Preconditions.checkNotNull(nestedSearchSpec);
             mNestedQuery = nestedQuery;
             mNestedSearchSpec = nestedSearchSpec;
-
             return this;
         }
 
