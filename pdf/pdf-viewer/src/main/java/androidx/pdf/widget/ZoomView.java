@@ -692,6 +692,10 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         this.mMaxZoom = maxZoom;
     }
 
+    public boolean getIsInitialZoomDone() {
+        return mInitialZoomDone;
+    }
+
     public float getStableZoom() {
         return mStableZoom;
     }
