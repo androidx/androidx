@@ -27,33 +27,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
 /**
- * The state of a three pane scaffold. It serves as the [SeekableTransitionState] to manipulate the
- * [Transition] between [ThreePaneScaffoldValue]s.
+ * A read-only state of a three pane scaffold. It provides information about the [Transition]
+ * between [ThreePaneScaffoldValue]s.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-class ThreePaneScaffoldState
-internal constructor(
-    private val transitionState: SeekableTransitionState<ThreePaneScaffoldValue>,
-) {
-    /** Constructs a [ThreePaneScaffoldState] with an initial value of [initialScaffoldValue]. */
-    constructor(
-        initialScaffoldValue: ThreePaneScaffoldValue
-    ) : this(SeekableTransitionState(initialScaffoldValue))
-
+sealed class ThreePaneScaffoldState {
     /**
      * Current [ThreePaneScaffoldValue] state of the transition. If there is an active transition,
      * [currentState] and [targetState] are different.
      */
-    val currentState
-        get() = transitionState.currentState
+    abstract val currentState: ThreePaneScaffoldValue
 
     /**
      * Target [ThreePaneScaffoldValue] state of the transition. If this is the same as
      * [currentState], no transition is active.
      */
-    val targetState
-        get() = transitionState.targetState
+    abstract val targetState: ThreePaneScaffoldValue
 
     /**
      * The progress of the transition from [currentState] to [targetState] as a fraction of the
@@ -61,26 +51,47 @@ internal constructor(
      *
      * If [targetState] and [currentState] are the same, [progressFraction] will be 0.
      */
+    @get:FloatRange(from = 0.0, to = 1.0) abstract val progressFraction: Float
+
+    @Composable internal abstract fun rememberTransition(): Transition<ThreePaneScaffoldValue>
+}
+
+/**
+ * The seekable state of a three pane scaffold. It serves as the [SeekableTransitionState] to
+ * manipulate the [Transition] between [ThreePaneScaffoldValue]s.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Stable
+class MutableThreePaneScaffoldState(
+    initialScaffoldValue: ThreePaneScaffoldValue
+) : ThreePaneScaffoldState() {
+    private val transitionState = SeekableTransitionState(initialScaffoldValue)
+
+    override val currentState
+        get() = transitionState.currentState
+
+    override val targetState
+        get() = transitionState.targetState
+
     @get:FloatRange(from = 0.0, to = 1.0)
-    val progressFraction
+    override val progressFraction
         get() = transitionState.fraction
 
     private val mutatorMutex = MutatorMutex()
 
     /**
-     * Creates a [Transition] and puts it in the [currentState] of this [ThreePaneScaffoldState]. If
-     * [targetState] changes, the [Transition] will change where it will animate to.
-     *
-     * @param label The optional label for the transition.
+     * Creates a [Transition] and puts it in the [currentState] of this
+     * [MutableThreePaneScaffoldState]. If [targetState] changes, the [Transition] will change where
+     * it will animate to.
      */
     @Composable
-    internal fun rememberTransition(label: String? = null): Transition<ThreePaneScaffoldValue> =
-        rememberTransition(transitionState, label)
+    override fun rememberTransition(): Transition<ThreePaneScaffoldValue> =
+        rememberTransition(transitionState, label = "ThreePaneScaffoldState")
 
     /**
-     * Sets [currentState] and [targetState][ThreePaneScaffoldState.targetState] to [targetState]
-     * and snaps all values to those at that state. The transition will not have any animations
-     * running after running [snapTo].
+     * Sets [currentState] and [targetState][MutableThreePaneScaffoldState.targetState] to
+     * [targetState] and snaps all values to those at that state. The transition will not have any
+     * animations running after running [snapTo].
      *
      * @param targetState The [ThreePaneScaffoldValue] state to snap to.
      * @see SeekableTransitionState.snapTo
@@ -105,8 +116,8 @@ internal constructor(
     }
 
     /**
-     * Updates the current [targetState][ThreePaneScaffoldState.targetState] to [targetState] with
-     * an animation to the new state.
+     * Updates the current [targetState][MutableThreePaneScaffoldState.targetState] to [targetState]
+     * with an animation to the new state.
      *
      * @param targetState The [ThreePaneScaffoldValue] state to animate towards.
      * @param animationSpec If provided, is used to animate the animation fraction. If `null`, the

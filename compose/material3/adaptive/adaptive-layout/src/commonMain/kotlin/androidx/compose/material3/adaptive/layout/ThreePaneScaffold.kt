@@ -85,7 +85,7 @@ internal fun ThreePaneScaffold(
         null,
     primaryPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
 ) {
-    val scaffoldState = remember { ThreePaneScaffoldState(scaffoldValue) }
+    val scaffoldState = remember { MutableThreePaneScaffoldState(scaffoldValue) }
     LaunchedEffect(key1 = scaffoldValue) { scaffoldState.animateTo(scaffoldValue) }
     ThreePaneScaffold(
         modifier = modifier,

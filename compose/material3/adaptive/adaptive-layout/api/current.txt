@@ -55,6 +55,19 @@ package androidx.compose.material3.adaptive.layout {
     field public static final androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole INSTANCE;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public final class MutableThreePaneScaffoldState extends androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState {
+    ctor public MutableThreePaneScaffoldState(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue initialScaffoldValue);
+    method public suspend Object? animateTo(optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getCurrentState();
+    method @FloatRange(from=0.0, to=1.0) public float getProgressFraction();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getTargetState();
+    method public suspend Object? seekTo(@FloatRange(from=0.0, to=1.0) float fraction, optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? snapTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue currentState;
+    property @FloatRange(from=0.0, to=1.0) public float progressFraction;
+    property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedValue {
     field public static final androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion Companion;
   }
@@ -307,17 +320,13 @@ package androidx.compose.material3.adaptive.layout {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public final class ThreePaneScaffoldState {
-    ctor public ThreePaneScaffoldState(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue initialScaffoldValue);
-    method public suspend Object? animateTo(optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getCurrentState();
-    method @FloatRange(from=0.0, to=1.0) public float getProgressFraction();
-    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getTargetState();
-    method public suspend Object? seekTo(@FloatRange(from=0.0, to=1.0) float fraction, optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? snapTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue currentState;
-    property @FloatRange(from=0.0, to=1.0) public final float progressFraction;
-    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState;
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public abstract sealed class ThreePaneScaffoldState {
+    method public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getCurrentState();
+    method @FloatRange(from=0.0, to=1.0) public abstract float getProgressFraction();
+    method public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getTargetState();
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue currentState;
+    property @FloatRange(from=0.0, to=1.0) public abstract float progressFraction;
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue implements androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider androidx.compose.material3.adaptive.layout.PaneScaffoldValue<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole> {

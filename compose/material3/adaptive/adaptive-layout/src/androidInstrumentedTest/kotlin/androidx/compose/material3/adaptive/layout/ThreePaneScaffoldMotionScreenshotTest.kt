@@ -51,7 +51,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress0() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0f, MockTargetScaffoldValueSinglePane) }
         }
@@ -67,7 +67,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress10() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.1f, MockTargetScaffoldValueSinglePane) }
         }
@@ -83,7 +83,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress15() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.15f, MockTargetScaffoldValueSinglePane) }
         }
@@ -99,7 +99,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress20() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.2f, MockTargetScaffoldValueSinglePane) }
         }
@@ -115,7 +115,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress50() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.5f, MockTargetScaffoldValueSinglePane) }
         }
@@ -131,7 +131,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun singlePaneLayout_defaultPaneMotion_progress100() {
         rule.setContent {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueSinglePane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(1f, MockTargetScaffoldValueSinglePane) }
         }
@@ -147,7 +147,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress0() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0f, MockTargetScaffoldValuePaneSwitching) }
         }
@@ -163,7 +163,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress10() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) {
                 scaffoldState.seekTo(0.1f, MockTargetScaffoldValuePaneSwitching)
@@ -181,7 +181,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress15() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) {
                 scaffoldState.seekTo(0.15f, MockTargetScaffoldValuePaneSwitching)
@@ -199,7 +199,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress20() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) {
                 scaffoldState.seekTo(0.2f, MockTargetScaffoldValuePaneSwitching)
@@ -217,7 +217,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress50() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) {
                 scaffoldState.seekTo(0.5f, MockTargetScaffoldValuePaneSwitching)
@@ -235,7 +235,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneSwitching_progress100() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(1f, MockTargetScaffoldValuePaneSwitching) }
         }
@@ -251,7 +251,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress0() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0f, MockTargetScaffoldValuePaneShifting) }
         }
@@ -267,7 +267,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress10() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.1f, MockTargetScaffoldValuePaneShifting) }
         }
@@ -283,7 +283,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress15() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) {
                 scaffoldState.seekTo(0.15f, MockTargetScaffoldValuePaneShifting)
@@ -301,7 +301,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress20() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.2f, MockTargetScaffoldValuePaneShifting) }
         }
@@ -317,7 +317,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress50() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(0.5f, MockTargetScaffoldValuePaneShifting) }
         }
@@ -333,7 +333,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
     @Test
     fun dualPaneLayout_defaultPaneShifting_progress100() {
         rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
-            val scaffoldState = ThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
+            val scaffoldState = MutableThreePaneScaffoldState(MockOriginalScaffoldValueDualPane)
             SampleThreePaneScaffold(scaffoldState)
             LaunchedEffect(Unit) { scaffoldState.seekTo(1f, MockTargetScaffoldValuePaneShifting) }
         }
