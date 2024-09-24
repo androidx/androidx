@@ -20,6 +20,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricPrompt.CryptoObject
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -33,6 +34,13 @@ object BiometricTestUtils {
 
     /** The name of the Android keystore provider instance. */
     private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
+
+    /**
+     * Retrieve the operationHandle for a CryptoObject by converting it to the framework equivalent
+     * type.
+     */
+    internal fun getTestCryptoObjectOpId(cryptoObject: CryptoObject) =
+        CryptoObjectUtils.getOperationHandle(cryptoObject = cryptoObject)
 
     /**
      * Returns a [BiometricPrompt.CryptoObject] for crypto-based authentication. Adapted from:

@@ -104,7 +104,7 @@ public class CredentialManagerJavaTest {
     }
 
     @Test
-    public void testGetCredentialAsyc_successCallbackThrows() throws InterruptedException {
+    public void testGetCredentialAsync_successCallbackThrows() throws InterruptedException {
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }

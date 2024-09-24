@@ -34,6 +34,7 @@ import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import androidx.credentials.provider.PublicKeyCredentialEntry.Api28Impl.toSlice
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.toSlice
+import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
 
@@ -122,6 +123,15 @@ internal constructor(
     }
 
     /**
+     * A public key credential entry that is displayed on the account selector UI. This entry
+     * denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] is
+     * available for the user to select.
+     *
+     * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+     * can then show any activity they wish to. Before finishing the activity, provider must set the
+     * final [androidx.credentials.GetCredentialResponse] through the
+     * [PendingIntentHandler.setGetCredentialResponse] helper API.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -170,6 +180,15 @@ internal constructor(
     )
 
     /**
+     * A public key credential entry that is displayed on the account selector UI. This entry
+     * denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] is
+     * available for the user to select.
+     *
+     * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+     * can then show any activity they wish to. Before finishing the activity, provider must set the
+     * final [androidx.credentials.GetCredentialResponse] through the
+     * [PendingIntentHandler.setGetCredentialResponse] helper API.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -224,6 +243,15 @@ internal constructor(
     )
 
     /**
+     * A public key credential entry that is displayed on the account selector UI. This entry
+     * denotes that a credential of type [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] is
+     * available for the user to select.
+     *
+     * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+     * can then show any activity they wish to. Before finishing the activity, provider must set the
+     * final [androidx.credentials.GetCredentialResponse] through the
+     * [PendingIntentHandler.setGetCredentialResponse] helper API.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param username the username of the account holding the public key credential
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -314,7 +342,7 @@ internal constructor(
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
-                        biometricPromptData.cryptoObject.operationHandle,
+                        getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
                         listOf(SLICE_HINT_CRYPTO_OP_ID)
                     )
