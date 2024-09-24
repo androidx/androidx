@@ -2048,6 +2048,10 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeVideoData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
+        if (mInProgressRecordingStopping) {
+            return;
+        }
+
         if (mVideoTrackIndex == null) {
             // Throw an exception if the data comes before the track is added.
             throw new AssertionError(
@@ -2128,6 +2132,10 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeAudioData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
+        if (mInProgressRecordingStopping) {
+            return;
+        }
+
         long newRecordingBytes = mRecordingBytes + encodedData.size();
         if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
                 && newRecordingBytes > mFileSizeLimitInBytes) {
