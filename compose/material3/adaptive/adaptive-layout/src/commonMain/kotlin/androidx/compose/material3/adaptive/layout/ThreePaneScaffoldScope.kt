@@ -51,7 +51,7 @@ internal class ThreePaneScaffoldPaneScopeImpl(
     override val paneRole: ThreePaneScaffoldRole,
     scaffoldScope: ThreePaneScaffoldScope,
 ) : ThreePaneScaffoldPaneScope, ThreePaneScaffoldScope by scaffoldScope {
-    override var paneMotion: PaneMotion by mutableStateOf(DefaultPaneMotion.ExitToLeft)
+    override var paneMotion: PaneMotion by mutableStateOf(PaneMotion.ExitToLeft)
         private set
 
     fun updatePaneMotion(paneMotions: ThreePaneMotion) {

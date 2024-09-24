@@ -125,6 +125,30 @@ package androidx.compose.material3.adaptive.layout {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneMotion {
     method public androidx.compose.animation.EnterTransition getEnterTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionScope);
     method public androidx.compose.animation.ExitTransition getExitTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionScope);
+    field public static final androidx.compose.material3.adaptive.layout.PaneMotion.Companion Companion;
+  }
+
+  public static final class PaneMotion.Companion {
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getAnimateBounds();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getEnterFromLeft();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getEnterFromLeftDelayed();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getEnterFromRight();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getEnterFromRightDelayed();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getEnterWithExpand();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getExitToLeft();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getExitToRight();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getExitWithShrink();
+    method public androidx.compose.material3.adaptive.layout.PaneMotion getNoMotion();
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion AnimateBounds;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion EnterFromLeft;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion EnterFromLeftDelayed;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion EnterFromRight;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion EnterFromRightDelayed;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion EnterWithExpand;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion ExitToLeft;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion ExitToRight;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion ExitWithShrink;
+    property public final androidx.compose.material3.adaptive.layout.PaneMotion NoMotion;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class PaneMotionData {

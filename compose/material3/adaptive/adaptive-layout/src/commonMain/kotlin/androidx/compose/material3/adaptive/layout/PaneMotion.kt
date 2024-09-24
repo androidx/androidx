@@ -97,7 +97,7 @@ sealed interface PaneScaffoldMotionScope {
  */
 @ExperimentalMaterial3AdaptiveApi
 class PaneMotionData internal constructor() {
-    var motion: PaneMotion = DefaultPaneMotion.NoMotion
+    var motion: PaneMotion = PaneMotion.NoMotion
         internal set
 
     var currentSize: IntSize = IntSize.Zero
@@ -119,8 +119,8 @@ internal val PaneScaffoldMotionScope.slideInFromLeftOffset: Int
         // Find the right edge offset of the rightmost pane that enters from its left
         paneMotionDataList.fastForEachReversed {
             if (
-                it.motion == DefaultPaneMotion.EnterFromLeft ||
-                    it.motion == DefaultPaneMotion.EnterFromLeftDelayed
+                it.motion == PaneMotion.EnterFromLeft ||
+                    it.motion == PaneMotion.EnterFromLeftDelayed
             ) {
                 return -it.targetPosition.x - it.targetSize.width
             }
@@ -134,8 +134,8 @@ internal val PaneScaffoldMotionScope.slideInFromRightOffset: Int
         // Find the left edge offset of the leftmost pane that enters from its right
         paneMotionDataList.fastForEach {
             if (
-                it.motion == DefaultPaneMotion.EnterFromRight ||
-                    it.motion == DefaultPaneMotion.EnterFromRightDelayed
+                it.motion == PaneMotion.EnterFromRight ||
+                    it.motion == PaneMotion.EnterFromRightDelayed
             ) {
                 return scaffoldSize.width - it.targetPosition.x
             }
@@ -148,7 +148,7 @@ internal val PaneScaffoldMotionScope.slideOutToLeftOffset: Int
     get() {
         // Find the right edge offset of the rightmost pane that exits to its left
         paneMotionDataList.fastForEachReversed {
-            if (it.motion == DefaultPaneMotion.ExitToLeft) {
+            if (it.motion == PaneMotion.ExitToLeft) {
                 return -it.currentPosition.x - it.currentSize.width
             }
         }
@@ -160,7 +160,7 @@ internal val PaneScaffoldMotionScope.slideOutToRightOffset: Int
     get() {
         // Find the left edge offset of the leftmost pane that exits to its right
         paneMotionDataList.fastForEach {
-            if (it.motion == DefaultPaneMotion.ExitToRight) {
+            if (it.motion == PaneMotion.ExitToRight) {
                 return scaffoldSize.width - it.currentPosition.x
             }
         }
@@ -175,66 +175,116 @@ interface PaneMotion {
 
     /** The [ExitTransition] of a pane under the given [PaneScaffoldMotionScope] */
     val PaneScaffoldMotionScope.exitTransition: ExitTransition
-}
 
-@ExperimentalMaterial3AdaptiveApi
-@JvmInline
-internal value class DefaultPaneMotion private constructor(val value: Int) : PaneMotion {
-    companion object {
-        val NoMotion = DefaultPaneMotion(0)
-        val AnimateBounds = DefaultPaneMotion(1)
-        val EnterFromLeft = DefaultPaneMotion(2)
-        val EnterFromRight = DefaultPaneMotion(3)
-        val EnterFromLeftDelayed = DefaultPaneMotion(4)
-        val EnterFromRightDelayed = DefaultPaneMotion(5)
-        val ExitToLeft = DefaultPaneMotion(6)
-        val ExitToRight = DefaultPaneMotion(7)
-        val EnterWithExpand = DefaultPaneMotion(8)
-        val ExitWithShrink = DefaultPaneMotion(9)
+    private abstract class DefaultImpl(val name: String) : PaneMotion {
+        override val PaneScaffoldMotionScope.enterTransition
+            get() = EnterTransition.None
+
+        override val PaneScaffoldMotionScope.exitTransition
+            get() = ExitTransition.None
+
+        override fun toString() = name
     }
 
-    override val PaneScaffoldMotionScope.enterTransition: EnterTransition
-        get() =
-            when (this@DefaultPaneMotion) {
-                EnterFromLeft ->
-                    slideInHorizontally(positionAnimationSpec) { slideInFromLeftOffset }
-                EnterFromRight ->
-                    slideInHorizontally(positionAnimationSpec) { slideInFromRightOffset }
-                EnterFromLeftDelayed ->
-                    slideInHorizontally(delayedPositionAnimationSpec) { slideInFromLeftOffset }
-                EnterFromRightDelayed ->
-                    slideInHorizontally(delayedPositionAnimationSpec) { slideInFromRightOffset }
-                // TODO(conradche): Figure out how to expand with position change
-                EnterWithExpand ->
-                    expandHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
-                else -> EnterTransition.None
+    companion object {
+        /** The default pane motion that no animation will be performed. */
+        val NoMotion: PaneMotion = object : DefaultImpl("NoMotion") {}
+
+        /**
+         * The default pane motion that will animate panes bounds with the given animation specs
+         * during motion. Note that this should only be used when the associated pane is keeping
+         * showing during the motion.
+         */
+        val AnimateBounds: PaneMotion = object : DefaultImpl("AnimateBounds") {}
+
+        /**
+         * The default pane motion that will slide panes in from left. Note that this should only be
+         * used when the associated pane is entering - i.e. becoming visible from a hidden state.
+         */
+        val EnterFromLeft: PaneMotion =
+            object : DefaultImpl("EnterFromLeft") {
+                override val PaneScaffoldMotionScope.enterTransition
+                    get() = slideInHorizontally(positionAnimationSpec) { slideInFromLeftOffset }
             }
 
-    override val PaneScaffoldMotionScope.exitTransition: ExitTransition
-        get() =
-            when (this@DefaultPaneMotion) {
-                ExitToLeft -> slideOutHorizontally(positionAnimationSpec) { slideOutToLeftOffset }
-                ExitToRight -> slideOutHorizontally(positionAnimationSpec) { slideOutToRightOffset }
-                // TODO(conradche): Figure out how to shrink with position change
-                ExitWithShrink ->
-                    shrinkHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
-                else -> ExitTransition.None
+        /**
+         * The default pane motion that will slide panes in from right. Note that this should only
+         * be used when the associated pane is entering - i.e. becoming visible from a hidden state.
+         */
+        val EnterFromRight: PaneMotion =
+            object : DefaultImpl("EnterFromRight") {
+                override val PaneScaffoldMotionScope.enterTransition
+                    get() = slideInHorizontally(positionAnimationSpec) { slideInFromRightOffset }
             }
 
-    override fun toString(): String =
-        when (this) {
-            NoMotion -> "NoMotion"
-            AnimateBounds -> "AnimateBounds"
-            EnterFromLeft -> "EnterFromLeft"
-            EnterFromRight -> "EnterFromRight"
-            EnterFromLeftDelayed -> "EnterFromLeftDelayed"
-            EnterFromRightDelayed -> "EnterFromRightDelayed"
-            ExitToLeft -> "ExitToLeft"
-            ExitToRight -> "ExitToRight"
-            EnterWithExpand -> "EnterWithExpand"
-            ExitWithShrink -> "ExitWithShrink"
-            else -> "Undefined($value)"
-        }
+        /**
+         * The default pane motion that will slide panes in from left with a delay, usually to avoid
+         * the interference of other exiting panes. Note that this should only be used when the
+         * associated pane is entering - i.e. becoming visible from a hidden state.
+         */
+        val EnterFromLeftDelayed: PaneMotion =
+            object : DefaultImpl("EnterFromLeftDelayed") {
+                override val PaneScaffoldMotionScope.enterTransition
+                    get() =
+                        slideInHorizontally(delayedPositionAnimationSpec) { slideInFromLeftOffset }
+            }
+
+        /**
+         * The default pane motion that will slide panes in from right with a delay, usually to
+         * avoid the interference of other exiting panes. Note that this should only be used when
+         * the associated pane is entering - i.e. becoming visible from a hidden state.
+         */
+        val EnterFromRightDelayed: PaneMotion =
+            object : DefaultImpl("EnterFromRightDelayed") {
+                override val PaneScaffoldMotionScope.enterTransition
+                    get() =
+                        slideInHorizontally(delayedPositionAnimationSpec) { slideInFromRightOffset }
+            }
+
+        /**
+         * The default pane motion that will slide panes out to left. Note that this should only be
+         * used when the associated pane is exiting - i.e. becoming hidden from a visible state.
+         */
+        val ExitToLeft: PaneMotion =
+            object : DefaultImpl("ExitToLeft") {
+                override val PaneScaffoldMotionScope.exitTransition
+                    get() = slideOutHorizontally(positionAnimationSpec) { slideOutToLeftOffset }
+            }
+
+        /**
+         * The default pane motion that will slide panes out to right. Note that this should only be
+         * used when the associated pane is exiting - i.e. becoming hidden from a visible state.
+         */
+        val ExitToRight: PaneMotion =
+            object : DefaultImpl("ExitToRight") {
+                override val PaneScaffoldMotionScope.exitTransition
+                    get() = slideOutHorizontally(positionAnimationSpec) { slideOutToRightOffset }
+            }
+
+        /**
+         * The default pane motion that will expand panes from a zero size. Note that this should
+         * only be used when the associated pane is entering - i.e. becoming visible from a hidden
+         * state.
+         */
+        val EnterWithExpand: PaneMotion =
+            object : DefaultImpl("EnterWithExpand") {
+                // TODO(conradchen): Expand with position change
+                override val PaneScaffoldMotionScope.enterTransition
+                    get() = expandHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
+            }
+
+        /**
+         * The default pane motion that will shrink panes until it's gone. Note that this should
+         * only be used when the associated pane is exiting - i.e. becoming hidden from a visible
+         * state.
+         */
+        val ExitWithShrink: PaneMotion =
+            object : DefaultImpl("ExitWithShrink") {
+                // TODO(conradchen): Shrink with position change
+                override val PaneScaffoldMotionScope.exitTransition
+                    get() = shrinkHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
+            }
+    }
 }
 
 @ExperimentalMaterial3AdaptiveApi
@@ -245,7 +295,7 @@ internal fun <T> calculatePaneMotion(
 ): List<PaneMotion> {
     val numOfPanes = paneOrder.size
     val paneStatus = Array(numOfPanes) { PaneMotionStatus.Hidden }
-    val paneMotions = MutableList<PaneMotion>(numOfPanes) { DefaultPaneMotion.NoMotion }
+    val paneMotions = MutableList(numOfPanes) { PaneMotion.NoMotion }
     var firstShownPaneIndex = numOfPanes
     var firstEnteringPaneIndex = numOfPanes
     var lastShownPaneIndex = -1
@@ -261,7 +311,7 @@ internal fun <T> calculatePaneMotion(
             PaneMotionStatus.Shown -> {
                 firstShownPaneIndex = min(firstShownPaneIndex, i)
                 lastShownPaneIndex = max(lastShownPaneIndex, i)
-                paneMotions[i] = DefaultPaneMotion.AnimateBounds
+                paneMotions[i] = PaneMotion.AnimateBounds
             }
             PaneMotionStatus.Entering -> {
                 firstEnteringPaneIndex = min(firstEnteringPaneIndex, i)
@@ -286,26 +336,26 @@ internal fun <T> calculatePaneMotion(
                     // No panes will interfere the motion on the right, exit to right.
                     hasPanesExitToRight = true
                     firstPaneExitToRightIndex = min(firstPaneExitToRightIndex, i)
-                    DefaultPaneMotion.ExitToRight
+                    PaneMotion.ExitToRight
                 } else if (!hasShownPanesOnLeft && !hasEnteringPanesOnLeft) {
                     // No panes will interfere the motion on the left, exit to left.
                     hasPanesExitToLeft = true
                     lastPaneExitToLeftIndex = max(lastPaneExitToLeftIndex, i)
-                    DefaultPaneMotion.ExitToLeft
+                    PaneMotion.ExitToLeft
                 } else if (!hasShownPanesOnRight) {
                     // Only showing panes can interfere the motion on the right, exit to right.
                     hasPanesExitToRight = true
                     firstPaneExitToRightIndex = min(firstPaneExitToRightIndex, i)
-                    DefaultPaneMotion.ExitToRight
+                    PaneMotion.ExitToRight
                 } else if (!hasShownPanesOnLeft) { // Only showing panes on left
                     // Only showing panes can interfere the motion on the left, exit to left.
                     hasPanesExitToLeft = true
                     lastPaneExitToLeftIndex = max(lastPaneExitToLeftIndex, i)
-                    DefaultPaneMotion.ExitToLeft
+                    PaneMotion.ExitToLeft
                 } else {
                     // Both sides has panes that keep being visible during transition, shrink to
                     // exit
-                    DefaultPaneMotion.ExitWithShrink
+                    PaneMotion.ExitWithShrink
                 }
         }
     }
@@ -326,20 +376,20 @@ internal fun <T> calculatePaneMotion(
             paneMotions[i] =
                 if (noBlockingPanesOnRight && !hasPanesExitToRight) {
                     // No panes will block the motion on the right, enter from right.
-                    DefaultPaneMotion.EnterFromRight
+                    PaneMotion.EnterFromRight
                 } else if (noBlockingPanesOnLeft && !hasPanesExitToLeft) {
                     // No panes will block the motion on the left, enter from left.
-                    DefaultPaneMotion.EnterFromLeft
+                    PaneMotion.EnterFromLeft
                 } else if (noBlockingPanesOnRight) {
                     // Only hiding panes can interfere the motion on the right, enter from right.
-                    DefaultPaneMotion.EnterFromRightDelayed
+                    PaneMotion.EnterFromRightDelayed
                 } else if (noBlockingPanesOnLeft) {
                     // Only hiding panes can interfere the motion on the left, enter from left.
-                    DefaultPaneMotion.EnterFromLeftDelayed
+                    PaneMotion.EnterFromLeftDelayed
                 } else {
                     // Both sides has panes that keep being visible during transition, expand to
                     // enter
-                    DefaultPaneMotion.EnterWithExpand
+                    PaneMotion.EnterWithExpand
                 }
         }
     }

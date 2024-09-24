@@ -43,7 +43,7 @@ fun <S, T : PaneScaffoldValue<S>> ExtendedPaneScaffoldPaneScope<S, T>.AnimatedPa
     modifier: Modifier = Modifier,
     content: (@Composable AnimatedPaneScope.() -> Unit),
 ) {
-    val animatingBounds = paneMotion == DefaultPaneMotion.AnimateBounds
+    val animatingBounds = paneMotion == PaneMotion.AnimateBounds
     val motionProgress = { motionProgress }
     scaffoldStateTransition.AnimatedVisibility(
         visible = { value: T -> value[paneRole] != PaneAdaptedValue.Hidden },
