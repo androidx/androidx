@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_14_0
+// VERSION: 7_0_1
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -26,10 +26,14 @@ internal object SplitButtonSmallTokens {
     val BetweenSpace = 2.0.dp
     val ContainerHeight = 40.0.dp
     val ContainerShape = ShapeKeyTokens.CornerFull
+    val InnerCornerFocusedSize = ShapeDefaults.CornerMedium
+    val InnerCornerHoveredSize = ShapeDefaults.CornerMedium
+    val InnerCornerPressedSize = ShapeDefaults.CornerMedium
     val InnerCornerSize = ShapeDefaults.CornerExtraSmall
     val LeadingButtonLeadingSpace = 16.0.dp
     val LeadingButtonTrailingSpace = 12.0.dp
     val TrailingIconSize = 22.0.dp
+    val TrailingInnerCornerSelectedShapePercent = 50.0f
     val TrailingButtonLeadingSpace = 13.0.dp
     val TrailingButtonTrailingSpace = 13.0.dp
 }
