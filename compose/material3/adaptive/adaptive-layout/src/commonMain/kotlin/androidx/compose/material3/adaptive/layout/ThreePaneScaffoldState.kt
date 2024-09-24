@@ -62,9 +62,8 @@ sealed class ThreePaneScaffoldState {
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-class MutableThreePaneScaffoldState(
-    initialScaffoldValue: ThreePaneScaffoldValue
-) : ThreePaneScaffoldState() {
+class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue) :
+    ThreePaneScaffoldState() {
     private val transitionState = SeekableTransitionState(initialScaffoldValue)
 
     override val currentState

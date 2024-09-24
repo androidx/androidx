@@ -18,22 +18,27 @@ package androidx.compose.material3.adaptive.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold as BaseListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneExpansionDragHandle
 import androidx.compose.material3.adaptive.layout.PaneExpansionState
-import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold as BaseSupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneMotion
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.layout.calculateListDetailPaneScaffoldMotion
 import androidx.compose.material3.adaptive.layout.calculateSupportingPaneScaffoldMotion
 import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 
 /**
- * A version of [androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold] that supports
- * navigation and back handling out of the box, controlled by [ThreePaneScaffoldNavigator].
+ * A version of [ListDetailPaneScaffold] that supports navigation and back handling out of the box,
+ * controlled by [ThreePaneScaffoldNavigator].
  *
  * @param navigator The navigator instance to navigate through the scaffold.
  * @param listPane the list pane of the scaffold, which is supposed to hold a list of item summaries
@@ -67,19 +72,20 @@ fun NavigableListDetailPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
-    paneMotions: ThreePaneMotion = calculateListDetailPaneScaffoldMotion(navigator.scaffoldValue),
+    paneMotions: ThreePaneMotion = navigator.scaffoldState.calculateListDetailPaneScaffoldMotion(),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
 ) {
+    val coroutineScope = rememberCoroutineScope()
     // TODO(b/330584029): support predictive back
     BackHandler(enabled = navigator.canNavigateBack(defaultBackBehavior)) {
-        navigator.navigateBack(defaultBackBehavior)
+        coroutineScope.launch { navigator.navigateBack(defaultBackBehavior) }
     }
-    BaseListDetailPaneScaffold(
+    ListDetailPaneScaffold(
         modifier = modifier,
         directive = navigator.scaffoldDirective,
-        value = navigator.scaffoldValue,
+        scaffoldState = navigator.scaffoldState,
         detailPane = detailPane,
         listPane = listPane,
         extraPane = extraPane,
@@ -90,8 +96,8 @@ fun NavigableListDetailPaneScaffold(
 }
 
 /**
- * A version of [androidx.compose.material3.adaptive.layout.SupportingPaneScaffold] that supports
- * navigation and back handling out of the box, controlled by [ThreePaneScaffoldNavigator].
+ * A version of [SupportingPaneScaffold] that supports navigation and back handling out of the box,
+ * controlled by [ThreePaneScaffoldNavigator].
  *
  * @param navigator The navigator instance to navigate through the scaffold.
  * @param mainPane the main pane of the scaffold, which is supposed to hold the major content of an
@@ -124,19 +130,20 @@ fun NavigableSupportingPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
-    paneMotions: ThreePaneMotion = calculateSupportingPaneScaffoldMotion(navigator.scaffoldValue),
+    paneMotions: ThreePaneMotion = navigator.scaffoldState.calculateSupportingPaneScaffoldMotion(),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
 ) {
+    val coroutineScope = rememberCoroutineScope()
     // TODO(b/330584029): support predictive back
     BackHandler(enabled = navigator.canNavigateBack(defaultBackBehavior)) {
-        navigator.navigateBack(defaultBackBehavior)
+        coroutineScope.launch { navigator.navigateBack(defaultBackBehavior) }
     }
-    BaseSupportingPaneScaffold(
+    SupportingPaneScaffold(
         modifier = modifier,
         directive = navigator.scaffoldDirective,
-        value = navigator.scaffoldValue,
+        scaffoldState = navigator.scaffoldState,
         mainPane = mainPane,
         supportingPane = supportingPane,
         extraPane = extraPane,

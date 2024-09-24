@@ -61,6 +61,7 @@ import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
@@ -75,6 +77,7 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun ListDetailPaneScaffoldSample() {
     val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+    val coroutineScope = rememberCoroutineScope()
     ListDetailPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
         value = scaffoldNavigator.scaffoldValue,
@@ -84,7 +87,11 @@ fun ListDetailPaneScaffoldSample() {
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
-                    onClick = { scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail) }
+                    onClick = {
+                        coroutineScope.launch {
+                            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        }
+                    }
                 ) {
                     Text("List")
                 }
@@ -94,7 +101,7 @@ fun ListDetailPaneScaffoldSample() {
             AnimatedPane(modifier = Modifier) {
                 Surface(
                     color = MaterialTheme.colorScheme.primary,
-                    onClick = { scaffoldNavigator.navigateBack() }
+                    onClick = { coroutineScope.launch { scaffoldNavigator.navigateBack() } }
                 ) {
                     Text("Details")
                 }
@@ -109,6 +116,7 @@ fun ListDetailPaneScaffoldSample() {
 @Composable
 fun ListDetailPaneScaffoldSampleWithExtraPane() {
     val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+    val coroutineScope = rememberCoroutineScope()
     ListDetailPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
         value = scaffoldNavigator.scaffoldValue,
@@ -118,7 +126,11 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
-                    onClick = { scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail) }
+                    onClick = {
+                        coroutineScope.launch {
+                            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        }
+                    }
                 ) {
                     Text("List")
                 }
@@ -136,7 +148,9 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Surface(
-                                onClick = { scaffoldNavigator.navigateBack() },
+                                onClick = {
+                                    coroutineScope.launch { scaffoldNavigator.navigateBack() }
+                                },
                                 modifier = Modifier.weight(0.5f).fillMaxHeight(),
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                             ) {
@@ -150,7 +164,11 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
                             VerticalDivider()
                             Surface(
                                 onClick = {
-                                    scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
+                                    coroutineScope.launch {
+                                        scaffoldNavigator.navigateTo(
+                                            ListDetailPaneScaffoldRole.Extra
+                                        )
+                                    }
                                 },
                                 modifier = Modifier.weight(0.5f).fillMaxHeight(),
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
@@ -172,7 +190,7 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary,
-                    onClick = { scaffoldNavigator.navigateBack() }
+                    onClick = { coroutineScope.launch { scaffoldNavigator.navigateBack() } }
                 ) {
                     Text("Extra")
                 }
@@ -202,9 +220,9 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
     val listDetailRoute = "listdetail"
     val items = List(15) { "Item $it" }
     val loremIpsum =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-            "tempor incididunt ut labore et dolore magna aliqua. Dui nunc mattis enim ut tellus " +
-            "elementum sagittis. Nunc sed augue lacus viverra vitae. Sit amet dictum sit amet justo " +
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
+            "incididunt ut labore et dolore magna aliqua. Dui nunc mattis enim ut tellus " +
+            "elementum sagittis. Nunc sed augue lacus viverra vitae. Sit amet dictum sit amet " +
             "donec. Fringilla urna porttitor rhoncus dolor purus non enim praesent elementum."
 
     @Composable
@@ -262,6 +280,7 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
     // scaffold navigator to be aware of its content, you can pass `Nothing`.
     val navController = rememberNavController()
     val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<String>()
+    val coroutineScope = rememberCoroutineScope()
 
     NavHost(
         navController = navController,
@@ -304,7 +323,7 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
                 }
 
             BackHandler(enabled = scaffoldNavigator.canNavigateBack(backBehavior)) {
-                scaffoldNavigator.navigateBack(backBehavior)
+                coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) }
             }
 
             ListDetailPaneScaffold(
@@ -326,10 +345,13 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
                                         modifier =
                                             Modifier.clickable {
                                                 if (item != selectedItem) {
-                                                    scaffoldNavigator.navigateTo(
-                                                        pane = ListDetailPaneScaffoldRole.Detail,
-                                                        contentKey = item,
-                                                    )
+                                                    coroutineScope.launch {
+                                                        scaffoldNavigator.navigateTo(
+                                                            pane =
+                                                                ListDetailPaneScaffoldRole.Detail,
+                                                            contentKey = item,
+                                                        )
+                                                    }
                                                 }
                                             }
                                     )
@@ -357,7 +379,9 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
                                     ) {
                                         IconButton(
                                             onClick = {
-                                                scaffoldNavigator.navigateBack(backBehavior)
+                                                coroutineScope.launch {
+                                                    scaffoldNavigator.navigateBack(backBehavior)
+                                                }
                                             },
                                             content = {
                                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null)

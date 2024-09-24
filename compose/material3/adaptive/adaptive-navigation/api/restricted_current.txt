@@ -25,15 +25,18 @@ package androidx.compose.material3.adaptive.navigation {
     method public boolean canNavigateBack(optional String backNavigationBehavior);
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<T>? getCurrentDestination();
     method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getScaffoldDirective();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState getScaffoldState();
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getScaffoldValue();
     method public boolean isDestinationHistoryAware();
-    method public boolean navigateBack(optional String backNavigationBehavior);
-    method public void navigateTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, optional T? contentKey);
+    method public suspend Object? navigateBack(optional String backNavigationBehavior, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? navigateTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, optional T? contentKey, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue peekPreviousScaffoldValue(optional String backNavigationBehavior);
+    method public suspend Object? seekBack(optional String backNavigationBehavior, optional @FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void setDestinationHistoryAware(boolean);
     property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<T>? currentDestination;
     property public abstract boolean isDestinationHistoryAware;
     property public abstract androidx.compose.material3.adaptive.layout.PaneScaffoldDirective scaffoldDirective;
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState scaffoldState;
     property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue scaffoldValue;
   }
 
