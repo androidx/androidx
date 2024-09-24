@@ -91,8 +91,8 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * If [targetState] is expected to mutate frequently and not all mutations should be treated as
  * target state change, consider defining a mapping between [targetState] and a key in [contentKey].
  * As a result, transitions will be triggered when the resulting key changes. In other words, there
- * will be no animation when switching between [targetState]s that share the same same key. By
- * default, the key will be the same as the targetState object.
+ * will be no animation when switching between [targetState]s that share the same key. By default,
+ * the key will be the same as the targetState object.
  *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
  * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to animate
@@ -725,7 +725,7 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
  * treated as target state change, consider defining a mapping between [Transition.targetState] and
  * a key in [contentKey]. As a result, transitions will be triggered when the resulting key changes.
  * In other words, there will be no animation when switching between [Transition.targetState]s that
- * share the same same key. By default, the key will be the same as the targetState object.
+ * share the same key. By default, the key will be the same as the targetState object.
  *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
  * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to animate
