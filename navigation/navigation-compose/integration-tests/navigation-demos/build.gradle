@@ -36,11 +36,21 @@ dependencies {
     implementation(libs.kotlinSerializationCore)
 
     implementation(project(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:material:material"))
-    implementation("androidx.compose.material:material-icons-core:1.6.7")
+    implementation(project(":compose:runtime:runtime-saveable"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-graphics"))
+    implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:ui:ui-unit"))
+    implementation(project(":navigation:navigation-common"))
+    implementation(project(":navigation:navigation-runtime"))
     implementation(project(":navigation:navigation-compose"))
     implementation(project(":navigation:navigation-compose:navigation-compose-samples"))
+    implementation("androidx.compose.material:material-icons-core:1.7.2")
 }
 
 androidx {
