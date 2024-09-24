@@ -203,7 +203,7 @@ object AlertDialogDefaults {
         EdgeButton(
             modifier = Modifier.padding(top = edgeButtonExtraTopPadding),
             onClick = onClick,
-            buttonHeight = ButtonDefaults.EdgeButtonHeightMedium,
+            preferredHeight = ButtonDefaults.EdgeButtonHeightMedium,
             content = content
         )
     }

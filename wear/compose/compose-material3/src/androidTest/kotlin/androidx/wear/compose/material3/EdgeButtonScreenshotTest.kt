@@ -135,7 +135,7 @@ class EdgeButtonScreenshotTest {
             EdgeButton(
                 onClick = { /* Do something */ },
                 enabled = enabled,
-                buttonHeight = buttonHeight,
+                preferredHeight = buttonHeight,
                 modifier =
                     Modifier.align(Alignment.BottomEnd)
                         .testTag(TEST_TAG)
