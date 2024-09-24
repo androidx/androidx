@@ -101,7 +101,7 @@ class SandboxedSdkViewTest {
             clientExecutor: Executor,
             client: SandboxedUiAdapter.SessionClient
         ) {
-            client.onSessionError(Exception("Error in openSession()"))
+            clientExecutor.execute { client.onSessionError(Exception("Error in openSession()")) }
         }
     }
 
@@ -133,13 +133,15 @@ class SandboxedSdkViewTest {
         ) {
             internalClient = client
             testSession = TestSession(context, initialWidth, initialHeight, signalOptions)
-            if (!delayOpenSessionCallback) {
-                client.onSessionOpened(testSession!!)
+            clientExecutor.execute {
+                if (!delayOpenSessionCallback) {
+                    client.onSessionOpened(testSession!!)
+                }
+                isSessionOpened = true
+                this.isZOrderOnTop = isZOrderOnTop
+                this.inputToken = windowInputToken
+                openSessionLatch.countDown()
             }
-            isSessionOpened = true
-            this.isZOrderOnTop = isZOrderOnTop
-            this.inputToken = windowInputToken
-            openSessionLatch.countDown()
         }
 
         internal fun sendOnSessionOpened() {
