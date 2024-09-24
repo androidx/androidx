@@ -150,6 +150,7 @@ errorProne = { module = "com.google.errorprone:error_prone_core", version = "2.3
 findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
 freemarker = { module = "org.freemarker:freemarker", version = "2.3.31"}
+googlejavaformat = { module = "com.google.googlejavaformat:google-java-format", version = "1.22.0" }
 googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11.0-beta-1" }
 hamcrestCore = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -165,6 +166,7 @@ jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
 json = { module = "org.json:json", version = "20180813" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.16.2" }
+jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
 junit = { module = "junit:junit", version = "4.13.2" }
