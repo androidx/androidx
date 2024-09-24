@@ -50,7 +50,7 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
         if (!value.isPublic()) {
             logger.error("Error in $name: annotated values should be public.")
         }
-        ensureNoCompanion(value, name)
+        validateCompanions(value, name)
         ensureNoObject(value, name)
         ensureNoTypeParameters(value, name)
         ensureNoSuperTypes(value, name)
@@ -77,14 +77,11 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
         )
     }
 
-    private fun ensureNoCompanion(classDeclaration: KSClassDeclaration, name: String) {
-        if (
-            classDeclaration.declarations
-                .filterIsInstance<KSClassDeclaration>()
-                .any(KSClassDeclaration::isCompanionObject)
-        ) {
-            logger.error("Error in $name: annotated values cannot declare companion objects.")
-        }
+    private fun validateCompanions(classDeclaration: KSClassDeclaration, name: String) {
+        classDeclaration.declarations
+            .filterIsInstance<KSClassDeclaration>()
+            .filter(KSClassDeclaration::isCompanionObject)
+            .forEach { validateCompanion(name, it, logger) }
     }
 
     private fun ensureNoObject(classDeclaration: KSClassDeclaration, name: String) {
