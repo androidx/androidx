@@ -63,4 +63,14 @@ object ComposeUiFlags {
      * layout phases, it is possible that the addition of this tracking is the culprit.
      */
     @Suppress("MutableBareField") @JvmField var isRectTrackingEnabled: Boolean = true
+
+    /**
+     * Selecting flag to enable the change new onPostFling nested scroll behavior for ongoing
+     * flings. If a nested scroll node is removed from the tree before sending the onPostFling
+     * callback, we will hold on to the next node in the tree so we have a handle to send the
+     * information after the fling finish/is cancelled.
+     */
+    @Suppress("MutableBareField")
+    @JvmField
+    var NewNestedScrollFlingDispatchingEnabled: Boolean = true
 }

@@ -133,6 +133,7 @@ package androidx.compose.ui {
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposeUiFlags {
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
+    field public static boolean NewNestedScrollFlingDispatchingEnabled;
     field public static boolean isRectTrackingEnabled;
   }
 
