@@ -35,9 +35,6 @@ import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerS
 import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
-import androidx.wear.compose.material3.samples.StepperSample
-import androidx.wear.compose.material3.samples.StepperWithIntegerSample
-import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
 import androidx.wear.compose.material3.samples.SwipeToRevealNonAnchoredSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
@@ -107,23 +104,7 @@ val WearMaterial3Demos =
             ComposableDemo("Split Radio Button") { SplitRadioButtonDemo() },
             ComposableDemo("Switch Button") { SwitchButtonDemo() },
             ComposableDemo("Split Switch Button") { SplitSwitchButtonDemo() },
-            Material3DemoCategory(
-                "Stepper",
-                listOf(
-                    Material3DemoCategory(
-                        "Samples",
-                        listOf(
-                            ComposableDemo("Stepper") { Centralize { StepperSample() } },
-                            ComposableDemo("Integer Stepper") {
-                                Centralize { StepperWithIntegerSample() }
-                            },
-                            ComposableDemo("Stepper with rangeSemantics") {
-                                Centralize { StepperWithRangeSemanticsSample() }
-                            }
-                        )
-                    )
-                )
-            ),
+            Material3DemoCategory("Stepper", StepperDemos),
             Material3DemoCategory("Slider", SliderDemos),
             Material3DemoCategory("Picker", PickerDemos),
             // Requires API level 26 or higher due to java.time dependency.

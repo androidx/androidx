@@ -255,6 +255,9 @@ class ColorScheme(
     internal var defaultSliderColorsCached: SliderColors? = null
     internal var defaultVariantSliderColorsCached: SliderColors? = null
 
+    // Stepper
+    internal var defaultStepperColorsCached: StepperColors? = null
+
     // Level Indicator
     internal var defaultLevelIndicatorColorsCached: LevelIndicatorColors? = null
 
