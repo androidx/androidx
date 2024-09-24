@@ -30,6 +30,7 @@ import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
+import androidx.camera.core.imagecapture.Utils.createTakePictureRequest
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
@@ -137,11 +138,13 @@ class ProcessingInput2PacketTest {
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                CROP_RECT,
-                90,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    CROP_RECT,
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 90,
+                    /*jpegQuality=*/ 100
+                ),
                 FakeTakePictureCallback(),
                 Futures.immediateFuture(null)
             )

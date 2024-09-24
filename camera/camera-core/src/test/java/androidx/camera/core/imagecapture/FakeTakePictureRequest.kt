@@ -35,6 +35,7 @@ class FakeTakePictureRequest() : TakePictureRequest() {
     private var imageCapturedCallback: OnImageCapturedCallback? = null
     private var imageSavedCallback: OnImageSavedCallback? = null
     private var fileOptions: ImageCapture.OutputFileOptions? = null
+    private var secondaryFileOptions: ImageCapture.OutputFileOptions? = null
     var exceptionReceived: ImageCaptureException? = null
     var imageReceived: ImageProxy? = null
     var fileReceived: ImageCapture.OutputFileResults? = null
@@ -108,8 +109,8 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         imageSavedCallback = onDiskCallback
     }
 
-    override fun getOutputFileOptions(): ImageCapture.OutputFileOptions? {
-        return fileOptions
+    override fun getOutputFileOptions(): List<ImageCapture.OutputFileOptions>? {
+        return listOfNotNull(fileOptions, secondaryFileOptions)
     }
 
     internal override fun getCropRect(): Rect {

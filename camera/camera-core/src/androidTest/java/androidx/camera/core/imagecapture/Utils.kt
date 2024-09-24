@@ -20,9 +20,11 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.util.Size
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import java.io.File
 import java.util.UUID
+import org.mockito.Mockito.mock
 
 object Utils {
     const val WIDTH = 640
@@ -46,4 +48,33 @@ object Utils {
             "hdrgm:Version=",
             "Item:Semantic=\"GainMap\"",
         )
+
+    fun createTakePictureRequest(
+        outputFileOptions: List<ImageCapture.OutputFileOptions>?,
+        cropRect: Rect,
+        sensorToBufferTransform: Matrix,
+        rotationDegrees: Int,
+        jpegQuality: Int
+    ): TakePictureRequest {
+        var onDiskCallback: ImageCapture.OnImageSavedCallback? = null
+        var onMemoryCallback: ImageCapture.OnImageCapturedCallback? = null
+        if (outputFileOptions == null) {
+            onMemoryCallback = mock(ImageCapture.OnImageCapturedCallback::class.java)
+        } else {
+            onDiskCallback = mock(ImageCapture.OnImageSavedCallback::class.java)
+        }
+
+        return TakePictureRequest.of(
+            CameraXExecutors.mainThreadExecutor(),
+            onMemoryCallback,
+            onDiskCallback,
+            outputFileOptions,
+            cropRect,
+            sensorToBufferTransform,
+            rotationDegrees,
+            jpegQuality,
+            ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
+            listOf()
+        )
+    }
 }

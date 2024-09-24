@@ -47,6 +47,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_SECONDARY_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
@@ -319,6 +320,13 @@ public final class ImageCapture extends UseCase {
     public static final int OUTPUT_FORMAT_RAW = 2;
 
     /**
+     * Captures raw images in the {@link ImageFormat#RAW_SENSOR} and {@link ImageFormat#JPEG}
+     * image formats.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int OUTPUT_FORMAT_RAW_JPEG = 3;
+
+    /**
      * Provides a static configuration with implementation-agnostic options.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -479,6 +487,9 @@ public final class ImageCapture extends UseCase {
         } else {
             if (isOutputFormatRaw(builder.getMutableConfig())) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+            } else if (isOutputFormatRawJpeg(builder.getMutableConfig())) {
+                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+                builder.getMutableConfig().insertOption(OPTION_SECONDARY_INPUT_FORMAT, JPEG);
             } else if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                 builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
@@ -529,6 +540,11 @@ public final class ImageCapture extends UseCase {
     private static boolean isOutputFormatRaw(@NonNull MutableConfig config) {
         return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
                 OUTPUT_FORMAT_RAW);
+    }
+
+    private static boolean isOutputFormatRawJpeg(@NonNull MutableConfig config) {
+        return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
+                OUTPUT_FORMAT_RAW_JPEG);
     }
 
     /**
@@ -923,9 +939,31 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
+        takePicture(List.of(outputFileOptions), executor, imageSavedCallback);
+    }
+
+    /**
+     * Captures two still images simultaneously and saves to a file along with application
+     * specified metadata.
+     *
+     * <p>Currently only {@link #OUTPUT_FORMAT_RAW_JPEG} is supporting simultaneous image capture.
+     *
+     * @param outputFileOptions  List of options to store the newly captured images.
+     * @param executor           The executor in which the callback methods will be run.
+     * @param imageSavedCallback Callback to be called for the newly captured image.
+     *
+     * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
+     *                                  a non-null {@code ScreenFlash} instance set.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void takePicture(
+            final @NonNull List<OutputFileOptions> outputFileOptions,
+            final @NonNull Executor executor,
+            final @NonNull OnImageSavedCallback imageSavedCallback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             CameraXExecutors.mainThreadExecutor().execute(
-                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
+                    () -> takePicture(outputFileOptions,
+                            executor, imageSavedCallback));
             return;
         }
         takePictureInternal(executor, /*inMemoryCallback=*/null, imageSavedCallback,
@@ -1000,6 +1038,7 @@ public final class ImageCapture extends UseCase {
 
             if (isRawSupported()) {
                 formats.add(OUTPUT_FORMAT_RAW);
+                formats.add(OUTPUT_FORMAT_RAW_JPEG);
             }
 
             return formats;
@@ -1407,7 +1446,7 @@ public final class ImageCapture extends UseCase {
     private void takePictureInternal(@NonNull Executor executor,
             @Nullable OnImageCapturedCallback inMemoryCallback,
             @Nullable ImageCapture.OnImageSavedCallback onDiskCallback,
-            @Nullable OutputFileOptions outputFileOptions) {
+            @Nullable List<OutputFileOptions> outputFileOptions) {
         checkMainThread();
         if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN
                 && mScreenFlashWrapper.getBaseScreenFlash() == null) {
@@ -1644,7 +1683,8 @@ public final class ImageCapture extends UseCase {
      */
     @OptIn(markerClass = androidx.camera.core.ExperimentalImageCaptureOutputFormat.class)
     @Target({ElementType.TYPE_USE})
-    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR, OUTPUT_FORMAT_RAW})
+    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR,
+            OUTPUT_FORMAT_RAW, OUTPUT_FORMAT_RAW_JPEG})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface OutputFormat {
@@ -2368,6 +2408,9 @@ public final class ImageCapture extends UseCase {
             } else {
                 if (isOutputFormatRaw(getMutableConfig())) {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+                } else if (isOutputFormatRawJpeg(getMutableConfig())) {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+                    getMutableConfig().insertOption(OPTION_SECONDARY_INPUT_FORMAT, JPEG);
                 } else if (isOutputFormatUltraHdr(getMutableConfig())) {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                     getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,

@@ -30,6 +30,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW_JPEG;
 import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.integration.core.CameraXViewModel.getConfiguredCameraXCameraImplementation;
@@ -975,6 +976,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     private void setUpTakePictureButton() {
         mTakePicture.setOnClickListener(
                 new View.OnClickListener() {
@@ -985,47 +987,64 @@ public class CameraXActivity extends AppCompatActivity {
                         mImageSavedIdlingResource.increment();
                         mStartCaptureTime = SystemClock.elapsedRealtime();
 
-                        ImageCapture.OutputFileOptions outputFileOptions =
-                                createOutputFileOptions(mImageOutputFormat);
-                        getImageCapture().takePicture(outputFileOptions,
-                                mImageCaptureExecutorService,
-                                new ImageCapture.OnImageSavedCallback() {
-                                    @Override
-                                    public void onImageSaved(
-                                            @NonNull ImageCapture.OutputFileResults
-                                                    outputFileResults) {
-                                        Log.d(TAG, "Saved image to "
-                                                + outputFileResults.getSavedUri());
-                                        try {
-                                            mImageSavedIdlingResource.decrement();
-                                        } catch (IllegalStateException e) {
-                                            Log.e(TAG, "Error: unexpected onImageSaved "
-                                                    + "callback received. Continuing.");
-                                        }
+                        ImageCapture.OnImageSavedCallback callback = new ImageCapture
+                                .OnImageSavedCallback() {
+                            @Override
+                            public void onImageSaved(
+                                    @NonNull ImageCapture.OutputFileResults
+                                            outputFileResults) {
+                                Log.d(TAG, "Saved image to "
+                                        + outputFileResults.getSavedUri());
+                                try {
+                                    mImageSavedIdlingResource.decrement();
+                                } catch (IllegalStateException e) {
+                                    Log.e(TAG, "Error: unexpected onImageSaved "
+                                            + "callback received. Continuing.");
+                                }
 
-                                        long duration =
-                                                SystemClock.elapsedRealtime() - mStartCaptureTime;
-                                        runOnUiThread(() -> Toast.makeText(CameraXActivity.this,
-                                                "Image captured in " + duration + " ms",
-                                                Toast.LENGTH_SHORT).show());
-                                        if (mSessionImagesUriSet != null) {
-                                            mSessionImagesUriSet.add(
-                                                    requireNonNull(
-                                                            outputFileResults.getSavedUri()));
-                                        }
-                                    }
+                                long duration =
+                                        SystemClock.elapsedRealtime()
+                                                - mStartCaptureTime;
+                                runOnUiThread(() -> Toast.makeText(CameraXActivity.this,
+                                        "Image captured in " + duration + " ms",
+                                        Toast.LENGTH_SHORT).show());
+                                if (mSessionImagesUriSet != null) {
+                                    mSessionImagesUriSet.add(
+                                            requireNonNull(
+                                                    outputFileResults.getSavedUri()));
+                                }
+                            }
 
-                                    @Override
-                                    public void onError(@NonNull ImageCaptureException exception) {
-                                        Log.e(TAG, "Failed to save image.", exception);
+                            @Override
+                            public void onError(
+                                    @NonNull ImageCaptureException exception) {
+                                Log.e(TAG, "Failed to save image.", exception);
 
-                                        mLastTakePictureErrorMessage =
-                                                getImageCaptureErrorMessage(exception);
-                                        if (!mImageSavedIdlingResource.isIdleNow()) {
-                                            mImageSavedIdlingResource.decrement();
-                                        }
-                                    }
-                                });
+                                mLastTakePictureErrorMessage =
+                                        getImageCaptureErrorMessage(exception);
+                                if (!mImageSavedIdlingResource.isIdleNow()) {
+                                    mImageSavedIdlingResource.decrement();
+                                }
+                            }
+                        };
+
+                        if (mImageOutputFormat == OUTPUT_FORMAT_RAW_JPEG) {
+                            ImageCapture.OutputFileOptions rawOutputFileOptions =
+                                    createOutputFileOptions(OUTPUT_FORMAT_RAW);
+                            ImageCapture.OutputFileOptions jpegOutputFileOptions =
+                                    createOutputFileOptions(OUTPUT_FORMAT_JPEG);
+                            getImageCapture().takePicture(
+                                    List.of(rawOutputFileOptions, jpegOutputFileOptions),
+                                    mImageCaptureExecutorService,
+                                    callback);
+                        } else {
+                            ImageCapture.OutputFileOptions outputFileOptions =
+                                    createOutputFileOptions(mImageOutputFormat);
+                            getImageCapture().takePicture(
+                                    outputFileOptions,
+                                    mImageCaptureExecutorService,
+                                    callback);
+                        }
                     }
                 });
     }
@@ -1058,9 +1077,9 @@ public class CameraXActivity extends AppCompatActivity {
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mimetype);
         return new ImageCapture.OutputFileOptions.Builder(
-                        getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues).build();
+                getContentResolver(),
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues).build();
     }
 
 
@@ -2654,6 +2673,8 @@ public class CameraXActivity extends AppCompatActivity {
             return "Ultra HDR";
         } else if (format == OUTPUT_FORMAT_RAW) {
             return "Raw";
+        } else if (format == OUTPUT_FORMAT_RAW_JPEG) {
+            return "Raw + Jpeg";
         }
         return "?";
     }
@@ -2667,6 +2688,8 @@ public class CameraXActivity extends AppCompatActivity {
             return "Ultra HDR";
         } else if (format == OUTPUT_FORMAT_RAW) {
             return "Raw";
+        } else if (format == OUTPUT_FORMAT_RAW_JPEG) {
+            return "Raw + Jpeg";
         }
         return "Unknown format";
     }
@@ -2679,6 +2702,8 @@ public class CameraXActivity extends AppCompatActivity {
             return 1;
         } else if (format == OUTPUT_FORMAT_RAW) {
             return 2;
+        } else if (format == OUTPUT_FORMAT_RAW_JPEG) {
+            return 3;
         } else {
             throw new IllegalArgumentException("Undefined output format: " + format);
         }
@@ -2694,6 +2719,8 @@ public class CameraXActivity extends AppCompatActivity {
                 return OUTPUT_FORMAT_JPEG_ULTRA_HDR;
             case 2:
                 return OUTPUT_FORMAT_RAW;
+            case 3:
+                return OUTPUT_FORMAT_RAW_JPEG;
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);
         }
@@ -2728,7 +2755,7 @@ public class CameraXActivity extends AppCompatActivity {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static int getCamera2LensFacing(@NonNull CameraInfo cameraInfo) {
         Integer lensFacing = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
-                    CameraCharacteristics.LENS_FACING);
+                CameraCharacteristics.LENS_FACING);
 
         return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
     }
