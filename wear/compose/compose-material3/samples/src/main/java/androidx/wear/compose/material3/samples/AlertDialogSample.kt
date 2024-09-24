@@ -84,7 +84,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
 
 @Sampled
 @Composable
-fun AlertDialogWithBottomButtonSample() {
+fun AlertDialogWithEdgeButtonSample() {
     var showDialog by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
@@ -107,8 +107,8 @@ fun AlertDialogWithBottomButtonSample() {
             )
         },
         title = { Text("Mobile network is not currently available") },
-        bottomButton = {
-            AlertDialogDefaults.BottomButton(
+        edgeButton = {
+            AlertDialogDefaults.EdgeButton(
                 onClick = {
                     // Perform confirm action here
                     showDialog = false
@@ -135,8 +135,8 @@ fun AlertDialogWithContentGroupsSample() {
         onDismissRequest = { showDialog = false },
         title = { Text("Share your location") },
         text = { Text(" The following apps have asked you to share your location") },
-        bottomButton = {
-            AlertDialogDefaults.BottomButton(
+        edgeButton = {
+            AlertDialogDefaults.EdgeButton(
                 onClick = {
                     // Perform confirm action here
                     showDialog = false

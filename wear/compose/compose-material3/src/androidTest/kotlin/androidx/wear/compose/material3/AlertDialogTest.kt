@@ -58,7 +58,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -87,7 +87,7 @@ class AlertDialogTest {
             AlertDialog(
                 icon = { TestImage(TEST_TAG) },
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -115,7 +115,7 @@ class AlertDialogTest {
         rule.setContentWithTheme {
             AlertDialog(
                 title = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -143,7 +143,7 @@ class AlertDialogTest {
             AlertDialog(
                 title = {},
                 text = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -169,7 +169,7 @@ class AlertDialogTest {
     @Test
     fun displays_content_with_bottomButton() {
         rule.setContentWithTheme {
-            AlertDialog(title = {}, bottomButton = {}, onDismissRequest = {}, show = true) {
+            AlertDialog(title = {}, edgeButton = {}, onDismissRequest = {}, show = true) {
                 item { Text("Text", modifier = Modifier.testTag(TEST_TAG)) }
             }
         }
@@ -225,7 +225,7 @@ class AlertDialogTest {
         rule.setContentWithTheme {
             AlertDialog(
                 title = {},
-                bottomButton = { Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {} },
+                edgeButton = { Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {} },
                 onDismissRequest = {},
                 show = true
             )
@@ -264,7 +264,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {
                     showDialog = false
                     dismissCounter++
@@ -287,7 +287,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = { dismissCounter++ },
                 show = show.value
             )
@@ -304,7 +304,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = false
             )
@@ -338,7 +338,7 @@ class AlertDialogTest {
                     actualTextAlign = LocalTextConfiguration.current.textAlign
                     actualTextMaxLines = LocalTextConfiguration.current.maxLines
                 },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -373,7 +373,7 @@ class AlertDialogTest {
                     actualTextStyle = LocalTextStyle.current
                     actualTextAlign = LocalTextConfiguration.current.textAlign
                 },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -394,7 +394,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = { Text("Title", color = expectedContentColor) },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -413,7 +413,7 @@ class AlertDialogTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
                 text = { Text("Text", color = expectedContentColor) },
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -431,7 +431,7 @@ class AlertDialogTest {
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG).background(expectedBackgroundColor),
                 title = {},
-                bottomButton = {},
+                edgeButton = {},
                 onDismissRequest = {},
                 show = true
             )
@@ -474,7 +474,6 @@ class AlertDialogTest {
                     show = true,
                     title = { Text("Title") },
                     onDismissRequest = {},
-                    bottomButton = null,
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
                     modifier = Modifier.size(SmallScreenSize.dp).testTag(TEST_TAG),
