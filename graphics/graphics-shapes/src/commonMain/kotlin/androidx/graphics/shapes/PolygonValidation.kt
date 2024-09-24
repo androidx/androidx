@@ -16,7 +16,8 @@
 
 package androidx.graphics.shapes
 
-// @TODO: Make class public as soon as all validations are implemented
+// @TODO: Make class public as soon as all validations are implemented and mention in
+// [RoundedPolygon] constructor
 
 /**
  * Utility class to fix invalid [RoundedPolygon]s that will otherwise break [Morph]s in one way or
@@ -66,11 +67,13 @@ internal class PolygonValidator() {
         }
 
         private fun fixCWOrientation(polygon: RoundedPolygon): RoundedPolygon {
-            // Persist first feature to stay a Corner
-            val reversedFeatures = mutableListOf(polygon.features.first().reversed())
+            val reversedFeatures = buildList {
+                // Persist first feature to stay a Corner
+                add(polygon.features.first().reversed())
 
-            for (i in polygon.features.lastIndex downTo 1) {
-                reversedFeatures.add(polygon.features[i].reversed())
+                for (i in polygon.features.lastIndex downTo 1) {
+                    add(polygon.features[i].reversed())
+                }
             }
 
             return RoundedPolygon(reversedFeatures, polygon.centerX, polygon.centerY)

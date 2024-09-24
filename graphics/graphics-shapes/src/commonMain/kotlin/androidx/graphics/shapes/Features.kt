@@ -91,6 +91,8 @@ internal abstract class Feature(val cubics: List<Cubic>) {
                 reversedCubics.add(cubics[i].reverse())
             }
 
+            // TODO: b/369320447 - Revert flag negation when [RoundedPolygon] ignores orientation
+            // for setting the flag
             return Corner(reversedCubics, vertex, roundedCenter, !convex)
         }
 
