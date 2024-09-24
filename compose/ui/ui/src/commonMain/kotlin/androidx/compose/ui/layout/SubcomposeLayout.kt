@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.collection.MutableOrderedScatterSet
 import androidx.collection.mutableOrderedScatterSetOf
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
@@ -405,19 +406,19 @@ internal class LayoutNodeSubcompositionsState(
 
     private var currentIndex = 0
     private var currentPostLookaheadIndex = 0
-    private val nodeToNodeState = hashMapOf<LayoutNode, NodeState>()
+    private val nodeToNodeState = mutableScatterMapOf<LayoutNode, NodeState>()
 
     // this map contains active slotIds (without precomposed or reusable nodes)
-    private val slotIdToNode = hashMapOf<Any?, LayoutNode>()
+    private val slotIdToNode = mutableScatterMapOf<Any?, LayoutNode>()
     private val scope = Scope()
     private val postLookaheadMeasureScope = PostLookaheadMeasureScopeImpl()
 
-    private val precomposeMap = hashMapOf<Any?, LayoutNode>()
+    private val precomposeMap = mutableScatterMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
 
     // SlotHandles precomposed in the post-lookahead pass.
-    private val postLookaheadPrecomposeSlotHandleMap = mutableMapOf<Any?, PrecomposedSlotHandle>()
-
+    private val postLookaheadPrecomposeSlotHandleMap =
+        mutableScatterMapOf<Any?, PrecomposedSlotHandle>()
     // Slot ids _composed_ in post-lookahead. The valid slot ids are stored between 0 and
     // currentPostLookaheadIndex - 1, beyond index currentPostLookaheadIndex are obsolete ids.
     private val postLookaheadComposedSlotIds = mutableVectorOf<Any?>()
@@ -626,7 +627,7 @@ internal class LayoutNodeSubcompositionsState(
 
     private fun disposeCurrentNodes() {
         root.ignoreRemeasureRequests {
-            nodeToNodeState.values.forEach { it.composition?.dispose() }
+            nodeToNodeState.forEachValue { it.composition?.dispose() }
             root.removeAll()
         }
 
@@ -754,7 +755,7 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     private fun disposeUnusedSlotsInPostLookahead() {
-        postLookaheadPrecomposeSlotHandleMap.entries.removeAll { (slotId, handle) ->
+        postLookaheadPrecomposeSlotHandleMap.removeIf { slotId, handle ->
             val id = postLookaheadComposedSlotIds.indexOf(slotId)
             if (id < 0 || id >= currentPostLookaheadIndex) {
                 // Slot was not used in the latest pass of post-lookahead.
@@ -864,7 +865,7 @@ internal class LayoutNodeSubcompositionsState(
         if (reusableCount != childCount) {
             // only invalidate children if there are any non-reused ones
             // in other cases, all of them are going to be invalidated later anyways
-            nodeToNodeState.forEach { (_, nodeState) -> nodeState.forceRecompose = true }
+            nodeToNodeState.forEachValue { nodeState -> nodeState.forceRecompose = true }
 
             if (!root.measurePending) {
                 root.requestRemeasure()
