@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -47,6 +49,7 @@ dependencies {
 androidx {
     name = "Compose Runtime: Tracing"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
     legacyDisableKotlinStrictApiMode = true
