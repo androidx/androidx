@@ -36,17 +36,28 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
+    api(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:animation:animation"))
-    implementation("androidx.compose.foundation:foundation:1.0.1")
-    implementation("androidx.compose.ui:ui-tooling:1.4.0")
+    implementation(project(":compose:animation:animation-core"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:runtime:runtime-saveable"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-graphics"))
+    implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":compose:ui:ui-unit"))
     implementation(project(":navigation:navigation-compose"))
+    implementation(project(":navigation:navigation-common"))
+    implementation(project(":navigation:navigation-runtime"))
     implementation("androidx.compose.material:material:1.0.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
-    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
+    implementation("androidx.compose.ui:ui-tooling:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.2")
+    implementation(libs.kotlinSerializationCore)
+    implementation(libs.kotlinSerializationJson)
 }
 
 androidx {
