@@ -23,7 +23,6 @@ import android.os.StatFs
 import android.provider.MediaStore
 import androidx.camera.core.Logger
 import java.io.File
-import java.io.FileNotFoundException
 import java.text.DecimalFormat
 import kotlin.math.floor
 import kotlin.math.pow
@@ -118,11 +117,5 @@ public object StorageUtil {
             }
         }
         return result.trim().toString()
-    }
-
-    /** Checks if the given exception indicates a storage full condition. */
-    @JvmStatic
-    public fun isStorageFullException(e: Exception): Boolean {
-        return e is FileNotFoundException && e.message?.contains("No space left on device") == true
     }
 }
