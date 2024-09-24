@@ -119,19 +119,49 @@ public object StockBrushes {
                         listOf(
                             predictionFadeOutBehavior,
                             BrushBehavior(
-                                source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                                target = BrushBehavior.Target.SIZE_MULTIPLIER,
-                                sourceValueRangeLowerBound = 0f,
+                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                sourceValueRangeLowerBound = 3f,
+                                sourceValueRangeUpperBound = 0f,
+                                targetModifierRangeLowerBound = 1f,
+                                targetModifierRangeUpperBound = 0.75f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source.NORMALIZED_DIRECTION_Y,
+                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                sourceValueRangeLowerBound = 0.45f,
+                                sourceValueRangeUpperBound = 0.65f,
+                                targetModifierRangeLowerBound = 1.0f,
+                                targetModifierRangeUpperBound = 1.17f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 25L,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source
+                                    .INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED,
+                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                sourceValueRangeLowerBound = -80f,
+                                sourceValueRangeUpperBound = -230f,
+                                targetModifierRangeLowerBound = 1.0f,
+                                targetModifierRangeUpperBound = 1.25f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 25L,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                sourceValueRangeLowerBound = 0.8f,
                                 sourceValueRangeUpperBound = 1f,
-                                targetModifierRangeLowerBound = 0.05f,
-                                targetModifierRangeUpperBound = 1f,
-                                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                                responseCurve = EasingFunction.Predefined.LINEAR,
-                                responseTimeMillis = 40L,
+                                targetModifierRangeLowerBound = 1.0f,
+                                targetModifierRangeUpperBound = 1.5f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 30L,
                                 enabledToolTypes = setOf(InputToolType.STYLUS),
                             ),
                         )
-                )
+                ),
+            inputModel = BrushFamily.SPRING_MODEL,
         )
 
     /**
@@ -156,17 +186,61 @@ public object StockBrushes {
         BrushFamily(
             tip =
                 BrushTip(
-                    scaleX = 0.05f,
+                    scaleX = 0.25f,
                     scaleY = 1f,
-                    cornerRounding = 0.11f,
+                    cornerRounding = 0.3f,
                     rotation = Angle.degreesToRadians(150f),
-                    behaviors = listOf(predictionFadeOutBehavior),
-                )
+                    behaviors =
+                        listOf(
+                            predictionFadeOutBehavior,
+                            BrushBehavior(
+                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                sourceValueRangeLowerBound = 0f,
+                                sourceValueRangeUpperBound = 1f,
+                                targetModifierRangeLowerBound = 0.3f,
+                                targetModifierRangeUpperBound = 1f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 15L,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                sourceValueRangeLowerBound = 0f,
+                                sourceValueRangeUpperBound = 1f,
+                                targetModifierRangeLowerBound = 0.3f,
+                                targetModifierRangeUpperBound = 1f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 15L,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                sourceValueRangeLowerBound = 0f,
+                                sourceValueRangeUpperBound = 3f,
+                                targetModifierRangeLowerBound = 1.1f,
+                                targetModifierRangeUpperBound = 1f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 15L,
+                            ),
+                            BrushBehavior(
+                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                sourceValueRangeLowerBound = 0f,
+                                sourceValueRangeUpperBound = 3f,
+                                targetModifierRangeLowerBound = 1.1f,
+                                targetModifierRangeUpperBound = 1f,
+                                BrushBehavior.OutOfRange.CLAMP,
+                                responseTimeMillis = 15L,
+                            ),
+                        ),
+                ),
+            inputModel = BrushFamily.SPRING_MODEL,
         )
 
     /**
-     * Version 1 of a chisel-tip brush that is intended for highlighting text in a document (when
-     * used with a translucent brush color).
+     * The latest version of a chisel-tip brush that is intended for highlighting text in a document
+     * (when used with a translucent brush color).
      *
      * The behavior of this [BrushFamily] may change in future releases, as it always points to the
      * latest version of the pressure pen.
