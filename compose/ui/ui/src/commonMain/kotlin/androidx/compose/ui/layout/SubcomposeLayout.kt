@@ -414,8 +414,10 @@ internal class LayoutNodeSubcompositionsState(
 
     private val precomposeMap = hashMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
+
     // SlotHandles precomposed in the post-lookahead pass.
     private val postLookaheadPrecomposeSlotHandleMap = mutableMapOf<Any?, PrecomposedSlotHandle>()
+
     // Slot ids _composed_ in post-lookahead. The valid slot ids are stored between 0 and
     // currentPostLookaheadIndex - 1, beyond index currentPostLookaheadIndex are obsolete ids.
     private val postLookaheadComposedSlotIds = mutableVectorOf<Any?>()
@@ -726,6 +728,7 @@ internal class LayoutNodeSubcompositionsState(
                 scope.density = density
                 scope.fontScale = fontScale
                 if (!isLookingAhead && root.lookaheadRoot != null) {
+                    // Approach pass
                     currentPostLookaheadIndex = 0
                     val result = postLookaheadMeasureScope.block(constraints)
                     val indexAfterMeasure = currentPostLookaheadIndex
@@ -736,6 +739,7 @@ internal class LayoutNodeSubcompositionsState(
                         disposeUnusedSlotsInPostLookahead()
                     }
                 } else {
+                    // Lookahead pass, or the main pass if not in a lookahead scope.
                     currentIndex = 0
                     val result = scope.block(constraints)
                     val indexAfterMeasure = currentIndex
@@ -951,11 +955,14 @@ internal class LayoutNodeSubcompositionsState(
          * pass, [subcompose] will return an [emptyList].
          */
         override fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable> {
-            val measurables = slotIdToNode[slotId]?.childMeasurables
-            if (measurables != null) {
-                return measurables
+            val nodeInSlot = slotIdToNode[slotId]
+            if (nodeInSlot != null && root.foldedChildren.indexOf(nodeInSlot) < currentIndex) {
+                // Check that the node has been composed in lookahead. Otherwise, we need to
+                // compose the node in approach pass via postLookaheadSubcompose.
+                return nodeInSlot.childMeasurables
+            } else {
+                return postLookaheadSubcompose(slotId, content)
             }
-            return postLookaheadSubcompose(slotId, content)
         }
     }
 
