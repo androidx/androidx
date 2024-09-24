@@ -48,6 +48,47 @@ class TextLayoutLineVisibleEndTest {
     }
 
     @Test
+    fun singleLine_withEllipsisStart() {
+        val text = "abcdefghij"
+        val textSize = 20.0f
+
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 4,
+                maxLines = 1,
+                ellipsize = TextUtils.TruncateAt.START
+            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(layout.getLineVisibleEnd(0)).isEqualTo(10)
+        } else {
+            assertThat(layout.getLineVisibleEnd(0)).isEqualTo(4)
+        }
+    }
+
+    @Test
+    fun singleLine_withEllipsisMiddle() {
+        val text = "abcdefghij"
+        val textSize = 20.0f
+
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 4,
+                maxLines = 1,
+                ellipsize = TextUtils.TruncateAt.MIDDLE
+            )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            assertThat(layout.getLineVisibleEnd(0)).isEqualTo(10)
+        } else {
+            assertThat(layout.getLineVisibleEnd(0)).isEqualTo(4)
+        }
+    }
+
+    @Test
     fun excludesLineBreak_whenMaxLinesPresent_withoutEllipsis() {
         val text = "abc\ndef"
         val textSize = 20.0f
@@ -75,6 +116,40 @@ class TextLayoutLineVisibleEndTest {
                 layoutWidth = textSize * 10,
                 maxLines = 1,
                 ellipsize = TextUtils.TruncateAt.END
+            )
+
+        assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
+    }
+
+    @Test
+    fun excludesLineBreak_whenMaxLinesPresent_withEllipsisStart() {
+        val text = "abc\ndef"
+        val textSize = 20.0f
+
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 10,
+                maxLines = 1,
+                ellipsize = TextUtils.TruncateAt.START
+            )
+
+        assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
+    }
+
+    @Test
+    fun excludesLineBreak_whenMaxLinesPresent_withEllipsisMiddle() {
+        val text = "abc\ndef"
+        val textSize = 20.0f
+
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 10,
+                maxLines = 1,
+                ellipsize = TextUtils.TruncateAt.MIDDLE
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
@@ -166,7 +241,7 @@ class TextLayoutLineVisibleEndTest {
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(0)
-        assertThat(layout.getLineVisibleEnd(1)).isEqualTo(2) // ellipsis character
+        assertThat(layout.getLineVisibleEnd(1)).isEqualTo(1)
     }
 
     private fun simpleLayout(

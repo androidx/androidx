@@ -1313,8 +1313,8 @@ class AndroidParagraphTest {
         }
     }
 
-    // Experimentally verified that middle and start ellipsis don't work correctly on API 21
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
+    // Experimentally verified that start ellipsis doesn't work same way on API 22
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testEllipsis_withMaxLinesOne_doesStartEllipsis() {
         with(defaultDensity) {
@@ -1336,7 +1336,7 @@ class AndroidParagraphTest {
         }
     }
 
-    // Experimentally verified that middle and start ellipsis don't work correctly on API 21
+    // Experimentally verified that middle ellipsis doesn't work same way on API 21
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testEllipsis_withMaxLinesOne_doesMiddleEllipsis() {
