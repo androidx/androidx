@@ -60,6 +60,8 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -563,16 +565,23 @@ internal constructor(
                 shouldAnimateSize = true
             }
         }
+        val sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?
         return if (shouldAnimateSize) {
-            val sizeAnimation = transition.createDeferredAnimation(IntSize.VectorConverter)
-            remember(sizeAnimation) {
-                (if (sizeTransform.value?.clip == false) Modifier else Modifier.clipToBounds())
-                    .then(SizeModifier(sizeAnimation, sizeTransform))
+                sizeAnimation = transition.createDeferredAnimation(IntSize.VectorConverter)
+                remember(sizeAnimation) {
+                    (if (sizeTransform.value?.clip == false) Modifier else Modifier.clipToBounds())
+                }
+            } else {
+                sizeAnimation = null
+                animatedSize = null
+                Modifier
             }
-        } else {
-            animatedSize = null
-            Modifier
-        }
+            .then(
+                // Keep the SizeModifier in the chain and switch between active animating and
+                // passive
+                // observing based on sizeAnimation's value
+                SizeModifierElement(sizeAnimation, sizeTransform)
+            )
     }
 
     // This helps track the target measurable without affecting the placement order. Target
@@ -587,31 +596,88 @@ internal constructor(
         }
     }
 
-    private inner class SizeModifier(
-        val sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>,
-        val sizeTransform: State<SizeTransform?>,
-    ) : LayoutModifierWithPassThroughIntrinsics() {
+    private inner class SizeModifierElement(
+        val sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?,
+        val sizeTransform: State<SizeTransform?>
+    ) : ModifierNodeElement<SizeModifierNode>() {
+        override fun create(): SizeModifierNode {
+            return SizeModifierNode(sizeAnimation, sizeTransform)
+        }
+
+        override fun hashCode(): Int {
+            return sizeAnimation.hashCode() * 31 + sizeTransform.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is AnimatedContentTransitionScopeImpl<*>.SizeModifierElement &&
+                other.sizeAnimation == sizeAnimation &&
+                other.sizeTransform == sizeTransform
+        }
+
+        override fun update(node: SizeModifierNode) {
+            node.sizeAnimation = sizeAnimation
+            node.sizeTransform = sizeTransform
+        }
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "sizeTransform"
+            properties["sizeAnimation"] = sizeAnimation
+            properties["sizeTransform"] = sizeTransform
+        }
+    }
+
+    private inner class SizeModifierNode(
+        var sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?,
+        var sizeTransform: State<SizeTransform?>,
+    ) : LayoutModifierNodeWithPassThroughIntrinsics() {
+        // This is used to track the on-going size change so that when the target state changes,
+        // we always start from the last seen size to the new target size to ensure continuity.
+        private var lastSize: IntSize = UnspecifiedSize
+
+        private fun lastContinuousSizeOrDefault(default: IntSize) =
+            if (lastSize == UnspecifiedSize) default else lastSize
+
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
-            val size =
-                sizeAnimation.animate(
-                    transitionSpec = {
-                        val initial = targetSizeMap[initialState]?.value ?: IntSize.Zero
-                        val target = targetSizeMap[targetState]?.value ?: IntSize.Zero
-                        sizeTransform.value?.createAnimationSpec(initial, target) ?: spring()
-                    }
-                ) {
-                    targetSizeMap[it]?.value ?: IntSize.Zero
-                }
-            animatedSize = size
             val measuredSize: IntSize
             if (isLookingAhead) {
                 measuredSize = IntSize(placeable.width, placeable.height)
+            } else if (sizeAnimation == null) {
+                // Observing mode
+                measuredSize = IntSize(placeable.width, placeable.height)
+                lastSize = IntSize(placeable.width, placeable.height)
             } else {
+                val currentSize = IntSize(placeable.width, placeable.height)
+                val size =
+                    sizeAnimation!!.animate(
+                        transitionSpec = {
+                            val initial =
+                                if (
+                                    initialState ==
+                                        this@AnimatedContentTransitionScopeImpl.initialState
+                                ) {
+                                    lastContinuousSizeOrDefault(currentSize)
+                                } else {
+                                    targetSizeMap[initialState]?.value ?: IntSize.Zero
+                                }
+                            val target = targetSizeMap[targetState]?.value ?: IntSize.Zero
+                            sizeTransform.value?.createAnimationSpec(initial, target)
+                                ?: spring(stiffness = Spring.StiffnessMediumLow)
+                        }
+                    ) {
+                        // Animate from the approach size to the lookahead size.
+                        if (it == initialState) {
+                            lastContinuousSizeOrDefault(currentSize)
+                        } else {
+                            targetSizeMap[it]?.value ?: IntSize.Zero
+                        }
+                    }
+                animatedSize = size
                 measuredSize = size.value
+                lastSize = size.value
             }
             return layout(measuredSize.width, measuredSize.height) {
                 val offset =
@@ -625,6 +691,8 @@ internal constructor(
         }
     }
 }
+
+private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
 /**
  * Receiver scope for content lambda for AnimatedContent. In this scope,
