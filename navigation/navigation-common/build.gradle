@@ -46,32 +46,34 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     api("androidx.savedstate:savedstate-ktx:1.2.1")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2")
+    api(libs.kotlinStdlib)
+
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.4.2")
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation(libs.kotlinSerializationCore)
 
-    api(libs.kotlinStdlib)
     testImplementation(project(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
-    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
 
-    androidTestImplementation(libs.kotlinTestJunit)
+    androidTestRuntimeOnly(libs.kotlinTestJunit)
+    androidTestRuntimeOnly(libs.testCore)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(libs.kotlinStdlib)
 
-    lintPublish(project(':navigation:navigation-common-lint'))
+    lintPublish(project(":navigation:navigation-common-lint"))
 }
 
 androidx {

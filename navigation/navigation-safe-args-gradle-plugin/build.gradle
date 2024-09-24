@@ -39,13 +39,18 @@ configurations {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:7.3.0")
-    implementation(libs.kotlinGradlePluginz)
     api(project(":navigation:navigation-safe-args-generator"))
     api(gradleApi())
+
+    implementation("com.android.tools.build:builder-model:7.3.0")
+    implementation("com.android.tools.build:gradle:7.3.0")
+    implementation("com.android.tools.build:gradle-api:7.3.0")
+    implementation(libs.kotlinGradlePluginz)
     implementation(libs.gson)
+
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
     testPlugin("com.android.tools.build:gradle:7.3.0")
     testPlugin("com.android.tools.build:aapt2:7.3.0-8691043")
