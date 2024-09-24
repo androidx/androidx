@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
@@ -27,6 +28,11 @@ import java.time.ZoneOffset
 /**
  * Captures the skin temperature of a user. Each record can represent a series of measurements of
  * temperature differences.
+ *
+ * The ability to insert or read this record type is dependent on the version of HealthConnect
+ * installed on the device. To check if available: call [HealthConnectFeatures.getFeatureStatus] and
+ * pass [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as an argument. See further down for an
+ * example on how to read skin temperature.
  *
  * @param startTime Start time of the record.
  * @param startZoneOffset User experienced zone offset at [startTime], or null if unknown. Providing
@@ -48,6 +54,7 @@ import java.time.ZoneOffset
  * @param metadata set of common metadata associated with the written record.
  * @throws IllegalArgumentException if [startTime] > [endTime] or [deltas] are not within the record
  *   time range or baseline is not within [MIN_TEMPERATURE], [MAX_TEMPERATURE].
+ * @sample androidx.health.connect.client.samples.ReadSkinTemperatureRecord
  */
 class SkinTemperatureRecord(
     override val startTime: Instant,
