@@ -23,6 +23,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +44,8 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.AlertDialog
 import androidx.wear.compose.material3.AlertDialogDefaults
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.RadioButton
@@ -56,6 +61,7 @@ val AlertDialogs =
         ComposableDemo("Bottom button") { AlertDialogWithBottomButtonSample() },
         ComposableDemo("Confirm and Dismiss") { AlertDialogWithConfirmAndDismissSample() },
         ComposableDemo("Content groups") { AlertDialogWithContentGroupsSample() },
+        ComposableDemo("Button stack") { AlertDialogWithButtonStack() },
         ComposableDemo("AlertDialog builder") { AlertDialogBuilder() },
     )
 
@@ -67,7 +73,7 @@ fun AlertDialogBuilder() {
     var showMessage by remember { mutableStateOf(false) }
     var showSecondaryButton by remember { mutableStateOf(false) }
     var showCaption by remember { mutableStateOf(false) }
-    var showTwoButtons by remember { mutableStateOf(false) }
+    var buttonsType by remember { mutableStateOf(AlertButtonsType.BOTTOM_BUTTON) }
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -121,17 +127,25 @@ fun AlertDialogBuilder() {
             item {
                 RadioButton(
                     modifier = Modifier.fillMaxWidth(),
-                    selected = !showTwoButtons,
-                    onSelect = { showTwoButtons = false },
+                    selected = buttonsType == AlertButtonsType.BOTTOM_BUTTON,
+                    onSelect = { buttonsType = AlertButtonsType.BOTTOM_BUTTON },
                     label = { Text("Single Bottom button") },
                 )
             }
             item {
                 RadioButton(
                     modifier = Modifier.fillMaxWidth(),
-                    selected = showTwoButtons,
-                    onSelect = { showTwoButtons = true },
+                    selected = buttonsType == AlertButtonsType.CONFIRM_DISMISS,
+                    onSelect = { buttonsType = AlertButtonsType.CONFIRM_DISMISS },
                     label = { Text("Ok/Cancel buttons") },
+                )
+            }
+            item {
+                RadioButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    selected = buttonsType == AlertButtonsType.NO_BUTTONS,
+                    onSelect = { buttonsType = AlertButtonsType.NO_BUTTONS },
+                    label = { Text("No bottom button") },
                 )
             }
             item { Button(onClick = { showDialog = true }, label = { Text("Show dialog") }) }
@@ -145,10 +159,64 @@ fun AlertDialogBuilder() {
             showCaption = showCaption,
             showSecondaryButton = showSecondaryButton,
             showMessage = showMessage,
-            showTwoButtons = showTwoButtons,
+            buttonsType = buttonsType,
             onConfirmButton = { showDialog = false },
             onDismissRequest = { showDialog = false }
         )
+    }
+}
+
+@Composable
+fun AlertDialogWithButtonStack() {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Box(Modifier.fillMaxSize()) {
+        FilledTonalButton(
+            modifier = Modifier.align(Alignment.Center),
+            onClick = { showDialog = true },
+            label = { Text("Show Dialog") }
+        )
+    }
+
+    AlertDialog(
+        show = showDialog,
+        onDismissRequest = { showDialog = false },
+        icon = {
+            Icon(
+                Icons.Rounded.AccountCircle,
+                modifier = Modifier.size(32.dp),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = { Text("Allow access to your photos?") },
+        text = { Text("Lerp ipsum dolor sit amet.") },
+        bottomButton = null,
+    ) {
+        item {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {},
+                label = { Text("While using app") },
+                icon = { Icon(Icons.Filled.Check, "Check") }
+            )
+        }
+        item {
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {},
+                label = { Text("Ask every time") },
+                icon = { Icon(Icons.Filled.Check, "Check") }
+            )
+        }
+        item {
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {},
+                label = { Text("Don't allow") },
+                icon = { Icon(Icons.Filled.Check, "Check") }
+            )
+        }
     }
 }
 
@@ -160,7 +228,7 @@ private fun CustomAlertDialog(
     properties: DialogProperties = DialogProperties(),
     showIcon: Boolean,
     onConfirmButton: () -> Unit,
-    showTwoButtons: Boolean,
+    buttonsType: AlertButtonsType,
     showMessage: Boolean,
     showSecondaryButton: Boolean,
     showCaption: Boolean,
@@ -183,15 +251,15 @@ private fun CustomAlertDialog(
                 { Message() }
             } else null,
         onConfirmButton =
-            if (showTwoButtons) {
+            if (buttonsType == AlertButtonsType.CONFIRM_DISMISS) {
                 onConfirmButton
             } else null,
         onDismissButton =
-            if (showTwoButtons) {
+            if (buttonsType == AlertButtonsType.CONFIRM_DISMISS) {
                 { /* dismiss action */ }
             } else null,
         onBottomButton =
-            if (!showTwoButtons) {
+            if (buttonsType == AlertButtonsType.BOTTOM_BUTTON) {
                 onConfirmButton
             } else null,
         content =
@@ -202,7 +270,7 @@ private fun CustomAlertDialog(
                     }
                     if (showCaption) {
                         item { Caption(captionHorizontalPadding) }
-                        if (!showTwoButtons) {
+                        if (buttonsType == AlertButtonsType.BOTTOM_BUTTON) {
                             item { AlertDialogDefaults.GroupSeparator() }
                         }
                     }
@@ -279,7 +347,7 @@ private fun AlertDialogHelper(
             dismissButton = { AlertDialogDefaults.DismissButton(onDismissButton) },
             content = content
         )
-    } else if (onBottomButton != null) {
+    } else
         AlertDialog(
             show = show,
             onDismissRequest = onDismissRequest,
@@ -288,8 +356,16 @@ private fun AlertDialogHelper(
             title = title,
             icon = icon,
             text = message,
-            bottomButton = { AlertDialogDefaults.BottomButton(onBottomButton) },
+            bottomButton =
+                if (onBottomButton != null) {
+                    { AlertDialogDefaults.BottomButton(onBottomButton) }
+                } else null,
             content = content
         )
-    }
+}
+
+private enum class AlertButtonsType {
+    NO_BUTTONS,
+    BOTTOM_BUTTON,
+    CONFIRM_DISMISS
 }
