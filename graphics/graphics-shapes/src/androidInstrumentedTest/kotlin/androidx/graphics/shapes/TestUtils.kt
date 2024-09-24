@@ -72,6 +72,26 @@ internal fun assertCubicListsEqualish(expected: List<Cubic>, actual: List<Cubic>
     }
 }
 
+internal fun assertFeaturesEqualish(expected: Feature, actual: Feature) {
+    assertCubicListsEqualish(expected.cubics, actual.cubics)
+    assertEquals(expected::class, actual::class)
+
+    if (expected is Feature.Corner && actual is Feature.Corner) {
+        pointsEqualish(expected.vertex, actual.vertex)
+        pointsEqualish(expected.roundedCenter, actual.roundedCenter)
+        assertEquals(expected.convex, actual.convex)
+    }
+}
+
+internal fun assertPolygonsEqualish(expected: RoundedPolygon, actual: RoundedPolygon) {
+    assertCubicListsEqualish(expected.cubics, actual.cubics)
+
+    assertEquals(expected.features.size, actual.features.size)
+    for (i in expected.features.indices) {
+        assertFeaturesEqualish(expected.features[i], actual.features[i])
+    }
+}
+
 internal fun assertPointGreaterish(expected: Point, actual: Point) {
     assertTrue(actual.x >= expected.x - Epsilon)
     assertTrue(actual.y >= expected.y - Epsilon)
