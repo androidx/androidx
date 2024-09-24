@@ -18,6 +18,7 @@ package androidx.navigation.common.lint
 
 import androidx.navigation.lint.common.KEEP_ANNOTATION
 import androidx.navigation.lint.common.NAVIGATION_STUBS
+import androidx.navigation.lint.common.NAV_DEEP_LINK
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -333,6 +334,133 @@ enum class TestEnum { ONE, TWO }
 src/com/example/TestClass.kt:8: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
 enum class DeepLinkArg
            ~~~~~~~~~~~
+0 errors, 1 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testDeeplinkBuilderSetUriPattern_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import androidx.annotation.Keep
+
+                @Keep enum class TestEnum { ONE, TWO }
+                class DeepLink(val arg: TestEnum)
+
+                fun navigation() {
+                    val builder = NavDeepLink.Builder()
+                    builder.setUriPattern<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testDeeplinkBuilderSetUriPattern_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+
+                enum class TestEnum { ONE, TWO }
+                class DeepLink(val arg: TestEnum)
+
+                fun navigation() {
+                    val builder = NavDeepLink.Builder()
+                    builder.setUriPattern<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expect(
+                """
+src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+enum class TestEnum { ONE, TWO }
+           ~~~~~~~~
+0 errors, 1 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testNavDeepLink_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import androidx.annotation.Keep
+
+                @Keep enum class TestEnum { ONE, TWO }
+                class DeepLink(val arg: TestEnum)
+
+                 class DeepLink
+
+                fun navigation() {
+                    navDeepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testNavDeepLink_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+
+                enum class TestEnum { ONE, TWO }
+                class DeepLink(val arg: TestEnum)
+
+                fun navigation() {
+                    navDeepLink<DeepLink>()
+
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                NAV_DEEP_LINK
+            )
+            .run()
+            .expect(
+                """
+src/com/example/TestEnum.kt:5: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+enum class TestEnum { ONE, TWO }
+           ~~~~~~~~
 0 errors, 1 warnings
             """
                     .trimIndent()
