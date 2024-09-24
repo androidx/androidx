@@ -573,7 +573,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     // on a different position, but also in the position of each of the grandparents as all these
     // positions add up to final global position)
     private val globalLayoutListener =
-        ViewTreeObserver.OnGlobalLayoutListener { updatePositionCacheAndDispatch() }
+        ViewTreeObserver.OnGlobalLayoutListener {
+            updatePositionCacheAndDispatch()
+            updateWindowMetrics()
+        }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
     // this could affect our global position
@@ -1750,6 +1753,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         _windowInfo.isWindowFocused = hasWindowFocus()
+        updateWindowMetrics()
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
@@ -2269,6 +2273,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
+    private fun updateWindowMetrics() {
+        _windowInfo.containerSize = calculateWindowSize(this)
+    }
+
     override fun onCheckIsTextEditor(): Boolean {
         val parentSession =
             textInputSessionMutex.currentSession
@@ -2301,6 +2309,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         density = Density(context)
+        updateWindowMetrics()
         if (newConfig.fontWeightAdjustmentCompat != currentFontWeightAdjustment) {
             currentFontWeightAdjustment = newConfig.fontWeightAdjustmentCompat
             fontFamilyResolver = createFontFamilyResolver(context)
