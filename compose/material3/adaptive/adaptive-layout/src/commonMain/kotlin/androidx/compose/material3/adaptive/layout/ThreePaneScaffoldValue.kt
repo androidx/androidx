@@ -47,7 +47,7 @@ private inline fun buildThreePaneScaffoldValue(
  * @param maxHorizontalPartitions The maximum allowed partitions along the horizontal axis, i.e.,
  *   how many expanded panes can be shown at the same time.
  * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
- *   the default value will be [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
+ *   the default value will be [ThreePaneScaffoldDefaults.adaptStrategies].
  * @param currentDestination The current destination item, which will be treated as having the
  *   highest priority, can be `null`.
  */
@@ -84,7 +84,7 @@ fun calculateThreePaneScaffoldValue(
  * @param maxHorizontalPartitions The maximum allowed partitions along the horizontal axis, i.e.,
  *   how many expanded panes can be shown at the same time.
  * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
- *   the default value will be [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
+ *   the default value will be [ThreePaneScaffoldDefaults.adaptStrategies].
  * @param destinationHistory The history of past destination items. The last destination will have
  *   the highest priority, and the second last destination will have the second highest priority,
  *   and so forth until all panes have a priority assigned. Note that the last destination is
