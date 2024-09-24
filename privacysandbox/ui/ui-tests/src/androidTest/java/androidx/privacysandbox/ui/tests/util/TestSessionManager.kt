@@ -160,12 +160,14 @@ class TestSessionManager(
             this.initialWidth = initialWidth
             session =
                 if (hasFailingTestSession) {
-                    FailingTestSession(context, client)
+                    FailingTestSession(context, client, clientExecutor)
                 } else {
                     TestSession(context, client, placeViewInsideFrameLayout)
                 }
-            client.onSessionOpened(session)
-            openSessionLatch.countDown()
+            clientExecutor.execute {
+                client.onSessionOpened(session)
+                openSessionLatch.countDown()
+            }
         }
 
         /**
@@ -173,11 +175,14 @@ class TestSessionManager(
          */
         inner class FailingTestSession(
             private val context: Context,
-            sessionClient: SandboxedUiAdapter.SessionClient
+            sessionClient: SandboxedUiAdapter.SessionClient,
+            private val clientExecutor: Executor,
         ) : TestSession(context, sessionClient) {
             override val view: View
                 get() {
-                    sessionClient.onSessionError(Throwable("Test Session Exception"))
+                    clientExecutor.execute {
+                        sessionClient.onSessionError(Throwable("Test Session Exception"))
+                    }
                     return View(context)
                 }
 
