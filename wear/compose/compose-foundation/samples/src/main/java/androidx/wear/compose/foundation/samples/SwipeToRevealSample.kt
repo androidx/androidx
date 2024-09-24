@@ -185,7 +185,7 @@ fun SwipeToRevealWithExpandables() {
                                     listOf(
                                         CustomAccessibilityAction("Delete") {
                                             coroutineScope.launch {
-                                                revealState.animateTo(RevealValue.Revealed)
+                                                revealState.animateTo(RevealValue.RightRevealed)
                                             }
                                             true
                                         }
@@ -199,7 +199,7 @@ fun SwipeToRevealWithExpandables() {
                                         .background(Color.Red, actionShape)
                                         .clickable {
                                             coroutineScope.launch {
-                                                revealState.animateTo(RevealValue.Revealed)
+                                                revealState.animateTo(RevealValue.RightRevealed)
                                             }
                                         },
                                 contentAlignment = Alignment.Center

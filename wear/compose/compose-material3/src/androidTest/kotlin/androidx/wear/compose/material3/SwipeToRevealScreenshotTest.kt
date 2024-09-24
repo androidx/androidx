@@ -33,6 +33,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
+import androidx.wear.compose.foundation.SwipeDirection
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
@@ -57,7 +58,7 @@ class SwipeToRevealScreenshotTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SwipeToReveal(
                     modifier = Modifier.testTag(TEST_TAG),
-                    revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                    revealState = rememberRevealState(initialValue = RevealValue.RightRevealing),
                     actions = {
                         primaryAction(
                             {},
@@ -83,7 +84,7 @@ class SwipeToRevealScreenshotTest {
                     modifier = Modifier.testTag(TEST_TAG),
                     revealState =
                         rememberRevealState(
-                            initialValue = RevealValue.Revealing,
+                            initialValue = RevealValue.RightRevealing,
                             anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
                         ),
                     actions = {
@@ -114,7 +115,7 @@ class SwipeToRevealScreenshotTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SwipeToReveal(
                     modifier = Modifier.testTag(TEST_TAG),
-                    revealState = rememberRevealState(initialValue = RevealValue.Revealed),
+                    revealState = rememberRevealState(initialValue = RevealValue.RightRevealed),
                     actions = {
                         primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
                         undoPrimaryAction({}, "Undo Primary")
@@ -134,7 +135,7 @@ class SwipeToRevealScreenshotTest {
                 SwipeToReveal(
                     modifier = Modifier.testTag(TEST_TAG),
                     revealState =
-                        rememberRevealState(initialValue = RevealValue.Revealed).apply {
+                        rememberRevealState(initialValue = RevealValue.RightRevealed).apply {
                             lastActionType = RevealActionType.SecondaryAction
                         },
                     actions = {
@@ -176,7 +177,7 @@ class SwipeToRevealScreenshotTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SwipeToReveal(
                     modifier = Modifier.testTag(TEST_TAG),
-                    revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                    revealState = rememberRevealState(initialValue = RevealValue.RightRevealing),
                     actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
                     actions = {
                         primaryAction(
@@ -205,7 +206,7 @@ class SwipeToRevealScreenshotTest {
                     modifier = Modifier.testTag(TEST_TAG),
                     revealState =
                         rememberRevealState(
-                            initialValue = RevealValue.Revealing,
+                            initialValue = RevealValue.RightRevealing,
                             anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
                         ),
                     actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
@@ -224,6 +225,40 @@ class SwipeToRevealScreenshotTest {
                 ) {
                     Card({}, Modifier.fillMaxWidth()) {
                         Text("This content should be partially visible.")
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun swipeToReveal_showsPrimaryAndSecondaryActionsLeft(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState =
+                        rememberRevealState(
+                            initialValue = RevealValue.LeftRevealing,
+                            anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth,
+                            swipeDirection = SwipeDirection.Both
+                        ),
+                    actions = {
+                        primaryAction(
+                            {},
+                            { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
+                            "Clear"
+                        )
+                        secondaryAction(
+                            {},
+                            { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
+                            "More"
+                        )
+                    }
+                ) {
+                    Button({}, Modifier.fillMaxWidth()) {
+                        Text("This text should be partially visible.")
                     }
                 }
             }

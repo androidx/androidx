@@ -41,7 +41,9 @@ fun SwipeToRevealSample() {
     SwipeToReveal(
         // Use the double action anchor width when revealing two actions
         revealState =
-            rememberRevealState(anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth),
+            rememberRevealState(
+                anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth,
+            ),
         actions = {
             primaryAction(
                 onClick = { /* This block is called when the primary action is executed. */ },
