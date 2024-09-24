@@ -477,7 +477,7 @@ object SplitButtonDefaults {
     /** Default size for the leading button end corners and trailing button start corners */
     // TODO update token to dp size and use it here
     val InnerCornerSize = SplitButtonSmallTokens.InnerCornerSize
-    private val InnerCornerSizePressed = ShapeDefaults.CornerMedium
+    private val InnerCornerSizePressed = SplitButtonSmallTokens.InnerCornerPressedSize
 
     /**
      * Default percentage size for the leading button start corners and trailing button end corners
