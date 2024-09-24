@@ -976,7 +976,6 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("RestrictedApiAndroidX")
     private void setUpTakePictureButton() {
         mTakePicture.setOnClickListener(
                 new View.OnClickListener() {
