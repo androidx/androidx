@@ -40,6 +40,7 @@ dependencies {
     implementation("androidx.test:runner:$testRunnerVersion")
 
     api("androidx.annotation:annotation:1.8.1")
+    implementation(project(':camera:camera-camera2-pipe-integration'))
     api(project(":camera:camera-core"))
     api(project(":camera:camera-lifecycle"))
     api(project(":camera:camera-video"))

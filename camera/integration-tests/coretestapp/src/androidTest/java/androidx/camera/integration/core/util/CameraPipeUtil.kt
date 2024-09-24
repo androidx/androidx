@@ -35,7 +35,6 @@ import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ExtendableBuilder
 import com.google.common.util.concurrent.ListenableFuture
-import org.junit.Assume.assumeTrue
 
 object CameraPipeUtil {
 
@@ -259,7 +258,4 @@ object CameraPipeUtil {
             else -> throw IllegalArgumentException("Unexpected implementation: $implName")
         }
     }
-
-    fun String.ignoreTestForCameraPipe(message: String) =
-        assumeTrue(message, this != CameraPipeConfig::class.simpleName)
 }
