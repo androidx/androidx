@@ -21,9 +21,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -63,13 +67,16 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -1436,6 +1443,131 @@ class AppBarTest {
         val boundsAfter = rule.onNodeWithTag(TopAppBarTestTag).getBoundsInRoot()
         assertThat(TopAppBarLargeTokens.ContainerHeight).isGreaterThan(boundsAfter.height)
         assertThat(TopAppBarSmallTokens.ContainerHeight).isLessThan(boundsAfter.height)
+    }
+
+    // Disabled on older APIs which seem to run on a small Nexus device that fails this test.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun topAppBar_enterAlways_scrollingAndContentMovement() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        lateinit var state: LazyListState
+        var appBarHeightPx = 0f
+        rule.setMaterialContentForSizeAssertions {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            state = rememberLazyListState()
+            appBarHeightPx = with(rule.density) { TopAppBarSmallTokens.ContainerHeight.toPx() }
+            Scaffold(
+                modifier = Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.systemBars),
+                topBar = { TopAppBar(title = { Text("Title") }, scrollBehavior = scrollBehavior) },
+            ) { paddingValues ->
+                LazyColumn(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .nestedScroll(scrollBehavior.nestedScrollConnection)
+                            .padding(paddingValues)
+                            .testTag(LazyListTag),
+                    state = state,
+                ) {
+                    items(100) { i ->
+                        Text(
+                            modifier =
+                                Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 16.dp),
+                            text = "Item $i",
+                        )
+                    }
+                }
+            }
+        }
+
+        // Swipe up to scroll the content and collapse the top app bar.
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            swipeUp(startY = height - 200f, endY = height - 1000f)
+        }
+        rule.waitForIdle()
+
+        // Store the first visible item's top offset.
+        val topVisibleItemIndex = state.layoutInfo.visibleItemsInfo.first().index
+        val topItemTopBeforeExpansion =
+            rule.onNodeWithTag(LazyListTag).onChildAt(topVisibleItemIndex).getBoundsInRoot().top
+
+        // Swipe down to trigger a top app bar expansion without scrolling much the content.
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            swipeDown(startY = height - 1000f, endY = height - (1000f - appBarHeightPx / 2))
+        }
+        rule.waitForIdle()
+
+        // Asserts that the first item has moved along with the expansion of the top app bar.
+        rule
+            .onNodeWithTag(LazyListTag)
+            .onChildAt(topVisibleItemIndex)
+            .assertTopPositionInRootIsEqualTo(
+                topItemTopBeforeExpansion + TopAppBarSmallTokens.ContainerHeight
+            )
+    }
+
+    @Test
+    fun topAppBar_enterAlways_reverseLayout_scrollingAndContentMovement() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        lateinit var state: LazyListState
+        var appBarHeightPx = 0f
+
+        rule.setMaterialContentForSizeAssertions {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(reverseLayout = true)
+            state = rememberLazyListState()
+            appBarHeightPx = with(rule.density) { TopAppBarSmallTokens.ContainerHeight.toPx() }
+            Scaffold(
+                modifier = Modifier.fillMaxSize().consumeWindowInsets(WindowInsets.systemBars),
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Title") },
+                        modifier = Modifier.testTag(TopAppBarTestTag),
+                        scrollBehavior = scrollBehavior
+                    )
+                },
+            ) { paddingValues ->
+                LazyColumn(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .nestedScroll(scrollBehavior.nestedScrollConnection)
+                            .padding(paddingValues)
+                            .testTag(LazyListTag),
+                    state = state,
+                    reverseLayout = true,
+                ) {
+                    items(100) { i ->
+                        Text(
+                            modifier =
+                                Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 16.dp),
+                            text = "Item $i",
+                        )
+                    }
+                }
+            }
+        }
+
+        // Swipe down to scroll the content in the reverse layout.
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            swipeDown(startY = height - 1000f, endY = height - 300f)
+        }
+        rule.waitForIdle()
+
+        // Swipe up to trigger a top app bar collapse without scrolling much the content.
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            down(Offset(x = width / 2f, y = height / 2f))
+            moveTo(Offset(x = width / 2f, y = height / 2f - appBarHeightPx + 50))
+        }
+        rule.waitForIdle()
+
+        // Asserts that the first item has moved along with the collapsing of the top app bar.
+        val newTopVisibleItemIndex = state.layoutInfo.visibleItemsInfo.last().index
+        val bottomAppBarWhileCollapsing =
+            rule.onNodeWithTag(TopAppBarTestTag).getBoundsInRoot().bottom
+        val topVisibleItemTopWhileCollapsing =
+            rule.onNodeWithText("Item $newTopVisibleItemIndex").getBoundsInRoot().top
+        topVisibleItemTopWhileCollapsing.assertIsEqualTo(
+            expected = bottomAppBarWhileCollapsing,
+            subject = "Top item comparison to bottom app bar"
+        )
     }
 
     @Test

@@ -1589,6 +1589,7 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
@@ -1597,12 +1598,49 @@ object TopAppBarDefaults {
         // TODO Load the motionScheme tokens from the component tokens file
         snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
+    ): TopAppBarScrollBehavior {
+        return enterAlwaysScrollBehavior(
+            state = state,
+            canScroll = canScroll,
+            snapAnimationSpec = snapAnimationSpec,
+            flingAnimationSpec = flingAnimationSpec,
+            reverseLayout = false
+        )
+    }
+
+    /**
+     * Returns a [TopAppBarScrollBehavior]. A top app bar that is set up with this
+     * [TopAppBarScrollBehavior] will immediately collapse when the content is pulled up, and will
+     * immediately appear when the content is pulled down.
+     *
+     * @param state the state object to be used to control or observe the top app bar's scroll
+     *   state. See [rememberTopAppBarState] for a state that is remembered across compositions.
+     * @param canScroll a callback used to determine whether scroll events are to be handled by this
+     *   [EnterAlwaysScrollBehavior]
+     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the top app bar snaps
+     *   to either fully collapsed or fully extended state when a fling or a drag scrolled it into
+     *   an intermediate position
+     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
+     *   app bar when the user flings the app bar itself, or the content below it
+     * @param reverseLayout indicates that this behavior is applied to a scrollable content that has
+     *   a reversed direction of scrolling and layout
+     */
+    @ExperimentalMaterial3Api
+    @Composable
+    fun enterAlwaysScrollBehavior(
+        state: TopAppBarState = rememberTopAppBarState(),
+        canScroll: () -> Boolean = { true },
+        // TODO Load the motionScheme tokens from the component tokens file
+        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
+        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay(),
+        reverseLayout: Boolean = false
     ): TopAppBarScrollBehavior =
         EnterAlwaysScrollBehavior(
             state = state,
             snapAnimationSpec = snapAnimationSpec,
             flingAnimationSpec = flingAnimationSpec,
-            canScroll = canScroll
+            canScroll = canScroll,
+            reverseLayout = reverseLayout
         )
 
     /**
@@ -2811,13 +2849,16 @@ private class PinnedScrollBehavior(
  *   bar when the user flings the app bar itself, or the content below it
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [EnterAlwaysScrollBehavior]
+ * @param reverseLayout indicates that this behavior is applied to a scrollable content that has a
+ *   reversed direction of scrolling and layout
  */
 @OptIn(ExperimentalMaterial3Api::class)
 private class EnterAlwaysScrollBehavior(
     override val state: TopAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
     override val flingAnimationSpec: DecayAnimationSpec<Float>?,
-    val canScroll: () -> Boolean = { true }
+    val canScroll: () -> Boolean = { true },
+    val reverseLayout: Boolean = false
 ) : TopAppBarScrollBehavior {
     override val isPinned: Boolean = false
     override var nestedScrollConnection =
@@ -2825,8 +2866,14 @@ private class EnterAlwaysScrollBehavior(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (!canScroll()) return Offset.Zero
                 val prevHeightOffset = state.heightOffset
-                state.heightOffset = state.heightOffset + available.y
-                return if (prevHeightOffset != state.heightOffset) {
+                state.heightOffset += available.y
+                // The state's heightOffset is coerce in a minimum value of heightOffsetLimit and a
+                // maximum value 0f, so we check if its value was actually changed after the
+                // available.y was added to it in order to tell if the top app bar is currently
+                // collapsing or expanding.
+                // Note that when the content was set with a revered layout, we always return a
+                // zero offset.
+                return if (!reverseLayout && prevHeightOffset != state.heightOffset) {
                     // We're in the middle of top app bar collapse or expand.
                     // Consume only the scroll on the Y axis.
                     available.copy(x = 0f)
@@ -2849,7 +2896,7 @@ private class EnterAlwaysScrollBehavior(
                         state.contentOffset = 0f
                     }
                 }
-                state.heightOffset = state.heightOffset + consumed.y
+                if (!reverseLayout) state.heightOffset += consumed.y
                 return Offset.Zero
             }
 
