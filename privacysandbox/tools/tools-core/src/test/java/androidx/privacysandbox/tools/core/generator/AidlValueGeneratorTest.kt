@@ -39,31 +39,33 @@ class AidlValueGeneratorTest {
     fun generate() {
         val innerEnum =
             AnnotatedEnumClass(
-                Type(packageName = "com.mysdk", simpleName = "InnerEnum"),
-                listOf("ONE, TWO, THREE")
+                type = Type(packageName = "com.mysdk", simpleName = "InnerEnum"),
+                variants = listOf("ONE, TWO, THREE")
             )
         val innerValue =
             AnnotatedDataClass(
-                Type(packageName = "com.mysdk", simpleName = "InnerValue"),
-                listOf(
-                    ValueProperty("intProperty", Types.int),
-                    ValueProperty("booleanProperty", Types.boolean),
-                    ValueProperty("longProperty", Types.long),
-                    ValueProperty("maybeFloatProperty", Types.float.asNullable()),
-                    ValueProperty("maybeByteProperty", Types.byte.asNullable()),
-                    ValueProperty("enumProperty", innerEnum.type),
-                    ValueProperty("bundleProperty", Types.bundle),
-                    ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
-                )
+                type = Type(packageName = "com.mysdk", simpleName = "InnerValue"),
+                properties =
+                    listOf(
+                        ValueProperty("intProperty", Types.int),
+                        ValueProperty("booleanProperty", Types.boolean),
+                        ValueProperty("longProperty", Types.long),
+                        ValueProperty("maybeFloatProperty", Types.float.asNullable()),
+                        ValueProperty("maybeByteProperty", Types.byte.asNullable()),
+                        ValueProperty("enumProperty", innerEnum.type),
+                        ValueProperty("bundleProperty", Types.bundle),
+                        ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
+                    )
             )
         val outerValue =
             AnnotatedDataClass(
-                Type(packageName = "com.mysdk", simpleName = "OuterValue"),
-                listOf(
-                    ValueProperty("innerValue", innerValue.type),
-                    ValueProperty("innerValueList", Types.list(innerValue.type)),
-                    ValueProperty("maybeInnerValue", innerValue.type.asNullable()),
-                )
+                type = Type(packageName = "com.mysdk", simpleName = "OuterValue"),
+                properties =
+                    listOf(
+                        ValueProperty("innerValue", innerValue.type),
+                        ValueProperty("innerValueList", Types.list(innerValue.type)),
+                        ValueProperty("maybeInnerValue", innerValue.type.asNullable()),
+                    )
             )
 
         val api =

@@ -17,4 +17,10 @@ public data class InnerSdkValue(
     public val maybeNumber: Int?,
     public val maybeInterface: MyInterface?,
     public val maybeBundle: Bundle?,
-)
+) {
+    public companion object {
+        public const val DEFAULT_USER_ID: Int = 42
+
+        public const val DEFAULT_SEPARATOR: Char = '\"'
+    }
+}
