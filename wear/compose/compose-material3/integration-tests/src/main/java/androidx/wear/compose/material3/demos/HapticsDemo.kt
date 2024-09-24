@@ -16,14 +16,29 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 
@@ -63,7 +78,26 @@ fun HapticsDemos() {
             Pair(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE, "Virtual Key Release"),
         )
 
+    val premiumVibratorEnabled = isPremiumVibratorEnabled()
+
     ScalingLazyDemo {
+        item { ListHeader { Text("Premium Haptics") } }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector =
+                        if (premiumVibratorEnabled) Icons.Filled.Check else Icons.Filled.Close,
+                    contentDescription = "Premium Haptics Status",
+                    tint = if (premiumVibratorEnabled) Color.Green else Color.Red
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (premiumVibratorEnabled) "Enabled" else "Disabled")
+            }
+        }
         item { ListHeader { Text("Haptic Constants") } }
         items(hapticConstants.size) { index ->
             val (constant, name) = hapticConstants[index]
@@ -91,4 +125,24 @@ private class HapticFeedbackProvider(private val view: View) {
     fun performHapticFeedback(feedbackConstant: Int) {
         view.performHapticFeedback(feedbackConstant)
     }
+}
+
+@Composable
+fun isPremiumVibratorEnabled(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        // NB whilst the 'areAllPrimitivesSupported' API needs R (API 30), we need S (API
+        // 31) so that PRIMITIVE_THUD is available.
+        val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
+        if (
+            vibrator.areAllPrimitivesSupported(
+                VibrationEffect.Composition.PRIMITIVE_CLICK,
+                VibrationEffect.Composition.PRIMITIVE_TICK,
+                VibrationEffect.Composition.PRIMITIVE_THUD
+            )
+        ) {
+            return true
+        }
+    }
+
+    return false
 }

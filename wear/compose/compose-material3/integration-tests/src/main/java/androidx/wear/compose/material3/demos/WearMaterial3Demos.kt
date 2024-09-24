@@ -46,6 +46,7 @@ val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
         listOf(
+            ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
             Material3DemoCategory(title = "Typography", TypographyDemos),
             Material3DemoCategory(
                 "Button",
@@ -69,7 +70,6 @@ val WearMaterial3Demos =
             Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
             ComposableDemo("Scaffold") { ScaffoldSample() },
             Material3DemoCategory("ScrollAway", ScrollAwayDemos),
-            ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
             ComposableDemo("Compact Button") { CompactButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
             ComposableDemo("Image Button") { ImageButtonDemo() },
