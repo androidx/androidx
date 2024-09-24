@@ -426,7 +426,7 @@ internal class RememberedCoroutineScope(
     private val parentContext: CoroutineContext,
     private val overlayContext: CoroutineContext,
 ) : CoroutineScope, RememberObserver {
-    private val lock = SynchronizedObject()
+    private val lock = makeSynchronizedObject(this)
 
     // The goal of this implementation is to make cancellation as cheap as possible if the
     // coroutineContext property was never accessed, consisting only of taking a monitor lock and

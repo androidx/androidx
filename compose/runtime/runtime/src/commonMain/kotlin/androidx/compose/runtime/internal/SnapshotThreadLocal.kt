@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.internal
 
-import androidx.compose.runtime.SynchronizedObject
+import androidx.compose.runtime.makeSynchronizedObject
 import androidx.compose.runtime.synchronized
 
 /**
@@ -30,7 +30,7 @@ import androidx.compose.runtime.synchronized
  */
 internal class SnapshotThreadLocal<T> {
     private val map = AtomicReference(emptyThreadMap)
-    private val writeMutex = SynchronizedObject()
+    private val writeMutex = makeSynchronizedObject()
 
     private var mainThreadValue: T? = null
 

@@ -21,7 +21,6 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.DerivedState
 import androidx.compose.runtime.DerivedStateObserver
-import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
@@ -30,6 +29,7 @@ import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.internal.currentThreadName
+import androidx.compose.runtime.makeSynchronizedObject
 import androidx.compose.runtime.observeDerivedStateRecalculations
 import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.structuralEqualityPolicy
@@ -172,7 +172,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * The list only grows.
      */
     private val observedScopeMaps = mutableVectorOf<ObservedScopeMap>()
-    private val observedScopeMapsLock = SynchronizedObject()
+    private val observedScopeMapsLock = makeSynchronizedObject()
 
     /**
      * Helper for synchronized iteration over [observedScopeMaps]. All observed reads should happen
