@@ -72,11 +72,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
 
     private final DVector2 mLastPosition = new DVector2();
     private long mLastSeenEventTime;
-    private long mLastPredictEventTime;
+    private double mLastPredictEventTime;
     private long mDownEventTime;
-    private List<Float> mReportRates = new LinkedList<>();
+    private List<Double> mReportRates = new LinkedList<>();
     private int mExpectedPredictionSampleSize = -1;
-    private float mReportRateMs = 0;
+    private double mReportRateMs = 0;
 
     private final DVector2 mPosition = new DVector2();
     private final DVector2 mVelocity = new DVector2();
@@ -141,10 +141,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
         // to be used as an estimate.
         if (mReportRates != null && mReportRates.size() < 20) {
             if (mLastSeenEventTime > 0) {
-                float dt = eventTime - mLastSeenEventTime;
+                double dt = eventTime - mLastSeenEventTime;
                 mReportRates.add(dt);
-                float sum = 0;
-                for (float rate : mReportRates) {
+                double sum = 0;
+                for (double rate : mReportRates) {
                     sum += rate;
                 }
                 mReportRateMs = sum / mReportRates.size();
@@ -250,16 +250,6 @@ public class SinglePointerPredictor implements KalmanPredictor {
         int predictionTargetInSamples =
                 (int) Math.ceil(predictionTargetMs / mReportRateMs * confidenceFactor);
 
-        // Predict at least as far in time as the previous prediction.
-        // Otherwise, it may appear that the coordinates are going backwards.
-        if (mLastPredictEventTime > mLastSeenEventTime) {
-            int minimumPredictionSampleSize = (int) Math.floor(
-                    (mLastPredictEventTime - mLastSeenEventTime) / mReportRateMs
-            );
-            if (predictionTargetInSamples < minimumPredictionSampleSize) {
-                predictionTargetInSamples = minimumPredictionSampleSize;
-            }
-        }
         if (mExpectedPredictionSampleSize != -1) {
             // Normally this should always be false as confidenceFactor should be less than 1.0
             if (predictionTargetInSamples > mExpectedPredictionSampleSize) {
@@ -272,9 +262,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
             predictionTargetInSamples = Math.max(predictionTargetInSamples, 1);
         }
 
-        long predictedEventTime = mLastSeenEventTime;
-        int i = 0;
-        for (; i < predictionTargetInSamples; i++) {
+        double predictedEventTime = mLastSeenEventTime;
+        double nextPredictedEventTime = mLastSeenEventTime + mReportRateMs;
+        for (int i = 0;
+                i < predictionTargetInSamples || (nextPredictedEventTime <= mLastPredictEventTime);
+                i++) {
             mAcceleration.a1 += mJank.a1 * JANK_INFLUENCE;
             mAcceleration.a2 += mJank.a2 * JANK_INFLUENCE;
             mVelocity.a1 += mAcceleration.a1 * ACCELERATION_INFLUENCE;
@@ -289,8 +281,6 @@ public class SinglePointerPredictor implements KalmanPredictor {
             } else if (mPressure > 1) {
                 mPressure = 1;
             }
-
-            long nextPredictedEventTime = predictedEventTime + Math.round(mReportRateMs);
 
             // Abort prediction if the pen is to be lifted.
             if (mPredictLift
@@ -310,7 +300,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
                 predictedEvent =
                         MotionEvent.obtain(
                                 mDownEventTime /* downTime */,
-                                nextPredictedEventTime /* eventTime */,
+                                (long) nextPredictedEventTime /* eventTime */,
                                 MotionEvent.ACTION_MOVE /* action */,
                                 1 /* pointerCount */,
                                 pointerProperties /* pointer properties */,
@@ -324,9 +314,13 @@ public class SinglePointerPredictor implements KalmanPredictor {
                                 0 /* source */,
                                 0 /* flags */);
             } else {
-                predictedEvent.addBatch(nextPredictedEventTime, coords, 0);
+                predictedEvent.addBatch((long) nextPredictedEventTime, coords, 0);
             }
+            // Keep track of the last predicted time
             predictedEventTime = nextPredictedEventTime;
+
+            // Prepare for next iteration
+            nextPredictedEventTime += mReportRateMs;
         }
 
         // Store the last predicted time
