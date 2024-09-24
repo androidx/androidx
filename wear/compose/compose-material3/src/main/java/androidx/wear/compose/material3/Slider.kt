@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -52,6 +50,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.SliderDefaults.MaxSegmentSteps
+import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.Strings.Companion.SliderDecreaseButtonContentDescription
 import androidx.wear.compose.material3.internal.Strings.Companion.SliderIncreaseButtonContentDescription
 import androidx.wear.compose.material3.internal.getString
@@ -60,7 +59,6 @@ import androidx.wear.compose.material3.tokens.SliderTokens
 import androidx.wear.compose.materialcore.InlineSliderButton
 import androidx.wear.compose.materialcore.RangeDefaults.calculateCurrentStepValue
 import androidx.wear.compose.materialcore.RangeDefaults.snapValueToStep
-import androidx.wear.compose.materialcore.RangeIcons
 import androidx.wear.compose.materialcore.directedValue
 import kotlin.math.roundToInt
 
@@ -228,8 +226,9 @@ fun Slider(
  *
  * The bar in the middle of control can have separators if [segmented] flag is set to true. A number
  * of steps is calculated as the difference between max and min values of [valueProgression] divided
- * by [valueProgression].step - 1. For example, with a range of 100..120 and a step 5, number of
- * steps will be (120-100)/ 5 - 1 = 3. Steps are 100(first), 105, 110, 115, 120(last)
+ * by [valueProgression].step - 1. For example, with a range of 100..120 and a step 5, number of by
+ * [valueProgression].step - 1. For example, with a range of 100..120 and a step 5, number of steps
+ * will be (120-100)/ 5 - 1 = 3. Steps are 100(first), 105, 110, 115, 120(last)
  *
  * If [valueProgression] range is not equally divisible by [valueProgression].step, then
  * [valueProgression].last will be adjusted to the closest divisible value in the range. For
@@ -306,7 +305,7 @@ object SliderDefaults {
     @Composable
     fun DecreaseIcon(modifier: Modifier = Modifier) =
         Icon(
-            RangeIcons.Minus,
+            Icons.Remove,
             getString(SliderDecreaseButtonContentDescription),
             modifier.size(IconSize)
         )
@@ -314,11 +313,7 @@ object SliderDefaults {
     /** Increase Icon. */
     @Composable
     fun IncreaseIcon(modifier: Modifier = Modifier) =
-        Icon(
-            Icons.Filled.Add,
-            getString(SliderIncreaseButtonContentDescription),
-            modifier.size(IconSize)
-        )
+        Icon(Icons.Add, getString(SliderIncreaseButtonContentDescription), modifier.size(IconSize))
 
     /**
      * Creates a [SliderColors] that represents the default background and content colors used in an
