@@ -17,7 +17,7 @@
 package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.demos.collection.MutableColorList
+import androidx.compose.foundation.demos.collection.buildColorList
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,16 +61,14 @@ private val Purple = Color(0xff7B4397)
 
 // red is used for the selection container color
 private val Rainbow =
-    MutableColorList(initialCapacity = 6)
-        .apply {
-            add(Orange)
-            add(Yellow)
-            add(Green)
-            add(Blue)
-            add(Indigo)
-            add(Purple)
-        }
-        .asColorList()
+    buildColorList(initialCapacity = 6) {
+        add(Orange)
+        add(Yellow)
+        add(Green)
+        add(Blue)
+        add(Indigo)
+        add(Purple)
+    }
 
 @Composable
 fun MinTouchTargetTextSelection() {

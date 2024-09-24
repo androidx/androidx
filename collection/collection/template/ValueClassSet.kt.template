@@ -24,6 +24,7 @@
     "NOTHING_TO_INLINE",
     "UnusedImport",
 )
+@file:OptIn(ExperimentalContracts::class)
 
 package PACKAGE
 
@@ -34,6 +35,7 @@ import androidx.collection.emptyPRIMITIVESet
 import androidx.collection.mutablePRIMITIVESetOf
 import VALUE_PKG.VALUE_CLASS
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
 
@@ -137,6 +139,37 @@ VISIBILITY fun mutableVALUE_CLASSSetOf(
     )
 
 /**
+ * Builds a new [VALUE_CLASSSet] by populating a [MutableVALUE_CLASSSet] using the given
+ * [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ */
+VISIBILITY inline fun buildVALUE_CLASSSet(
+    builderAction: MutableVALUE_CLASSSet.() -> Unit,
+): VALUE_CLASSSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableVALUE_CLASSSet().apply(builderAction).asVALUE_CLASSSet()
+}
+
+/**
+ * Builds a new [VALUE_CLASSSet] by populating a [MutableVALUE_CLASSSet] using the given
+ * [builderAction].
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ */
+VISIBILITY inline fun buildVALUE_CLASSSet(
+    initialCapacity: Int,
+    builderAction: MutableVALUE_CLASSSet.() -> Unit,
+): VALUE_CLASSSet {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableVALUE_CLASSSet(initialCapacity).apply(builderAction).asVALUE_CLASSSet()
+}
+
+/**
  * [VALUE_CLASSSet] is a container with a [Set]-like interface designed to avoid
  * allocations, including boxing.
  *
@@ -151,7 +184,6 @@ VISIBILITY fun mutableVALUE_CLASSSetOf(
  *
  * @see [MutableVALUE_CLASSSet]
  */
-@OptIn(ExperimentalContracts::class)
 @JvmInline
 VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
     /**
@@ -302,7 +334,6 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
  * the set (insertion or removal for instance), the calling code must provide
  * the appropriate synchronization. Concurrent reads are however safe.
  */
-@OptIn(ExperimentalContracts::class)
 @JvmInline
 VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
     /**

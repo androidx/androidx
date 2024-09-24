@@ -188,6 +188,35 @@ class PKeyPValueMapTest {
     }
 
     @Test
+    fun buildPKeyPValueMapFunction() {
+        val contract: Boolean
+        val map = buildPKeyPValueMap {
+            contract = true
+            put(1KeySuffix, 1ValueSuffix)
+            put(2KeySuffix, 2ValueSuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+        assertEquals(2ValueSuffix, map[2KeySuffix])
+    }
+
+    @Test
+    fun buildPKeyObjectMapWithCapacityFunction() {
+        val contract: Boolean
+        val map = buildPKeyPValueMap(20) {
+            contract = true
+            put(1KeySuffix, 1ValueSuffix)
+            put(2KeySuffix, 2ValueSuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+        assertEquals(2ValueSuffix, map[2KeySuffix])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutablePKeyPValueMap()
         map[1KeySuffix] = 1ValueSuffix

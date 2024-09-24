@@ -23,6 +23,7 @@ import androidx.collection.internal.throwIllegalArgumentException
 import androidx.collection.internal.throwIndexOutOfBoundsException
 import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -1012,3 +1013,37 @@ public fun mutablePKeyListOf(element1: PKey, element2: PKey, element3: PKey): Mu
  */
 public inline fun mutablePKeyListOf(vararg elements: PKey): MutablePKeyList =
     MutablePKeyList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [PKeyList] by populating a [MutablePKeyList] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutablePKeyList] can be populated.
+ */
+public inline fun buildPKeyList(
+    builderAction: MutablePKeyList.() -> Unit,
+): PKeyList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutablePKeyList().apply(builderAction)
+}
+
+/**
+ * Builds a new [PKeyList] by populating a [MutablePKeyList] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutablePKeyList] can be populated.
+ */
+public inline fun buildPKeyList(
+    initialCapacity: Int,
+    builderAction: MutablePKeyList.() -> Unit,
+): PKeyList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutablePKeyList(initialCapacity).apply(builderAction)
+}

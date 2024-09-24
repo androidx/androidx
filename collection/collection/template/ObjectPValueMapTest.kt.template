@@ -189,6 +189,35 @@ class ObjectPValueTest {
     }
 
     @Test
+    fun buildObjectPValueMapFunction() {
+        val contract: Boolean
+        val map = buildObjectPValueMap {
+            contract = true
+            put("Hello", 1ValueSuffix)
+            put("Bonjour", 2ValueSuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals(1ValueSuffix, map["Hello"])
+        assertEquals(2ValueSuffix, map["Bonjour"])
+    }
+
+    @Test
+    fun buildObjectPValueMapWithCapacityFunction() {
+        val contract: Boolean
+        val map = buildObjectPValueMap(20) {
+            contract = true
+            put("Hello", 1ValueSuffix)
+            put("Bonjour", 2ValueSuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals(1ValueSuffix, map["Hello"])
+        assertEquals(2ValueSuffix, map["Bonjour"])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableObjectPValueMap<String>()
         map["Hello"] = 1ValueSuffix

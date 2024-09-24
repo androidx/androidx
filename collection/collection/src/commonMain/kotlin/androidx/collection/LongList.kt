@@ -23,6 +23,7 @@ import androidx.collection.internal.throwIllegalArgumentException
 import androidx.collection.internal.throwIndexOutOfBoundsException
 import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -936,3 +937,35 @@ public fun mutableLongListOf(element1: Long, element2: Long, element3: Long): Mu
 /** @return a new [MutableLongList] with the given elements, in order. */
 public inline fun mutableLongListOf(vararg elements: Long): MutableLongList =
     MutableLongList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [LongList] by populating a [MutableLongList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableLongList] can be populated.
+ */
+public inline fun buildLongList(
+    builderAction: MutableLongList.() -> Unit,
+): LongList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongList().apply(builderAction)
+}
+
+/**
+ * Builds a new [LongList] by populating a [MutableLongList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableLongList] can be populated.
+ */
+public inline fun buildLongList(
+    initialCapacity: Int,
+    builderAction: MutableLongList.() -> Unit,
+): LongList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongList(initialCapacity).apply(builderAction)
+}

@@ -751,6 +751,35 @@ class PKeyListTest {
     }
 
     @Test
+    fun buildPKeyListFunction() {
+        val contract: Boolean
+        val l = buildPKeyList {
+            contract = true
+            add(2KeySuffix)
+            add(10KeySuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+    }
+
+    @Test
+    fun buildPKeyListWithCapacityFunction() {
+        val contract: Boolean
+        val l = buildPKeyList(20) {
+            contract = true
+            add(2KeySuffix)
+            add(10KeySuffix)
+        }
+        assertTrue(contract)
+        assertEquals(2, l.size)
+        assertTrue(l.content.size >= 20)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+    }
+
+    @Test
     fun binarySearchPKeyList() {
         val l = mutablePKeyListOf(-2KeySuffix, -1KeySuffix, 2KeySuffix, 10KeySuffix, 10KeySuffix)
         assertEquals(0, l.binarySearch(-2))

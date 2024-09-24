@@ -188,6 +188,35 @@ class PKeyObjectMapTest {
     }
 
     @Test
+    fun buildPKeyObjectMapFunction() {
+        val contract: Boolean
+        val map = buildPKeyObjectMap {
+            contract = true
+            put(1KeySuffix, "World")
+            put(2KeySuffix, "Monde")
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals("World", map[1KeySuffix])
+        assertEquals("Monde", map[2KeySuffix])
+    }
+
+    @Test
+    fun buildPKeyObjectMapWithCapacityFunction() {
+        val contract: Boolean
+        val map = buildPKeyObjectMap(20) {
+            contract = true
+            put(1KeySuffix, "World")
+            put(2KeySuffix, "Monde")
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals("World", map[1KeySuffix])
+        assertEquals("Monde", map[2KeySuffix])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutablePKeyObjectMap<String>()
         map[1KeySuffix] = "World"

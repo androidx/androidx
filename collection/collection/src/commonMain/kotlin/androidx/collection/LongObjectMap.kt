@@ -15,11 +15,15 @@
  */
 
 @file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.requirePrecondition
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
@@ -212,6 +216,40 @@ public fun <V> mutableLongObjectMapOf(
         map[key4] = value4
         map[key5] = value5
     }
+
+/**
+ * Builds a new [LongObjectMap] by populating a [MutableLongObjectMap] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableLongObjectMap] can be populated.
+ */
+public inline fun <V> buildLongObjectMap(
+    builderAction: MutableLongObjectMap<V>.() -> Unit,
+): LongObjectMap<V> {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongObjectMap<V>().apply(builderAction)
+}
+
+/**
+ * Builds a new [LongObjectMap] by populating a [MutableLongObjectMap] using the given
+ * [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of pairs added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableLongObjectMap] can be populated.
+ */
+public inline fun <V> buildLongObjectMap(
+    initialCapacity: Int,
+    builderAction: MutableLongObjectMap<V>.() -> Unit,
+): LongObjectMap<V> {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableLongObjectMap<V>(initialCapacity).apply(builderAction)
+}
 
 /**
  * [LongObjectMap] is a container with a [Map]-like interface for keys with [Long] primitives and

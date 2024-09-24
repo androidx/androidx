@@ -23,6 +23,7 @@ import androidx.collection.internal.throwIllegalArgumentException
 import androidx.collection.internal.throwIndexOutOfBoundsException
 import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -932,3 +933,35 @@ public fun mutableIntListOf(element1: Int, element2: Int, element3: Int): Mutabl
 /** @return a new [MutableIntList] with the given elements, in order. */
 public inline fun mutableIntListOf(vararg elements: Int): MutableIntList =
     MutableIntList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [IntList] by populating a [MutableIntList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableIntList] can be populated.
+ */
+public inline fun buildIntList(
+    builderAction: MutableIntList.() -> Unit,
+): IntList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableIntList().apply(builderAction)
+}
+
+/**
+ * Builds a new [IntList] by populating a [MutableIntList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableIntList] can be populated.
+ */
+public inline fun buildIntList(
+    initialCapacity: Int,
+    builderAction: MutableIntList.() -> Unit,
+): IntList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableIntList(initialCapacity).apply(builderAction)
+}

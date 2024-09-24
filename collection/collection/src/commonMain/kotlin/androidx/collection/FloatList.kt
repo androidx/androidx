@@ -23,6 +23,7 @@ import androidx.collection.internal.throwIllegalArgumentException
 import androidx.collection.internal.throwIndexOutOfBoundsException
 import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -940,3 +941,35 @@ public fun mutableFloatListOf(element1: Float, element2: Float, element3: Float)
 /** @return a new [MutableFloatList] with the given elements, in order. */
 public inline fun mutableFloatListOf(vararg elements: Float): MutableFloatList =
     MutableFloatList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * Builds a new [FloatList] by populating a [MutableFloatList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableFloatList] can be populated.
+ */
+public inline fun buildFloatList(
+    builderAction: MutableFloatList.() -> Unit,
+): FloatList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableFloatList().apply(builderAction)
+}
+
+/**
+ * Builds a new [FloatList] by populating a [MutableFloatList] using the given [builderAction].
+ *
+ * The instance passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableFloatList] can be populated.
+ */
+public inline fun buildFloatList(
+    initialCapacity: Int,
+    builderAction: MutableFloatList.() -> Unit,
+): FloatList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableFloatList(initialCapacity).apply(builderAction)
+}

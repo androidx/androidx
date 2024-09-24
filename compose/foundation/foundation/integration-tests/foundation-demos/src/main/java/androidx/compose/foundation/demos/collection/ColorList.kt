@@ -24,15 +24,18 @@
     "NOTHING_TO_INLINE",
     "UnusedImport",
 )
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.compose.foundation.demos.collection
 
+import androidx.annotation.IntRange
 import androidx.collection.LongList
 import androidx.collection.MutableLongList
 import androidx.collection.emptyLongList
 import androidx.collection.mutableLongListOf
 import androidx.compose.ui.graphics.Color
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
 
@@ -55,21 +58,20 @@ import kotlin.jvm.JvmInline
  * calling code must provide the appropriate synchronization. It is also not safe to mutate during
  * reentrancy -- in the middle of a [forEach], for example. However, concurrent reads are safe.
  */
-@OptIn(ExperimentalContracts::class)
 @JvmInline
 internal value class ColorList(val list: LongList) {
     /** The number of elements in the [ColorList]. */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int
         get() = list.size
 
     /** Returns the last valid index in the [ColorList]. This can be `-1` when the list is empty. */
-    @get:androidx.annotation.IntRange(from = -1)
+    @get:IntRange(from = -1)
     public inline val lastIndex: Int
         get() = list.lastIndex
 
     /** Returns an [IntRange] of the valid indices for this [ColorList]. */
-    public inline val indices: IntRange
+    public inline val indices: kotlin.ranges.IntRange
         get() = list.indices
 
     /** Returns `true` if the collection has no elements in it. */
@@ -244,14 +246,14 @@ internal value class ColorList(val list: LongList) {
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public inline operator fun get(@androidx.annotation.IntRange(from = 0) index: Int): Color =
+    public inline operator fun get(@IntRange(from = 0) index: Int): Color =
         Color(list[index].toULong())
 
     /**
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public inline fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): Color =
+    public inline fun elementAt(@IntRange(from = 0) index: Int): Color =
         Color(list[index].toULong())
 
     /**
@@ -263,7 +265,7 @@ internal value class ColorList(val list: LongList) {
      *   index not in the list.
      */
     public inline fun elementAtOrElse(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         defaultValue: (index: Int) -> Color
     ): Color = Color(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
@@ -350,23 +352,22 @@ internal value class ColorList(val list: LongList) {
  *
  * @constructor Creates a [MutableColorList] with a [capacity] of `initialCapacity`.
  */
-@OptIn(ExperimentalContracts::class)
 @JvmInline
 internal value class MutableColorList(val list: MutableLongList) {
     public constructor(initialCapacity: Int = 16) : this(MutableLongList(initialCapacity))
 
     /** The number of elements in the [ColorList]. */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int
         get() = list.size
 
     /** Returns the last valid index in the [ColorList]. This can be `-1` when the list is empty. */
-    @get:androidx.annotation.IntRange(from = -1)
+    @get:IntRange(from = -1)
     public inline val lastIndex: Int
         get() = list.lastIndex
 
     /** Returns an [IntRange] of the valid indices for this [ColorList]. */
-    public inline val indices: IntRange
+    public inline val indices: kotlin.ranges.IntRange
         get() = list.indices
 
     /** Returns `true` if the collection has no elements in it. */
@@ -541,14 +542,14 @@ internal value class MutableColorList(val list: MutableLongList) {
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public inline operator fun get(@androidx.annotation.IntRange(from = 0) index: Int): Color =
+    public inline operator fun get(@IntRange(from = 0) index: Int): Color =
         Color(list[index].toULong())
 
     /**
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public inline fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): Color =
+    public inline fun elementAt(@IntRange(from = 0) index: Int): Color =
         Color(list[index].toULong())
 
     /**
@@ -560,7 +561,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      *   index not in the list.
      */
     public inline fun elementAtOrElse(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         defaultValue: (index: Int) -> Color
     ): Color = Color(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
@@ -641,7 +642,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun add(@androidx.annotation.IntRange(from = 0) index: Int, element: Color) =
+    public inline fun add(@IntRange(from = 0) index: Int, element: Color) =
         list.add(index, element.value.toLong())
 
     /**
@@ -651,10 +652,8 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return `true` if the [MutableColorList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: ColorList
-    ): Boolean = list.addAll(index, elements.list)
+    public inline fun addAll(@IntRange(from = 0) index: Int, elements: ColorList): Boolean =
+        list.addAll(index, elements.list)
 
     /**
      * Adds all [elements] to the [MutableColorList] at the given [index], shifting over any
@@ -663,10 +662,8 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return `true` if the [MutableColorList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public inline fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: MutableColorList
-    ): Boolean = list.addAll(index, elements.list)
+    public inline fun addAll(@IntRange(from = 0) index: Int, elements: MutableColorList): Boolean =
+        list.addAll(index, elements.list)
 
     /**
      * Adds all [elements] to the end of the [MutableColorList] and returns `true` if the
@@ -747,7 +744,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public inline fun removeAt(@androidx.annotation.IntRange(from = 0) index: Int): Color =
+    public inline fun removeAt(@IntRange(from = 0) index: Int): Color =
         Color(list.removeAt(index).toULong())
 
     /**
@@ -756,10 +753,8 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @throws IndexOutOfBoundsException if [start] or [end] isn't between 0 and [size], inclusive
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
-    public inline fun removeRange(
-        @androidx.annotation.IntRange(from = 0) start: Int,
-        @androidx.annotation.IntRange(from = 0) end: Int
-    ) = list.removeRange(start, end)
+    public inline fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) =
+        list.removeRange(start, end)
 
     /**
      * Keeps only [elements] in the [MutableColorList] and removes all other values.
@@ -781,10 +776,8 @@ internal value class MutableColorList(val list: MutableLongList) {
      * @return the previous value set at [index]
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public inline operator fun set(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        element: Color
-    ): Color = Color(list.set(index, element.value.toLong()).toULong())
+    public inline operator fun set(@IntRange(from = 0) index: Int, element: Color): Color =
+        Color(list.set(index, element.value.toLong()).toULong())
 }
 
 /** @return a read-only [ColorList] with nothing in it. */
@@ -833,3 +826,35 @@ internal inline fun mutableColorListOf(
     MutableColorList(
         mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
     )
+
+/**
+ * Builds a new [ColorList] by populating a [MutableColorList] using the given [builderAction].
+ *
+ * The list passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param builderAction Lambda in which the [MutableColorList] can be populated.
+ */
+internal inline fun buildColorList(
+    builderAction: MutableColorList.() -> Unit,
+): ColorList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableColorList().apply(builderAction).asColorList()
+}
+
+/**
+ * Builds a new [ColorList] by populating a [MutableColorList] using the given [builderAction].
+ *
+ * The list passed as a receiver to the [builderAction] is valid only inside that function. Using it
+ * outside of the function produces an unspecified behavior.
+ *
+ * @param initialCapacity Hint for the expected number of elements added in the [builderAction].
+ * @param builderAction Lambda in which the [MutableColorList] can be populated.
+ */
+internal inline fun buildColorList(
+    initialCapacity: Int,
+    builderAction: MutableColorList.() -> Unit,
+): ColorList {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return MutableColorList(initialCapacity).apply(builderAction).asColorList()
+}

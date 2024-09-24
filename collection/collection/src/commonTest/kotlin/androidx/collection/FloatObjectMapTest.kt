@@ -228,6 +228,36 @@ class FloatObjectMapTest {
     }
 
     @Test
+    fun buildFloatObjectMapFunction() {
+        val contract: Boolean
+        val map = buildFloatObjectMap {
+            contract = true
+            put(1f, "World")
+            put(2f, "Monde")
+        }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertEquals("World", map[1f])
+        assertEquals("Monde", map[2f])
+    }
+
+    @Test
+    fun buildFloatObjectMapWithCapacityFunction() {
+        val contract: Boolean
+        val map =
+            buildFloatObjectMap(20) {
+                contract = true
+                put(1f, "World")
+                put(2f, "Monde")
+            }
+        assertTrue(contract)
+        assertEquals(2, map.size)
+        assertTrue(map.capacity >= 18)
+        assertEquals("World", map[1f])
+        assertEquals("Monde", map[2f])
+    }
+
+    @Test
     fun addToMap() {
         val map = MutableFloatObjectMap<String>()
         map[1f] = "World"

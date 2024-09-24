@@ -552,6 +552,36 @@ class LongSetTest {
     }
 
     @Test
+    fun buildLongSetFunction() {
+        val contract: Boolean
+        val set = buildLongSet {
+            contract = true
+            add(1L)
+            add(2L)
+        }
+        assertTrue(contract)
+        assertEquals(2, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+    }
+
+    @Test
+    fun buildLongSetWithCapacityFunction() {
+        val contract: Boolean
+        val set =
+            buildLongSet(20) {
+                contract = true
+                add(1L)
+                add(2L)
+            }
+        assertTrue(contract)
+        assertEquals(2, set.size)
+        assertTrue(set.capacity >= 18)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+    }
+
+    @Test
     fun insertManyRemoveMany() {
         val set = mutableLongSetOf()
 
