@@ -265,6 +265,39 @@ object ShortNavigationBarItemDefaults {
      */
     @Composable fun colors() = MaterialTheme.colorScheme.defaultShortNavigationBarItemColors
 
+    /**
+     * Creates a [NavigationItemColors] with the provided colors according to the Material
+     * specification.
+     *
+     * @param selectedIconColor the color to use for the icon when the item is selected.
+     * @param selectedTextColor the color to use for the text label when the item is selected.
+     * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
+     * @param unselectedIconColor the color to use for the icon when the item is unselected.
+     * @param unselectedTextColor the color to use for the text label when the item is unselected.
+     * @param disabledIconColor the color to use for the icon when the item is disabled.
+     * @param disabledTextColor the color to use for the text label when the item is disabled.
+     * @return the resulting [NavigationItemColors] used for [ShortNavigationBarItem]
+     */
+    @Composable
+    fun colors(
+        selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
+        selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
+        selectedIndicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationBarTokens.ItemInactiveIconColor.value,
+        unselectedTextColor: Color = NavigationBarTokens.ItemInactiveLabelTextColor.value,
+        disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
+        disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
+    ): NavigationItemColors =
+        MaterialTheme.colorScheme.defaultShortNavigationBarItemColors.copy(
+            selectedIconColor = selectedIconColor,
+            selectedTextColor = selectedTextColor,
+            selectedIndicatorColor = selectedIndicatorColor,
+            unselectedIconColor = unselectedIconColor,
+            unselectedTextColor = unselectedTextColor,
+            disabledIconColor = disabledIconColor,
+            disabledTextColor = disabledTextColor,
+        )
+
     internal val ColorScheme.defaultShortNavigationBarItemColors: NavigationItemColors
         get() {
             return defaultShortNavigationBarItemColorsCached

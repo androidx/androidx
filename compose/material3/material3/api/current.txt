@@ -1967,6 +1967,7 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ShortNavigationBarItemDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional long selectedIconColor, optional long selectedTextColor, optional long selectedIndicatorColor, optional long unselectedIconColor, optional long unselectedTextColor, optional long disabledIconColor, optional long disabledTextColor);
     field public static final androidx.compose.material3.ShortNavigationBarItemDefaults INSTANCE;
   }
 
@@ -2970,6 +2971,7 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WideNavigationRailDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalScrimColor);
     method public int getArrangement();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getModalContainerShape();
@@ -2983,6 +2985,7 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WideNavigationRailItemDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional long selectedIconColor, optional long selectedTextColor, optional long selectedIndicatorColor, optional long unselectedIconColor, optional long unselectedTextColor, optional long disabledIconColor, optional long disabledTextColor);
     method public int iconPositionFor(boolean railExpanded);
     field public static final androidx.compose.material3.WideNavigationRailItemDefaults INSTANCE;
   }

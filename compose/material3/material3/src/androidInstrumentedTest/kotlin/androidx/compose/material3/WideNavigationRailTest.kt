@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
 import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
+import androidx.compose.material3.tokens.NavigationRailColorTokens
 import androidx.compose.material3.tokens.NavigationRailExpandedTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -441,6 +442,40 @@ class WideNavigationRailTest {
             .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+
+    @Test
+    fun item_customColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val customColors =
+                WideNavigationRailItemDefaults.colors(
+                    selectedIconColor = Color.Red,
+                    unselectedTextColor = Color.Green,
+                )
+
+            WideNavigationRail {
+                WideNavigationRailItem(
+                    colors = customColors,
+                    icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
+                    label = {
+                        Truth.assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationRailColorTokens.ItemActiveLabelText.value)
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+                WideNavigationRailItem(
+                    colors = customColors,
+                    icon = {
+                        Truth.assertThat(LocalContentColor.current)
+                            .isEqualTo(NavigationRailColorTokens.ItemInactiveLabelText.value)
+                    },
+                    label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
+                    selected = false,
+                    onClick = {}
+                )
+            }
+        }
     }
 
     @Test
