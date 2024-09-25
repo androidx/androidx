@@ -35,7 +35,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.compiled.ClsMethodImpl
 import java.util.EnumSet
-import kotlinx.metadata.KmClassifier
+import kotlin.metadata.KmClassifier
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UMethod

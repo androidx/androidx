@@ -16,7 +16,7 @@
 
 package androidx.compose.lint
 
-import kotlinx.metadata.ClassName
+import kotlin.metadata.ClassName
 
 /** Contains common names used for lint checks. */
 object Names {
@@ -121,7 +121,7 @@ internal constructor(private val pkg: PackageName, private val nameSegments: Lis
         get() = pkg.segments.joinToString(".", postfix = ".") + nameSegments.joinToString(".")
 
     /**
-     * The [ClassName] for use with kotlinx.metadata. Note that in kotlinx.metadata the actual type
+     * The [ClassName] for use with kotlin.metadata. Note that in kotlin.metadata the actual type
      * might be different from the underlying JVM type, for example: kotlin/Int -> java/lang/Integer
      */
     val kmClassName: ClassName

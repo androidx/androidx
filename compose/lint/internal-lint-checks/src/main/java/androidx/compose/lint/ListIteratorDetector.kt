@@ -28,7 +28,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.compiled.ClsMethodImpl
-import kotlinx.metadata.KmClassifier
+import kotlin.metadata.KmClassifier
 import org.jetbrains.kotlin.asJava.unwrapped
 import org.jetbrains.kotlin.psi.KtForExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction

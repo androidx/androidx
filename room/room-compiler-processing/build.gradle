@@ -45,11 +45,11 @@ configurations {
 shadowJar {
     archiveClassifier = ""
     configurations = [project.configurations.shadowed]
-    relocate("kotlinx.metadata", "androidx.room.jarjarred.kotlinx.metadata")
-    mergeServiceFiles() // kotlinx-metadata-jvm has a service descriptor that needs transformation
-    // Exclude Kotlin metadata files from kotlinx-metadata-jvm
-    exclude 'META-INF/kotlinx-metadata-jvm.kotlin_module'
-    exclude 'META-INF/kotlinx-metadata.kotlin_module'
+    relocate("kotlin.metadata", "androidx.room.jarjarred.kotlin.metadata")
+    mergeServiceFiles() // kotlin-metadata-jvm has a service descriptor that needs transformation
+    // Exclude Kotlin metadata files from kotlin-metadata-jvm
+    exclude 'META-INF/kotlin-metadata-jvm.kotlin_module'
+    exclude 'META-INF/kotlin-metadata.kotlin_module'
     exclude 'META-INF/metadata.jvm.kotlin_module'
     exclude 'META-INF/metadata.kotlin_module'
 }

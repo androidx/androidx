@@ -24,9 +24,9 @@ import androidx.privacysandbox.tools.core.PrivacySandboxParsingException
 import androidx.privacysandbox.tools.core.model.Constant
 import androidx.privacysandbox.tools.core.model.Types
 import java.nio.file.Path
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import kotlinx.metadata.jvm.Metadata
+import kotlin.metadata.KmClass
+import kotlin.metadata.jvm.KotlinClassMetadata
+import kotlin.metadata.jvm.Metadata
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
