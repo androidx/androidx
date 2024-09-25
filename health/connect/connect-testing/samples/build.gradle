@@ -53,9 +53,3 @@ android {
     }
     compileSdk = 35
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn", "-opt-in=androidx.health.connect.client.testing.ExperimentalTestingApi"]
-    }
-}

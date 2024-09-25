@@ -26,7 +26,6 @@ import androidx.health.connect.client.permission.HealthPermission
  *
  * @param grantAll grants all permissions on creation
  */
-@ExperimentalTestingApi
 public class FakePermissionController(grantAll: Boolean = true) : PermissionController {
     private val grantedPermissions =
         if (grantAll) HealthPermission.ALL_PERMISSIONS.toMutableSet() else mutableSetOf()
