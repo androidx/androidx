@@ -85,6 +85,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
+import kotlin.math.max
 import kotlinx.coroutines.isActive
 import org.jetbrains.annotations.TestOnly
 
@@ -436,14 +437,15 @@ private inline fun SimpleStack(modifier: Modifier, noinline content: @Composable
                 layout(p.width, p.height) { p.placeRelative(0, 0) }
             }
             else -> {
-                val placeables = measurables.fastMap { it.measure(constraints) }
                 var width = 0
                 var height = 0
-                for (i in 0..placeables.lastIndex) {
-                    val p = placeables[i]
-                    width = maxOf(width, p.width)
-                    height = maxOf(height, p.height)
-                }
+                val placeables =
+                    measurables.fastMap {
+                        it.measure(constraints).apply {
+                            width = max(width, this.width)
+                            height = max(height, this.height)
+                        }
+                    }
                 layout(width, height) {
                     for (i in 0..placeables.lastIndex) {
                         val p = placeables[i]

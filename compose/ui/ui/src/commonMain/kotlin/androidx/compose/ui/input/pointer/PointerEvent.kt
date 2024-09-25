@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.Immutable
@@ -1016,7 +1018,8 @@ fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val y = position.y
     val width = size.width
     val height = size.height
-    return x < 0f || x > width || y < 0f || y > height
+    // Branch-less
+    return (x < 0f) or (x > width) or (y < 0f) or (y > height)
 }
 
 /**
@@ -1027,15 +1030,24 @@ fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
  * the pointer region.
  */
 fun PointerInputChange.isOutOfBounds(size: IntSize, extendedTouchPadding: Size): Boolean {
-    if (type != PointerType.Touch) {
-        @Suppress("DEPRECATION") return isOutOfBounds(size)
-    }
+    // Set to 1 when the pointer type is touch, 0 otherwise
+    // No-op at the CPU level
+    val isTouch = (type == PointerType.Touch).toInt()
+
     val position = position
     val x = position.x
     val y = position.y
-    val minX = -extendedTouchPadding.width
-    val maxX = size.width + extendedTouchPadding.width
-    val minY = -extendedTouchPadding.height
-    val maxY = size.height + extendedTouchPadding.height
-    return x < minX || x > maxX || y < minY || y > maxY
+
+    // Set extentX to 0 when the pointer type is *not* touch
+    val extentX = extendedTouchPadding.width * isTouch
+    val maxX = size.width + extentX
+
+    // Set extentY to 0 when the pointer type is *not* touch
+    val extentY = extendedTouchPadding.height * isTouch
+    val maxY = size.height + extentY
+
+    // Don't branch
+    return (x < -extentX) or (x > maxX) or (y < -extentY) or (y > maxY)
 }
+
+private inline fun Boolean.toInt() = if (this) 1 else 0

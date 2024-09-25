@@ -14,52 +14,40 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 
 /** Constructs a [ScaleFactor] from the given x and y scale values */
-@Stable fun ScaleFactor(scaleX: Float, scaleY: Float) = ScaleFactor(packFloats(scaleX, scaleY))
+@Stable
+inline fun ScaleFactor(scaleX: Float, scaleY: Float) = ScaleFactor(packFloats(scaleX, scaleY))
 
 /** Holds 2 dimensional scaling factors for horizontal and vertical axes */
 @Immutable
 @kotlin.jvm.JvmInline
-value class ScaleFactor internal constructor(@PublishedApi internal val packedValue: Long) {
+value class ScaleFactor(val packedValue: Long) {
 
     /** Returns the scale factor to apply along the horizontal axis */
     @Stable
-    val scaleX: Float
-        get() {
-            // Explicitly compare against packed values to avoid
-            // auto-boxing of ScaleFactor.Unspecified
-            checkPrecondition(this.packedValue != Unspecified.packedValue) {
-                "ScaleFactor is unspecified"
-            }
-            return unpackFloat1(packedValue)
-        }
+    inline val scaleX: Float
+        get() = unpackFloat1(packedValue)
 
     /** Returns the scale factor to apply along the vertical axis */
     @Stable
-    val scaleY: Float
-        get() {
-            // Explicitly compare against packed values to avoid
-            // auto-boxing of Size.Unspecified
-            checkPrecondition(this.packedValue != Unspecified.packedValue) {
-                "ScaleFactor is unspecified"
-            }
-            return unpackFloat2(packedValue)
-        }
+    inline val scaleY: Float
+        get() = unpackFloat2(packedValue)
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component1(): Float = scaleX
+    @Stable inline operator fun component1(): Float = scaleX
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component2(): Float = scaleY
+    @Stable inline operator fun component2(): Float = scaleY
 
     /**
      * Returns a copy of this ScaleFactor instance optionally overriding the scaleX or scaleY
@@ -84,7 +72,6 @@ value class ScaleFactor internal constructor(@PublishedApi internal val packedVa
     override fun toString() = "ScaleFactor(${scaleX}, ${scaleY})"
 
     companion object {
-
         /**
          * A ScaleFactor whose [scaleX] and [scaleY] parameters are unspecified. This is a sentinel
          * value used to initialize a non-null parameter. Access to scaleX or scaleY on an

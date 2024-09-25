@@ -37,7 +37,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastJoinToString
-import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.util.fastMaxOfOrDefault
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
@@ -1198,14 +1198,14 @@ internal class LazyStaggeredGridMeasuredItem(
     override fun getParentData(index: Int) = placeables[index].parentData
 
     val mainAxisSize: Int =
-        placeables.fastMaxOfOrNull { placeable ->
+        placeables.fastMaxOfOrDefault(0) { placeable ->
             if (isVertical) placeable.height else placeable.width
-        } ?: 0
+        }
 
     override val mainAxisSizeWithSpacings: Int = (mainAxisSize + spacing).coerceAtLeast(0)
 
     val crossAxisSize: Int =
-        placeables.fastMaxOfOrNull { if (isVertical) it.width else it.height } ?: 0
+        placeables.fastMaxOfOrDefault(0) { if (isVertical) it.width else it.height }
 
     private var mainAxisLayoutSize: Int = Unset
     private var minMainAxisOffset: Int = 0

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Immutable
@@ -149,6 +151,8 @@ private fun computeFillMinDimension(srcSize: Size, dstSize: Size): Float {
     return min(widthScale, heightScale)
 }
 
-private fun computeFillWidth(srcSize: Size, dstSize: Size): Float = dstSize.width / srcSize.width
+private inline fun computeFillWidth(srcSize: Size, dstSize: Size): Float =
+    dstSize.width / srcSize.width
 
-private fun computeFillHeight(srcSize: Size, dstSize: Size): Float = dstSize.height / srcSize.height
+private inline fun computeFillHeight(srcSize: Size, dstSize: Size): Float =
+    dstSize.height / srcSize.height

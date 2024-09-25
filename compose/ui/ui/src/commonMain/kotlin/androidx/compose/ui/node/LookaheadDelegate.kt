@@ -19,8 +19,10 @@ package androidx.compose.ui.node
 import androidx.collection.MutableObjectFloatMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.throwIllegalStateExceptionForNullCheck
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinates
@@ -358,7 +360,7 @@ internal abstract class LookaheadDelegate(
     override val measureResult: MeasureResult
         get() =
             _measureResult
-                ?: error(
+                ?: throwIllegalStateExceptionForNullCheck(
                     "LookaheadDelegate has not been measured yet when measureResult is requested."
                 )
 
@@ -417,10 +419,10 @@ internal abstract class LookaheadDelegate(
             field = result
         }
 
-    protected val cachedAlignmentLinesMap = mutableMapOf<AlignmentLine, Int>()
+    protected val cachedAlignmentLinesMap = mutableObjectIntMapOf<AlignmentLine>()
 
     internal fun getCachedAlignmentLine(alignmentLine: AlignmentLine): Int =
-        cachedAlignmentLinesMap[alignmentLine] ?: AlignmentLine.Unspecified
+        cachedAlignmentLinesMap.getOrDefault(alignmentLine, AlignmentLine.Unspecified)
 
     override fun replace() {
         placeAt(position, 0f, null)

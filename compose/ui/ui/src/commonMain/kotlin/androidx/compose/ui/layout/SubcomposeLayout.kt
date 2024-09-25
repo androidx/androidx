@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.collection.MutableOrderedScatterSet
 import androidx.collection.mutableOrderedScatterSetOf
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
@@ -36,6 +37,9 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.requirePrecondition
+import androidx.compose.ui.internal.throwIllegalStateExceptionForNullCheck
+import androidx.compose.ui.internal.throwIndexOutOfBoundsException
 import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
@@ -405,19 +409,19 @@ internal class LayoutNodeSubcompositionsState(
 
     private var currentIndex = 0
     private var currentPostLookaheadIndex = 0
-    private val nodeToNodeState = hashMapOf<LayoutNode, NodeState>()
+    private val nodeToNodeState = mutableScatterMapOf<LayoutNode, NodeState>()
 
     // this map contains active slotIds (without precomposed or reusable nodes)
-    private val slotIdToNode = hashMapOf<Any?, LayoutNode>()
+    private val slotIdToNode = mutableScatterMapOf<Any?, LayoutNode>()
     private val scope = Scope()
     private val postLookaheadMeasureScope = PostLookaheadMeasureScopeImpl()
 
-    private val precomposeMap = hashMapOf<Any?, LayoutNode>()
+    private val precomposeMap = mutableScatterMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
 
     // SlotHandles precomposed in the post-lookahead pass.
-    private val postLookaheadPrecomposeSlotHandleMap = mutableMapOf<Any?, PrecomposedSlotHandle>()
-
+    private val postLookaheadPrecomposeSlotHandleMap =
+        mutableScatterMapOf<Any?, PrecomposedSlotHandle>()
     // Slot ids _composed_ in post-lookahead. The valid slot ids are stored between 0 and
     // currentPostLookaheadIndex - 1, beyond index currentPostLookaheadIndex are obsolete ids.
     private val postLookaheadComposedSlotIds = mutableVectorOf<Any?>()
@@ -473,7 +477,7 @@ internal class LayoutNodeSubcompositionsState(
         if (root.foldedChildren.getOrNull(currentIndex) !== node) {
             // the node has a new index in the list
             val itemIndex = root.foldedChildren.indexOf(node)
-            require(itemIndex >= currentIndex) {
+            requirePrecondition(itemIndex >= currentIndex) {
                 "Key \"$slotId\" was already used. If you are using LazyColumn/Row please make " +
                     "sure you provide a unique key for each item."
             }
@@ -511,7 +515,10 @@ internal class LayoutNodeSubcompositionsState(
                         existing = nodeState.composition,
                         container = node,
                         parent =
-                            compositionContext ?: error("parent composition reference not set"),
+                            compositionContext
+                                ?: throwIllegalStateExceptionForNullCheck(
+                                    "parent composition reference not set"
+                                ),
                         reuseContent = nodeState.forceReuse,
                         composable = { ReusableContentHost(nodeState.active, content) }
                     )
@@ -541,20 +548,21 @@ internal class LayoutNodeSubcompositionsState(
             }
     }
 
-    private fun getSlotIdAtIndex(index: Int): Any? {
-        val node = root.foldedChildren[index]
+    private fun getSlotIdAtIndex(foldedChildren: List<LayoutNode>, index: Int): Any? {
+        val node = foldedChildren[index]
         return nodeToNodeState[node]!!.slotId
     }
 
     fun disposeOrReuseStartingFromIndex(startIndex: Int) {
         reusableCount = 0
-        val lastReusableIndex = root.foldedChildren.size - precomposedCount - 1
+        val foldedChildren = root.foldedChildren
+        val lastReusableIndex = foldedChildren.size - precomposedCount - 1
         var needApplyNotification = false
         if (startIndex <= lastReusableIndex) {
             // construct the set of available slot ids
             reusableSlotIdsSet.clear()
             for (i in startIndex..lastReusableIndex) {
-                val slotId = getSlotIdAtIndex(i)
+                val slotId = getSlotIdAtIndex(foldedChildren, i)
                 reusableSlotIdsSet.add(slotId)
             }
 
@@ -563,7 +571,7 @@ internal class LayoutNodeSubcompositionsState(
             var i = lastReusableIndex
             Snapshot.withoutReadObservation {
                 while (i >= startIndex) {
-                    val node = root.foldedChildren[i]
+                    val node = foldedChildren[i]
                     val nodeState = nodeToNodeState[node]!!
                     val slotId = nodeState.slotId
                     if (slotId in reusableSlotIdsSet) {
@@ -598,12 +606,13 @@ internal class LayoutNodeSubcompositionsState(
         precomposedCount = 0
         precomposeMap.clear()
 
-        val childCount = root.foldedChildren.size
+        val foldedChildren = root.foldedChildren
+        val childCount = foldedChildren.size
         if (reusableCount != childCount) {
             reusableCount = childCount
             Snapshot.withoutReadObservation {
                 for (i in 0 until childCount) {
-                    val node = root.foldedChildren[i]
+                    val node = foldedChildren[i]
                     val nodeState = nodeToNodeState[node]
                     if (nodeState != null && nodeState.active) {
                         node.resetLayoutState()
@@ -626,7 +635,7 @@ internal class LayoutNodeSubcompositionsState(
 
     private fun disposeCurrentNodes() {
         root.ignoreRemeasureRequests {
-            nodeToNodeState.values.forEach { it.composition?.dispose() }
+            nodeToNodeState.forEachValue { it.composition?.dispose() }
             root.removeAll()
         }
 
@@ -641,17 +650,17 @@ internal class LayoutNodeSubcompositionsState(
 
     fun makeSureStateIsConsistent() {
         val childrenCount = root.foldedChildren.size
-        require(nodeToNodeState.size == childrenCount) {
+        requirePrecondition(nodeToNodeState.size == childrenCount) {
             "Inconsistency between the count of nodes tracked by the state " +
                 "(${nodeToNodeState.size}) and the children count on the SubcomposeLayout" +
                 " ($childrenCount). Are you trying to use the state of the" +
                 " disposed SubcomposeLayout?"
         }
-        require(childrenCount - reusableCount - precomposedCount >= 0) {
+        requirePrecondition(childrenCount - reusableCount - precomposedCount >= 0) {
             "Incorrect state. Total children $childrenCount. Reusable children " +
                 "$reusableCount. Precomposed children $precomposedCount"
         }
-        require(precomposeMap.size == precomposedCount) {
+        requirePrecondition(precomposeMap.size == precomposedCount) {
             "Incorrect state. Precomposed children $precomposedCount. Map size " +
                 "${precomposeMap.size}"
         }
@@ -666,13 +675,14 @@ internal class LayoutNodeSubcompositionsState(
         if (reusableCount == 0) {
             return null
         }
-        val reusableNodesSectionEnd = root.foldedChildren.size - precomposedCount
+        val foldedChildren = root.foldedChildren
+        val reusableNodesSectionEnd = foldedChildren.size - precomposedCount
         val reusableNodesSectionStart = reusableNodesSectionEnd - reusableCount
         var index = reusableNodesSectionEnd - 1
         var chosenIndex = -1
         // first try to find a node with exactly the same slotId
         while (index >= reusableNodesSectionStart) {
-            if (getSlotIdAtIndex(index) == slotId) {
+            if (getSlotIdAtIndex(foldedChildren, index) == slotId) {
                 // we have a node with the same slotId
                 chosenIndex = index
                 break
@@ -684,7 +694,7 @@ internal class LayoutNodeSubcompositionsState(
             // try to find a first compatible slotId from the end of the section
             index = reusableNodesSectionEnd - 1
             while (index >= reusableNodesSectionStart) {
-                val node = root.foldedChildren[index]
+                val node = foldedChildren[index]
                 val nodeState = nodeToNodeState[node]!!
                 if (
                     nodeState.slotId === ReusedSlotId ||
@@ -706,7 +716,7 @@ internal class LayoutNodeSubcompositionsState(
                 move(index, reusableNodesSectionStart, 1)
             }
             reusableCount--
-            val node = root.foldedChildren[reusableNodesSectionStart]
+            val node = foldedChildren[reusableNodesSectionStart]
             val nodeState = nodeToNodeState[node]!!
             // create a new instance to avoid change notifications
             nodeState.activeState = mutableStateOf(true)
@@ -754,7 +764,7 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     private fun disposeUnusedSlotsInPostLookahead() {
-        postLookaheadPrecomposeSlotHandleMap.entries.removeAll { (slotId, handle) ->
+        postLookaheadPrecomposeSlotHandleMap.removeIf { slotId, handle ->
             val id = postLookaheadComposedSlotIds.indexOf(slotId)
             if (id < 0 || id >= currentPostLookaheadIndex) {
                 // Slot was not used in the latest pass of post-lookahead.
@@ -817,9 +827,9 @@ internal class LayoutNodeSubcompositionsState(
                 makeSureStateIsConsistent()
                 val node = precomposeMap.remove(slotId)
                 if (node != null) {
-                    check(precomposedCount > 0) { "No pre-composed items to dispose" }
+                    checkPrecondition(precomposedCount > 0) { "No pre-composed items to dispose" }
                     val itemIndex = root.foldedChildren.indexOf(node)
-                    check(itemIndex >= root.foldedChildren.size - precomposedCount) {
+                    checkPrecondition(itemIndex >= root.foldedChildren.size - precomposedCount) {
                         "Item is not in pre-composed item range"
                     }
                     // move this item into the reusable section
@@ -839,11 +849,13 @@ internal class LayoutNodeSubcompositionsState(
                 if (node != null && node.isAttached) {
                     val size = node.children.size
                     if (index < 0 || index >= size) {
-                        throw IndexOutOfBoundsException(
+                        throwIndexOutOfBoundsException(
                             "Index ($index) is out of bound of [0, $size)"
                         )
                     }
-                    require(!node.isPlaced) { "Pre-measure called on node that is not placed" }
+                    requirePrecondition(!node.isPlaced) {
+                        "Pre-measure called on node that is not placed"
+                    }
                     root.ignoreRemeasureRequests {
                         node.requireOwner().measureAndLayout(node.children[index], constraints)
                     }
@@ -864,7 +876,7 @@ internal class LayoutNodeSubcompositionsState(
         if (reusableCount != childCount) {
             // only invalidate children if there are any non-reused ones
             // in other cases, all of them are going to be invalidated later anyways
-            nodeToNodeState.forEach { (_, nodeState) -> nodeState.forceRecompose = true }
+            nodeToNodeState.forEachValue { nodeState -> nodeState.forceRecompose = true }
 
             if (!root.measurePending) {
                 root.requestRemeasure()
@@ -970,7 +982,7 @@ internal class LayoutNodeSubcompositionsState(
         slotId: Any?,
         content: @Composable () -> Unit
     ): List<Measurable> {
-        require(postLookaheadComposedSlotIds.size >= currentPostLookaheadIndex) {
+        requirePrecondition(postLookaheadComposedSlotIds.size >= currentPostLookaheadIndex) {
             "Error: currentPostLookaheadIndex cannot be greater than the size of the" +
                 "postLookaheadComposedSlotIds list."
         }

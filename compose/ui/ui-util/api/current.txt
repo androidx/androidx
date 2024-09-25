@@ -54,6 +54,7 @@ package androidx.compose.ui.util {
     method public static inline <T, R> java.util.List<R> fastMapNotNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R?> transform);
     method public static inline <T, R, C extends java.util.Collection<? super R>> C fastMapTo(java.util.List<? extends T>, C destination, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     method public static inline <T, R extends java.lang.Comparable<? super R>> T? fastMaxBy(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
+    method public static inline <T, R extends java.lang.Comparable<? super R>> R fastMaxOfOrDefault(java.util.List<? extends T>, R defaultValue, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <T, R extends java.lang.Comparable<? super R>> R? fastMaxOfOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <T, R extends java.lang.Comparable<? super R>> T? fastMinByOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <S, T extends S> S fastReduce(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super S,? super T,? extends S> operation);

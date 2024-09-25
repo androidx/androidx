@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.util
 
+import androidx.collection.MutableScatterSet
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -307,6 +308,30 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R
 }
 
 /**
+ * Returns the largest value among all values produced by selector function applied to each element
+ * in the collection or [defaultValue] if there are no elements.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrDefault(
+    defaultValue: R,
+    selector: (T) -> R
+): R {
+    contract { callsInPlace(selector) }
+    if (isEmpty()) return defaultValue
+    var maxValue = selector(get(0))
+    for (i in 1..lastIndex) {
+        val v = selector(get(i))
+        if (v > maxValue) maxValue = v
+    }
+    return maxValue
+}
+
+/**
  * Returns a list containing the results of applying the given [transform] function to each pair of
  * two adjacent elements in this collection.
  *
@@ -320,7 +345,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R
 @OptIn(ExperimentalContracts::class)
 inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
     contract { callsInPlace(transform) }
-    if (size == 0 || size == 1) return emptyList()
+    if (size <= 1) return emptyList()
     val result = mutableListOf<R>()
     var current = get(0)
     // `until` as we don't want to invoke this for the last element, since that won't have a `next`
@@ -351,7 +376,7 @@ inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
 @OptIn(ExperimentalContracts::class)
 inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
     contract { callsInPlace(operation) }
-    if (isEmpty()) throw UnsupportedOperationException("Empty collection can't be reduced.")
+    if (isEmpty()) throwUnsupportedOperationException("Empty collection can't be reduced.")
     var accumulator: S = first()
     for (i in 1..lastIndex) {
         accumulator = operation(accumulator, get(i))
@@ -435,7 +460,7 @@ fun <T> List<T>.fastJoinToString(
 @OptIn(ExperimentalContracts::class)
 inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
     contract { callsInPlace(selector) }
-    val set = HashSet<K>(size)
+    val set = MutableScatterSet<K>(size)
     val target = ArrayList<T>(size)
     fastForEach { e ->
         val key = selector(e)
@@ -517,7 +542,7 @@ fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
 inline fun <T> List<T>.fastFirst(predicate: (T) -> Boolean): T {
     contract { callsInPlace(predicate) }
     fastForEach { if (predicate(it)) return it }
-    throw NoSuchElementException("Collection contains no element matching the predicate.")
+    throwNoSuchElementException("Collection contains no element matching the predicate.")
 }
 
 /**
@@ -563,4 +588,14 @@ private fun <T> Appendable.appendElement(element: T, transform: ((T) -> CharSequ
         element is Char -> append(element)
         else -> append(element.toString())
     }
+}
+
+@PublishedApi
+internal fun throwNoSuchElementException(message: String): Nothing {
+    throw NoSuchElementException(message)
+}
+
+@PublishedApi
+internal fun throwUnsupportedOperationException(message: String) {
+    throw UnsupportedOperationException(message)
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.input.pointer
 
 import androidx.collection.LongSparseArray
@@ -211,7 +213,7 @@ private class PointerInputChangeEventProducer {
             if (it.down) {
                 previousPointerInputData.put(
                     it.id.value,
-                    PointerInputData(it.uptime, it.positionOnScreen, it.down, it.type)
+                    PointerInputData(it.uptime, it.positionOnScreen, it.down)
                 )
             } else {
                 previousPointerInputData.remove(it.id.value)
@@ -229,20 +231,18 @@ private class PointerInputChangeEventProducer {
     private class PointerInputData(
         val uptime: Long,
         val positionOnScreen: Offset,
-        val down: Boolean,
-        val type: PointerType
+        val down: Boolean
     )
 }
 
 /** The result of a call to [PointerInputEventProcessor.process]. */
-// TODO(shepshpard): Not sure if storing these values in a int is most efficient overall.
 @kotlin.jvm.JvmInline
-internal value class ProcessResult(private val value: Int) {
+internal value class ProcessResult(val value: Int) {
     val dispatchedToAPointerInputModifier
-        get() = (value and 1) != 0
+        inline get() = (value and 0x1) != 0
 
     val anyMovementConsumed
-        get() = (value and (1 shl 1)) != 0
+        inline get() = (value and 0x2) != 0
 }
 
 /**
@@ -256,7 +256,9 @@ internal fun ProcessResult(
     dispatchedToAPointerInputModifier: Boolean,
     anyMovementConsumed: Boolean
 ): ProcessResult {
-    val val1 = if (dispatchedToAPointerInputModifier) 1 else 0
-    val val2 = if (anyMovementConsumed) (1 shl 1) else 0
-    return ProcessResult(val1 or val2)
+    return ProcessResult(
+        dispatchedToAPointerInputModifier.toInt() or (anyMovementConsumed.toInt() shl 1)
+    )
 }
+
+private inline fun Boolean.toInt() = if (this) 1 else 0

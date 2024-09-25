@@ -54,12 +54,15 @@ package androidx.compose.ui.util {
     method public static inline <T, R> java.util.List<R> fastMapNotNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R?> transform);
     method public static inline <T, R, C extends java.util.Collection<? super R>> C fastMapTo(java.util.List<? extends T>, C destination, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     method public static inline <T, R extends java.lang.Comparable<? super R>> T? fastMaxBy(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
+    method public static inline <T, R extends java.lang.Comparable<? super R>> R fastMaxOfOrDefault(java.util.List<? extends T>, R defaultValue, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <T, R extends java.lang.Comparable<? super R>> R? fastMaxOfOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <T, R extends java.lang.Comparable<? super R>> T? fastMinByOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> selector);
     method public static inline <S, T extends S> S fastReduce(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super S,? super T,? extends S> operation);
     method public static inline <T> int fastSumBy(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Integer> selector);
     method public static inline <T, R, V> java.util.List<V> fastZip(java.util.List<? extends T>, java.util.List<? extends R> other, kotlin.jvm.functions.Function2<? super T,? super R,? extends V> transform);
     method public static inline <T, R> java.util.List<R> fastZipWithNext(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> transform);
+    method @kotlin.PublishedApi internal static Void throwNoSuchElementException(String message);
+    method @kotlin.PublishedApi internal static void throwUnsupportedOperationException(String message);
   }
 
   public final class MathHelpersKt {
