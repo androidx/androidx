@@ -25,7 +25,6 @@ import kotlin.jvm.JvmStatic
  * The type of input tool used in producing [androidx.ink.strokes.StrokeInput], used by
  * [BrushBehavior] to define when a behavior is applicable.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @UsedByNative
 public class InputToolType
 private constructor(
