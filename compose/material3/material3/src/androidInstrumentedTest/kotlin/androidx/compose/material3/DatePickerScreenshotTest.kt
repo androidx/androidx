@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.testutils.assertAgainstGolden
@@ -32,6 +33,9 @@ import androidx.compose.ui.test.performClick
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn
+import com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession
+import com.android.dx.mockito.inline.extended.MockedMethod
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -39,6 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.mockito.quality.Strictness
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -65,6 +70,76 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
         assertAgainstGolden("datePicker_initialMonth_${scheme.name}")
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun datePicker_todayMarker() {
+        val year = 2021
+        val month = 1
+        val day = 10
+        runWithMockedLocalDate(mockedToday = LocalDate.of(year, month, day)) {
+            rule.setMaterialContent(scheme.colorScheme) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    val monthInUtcMillis =
+                        dayInUtcMilliseconds(year = year, month = month, dayOfMonth = day)
+                    DatePicker(
+                        state =
+                            rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis),
+                        showModeToggle = false
+                    )
+                }
+            }
+            assertAgainstGolden("datePicker_todayMarker_${scheme.name}")
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun datePicker_disabledTodayMarker() {
+        val year = 2021
+        val month = 1
+        val day = 10
+        runWithMockedLocalDate(mockedToday = LocalDate.of(year, month, day)) {
+            rule.setMaterialContent(scheme.colorScheme) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    val monthInUtcMillis =
+                        dayInUtcMilliseconds(year = year, month = month, dayOfMonth = day)
+                    DatePicker(
+                        state =
+                            rememberDatePickerState(
+                                initialDisplayedMonthMillis = monthInUtcMillis,
+                                selectableDates =
+                                    object : SelectableDates {
+                                        override fun isSelectableDate(
+                                            utcTimeMillis: Long
+                                        ): Boolean = false
+                                    }
+                            ),
+                        showModeToggle = false
+                    )
+                }
+            }
+            assertAgainstGolden("datePicker_disabledTodayMarker_${scheme.name}")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun runWithMockedLocalDate(mockedToday: LocalDate, test: () -> Unit) {
+        val session =
+            mockitoSession()
+                .spyStatic(LocalDate::class.java)
+                .strictness(Strictness.LENIENT)
+                .startMocking()
+        try {
+            // Mock `LocalDate.now()` to return a specific date. This will mark the today marker
+            // on the month displayed in this test.
+            doReturn(mockedToday).`when`(MockedMethod { LocalDate.now() })
+            // Run the test
+            test()
+        } finally {
+            session.finishMocking()
+        }
     }
 
     @Test

@@ -902,7 +902,7 @@ constructor(
                 selected && !enabled -> disabledSelectedDayContentColor
                 inRange && enabled -> dayInSelectionRangeContentColor
                 inRange && !enabled -> disabledDayContentColor
-                isToday -> todayContentColor
+                isToday && enabled -> todayContentColor
                 enabled -> dayContentColor
                 else -> disabledDayContentColor
             }
