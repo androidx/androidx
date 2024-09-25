@@ -21,7 +21,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiParameter
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.impl.light.LightParameter
-import kotlinx.metadata.jvm.annotations
+import kotlin.metadata.jvm.annotations
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtProperty

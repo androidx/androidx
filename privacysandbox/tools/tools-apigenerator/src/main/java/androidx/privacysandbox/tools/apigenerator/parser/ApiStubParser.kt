@@ -29,18 +29,18 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.core.validator.ModelValidator
 import java.nio.file.Path
-import kotlinx.metadata.ClassKind
-import kotlinx.metadata.ClassName
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.KmClassifier
-import kotlinx.metadata.KmFunction
-import kotlinx.metadata.KmProperty
-import kotlinx.metadata.KmType
-import kotlinx.metadata.isData
-import kotlinx.metadata.isNullable
-import kotlinx.metadata.isSuspend
-import kotlinx.metadata.isVar
-import kotlinx.metadata.kind
+import kotlin.metadata.ClassKind
+import kotlin.metadata.ClassName
+import kotlin.metadata.KmClass
+import kotlin.metadata.KmClassifier
+import kotlin.metadata.KmFunction
+import kotlin.metadata.KmProperty
+import kotlin.metadata.KmType
+import kotlin.metadata.isData
+import kotlin.metadata.isNullable
+import kotlin.metadata.isSuspend
+import kotlin.metadata.isVar
+import kotlin.metadata.kind
 
 internal object ApiStubParser {
     /**

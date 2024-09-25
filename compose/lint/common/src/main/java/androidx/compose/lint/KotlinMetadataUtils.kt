@@ -24,11 +24,11 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.util.ClassUtil
-import kotlinx.metadata.KmDeclarationContainer
-import kotlinx.metadata.KmFunction
-import kotlinx.metadata.jvm.KotlinClassMetadata
-import kotlinx.metadata.jvm.Metadata
-import kotlinx.metadata.jvm.signature
+import kotlin.metadata.KmDeclarationContainer
+import kotlin.metadata.KmFunction
+import kotlin.metadata.jvm.KotlinClassMetadata
+import kotlin.metadata.jvm.Metadata
+import kotlin.metadata.jvm.signature
 
 /**
  * @return the corresponding [KmFunction] for this [PsiMethod], or `null` if there is no
@@ -60,7 +60,7 @@ private fun PsiClass.getKmDeclarationContainer(): KmDeclarationContainer? {
         } catch (e: Exception) {
             // Don't crash if we are trying to parse metadata from a newer version of Kotlin, than
             // is
-            // supported by the bundled version of kotlinx-metadata-jvm
+            // supported by the bundled version of kotlin-metadata-jvm
             return null
         }
 

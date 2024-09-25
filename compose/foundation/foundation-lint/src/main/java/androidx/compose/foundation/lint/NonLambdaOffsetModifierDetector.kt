@@ -33,7 +33,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.tryResolveUDeclaration
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import kotlinx.metadata.KmClassifier
+import kotlin.metadata.KmClassifier
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UDeclaration
