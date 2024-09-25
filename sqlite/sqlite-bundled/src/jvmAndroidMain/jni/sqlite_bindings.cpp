@@ -27,8 +27,7 @@ static bool throwSQLiteException(JNIEnv *env, int errorCode, const char *errorMs
 }
 
 static bool throwIfNoRow(JNIEnv *env, sqlite3_stmt* stmt) {
-    int lastRc = sqlite3_errcode(sqlite3_db_handle(stmt));
-    if (lastRc != SQLITE_ROW) {
+    if (sqlite3_stmt_busy(stmt) == 0) {
         return throwSQLiteException(env, SQLITE_MISUSE, "no row");
     }
     return false;

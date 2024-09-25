@@ -55,6 +55,7 @@ import sqlite3.sqlite3_errcode
 import sqlite3.sqlite3_finalize
 import sqlite3.sqlite3_reset
 import sqlite3.sqlite3_step
+import sqlite3.sqlite3_stmt_busy
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 public class NativeSQLiteStatement(
@@ -223,8 +224,7 @@ public class NativeSQLiteStatement(
     }
 
     private fun throwIfNoRow() {
-        val lastResultCode = sqlite3_errcode(dbPointer)
-        if (lastResultCode != SQLITE_ROW) {
+        if (sqlite3_stmt_busy(stmtPointer) == 0) {
             throwSQLiteException(SQLITE_MISUSE, "no row")
         }
     }
