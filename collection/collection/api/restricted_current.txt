@@ -169,7 +169,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
-    method public final operator boolean contains(float key);
+    method public final inline operator boolean contains(float key);
     method public final boolean containsKey(float key);
     method public final boolean containsValue(float value);
     method public final int count();
@@ -239,7 +239,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method public final operator boolean contains(float key);
+    method public final inline operator boolean contains(float key);
     method public final boolean containsKey(float key);
     method public final boolean containsValue(int value);
     method public final int count();
@@ -369,7 +369,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
-    method public final operator boolean contains(float key);
+    method public final inline operator boolean contains(float key);
     method public final boolean containsKey(float key);
     method public final boolean containsValue(long value);
     method public final int count();
@@ -428,7 +428,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
-    method public final operator boolean contains(float key);
+    method public final inline operator boolean contains(float key);
     method public final boolean containsKey(float key);
     method public final boolean containsValue(V value);
     method public final int count();
@@ -536,7 +536,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
-    method public final operator boolean contains(int key);
+    method public final inline operator boolean contains(int key);
     method public final boolean containsKey(int key);
     method public final boolean containsValue(float value);
     method public final int count();
@@ -595,7 +595,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method public final operator boolean contains(int key);
+    method public final inline operator boolean contains(int key);
     method public final boolean containsKey(int key);
     method public final boolean containsValue(int value);
     method public final int count();
@@ -736,7 +736,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
-    method public final operator boolean contains(int key);
+    method public final inline operator boolean contains(int key);
     method public final boolean containsKey(int key);
     method public final boolean containsValue(long value);
     method public final int count();
@@ -795,7 +795,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
-    method public final operator boolean contains(int key);
+    method public final inline operator boolean contains(int key);
     method public final boolean containsKey(int key);
     method public final boolean containsValue(V value);
     method public final int count();
@@ -903,7 +903,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
-    method public final operator boolean contains(long key);
+    method public final inline operator boolean contains(long key);
     method public final boolean containsKey(long key);
     method public final boolean containsValue(float value);
     method public final int count();
@@ -962,7 +962,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method public final operator boolean contains(long key);
+    method public final inline operator boolean contains(long key);
     method public final boolean containsKey(long key);
     method public final boolean containsValue(int value);
     method public final int count();
@@ -1092,7 +1092,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
-    method public final operator boolean contains(long key);
+    method public final inline operator boolean contains(long key);
     method public final boolean containsKey(long key);
     method public final boolean containsValue(long value);
     method public final int count();
@@ -1161,7 +1161,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
-    method public final operator boolean contains(long key);
+    method public final inline operator boolean contains(long key);
     method public final boolean containsKey(long key);
     method public final boolean containsValue(V value);
     method public final int count();
@@ -2008,7 +2008,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
-    method public final operator boolean contains(K key);
+    method public final inline operator boolean contains(K key);
     method public final boolean containsKey(K key);
     method public final boolean containsValue(float value);
     method public final int count();
@@ -2067,7 +2067,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
-    method public final operator boolean contains(K key);
+    method public final inline operator boolean contains(K key);
     method public final boolean containsKey(K key);
     method public final boolean containsValue(int value);
     method public final int count();
@@ -2195,7 +2195,7 @@ package androidx.collection {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
-    method public final operator boolean contains(K key);
+    method public final inline operator boolean contains(K key);
     method public final boolean containsKey(K key);
     method public final boolean containsValue(long value);
     method public final int count();

@@ -508,19 +508,19 @@ public sealed class ObjectPValueMap<K> {
     }
 
     /**
-     * Returns true if the specified [key] is present in this hash map, false
+     * Returns true if the specified [key] is present in this map, false
      * otherwise.
      */
-    public operator fun contains(key: K): Boolean = findKeyIndex(key) >= 0
+    public inline operator fun contains(key: K): Boolean = containsKey(key)
 
     /**
-     * Returns true if the specified [key] is present in this hash map, false
+     * Returns true if the specified [key] is present in this map, false
      * otherwise.
      */
     public fun containsKey(key: K): Boolean = findKeyIndex(key) >= 0
 
     /**
-     * Returns true if the specified [value] is present in this hash map, false
+     * Returns true if the specified [value] is present in this map, false
      * otherwise.
      */
     public fun containsValue(value: PValue): Boolean {
