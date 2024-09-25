@@ -30,7 +30,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="#FF0000" />
+        android:background="#FFFFFF" />
 
     <LinearLayout
         android:layout_width="wrap_content"
