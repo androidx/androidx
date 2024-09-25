@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -1546,6 +1547,52 @@ class NestedScrollModifierTest {
         rule.runOnIdle {
             assertThat(preFlingCount).isGreaterThan(0)
             assertThat(postFlingCount).isGreaterThan(0)
+        }
+    }
+
+    @Test
+    fun modifierIsRemoved_shouldKeepInfoAboutPreviousParent() {
+        val innerDispatcher = NestedScrollDispatcher()
+        val outerDispatcher = NestedScrollDispatcher()
+        var keepAround by mutableStateOf(true)
+
+        rule.setContent {
+            Column(
+                modifier =
+                    Modifier.nestedScroll(
+                        dispatcher = outerDispatcher,
+                        connection = object : NestedScrollConnection {}
+                    )
+            ) {
+                Box(
+                    Modifier.size(400.dp)
+                        .then(
+                            if (keepAround)
+                                Modifier.nestedScroll(
+                                    dispatcher = innerDispatcher,
+                                    connection = object : NestedScrollConnection {}
+                                )
+                            else Modifier
+                        )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDispatcher.lastKnownValidParentNode).isNull()
+            assertThat(innerDispatcher.nestedScrollNode?.parentNestedScrollNode)
+                .isEqualTo(outerDispatcher.nestedScrollNode)
+        }
+
+        rule.runOnIdle {
+            keepAround = false // remove inner node
+        }
+
+        rule.runOnIdle {
+            // the inner node's parent is the outer node
+            assertThat(innerDispatcher.lastKnownValidParentNode)
+                .isEqualTo(outerDispatcher.nestedScrollNode)
+            assertThat(innerDispatcher.nestedScrollNode?.parentNestedScrollNode).isNull()
         }
     }
 }
