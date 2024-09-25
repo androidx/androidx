@@ -98,7 +98,6 @@ internal val STANDARD_IN_OUT = CubicBezierEasing(0.20f, 0.0f, 0.0f, 1.00f)
  *
  * @see [SwipeDirection]
  */
-@ExperimentalWearFoundationApi
 @JvmInline
 value class RevealValue private constructor(val value: Int) {
     companion object {
@@ -172,7 +171,6 @@ value class RevealValue private constructor(val value: Int) {
  * conflict with the system-wide swipe to dismiss gesture in an activity, so it's strongly advised
  * to respect the default value to avoid conflicting gestures.
  */
-@ExperimentalWearFoundationApi
 @JvmInline
 value class SwipeDirection private constructor(val value: Int) {
     companion object {
@@ -199,7 +197,6 @@ value class SwipeDirection private constructor(val value: Int) {
  * not set by themselves and need to be set appropriately with [RevealState.snapTo] and
  * [RevealState.animateTo].
  */
-@ExperimentalWearFoundationApi
 @JvmInline
 value class RevealActionType private constructor(val value: Int) {
     companion object {
@@ -240,7 +237,6 @@ value class RevealActionType private constructor(val value: Int) {
  *   keep the default [SwipeDirection.RightToLeft] in order to preserve compatibility with the
  *   system wide swipe to dismiss gesture.
  */
-@ExperimentalWearFoundationApi
 fun createAnchors(
     coveredAnchor: Float = 0f,
     revealingAnchor: Float = SwipeToRevealDefaults.revealingRatio,
@@ -269,7 +265,7 @@ fun createAnchors(
  *
  * @constructor Create a [RevealState].
  */
-@ExperimentalWearFoundationApi
+@OptIn(ExperimentalWearFoundationApi::class)
 class RevealState
 internal constructor(
     initialValue: RevealValue,
@@ -423,7 +419,6 @@ internal constructor(
  * @param anchors A map of [RevealValue] to the fraction where the content can be revealed to reach
  *   that value. Each anchor should be between [0..1] which will be adjusted based on total width.
  */
-@ExperimentalWearFoundationApi
 @Composable
 fun rememberRevealState(
     initialValue: RevealValue = RevealValue.Covered,
@@ -487,7 +482,7 @@ fun rememberRevealState(
  *   [RevealState.currentValue] becomes [RevealValue.RightRevealed].
  * @param content The content that will be initially displayed over the other actions provided.
  */
-@ExperimentalWearFoundationApi
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToReveal(
     primaryAction: @Composable RevealScope.() -> Unit,
@@ -711,7 +706,6 @@ fun SwipeToReveal(
     }
 }
 
-@ExperimentalWearFoundationApi
 interface RevealScope {
 
     /**
@@ -730,7 +724,6 @@ interface RevealScope {
     val lastActionType: RevealActionType
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 private class RevealScopeImpl
 constructor(
     val revealState: RevealState,
@@ -776,7 +769,6 @@ internal object SwipeToRevealDefaults {
     internal val positionalThreshold = fractionalPositionalThreshold(0.5f)
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun RowScope.ActionSlot(
     revealScope: RevealScope,

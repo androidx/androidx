@@ -41,7 +41,6 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealValue
 import androidx.wear.compose.foundation.SwipeToReveal
 import androidx.wear.compose.foundation.expandableItem
@@ -57,7 +56,6 @@ import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun SwipeToRevealSample() {
@@ -98,7 +96,6 @@ fun SwipeToRevealSample() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun SwipeToRevealWithDelayedText() {
@@ -157,7 +154,6 @@ fun SwipeToRevealWithDelayedText() {
 /**
  * A sample on how to use Swipe To Reveal within a list of items, preferably [ScalingLazyColumn].
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun SwipeToRevealWithExpandables() {
