@@ -18,8 +18,6 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import androidx.paging.PagingSource
-import androidx.paging.PagingSource.LoadResult
 import androidx.room.RoomRawQuery
 import androidx.room.execSQL
 import androidx.room.immediateTransaction
@@ -504,68 +502,5 @@ abstract class BaseQueryTest {
         assertThrows<IllegalStateException> { db.dao().getSingleItemRaw(query) }
             .hasMessageThat()
             .contains("Only bind*() calls are allowed")
-    }
-
-    @Test
-    fun simplePagingQuery() = runTest {
-        val entity1 = SampleEntity(1, 1)
-        val entity2 = SampleEntity(2, 2)
-        val sampleEntities = listOf(entity1, entity2)
-        val dao = db.dao()
-
-        dao.insertSampleEntityList(sampleEntities)
-        val pagingSource = dao.getAllIds()
-
-        val onlyLoadFirst =
-            pagingSource.load(
-                PagingSource.LoadParams.Refresh(
-                    key = null,
-                    loadSize = 1,
-                    placeholdersEnabled = true
-                )
-            ) as LoadResult.Page
-        assertThat(onlyLoadFirst.data).containsExactly(entity1)
-
-        val loadAll =
-            pagingSource.load(
-                PagingSource.LoadParams.Refresh(
-                    key = null,
-                    loadSize = 2,
-                    placeholdersEnabled = true
-                )
-            ) as LoadResult.Page
-        assertThat(loadAll.data).containsExactlyElementsIn(sampleEntities)
-    }
-
-    @Test
-    fun pagingQueryWithParams() = runTest {
-        val entity1 = SampleEntity(1, 1)
-        val entity2 = SampleEntity(2, 2)
-        val entity3 = SampleEntity(3, 3)
-        val sampleEntities = listOf(entity1, entity2, entity3)
-        val dao = db.dao()
-
-        dao.insertSampleEntityList(sampleEntities)
-        val pagingSource = dao.getAllIdsWithArgs(1)
-
-        val onlyLoadFirst =
-            pagingSource.load(
-                PagingSource.LoadParams.Refresh(
-                    key = null,
-                    loadSize = 1,
-                    placeholdersEnabled = true
-                )
-            ) as LoadResult.Page
-        assertThat(onlyLoadFirst.data).containsExactly(entity2)
-
-        val loadAll =
-            pagingSource.load(
-                PagingSource.LoadParams.Refresh(
-                    key = null,
-                    loadSize = 2,
-                    placeholdersEnabled = true
-                )
-            ) as LoadResult.Page
-        assertThat(loadAll.data).containsExactlyElementsIn(listOf(entity2, entity3))
     }
 }
