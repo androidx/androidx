@@ -78,6 +78,8 @@ object Arguments {
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
+    internal val requireAot: Boolean
+    internal val requireJitDisabledIfRooted: Boolean
     val runOnMainDeadlineSeconds: Long // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
@@ -317,6 +319,10 @@ object Arguments {
         runOnMainDeadlineSeconds =
             arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
         Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
+
+        requireAot = arguments.getBenchmarkArgument("requireAot")?.toBoolean() ?: false
+        requireJitDisabledIfRooted =
+            arguments.getBenchmarkArgument("requireJitDisabledIfRooted")?.toBoolean() ?: false
 
         if (arguments.getString("orchestratorService") != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(

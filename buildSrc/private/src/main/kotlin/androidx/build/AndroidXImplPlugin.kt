@@ -808,6 +808,18 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     "true"
                 )
 
+                // Force AndroidX devs to disable JIT on rooted devices
+                deviceTest.instrumentationRunnerArguments.put(
+                    "androidx.benchmark.requireJitDisabledIfRooted",
+                    "true"
+                )
+
+                // Check that speed compilation always used when benchmark invoked
+                deviceTest.instrumentationRunnerArguments.put(
+                    "androidx.benchmark.requireAot",
+                    "true"
+                )
+
                 // Enables long-running method tracing on the UI thread, even if that risks ANR for
                 // profiling convenience.
                 // NOTE, this *must* be suppressed in CI!!
