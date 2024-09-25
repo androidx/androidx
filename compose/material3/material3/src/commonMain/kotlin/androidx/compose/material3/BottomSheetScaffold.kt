@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -328,37 +329,59 @@ private fun StandardBottomSheet(
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(
-                    Modifier.align(CenterHorizontally).semantics(mergeDescendants = true) {
-                        with(state) {
-                            // Provides semantics to interact with the bottomsheet if there is more
-                            // than one anchor to swipe to and swiping is enabled.
-                            if (anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled) {
-                                if (currentValue == PartiallyExpanded) {
-                                    if (anchoredDraggableState.confirmValueChange(Expanded)) {
-                                        expand(expandActionLabel) {
-                                            scope.launch { expand() }
-                                            true
+                    modifier =
+                        Modifier.align(CenterHorizontally)
+                            .clickable {
+                                when (state.currentValue) {
+                                    Expanded ->
+                                        scope.launch {
+                                            if (!state.skipHiddenState) {
+                                                state.hide()
+                                            } else {
+                                                state.partialExpand()
+                                            }
                                         }
-                                    }
-                                } else {
-                                    if (
-                                        anchoredDraggableState.confirmValueChange(PartiallyExpanded)
-                                    ) {
-                                        collapse(partialExpandActionLabel) {
-                                            scope.launch { partialExpand() }
-                                            true
-                                        }
-                                    }
-                                }
-                                if (!state.skipHiddenState) {
-                                    dismiss(dismissActionLabel) {
-                                        scope.launch { hide() }
-                                        true
-                                    }
+                                    PartiallyExpanded -> scope.launch { state.expand() }
+                                    else -> scope.launch { state.show() }
                                 }
                             }
-                        }
-                    },
+                            .semantics(mergeDescendants = true) {
+                                with(state) {
+                                    // Provides semantics to interact with the bottomsheet if there
+                                    // is more than one anchor to swipe to and swiping is enabled.
+                                    if (
+                                        anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled
+                                    ) {
+                                        if (currentValue == PartiallyExpanded) {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(Expanded)
+                                            ) {
+                                                expand(expandActionLabel) {
+                                                    scope.launch { expand() }
+                                                    true
+                                                }
+                                            }
+                                        } else {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(
+                                                    PartiallyExpanded
+                                                )
+                                            ) {
+                                                collapse(partialExpandActionLabel) {
+                                                    scope.launch { partialExpand() }
+                                                    true
+                                                }
+                                            }
+                                        }
+                                        if (!state.skipHiddenState) {
+                                            dismiss(dismissActionLabel) {
+                                                scope.launch { hide() }
+                                                true
+                                            }
+                                        }
+                                    }
+                                }
+                            },
                 ) {
                     dragHandle()
                 }

@@ -1150,6 +1150,32 @@ class ModalBottomSheetTest {
         }
     }
 
+    @Test
+    fun modalBottomSheet_testDragHandleClick() {
+        lateinit var sheetState: SheetState
+        rule.setContent {
+            sheetState = rememberModalBottomSheetState()
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetState = sheetState,
+                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+            ) {
+                Box(Modifier.fillMaxSize().testTag(sheetTag))
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
+    }
+
     private val Bundle.traversalBefore: Int
         get() = getInt("android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL")
 }
