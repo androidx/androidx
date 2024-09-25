@@ -110,9 +110,6 @@ class PoolingContainerTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testPoolingContainerListener_AllViewsRemovedFromContainer() {
-        // TODO(b/309848703): Stop skipping this for backwards compat flow
-        assumeTrue(!invokeBackwardsCompatFlow)
-
         val adapter =
             createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView = false)
 
@@ -124,9 +121,6 @@ class PoolingContainerTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testPoolingContainerListener_ContainerRemovedFromLayout() {
-        // TODO(b/309848703): Stop skipping this for backwards compat flow
-        assumeTrue(!invokeBackwardsCompatFlow)
-
         val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView = true)
 
         activityScenarioRule.withActivity { linearLayout.removeView(recyclerView) }
@@ -136,9 +130,6 @@ class PoolingContainerTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testPoolingContainerListener_ViewWithinAnotherView_AllViewsRemovedFromContainer() {
-        // TODO(b/309848703): Stop skipping this for backwards compat flow
-        assumeTrue(!invokeBackwardsCompatFlow)
-
         val adapter =
             createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView = false)
 
@@ -150,9 +141,6 @@ class PoolingContainerTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testPoolingContainerListener_ViewWithinAnotherView_ContainerRemovedFromLayout() {
-        // TODO(b/309848703): Stop skipping this for backwards compat flow
-        assumeTrue(!invokeBackwardsCompatFlow)
-
         val adapter = createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView = true)
 
         activityScenarioRule.withActivity { linearLayout.removeView(recyclerView) }
@@ -165,8 +153,6 @@ class PoolingContainerTests(private val invokeBackwardsCompatFlow: Boolean) {
     fun testPoolingContainerListener_NotifyFetchUiForSession() {
         // verifyColorOfScreenshot is only available for U+ devices.
         assumeTrue(SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        // TODO(b/309848703): Stop skipping this for backwards compat flow
-        assumeTrue(!invokeBackwardsCompatFlow)
 
         val recyclerViewAdapter = RecyclerViewTestAdapterForFetchingUi()
 
