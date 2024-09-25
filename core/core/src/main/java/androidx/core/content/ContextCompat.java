@@ -976,8 +976,13 @@ public class ContextCompat {
      * @return The name of the permission
      */
     static String obtainAndCheckReceiverPermission(Context obj) {
-        String permission =
-                obj.getPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+        String permission;
+        if (Build.VERSION.SDK_INT >= 29) {
+            permission = obj.getOpPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+        } else {
+            permission = obj.getApplicationContext().getPackageName()
+                    + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+        }
         if (PermissionChecker.checkSelfPermission(obj, permission)
                 != PermissionChecker.PERMISSION_GRANTED) {
             throw new RuntimeException("Permission " + permission + " is required by your "
