@@ -719,8 +719,12 @@ package androidx.window.layout {
   public final class WindowMetrics {
     method public android.graphics.Rect getBounds();
     method public float getDensity();
+    method public float getHeightDp();
+    method public float getWidthDp();
     property public final android.graphics.Rect bounds;
     property public final float density;
+    property public final float heightDp;
+    property public final float widthDp;
   }
 
   public interface WindowMetricsCalculator {
