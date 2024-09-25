@@ -41,6 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
@@ -203,6 +204,8 @@ public final class SurfaceTextureProvider {
             @Nullable Runnable onClosed) {
         return CallbackToFutureAdapter.getFuture((completer) -> {
             glExecutor.execute(() -> {
+                Object lock = new Object();
+                AtomicBoolean surfaceTextureReleased = new AtomicBoolean(false);
                 EGLContextParams contextParams = createDummyEGLContext();
                 EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
                         contextParams.outputSurface, contextParams.context);
@@ -212,14 +215,22 @@ public final class SurfaceTextureProvider {
                 surfaceTexture.setDefaultBufferSize(width, height);
                 surfaceTexture.setOnFrameAvailableListener(it ->
                         glExecutor.execute(() -> {
-                            it.updateTexImage();
-                            if (frameAvailableListener != null) {
-                                frameAvailableListener.onFrameAvailable(surfaceTexture);
+                            synchronized (lock) {
+                                if (surfaceTextureReleased.get()) {
+                                    return;
+                                }
+                                it.updateTexImage();
+                                if (frameAvailableListener != null) {
+                                    frameAvailableListener.onFrameAvailable(surfaceTexture);
+                                }
                             }
                         }));
 
                 completer.set(
                         new SurfaceTextureHolder(surfaceTexture, () -> glExecutor.execute(() -> {
+                            synchronized (lock) {
+                                surfaceTextureReleased.set(true);
+                            }
                             surfaceTexture.release();
                             GLES20.glDeleteTextures(1, textureIds, 0);
                             terminateEGLContext(contextParams);
