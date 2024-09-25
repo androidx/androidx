@@ -17,11 +17,6 @@ package androidx.camera.integration.core
 
 import android.Manifest
 import android.content.Context
-import android.graphics.SurfaceTexture
-import android.os.Handler
-import android.os.HandlerThread
-import android.util.Log
-import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
@@ -35,12 +30,11 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.GLUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.video.AudioChecker
@@ -497,47 +491,9 @@ class UseCaseCombinationTest(
 
     class PreviewMonitor {
         private var countDown: CountDownLatch? = null
-        private val surfaceProvider =
-            Preview.SurfaceProvider { request ->
-                val lock = Any()
-                var surfaceTextureReleased = false
-                val surfaceTexture = SurfaceTexture(0)
-                surfaceTexture.setDefaultBufferSize(
-                    request.resolution.width,
-                    request.resolution.height
-                )
-                surfaceTexture.detachFromGLContext()
-                surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext())
-                val frameUpdateThread = HandlerThread("frameUpdateThread").apply { start() }
-
-                surfaceTexture.setOnFrameAvailableListener(
-                    {
-                        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                            synchronized(lock) {
-                                if (!surfaceTextureReleased) {
-                                    try {
-                                        surfaceTexture.updateTexImage()
-                                    } catch (e: IllegalStateException) {
-                                        Log.e(TAG, "updateTexImage failed!")
-                                    }
-                                }
-                            }
-                        }
-                        countDown?.countDown()
-                    },
-                    Handler(frameUpdateThread.getLooper())
-                )
-
-                val surface = Surface(surfaceTexture)
-                request.provideSurface(surface, CameraXExecutors.directExecutor()) {
-                    synchronized(lock) {
-                        surfaceTextureReleased = true
-                        surface.release()
-                        surfaceTexture.release()
-                        frameUpdateThread.quitSafely()
-                    }
-                }
-            }
+        private val surfaceProvider = createAutoDrainingSurfaceTextureProvider {
+            countDown?.countDown()
+        }
 
         fun getSurfaceProvider(): Preview.SurfaceProvider = surfaceProvider
 
