@@ -187,7 +187,7 @@ open class AppWidgetSession(
                     layoutConfig.addLayout(root),
                     DpSize.Unspecified,
                     receiver,
-                    widget.components ?: GlanceComponents.getDefault(context),
+                    widget.getComponents(context) ?: GlanceComponents.getDefault(context),
                 )
             if (shouldPublish) {
                 appWidgetManager.updateAppWidget(id.appWidgetId, rv)

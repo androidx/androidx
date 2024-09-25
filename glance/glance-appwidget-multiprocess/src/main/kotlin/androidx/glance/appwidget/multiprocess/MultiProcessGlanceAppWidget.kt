@@ -40,29 +40,34 @@ public abstract class MultiProcessGlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) : GlanceAppWidget(errorUiLayout) {
     /**
-     * Override [multiProcessConfig] to provide a [androidx.work.multiprocess.RemoteWorkerService]
-     * that runs in the same process as the [androidx.glance.appwidget.GlanceAppWidgetReceiver] that
-     * this is attached to.
+     * Override [getMultiProcessConfig] to provide a
+     * [androidx.work.multiprocess.RemoteWorkerService] that runs in the same process as the
+     * [androidx.glance.appwidget.GlanceAppWidgetReceiver] that this is attached to.
      *
      * If null, then this widget will be run with normal WorkManager, i.e. the same behavior as
      * GlanceAppWidget.
      */
-    public open val multiProcessConfig: MultiProcessConfig? = null
+    public open fun getMultiProcessConfig(context: Context): MultiProcessConfig? = null
 
-    @get:RestrictTo(Scope.LIBRARY_GROUP)
-    final override val components: GlanceComponents?
-        get() = multiProcessConfig?.toGlanceComponents()
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    final override fun getComponents(context: Context): GlanceComponents? =
+        getMultiProcessConfig(context)?.toGlanceComponents()
 
-    @get:RestrictTo(Scope.LIBRARY_GROUP)
-    protected final override val sessionManager: SessionManager
-        get() = if (multiProcessConfig != null) RemoteSessionManager else GlanceSessionManager
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected final override fun getSessionManager(context: Context): SessionManager =
+        if (getMultiProcessConfig(context) != null) {
+            RemoteSessionManager
+        } else {
+            GlanceSessionManager
+        }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final override fun createAppWidgetSession(
+        context: Context,
         id: AppWidgetId,
         options: Bundle?
     ): AppWidgetSession {
-        return multiProcessConfig?.let { config ->
+        return getMultiProcessConfig(context)?.let { config ->
             RemoteAppWidgetSession(this, config.remoteWorkerService, id, options)
         } ?: AppWidgetSession(this, id, options)
     }
