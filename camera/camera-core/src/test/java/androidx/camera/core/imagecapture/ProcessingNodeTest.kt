@@ -187,7 +187,8 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
+                    isSimultaneousCapture = true
                 ),
                 callback,
                 Futures.immediateFuture(null)

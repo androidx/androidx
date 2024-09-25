@@ -77,7 +77,7 @@ public abstract class TakePictureRequest {
      *
      * It is not thread-safe.
      */
-    private Map<Integer, Boolean> mFormatCaptureStatus = new HashMap<>();
+    private final Map<Integer, Boolean> mFormatCaptureStatus = new HashMap<>();
 
     /**
      * Gets the callback {@link Executor} provided by the app.
@@ -139,6 +139,11 @@ public abstract class TakePictureRequest {
      */
     @ImageCapture.CaptureMode
     abstract int getCaptureMode();
+
+    /**
+     * Checks if the request is for simultaneous capture. Currently only RAW + JPEG are supported.
+     */
+    abstract boolean isSimultaneousCapture();
 
     /**
      * Gets the {@link CameraCaptureCallback}s set on the {@link SessionConfig}.
@@ -284,15 +289,21 @@ public abstract class TakePictureRequest {
             int rotationDegrees,
             int jpegQuality,
             @ImageCapture.CaptureMode int captureMode,
+            boolean isSimultaneousCapture,
             @NonNull List<CameraCaptureCallback> sessionConfigCameraCaptureCallbacks) {
         checkArgument((onDiskCallback == null) == (outputFileOptions == null),
                 "onDiskCallback and outputFileOptions should be both null or both non-null.");
         checkArgument((onDiskCallback == null) ^ (inMemoryCallback == null),
                 "One and only one on-disk or in-memory callback should be present.");
-        return new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
+        TakePictureRequest request = new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
                 onDiskCallback, outputFileOptions, cropRect,
                 sensorToBufferTransform, rotationDegrees, jpegQuality, captureMode,
+                isSimultaneousCapture,
                 sessionConfigCameraCaptureCallbacks);
+        if (isSimultaneousCapture) {
+            request.initFormatProcessStatusInSimultaneousCapture();
+        }
+        return request;
     }
 
     /**

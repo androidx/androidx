@@ -283,9 +283,11 @@ public class RequestWithCallback implements TakePictureCallback {
     }
 
     private void markComplete() {
-        boolean isSimultaneousCapture = mTakePictureRequest.getOutputFileOptions() != null
-                && mTakePictureRequest.getOutputFileOptions().size() > 1;
-        if (!isSimultaneousCapture) {
+        if (mTakePictureRequest.isSimultaneousCapture()
+                && !mTakePictureRequest.isFormatProcessedInSimultaneousCapture()) {
+            return;
+        }
+        if (!mTakePictureRequest.isSimultaneousCapture()) {
             checkState(!mCompleteFuture.isDone(), "The callback can only complete once.");
         }
         mCompleteCompleter.set(null);

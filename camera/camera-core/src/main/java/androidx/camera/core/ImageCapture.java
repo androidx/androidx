@@ -903,6 +903,11 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The listener is responsible for calling {@link Image#close()} on the returned image.
      *
+     * <p>For simultaneous image capture with {@link #OUTPUT_FORMAT_RAW_JPEG}, the
+     * {@link OnImageCapturedCallback#onCaptureSuccess(ImageProxy)} will be triggered twice, one for
+     * {@link ImageFormat#RAW_SENSOR} and the other for {@link ImageFormat#JPEG}. The order in which
+     * image format is triggered first is not guaranteed.
+     *
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback to be invoked for the newly captured image.
      *
@@ -947,6 +952,9 @@ public final class ImageCapture extends UseCase {
      * specified metadata.
      *
      * <p>Currently only {@link #OUTPUT_FORMAT_RAW_JPEG} is supporting simultaneous image capture.
+     * It needs two {@link OutputFileOptions}, the first one is used for
+     * {@link ImageFormat#RAW_SENSOR} image and the second one is for {@link ImageFormat#JPEG}. The
+     * order in which image format is triggered first is not guaranteed.
      *
      * @param outputFileOptions  List of options to store the newly captured images.
      * @param executor           The executor in which the callback methods will be run.
@@ -1468,6 +1476,7 @@ public final class ImageCapture extends UseCase {
                 getRelativeRotation(camera),
                 getJpegQualityInternal(),
                 getCaptureMode(),
+                getCurrentConfig().getSecondaryInputFormat() != ImageFormat.UNKNOWN,
                 mSessionConfigBuilder.getSingleCameraCaptureCallbacks()));
     }
 

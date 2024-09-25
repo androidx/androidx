@@ -199,17 +199,12 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
             if (inputPacket.getProcessingRequest().isInMemoryCapture()) {
                 ImageProxy result = processInMemoryCapture(inputPacket);
-                boolean isProcessed = !isSimultaneousCaptureEnabled
-                        || (isSimultaneousCaptureEnabled && request.getTakePictureRequest()
-                        .isFormatProcessedInSimultaneousCapture());
-                if (isProcessed) {
-                    mainThreadExecutor().execute(() -> request.onFinalResult(result));
-                }
+                mainThreadExecutor().execute(() -> request.onFinalResult(result));
             } else {
                 ImageCapture.OutputFileResults result = processOnDiskCapture(inputPacket);
-                boolean isProcessed = !isSimultaneousCaptureEnabled
-                        || (isSimultaneousCaptureEnabled && request.getTakePictureRequest()
-                        .isFormatProcessedInSimultaneousCapture());
+                boolean isProcessed =
+                        !isSimultaneousCaptureEnabled || request.getTakePictureRequest()
+                                .isFormatProcessedInSimultaneousCapture();
                 if (isProcessed) {
                     mainThreadExecutor().execute(() -> request.onFinalResult(result));
                 }

@@ -76,7 +76,6 @@ class ProcessingRequest {
             int requestId) {
         mRequestId = requestId;
         mTakePictureRequest = takePictureRequest;
-        mTakePictureRequest.initFormatProcessStatusInSimultaneousCapture();
         mOutputFileOptions = takePictureRequest.getOutputFileOptions();
         mJpegQuality = takePictureRequest.getJpegQuality();
         mRotationDegrees = takePictureRequest.getRotationDegrees();
