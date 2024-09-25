@@ -458,10 +458,6 @@ package androidx.wear.compose.material3 {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material3 API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterial3Api {
   }
 
-  public final class HorizontalPageIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(int pageCount, int currentPage, kotlin.jvm.functions.Function0<java.lang.Float> currentPageOffsetFraction, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing);
-  }
-
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
     ctor public IconButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
     method public long getContainerColor();
@@ -701,6 +697,21 @@ package androidx.wear.compose.material3 {
 
   public final class OpenOnPhoneDialogKt {
     method @androidx.compose.runtime.Composable public static void OpenOnPhoneDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit>? curvedText, optional androidx.wear.compose.material3.OpenOnPhoneDialogColors colors, optional androidx.compose.ui.window.DialogProperties properties, optional long durationMillis, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+  }
+
+  public final class PageIndicatorDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getBackgroundColor();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getSelectedColor();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getUnselectedColor();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final long backgroundColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final long selectedColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final long unselectedColor;
+    field public static final androidx.wear.compose.material3.PageIndicatorDefaults INSTANCE;
+  }
+
+  public final class PageIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional long backgroundColor);
+    method @androidx.compose.runtime.Composable public static void VerticalPageIndicator(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional long backgroundColor);
   }
 
   public final class PickerDefaults {
