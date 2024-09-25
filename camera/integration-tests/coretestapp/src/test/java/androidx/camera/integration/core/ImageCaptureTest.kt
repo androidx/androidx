@@ -19,11 +19,15 @@ package androidx.camera.integration.core
 import android.content.ContentValues
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.provider.MediaStore
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCameraControl
+import androidx.camera.testing.imagecapture.CaptureResult.Companion.cancelledResult
+import androidx.camera.testing.imagecapture.CaptureResult.Companion.failedResult
+import androidx.camera.testing.imagecapture.CaptureResult.Companion.successfulResult
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
 import androidx.camera.testing.impl.fakes.FakeOnImageSavedCallback
 import androidx.camera.testing.rules.FakeCameraTestRule
@@ -33,15 +37,17 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -75,20 +81,111 @@ class ImageCaptureTest(
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
 
-    // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
-    // need to be reflected there too
-    @Ignore("b/318314454")
     @Test
-    fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runTest {
+    fun completesAllCaptures_whenMultiplePicsTakenConsecutivelyBeforeSubmittingResults(): Unit =
+        runBlocking {
+            val callback1 = FakeOnImageCapturedCallback()
+            val callback2 = FakeOnImageCapturedCallback()
+
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback1)
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback2)
+            cameraControl.submitCaptureResult(successfulResult())
+            cameraControl.submitCaptureResult(successfulResult())
+
+            // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+            shadowOf(Looper.getMainLooper()).idle()
+
+            callback1.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+            callback2.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+        }
+
+    @Test
+    fun completesAllCaptures_whenMultiplePicsTakenConsecutivelyAfterSubmittingResults(): Unit =
+        runBlocking {
+            val callback1 = FakeOnImageCapturedCallback()
+            val callback2 = FakeOnImageCapturedCallback()
+
+            cameraControl.submitCaptureResult(successfulResult())
+            cameraControl.submitCaptureResult(successfulResult())
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback1)
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback2)
+
+            // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+            shadowOf(Looper.getMainLooper()).idle()
+
+            callback1.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+            callback2.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+        }
+
+    @Test
+    fun completesFirstCapture_whenMultiplePicsTakenConsecutivelyBeforeSubmittingResult(): Unit =
+        runBlocking {
+            val callback1 = FakeOnImageCapturedCallback()
+            val callback2 = FakeOnImageCapturedCallback()
+
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback1)
+            imageCapture.takePicture(CameraXExecutors.directExecutor(), callback2)
+            cameraControl.submitCaptureResult(successfulResult())
+
+            // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+            shadowOf(Looper.getMainLooper()).idle()
+
+            callback1.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+            callback2.assertNoCapture(timeout = 100.milliseconds)
+        }
+
+    @Test
+    fun completesCaptureWithError_whenCaptureRequestsCancelled(): Unit = runBlocking {
         val callback = FakeOnImageCapturedCallback()
+
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-        callback.results.first().image.toBitmap()
+        cameraControl.submitCaptureResult(cancelledResult())
+
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
+        callback.awaitCapturesAndAssert(
+            timeout = 1.seconds,
+            errorsCount = 1,
+            capturedImagesCount = 0
+        )
+    }
+
+    @Test
+    fun completesCaptureWithError_whenCaptureRequestsFailed(): Unit = runBlocking {
+        val callback = FakeOnImageCapturedCallback()
+
+        imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
+        cameraControl.submitCaptureResult(failedResult())
+
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
+        callback.awaitCapturesAndAssert(
+            timeout = 1.seconds,
+            errorsCount = 1,
+            capturedImagesCount = 0
+        )
     }
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
-    @Ignore("b/318314454")
+    @Test
+    fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runTest {
+        val callback = FakeOnImageCapturedCallback()
+
+        imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
+        cameraControl.submitCaptureResult(successfulResult())
+
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
+        callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
+        assertThat(callback.results.first().image.toBitmap()).isNotNull()
+    }
+
+    // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
+    // need to be reflected there too
     @Test
     fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runTest {
         val saveLocation = temporaryFolder.newFile()
@@ -100,23 +197,32 @@ class ImageCaptureTest(
             CameraXExecutors.directExecutor(),
             callback
         )
+        cameraControl.submitCaptureResult(successfulResult())
 
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
+        callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         assertThat(saveLocation.length()).isGreaterThan(previousLength)
     }
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
-    @Ignore("b/318314454")
     @Test
     fun canFindFakeImageUri_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val callback = FakeOnImageSavedCallback()
+
         imageCapture.takePicture(
             createMediaStoreOutputOptions(),
             CameraXExecutors.directExecutor(),
             callback
         )
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+        cameraControl.submitCaptureResult(successfulResult())
+
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
+        callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         assertThat(callback.results.first().savedUri).isNotNull()
     }
 

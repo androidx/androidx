@@ -33,7 +33,7 @@ import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.fakes.FakeCaptureStage
 import androidx.camera.testing.impl.fakes.FakeImageProxy
 import java.io.File
@@ -107,7 +107,7 @@ object Utils {
     fun createCameraCaptureResultImageInfo(tagBundleKey: String, stageId: Int): ImageInfo {
         return CameraCaptureResultImageInfo(
             FakeCameraCaptureResult().also {
-                it.setTag(TagBundle.create(Pair(tagBundleKey, stageId)))
+                it.setTagBundle(TagBundle.create(Pair(tagBundleKey, stageId)))
             }
         )
     }

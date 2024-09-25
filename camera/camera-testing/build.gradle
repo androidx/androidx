@@ -39,21 +39,24 @@ dependencies {
     implementation("androidx.test:rules:$testRulesVersion")
     implementation("androidx.test:runner:$testRunnerVersion")
 
-    implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.8.1")
-    implementation(libs.guavaListenableFuture)
-    implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))
     api(project(":camera:camera-lifecycle"))
     api(project(":camera:camera-video"))
+
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.test.espresso:espresso-core:3.5.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
+
+    implementation(libs.atomicFu)
+    implementation(libs.guavaListenableFuture)
     implementation(libs.junit)
     implementation(libs.truth)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.testUiautomator)
 
     testImplementation("androidx.test:core:$testCoreVersion")
     testImplementation("androidx.test:runner:$testRunnerVersion")

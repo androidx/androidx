@@ -17,10 +17,16 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
+import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_CANCELLED;
+import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_FAILED;
+import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_SUCCESSFUL;
 import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+
+import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -41,6 +47,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.testing.imagecapture.CaptureResult;
 import androidx.camera.testing.impl.FakeCameraCapturePipeline;
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -48,10 +55,13 @@ import androidx.core.util.Pair;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A fake implementation for the {@link CameraControlInternal} interface which is capable of
@@ -73,22 +83,33 @@ public final class FakeCameraControl implements CameraControlInternal {
         }
     };
 
+    private final Object mLock = new Object();
+
     /**
      * The executor used to invoke any callback/listener which doesn't have a dedicated executor
      * for it.
      * <p> {@link CameraXExecutors#directExecutor} via default, unless some other executor is set
-     * via {@link #FakeCameraControl(Executor, CameraControlInternal.ControlUpdateCallback)}.
+     * via {@link #FakeCameraControl(Executor, ControlUpdateCallback)}.
      */
-    @NonNull private final Executor mExecutor;
+    @NonNull
+    private final Executor mExecutor;
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @ImageCapture.FlashMode
     private int mFlashMode = FLASH_MODE_OFF;
-    private final ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private Pair<Executor, OnNewCaptureRequestListener> mOnNewCaptureRequestListener;
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
-    private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
-            new ArrayList<>();
+
+    @GuardedBy("mLock")
+    private final ArrayDeque<CaptureConfig> mSubmittedCaptureRequests = new ArrayDeque<>();
+    @GuardedBy("mLock")
+    private final ArrayDeque<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
+            new ArrayDeque<>();
+    @GuardedBy("mLock")
+    private final ArrayDeque<CaptureResult> mCaptureResults = new ArrayDeque<>();
+
+    private final List<CaptureSuccessListener> mCaptureSuccessListeners =
+            new CopyOnWriteArrayList<>();
 
     private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslConfigAdded = false;
@@ -108,8 +129,8 @@ public final class FakeCameraControl implements CameraControlInternal {
      * Constructs an instance of {@link FakeCameraControl} with a no-op
      * {@link ControlUpdateCallback}.
      *
-     * @see #FakeCameraControl(CameraControlInternal.ControlUpdateCallback)
-     * @see #FakeCameraControl(Executor, CameraControlInternal.ControlUpdateCallback)
+     * @see #FakeCameraControl(ControlUpdateCallback)
+     * @see #FakeCameraControl(Executor, ControlUpdateCallback)
      */
     public FakeCameraControl() {
         this(NO_OP_CALLBACK);
@@ -121,7 +142,7 @@ public final class FakeCameraControl implements CameraControlInternal {
      *
      * <p> Note that callbacks will be executed on the calling thread directly via
      * {@link CameraXExecutors#directExecutor}. To specify the execution thread, use
-     * {@link #FakeCameraControl(Executor, CameraControlInternal.ControlUpdateCallback)}.
+     * {@link #FakeCameraControl(Executor, ControlUpdateCallback)}.
      *
      * @param controlUpdateCallback {@link ControlUpdateCallback} to notify events.
      */
@@ -133,7 +154,8 @@ public final class FakeCameraControl implements CameraControlInternal {
      * Constructs an instance of {@link FakeCameraControl} with the
      * provided {@link ControlUpdateCallback}.
      *
-     * @param executor {@link Executor} used to invoke the {@code controlUpdateCallback}.
+     * @param executor              {@link Executor} used to invoke the {@code
+     *                              controlUpdateCallback}.
      * @param controlUpdateCallback {@link ControlUpdateCallback} to notify events.
      */
     public FakeCameraControl(@NonNull Executor executor,
@@ -145,44 +167,31 @@ public final class FakeCameraControl implements CameraControlInternal {
     /**
      * Notifies all submitted requests using {@link CameraCaptureCallback#onCaptureCancelled},
      * which is invoked in the thread denoted by {@link #mExecutor}.
+     *
+     * @deprecated Use {@link #completeAllCaptureRequests(CaptureResult)} instead.
      */
+    @Deprecated // TODO: b/366136115 - Remove all usages
     public void notifyAllRequestsOnCaptureCancelled() {
-        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
-            for (CameraCaptureCallback cameraCaptureCallback :
-                    captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(() -> {
-                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
-                });
+        while (true) {
+            if (!completeFirstPendingCaptureRequest(CAPTURE_STATUS_CANCELLED, null)) {
+                break;
             }
         }
-        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
-            completer.setException(
-                    new ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "Simulate "
-                            + "capture cancelled", null));
-        }
-        mSubmittedCompleterList.clear();
-        mSubmittedCaptureRequests.clear();
     }
 
     /**
      * Notifies all submitted requests using {@link CameraCaptureCallback#onCaptureFailed},
      * which is invoked in the thread denoted by {@link #mExecutor}.
+     *
+     * @deprecated Use {@link #completeAllCaptureRequests(CaptureResult)} instead.
      */
+    @Deprecated // TODO: b/366136115 - Remove all usages
     public void notifyAllRequestsOnCaptureFailed() {
-        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
-            for (CameraCaptureCallback cameraCaptureCallback :
-                    captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(() -> cameraCaptureCallback.onCaptureFailed(
-                        captureConfig.getId(),
-                        new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)));
+        while (true) {
+            if (!completeFirstPendingCaptureRequest(CAPTURE_STATUS_FAILED, null)) {
+                break;
             }
         }
-        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
-            completer.setException(new ImageCaptureException(ImageCapture.ERROR_CAPTURE_FAILED,
-                    "Simulate capture fail", null));
-        }
-        mSubmittedCompleterList.clear();
-        mSubmittedCaptureRequests.clear();
     }
 
     /**
@@ -190,20 +199,97 @@ public final class FakeCameraControl implements CameraControlInternal {
      * which is invoked in the thread denoted by {@link #mExecutor}.
      *
      * @param result The {@link CameraCaptureResult} which is notified to all the callbacks.
+     * @deprecated Use {@link #completeAllCaptureRequests(CaptureResult)} instead.
      */
+    @Deprecated // TODO: b/366136115 - Remove all usages
     public void notifyAllRequestsOnCaptureCompleted(@NonNull CameraCaptureResult result) {
-        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
-            for (CameraCaptureCallback cameraCaptureCallback :
-                    captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(
-                        captureConfig.getId(), result));
+        while (true) {
+            if (!completeFirstPendingCaptureRequest(CAPTURE_STATUS_SUCCESSFUL, result)) {
+                break;
             }
         }
-        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
-            completer.set(null);
+    }
+
+    /**
+     * Completes the first submitted but incomplete capture request using one of the
+     * {@link CameraCaptureCallback} methods, which is invoked in the thread denoted by
+     * {@link #mExecutor}.
+     *
+     * @param captureStatus Represents how a capture request should be completed.
+     * @param captureResult The {@link CameraCaptureResult} which is notified to all the
+     *                      callbacks. Must not be null if captureStatus parameter is
+     *                      {@link CaptureResult#CAPTURE_STATUS_SUCCESSFUL}.
+     * @return True if a capture request was completed, false otherwise.
+     */
+    // TODO: b/365519650 - Take FakeCameraCaptureResult as parameter to contain extra user-provided
+    //  data like bitmap/image proxy and use that to complete capture.
+    @SuppressWarnings("ObjectToString") // Required for captureConfig hashcode log
+    private boolean completeFirstPendingCaptureRequest(
+            @CaptureResult.CaptureStatus int captureStatus,
+            @Nullable CameraCaptureResult captureResult) {
+        CaptureConfig captureConfig;
+        CallbackToFutureAdapter.Completer<Void> completer;
+
+        synchronized (mLock) {
+            if (mSubmittedCaptureRequests.isEmpty() || mSubmittedCompleterList.isEmpty()) {
+                Logger.d(TAG,
+                        "completeFirstPendingCaptureRequest: returning early since either "
+                                + "mSubmittedCaptureRequests or mSubmittedCompleterList is empty, "
+                                + "mSubmittedCaptureRequests = "
+                                + mSubmittedCaptureRequests + ", mSubmittedCompleterList"
+                                + mSubmittedCompleterList);
+                return false;
+            }
+
+            captureConfig = mSubmittedCaptureRequests.removeFirst();
+            completer = mSubmittedCompleterList.removeFirst();
         }
-        mSubmittedCompleterList.clear();
-        mSubmittedCaptureRequests.clear();
+        Logger.d(TAG, "completeFirstPendingCaptureRequest: captureConfig = " + captureConfig);
+
+        if (captureStatus == CAPTURE_STATUS_SUCCESSFUL) {
+            notifyCaptureSuccess(requireNonNull(captureResult));
+        }
+
+        for (CameraCaptureCallback cameraCaptureCallback :
+                captureConfig.getCameraCaptureCallbacks()) {
+            mExecutor.execute(() -> {
+                switch (captureStatus) {
+                    case CAPTURE_STATUS_SUCCESSFUL:
+                        cameraCaptureCallback.onCaptureCompleted(captureConfig.getId(),
+                                Objects.requireNonNull(captureResult));
+                        break;
+                    case CAPTURE_STATUS_FAILED:
+                        cameraCaptureCallback.onCaptureFailed(captureConfig.getId(),
+                                new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR));
+                        break;
+                    case CAPTURE_STATUS_CANCELLED:
+                        cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
+                        break;
+                    default:
+                        Logger.e(TAG, "completeFirstPendingCaptureRequest: unknown capture status: "
+                                + captureStatus);
+                }
+            });
+        }
+
+        switch (captureStatus) {
+            case CAPTURE_STATUS_SUCCESSFUL:
+                completer.set(null);
+                break;
+            case CAPTURE_STATUS_FAILED:
+                completer.setException(new ImageCaptureException(ImageCapture.ERROR_CAPTURE_FAILED,
+                        "Simulate capture fail", null));
+                break;
+            case CAPTURE_STATUS_CANCELLED:
+                completer.setException(new ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED,
+                        "Simulate capture cancelled", null));
+                break;
+            default:
+                Logger.e(TAG, "completeFirstPendingCaptureRequest: unknown capture status: "
+                        + captureStatus);
+        }
+
+        return true;
     }
 
     @ImageCapture.FlashMode
@@ -294,24 +380,40 @@ public final class FakeCameraControl implements CameraControlInternal {
     public ListenableFuture<List<Void>> submitStillCaptureRequests(
             @NonNull List<CaptureConfig> captureConfigs,
             int captureMode, int flashType) {
-        mSubmittedCaptureRequests.addAll(captureConfigs);
-        mExecutor.execute(
-                () -> mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs));
+        Logger.d(TAG, "submitStillCaptureRequests: captureConfigs = " + captureConfigs);
+
         List<ListenableFuture<Void>> fakeFutures = new ArrayList<>();
-        for (int i = 0; i < captureConfigs.size(); i++) {
-            fakeFutures.add(CallbackToFutureAdapter.getFuture(completer -> {
-                mSubmittedCompleterList.add(completer);
-                return "fakeFuture";
-            }));
+
+        synchronized (mLock) {
+            mSubmittedCaptureRequests.addAll(captureConfigs);
+            for (int i = 0; i < captureConfigs.size(); i++) {
+                AtomicReference<CallbackToFutureAdapter.Completer<Void>> completerRef =
+                        new AtomicReference<>();
+                fakeFutures.add(CallbackToFutureAdapter.getFuture(completer -> {
+                    // mSubmittedCaptureRequests and mSubmittedCompleterList must be updated under
+                    // the same lock to avoid rare out-of-state bugs. So, completer can't be added
+                    // to mSubmittedCompleterList here directly even though this line is guaranteed
+                    // to be called immediately.
+                    completerRef.set(completer);
+                    return "fakeFuture";
+                }));
+                mSubmittedCompleterList.add(Objects.requireNonNull(completerRef.get()));
+            }
         }
 
+        mExecutor.execute(
+                () -> mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs));
+
         if (mOnNewCaptureRequestListener != null) {
-            Executor executor = Objects.requireNonNull(mOnNewCaptureRequestListener.first);
+            Executor executor = requireNonNull(mOnNewCaptureRequestListener.first);
             OnNewCaptureRequestListener listener =
-                    Objects.requireNonNull(mOnNewCaptureRequestListener.second);
+                    requireNonNull(mOnNewCaptureRequestListener.second);
 
             executor.execute(() -> listener.onNewCaptureRequests(captureConfigs));
         }
+
+        mExecutor.execute(this::applyCaptureResults);
+
         return Futures.allAsList(fakeFutures);
     }
 
@@ -369,7 +471,7 @@ public final class FakeCameraControl implements CameraControlInternal {
      * {@link #setOnNewCaptureRequestListener(Executor, OnNewCaptureRequestListener)}.
      *
      * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     * {@link CaptureConfig} parameters when new capture requests are submitted.
+     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
      */
     public void setOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
         setOnNewCaptureRequestListener(CameraXExecutors.directExecutor(), listener);
@@ -380,7 +482,7 @@ public final class FakeCameraControl implements CameraControlInternal {
      *
      * @param executor {@link Executor} used to notify the {@code listener}.
      * @param listener {@link OnNewCaptureRequestListener} that is notified with the submitted
-     * {@link CaptureConfig} parameters when new capture requests are submitted.
+     *                 {@link CaptureConfig} parameters when new capture requests are submitted.
      */
     public void setOnNewCaptureRequestListener(@NonNull Executor executor,
             @NonNull OnNewCaptureRequestListener listener) {
@@ -444,9 +546,108 @@ public final class FakeCameraControl implements CameraControlInternal {
         return MutableOptionsBundle.from(mInteropConfig);
     }
 
+    /**
+     * Submits a {@link CaptureResult} to be used for the first pending capture request.
+     *
+     * <p> If there are no pending capture requests, the `CaptureResult` is kept in a queue to be
+     * used in future capture requests.
+     *
+     * <p> This method will complete a corresponding capture request according to the provided
+     * capture result.
+     *
+     * <p> For applying a capture result to all already submitted capture requests, use the
+     * {@link #completeAllCaptureRequests} method instead.
+     */
+    public void submitCaptureResult(@NonNull CaptureResult captureResult) {
+        synchronized (mLock) {
+            mCaptureResults.add(captureResult);
+        }
+        applyCaptureResults();
+    }
+
+    /**
+     * Completes all the incomplete capture requests with the provided {@link CaptureResult}.
+     *
+     * <p> Note that {@link ImageCapture#takePicture} methods send requests to camera asynchronously
+     * and thus a capture request from {@link ImageCapture} may not be available immediately.
+     * Consider using {@link #setOnNewCaptureRequestListener} to know when a capture request has
+     * been submitted before using this method right after {@code ImageCapture#takePicture}.
+     * Furthermore, {@code ImageCapture} queues capture requests before submitting to camera when
+     * multiple captures are requested. So it is recommended to use {@link #submitCaptureResult}
+     * whenever possible to avoid confusing and complicated scenario in integration tests.
+     */
+    public void completeAllCaptureRequests(@NonNull CaptureResult captureResult) {
+        synchronized (mLock) {
+            // Add CaptureResult instances for all pending requests first.
+            for (int i = 0; i < mSubmittedCaptureRequests.size(); i++) {
+                mCaptureResults.add(captureResult);
+            }
+        }
+
+        applyCaptureResults();
+    }
+
+    private void applyCaptureResults() {
+        synchronized (mLock) {
+            while (!mCaptureResults.isEmpty()) {
+                CaptureResult captureResult = mCaptureResults.getFirst();
+
+                if (completeFirstPendingCaptureRequest(captureResult.getCaptureStatus(),
+                        captureResult.getCameraCaptureResult())) {
+                    mCaptureResults.removeFirst();
+                } else {
+                    Logger.d(TAG, "applyCaptureResults: failed to notify");
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a listener to be notified when there are completed capture requests.
+     *
+     * @param listener {@link CaptureSuccessListener} that is notified with the submitted
+     *                 {@link CaptureConfig} parameters when capture requests are completed.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void addCaptureSuccessListener(@NonNull CaptureSuccessListener listener) {
+        mCaptureSuccessListeners.add(listener);
+    }
+
+    /**
+     * Removes a {@link CaptureSuccessListener} if it exist.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void removeCaptureSuccessListener(@NonNull CaptureSuccessListener listener) {
+        mCaptureSuccessListeners.remove(listener);
+    }
+
+    private void notifyCaptureSuccess(@NonNull CameraCaptureResult result) {
+        Logger.d(TAG, "notifyCaptureComplete: mCaptureCompleteListeners = "
+                + mCaptureSuccessListeners);
+        for (CaptureSuccessListener listener : mCaptureSuccessListeners) {
+            listener.onCompleted(result);
+        }
+    }
+
     /** A listener which is used to notify when there are new submitted capture requests */
     public interface OnNewCaptureRequestListener {
         /** Called when there are new submitted capture request */
         void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    }
+
+    /**
+     * A listener which is used to notify when submitted capture requests are completed
+     * successfully.
+     *
+     * <p> The reason we need to listen to success case specifically is because of how CameraX image
+     * capture flow works internally. In case of success, a real android.media.Image instance is
+     * also expected from ImageReader which makes this kind of listener necessary for the proper
+     * implementation of a fake TakePictureManager.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface CaptureSuccessListener {
+        /** Called when a submitted capture request has been completed successfully. */
+        void onCompleted(@NonNull CameraCaptureResult result);
     }
 }

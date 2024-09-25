@@ -20,7 +20,7 @@ import android.os.Build
 import android.util.Pair
 import androidx.camera.core.impl.CameraCaptureMetaData
 import androidx.camera.core.impl.TagBundle
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -37,6 +37,40 @@ package androidx.camera.testing.fakes {
     method public void setHasTransform(boolean);
   }
 
+  public final class FakeCameraCaptureResult {
+    ctor public FakeCameraCaptureResult();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AeMode getAeMode();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AeState getAeState();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AfMode getAfMode();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AfState getAfState();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AwbMode getAwbMode();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.AwbState getAwbState();
+    method public androidx.camera.core.impl.CameraCaptureMetaData.FlashState getFlashState();
+    method public androidx.camera.core.impl.TagBundle getTagBundle();
+    method public long getTimestamp();
+    method public void setAeMode(androidx.camera.core.impl.CameraCaptureMetaData.AeMode);
+    method public void setAeState(androidx.camera.core.impl.CameraCaptureMetaData.AeState);
+    method public void setAfMode(androidx.camera.core.impl.CameraCaptureMetaData.AfMode);
+    method public void setAfState(androidx.camera.core.impl.CameraCaptureMetaData.AfState);
+    method public void setAwbMode(androidx.camera.core.impl.CameraCaptureMetaData.AwbMode);
+    method public void setAwbState(androidx.camera.core.impl.CameraCaptureMetaData.AwbState);
+    method public void setFlashState(androidx.camera.core.impl.CameraCaptureMetaData.FlashState);
+    method public void setTagBundle(androidx.camera.core.impl.TagBundle);
+    method public void setTimestamp(long);
+  }
+
+  public static final class FakeCameraCaptureResult.Builder {
+    ctor public FakeCameraCaptureResult.Builder();
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult build();
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setAeState(androidx.camera.core.impl.CameraCaptureMetaData.AeState?);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setAfMode(androidx.camera.core.impl.CameraCaptureMetaData.AfMode?);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setAfState(androidx.camera.core.impl.CameraCaptureMetaData.AfState?);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setAwbState(androidx.camera.core.impl.CameraCaptureMetaData.AwbState?);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setFlashState(androidx.camera.core.impl.CameraCaptureMetaData.FlashState?);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setTagBundle(androidx.camera.core.impl.TagBundle);
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult.Builder setTimestamp(long);
+  }
+
   public final class FakeCameraControl implements androidx.camera.core.CameraControl {
     ctor public FakeCameraControl();
     ctor public FakeCameraControl(androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback);
@@ -46,6 +80,7 @@ package androidx.camera.testing.fakes {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public void clearInteropConfig();
     method public void clearNewCaptureRequestListener();
+    method public void completeAllCaptureRequests(androidx.camera.testing.imagecapture.CaptureResult);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
     method public int getExposureCompensationIndex();
     method public int getFlashMode();
@@ -59,9 +94,9 @@ package androidx.camera.testing.fakes {
     method public float getZoomRatio();
     method public boolean isZslConfigAdded();
     method public boolean isZslDisabledByByUserCaseConfig();
-    method public void notifyAllRequestsOnCaptureCancelled();
-    method public void notifyAllRequestsOnCaptureCompleted(androidx.camera.core.impl.CameraCaptureResult);
-    method public void notifyAllRequestsOnCaptureFailed();
+    method @Deprecated public void notifyAllRequestsOnCaptureCancelled();
+    method @Deprecated public void notifyAllRequestsOnCaptureCompleted(androidx.camera.core.impl.CameraCaptureResult);
+    method @Deprecated public void notifyAllRequestsOnCaptureFailed();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
     method public void setFlashMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(float);
@@ -71,6 +106,7 @@ package androidx.camera.testing.fakes {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method public void setZslDisabledByUserCaseConfig(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.FocusMeteringResult!> startFocusAndMetering(androidx.camera.core.FocusMeteringAction);
+    method public void submitCaptureResult(androidx.camera.testing.imagecapture.CaptureResult);
     method public com.google.common.util.concurrent.ListenableFuture<java.util.List<java.lang.Void!>!> submitStillCaptureRequests(java.util.List<androidx.camera.core.impl.CaptureConfig!>, int, int);
     field public static final androidx.camera.core.impl.CameraControlInternal DEFAULT_EMPTY_INSTANCE;
   }
@@ -118,6 +154,32 @@ package androidx.camera.testing.fakes {
     method public void setTimebase(androidx.camera.core.impl.Timebase);
     method public void setTorch(int);
     method public void setZoom(float, float, float, float);
+  }
+
+}
+
+package androidx.camera.testing.imagecapture {
+
+  public final class CaptureResult {
+    method public static androidx.camera.testing.imagecapture.CaptureResult cancelledResult();
+    method public static androidx.camera.testing.imagecapture.CaptureResult failedResult();
+    method public androidx.camera.testing.fakes.FakeCameraCaptureResult? getCameraCaptureResult();
+    method public int getCaptureStatus();
+    method public static androidx.camera.testing.imagecapture.CaptureResult successfulResult();
+    method public static androidx.camera.testing.imagecapture.CaptureResult successfulResult(optional androidx.camera.testing.fakes.FakeCameraCaptureResult fakeCameraCaptureResult);
+    property public final androidx.camera.testing.fakes.FakeCameraCaptureResult? cameraCaptureResult;
+    property public final int captureStatus;
+    field public static final int CAPTURE_STATUS_CANCELLED = 2; // 0x2
+    field public static final int CAPTURE_STATUS_FAILED = 1; // 0x1
+    field public static final int CAPTURE_STATUS_SUCCESSFUL = 0; // 0x0
+    field public static final androidx.camera.testing.imagecapture.CaptureResult.Companion Companion;
+  }
+
+  public static final class CaptureResult.Companion {
+    method public androidx.camera.testing.imagecapture.CaptureResult cancelledResult();
+    method public androidx.camera.testing.imagecapture.CaptureResult failedResult();
+    method public androidx.camera.testing.imagecapture.CaptureResult successfulResult();
+    method public androidx.camera.testing.imagecapture.CaptureResult successfulResult(optional androidx.camera.testing.fakes.FakeCameraCaptureResult fakeCameraCaptureResult);
   }
 
 }

@@ -49,10 +49,11 @@ import java.util.Locale;
 public final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
+    public static final String JNI_LIB_NAME = "image_processing_util_jni";
     private static int sImageCount = 0;
 
     static {
-        System.loadLibrary("image_processing_util_jni");
+        System.loadLibrary(JNI_LIB_NAME);
     }
 
     enum Result {

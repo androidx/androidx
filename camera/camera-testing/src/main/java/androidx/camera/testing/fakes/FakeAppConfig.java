@@ -29,6 +29,9 @@ import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Convenience class for generating a fake {@link CameraXConfig}.
  *
@@ -59,20 +62,10 @@ public final class FakeAppConfig {
      */
     @NonNull
     public static CameraXConfig create(@Nullable CameraSelector availableCamerasSelector) {
+        FakeCameraFactory cameraFactory = createCameraFactory(availableCamerasSelector);
+
         final CameraFactory.Provider cameraFactoryProvider =
-                (ignored1, ignored2, ignored3, ignore4) -> {
-                    final FakeCameraFactory cameraFactory = new FakeCameraFactory(
-                            availableCamerasSelector);
-                    cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK,
-                            DEFAULT_BACK_CAMERA_ID,
-                            FakeAppConfig::getBackCamera);
-                    cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT,
-                            DEFAULT_FRONT_CAMERA_ID,
-                            FakeAppConfig::getFrontCamera);
-                    final CameraCoordinator cameraCoordinator = new FakeCameraCoordinator();
-                    cameraFactory.setCameraCoordinator(cameraCoordinator);
-                    return cameraFactory;
-                };
+                (ignored1, ignored2, ignored3, ignore4) -> cameraFactory;
 
         final CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (ignored1, ignored2, ignored3) -> new FakeCameraDeviceSurfaceManager();
@@ -80,13 +73,35 @@ public final class FakeAppConfig {
         final CameraXConfig.Builder appConfigBuilder = new CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                .setUseCaseConfigFactoryProvider(ignored -> new FakeUseCaseConfigFactory());
+                .setUseCaseConfigFactoryProvider(ignored -> {
+                    List<FakeCamera> fakeCameras = new ArrayList<>();
+                    for (String cameraId : cameraFactory.getAvailableCameraIds()) {
+                        fakeCameras.add((FakeCamera) cameraFactory.getCamera(cameraId));
+                    }
+
+                    return new FakeUseCaseConfigFactory(fakeCameras);
+                });
 
         if (availableCamerasSelector != null) {
             appConfigBuilder.setAvailableCamerasLimiter(availableCamerasSelector);
         }
 
         return appConfigBuilder.build();
+    }
+
+    private static FakeCameraFactory createCameraFactory(
+            @Nullable CameraSelector availableCamerasSelector) {
+        FakeCameraFactory cameraFactory = new FakeCameraFactory(availableCamerasSelector);
+        cameraFactory.insertCamera(
+                CameraSelector.LENS_FACING_BACK,
+                DEFAULT_BACK_CAMERA_ID,
+                FakeAppConfig::getBackCamera);
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT,
+                DEFAULT_FRONT_CAMERA_ID,
+                FakeAppConfig::getFrontCamera);
+        final CameraCoordinator cameraCoordinator = new FakeCameraCoordinator();
+        cameraFactory.setCameraCoordinator(cameraCoordinator);
+        return cameraFactory;
     }
 
     /**

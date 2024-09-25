@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl.fakes;
 
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.Image;
 
@@ -47,6 +48,8 @@ public final class FakeImageProxy implements ImageProxy {
     @NonNull
     private ImageInfo mImageInfo;
     private Image mImage;
+    @Nullable
+    private Bitmap mBitmap;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mReleaseLock = new Object();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -58,6 +61,11 @@ public final class FakeImageProxy implements ImageProxy {
 
     public FakeImageProxy(@NonNull ImageInfo imageInfo) {
         mImageInfo = imageInfo;
+    }
+
+    public FakeImageProxy(@NonNull ImageInfo imageInfo, @NonNull Bitmap bitmap) {
+        mImageInfo = imageInfo;
+        mBitmap = bitmap;
     }
 
     @Override
@@ -195,5 +203,14 @@ public final class FakeImageProxy implements ImageProxy {
             }
             return mReleaseFuture;
         }
+    }
+
+    @NonNull
+    @Override
+    public Bitmap toBitmap() {
+        if (mBitmap != null) {
+            return mBitmap;
+        }
+        return ImageProxy.super.toBitmap();
     }
 }

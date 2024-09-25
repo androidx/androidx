@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.camera.core.ImageInfo;
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

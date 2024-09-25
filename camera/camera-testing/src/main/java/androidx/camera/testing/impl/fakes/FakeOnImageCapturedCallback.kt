@@ -22,6 +22,7 @@ import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Logger
 import androidx.camera.core.impl.utils.Exif
 import com.google.common.truth.Truth
 import java.io.ByteArrayInputStream
@@ -66,6 +67,7 @@ public class FakeOnImageCapturedCallback(
     public val errors: MutableList<ImageCaptureException> = mutableListOf()
 
     override fun onCaptureSuccess(image: ImageProxy) {
+        Logger.d(TAG, "onCaptureSuccess: image = $image")
         results.add(
             CapturedImage(
                 image = image,
@@ -86,6 +88,7 @@ public class FakeOnImageCapturedCallback(
     }
 
     override fun onError(exception: ImageCaptureException) {
+        Logger.d(TAG, "onError", exception)
         errors.add(exception)
         latch.countDown()
     }
@@ -103,6 +106,11 @@ public class FakeOnImageCapturedCallback(
 
     public suspend fun awaitCaptures(timeout: Duration = CAPTURE_TIMEOUT) {
         Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
+    }
+
+    /** Asserts that capture hasn't been completed within the provided `duration`. */
+    public suspend fun assertNoCapture(timeout: Duration = CAPTURE_TIMEOUT) {
+        Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNull()
     }
 
     public suspend fun awaitCapturesAndAssert(
@@ -137,6 +145,7 @@ public class FakeOnImageCapturedCallback(
     }
 
     public companion object {
+        private const val TAG = "FakeOnImageCaptureCallback"
         private val CAPTURE_TIMEOUT = 15.seconds
     }
 }

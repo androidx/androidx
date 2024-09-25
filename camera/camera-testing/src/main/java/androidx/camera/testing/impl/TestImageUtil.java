@@ -40,7 +40,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.impl.fakes.FakeImageProxy;
 import androidx.camera.testing.impl.fakes.FakeJpegPlaneProxy;
 
