@@ -250,8 +250,29 @@ object Arguments {
             )
         }
 
-        cpuEventCounterEnable =
+        val cpuEventsDesired =
             arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
+        cpuEventCounterEnable =
+            when {
+                !cpuEventsDesired -> {
+                    false // not attempting to use
+                }
+                dryRunMode -> {
+                    Log.d(
+                        BenchmarkState.TAG,
+                        "Ignoring request for cpuEventCounter due to dryRunMode=true"
+                    )
+                    false
+                }
+                !DeviceInfo.supportsCpuEventCounters -> {
+                    Log.d(
+                        BenchmarkState.TAG,
+                        "Ignoring request for cpuEventCounter due to unrooted device"
+                    )
+                    false
+                }
+                else -> true
+            }
         cpuEventCounterMask =
             if (cpuEventCounterEnable) {
                 arguments

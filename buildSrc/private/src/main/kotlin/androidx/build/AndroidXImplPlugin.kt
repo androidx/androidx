@@ -792,16 +792,25 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 
     /**
-     * Enable long-running method tracing on the UI thread, even if that risks ANR for profiling
-     * convenience.
+     * Enable internal defaults for microbenchmark which can be used to set defaults we aren't ready
+     * to apply publicly, or which require root to function.
      *
-     * See [androidx.build.testConfiguration.INST_ARG_BLOCKLIST], which is used to suppress the arg
-     * in CI.
+     * See [androidx.build.testConfiguration.INST_ARG_BLOCKLIST], which can be used to suppress some
+     * of these args in CI.
      */
     @Suppress("UnstableApiUsage") // usage of HasDeviceTests
-    private fun HasDeviceTests.enableLongMethodTracingInMicrobenchmark(project: Project) {
+    private fun HasDeviceTests.enableMicrobenchmarkInternalDefaults(project: Project) {
         if (project.hasBenchmarkPlugin()) {
             deviceTestsForEachCompat { deviceTest ->
+                // Enables CPU perf event counters both locally, and in CI
+                deviceTest.instrumentationRunnerArguments.put(
+                    "androidx.benchmark.cpuEventCounter.enable",
+                    "true"
+                )
+
+                // Enables long-running method tracing on the UI thread, even if that risks ANR for
+                // profiling convenience.
+                // NOTE, this *must* be suppressed in CI!!
                 deviceTest.instrumentationRunnerArguments.put(
                     "androidx.benchmark.profiling.skipWhenDurationRisksAnr",
                     "false"
@@ -860,7 +869,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             onVariants { variant ->
                 variant.configureTests()
-                variant.enableLongMethodTracingInMicrobenchmark(project)
+                variant.enableMicrobenchmarkInternalDefaults(project)
                 project.validateKotlinModuleFiles(
                     variant.name,
                     variant.artifacts.get(SingleArtifact.AAR)

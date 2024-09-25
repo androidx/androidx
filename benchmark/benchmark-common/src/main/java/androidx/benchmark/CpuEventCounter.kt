@@ -30,7 +30,7 @@ import java.util.Locale
  *
  * This counter must be closed to avoid leaking the associated native allocation.
  *
- * This class does not yet help callers with prerequisites to getting counter values on API 30+:
+ * This class does not yet help callers with prerequisites to getting counter values on API 23+:
  * - setenforce 0 (requires root)
  * - security.perf_harden 0
  */
@@ -118,6 +118,8 @@ class CpuEventCounter : Closeable {
     }
 
     companion object {
+        const val MIN_API_ROOT_REQUIRED = 23
+
         fun checkPerfEventSupport(): String? = CpuCounterJni.checkPerfEventSupport()
 
         /**

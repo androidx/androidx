@@ -284,4 +284,7 @@ object DeviceInfo {
     val methodTracingAffectsMeasurements =
         Build.VERSION.SDK_INT in 26..30 || // b/313868903
             artMainlineVersion in ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING // b/303660864
+
+    val supportsCpuEventCounters =
+        Build.VERSION.SDK_INT < CpuEventCounter.MIN_API_ROOT_REQUIRED || isRooted
 }
