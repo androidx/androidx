@@ -780,8 +780,8 @@ class FloatingActionButtonTest {
                 backgroundColor = Color.Red,
                 backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
                 shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
-                shapeAndBackgroundCenter =
-                    with(rule.density) { Offset(70.dp.toPx(), 70.dp.toPx()) },
+                shapeCenter = with(rule.density) { Offset(70.dp.toPx(), 70.dp.toPx()) },
+                backgroundCenter = with(rule.density) { Offset(70.dp.toPx(), 70.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 3.dp.toPx() }
             )
     }
@@ -840,8 +840,8 @@ class FloatingActionButtonTest {
                 backgroundColor = Color.Red,
                 backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
                 shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
-                shapeAndBackgroundCenter =
-                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                shapeCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                backgroundCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
@@ -900,8 +900,8 @@ class FloatingActionButtonTest {
                 backgroundColor = Color.Red,
                 backgroundSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
                 shapeSize = with(rule.density) { DpSize(60.dp, 60.dp).toSize() },
-                shapeAndBackgroundCenter =
-                    with(rule.density) { Offset(30.dp.toPx(), 30.dp.toPx()) },
+                shapeCenter = with(rule.density) { Offset(30.dp.toPx(), 30.dp.toPx()) },
+                backgroundCenter = with(rule.density) { Offset(30.dp.toPx(), 30.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
@@ -955,8 +955,8 @@ class FloatingActionButtonTest {
                 backgroundColor = Color.Red,
                 backgroundSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
                 shapeSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
-                shapeAndBackgroundCenter =
-                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                shapeCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                backgroundCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
@@ -999,8 +999,8 @@ class FloatingActionButtonTest {
                 backgroundColor = Color.Red,
                 backgroundSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
                 shapeSize = with(rule.density) { DpSize(100.dp, 100.dp).toSize() },
-                shapeAndBackgroundCenter =
-                    with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                shapeCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
+                backgroundCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 2.dp.toPx() }
             )
     }
