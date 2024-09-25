@@ -198,13 +198,15 @@ class ValueParserTest {
     }
 
     @Test
-    fun dataClassWithCompanionObject_fails() {
+    fun dataClassWithCompanionNonConstDeclarations_fails() {
         val dataClass =
             annotatedValue(
                 """
             |data class MySdkRequest(val id: Int) {
             |   companion object {
-            |       val someConstant = 12
+            |       const val OKAY_CONST = true && false
+            |       val someVar = 12
+            |       fun getNull() { return null }
             |   }
             |}
         """
@@ -212,8 +214,10 @@ class ValueParserTest {
             )
         checkSourceFails(dataClass)
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest: annotated values cannot declare companion " +
-                    "objects."
+                "Error in com.mysdk.MySdkRequest: companion object cannot declare non-const " +
+                    "values (someVar).",
+                "Error in com.mysdk.MySdkRequest: companion object cannot declare methods " +
+                    "(getNull).",
             )
     }
 

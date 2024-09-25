@@ -73,7 +73,7 @@ internal class InterfaceParser(
         interfaceDeclaration.declarations
             .filterIsInstance<KSClassDeclaration>()
             .filter { it.isCompanionObject }
-            .forEach { validateCompanion(name, it) }
+            .forEach { validateCompanion(name, it, logger) }
 
         val invalidModifiers =
             interfaceDeclaration.modifiers.filterNot(validInterfaceModifiers::contains)
@@ -112,41 +112,6 @@ internal class InterfaceParser(
             superTypes = superTypes,
             methods = methods,
         )
-    }
-
-    private fun validateCompanion(name: String, companion: KSClassDeclaration) {
-        val nonConstValues =
-            companion.declarations
-                .filterIsInstance<KSPropertyDeclaration>()
-                .filter { !it.modifiers.contains(Modifier.CONST) }
-                .toList()
-        if (nonConstValues.isNotEmpty()) {
-            logger.error(
-                "Error in $name: companion object cannot declare non-const values (${
-                    nonConstValues.joinToString(limit = 3) { it.simpleName.getShortName() }
-                })."
-            )
-        }
-        val methods =
-            companion.declarations
-                .filterIsInstance<KSFunctionDeclaration>()
-                .filter { it.simpleName.getFullName() != "<init>" }
-                .toList()
-        if (methods.isNotEmpty()) {
-            logger.error(
-                "Error in $name: companion object cannot declare methods (${
-                    methods.joinToString(limit = 3) { it.simpleName.getShortName() }
-                })."
-            )
-        }
-        val classes = companion.declarations.filterIsInstance<KSClassDeclaration>().toList()
-        if (classes.isNotEmpty()) {
-            logger.error(
-                "Error in $name: companion object cannot declare classes (${
-                    classes.joinToString(limit = 3) { it.simpleName.getShortName() }
-                })."
-            )
-        }
     }
 
     private fun parseMethod(method: KSFunctionDeclaration): Method {
@@ -198,6 +163,41 @@ internal class InterfaceParser(
         return Parameter(
             name = parameter.name!!.getFullName(),
             type = typeParser.parseFromTypeReference(parameter.type, name),
+        )
+    }
+}
+
+internal fun validateCompanion(name: String, companionDecl: KSClassDeclaration, logger: KSPLogger) {
+    val nonConstValues =
+        companionDecl.declarations
+            .filterIsInstance<KSPropertyDeclaration>()
+            .filter { !it.modifiers.contains(Modifier.CONST) }
+            .toList()
+    if (nonConstValues.isNotEmpty()) {
+        logger.error(
+            "Error in $name: companion object cannot declare non-const values (${
+                nonConstValues.joinToString(limit = 3) { it.simpleName.getShortName() }
+            })."
+        )
+    }
+    val methods =
+        companionDecl.declarations
+            .filterIsInstance<KSFunctionDeclaration>()
+            .filter { it.simpleName.getFullName() != "<init>" }
+            .toList()
+    if (methods.isNotEmpty()) {
+        logger.error(
+            "Error in $name: companion object cannot declare methods (${
+                methods.joinToString(limit = 3) { it.simpleName.getShortName() }
+            })."
+        )
+    }
+    val classes = companionDecl.declarations.filterIsInstance<KSClassDeclaration>().toList()
+    if (classes.isNotEmpty()) {
+        logger.error(
+            "Error in $name: companion object cannot declare classes (${
+                classes.joinToString(limit = 3) { it.simpleName.getShortName() }
+            })."
         )
     }
 }
