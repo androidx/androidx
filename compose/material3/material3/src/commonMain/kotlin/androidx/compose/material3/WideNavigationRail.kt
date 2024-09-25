@@ -701,53 +701,30 @@ fun WideNavigationRailItem(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-    if (label != null) {
-        AnimatedNavigationItem(
-            selected = selected,
-            onClick = onClick,
-            icon = icon,
-            indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
-            topIconIndicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
-            topIconLabelTextStyle = NavigationRailVerticalItemTokens.LabelTextFont.value,
-            startIconLabelTextStyle = NavigationRailHorizontalItemTokens.LabelTextFont.value,
-            topIconIndicatorHorizontalPadding = ItemTopIconIndicatorHorizontalPadding,
-            topIconIndicatorVerticalPadding = ItemTopIconIndicatorVerticalPadding,
-            topIconIndicatorToLabelVerticalPadding =
-                NavigationRailVerticalItemTokens.IconLabelSpace,
-            startIconIndicatorHorizontalPadding =
-                NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
-            startIconIndicatorVerticalPadding = ItemStartIconIndicatorVerticalPadding,
-            startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
-            startIconItemPadding = ExpandedRailHorizontalItemPadding,
-            colors = colors,
-            modifier = modifier,
-            enabled = enabled,
-            label = label,
-            iconPosition = iconPosition,
-            interactionSource = interactionSource,
-        )
-    } else {
-        // If no label, default to circular indicator for the item.
-        NavigationItem(
-            selected = selected,
-            onClick = onClick,
-            icon = icon,
-            labelTextStyle = NavigationRailVerticalItemTokens.LabelTextFont.value,
-            indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
-            indicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
-            indicatorHorizontalPadding = WNRItemNoLabelIndicatorPadding,
-            indicatorVerticalPadding = WNRItemNoLabelIndicatorPadding,
-            indicatorToLabelVerticalPadding = 0.dp,
-            startIconToLabelHorizontalPadding = 0.dp,
-            topIconItemVerticalPadding = 0.dp,
-            colors = colors,
-            modifier = modifier,
-            enabled = enabled,
-            label = label,
-            iconPosition = iconPosition,
-            interactionSource = interactionSource,
-        )
-    }
+    AnimatedNavigationItem(
+        selected = selected,
+        onClick = onClick,
+        icon = icon,
+        indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
+        topIconIndicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
+        topIconLabelTextStyle = NavigationRailVerticalItemTokens.LabelTextFont.value,
+        startIconLabelTextStyle = NavigationRailHorizontalItemTokens.LabelTextFont.value,
+        topIconIndicatorHorizontalPadding = ItemTopIconIndicatorHorizontalPadding,
+        topIconIndicatorVerticalPadding = ItemTopIconIndicatorVerticalPadding,
+        topIconIndicatorToLabelVerticalPadding = NavigationRailVerticalItemTokens.IconLabelSpace,
+        startIconIndicatorHorizontalPadding =
+            NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
+        startIconIndicatorVerticalPadding = ItemStartIconIndicatorVerticalPadding,
+        noLabelIndicatorPadding = WNRItemNoLabelIndicatorPadding,
+        startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
+        startIconItemPadding = ExpandedRailHorizontalItemPadding,
+        colors = colors,
+        modifier = modifier,
+        enabled = enabled,
+        label = label,
+        iconPosition = iconPosition,
+        interactionSource = interactionSource,
+    )
 }
 
 /** Class that describes the different supported item arrangements of the [WideNavigationRail]. */
