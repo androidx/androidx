@@ -876,6 +876,7 @@ package androidx.appsearch.ast {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public interface FunctionNode extends androidx.appsearch.ast.Node {
     method public String getFunctionName();
+    field public static final String FUNCTION_NAME_HAS_PROPERTY = "hasProperty";
   }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class NegationNode implements androidx.appsearch.ast.Node {
@@ -919,6 +920,17 @@ package androidx.appsearch.ast.operators {
     method public void removeChild(int);
     method public void setChild(int, androidx.appsearch.ast.Node);
     method public void setChildren(java.util.List<androidx.appsearch.ast.Node!>);
+  }
+
+}
+
+package androidx.appsearch.ast.query {
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class HasPropertyNode implements androidx.appsearch.ast.FunctionNode {
+    ctor public HasPropertyNode(androidx.appsearch.app.PropertyPath);
+    method public String getFunctionName();
+    method public androidx.appsearch.app.PropertyPath getProperty();
+    method public void setProperty(androidx.appsearch.app.PropertyPath);
   }
 
 }
