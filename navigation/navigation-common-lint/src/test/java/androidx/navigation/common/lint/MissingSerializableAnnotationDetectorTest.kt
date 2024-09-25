@@ -22,11 +22,15 @@ import androidx.navigation.lint.common.NAV_DEEP_LINK
 import androidx.navigation.lint.common.SERIALIZABLE_ANNOTATION
 import androidx.navigation.lint.common.SERIALIZABLE_TEST_CLASS
 import androidx.navigation.lint.common.TEST_CLASS
+import androidx.navigation.lint.common.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = TypeSafeDestinationMissingAnnotationDetector()
 
@@ -701,6 +705,73 @@ class DeepLink
                     .trimIndent()
             )
     }
+
+    @Test
+    fun testWrongPackage_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.NavGraphBuilder
+                import com.test.navigation
+                import kotlinx.serialization.*
+
+                @Serializable object TestGraph
+                object TestClass
+
+                fun navigation() {
+                   val builder = NavGraphBuilder(route = TestGraph::class)
+
+                    builder.navigation<TestClass>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+                CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS
+            )
+            .run()
+            .expectClean()
+    }
+
+    private val CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS =
+        bytecodeStub(
+            "NavGraphBuilderNavigation.kt",
+            "com/test",
+            0x8c23ef1e,
+            """
+package com.test
+
+import androidx.navigation.NavGraphBuilder
+
+// NavGraphBuilder
+inline fun <reified T : Any> NavGraphBuilder.navigation() { }
+        """,
+            """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuKS4uJPz
+                c/VSKxJzC3JShbhDUotL3IsSCzKAcupcHCC5EqCQkDRQC1jcqTQzJyW1yA9u
+                lXeJEoMWAwA5gn4YnAAAAA==
+                """,
+            """
+                com/test/NavGraphBuilderNavigationKt.class:
+                H4sIAAAAAAAA/41RTW/TQBB966SJYwpNU1qSUgoUl6Y94BT11IZIgARYpAGR
+                KJecNrZJNrHXyN5EPfbE/+GGOKCKIz8KMWsqKEVIlbwzb94+z9d+//HlK4AD
+                7DLYXhw5KkiV0+Hzlwn/MH42E6EfJBSKEVcilq9VEYyhPOFz7oRcjpw3w0ng
+                EZtjsORvHUO93ubST2Lhnzh/+MuZj3b7DK1m77B9OeNR6+oJCk01FmnLhMmw
+                OY1VKKQzmUeOkCpIJA8dV6pEyFR4aREWw6o3DrxpJ1adWRi+5QmPAhIy7NT/
+                beMC09VJRlRxEYu4buEabjAs2cJ+b1+cnLm0IFt39Be9faVxGJbb5xMcB4r7
+                XHHijGieo1di2pS0AZWZamDQ5YnQqEHI32c4ODstW2enllE2fjltqsZ6jcC6
+                0WBblkkKo8r2jEaOTv7Vt4+m/vcxy9L2GDb++/6Ppooh/zz2A5q8LWTQmUXD
+                IOnxYUhMpR17POzzROj4nCx1xUhyNUsIW914lnjBC6Evau9mUoko6ItUkPKp
+                lLHKiqTYh4E8sjnLNSygQPEDip6QN/QO9iqlz1jKNT/pFcAmW6DeTRSxTXiN
+                OJPiMpbJkhwVrJB/mKmLdHYytIU6+UPS3KQiqwPkXKy5uOWiipqLddx2sYE7
+                A7AUm7g7wEKqv3sp7md25Se3iEt3PgMAAA==
+                """
+        )
 
     val STUBS = arrayOf(*NAVIGATION_STUBS, SERIALIZABLE_ANNOTATION, K_SERIALIZER)
 }

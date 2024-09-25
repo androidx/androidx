@@ -25,6 +25,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.kotlin.psi.KtClassLiteralExpression
@@ -57,15 +58,27 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
         node: UCallExpression,
         method: PsiMethod
     ) {
+        val packageName = (method.containingFile as? PsiClassOwner)?.packageName
+        if (
+            packageName != NAVIGATION_PACKAGE_NAME && packageName != NAVIGATION_COMPOSE_PACKAGE_NAME
+        )
+            return
+
         val receiver = node.receiver?.getExpressionType()?.canonicalText
-        // get the destination Type
+
+        // Get the destination Type, but we only want to lint routes from safe args apis.
+        // Such routes come in two possible forms:
+        // 1. route as regular parameter specifically for NavigatorProvider.navigation
+        // 2. reified type parameter for all other destination builder apis
         val kClazzType =
             when {
                 // route as parameter
                 node.methodName == "navigation" &&
                     receiver == "androidx.navigation.NavigatorProvider" -> node.getRouteKClassType()
                 // route as reified Type
-                else -> (node.typeArguments.first() as? PsiClassReferenceType)?.resolve()
+                node.typeArguments.isNotEmpty() ->
+                    (node.typeArguments.first() as? PsiClassReferenceType)?.resolve()
+                else -> null
             } ?: return
 
         checkMissingSerializableAnnotation(kClazzType, context)
@@ -134,6 +147,10 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
         }
     }
 }
+
+val NAVIGATION_PACKAGE_NAME = "androidx.navigation"
+
+val NAVIGATION_COMPOSE_PACKAGE_NAME = "androidx.navigation.compose"
 
 fun createMissingSerializableAnnotationIssue(
     detectorClass: Class<out BaseTypeSafeDestinationMissingAnnotationDetector>
