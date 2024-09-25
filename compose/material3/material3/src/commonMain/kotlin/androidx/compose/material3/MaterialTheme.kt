@@ -189,7 +189,7 @@ fun MaterialExpressiveTheme(
         CompositionLocalProvider(LocalUsingExpressiveTheme provides true) {
             MaterialTheme(
                 colorScheme = colorScheme ?: expressiveLightColorScheme(),
-                motionScheme = motionScheme ?: expressiveMotionScheme(),
+                motionScheme = motionScheme ?: MotionScheme.expressiveMotionScheme(),
                 shapes = shapes ?: Shapes(),
                 // TODO: replace with calls to Expressive typography default
                 typography = typography ?: Typography(),

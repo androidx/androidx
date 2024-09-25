@@ -1419,17 +1419,12 @@ package androidx.compose.material3 {
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> fastSpatialSpec();
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> slowEffectsSpec();
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> slowSpatialSpec();
+    field public static final androidx.compose.material3.MotionScheme.Companion Companion;
   }
 
-  public final class MotionSchemeKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.material3.MotionScheme expressiveMotionScheme();
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberDefaultEffectsSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberDefaultSpatialSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberFastEffectsSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberFastSpatialSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberSlowEffectsSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberSlowSpatialSpec(androidx.compose.material3.MotionScheme);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.material3.MotionScheme standardMotionScheme();
+  public static final class MotionScheme.Companion {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme expressiveMotionScheme();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme standardMotionScheme();
   }
 
   public interface MultiChoiceSegmentedButtonRowScope extends androidx.compose.foundation.layout.RowScope {
