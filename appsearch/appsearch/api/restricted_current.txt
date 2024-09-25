@@ -897,6 +897,28 @@ package androidx.appsearch.ast {
 
 }
 
+package androidx.appsearch.ast.operators {
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class AndNode implements androidx.appsearch.ast.Node {
+    ctor public AndNode(androidx.appsearch.ast.Node, androidx.appsearch.ast.Node, androidx.appsearch.ast.Node!...);
+    ctor public AndNode(java.util.List<androidx.appsearch.ast.Node!>);
+    method public void addChild(androidx.appsearch.ast.Node);
+    method public void removeChild(int);
+    method public void setChild(int, androidx.appsearch.ast.Node);
+    method public void setChildren(java.util.List<androidx.appsearch.ast.Node!>);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class OrNode implements androidx.appsearch.ast.Node {
+    ctor public OrNode(androidx.appsearch.ast.Node, androidx.appsearch.ast.Node, androidx.appsearch.ast.Node!...);
+    ctor public OrNode(java.util.List<androidx.appsearch.ast.Node!>);
+    method public void addChild(androidx.appsearch.ast.Node);
+    method public void removeChild(int);
+    method public void setChild(int, androidx.appsearch.ast.Node);
+    method public void setChildren(java.util.List<androidx.appsearch.ast.Node!>);
+  }
+
+}
+
 package androidx.appsearch.exceptions {
 
   public class AppSearchException extends java.lang.Exception {
