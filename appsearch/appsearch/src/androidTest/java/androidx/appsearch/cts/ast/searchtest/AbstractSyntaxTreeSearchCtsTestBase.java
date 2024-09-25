@@ -33,6 +33,8 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.ast.NegationNode;
 import androidx.appsearch.ast.TextNode;
+import androidx.appsearch.ast.operators.AndNode;
+import androidx.appsearch.ast.operators.OrNode;
 import androidx.appsearch.flags.CheckFlagsRule;
 import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
@@ -354,5 +356,101 @@ public abstract class AbstractSyntaxTreeSearchCtsTestBase {
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(barEmail);
+    }
+
+    @Test
+    public void testAndNode_toString_returnsDocumentsWithBothTerms() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail fooEmail = new AppSearchEmail.Builder("namespace", "id1")
+                .setBody("foo")
+                .build();
+        AppSearchEmail barEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("bar")
+                .build();
+        AppSearchEmail fooBarEmail = new AppSearchEmail.Builder("namespace", "id3")
+                .setBody("foo bar")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(fooEmail, barEmail, fooBarEmail).build()));
+
+        // Query for the document
+        TextNode foo = new TextNode("foo");
+        TextNode bar = new TextNode("bar");
+        AndNode andNode = new AndNode(foo, bar);
+
+        SearchResults searchResults = mDb1.search(andNode.toString(), new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooBarEmail);
+    }
+
+    @Test
+    public void testOrNode_toString_returnsDocumentsWithEitherTerms() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail fooEmail = new AppSearchEmail.Builder("namespace", "id1")
+                .setBody("foo")
+                .build();
+        AppSearchEmail barEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("bar")
+                .build();
+        AppSearchEmail fooBarEmail = new AppSearchEmail.Builder("namespace", "id3")
+                .setBody("foo bar")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(fooEmail, barEmail, fooBarEmail).build()));
+
+        // Query for the document
+        TextNode foo = new TextNode("foo");
+        TextNode bar = new TextNode("bar");
+        OrNode orNode = new OrNode(foo, bar);
+
+        SearchResults searchResults = mDb1.search(orNode.toString(), new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooEmail, barEmail, fooBarEmail);
+    }
+
+    @Test
+    public void testAndNodeOrNode_toString_respectsOperatorPrecedence() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+
+        AppSearchEmail fooBarEmail = new AppSearchEmail.Builder("namespace", "id1")
+                .setBody("foo bar")
+                .build();
+        AppSearchEmail fooBazEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("foo baz")
+                .build();
+        AppSearchEmail bazEmail = new AppSearchEmail.Builder("namespace", "id3")
+                .setBody("baz")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(bazEmail, fooBarEmail, fooBazEmail).build()));
+
+        // Query for the document
+        TextNode foo = new TextNode("foo");
+        TextNode bar = new TextNode("bar");
+        TextNode baz = new TextNode("baz");
+        AndNode andNode = new AndNode(foo, bar);
+        OrNode orNode = new OrNode(andNode, baz);
+
+        SearchResults searchResults = mDb1.search(orNode.toString(), new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooBarEmail, fooBazEmail, bazEmail);
     }
 }

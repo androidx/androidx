@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.ast.NegationNode;
 import androidx.appsearch.ast.Node;
 import androidx.appsearch.ast.TextNode;
 import androidx.appsearch.ast.operators.AndNode;
+import androidx.appsearch.ast.operators.OrNode;
 import androidx.appsearch.flags.CheckFlagsRule;
 import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
@@ -180,5 +182,27 @@ public class AndNodeCtsTest {
 
         assertThrows(IllegalArgumentException.class, () -> andNode.removeChild(-1));
         assertThrows(IllegalArgumentException.class, () -> andNode.removeChild(3));
+    }
+
+    @Test
+    public void testToString_joinsChildNodesWithAnd() {
+        TextNode foo = new TextNode("foo");
+        TextNode bar = new TextNode("bar");
+        TextNode baz = new TextNode("baz");
+        NegationNode notBaz = new NegationNode(baz);
+
+        AndNode andNode = new AndNode(foo, bar, notBaz);
+        assertThat(andNode.toString()).isEqualTo("((foo) AND (bar) AND NOT (baz))");
+    }
+
+    @Test
+    public void testToString_respectsOperatorPrecedence() {
+        TextNode foo = new TextNode("foo");
+        TextNode bar = new TextNode("bar");
+        TextNode baz = new TextNode("baz");
+        OrNode orNode = new OrNode(bar, baz);
+
+        AndNode andNode = new AndNode(foo, orNode);
+        assertThat(andNode.toString()).isEqualTo("((foo) AND ((bar) OR (baz)))");
     }
 }
