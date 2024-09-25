@@ -41,8 +41,8 @@ package androidx.annotation
  *
  * Example of requiring separate read and write permissions for a content provider:
  * ```
- * @RequiresPermission.Read(@RequiresPermission(READ_HISTORY_BOOKMARKS))
- * @RequiresPermission.Write(@RequiresPermission(WRITE_HISTORY_BOOKMARKS))
+ * @RequiresPermission.Read(RequiresPermission(READ_HISTORY_BOOKMARKS))
+ * @RequiresPermission.Write(RequiresPermission(WRITE_HISTORY_BOOKMARKS))
  * public static final Uri BOOKMARKS_URI = Uri.parse("content://browser/bookmarks");
  * ```
  *
