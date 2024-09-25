@@ -221,7 +221,6 @@ constructor(
  *   respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services
  * @param label the text label for this item
- * @param badge optional badge to show on this item, typically a [Badge]
  * @param iconPosition the [NavigationItemIconPosition] for this icon
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  *   for this item. You can create and pass in your own `remember`ed instance to observe
@@ -245,12 +244,12 @@ internal fun NavigationItem(
     modifier: Modifier,
     enabled: Boolean,
     label: @Composable (() -> Unit)?,
-    badge: (@Composable () -> Unit)?,
     iconPosition: NavigationItemIconPosition,
     interactionSource: MutableInteractionSource
 ) {
-    val iconWithBadge: @Composable () -> Unit = {
-        StyledIcon(selected, icon, colors, enabled, badge)
+    val iconColor = colors.iconColor(selected = selected, enabled = enabled)
+    val styledIcon: @Composable () -> Unit = {
+        CompositionLocalProvider(LocalContentColor provides iconColor, content = icon)
     }
     val styledLabel: @Composable (() -> Unit)? =
         if (label == null) {
@@ -303,7 +302,7 @@ internal fun NavigationItem(
             interactionSource = offsetInteractionSource ?: interactionSource,
             indicatorColor = colors.selectedIndicatorColor,
             indicatorShape = indicatorShape,
-            icon = iconWithBadge,
+            icon = styledIcon,
             iconPosition = iconPosition,
             label = styledLabel,
             indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
@@ -343,12 +342,12 @@ internal fun AnimatedNavigationItem(
     modifier: Modifier,
     enabled: Boolean,
     label: @Composable (() -> Unit),
-    badge: (@Composable () -> Unit)?,
     iconPosition: NavigationItemIconPosition,
     interactionSource: MutableInteractionSource
 ) {
-    val iconWithBadge: @Composable () -> Unit = {
-        StyledIcon(selected, icon, colors, enabled, badge)
+    val iconColor = colors.iconColor(selected = selected, enabled = enabled)
+    val styledIcon: @Composable () -> Unit = {
+        CompositionLocalProvider(LocalContentColor provides iconColor, content = icon)
     }
 
     var itemWidth by remember { mutableIntStateOf(0) }
@@ -451,7 +450,7 @@ internal fun AnimatedNavigationItem(
             indicatorColor = colors.selectedIndicatorColor,
             indicatorShape = indicatorShape,
             indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
-            icon = iconWithBadge,
+            icon = styledIcon,
             iconPosition = iconPosition,
             iconPositionProgress = { iconPositionProgress.coerceAtLeast(0f) },
             labelTopIcon = labelTopIcon,
@@ -1084,26 +1083,6 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
         labelPlaceableTopIcon.placeRelative(labelXTopIcon, labelYTopIcon)
         labelPlaceableStartIcon.placeRelative(labelXStartIcon.roundToInt(), labelYStartIcon)
         indicatorRipplePlaceable.placeRelative(rippleX.roundToInt(), 0)
-    }
-}
-
-@Composable
-private fun StyledIcon(
-    selected: Boolean,
-    icon: @Composable () -> Unit,
-    colors: NavigationItemColors,
-    enabled: Boolean,
-    badge: (@Composable () -> Unit)?,
-) {
-    val iconColor = colors.iconColor(selected = selected, enabled = enabled)
-    val styledIcon: @Composable () -> Unit = {
-        CompositionLocalProvider(LocalContentColor provides iconColor, content = icon)
-    }
-
-    if (badge != null) {
-        BadgedBox(badge = { badge() }) { styledIcon() }
-    } else {
-        styledIcon()
     }
 }
 

@@ -173,7 +173,6 @@ value class ShortNavigationBarArrangement private constructor(private val value:
  * @param enabled controls the enabled state of this item. When `false`, this component will not
  *   respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param badge optional badge to show on this item, typically a [Badge]
  * @param iconPosition the [NavigationItemIconPosition] for the icon
  * @param colors [NavigationItemColors] that will be used to resolve the colors used for this item
  *   in different states. See [ShortNavigationBarItemDefaults.colors]
@@ -191,7 +190,6 @@ fun ShortNavigationBarItem(
     label: @Composable (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    badge: (@Composable () -> Unit)? = null,
     iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top,
     colors: NavigationItemColors = ShortNavigationBarItemDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
@@ -229,7 +227,6 @@ fun ShortNavigationBarItem(
         modifier = modifier,
         enabled = enabled,
         label = label,
-        badge = badge,
         iconPosition = iconPosition,
         interactionSource = interactionSource,
     )

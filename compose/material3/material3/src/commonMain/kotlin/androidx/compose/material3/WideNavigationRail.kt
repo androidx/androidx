@@ -673,7 +673,6 @@ fun DismissibleModalWideNavigationRail(
  * @param enabled controls the enabled state of this item. When `false`, this component will not
  *   respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param badge optional badge to show on this item, typically a [Badge]
  * @param railExpanded whether the associated [WideNavigationRail] is expanded or collapsed
  * @param iconPosition the [NavigationItemIconPosition] for the icon
  * @param colors [NavigationItemColors] that will be used to resolve the colors used for this item
@@ -692,7 +691,6 @@ fun WideNavigationRailItem(
     label: @Composable (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    badge: (@Composable () -> Unit)? = null,
     railExpanded: Boolean = false,
     iconPosition: NavigationItemIconPosition =
         WideNavigationRailItemDefaults.iconPositionFor(railExpanded),
@@ -724,7 +722,6 @@ fun WideNavigationRailItem(
             modifier = modifier,
             enabled = enabled,
             label = label,
-            badge = badge,
             iconPosition = iconPosition,
             interactionSource = interactionSource,
         )
@@ -746,7 +743,6 @@ fun WideNavigationRailItem(
             modifier = modifier,
             enabled = enabled,
             label = label,
-            badge = badge,
             iconPosition = iconPosition,
             interactionSource = interactionSource,
         )
