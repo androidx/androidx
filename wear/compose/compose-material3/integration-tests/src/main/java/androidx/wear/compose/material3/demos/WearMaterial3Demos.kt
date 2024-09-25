@@ -32,6 +32,8 @@ import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+import androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
+import androidx.wear.compose.material3.samples.LazyColumnTargetMorphingHeightSample
 import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
@@ -198,7 +200,15 @@ val WearMaterial3Demos =
             ComposableDemo("Settings Demo") { SettingsDemo() },
             Material3DemoCategory(
                 title = "LazyColumn",
-                listOf(ComposableDemo("Notifications") { LazyColumnNotificationsDemo() })
+                listOf(
+                    ComposableDemo("Notifications") { LazyColumnNotificationsDemo() },
+                    ComposableDemo("Scaling Morphing Effect Sample") {
+                        LazyColumnScalingMorphingEffectSample()
+                    },
+                    ComposableDemo("Target Morphing Height Sample") {
+                        LazyColumnTargetMorphingHeightSample()
+                    }
+                )
             )
         )
     )

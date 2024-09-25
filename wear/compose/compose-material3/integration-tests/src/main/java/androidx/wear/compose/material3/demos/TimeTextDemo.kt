@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +53,8 @@ val TimeTextDemos =
         ComposableDemo("Clock with Icon") { TimeTextWithIcon() },
         ComposableDemo("Clock with custom colors") { TimeTextWithCustomColors() },
         ComposableDemo("Clock with custom font size") { TimeTextCustomSize() },
-        ComposableDemo("Clock on list") { TimeTextOnScreen() }
+        ComposableDemo("Clock on list") { TimeTextOnScreen() },
+        ComposableDemo("Clock on white background") { TimeTextOnScreenWhiteBackground() }
     )
 
 @Composable
@@ -149,4 +151,9 @@ fun TimeTextOnScreen() {
         // Timetext later so it's on top.
         TimeText { time() }
     }
+}
+
+@Composable
+fun TimeTextOnScreenWhiteBackground() {
+    Box(Modifier.fillMaxSize().background(Color.White)) { TimeText { time() } }
 }
