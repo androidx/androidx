@@ -121,9 +121,10 @@ public class MacrobenchmarkScope(
      * Start an activity, by default the launcher activity of the package, and wait until its launch
      * completes.
      *
-     * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command. Note that from api
-     * 33 the launch intent needs to have category {@link android.intent.category.LAUNCHER}.
+     * This call supports primitive extras on the intent, but will ignore any
+     * [android.os.Parcelable] extras, as the start is performed by converting the Intent to a URI,
+     * and starting via the `am start` shell command. Note that from api 33 the launch intent needs
+     * to have category `android.intent.category.LAUNCHER`.
      *
      * @param block Allows customization of the intent used to launch the activity.
      * @throws IllegalStateException if unable to acquire intent for package.
@@ -142,8 +143,10 @@ public class MacrobenchmarkScope(
     /**
      * Start an activity with the provided intent, and wait until its launch completes.
      *
-     * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command.
+     * This call supports primitive extras on the intent, but will ignore any
+     * [android.os.Parcelable] extras, as the start is performed by converting the Intent to a URI,
+     * and starting via the `am start` shell command. Note that from api 33 the launch intent needs
+     * to have category `android.intent.category.LAUNCHER`.
      *
      * @param intent Specifies which app/Activity should be launched.
      */
