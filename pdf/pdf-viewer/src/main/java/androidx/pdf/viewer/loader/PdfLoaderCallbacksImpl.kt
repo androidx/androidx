@@ -67,7 +67,7 @@ public class PdfLoaderCallbacksImpl(
     private var isTextSearchActive: Boolean,
     private var viewState: ExposedValue<ViewState>,
     private val fragmentContainerView: View?,
-    private val onRequestPassword: (Boolean) -> Unit,
+    private val onRequestPassword: (Boolean) -> Boolean,
     private val onDocumentLoaded: () -> Unit,
     private val onDocumentLoadFailure: (Throwable) -> Unit,
     private var eventCallback: EventCallback?,
@@ -148,38 +148,38 @@ public class PdfLoaderCallbacksImpl(
 
     override fun requestPassword(incorrect: Boolean) {
         eventCallback?.onViewerReset()
-        onRequestPassword(onScreen)
+        if (onRequestPassword(onScreen)) return
 
         if (viewState.get() != ViewState.NO_VIEW) {
             var passwordDialog = currentPasswordDialog(fragmentManager)
             if (passwordDialog == null) {
                 passwordDialog = PdfPasswordDialog()
-                passwordDialog.setListener(
-                    object : PdfPasswordDialog.PasswordDialogEventsListener {
-                        override fun onPasswordTextChange(password: String) {
-                            pdfLoader?.applyPassword(password)
-                        }
-
-                        override fun onDialogCancelled() {
-                            val retryCallback = Runnable { requestPassword(false) }
-                            val snackbar =
-                                fragmentContainerView?.let {
-                                    Snackbar.make(
-                                        it,
-                                        R.string.password_not_entered,
-                                        Snackbar.LENGTH_INDEFINITE
-                                    )
-                                }
-                            val mResolveClickListener =
-                                View.OnClickListener { _: View? -> retryCallback.run() }
-                            snackbar?.setAction(R.string.retry_button_text, mResolveClickListener)
-                            snackbar?.show()
-                        }
-                    }
-                )
-
                 passwordDialog.show(fragmentManager, PASSWORD_DIALOG_TAG)
             }
+
+            passwordDialog.setListener(
+                object : PdfPasswordDialog.PasswordDialogEventsListener {
+                    override fun onPasswordTextChange(password: String) {
+                        pdfLoader?.applyPassword(password)
+                    }
+
+                    override fun onDialogCancelled() {
+                        val retryCallback = Runnable { requestPassword(false) }
+                        val snackbar =
+                            fragmentContainerView?.let {
+                                Snackbar.make(
+                                    it,
+                                    R.string.password_not_entered,
+                                    Snackbar.LENGTH_INDEFINITE
+                                )
+                            }
+                        val mResolveClickListener =
+                            View.OnClickListener { _: View? -> retryCallback.run() }
+                        snackbar?.setAction(R.string.retry_button_text, mResolveClickListener)
+                        snackbar?.show()
+                    }
+                }
+            )
 
             if (incorrect) {
                 passwordDialog.retry()
