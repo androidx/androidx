@@ -71,7 +71,7 @@ var TypographyDemos =
                 ComposableDemo("Display Small") {
                     Centralize {
                         Text(
-                            "Display Small",
+                            "Display\nSmall",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.displaySmall
                         )
@@ -80,7 +80,7 @@ var TypographyDemos =
                 ComposableDemo("Display Medium") {
                     Centralize {
                         Text(
-                            "Display Medium",
+                            "Display\nMedium",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.displayMedium
                         )
@@ -89,7 +89,7 @@ var TypographyDemos =
                 ComposableDemo("Display Large") {
                     Centralize {
                         Text(
-                            "Display Large",
+                            "Display\nLarge",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.displayLarge
                         )
@@ -100,28 +100,68 @@ var TypographyDemos =
         ComposableDemo("Title") {
             Centralize {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Title Small", style = MaterialTheme.typography.titleSmall)
-                    Text("Title Medium", style = MaterialTheme.typography.titleMedium)
-                    Text("Title Large", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Title\nSmall",
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Title\nMedium",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Title\nLarge",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         },
         ComposableDemo("Label") {
             Centralize {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Label Small", style = MaterialTheme.typography.labelSmall)
-                    Text("Label Medium", style = MaterialTheme.typography.labelMedium)
-                    Text("Label Large", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "Label\nSmall",
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Label\nMedium",
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Label\nLarge",
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         },
         ComposableDemo("Body") {
             Centralize {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Body Extra Small", style = MaterialTheme.typography.bodyExtraSmall)
-                    Text("Body Small", style = MaterialTheme.typography.bodySmall)
-                    Text("Body Medium", style = MaterialTheme.typography.bodyMedium)
-                    Text("Body Large", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Body\nExtra\nSmall",
+                        style = MaterialTheme.typography.bodyExtraSmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Body\nSmall",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Body\nMedium",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Body\nLarge",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         },
@@ -129,19 +169,25 @@ var TypographyDemos =
             "Numeral",
             listOf(
                 ComposableDemo("Extra Small") {
-                    Centralize { Text("0123", style = MaterialTheme.typography.numeralExtraSmall) }
+                    Centralize {
+                        Text("0123\n6789", style = MaterialTheme.typography.numeralExtraSmall)
+                    }
                 },
                 ComposableDemo("Small") {
-                    Centralize { Text("0123", style = MaterialTheme.typography.numeralSmall) }
+                    Centralize { Text("0123\n6789", style = MaterialTheme.typography.numeralSmall) }
                 },
                 ComposableDemo("Medium") {
-                    Centralize { Text("0123", style = MaterialTheme.typography.numeralMedium) }
+                    Centralize {
+                        Text("0123\n6789", style = MaterialTheme.typography.numeralMedium)
+                    }
                 },
                 ComposableDemo("Large") {
-                    Centralize { Text("0123", style = MaterialTheme.typography.numeralLarge) }
+                    Centralize { Text("0123\n6789", style = MaterialTheme.typography.numeralLarge) }
                 },
                 ComposableDemo("Extra Large") {
-                    Centralize { Text("0123", style = MaterialTheme.typography.numeralExtraLarge) }
+                    Centralize {
+                        Text("0123\n6789", style = MaterialTheme.typography.numeralExtraLarge)
+                    }
                 }
             )
         ),
