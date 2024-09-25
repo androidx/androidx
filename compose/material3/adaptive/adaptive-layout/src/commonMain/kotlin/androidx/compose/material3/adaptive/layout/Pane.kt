@@ -51,11 +51,10 @@ fun <S, T : PaneScaffoldValue<S>> ExtendedPaneScaffoldPaneScope<S, T>.AnimatedPa
             modifier
                 .animatedPane()
                 .animateBounds(
-                    motionProgress,
-                    sizeAnimationSpec,
-                    positionAnimationSpec,
-                    this,
-                    animatingBounds
+                    animateFraction = motionProgress,
+                    animationSpec = animationSpecs.boundsAnimationSpec,
+                    lookaheadScope = this,
+                    enabled = animatingBounds
                 )
                 .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
         enter = with(paneMotion) { enterTransition },

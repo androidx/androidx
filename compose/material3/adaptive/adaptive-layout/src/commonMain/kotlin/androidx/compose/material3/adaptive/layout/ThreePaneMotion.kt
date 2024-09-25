@@ -21,14 +21,13 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
-import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEachIndexed
 
@@ -131,11 +130,9 @@ internal fun calculateThreePaneMotion(
  *   [ListDetailPaneScaffoldRole.List] or [SupportingPaneScaffoldRole.Supporting].
  * @param tertiaryPaneMotion the specified [PaneMotion] of the tertiary pane, i.e.,
  *   [ListDetailPaneScaffoldRole.Extra] or [SupportingPaneScaffoldRole.Extra].
- * @param sizeAnimationSpec the specified [FiniteAnimationSpec] when animating pane size changes.
- * @param positionAnimationSpec the specified [FiniteAnimationSpec] when animating pane position
- *   changes.
- * @param delayedPositionAnimationSpec the specified [FiniteAnimationSpec] when animating pane
- *   position changes with a delay to emphasize entering panes.
+ * @param animationSpecs the specified [PaneAnimationSpecs] when animating pane motions.
+ * @param delayedAnimationSpecs the specified [PaneAnimationSpecs] when animating pane motions with
+ *   a delay to emphasize entering panes.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
@@ -143,12 +140,8 @@ class ThreePaneMotion(
     internal val primaryPaneMotion: PaneMotion,
     internal val secondaryPaneMotion: PaneMotion,
     internal val tertiaryPaneMotion: PaneMotion,
-    val sizeAnimationSpec: FiniteAnimationSpec<IntSize> =
-        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    val positionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-        ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-        ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed
+    val animationSpecs: PaneAnimationSpecs = ThreePaneMotionDefaults.AnimationSpecs,
+    val delayedAnimationSpecs: PaneAnimationSpecs = ThreePaneMotionDefaults.AnimationSpecsDelayed
 ) {
     /**
      * Makes a copy of [ThreePaneMotion] with override values.
@@ -159,29 +152,23 @@ class ThreePaneMotion(
      *   [ListDetailPaneScaffoldRole.List] or [SupportingPaneScaffoldRole.Supporting].
      * @param tertiaryPaneMotion the specified [PaneMotion] of the tertiary pane, i.e.,
      *   [ListDetailPaneScaffoldRole.Extra] or [SupportingPaneScaffoldRole.Extra].
-     * @param sizeAnimationSpec the specified [FiniteAnimationSpec] when animating pane size
-     *   changes.
-     * @param positionAnimationSpec the specified [FiniteAnimationSpec] when animating pane position
-     *   changes.
-     * @param delayedPositionAnimationSpec the specified [FiniteAnimationSpec] when animating pane
-     *   position changes with a delay to emphasize entering panes.
+     * @param animationSpecs the specified [PaneAnimationSpecs] when animating pane motions.
+     * @param delayedAnimationSpecs the specified [PaneAnimationSpecs] when animating pane motions
+     *   with a delay to emphasize entering panes.
      */
     fun copy(
         primaryPaneMotion: PaneMotion = this.primaryPaneMotion,
         secondaryPaneMotion: PaneMotion = this.secondaryPaneMotion,
         tertiaryPaneMotion: PaneMotion = this.tertiaryPaneMotion,
-        sizeAnimationSpec: FiniteAnimationSpec<IntSize> = this.sizeAnimationSpec,
-        positionAnimationSpec: FiniteAnimationSpec<IntOffset> = this.positionAnimationSpec,
-        delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-            this.delayedPositionAnimationSpec
+        animationSpecs: PaneAnimationSpecs = this.animationSpecs,
+        delayedAnimationSpecs: PaneAnimationSpecs = this.delayedAnimationSpecs
     ): ThreePaneMotion =
         ThreePaneMotion(
             primaryPaneMotion,
             secondaryPaneMotion,
             tertiaryPaneMotion,
-            sizeAnimationSpec,
-            positionAnimationSpec,
-            delayedPositionAnimationSpec
+            animationSpecs,
+            delayedAnimationSpecs
         )
 
     /**
@@ -203,9 +190,8 @@ class ThreePaneMotion(
         if (primaryPaneMotion != other.primaryPaneMotion) return false
         if (secondaryPaneMotion != other.secondaryPaneMotion) return false
         if (tertiaryPaneMotion != other.tertiaryPaneMotion) return false
-        if (sizeAnimationSpec != other.sizeAnimationSpec) return false
-        if (positionAnimationSpec != other.positionAnimationSpec) return false
-        if (delayedPositionAnimationSpec != other.delayedPositionAnimationSpec) return false
+        if (animationSpecs != other.animationSpecs) return false
+        if (delayedAnimationSpecs != other.delayedAnimationSpecs) return false
         return true
     }
 
@@ -213,9 +199,8 @@ class ThreePaneMotion(
         var result = primaryPaneMotion.hashCode()
         result = 31 * result + secondaryPaneMotion.hashCode()
         result = 31 * result + tertiaryPaneMotion.hashCode()
-        result = 31 * result + sizeAnimationSpec.hashCode()
-        result = 31 * result + positionAnimationSpec.hashCode()
-        result = 31 * result + delayedPositionAnimationSpec.hashCode()
+        result = 31 * result + animationSpecs.hashCode()
+        result = 31 * result + delayedAnimationSpecs.hashCode()
         return result
     }
 
@@ -224,9 +209,8 @@ class ThreePaneMotion(
             "primaryPaneMotion=$primaryPaneMotion, " +
             "secondaryPaneMotion=$secondaryPaneMotion, " +
             "tertiaryPaneMotion=$tertiaryPaneMotion, " +
-            "sizeAnimationSpec=$sizeAnimationSpec, " +
-            "positionAnimationSpec=$positionAnimationSpec, " +
-            "delayedPositionAnimationSpec=$delayedPositionAnimationSpec)"
+            "animationSpecs=$animationSpecs, " +
+            "delayedAnimationSpecs=$delayedAnimationSpecs)"
     }
 
     companion object {
@@ -241,14 +225,11 @@ class ThreePaneMotion(
 internal class ThreePaneScaffoldMotionScopeImpl : PaneScaffoldMotionScope {
     private lateinit var threePaneMotion: ThreePaneMotion
 
-    override val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
-        get() = threePaneMotion.sizeAnimationSpec
+    override val animationSpecs: PaneAnimationSpecs
+        get() = threePaneMotion.animationSpecs
 
-    override val positionAnimationSpec: FiniteAnimationSpec<IntOffset>
-        get() = threePaneMotion.positionAnimationSpec
-
-    override val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset>
-        get() = threePaneMotion.delayedPositionAnimationSpec
+    override val delayedAnimationSpecs: PaneAnimationSpecs
+        get() = threePaneMotion.delayedAnimationSpecs
 
     override var scaffoldSize: IntSize = IntSize.Zero
     override val paneMotionDataList: List<PaneMotionData> =
@@ -358,32 +339,30 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
 /** The default settings of three pane motions. */
 @ExperimentalMaterial3AdaptiveApi
 object ThreePaneMotionDefaults {
-    /** The default [FiniteAnimationSpec] of pane position animations. */
-    val PanePositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-        spring(
-            dampingRatio = 0.8f,
-            stiffness = 380f,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+    private val IntRectVisibilityThreshold = IntRect(1, 1, 1, 1)
+
+    /** The default [FiniteAnimationSpec] of pane animations. */
+    val AnimationSpecs: PaneAnimationSpecs =
+        PaneAnimationSpecs(
+            spring(
+                dampingRatio = 0.8f,
+                stiffness = 380f,
+                visibilityThreshold = IntRectVisibilityThreshold
+            )
         )
 
     /**
-     * The default [FiniteAnimationSpec] of pane position animations with a delay. It's by default
-     * used in the case when an enter pane will intersect with exit panes, we delay the entering
-     * animation to emphasize the entering transition.
+     * The default [FiniteAnimationSpec] of pane animations with a delay. It's by default used in
+     * the case when an enter pane will intersect with exit panes, we delay the entering animation
+     * to emphasize the entering transition.
      */
-    val PanePositionAnimationSpecDelayed: FiniteAnimationSpec<IntOffset> =
-        DelayedSpringSpec(
-            dampingRatio = 0.8f,
-            stiffness = 380f,
-            delayedRatio = 0.1f,
-            visibilityThreshold = IntOffset.VisibilityThreshold
-        )
-
-    /** The default [FiniteAnimationSpec] of pane size animations. */
-    val PaneSizeAnimationSpec: FiniteAnimationSpec<IntSize> =
-        spring(
-            dampingRatio = 0.8f,
-            stiffness = 380f,
-            visibilityThreshold = IntSize.VisibilityThreshold
+    val AnimationSpecsDelayed: PaneAnimationSpecs =
+        PaneAnimationSpecs(
+            DelayedSpringSpec(
+                dampingRatio = 0.8f,
+                stiffness = 380f,
+                delayedRatio = 0.1f,
+                visibilityThreshold = IntRectVisibilityThreshold
+            )
         )
 }

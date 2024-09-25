@@ -16,10 +16,9 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TargetBasedAnimation
-import androidx.compose.animation.core.VectorConverter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
 import androidx.compose.ui.layout.ApproachMeasureScope
@@ -27,26 +26,26 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 
 internal fun Modifier.animateBounds(
     animateFraction: () -> Float,
-    sizeAnimationSpec: FiniteAnimationSpec<IntSize>,
-    positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
+    animationSpec: FiniteAnimationSpec<IntRect>,
     lookaheadScope: LookaheadScope,
     enabled: Boolean
 ) =
     this.then(
         AnimateBoundsElement(
             animateFraction,
-            sizeAnimationSpec,
-            positionAnimationSpec,
+            animationSpec,
             lookaheadScope,
             enabled,
         )
@@ -54,16 +53,14 @@ internal fun Modifier.animateBounds(
 
 private data class AnimateBoundsElement(
     private val animateFraction: () -> Float,
-    private val sizeAnimationSpec: FiniteAnimationSpec<IntSize>,
-    private val positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
+    private val animationSpec: FiniteAnimationSpec<IntRect>,
     private val lookaheadScope: LookaheadScope,
     private val enabled: Boolean
 ) : ModifierNodeElement<AnimateBoundsNode>() {
     private val inspectorInfo = debugInspectorInfo {
         name = "animateBounds"
         properties["animateFraction"] = animateFraction
-        properties["sizeAnimationSpec"] = sizeAnimationSpec
-        properties["positionAnimationSpec"] = positionAnimationSpec
+        properties["animationSpec"] = animationSpec
         properties["lookaheadScope"] = lookaheadScope
         properties["enabled"] = enabled
     }
@@ -71,8 +68,7 @@ private data class AnimateBoundsElement(
     override fun create(): AnimateBoundsNode {
         return AnimateBoundsNode(
             animateFraction,
-            sizeAnimationSpec,
-            positionAnimationSpec,
+            animationSpec,
             lookaheadScope,
             enabled,
         )
@@ -80,8 +76,7 @@ private data class AnimateBoundsElement(
 
     override fun update(node: AnimateBoundsNode) {
         node.animateFraction = animateFraction
-        node.sizeAnimationSpec = sizeAnimationSpec
-        node.positionAnimationSpec = positionAnimationSpec
+        node.animationSpec = animationSpec
         node.lookaheadScope = lookaheadScope
         node.enabled = enabled
     }
@@ -93,123 +88,125 @@ private data class AnimateBoundsElement(
 
 private class AnimateBoundsNode(
     var animateFraction: () -> Float,
-    sizeAnimationSpec: FiniteAnimationSpec<IntSize>,
-    positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
+    animationSpec: FiniteAnimationSpec<IntRect>,
     var lookaheadScope: LookaheadScope,
     var enabled: Boolean
 ) : ApproachLayoutModifierNode, Modifier.Node() {
-    val sizeTracker = SizeTracker(sizeAnimationSpec)
-    val positionTracker = PositionTracker(positionAnimationSpec)
+    val boundsTracker = BoundsTracker(animationSpec)
 
-    var sizeAnimationSpec
+    var animationSpec
         set(value) {
-            sizeTracker.animationSpec = value
+            boundsTracker.animationSpec = value
         }
-        get() = sizeTracker.animationSpec
+        get() = boundsTracker.animationSpec
 
-    var positionAnimationSpec
-        set(value) {
-            positionTracker.animationSpec = value
-        }
-        get() = positionTracker.animationSpec
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean =
+        enabled && animateFraction() != 1f
 
-    // If animateBounds is not enabled, we need to do approach measure at least once so the size
-    // tracker and the position tracker will be kept updated.
-    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
-        sizeTracker.updateTargetSize(lookaheadSize)
-        return enabled && animateFraction() != 1f
-    }
-
-    // If animateBounds is not enabled, we need to do approach measure at least once so the size
-    // tracker and the position tracker will be kept updated.
     override fun Placeable.PlacementScope.isPlacementApproachInProgress(
         lookaheadCoordinates: LayoutCoordinates
-    ): Boolean {
-        positionTracker.updateTargetOffset(lookaheadOffset(lookaheadScope))
-        return enabled && animateFraction() != 1f
-    }
+    ) = enabled && animateFraction() != 1f
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult =
+        // MeasureScope.measure() will only be called during lookahead. Perform a "no-op" measuring
+        // here and update target size and offset.
+        measurable.measure(constraints).run {
+            boundsTracker.updateTargetSize(IntSize(width, height))
+            layout(width, height) {
+                if (coordinates != null) {
+                    boundsTracker.updateTargetOffset(lookaheadOffset(lookaheadScope))
+                    if (!enabled) {
+                        boundsTracker.updateAndGetCurrentBounds(1f)
+                    }
+                    place(0, 0)
+                }
+            }
+        }
 
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
         // Use the current animating fraction to get the approach size and offset of the current
-        // animating layut toward the target size and offset updated in measure().
-        val (width, height) = sizeTracker.updateAndGetCurrentSize(animateFraction())
-        val animatedConstraints = Constraints.fixed(width, height)
+        // animating layout toward the target size and offset updated in measure().
+        val currentBounds = boundsTracker.updateAndGetCurrentBounds(animateFraction())
+        val animatedConstraints = Constraints.fixed(currentBounds.width, currentBounds.height)
         val placeable = measurable.measure(animatedConstraints)
         return layout(placeable.width, placeable.height) {
-            coordinates?.let {
+            if (coordinates != null) {
                 placeable.place(
-                    convertOffsetToLookaheadCoordinates(
-                        positionTracker.updateAndGetCurrentOffset(animateFraction()),
-                        lookaheadScope
-                    )
+                    convertOffsetToLookaheadCoordinates(currentBounds.topLeft, lookaheadScope)
                 )
             }
         }
     }
 }
 
-private class SizeTracker(var animationSpec: FiniteAnimationSpec<IntSize>) {
-    private var originalSize: IntSize = InvalidIntSize
-    private var targetSize: IntSize = InvalidIntSize
-    private var currentSize = InvalidIntSize
-    private lateinit var animation: TargetBasedAnimation<IntSize, AnimationVector2D>
+private class BoundsTracker(var animationSpec: FiniteAnimationSpec<IntRect>) {
+    private val origin = Bounds()
+    private val target = Bounds()
+    private var current = InvalidIntRect
+
+    private var boundsAnimation: TargetBasedAnimation<IntRect, AnimationVector4D>? = null
+
+    private fun TargetBasedAnimation<IntRect, AnimationVector4D>.valueAtProgress(
+        animateFraction: Float
+    ) = getValueFromNanos((this.durationNanos * animateFraction).toLong())
 
     fun updateTargetSize(newSize: IntSize) {
-        if (targetSize == newSize) {
+        if (target.size == newSize) {
             return
         }
         // TODO(conradchen): Handle the interruption better when the target size changes during
         //                   the animation
-        originalSize =
-            if (currentSize != InvalidIntSize) {
-                currentSize
+        origin.size =
+            if (current.isValid) {
+                current.size
             } else {
                 newSize
             }
-        targetSize = newSize
-        animation =
-            TargetBasedAnimation(animationSpec, IntSize.VectorConverter, originalSize, targetSize)
+        target.size = newSize
+        createBoundsAnimationIfPossible()
     }
-
-    fun updateAndGetCurrentSize(fraction: Float): IntSize {
-        currentSize = animation.getValueFromNanos((animation.durationNanos * fraction).toLong())
-        return currentSize
-    }
-}
-
-private class PositionTracker(var animationSpec: FiniteAnimationSpec<IntOffset>) {
-    private var originalOffset: IntOffset? = null
-    private var targetOffset: IntOffset? = null
-    private var currentOffset: IntOffset? = null
-    private lateinit var animation: TargetBasedAnimation<IntOffset, AnimationVector2D>
 
     fun updateTargetOffset(newOffset: IntOffset) {
-        if (targetOffset == newOffset) {
+        if (target.topLeft == newOffset) {
             return
         }
         // TODO(conradchen): Handle the interruption better when the target position changes during
         //                   the animation
-        originalOffset =
-            if (currentOffset != null) {
-                currentOffset
+        origin.topLeft =
+            if (current.isValid) {
+                current.topLeft
             } else {
                 newOffset
             }
-        targetOffset = newOffset
-        animation =
-            TargetBasedAnimation(
-                animationSpec,
-                IntOffset.VectorConverter,
-                originalOffset!!,
-                targetOffset!!
-            )
+        target.topLeft = newOffset
+        createBoundsAnimationIfPossible()
     }
 
-    fun updateAndGetCurrentOffset(fraction: Float): IntOffset {
-        currentOffset = animation.getValueFromNanos((animation.durationNanos * fraction).toLong())
-        return currentOffset!!
+    fun updateAndGetCurrentBounds(fraction: Float): IntRect {
+        current =
+            if (fraction == 0f) {
+                origin.rect
+            } else if (fraction == 1f) {
+                target.rect
+            } else if (boundsAnimation != null) {
+                boundsAnimation!!.valueAtProgress(fraction)
+            } else {
+                InvalidIntRect
+            }
+
+        return current
+    }
+
+    private fun createBoundsAnimationIfPossible() {
+        if (origin.isValid && target.isValid) {
+            boundsAnimation =
+                TargetBasedAnimation(animationSpec, IntRectToVector, origin.rect, target.rect)
+        }
     }
 }
