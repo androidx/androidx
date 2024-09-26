@@ -270,19 +270,27 @@ public class Request(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? = this.parameters[key] as T?
 
-    override fun toString(): String {
+    override fun toString(): String = toStringInternal(verbose = false)
+
+    public fun toStringVerbose(): String = toStringInternal(verbose = true)
+
+    private fun toStringInternal(verbose: Boolean): String {
+        val templateString = if (template == null) "" else ", template=$template"
+        // Ignore listener count, always include stream list (required).
         val parametersString =
-            if (parameters.isEmpty()) {
-                ""
-            } else {
+            if (verbose && parameters.isNotEmpty()) {
                 ", parameters=${Debug.formatParameterMap(parameters, limit = 5)}"
+            } else {
+                ""
             }
         val extrasString =
-            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras, limit = 5)}"
-        val templateString = if (template == null) "" else ", template=$template"
-        // Ignore listener count, always include stream list (required), and use super.toString to
-        // reference the class name.
-        return "Request(streams=$streams$templateString$parametersString$extrasString)"
+            if (verbose && extras.isNotEmpty()) {
+                ", extras=${Debug.formatParameterMap(extras, limit = 5)}"
+            } else {
+                ""
+            }
+        return "Request(streams=$streams$templateString$parametersString$extrasString)" +
+            "@${Integer.toHexString(hashCode())}"
     }
 }
 
