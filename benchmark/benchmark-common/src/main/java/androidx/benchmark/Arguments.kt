@@ -89,6 +89,8 @@ object Arguments {
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
+    internal val requireAot: Boolean
+    internal val requireJitDisabledIfRooted: Boolean
     val runOnMainDeadlineSeconds: Long // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
@@ -264,8 +266,29 @@ object Arguments {
             )
         }
 
-        cpuEventCounterEnable =
+        val cpuEventsDesired =
             arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
+        cpuEventCounterEnable =
+            when {
+                !cpuEventsDesired -> {
+                    false // not attempting to use
+                }
+                dryRunMode -> {
+                    Log.d(
+                        BenchmarkState.TAG,
+                        "Ignoring request for cpuEventCounter due to dryRunMode=true"
+                    )
+                    false
+                }
+                !DeviceInfo.supportsCpuEventCounters -> {
+                    Log.d(
+                        BenchmarkState.TAG,
+                        "Ignoring request for cpuEventCounter due to unrooted device"
+                    )
+                    false
+                }
+                else -> true
+            }
         cpuEventCounterMask =
             if (cpuEventCounterEnable) {
                 arguments
@@ -310,6 +333,10 @@ object Arguments {
         runOnMainDeadlineSeconds =
             arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
         Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
+
+        requireAot = arguments.getBenchmarkArgument("requireAot")?.toBoolean() ?: false
+        requireJitDisabledIfRooted =
+            arguments.getBenchmarkArgument("requireJitDisabledIfRooted")?.toBoolean() ?: false
 
         if (arguments.getString("orchestratorService") != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(

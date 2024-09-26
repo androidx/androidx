@@ -74,6 +74,9 @@ class AndroidTestConfigBuilderTest {
     fun testXmlAgainstGoldenMicrobenchmark() {
         builder.isMicrobenchmark(true)
 
+        // example of value set by enableInternalMicrobenchmarkDefaults
+        builder.instrumentationArgsMap["androidx.benchmark.cpuEventCounter.enable"] = "true"
+
         // NOTE: blocklisted arg is removed
         builder.instrumentationArgsMap["androidx.benchmark.profiling.skipWhenDurationRisksAnr"] =
             "true"
@@ -470,6 +473,7 @@ private val goldenDefaultConfigBenchmark =
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <option name="instrumentation-arg" key="androidx.benchmark.cpuEventCounter.enable" value="true" />
     <option name="instrumentation-arg" key="androidx.benchmark.output.payload.testApkSha256" value="123456" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
@@ -486,7 +490,6 @@ private val goldenDefaultConfigBenchmark =
     <option name="package" value="com.androidx.placeholder.Placeholder" />
     <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
-    <option name="instrumentation-arg" key="androidx.benchmark.cpuEventCounter.enable" value="true" />
     </test>
     </configuration>
 """
