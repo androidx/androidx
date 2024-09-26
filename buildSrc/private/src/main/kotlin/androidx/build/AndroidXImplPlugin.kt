@@ -538,7 +538,14 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             val kotlinCompilerArgs =
                 project.provider {
-                    val args = mutableListOf("-Xskip-metadata-version-check", "-Xjvm-default=all")
+                    val args =
+                        mutableListOf(
+                            "-Xskip-metadata-version-check",
+                            "-Xjvm-default=all",
+                            // These two args can be removed once kotlin 2.1 is used
+                            "-Xjspecify-annotations=strict",
+                            "-Xtype-enhancement-improvements-strict-mode",
+                        )
                     if (androidXExtension.type.targetsKotlinConsumersOnly) {
                         // The Kotlin Compiler adds intrinsic assertions which are only relevant
                         // when the code is consumed by Java users. Therefore we can turn this off
