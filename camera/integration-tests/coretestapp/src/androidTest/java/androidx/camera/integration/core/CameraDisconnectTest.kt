@@ -182,9 +182,6 @@ class CameraDisconnectTest(
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun canRecovered_afterSecondCamera2ImplementationActivityIsClosed() {
-        // TODO(b/344752133) : current camera-pipe always restarts the camera to cause
-        //  Camera2TestActivity to lose its camera and may cause the test to be failed.
-        assumeTrue(implName != CameraPipeConfig::class.simpleName)
         // Launch CameraX activity
         cameraXActivityScenario = launchCameraXActivity(cameraId)
         with(cameraXActivityScenario) {
