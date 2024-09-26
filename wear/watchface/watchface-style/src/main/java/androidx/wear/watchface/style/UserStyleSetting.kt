@@ -187,19 +187,13 @@ private constructor(
         // etc...
         for ((index, option) in options.withIndex()) {
             option.displayNameInternal?.setIndex(index + 1)
-
             option.screenReaderNameInternal?.setIndex(index + 1)
         }
     }
 
     internal fun setDisplayNameIndex(index: Int) {
-        if (displayNameInternal is DisplayText.ResourceDisplayTextWithIndex) {
-            displayNameInternal.setIndex(index)
-        }
-
-        if (descriptionInternal is DisplayText.ResourceDisplayTextWithIndex) {
-            descriptionInternal.setIndex(index)
-        }
+        displayNameInternal.setIndex(index)
+        descriptionInternal.setIndex(index)
     }
 
     /**
