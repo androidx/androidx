@@ -88,11 +88,11 @@ dependencies {
     implementation(libs.guavaAndroid)
 
     // Compose
-    implementation("androidx.activity:activity-compose:1.4.0")
-    implementation(project(":compose:material:material"))
-    implementation("androidx.compose.animation:animation:1.4.0")
-    implementation("androidx.compose.runtime:runtime:1.4.0")
-    implementation("androidx.compose.ui:ui-tooling:1.4.0")
+    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.compose.material:material:1.7.2")
+    implementation("androidx.compose.animation:animation:1.7.2")
+    implementation("androidx.compose.runtime:runtime:1.7.2")
+    implementation("androidx.compose.ui:ui-tooling:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("androidx.compose.material:material-icons-extended:1.4.0")
@@ -125,13 +125,13 @@ dependencies {
 
     // Testing for Compose
     // Test rules and transitive dependencies:
-    androidTestImplementation(project(":compose:ui:ui"))
-    androidTestImplementation(project(":compose:ui:ui-geometry"))
-    androidTestImplementation(project(":compose:ui:ui-util"))
-    androidTestImplementation(project(":compose:ui:ui-graphics"))
-    androidTestImplementation(project(":compose:ui:ui-unit"))
-    androidTestImplementation(project(":compose:ui:ui-text"))
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.ui:ui:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-geometry:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-util:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-graphics:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-unit:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-text:1.7.2")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.2")
     androidTestImplementation("androidx.collection:collection:1.4.2")
     // Needed for createComposeRule, but not createAndroidComposeRule:
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")

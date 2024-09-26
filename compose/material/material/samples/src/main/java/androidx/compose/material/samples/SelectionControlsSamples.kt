@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -89,6 +90,7 @@ fun TriStateCheckboxSample() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FocusedCheckboxSample() {
     Text("The gray circle around this checkbox means it's non-touch focused.  Press Tab to move it")

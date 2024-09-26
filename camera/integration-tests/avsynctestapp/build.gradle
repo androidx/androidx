@@ -48,9 +48,9 @@ dependencies {
     implementation(project(":camera:camera-video"))
 
     // Compose
-    def compose_version = "1.4.0"
+    def compose_version = "1.7.2"
     implementation("androidx.activity:activity-compose:1.5.0")
-    implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material:$compose_version")
     implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation("androidx.compose.ui:ui:$compose_version")
     implementation("androidx.compose.ui:ui-tooling-preview:$compose_version")
@@ -65,8 +65,8 @@ dependencies {
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
-    androidTestImplementation(project(":annotation:annotation"))
-    androidTestImplementation(project(":lifecycle:lifecycle-common"))
+    androidTestImplementation("androidx.annotation:annotation:1.4.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.3")
 
     // Testing framework
     testImplementation(libs.kotlinCoroutinesTest)

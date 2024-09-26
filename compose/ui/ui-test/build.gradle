@@ -131,6 +131,7 @@ androidXMultiplatform {
                 implementation(libs.mockitoKotlin4)
                 implementation(libs.byteBuddy)
 
+                implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:animation:animation-core"))
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:test-utils"))
