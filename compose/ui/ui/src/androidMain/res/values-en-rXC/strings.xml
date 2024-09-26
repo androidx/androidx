@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,5 +35,4 @@
     <string name="default_popup_window_title" msgid="6312721426453364202">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‎‎‏‏‎‏‏‎‏‎‎‏‎‏‎‏‎‏‏‎‎‎‎‏‏‏‎‏‏‎‏‏‎‏‏‏‏‏‏‏‏‏‏‏‏‎‏‏‏‏‎‏‎‏‎‎Pop-Up Window‎‏‎‎‏‎"</string>
     <string name="range_start" msgid="7097486360902471446">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‏‎‎‏‏‏‏‏‏‏‎‏‎‏‎‏‏‎‎‎‏‏‏‏‎‏‏‎‏‏‏‎‏‏‏‏‎‎‎‏‎‏‏‎‎‎‏‏‏‏‎‎‎‏‎‏‏‎‎Range start‎‏‎‎‏‎"</string>
     <string name="range_end" msgid="5941395253238309765">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‎‏‎‎‏‏‏‎‏‎‎‎‎‎‏‎‎‏‏‏‎‎‎‎‎‎‏‎‎‎‎‎‎‏‏‎‏‏‏‎‏‏‎‎‎‏‎‎‎‏‏‏‎‎‎‎‏‎‏‎Range end‎‏‎‎‏‎"</string>
-    <string name="snackbar_pane_title" msgid="2792228137354697160">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‏‏‎‏‎‏‏‏‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‏‎‎‏‏‏‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‏‎‎‏‏‏‎‎‏‎‎‎‎Alert‎‏‎‎‏‎"</string>
 </resources>
