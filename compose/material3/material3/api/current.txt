@@ -1423,8 +1423,8 @@ package androidx.compose.material3 {
   }
 
   public static final class MotionScheme.Companion {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme expressiveMotionScheme();
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme standardMotionScheme();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme expressive();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.MotionScheme standard();
   }
 
   public interface MultiChoiceSegmentedButtonRowScope extends androidx.compose.foundation.layout.RowScope {
