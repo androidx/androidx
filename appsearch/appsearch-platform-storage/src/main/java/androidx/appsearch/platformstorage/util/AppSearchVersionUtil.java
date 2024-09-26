@@ -37,6 +37,7 @@ import androidx.core.util.Preconditions;
 public class AppSearchVersionUtil {
     public static class TExtensionVersions {
         public static final int U_BASE = 7;
+        public static final int M2023_11 = 10;
     }
     public static class MainlineVersions {
         public static final long U_BASE = 340800000;
