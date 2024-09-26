@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Rect
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.WindowSdkExtensionsRule
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
@@ -80,7 +79,7 @@ class OverlayControllerImplTest {
         calculateOverlayAttributes(
             TAG_TEST,
             initialOverlayAttrs,
-            WindowMetrics(Rect(), WindowInsetsCompat.CONSUMED, density = 1f),
+            WindowMetrics(Rect(), density = 1f),
             Configuration(),
             WindowLayoutInfo(emptyList())
         )

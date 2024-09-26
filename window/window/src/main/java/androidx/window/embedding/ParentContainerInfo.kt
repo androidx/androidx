@@ -16,7 +16,6 @@
 package androidx.window.embedding
 
 import android.content.res.Configuration
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.WindowLayoutInfo
 
@@ -26,7 +25,6 @@ import androidx.window.layout.WindowLayoutInfo
  *
  * @property windowBounds The parent container's [Bounds].
  * @property windowLayoutInfo The parent container's [WindowLayoutInfo].
- * @property windowInsets The parent container's [WindowInsetsCompat].
  * @property configuration The parent container's [Configuration].
  * @property density The parent container's density in DP, which has the same unit as
  *   [android.util.DisplayMetrics.density].
@@ -36,8 +34,6 @@ internal data class ParentContainerInfo(
     val windowBounds: Bounds,
     /** The parent container's [WindowLayoutInfo]. */
     val windowLayoutInfo: WindowLayoutInfo,
-    /** The parent container's [WindowInsetsCompat] */
-    val windowInsets: WindowInsetsCompat,
     /** The parent container's [Configuration]. */
     val configuration: Configuration,
     /**

@@ -26,7 +26,6 @@ import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.util.WindowMetricsCompatHelper
 
@@ -159,7 +158,6 @@ interface WindowMetricsCalculator {
         internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
             return WindowMetrics(
                 Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-                WindowInsetsCompat.Builder().build(),
                 displayMetrics.density
             )
         }

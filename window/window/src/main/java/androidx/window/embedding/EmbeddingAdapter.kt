@@ -183,7 +183,6 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                 windowMetrics,
                 parentContainerInfo.windowLayoutInfo
             ),
-            windowMetrics.getWindowInsets(),
             configuration,
             density
         )
