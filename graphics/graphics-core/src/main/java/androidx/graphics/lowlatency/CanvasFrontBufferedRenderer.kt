@@ -658,6 +658,15 @@ constructor(
             renderer.release(cancelPending) {
                 mCurrentMultiBuffer?.close()
                 mCurrentMultiBuffer = null
+                val reparentTransaction = SurfaceControlCompat.Transaction()
+                if (frontBufferSurfaceControl?.isValid() == true) {
+                    reparentTransaction.reparent(frontBufferSurfaceControl, null)
+                }
+                if (parentSurfaceControl?.isValid() == true) {
+                    reparentTransaction.reparent(parentSurfaceControl, null)
+                }
+                reparentTransaction.commit()
+                reparentTransaction.close()
                 frontBufferSurfaceControl?.release()
                 parentSurfaceControl?.release()
                 multiBufferRenderer?.close()

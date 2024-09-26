@@ -540,7 +540,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             mSceneBitmapDrawn = false
 
             renderer.release(cancelPending) {
-                frontBufferedLayerSurfaceControl?.release()
+                if (frontBufferedLayerSurfaceControl?.isValid() == true) {
+                    SurfaceControlCompat.Transaction().apply {
+                        reparent(frontBufferedLayerSurfaceControl, null)
+                        commit()
+                        close()
+                    }
+                    frontBufferedLayerSurfaceControl.release()
+                }
                 onReleaseCallback?.invoke()
                 if (hardwareBuffer != null && !hardwareBuffer.isClosed) {
                     hardwareBuffer.close()
