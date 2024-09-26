@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
@@ -90,16 +91,16 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
 
         val positionOfA = state.anchors.positionOf(A)
         val maxBound = state.anchors.positionOf(B)
-        val overDrag = 100f
+        val overDrag = Offset(x = 100f, y = 0f)
 
         assertThat(state.currentValue).isEqualTo(A)
         assertThat(state.offset).isEqualTo(positionOfA)
-        assertThat(overscrollEffect.scrollOverscrollDelta.x).isEqualTo(0f)
+        assertThat(overscrollEffect.scrollOverscrollDelta).isEqualTo(Offset.Zero)
 
         // drag to positionB + overDrag
         rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
             down(Offset(0f, 0f))
-            moveBy(Offset(x = maxBound + overDrag, y = 0f))
+            moveBy(Offset(x = maxBound + overDrag.x, y = 0f))
             up()
         }
         rule.waitForIdle()
@@ -111,11 +112,83 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
         // assert that applyToScroll was called and there is a remaining delta because of dragging
         // out of bounds
         assertThat(overscrollEffect.applyToScrollCalledCount).isEqualTo(1)
-        assertThat(abs(overscrollEffect.scrollOverscrollDelta.x)).isEqualTo(overDrag)
+        assertThat(overscrollEffect.scrollOverscrollDelta).isEqualTo(overDrag)
+    }
+
+    private fun testDispatchesToOverscrollInOrientationOnlyWhenDraggedOutOfBounds(
+        orientation: Orientation
+    ) {
+        val overscrollEffect = TestOverscrollEffect()
+        val (state, modifier) =
+            createStateAndModifier(
+                initialValue = A,
+                anchors =
+                    DraggableAnchors {
+                        A at 0f
+                        B at 250f
+                    },
+                orientation = orientation,
+                overscrollEffect = overscrollEffect
+            )
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Box(Modifier.fillMaxSize().overscroll(overscrollEffect)) {
+                    Box(
+                        Modifier.requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .then(modifier)
+                            .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+                    )
+                }
+            }
+        }
+
+        val positionOfA = state.anchors.positionOf(A)
+        val maxBound = state.anchors.positionOf(B)
+        val overDrag = 100f
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.offset).isEqualTo(positionOfA)
+        assertThat(overscrollEffect.scrollOverscrollDelta).isEqualTo(Offset.Zero)
+
+        // drag to positionB + overDrag
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            down(Offset(0f, 0f))
+            moveBy(Offset(x = maxBound + overDrag, y = maxBound + overDrag))
+            up()
+        }
+        rule.waitForIdle()
+
+        // assert the component settled at anchor B
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.offset).isEqualTo(maxBound)
+
+        // assert that applyToScroll was called and there is a remaining delta because of dragging
+        // out of bounds
+        assertThat(overscrollEffect.applyToScrollCalledCount).isEqualTo(1)
+        assertWithMessage("overscrollDelta.x for orientation $orientation")
+            .that(overscrollEffect.scrollOverscrollDelta.x)
+            .isEqualTo(if (orientation == Orientation.Horizontal) overDrag else 0f)
+        assertWithMessage("overscrollDelta.y for orientation $orientation")
+            .that(overscrollEffect.scrollOverscrollDelta.y)
+            .isEqualTo(if (orientation == Orientation.Vertical) overDrag else 0f)
     }
 
     @Test
-    fun anchoredDraggable_swipeWithVelocity_haveVelocityForOverscroll() {
+    fun anchoredDraggable_scrollOutOfBounds_dispatchesToOverscroll_inOrientationOnly_horizontal() {
+        testDispatchesToOverscrollInOrientationOnlyWhenDraggedOutOfBounds(
+            orientation = Orientation.Horizontal
+        )
+    }
+
+    @Test
+    fun anchoredDraggable_scrollOutOfBounds_dispatchesToOverscroll_inOrientationOnly_vertical() {
+        testDispatchesToOverscrollInOrientationOnlyWhenDraggedOutOfBounds(
+            orientation = Orientation.Vertical
+        )
+    }
+
+    private fun testSwipeWithVelocityDispatchesToOverscroll(orientation: Orientation) {
         val endVelocity = 4000f
         val overscrollEffect = TestOverscrollEffect()
         val (state, modifier) =
@@ -126,7 +199,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                         A at 0f
                         B at 250f
                     },
-                orientation = Orientation.Horizontal,
+                orientation = orientation,
                 overscrollEffect = overscrollEffect,
                 decayAnimationSpec =
                     SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
@@ -154,9 +227,11 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
         assertThat(overscrollEffect.applyToFlingCalledCount).isEqualTo(0)
 
         rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            val endPointX = if (orientation == Orientation.Horizontal) right else 0f
+            val endPointY = if (orientation == Orientation.Vertical) bottom else 0f
             swipeWithVelocity(
                 start = Offset(left, 0f),
-                end = Offset(right / 2, 0f),
+                end = Offset(endPointX, endPointY),
                 endVelocity = endVelocity
             )
         }
@@ -172,9 +247,24 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
         assertThat(overscrollEffect.applyToFlingCalledCount).isEqualTo(1)
         // [flingOverscrollVelocity] would be slightly less than [endVelocity] as one animation
         // frame would be executed, which consumes some velocity
-        assertThat(abs(overscrollEffect.flingOverscrollVelocity.x))
+        assertWithMessage("flingOverscrollVelocity.x for orientation $orientation")
+            .that(abs(overscrollEffect.flingOverscrollVelocity.x))
             .isWithin(endVelocity * 0.005f)
-            .of(endVelocity)
+            .of(if (orientation == Orientation.Horizontal) endVelocity else 0f)
+        assertWithMessage("flingOverscrollVelocity.y for orientation $orientation")
+            .that(abs(overscrollEffect.flingOverscrollVelocity.y))
+            .isWithin(endVelocity * 0.005f)
+            .of(if (orientation == Orientation.Vertical) endVelocity else 0f)
+    }
+
+    @Test
+    fun anchoredDraggable_swipeWithVelocity_haveVelocityForOverscroll_horizontal() {
+        testSwipeWithVelocityDispatchesToOverscroll(Orientation.Horizontal)
+    }
+
+    @Test
+    fun anchoredDraggable_swipeWithVelocity_haveVelocityForOverscroll_vertical() {
+        testSwipeWithVelocityDispatchesToOverscroll(Orientation.Vertical)
     }
 
     @Test

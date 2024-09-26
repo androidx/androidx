@@ -408,11 +408,12 @@ private class AnchoredDraggableNode<T>(
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.anchoredDrag {
             forEachDelta { dragDelta ->
+                val oneDirectionalDelta = dragDelta.delta.reverseIfNeeded().toFloat()
                 if (overscrollEffect == null) {
-                    dragTo(state.newOffsetForDelta(dragDelta.delta.reverseIfNeeded().toFloat()))
+                    dragTo(state.newOffsetForDelta(oneDirectionalDelta))
                 } else {
                     overscrollEffect!!.applyToScroll(
-                        delta = dragDelta.delta.reverseIfNeeded(),
+                        delta = oneDirectionalDelta.toOffset(),
                         source = NestedScrollSource.UserInput
                     ) { deltaForDrag ->
                         val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
@@ -430,12 +431,13 @@ private class AnchoredDraggableNode<T>(
     override fun onDragStopped(velocity: Velocity) {
         if (!isAttached) return
         coroutineScope.launch {
+            val oneDirectionalVelocity = velocity.reverseIfNeeded().toFloat()
             if (overscrollEffect == null) {
-                fling(velocity.reverseIfNeeded().toFloat())
+                fling(oneDirectionalVelocity)
             } else {
-                overscrollEffect!!.applyToFling(velocity = velocity.reverseIfNeeded()) {
+                overscrollEffect!!.applyToFling(velocity = oneDirectionalVelocity.toVelocity()) {
                     availableVelocity ->
-                    val consumed = fling(velocity.reverseIfNeeded().toFloat())
+                    val consumed = fling(availableVelocity.toFloat())
                     val currentOffset = state.requireOffset()
                     val minAnchor = state.anchors.minPosition()
                     val maxAnchor = state.anchors.maxPosition()
