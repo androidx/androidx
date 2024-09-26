@@ -92,6 +92,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
         private const val NAMED_DOMAIN_OBJECT_COLLECTION =
             "org.gradle.api.NamedDomainObjectCollection"
+        private const val PROVIDER = "org.gradle.api.provider.Provider"
 
         val EAGER_CONFIGURATION_ISSUE =
             Issue.create(
@@ -119,6 +120,21 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 See https://docs.gradle.org/nightly/userguide/isolated_projects.html for
                 more details.
             """,
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(DiscouragedGradleMethodDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
+
+        val TO_STRING_ON_PROVIDER_ISSUE =
+            Issue.create(
+                "GradleLikelyBug",
+                "Use of this API is likely a bug",
+                """
+                    Calling Provider.toString() will return you a generic hash of the instance of this provider.
+                    You most likely want to call Provider.get() method to get the actual value instead of the
+                    provider.
+                    """,
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
@@ -159,6 +175,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
                 "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "toString" to Replacement(PROVIDER, "get", TO_STRING_ON_PROVIDER_ISSUE),
                 "whenTaskAdded" to
                     Replacement(TASK_CONTAINER, "configureEach", EAGER_CONFIGURATION_ISSUE),
                 "whenObjectAdded" to
