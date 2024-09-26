@@ -344,8 +344,8 @@ class SearchSessionImpl implements AppSearchSession {
         // For these versions, IcingLib and AppSearch would crash if we try to set an
         // invalid schema where the number of sections in a schema type exceeds the maximum
         // limit.
-        return appsearchVersionCode >= AppSearchVersionUtil.APPSEARCH_U_BASE_VERSION_CODE
-                && appsearchVersionCode < AppSearchVersionUtil.APPSEARCH_M2023_11_VERSION_CODE;
+        return appsearchVersionCode >= AppSearchVersionUtil.MainlineVersions.U_BASE
+                && appsearchVersionCode < AppSearchVersionUtil.MainlineVersions.M2023_11;
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
