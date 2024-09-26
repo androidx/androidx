@@ -84,7 +84,6 @@ private fun measureLazyColumn(
             measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
         )
     }
-
     val visibleItems = ArrayDeque<LazyColumnMeasuredItem>()
     var canScrollForward = true
     var canScrollBackward = true
@@ -94,13 +93,16 @@ private fun measureLazyColumn(
         if (lastMeasuredItemHeight > 0) {
             measuredItemProvider.downwardMeasuredItem(
                 anchorItemIndex,
-                anchorItemScrollOffset - lastMeasuredItemHeight + containerConstraints.maxHeight / 2
+                anchorItemScrollOffset - lastMeasuredItemHeight / 2 +
+                    containerConstraints.maxHeight / 2
             )
         } else {
-            measuredItemProvider.upwardMeasuredItem(
-                anchorItemIndex,
-                anchorItemScrollOffset + containerConstraints.maxHeight / 2
-            )
+            measuredItemProvider
+                .upwardMeasuredItem(
+                    anchorItemIndex,
+                    anchorItemScrollOffset + containerConstraints.maxHeight / 2
+                )
+                .also { it.offset += it.height / 2 }
         }
     centerItem.offset += scrollToBeConsumed.roundToInt()
 
@@ -162,7 +164,7 @@ private fun measureLazyColumn(
     return LazyColumnMeasureResult(
         anchorItemIndex = anchorItem.index,
         anchorItemScrollOffset =
-            anchorItem.let { it.offset + it.height - containerConstraints.maxHeight / 2 },
+            anchorItem.let { it.offset + it.height / 2 - containerConstraints.maxHeight / 2 },
         visibleItems = visibleItems,
         totalItemsCount = itemsCount,
         lastMeasuredItemHeight = anchorItem.height,
@@ -280,16 +282,29 @@ internal fun rememberLazyColumnMeasurePolicy(
                     }
                 }
 
+            val itemsCount = itemProviderLambda().itemCount
+
+            val anchorItemIndex: Int
+            val anchorItemScrollOffset: Int
+            val lastMeasuredAnchorItemHeight: Int
+
+            Snapshot.withoutReadObservation {
+                anchorItemIndex =
+                    if (itemsCount == 0) 0 else state.anchorItemIndex.coerceIn(0 until itemsCount)
+                anchorItemScrollOffset = state.anchorItemScrollOffset
+                lastMeasuredAnchorItemHeight = state.lastMeasuredAnchorItemHeight
+            }
+
             Snapshot.withMutableSnapshot {
                     measureLazyColumn(
-                        itemsCount = itemProviderLambda().itemCount,
+                        itemsCount = itemsCount,
                         measuredItemProvider = measuredItemProvider,
                         itemSpacing = verticalArrangement.spacing.roundToPx(),
                         containerConstraints = containerConstraints,
                         scrollToBeConsumed = state.scrollToBeConsumed,
-                        anchorItemIndex = state.anchorItemIndex,
-                        anchorItemScrollOffset = state.anchorItemScrollOffset,
-                        lastMeasuredItemHeight = state.lastMeasuredAnchorItemHeight,
+                        anchorItemIndex = anchorItemIndex,
+                        anchorItemScrollOffset = anchorItemScrollOffset,
+                        lastMeasuredItemHeight = lastMeasuredAnchorItemHeight,
                         layout = { width, height, placement ->
                             layout(
                                 containerConstraints.constrainWidth(width),
