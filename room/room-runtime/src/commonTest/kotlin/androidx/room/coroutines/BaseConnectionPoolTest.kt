@@ -613,8 +613,9 @@ abstract class BaseConnectionPoolTest {
                                     }
                                     .message
                             )
-                            .isEqualTo(
-                                "Error code: 5, message: Timed out attempting to acquire a connection"
+                            .contains(
+                                "Error code: 5, message: Timed out attempting to acquire a " +
+                                    "reader connection"
                             )
                     }
                 coroutineStartedMutex.withLock {
