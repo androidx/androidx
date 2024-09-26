@@ -67,7 +67,6 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
@@ -1445,8 +1444,6 @@ class AppBarTest {
         assertThat(TopAppBarSmallTokens.ContainerHeight).isLessThan(boundsAfter.height)
     }
 
-    // Disabled on older APIs which seem to run on a small Nexus device that fails this test.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     fun topAppBar_enterAlways_scrollingAndContentMovement() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
@@ -1485,23 +1482,23 @@ class AppBarTest {
         }
         rule.waitForIdle()
 
-        // Store the first visible item's top offset.
-        val topVisibleItemIndex = state.layoutInfo.visibleItemsInfo.first().index
-        val topItemTopBeforeExpansion =
-            rule.onNodeWithTag(LazyListTag).onChildAt(topVisibleItemIndex).getBoundsInRoot().top
+        // Store a tracked visible item's top offset. We set the tracked item to be the third
+        // visible one (which helps deflake the test on smaller devices).
+        val trackedItemIndex = state.layoutInfo.visibleItemsInfo.first().index + 2
+        val trackedItemTopBeforeExpansion =
+            rule.onNodeWithText("Item $trackedItemIndex").getBoundsInRoot().top
 
         // Swipe down to trigger a top app bar expansion without scrolling much the content.
         rule.onNodeWithTag(LazyListTag).performTouchInput {
-            swipeDown(startY = height - 1000f, endY = height - (1000f - appBarHeightPx / 2))
+            swipeDown(startY = height - 1000f, endY = height - (1000f - appBarHeightPx / 1.5f))
         }
         rule.waitForIdle()
 
-        // Asserts that the first item has moved along with the expansion of the top app bar.
+        // Asserts that the tracked item has moved along with the expansion of the top app bar.
         rule
-            .onNodeWithTag(LazyListTag)
-            .onChildAt(topVisibleItemIndex)
+            .onNodeWithText("Item $trackedItemIndex")
             .assertTopPositionInRootIsEqualTo(
-                topItemTopBeforeExpansion + TopAppBarSmallTokens.ContainerHeight
+                trackedItemTopBeforeExpansion + TopAppBarSmallTokens.ContainerHeight
             )
     }
 
