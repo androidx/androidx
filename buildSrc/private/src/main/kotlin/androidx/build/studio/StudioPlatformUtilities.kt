@@ -160,8 +160,8 @@ private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
 
     override val StudioTask.launchCommandArguments: List<String>
         get() {
-            val studioScript = File(binaryDirectory, "bin/studio.sh")
-            return listOf("sh", studioScript.absolutePath, projectRoot.absolutePath)
+            val studioBinary = File(binaryDirectory, "bin/studio")
+            return listOf(studioBinary.absolutePath, projectRoot.absolutePath)
         }
 
     override val StudioTask.pluginsDirectory: File
