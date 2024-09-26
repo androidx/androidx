@@ -36,6 +36,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A TransitionSet is a parent of child transitions (including other
@@ -87,6 +88,7 @@ public class TransitionSet extends Transition {
     // Flags to know whether or not the interpolator, path motion, epicenter, propagation
     // have changed
     private int mChangeFlags = 0;
+    private Transition[] mTransitionsCache;
 
     /**
      * A flag used to indicate that the child transitions of this set
@@ -687,35 +689,71 @@ public class TransitionSet extends Transition {
     }
 
     /**
+     * Used to capture all the transitions so that they can be iterated over, even if
+     * the mTransitions has been mutated during the iteration. This is safe for reentrancy
+     * because the cached array is cleared before returning and a reentrant call will need
+     * to create a new array.
+     *
+     * The length of the array could be larger than the number of transitions with the extra
+     * elements being null.
+     *
+     * The returned array should be returned after iterating over it so that it may be reused
+     * by calling {@link #returnTransitionArrayToCache(Transition[])}.
+     */
+    private Transition[] transitionsAsArray() {
+        Transition[] transitions = mTransitionsCache;
+        mTransitionsCache = null;
+        if (transitions == null) {
+            transitions = new Transition[mTransitions.size()];
+        }
+        return mTransitions.toArray(transitions);
+    }
+
+    /**
+     * Returns the array returned in {@link #transitionsAsArray()} to the cache, clearing
+     * all values so that it can be used again the next time {@link #transitionsAsArray} is called.
+     */
+    private void returnTransitionArrayToCache(Transition[] transitions) {
+        Arrays.fill(transitions, null);
+        mTransitionsCache = transitions;
+    }
+
+    /**
      * @param sceneRoot */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void resume(@Nullable View sceneRoot) {
         super.resume(sceneRoot);
+        Transition[] transitions = transitionsAsArray();
         int numTransitions = mTransitions.size();
-        for (int i = 0; i < numTransitions; ++i) {
-            mTransitions.get(i).resume(sceneRoot);
+        for (int i = 0; i < numTransitions; i++) {
+            transitions[i].resume(sceneRoot);
         }
+        returnTransitionArrayToCache(transitions);
     }
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     protected void cancel() {
         super.cancel();
+        Transition[] transitions = transitionsAsArray();
         int numTransitions = mTransitions.size();
-        for (int i = 0; i < numTransitions; ++i) {
-            mTransitions.get(i).cancel();
+        for (int i = 0; i < numTransitions; i++) {
+            transitions[i].cancel();
         }
+        returnTransitionArrayToCache(transitions);
     }
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     void forceToEnd(ViewGroup sceneRoot) {
         super.forceToEnd(sceneRoot);
+        Transition[] transitions = transitionsAsArray();
         int numTransitions = mTransitions.size();
-        for (int i = 0; i < numTransitions; ++i) {
-            mTransitions.get(i).forceToEnd(sceneRoot);
+        for (int i = 0; i < numTransitions; i++) {
+            transitions[i].forceToEnd(sceneRoot);
         }
+        returnTransitionArrayToCache(transitions);
     }
 
     @Override
