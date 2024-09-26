@@ -90,6 +90,11 @@ public class TestCustomTabsService extends CustomTabsService {
         }
 
         @Override
+        public void prefetchWithMultipleUrls(ICustomTabsCallback callback, List<Uri> urls,
+                Bundle options) throws RemoteException {
+        }
+
+        @Override
         public Bundle extraCommand(String commandName, Bundle args) throws RemoteException {
             return null;
         }

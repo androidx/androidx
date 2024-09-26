@@ -35,6 +35,7 @@ interface ICustomTabsService {
     boolean mayLaunchUrl(in ICustomTabsCallback callback, in Uri url,
             in Bundle extras, in List<Bundle> otherLikelyBundles) = 3;
     void prefetch(in ICustomTabsCallback callback, in Uri url, in Bundle options) = 14;
+    void prefetchWithMultipleUrls(in ICustomTabsCallback callback, in List<Uri> urls, in Bundle options) = 15;
     Bundle extraCommand(String commandName, in Bundle args) = 4;
     boolean updateVisuals(in ICustomTabsCallback callback, in Bundle bundle) = 5;
     boolean requestPostMessageChannel(in ICustomTabsCallback callback, in Uri postMessageOrigin) = 6;

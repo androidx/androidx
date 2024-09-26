@@ -140,7 +140,7 @@ public final class CustomTabsSession {
      * Request the browser to start navigational prefetch to the pages that will be used for future
      * navigations.
      *
-     * @param urls     The urls to be prefetched for upcoming navigations.
+     * @param urls    The urls to be prefetched for upcoming navigations.
      * @param options The option used for prefetch request. Please see
      *                {@link PrefetchOptions}.
      */
@@ -149,9 +149,7 @@ public final class CustomTabsSession {
     public void prefetch(@NonNull List<Uri> urls, @NonNull PrefetchOptions options) {
         Bundle optionsWithId = createBundleWithId(options.toBundle());
         try {
-            for (Uri uri : urls) {
-                mService.prefetch(mCallback, uri, optionsWithId);
-            }
+            mService.prefetchWithMultipleUrls(mCallback, urls, optionsWithId);
         } catch (RemoteException e) {
             return;
         }
@@ -621,6 +619,12 @@ public final class CustomTabsSession {
         @ExperimentalPrefetch
         public void prefetch(ICustomTabsCallback callback, Uri url, Bundle options)
                 throws RemoteException {
+        }
+
+        @Override
+        @ExperimentalPrefetch
+        public void prefetchWithMultipleUrls(ICustomTabsCallback callback, List<Uri> urls,
+                Bundle options) throws RemoteException {
         }
 
         @SuppressWarnings("NullAway")  // TODO: b/142938599

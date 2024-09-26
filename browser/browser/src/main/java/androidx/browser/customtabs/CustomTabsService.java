@@ -221,7 +221,16 @@ public abstract class CustomTabsService extends Service {
         public void prefetch(@NonNull ICustomTabsCallback callback, @NonNull Uri url,
                 @NonNull Bundle options) {
             CustomTabsService.this.prefetch(
-                new CustomTabsSessionToken(callback, getSessionIdFromBundle(options)), url,
+                new CustomTabsSessionToken(callback, getSessionIdFromBundle(options)), List.of(url),
+                    PrefetchOptions.fromBundle(options));
+        }
+
+        @Override
+        @ExperimentalPrefetch
+        public void prefetchWithMultipleUrls(@NonNull ICustomTabsCallback callback,
+                @NonNull List<Uri> urls, @NonNull Bundle options) {
+            CustomTabsService.this.prefetch(
+                new CustomTabsSessionToken(callback, getSessionIdFromBundle(options)), urls,
                     PrefetchOptions.fromBundle(options));
         }
 
@@ -395,15 +404,31 @@ public abstract class CustomTabsService extends Service {
      * Request the browser to start navigational prefetch to the page that will be used for future
      * navigations.
      * {@link CustomTabsService#warmup(long)} is required to be called before using this method.
+     * TODO(crbug.com/40288091): Currently, there is no caller of this API and can be removed.
      * <p>
-     * @param sessionToken       The unique identifier for the session. Can not be null.
-     * @param url                The url to be prefetched for future navigations. Can not be null.
+     * @param sessionToken       The unique identifier for the session.
+     * @param url                The url to be prefetched for future navigations.
      * @param options            The option used for prefetch request. Please see
      *                           {@link PrefetchOptions}.
      */
     @ExperimentalPrefetch
     protected void prefetch(@NonNull CustomTabsSessionToken sessionToken,
             @NonNull Uri url, @NonNull PrefetchOptions options) {
+    }
+
+     /**
+     * Request the browser to start navigational prefetch to the page that will be used for future
+     * navigations.
+     * {@link CustomTabsService#warmup(long)} is required to be called before using this method.
+     * <p>
+     * @param sessionToken       The unique identifier for the session.
+     * @param urls               The urls to be prefetched for future navigations.
+     * @param options            The option used for prefetch request. Please see
+     *                           {@link PrefetchOptions}.
+     */
+    @ExperimentalPrefetch
+    protected void prefetch(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull List<Uri> urls, @NonNull PrefetchOptions options) {
     }
 
     /**
