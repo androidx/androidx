@@ -19,13 +19,11 @@ package androidx.wear.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.wear.compose.foundation.SwipeToDismissBoxState
-import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.Text
@@ -33,15 +31,12 @@ import androidx.wear.compose.material3.VerticalPageIndicator
 
 @Sampled
 @Composable
-fun HorizontalPageIndicatorWithPagerSample(
-    swipeState: SwipeToDismissBoxState,
-) {
+fun HorizontalPageIndicatorWithPagerSample() {
     val pageCount = 9
     val pagerState = rememberPagerState { pageCount }
 
     Box {
         HorizontalPager(
-            modifier = Modifier.fillMaxSize().edgeSwipeToDismiss(swipeState),
             state = pagerState,
         ) { page ->
             Box(modifier = Modifier.fillMaxSize()) {
@@ -60,7 +55,6 @@ fun VerticalPageIndicatorWithPagerSample() {
 
     Box {
         VerticalPager(
-            modifier = Modifier.fillMaxSize(),
             state = pagerState,
         ) { page ->
             Box(modifier = Modifier.fillMaxSize()) {
