@@ -17,7 +17,6 @@
 package androidx.pdf.actions
 
 import android.os.SystemClock
-import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
@@ -25,10 +24,7 @@ import androidx.pdf.R
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.action.GeneralClickAction
 import androidx.test.espresso.action.GeneralLocation
-import androidx.test.espresso.action.Press
-import androidx.test.espresso.action.Tap
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 
 class SelectionViewActions {
@@ -106,17 +102,4 @@ class SelectionViewActions {
             assert(selectionHandleDistance > initialDistance)
         }
     }
-
-    fun longPress(coordinateX: Int? = null, coordinateY: Int? = null) =
-        GeneralClickAction(
-            Tap.LONG,
-            { view ->
-                val screenX = coordinateX ?: (view?.width?.div(2) ?: 0)
-                val screenY = coordinateY ?: (view?.height?.div(2) ?: 0)
-                floatArrayOf(screenX.toFloat(), screenY.toFloat())
-            },
-            Press.FINGER,
-            InputDevice.SOURCE_MOUSE,
-            MotionEvent.BUTTON_PRIMARY
-        )
 }

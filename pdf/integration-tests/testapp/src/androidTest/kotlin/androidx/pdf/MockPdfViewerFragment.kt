@@ -17,18 +17,27 @@
 package androidx.pdf
 
 import androidx.annotation.RestrictTo
+import androidx.pdf.idlingresource.PdfIdlingResource
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class MockPdfViewerFragment : PdfViewerFragment() {
+internal class MockPdfViewerFragment : PdfViewerFragment() {
+    val pdfLoadingIdlingResource = PdfIdlingResource(PDF_LOAD_RESOURCE_NAME)
+
     var documentLoaded = false
     var documentError: Throwable? = null
 
     override fun onLoadDocumentSuccess() {
         documentLoaded = true
+        pdfLoadingIdlingResource.decrement()
     }
 
     override fun onLoadDocumentError(error: Throwable) {
         documentError = error
+        pdfLoadingIdlingResource.decrement()
+    }
+
+    companion object {
+        private const val PDF_LOAD_RESOURCE_NAME = "PdfLoad"
     }
 }
