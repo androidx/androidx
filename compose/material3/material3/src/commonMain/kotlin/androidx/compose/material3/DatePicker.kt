@@ -1751,9 +1751,17 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
             Box(
                 modifier =
                     Modifier.clearAndSetSemantics { contentDescription = it.first }
+                        // Match the minimum size to the Day's required size. This will ensure an
+                        // aligned layout for the weekday letters to the days below, even when
+                        // the LocalMinimumInteractiveComponentSize is set to a lower value than the
+                        // recommended 48.dp.
+                        .sizeIn(
+                            minWidth = DatePickerModalTokens.DateContainerWidth,
+                            minHeight = DatePickerModalTokens.DateContainerHeight
+                        )
                         .size(
-                            width = RecommendedSizeForAccessibility,
-                            height = RecommendedSizeForAccessibility
+                            width = LocalMinimumInteractiveComponentSize.current,
+                            height = LocalMinimumInteractiveComponentSize.current
                         ),
                 contentAlignment = Alignment.Center
             ) {
@@ -1813,13 +1821,21 @@ internal fun Month(
                             cellIndex >=
                                 (month.daysFromStartOfWeekToFirstOfMonth + month.numberOfDays)
                     ) {
-                        // Empty cell
+                        // Empty cell.
+                        // Match the spacer's minimum size to the Day's required size. This will
+                        // ensure an aligned layout, even when a
+                        // LocalMinimumInteractiveComponentSize is set to a lower value than the
+                        // recommended 48.dp.
                         Spacer(
                             modifier =
-                                Modifier.requiredSize(
-                                    width = RecommendedSizeForAccessibility,
-                                    height = RecommendedSizeForAccessibility
-                                )
+                                Modifier.sizeIn(
+                                        minWidth = DatePickerModalTokens.DateContainerWidth,
+                                        minHeight = DatePickerModalTokens.DateContainerHeight
+                                    )
+                                    .size(
+                                        width = LocalMinimumInteractiveComponentSize.current,
+                                        height = LocalMinimumInteractiveComponentSize.current
+                                    )
                         )
                     } else {
                         val dayNumber = cellIndex - month.daysFromStartOfWeekToFirstOfMonth
@@ -1949,8 +1965,7 @@ private fun Day(
             modifier
                 // Apply and merge semantics here. This will ensure that when scrolling the list the
                 // entire Day surface is treated as one unit and holds the date semantics even when
-                // it's
-                // not completely visible atm.
+                // it's not completely visible atm.
                 .semantics(mergeDescendants = true) {
                     text = AnnotatedString(description)
                     role = Role.Button
@@ -1983,8 +1998,8 @@ private fun Day(
         Box(
             modifier =
                 Modifier.requiredSize(
-                    DatePickerModalTokens.DateStateLayerWidth,
-                    DatePickerModalTokens.DateStateLayerHeight
+                    DatePickerModalTokens.DateContainerWidth,
+                    DatePickerModalTokens.DateContainerHeight
                 ),
             contentAlignment = Alignment.Center
         ) {
