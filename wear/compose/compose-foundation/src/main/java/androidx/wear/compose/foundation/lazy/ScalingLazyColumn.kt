@@ -460,7 +460,7 @@ public fun ScalingLazyColumn(
  *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
  *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
  *   [ScalingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not required
- *   or when it should be handled externally - with a separate .rotary modifier.
+ *   or when it should be handled externally - with a separate [Modifier.rotaryScrollable] modifier.
  * @param content The content of the [ScalingLazyColumn]
  */
 @OptIn(ExperimentalWearFoundationApi::class)
