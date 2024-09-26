@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -239,6 +241,40 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .assertAgainstGolden(
                 rule = screenshotRule,
                 goldenIdentifier = "datePicker_inDialog_${scheme.name}"
+            )
+    }
+
+    @Test
+    fun datePicker_noMinimumInteractiveSize() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 1)
+            val selectedDayMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 6)
+            CompositionLocalProvider(
+                // Removes the min 48dp requirement clickable components.
+                value = LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+            ) {
+                DatePickerDialog(
+                    onDismissRequest = {},
+                    confirmButton = { TextButton(onClick = {}) { Text("OK") } },
+                    dismissButton = { TextButton(onClick = {}) { Text("Cancel") } }
+                ) {
+                    DatePicker(
+                        state =
+                            rememberDatePickerState(
+                                initialDisplayedMonthMillis = monthInUtcMillis,
+                                initialSelectedDateMillis = selectedDayMillis
+                            ),
+                        showModeToggle = false
+                    )
+                }
+            }
+        }
+        rule
+            .onNode(isDialog())
+            .captureToImage()
+            .assertAgainstGolden(
+                rule = screenshotRule,
+                goldenIdentifier = "datePicker_noMinimumInteractiveSize_${scheme.name}"
             )
     }
 
