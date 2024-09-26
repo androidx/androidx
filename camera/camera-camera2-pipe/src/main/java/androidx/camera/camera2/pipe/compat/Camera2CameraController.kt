@@ -27,11 +27,12 @@ import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
+import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeoutOrNull
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -319,14 +320,23 @@ constructor(
             // getting blocked for too long.
             //
             // [1] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
-            runBlockingWithTimeout(threads.backgroundDispatcher, DISCONNECT_TIMEOUT_MS) {
+            runBlockingWithTimeoutOrNull(threads.backgroundDispatcher, DISCONNECT_TIMEOUT_MS) {
                 deferred.await()
             }
+                ?: run {
+                    Log.warn { "Timeout when disconnecting session and camera for $session" }
+                    graphListener.onGraphError(
+                        GraphState.GraphStateError(
+                            CameraError.ERROR_CAMERA_DEVICE,
+                            willAttemptRetry = false
+                        )
+                    )
+                }
         }
     }
 
     companion object {
-        private const val DISCONNECT_TIMEOUT_MS = 2_000L // 2s
+        private const val DISCONNECT_TIMEOUT_MS = 3_000L // 3s
         private const val MS_TO_NS = 1_000_000
     }
 }
