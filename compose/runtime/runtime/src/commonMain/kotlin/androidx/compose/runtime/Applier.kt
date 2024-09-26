@@ -196,18 +196,18 @@ interface Applier<N> {
  * @see ComposeNode
  */
 abstract class AbstractApplier<T>(val root: T) : Applier<T> {
-    private val stack = mutableListOf<T>()
+    private val stack = Stack<T>()
+
     override var current: T = root
         protected set
 
     override fun down(node: T) {
-        stack.add(current)
+        stack.push(current)
         current = node
     }
 
     override fun up() {
-        checkPrecondition(stack.isNotEmpty()) { "empty stack" }
-        current = stack.removeAt(stack.size - 1)
+        current = stack.pop()
     }
 
     final override fun clear() {
