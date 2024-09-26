@@ -20,8 +20,8 @@ import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.spring
-import androidx.compose.material3.MotionScheme.Companion.expressiveMotionScheme
-import androidx.compose.material3.MotionScheme.Companion.standardMotionScheme
+import androidx.compose.material3.MotionScheme.Companion.expressive
+import androidx.compose.material3.MotionScheme.Companion.standard
 import androidx.compose.material3.tokens.ExpressiveMotionTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.StandardMotionTokens
@@ -36,8 +36,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
  *
  * Motion schemes are designed to create a harmonious motion for components in the app.
  *
- * There are two built-in schemes, a [standardMotionScheme] and an [expressiveMotionScheme], that
- * can be used as-is or customized.
+ * There are two built-in schemes, a [standard] and an [expressive], that can be used as-is or
+ * customized.
  *
  * You can customize the motion scheme for all components in the [MaterialTheme].
  */
@@ -115,10 +115,15 @@ interface MotionScheme {
 
     companion object {
 
-        /** Returns a standard Material motion scheme. */
+        /**
+         * Returns a standard Material motion scheme.
+         *
+         * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
+         * recurring interactions. It provides a linear motion feel.
+         */
         @Suppress("UNCHECKED_CAST")
         @ExperimentalMaterial3ExpressiveApi
-        fun standardMotionScheme(): MotionScheme =
+        fun standard(): MotionScheme =
             object : MotionScheme {
                 private val defaultSpatialSpec =
                     spring<Any>(
@@ -181,10 +186,15 @@ interface MotionScheme {
                 }
             }
 
-        /** Returns an expressive Material motion scheme. */
+        /**
+         * Returns an expressive Material motion scheme.
+         *
+         * The expressive scheme is Material's recommended motion scheme for prominent UI elements
+         * and hero interactions. It provides a visually engaging motion feel.
+         */
         @Suppress("UNCHECKED_CAST")
         @ExperimentalMaterial3ExpressiveApi
-        fun expressiveMotionScheme(): MotionScheme =
+        fun expressive(): MotionScheme =
             object : MotionScheme {
 
                 private val defaultSpatialSpec =
@@ -259,7 +269,7 @@ interface MotionScheme {
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalMaterial3ExpressiveApi
 @ExperimentalMaterial3ExpressiveApi
-internal val LocalMotionScheme = staticCompositionLocalOf { MotionScheme.standardMotionScheme() }
+internal val LocalMotionScheme = staticCompositionLocalOf { MotionScheme.standard() }
 
 /**
  * Helper function for component motion tokens.
