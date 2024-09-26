@@ -2,15 +2,12 @@
 package androidx.health.connect.client.testing {
 
   public final class AggregationTestUtils {
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult();
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins, optional java.util.Map<androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Object>,?> metrics);
+    method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult();
+    method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins);
+    method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins, optional java.util.Map<androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Object>,?> metrics);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental Health Connect API and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestingApi {
-  }
-
-  @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public final class FakeHealthConnectClient implements androidx.health.connect.client.HealthConnectClient {
+  public final class FakeHealthConnectClient implements androidx.health.connect.client.HealthConnectClient {
     ctor public FakeHealthConnectClient();
     ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock, optional androidx.health.connect.client.PermissionController permissionController);
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
@@ -40,7 +37,7 @@ package androidx.health.connect.client.testing {
   public static final class FakeHealthConnectClient.Companion {
   }
 
-  @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public final class FakeHealthConnectClientOverrides {
+  public final class FakeHealthConnectClientOverrides {
     ctor public FakeHealthConnectClientOverrides();
     ctor public FakeHealthConnectClientOverrides(optional androidx.health.connect.client.testing.stubs.Stub? getChanges, optional androidx.health.connect.client.testing.stubs.Stub? getChangesToken, optional androidx.health.connect.client.testing.stubs.Stub? readRecords, optional androidx.health.connect.client.testing.stubs.Stub? readRecord, optional androidx.health.connect.client.testing.stubs.Stub? insertRecords, optional androidx.health.connect.client.testing.stubs.Stub? updateRecords, optional androidx.health.connect.client.testing.stubs.Stub? deleteRecords, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? aggregate, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateGroupByDurationRequest,? extends java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>? aggregateGroupByDuration, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateGroupByPeriodRequest,? extends java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>? aggregateGroupByPeriod);
     method public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? getAggregate();
@@ -75,7 +72,7 @@ package androidx.health.connect.client.testing {
     property public final androidx.health.connect.client.testing.stubs.Stub? updateRecords;
   }
 
-  @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
+  public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
     ctor public FakePermissionController();
     ctor public FakePermissionController(optional boolean grantAll);
     method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<java.lang.String>>);
@@ -90,7 +87,7 @@ package androidx.health.connect.client.testing {
 
 package androidx.health.connect.client.testing.stubs {
 
-  @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public final class MutableStub<T, R> implements androidx.health.connect.client.testing.stubs.Stub<T,R> {
+  public final class MutableStub<T, R> implements androidx.health.connect.client.testing.stubs.Stub<T,R> {
     ctor public MutableStub();
     ctor public MutableStub(optional kotlin.jvm.functions.Function1<? super T,? extends R?> defaultHandler);
     method public kotlin.jvm.functions.Function1<T,R?> getDefaultHandler();
@@ -100,23 +97,23 @@ package androidx.health.connect.client.testing.stubs {
   }
 
   public final class MutableStubKt {
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static <R> androidx.health.connect.client.testing.stubs.MutableStub<java.lang.Object?,R> MutableStub(Throwable defaultError);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static <R> androidx.health.connect.client.testing.stubs.MutableStub<java.lang.Object?,R> MutableStub(R? defaultResponse);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static inline <T, R> androidx.health.connect.client.testing.stubs.Stub<T,R> buildStub(kotlin.jvm.functions.Function1<? super androidx.health.connect.client.testing.stubs.MutableStub<T,R>,kotlin.Unit> builder);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static <R> void enqueue(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, Iterable<? extends R> values);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static <R> void enqueue(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, R... values);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static operator <R> void plusAssign(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, R value);
+    method public static <R> androidx.health.connect.client.testing.stubs.MutableStub<java.lang.Object?,R> MutableStub(Throwable defaultError);
+    method public static <R> androidx.health.connect.client.testing.stubs.MutableStub<java.lang.Object?,R> MutableStub(R? defaultResponse);
+    method public static inline <T, R> androidx.health.connect.client.testing.stubs.Stub<T,R> buildStub(kotlin.jvm.functions.Function1<? super androidx.health.connect.client.testing.stubs.MutableStub<T,R>,kotlin.Unit> builder);
+    method public static <R> void enqueue(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, Iterable<? extends R> values);
+    method public static <R> void enqueue(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, R... values);
+    method public static operator <R> void plusAssign(androidx.health.connect.client.testing.stubs.MutableStub<? extends java.lang.Object?,R>, R value);
   }
 
-  @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public fun interface Stub<T, R> {
+  public fun interface Stub<T, R> {
     method public R? next(T request);
   }
 
   public final class StubKt {
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub();
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue, optional kotlin.jvm.functions.Function0<? extends R?> defaultHandler);
-    method @SuppressCompatibility @androidx.health.connect.client.testing.ExperimentalTestingApi public static <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(R? default);
+    method public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub();
+    method public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue);
+    method public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue, optional kotlin.jvm.functions.Function0<? extends R?> defaultHandler);
+    method public static <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(R? default);
   }
 
 }

@@ -62,7 +62,6 @@ import kotlin.reflect.KClass
  * @param clock used to close open-ended [TimeRangeFilter]s and record update times.
  * @param permissionController grants and revokes permissions.
  */
-@ExperimentalTestingApi
 @OptIn(ExperimentalFeatureAvailabilityApi::class)
 public class FakeHealthConnectClient(
     private val packageName: String = DEFAULT_PACKAGE_NAME,

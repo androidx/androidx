@@ -52,7 +52,6 @@ import androidx.health.connect.client.testing.stubs.Stub
  * @param aggregateGroupByPeriod A [Stub] used to set the next responses used in
  *   [FakeHealthConnectClient.aggregateGroupByPeriod].
  */
-@ExperimentalTestingApi
 public class FakeHealthConnectClientOverrides(
     /*  Changes stubs, only used to throw exceptions */
     public var getChanges: Stub<Nothing?, Nothing>? = null,

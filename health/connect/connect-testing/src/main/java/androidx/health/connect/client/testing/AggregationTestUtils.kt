@@ -33,7 +33,6 @@ import java.time.Duration
 
 /** Creates an AggregationResult from a map of metrics. */
 @JvmOverloads
-@ExperimentalTestingApi
 public fun AggregationResult(
     dataOrigins: Set<DataOrigin> = emptySet(),
     metrics: Map<AggregateMetric<Any>, Any> = emptyMap()
