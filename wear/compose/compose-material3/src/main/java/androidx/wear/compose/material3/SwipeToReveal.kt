@@ -53,7 +53,6 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealState
 import androidx.wear.compose.foundation.RevealValue
@@ -106,7 +105,6 @@ import kotlinx.coroutines.launch
  * @param content The content that will be initially displayed over the other actions provided.
  * @see [androidx.wear.compose.foundation.SwipeToReveal]
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToReveal(
     actions: SwipeToRevealScope.() -> Unit,
@@ -314,7 +312,6 @@ class SwipeToRevealScope {
  *   the developer wants a swipe to clear behaviour, this should be set to false.
  * @param swipeDirection Direction of the swipe to reveal the actions.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun rememberRevealState(
     initialValue: RevealValue = RevealValue.Covered,
@@ -359,7 +356,6 @@ object SwipeToRevealDefaults {
     internal val FullScreenPaddingFraction = 0.0625f
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 internal fun ActionButton(
     revealState: RevealState,

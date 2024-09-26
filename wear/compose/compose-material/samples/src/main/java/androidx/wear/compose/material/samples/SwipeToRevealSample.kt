@@ -27,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.rememberRevealState
@@ -45,7 +44,7 @@ import androidx.wear.compose.material.SwipeToRevealSecondaryAction
 import androidx.wear.compose.material.SwipeToRevealUndoAction
 import androidx.wear.compose.material.Text
 
-@OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 @Sampled
 fun SwipeToRevealChipSample(swipeToDismissBoxState: SwipeToDismissBoxState) {
@@ -112,7 +111,7 @@ fun SwipeToRevealChipSample(swipeToDismissBoxState: SwipeToDismissBoxState) {
     }
 }
 
-@OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 @Sampled
 fun SwipeToRevealCardSample(swipeToDismissBoxState: SwipeToDismissBoxState) {

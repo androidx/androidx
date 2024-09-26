@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
 import androidx.wear.compose.foundation.SwipeDirection
@@ -54,7 +53,6 @@ import androidx.wear.compose.material3.rememberRevealState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToRevealBothDirectionsNonAnchoring() {
     SwipeToReveal(
@@ -81,7 +79,6 @@ fun SwipeToRevealBothDirectionsNonAnchoring() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToRevealBothDirections() {
     SwipeToReveal(
@@ -119,7 +116,6 @@ fun SwipeToRevealBothDirections() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToRevealTwoActionsWithUndo() {
     val context = LocalContext.current
@@ -200,7 +196,6 @@ fun SwipeToRevealTwoActionsWithUndo() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun SwipeToRevealInList() {
     val namesList = remember { mutableStateListOf("Alice", "Bob", "Charlie", "Dave", "Eve") }

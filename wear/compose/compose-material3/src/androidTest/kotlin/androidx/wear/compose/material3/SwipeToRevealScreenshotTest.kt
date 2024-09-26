@@ -30,7 +30,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
 import androidx.wear.compose.foundation.SwipeDirection
@@ -51,7 +50,6 @@ class SwipeToRevealScreenshotTest {
 
     @get:Rule val testName = TestName()
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsPrimaryAction(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -75,7 +73,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsPrimaryAndSecondaryActions(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -108,7 +105,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsUndoPrimaryAction(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -127,7 +123,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsUndoSecondaryAction(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -151,7 +146,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsContent(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -170,7 +164,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToRevealCard_showsLargePrimaryAction(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {
@@ -195,7 +188,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToRevealCard_showsLargePrimaryAndSecondaryActions(
         @TestParameter screenSize: ScreenSize
@@ -231,7 +223,6 @@ class SwipeToRevealScreenshotTest {
         }
     }
 
-    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun swipeToReveal_showsPrimaryAndSecondaryActionsLeft(@TestParameter screenSize: ScreenSize) {
         verifyScreenshotForSize(screenSize) {

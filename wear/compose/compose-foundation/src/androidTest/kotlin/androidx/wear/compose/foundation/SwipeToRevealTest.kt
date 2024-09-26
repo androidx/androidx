@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalWearFoundationApi::class)
 class SwipeToRevealTest {
     @get:Rule val rule = createComposeRule()
 

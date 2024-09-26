@@ -25,7 +25,6 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.Icon
@@ -34,7 +33,6 @@ import androidx.wear.compose.material3.SwipeToRevealDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.rememberRevealState
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 @Sampled
 fun SwipeToRevealSample() {
@@ -67,7 +65,6 @@ fun SwipeToRevealSample() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 @Sampled
 fun SwipeToRevealSingleActionCardSample() {
@@ -90,7 +87,6 @@ fun SwipeToRevealSingleActionCardSample() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 @Sampled
 fun SwipeToRevealNonAnchoredSample() {

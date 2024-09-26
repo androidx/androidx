@@ -146,7 +146,7 @@ fun SwipeToRevealChips(
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 private fun SwipeToRevealChipExpandable(
     modifier: Modifier = Modifier,
@@ -256,7 +256,7 @@ fun SwipeToRevealCards(swipeToDismissBoxState: SwipeToDismissBoxState) {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 private fun SwipeToRevealCardExpandable(
     expandableState: ExpandableState,

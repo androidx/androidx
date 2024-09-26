@@ -29,7 +29,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealScope
 import androidx.wear.compose.foundation.RevealState
@@ -44,7 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearMaterialApi::class)
 class SwipeToRevealScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
