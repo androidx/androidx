@@ -25,9 +25,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static library support version of the framework's {@link android.widget.SimpleCursorAdapter}.
@@ -42,13 +43,13 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * This field should be made private, so it is hidden from the SDK.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected @Nullable int[] mFrom;
+    protected int @Nullable [] mFrom;
     /**
      * A list of View ids representing the views to which the data must be bound.
      * This field should be made private, so it is hidden from the SDK.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected @Nullable int[] mTo;
+    protected int @Nullable [] mTo;
 
     private int mStringConversionColumn = -1;
     private CursorToStringConverter mCursorToStringConverter;
@@ -66,7 +67,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      */
     @Deprecated
     public SimpleCursorAdapter(@NonNull Context context, int layout, @Nullable Cursor c,
-            @Nullable String[] from, @Nullable int[] to) {
+            String @Nullable [] from, int @Nullable [] to) {
         super(context, layout, c);
         mTo = to;
         mOriginalFrom = from;
@@ -92,7 +93,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * as per {@link CursorAdapter#CursorAdapter(Context, Cursor, int)}.
      */
     public SimpleCursorAdapter(@NonNull Context context, int layout, @Nullable Cursor c,
-            @Nullable String[] from, @Nullable int[] to, int flags) {
+            String @Nullable [] from, int @Nullable [] to, int flags) {
         super(context, layout, c, flags);
         mTo = to;
         mOriginalFrom = from;
@@ -319,7 +320,7 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      * @param c the cursor to find the columns from
      * @param from the Strings naming the columns of interest
      */
-    private void findColumns(@Nullable Cursor c, @Nullable String[] from) {
+    private void findColumns(@Nullable Cursor c, String @Nullable [] from) {
         if (c != null && from != null) {
             int i;
             int count = from.length;
@@ -354,8 +355,8 @@ public class SimpleCursorAdapter extends ResourceCursorAdapter {
      *            are given the values of the first N columns in the from
      *            parameter.  Can be null if the cursor is not available yet.
      */
-    public void changeCursorAndColumns(@Nullable Cursor c, @Nullable String[] from,
-            @Nullable int[] to) {
+    public void changeCursorAndColumns(@Nullable Cursor c, String @Nullable [] from,
+            int @Nullable [] to) {
         mOriginalFrom = from;
         mTo = to;
         // super.changeCursor() will notify observers before we have
