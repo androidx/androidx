@@ -38,94 +38,98 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 private val redStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", "Red", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("red_style"), "Red", "Red").build()
 
 private val greenStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("green_style"), "Green", "Green", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("green_style"), "Green", "Green").build()
 
 private val blueStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("blue_style"), "Blue", "Blue", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("blue_style"), "Blue", "Blue").build()
 
 private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
 private val colorStyleSetting =
-    ListUserStyleSetting(
-        UserStyleSetting.Id("color_style_setting"),
-        "Colors",
-        "Watchface colorization",
-        /* icon = */ null,
-        colorStyleList,
-        listOf(WatchFaceLayer.BASE)
-    )
+    ListUserStyleSetting.Builder(
+            UserStyleSetting.Id("color_style_setting"),
+            colorStyleList,
+            listOf(WatchFaceLayer.BASE),
+            "Colors",
+            "Watchface colorization"
+        )
+        .build()
 
 private val classicStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("classic_style"), "Classic", "Classic", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("classic_style"), "Classic", "Classic")
+        .build()
 
 private val modernStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("modern_style"), "Modern", "Modern", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("modern_style"), "Modern", "Modern").build()
 
 private val gothicStyleOption =
-    ListUserStyleSetting.ListOption(Option.Id("gothic_style"), "Gothic", "Gothic", icon = null)
+    ListUserStyleSetting.ListOption.Builder(Option.Id("gothic_style"), "Gothic", "Gothic").build()
 
 private val watchHandStyleList = listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
 private val watchHandStyleSetting =
-    ListUserStyleSetting(
-        UserStyleSetting.Id("hand_style_setting"),
-        "Hand Style",
-        "Hand visual look",
-        /* icon = */ null,
-        watchHandStyleList,
-        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-    )
+    ListUserStyleSetting.Builder(
+            UserStyleSetting.Id("hand_style_setting"),
+            watchHandStyleList,
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+            "Hand Style",
+            "Hand visual look"
+        )
+        .build()
+
 private val watchHandLengthStyleSetting =
-    DoubleRangeUserStyleSetting(
-        UserStyleSetting.Id("watch_hand_length_style_setting"),
-        "Hand length",
-        "Scale of watch hands",
-        null,
-        0.25,
-        1.0,
-        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-        0.75
-    )
+    DoubleRangeUserStyleSetting.Builder(
+            UserStyleSetting.Id("watch_hand_length_style_setting"),
+            0.25,
+            1.0,
+            0.75,
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+            "Hand length",
+            "Scale of watch hands"
+        )
+        .build()
+
 private val booleanSetting =
-    BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
+    BooleanUserStyleSetting.Builder(
+            UserStyleSetting.Id("setting"),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            true,
+            "setting",
+            "setting description"
+        )
+        .build()
+
 private val booleanSettingCopy =
-    BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
+    BooleanUserStyleSetting.Builder(
+            UserStyleSetting.Id("setting"),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            true,
+            "setting",
+            "setting description"
+        )
+        .build()
 private val booleanSettingModifiedInfo =
-    BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting"),
-        "setting modified",
-        "setting description modified",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        false
-    )
+    BooleanUserStyleSetting.Builder(
+            UserStyleSetting.Id("setting"),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            false,
+            "setting modified",
+            "setting description modified"
+        )
+        .build()
 
 private val booleanSettingModifiedId =
-    BooleanUserStyleSetting(
-        UserStyleSetting.Id("setting_modified"),
-        "setting",
-        "setting description",
-        null,
-        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-        true
-    )
+    BooleanUserStyleSetting.Builder(
+            UserStyleSetting.Id("setting_modified"),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+            true,
+            "setting",
+            "setting description"
+        )
+        .build()
 
 private val optionTrue = BooleanUserStyleSetting.BooleanOption.TRUE
 private val optionFalse = BooleanUserStyleSetting.BooleanOption.FALSE
@@ -162,23 +166,23 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun assign_userStyle_with_distinctButMatchingRefs() {
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                colorStyleList,
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    colorStyleList,
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val watchHandStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("hand_style_setting"),
-                "Hand Style",
-                "Hand visual look",
-                /* icon = */ null,
-                watchHandStyleList,
-                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("hand_style_setting"),
+                    watchHandStyleList,
+                    listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    "Hand Style",
+                    "Hand visual look"
+                )
+                .build()
 
         val newStyle =
             UserStyle(
@@ -343,22 +347,24 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun userStyle_getAndSetDifferentOptionInstances() {
         val option0 =
-            ListUserStyleSetting.ListOption(Option.Id("0"), "option 0", "option 0", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("0"), "option 0", "option 0").build()
         val option1 =
-            ListUserStyleSetting.ListOption(Option.Id("1"), "option 1", "option 1", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("1"), "option 1", "option 1").build()
         val option0Copy =
-            ListUserStyleSetting.ListOption(Option.Id("0"), "option #0", "option #0", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("0"), "option #0", "option #0")
+                .build()
         val option1Copy =
-            ListUserStyleSetting.ListOption(Option.Id("1"), "option #1", "option #1", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("1"), "option #1", "option #1")
+                .build()
         val setting =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("setting"),
-                "setting",
-                "setting description",
-                icon = null,
-                listOf(option0, option1),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("setting"),
+                    listOf(option0, option1),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "setting",
+                    "setting description"
+                )
+                .build()
 
         val userStyle = UserStyle(mapOf(setting to option0))
         assertThat(userStyle[setting]).isEqualTo(option0)
@@ -664,48 +670,40 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun hierarchicalStyle() {
         val twelveHourClockOption =
-            ListUserStyleSetting.ListOption(Option.Id("12_style"), "12", "12", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("12_style"), "12", "12").build()
 
         val twentyFourHourClockOption =
-            ListUserStyleSetting.ListOption(Option.Id("24_style"), "24", "24", icon = null)
+            ListUserStyleSetting.ListOption.Builder(Option.Id("24_style"), "24", "24").build()
 
         val digitalClockStyleSetting =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("digital_clock_style"),
-                "Clock style",
-                "Clock style setting",
-                null,
-                listOf(twelveHourClockOption, twentyFourHourClockOption),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("digital_clock_style"),
+                    listOf(twelveHourClockOption, twentyFourHourClockOption),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "Clock style",
+                    "Clock style setting"
+                )
+                .build()
 
         val digitalWatchFaceType =
-            ListUserStyleSetting.ListOption(
-                Option.Id("digital"),
-                "Digital",
-                "Digital",
-                icon = null,
-                childSettings = listOf(digitalClockStyleSetting, colorStyleSetting)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("digital"), "Digital", "Digital")
+                .setChildSettings(listOf(digitalClockStyleSetting, colorStyleSetting))
+                .build()
 
         val analogWatchFaceType =
-            ListUserStyleSetting.ListOption(
-                Option.Id("analog"),
-                "Analog",
-                "Analog",
-                icon = null,
-                childSettings = listOf(watchHandLengthStyleSetting, watchHandStyleSetting)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("analog"), "Analog", "Analog")
+                .setChildSettings(listOf(watchHandLengthStyleSetting, watchHandStyleSetting))
+                .build()
 
         val watchFaceType =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("clock_type"),
-                "Watch face type",
-                "Analog or digital",
-                icon = null,
-                options = listOf(digitalWatchFaceType, analogWatchFaceType),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("clock_type"),
+                    listOf(digitalWatchFaceType, analogWatchFaceType),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "Watch face type",
+                    "Analog or digital"
+                )
+                .build()
 
         val schema =
             UserStyleSchema(
@@ -730,59 +728,51 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun invalid_multiple_ComplicationSlotsUserStyleSettings_same_level() {
         val leftAndRightComplications =
-            ComplicationSlotsOption(
-                Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
-                displayName = "Both",
-                screenReaderName = "Both complications",
-                icon = null,
-                emptyList()
-            )
+            ComplicationSlotsOption.Builder(
+                    Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
+                    emptyList(),
+                    "Both",
+                    "Both complications"
+                )
+                .build()
         val complicationSetting1 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting1"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftAndRightComplications),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting1"),
+                    complicationConfig = listOf(leftAndRightComplications),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
         val complicationSetting2 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting2"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftAndRightComplications),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting2"),
+                    complicationConfig = listOf(leftAndRightComplications),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
         val optionA1 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a1_style"),
-                displayName = "A1",
-                screenReaderName = "A1 style",
-                icon = null,
-                childSettings = listOf(complicationSetting1, complicationSetting2)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a1_style"), "A1", "A1 style")
+                .setChildSettings(listOf(complicationSetting1, complicationSetting2))
+                .build()
         val optionA2 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a2_style"),
-                displayName = "A2",
-                screenReaderName = "A2 style",
-                icon = null,
-                childSettings = listOf(complicationSetting2)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a2_style"), "A2", "A2 style")
+                .setChildSettings(listOf(complicationSetting2))
+                .build()
 
         assertThrows(IllegalArgumentException::class.java) {
             UserStyleSchema(
                 listOf(
-                    ListUserStyleSetting(
-                        UserStyleSetting.Id("a123"),
-                        displayName = "A123",
-                        description = "A123",
-                        icon = null,
-                        listOf(optionA1, optionA2),
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-                    ),
+                    ListUserStyleSetting.Builder(
+                            UserStyleSetting.Id("a123"),
+                            listOf(optionA1, optionA2),
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            "A123",
+                            "A123"
+                        )
+                        .build(),
                     complicationSetting1,
                     complicationSetting2
                 )
@@ -793,58 +783,49 @@ class CurrentUserStyleRepositoryTest {
     @Test
     fun invalid_multiple_ComplicationSlotsUserStyleSettings_different_levels() {
         val leftAndRightComplications =
-            ComplicationSlotsOption(
-                Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
-                displayName = "Both",
-                screenReaderName = "Both complications",
-                icon = null,
-                emptyList()
-            )
+            ComplicationSlotsOption.Builder(
+                    Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
+                    emptyList(),
+                    "Both",
+                    "Both complications"
+                )
+                .build()
         val complicationSetting1 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting1"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftAndRightComplications),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting1"),
+                    listOf(leftAndRightComplications),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
         val complicationSetting2 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting2"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftAndRightComplications),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting2"),
+                    listOf(leftAndRightComplications),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
         val optionA1 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a1_style"),
-                displayName = "A1",
-                screenReaderName = "A1 style",
-                icon = null,
-                childSettings = listOf(complicationSetting1)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a1_style"), "A1", "A1 style")
+                .setChildSettings(listOf(complicationSetting1))
+                .build()
         val optionA2 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a2_style"),
-                displayName = "A2",
-                screenReaderName = "A2 style",
-                icon = null
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a2_style"), "A2", "A2 style").build()
 
         assertThrows(IllegalArgumentException::class.java) {
             UserStyleSchema(
                 listOf(
-                    ListUserStyleSetting(
-                        UserStyleSetting.Id("a123"),
-                        displayName = "A123",
-                        description = "A123",
-                        icon = null,
-                        listOf(optionA1, optionA2),
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-                    ),
+                    ListUserStyleSetting.Builder(
+                            UserStyleSetting.Id("a123"),
+                            listOf(optionA1, optionA2),
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            "A123",
+                            "A123"
+                        )
+                        .build(),
                     complicationSetting1,
                     complicationSetting2
                 )
@@ -853,7 +834,6 @@ class CurrentUserStyleRepositoryTest {
     }
 
     @Test
-    @Suppress("deprecation")
     fun multiple_ComplicationSlotsUserStyleSettings() {
         // The code below constructs the following hierarchy:
         //
@@ -870,175 +850,156 @@ class CurrentUserStyleRepositoryTest {
         val leftComplicationID = 101
         val rightComplicationID = 102
         val leftAndRightComplications =
-            ComplicationSlotsOption(
-                Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
-                displayName = "Both",
-                screenReaderName = "Both complications",
-                icon = null,
-                emptyList()
-            )
-        val noComplications =
-            ComplicationSlotsOption(
-                Option.Id("NO_COMPLICATIONS"),
-                displayName = "None",
-                screenReaderName = "No complications",
-                icon = null,
-                listOf(
-                    ComplicationSlotOverlay(leftComplicationID, enabled = false),
-                    ComplicationSlotOverlay(rightComplicationID, enabled = false)
+            ComplicationSlotsOption.Builder(
+                    Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
+                    emptyList(),
+                    "Both",
+                    "Both complications"
                 )
-            )
+                .build()
+        val noComplications =
+            ComplicationSlotsOption.Builder(
+                    Option.Id("NO_COMPLICATIONS"),
+                    listOf(
+                        ComplicationSlotOverlay.Builder(leftComplicationID)
+                            .setEnabled(false)
+                            .build(),
+                        ComplicationSlotOverlay.Builder(rightComplicationID)
+                            .setEnabled(false)
+                            .build(),
+                    ),
+                    "None",
+                    "No complications"
+                )
+                .build()
         val complicationSetting1 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftAndRightComplications, noComplications),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting"),
+                    complicationConfig = listOf(leftAndRightComplications, noComplications),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
 
         val leftComplication =
-            ComplicationSlotsOption(
-                Option.Id("LEFT_COMPLICATION"),
-                displayName = "Left",
-                screenReaderName = "Left complication",
-                icon = null,
-                listOf(ComplicationSlotOverlay(rightComplicationID, enabled = false))
-            )
+            ComplicationSlotsOption.Builder(
+                    Option.Id("LEFT_COMPLICATION"),
+                    listOf(
+                        ComplicationSlotOverlay.Builder(rightComplicationID)
+                            .setEnabled(false)
+                            .build()
+                    ),
+                    "Left",
+                    "Left complication"
+                )
+                .build()
         val rightComplication =
-            ComplicationSlotsOption(
-                Option.Id("RIGHT_COMPLICATION"),
-                displayName = "Right",
-                screenReaderName = "Right complication",
-                icon = null,
-                listOf(ComplicationSlotOverlay(leftComplicationID, enabled = false))
-            )
+            ComplicationSlotsOption.Builder(
+                    Option.Id("RIGHT_COMPLICATION"),
+                    listOf(
+                        ComplicationSlotOverlay.Builder(leftComplicationID)
+                            .setEnabled(false)
+                            .build()
+                    ),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
         val complicationSetting2 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting2"),
-                displayName = "Complications",
-                description = "Number and position",
-                icon = null,
-                complicationConfig = listOf(leftComplication, rightComplication),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting2"),
+                    complicationConfig = listOf(leftComplication, rightComplication),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Complications",
+                    "Number and position"
+                )
+                .build()
 
         val normal =
-            ComplicationSlotsOption(
-                Option.Id("Normal"),
-                displayName = "Normal",
-                screenReaderName = "Normal",
-                icon = null,
-                emptyList()
-            )
+            ComplicationSlotsOption.Builder(Option.Id("Normal"), emptyList(), "Normal", "Normal")
+                .build()
         val traversal =
-            ComplicationSlotsOption(
-                Option.Id("Traversal"),
-                displayName = "Traversal",
-                screenReaderName = "Traversal",
-                icon = null,
-                listOf(
-                    ComplicationSlotOverlay(leftComplicationID, accessibilityTraversalIndex = 3),
-                    ComplicationSlotOverlay(rightComplicationID, accessibilityTraversalIndex = 2)
+            ComplicationSlotsOption.Builder(
+                    Option.Id("Traversal"),
+                    listOf(
+                        ComplicationSlotOverlay.Builder(leftComplicationID)
+                            .setAccessibilityTraversalIndex(3)
+                            .build(),
+                        ComplicationSlotOverlay.Builder(rightComplicationID)
+                            .setAccessibilityTraversalIndex(2)
+                            .build()
+                    ),
+                    "Traversal",
+                    "Traversal"
                 )
-            )
+                .build()
         val complicationSetting3 =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("complications_style_setting3"),
-                displayName = "Traversal Order",
-                description = "Traversal Order",
-                icon = null,
-                complicationConfig = listOf(normal, traversal),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("complications_style_setting3"),
+                    complicationConfig = listOf(normal, traversal),
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    "Traversal Order",
+                    "Traversal Order"
+                )
+                .build()
 
         val optionA1 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a1_style"),
-                displayName = "A1",
-                screenReaderName = "A1 style",
-                icon = null,
-                childSettings = listOf(complicationSetting1)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a1_style"), "A1", "A1 style")
+                .setChildSettings(listOf(complicationSetting1))
+                .build()
         val optionA2 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a2_style"),
-                displayName = "A2",
-                screenReaderName = "A2 style",
-                icon = null,
-                childSettings = listOf(complicationSetting2)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a2_style"), "A2", "A2 style")
+                .setChildSettings(listOf(complicationSetting2))
+                .build()
         val optionA3 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a3_style"),
-                "A3",
-                screenReaderName = "A3 style",
-                icon = null
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a3_style"), "A3", "A3 style").build()
 
         val a123Choice =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("a123"),
-                displayName = "A123",
-                description = "A123",
-                icon = null,
-                listOf(optionA1, optionA2, optionA3),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("a123"),
+                    listOf(optionA1, optionA2, optionA3),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "A123",
+                    "A123"
+                )
+                .build()
 
         val optionB1 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("b1_style"),
-                displayName = "B1",
-                screenReaderName = "B1 style",
-                icon = null,
-                childSettings = listOf(complicationSetting3)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("b1_style"), "B1", "B1 style")
+                .setChildSettings(listOf(complicationSetting3))
+                .build()
         val optionB2 =
-            ListUserStyleSetting.ListOption(
-                Option.Id("b2_style"),
-                "B2",
-                screenReaderName = "B2 style",
-                icon = null
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("b2_style"), "B2", "B2 style").build()
 
         val b12Choice =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("b12"),
-                displayName = "B12",
-                "B12",
-                icon = null,
-                listOf(optionB1, optionB2),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("b12"),
+                    listOf(optionB1, optionB2),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "B12",
+                    "B12"
+                )
+                .build()
 
         val rootOptionA =
-            ListUserStyleSetting.ListOption(
-                Option.Id("a_style"),
-                displayName = "A",
-                screenReaderName = "A style",
-                icon = null,
-                childSettings = listOf(a123Choice)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("a_style"), "A", "A style")
+                .setChildSettings(listOf(a123Choice))
+                .build()
         val rootOptionB =
-            ListUserStyleSetting.ListOption(
-                Option.Id("b_style"),
-                displayName = "B",
-                screenReaderName = "B style",
-                icon = null,
-                childSettings = listOf(b12Choice)
-            )
+            ListUserStyleSetting.ListOption.Builder(Option.Id("b_style"), "B", "B style")
+                .setChildSettings(listOf(b12Choice))
+                .build()
 
         val rootABChoice =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("root_ab"),
-                displayName = "AB",
-                description = "AB",
-                icon = null,
-                listOf(rootOptionA, rootOptionB),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("root_ab"),
+                    listOf(rootOptionA, rootOptionB),
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "AB",
+                    "AB"
+                )
+                .build()
 
         val schema =
             UserStyleSchema(
@@ -1153,35 +1114,35 @@ class DigestHashTest {
     @Test
     public fun digestHashSensitiveToOptionChanges() {
         val colorStyleSetting1 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(
-                    redStyleOption,
-                    greenStyleOption,
-                ),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(
+                        redStyleOption,
+                        greenStyleOption,
+                    ),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val colorStyleSetting3 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption, greenStyleOption, blueStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption, greenStyleOption, blueStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
 
         val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
         val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
@@ -1199,26 +1160,23 @@ class DigestHashTest {
     @Test
     public fun digestHashSensitiveToDisplayNameChanges() {
         val colorStyleSetting1 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors2",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(
-                    redStyleOption,
-                    greenStyleOption,
-                ),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption, greenStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors2",
+                    "Watchface colorization"
+                )
+                .build()
 
         val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
         val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
@@ -1232,23 +1190,23 @@ class DigestHashTest {
     @Test
     public fun digestHashSensitiveToDescriptionChanges() {
         val colorStyleSetting1 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization2",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization2"
+                )
+                .build()
 
         val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
         val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
@@ -1263,23 +1221,25 @@ class DigestHashTest {
     @Test
     public fun digestHashSensitiveToIconChanges() {
         val colorStyleSetting1 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ Icon.createWithContentUri("/path1"),
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .setIcon(Icon.createWithContentUri("/path1"))
+                .build()
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ Icon.createWithContentUri("/path2"),
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .setIcon(Icon.createWithContentUri("/path2"))
+                .build()
 
         val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
         val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
@@ -1293,23 +1253,23 @@ class DigestHashTest {
     @Test
     public fun digestHashInsensitiveToLayersOrderChanges() {
         val colorStyleSetting1 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
         val colorStyleSetting2 =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("color_style_setting"),
-                "Colors",
-                "Watchface colorization",
-                /* icon = */ null,
-                listOf(redStyleOption),
-                listOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.BASE)
-            )
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("color_style_setting"),
+                    listOf(redStyleOption),
+                    listOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.BASE),
+                    "Colors",
+                    "Watchface colorization"
+                )
+                .build()
 
         val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
         val schema2 = UserStyleSchema(listOf(colorStyleSetting2))

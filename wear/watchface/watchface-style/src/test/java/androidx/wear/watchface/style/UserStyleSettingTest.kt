@@ -17,9 +17,7 @@
 package androidx.wear.watchface.style
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.graphics.RectF
-import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -44,26 +42,20 @@ public class UserStyleSettingTest {
 
     private fun byteArrayToDouble(value: ByteArray) = ByteBuffer.wrap(value).double
 
-    private val icon_100x100 =
-        Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
-
-    private val icon_10x10 =
-        Icon.createWithBitmap(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
-
     @Test
     public fun rangedUserStyleSetting_getOptionForId_returns_default_for_bad_input() {
         val defaultValue = 0.75
         val rangedUserStyleSetting =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                defaultValue
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    defaultValue,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
 
         assertThat(
                 (rangedUserStyleSetting.getOptionForId(
@@ -100,16 +92,16 @@ public class UserStyleSettingTest {
     public fun rangedUserStyleSetting_getOptionForId() {
         val defaultValue = 0.75
         val rangedUserStyleSetting =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                defaultValue
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    defaultValue,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
 
         assertThat(
                 byteArrayToDouble(
@@ -150,21 +142,12 @@ public class UserStyleSettingTest {
     @Test
     public fun maximumOptionIdLength() {
         // OK.
-        ListOption(
-            Option.Id("x".repeat(Option.Id.MAX_LENGTH)),
-            displayName = "test",
-            screenReaderName = "test",
-            icon = null
-        )
+        ListOption.Builder(Option.Id("x".repeat(Option.Id.MAX_LENGTH)), "test", "test").build()
 
         try {
             // Not OK.
-            ListOption(
-                Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1)),
-                displayName = "test",
-                screenReaderName = "test",
-                icon = null
-            )
+            ListOption.Builder(Option.Id("x".repeat(Option.Id.MAX_LENGTH + 1)), "test", "test")
+                .build()
             fail("Should have thrown an exception")
         } catch (e: Exception) {
             // Expected
@@ -217,49 +200,49 @@ public class UserStyleSettingTest {
     @Test
     public fun equalsBasedOnId() {
         val setting =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         val settingCopy =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         val settings1ModifiedInfo =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting (modified)",
-                "An example setting (modified)",
-                null,
-                0.0,
-                100.0,
-                listOf(WatchFaceLayer.BASE),
-                3.0
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    100.0,
+                    3.0,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting (modified)",
+                    "An example setting (modified)"
+                )
+                .build()
         val settings1ModifiedId =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting_modified"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting_modified"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         assertThat(setting).isEqualTo(setting)
         assertThat(setting).isEqualTo(settingCopy)
         assertThat(setting).isEqualTo(settings1ModifiedInfo)
@@ -269,49 +252,49 @@ public class UserStyleSettingTest {
     @Test
     public fun hashcodeBasedOnId() {
         val setting =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         val settingCopy =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         val settings1ModifiedInfo =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting"),
-                "Example Ranged Setting (modified)",
-                "An example setting (modified)",
-                null,
-                0.0,
-                100.0,
-                listOf(WatchFaceLayer.BASE),
-                3.0
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting"),
+                    0.0,
+                    100.0,
+                    3.0,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         val settings1ModifiedId =
-            DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("example_setting_modified"),
-                "Example Ranged Setting",
-                "An example setting",
-                null,
-                0.0,
-                1.0,
-                listOf(WatchFaceLayer.BASE),
-                0.1
-            )
+            DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("example_setting_modified"),
+                    0.0,
+                    1.0,
+                    0.1,
+                    listOf(WatchFaceLayer.BASE),
+                    "Example Ranged Setting",
+                    "An example setting"
+                )
+                .build()
         assertThat(setting.hashCode()).isEqualTo(setting.hashCode())
         assertThat(setting.hashCode()).isEqualTo(settingCopy.hashCode())
         assertThat(setting.hashCode()).isEqualTo(settings1ModifiedInfo.hashCode())
@@ -369,39 +352,27 @@ public class UserStyleSettingTest {
     @Test
     public fun noDuplicatedListOptions() {
         assertFailsWith<IllegalArgumentException>("should not allow duplicates") {
-            UserStyleSetting.ListUserStyleSetting(
-                UserStyleSetting.Id("hands"),
-                "Hands",
-                "Configure the hands of the watch face",
-                icon = null,
-                listOf(
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("plain"),
-                        "plain hands",
-                        "plain hands",
-                        icon = null
+            UserStyleSetting.ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("hands"),
+                    listOf(
+                        ListOption.Builder(Option.Id("plain"), "plain hands", "plain hands")
+                            .build(),
+                        ListOption.Builder(
+                                Option.Id("florescent"),
+                                "florescent hands",
+                                "florescent hands"
+                            )
+                            .build(),
+                        ListOption.Builder(Option.Id("thick"), "thick hands", "thick hands")
+                            .build(),
+                        ListOption.Builder(Option.Id("plain"), "simple hands", "simple hands")
+                            .build()
                     ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("florescent"),
-                        "florescent hands",
-                        "florescent hands",
-                        icon = null
-                    ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("thick"),
-                        "thick hands",
-                        "thick hands",
-                        icon = null
-                    ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("plain"),
-                        "simple hands",
-                        "simple hands",
-                        icon = null
-                    )
-                ),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
-            )
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    "Hands",
+                    "Configure the hands of the watch face"
+                )
+                .build()
         }
     }
 

@@ -79,148 +79,156 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 
     private val colorStyleSetting by lazy {
-        ListUserStyleSetting(
-            UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            resources,
-            R.string.colors_style_setting,
-            R.string.colors_style_setting_description,
-            icon = null,
-            options =
+        ListUserStyleSetting.Builder(
+                UserStyleSetting.Id(COLOR_STYLE_SETTING),
                 listOf(
-                    ListUserStyleSetting.ListOption(
-                        Option.Id(RED_STYLE),
-                        resources,
-                        R.string.colors_style_red,
-                        R.string.colors_style_red_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.red_style) }
-                    ),
-                    ListUserStyleSetting.ListOption(
-                        Option.Id(GREEN_STYLE),
-                        resources,
-                        R.string.colors_style_green,
-                        R.string.colors_style_green_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.green_style) }
-                    ),
-                    ListUserStyleSetting.ListOption(
-                        Option.Id(BLUE_STYLE),
-                        resources,
-                        R.string.colors_style_blue,
-                        R.string.colors_style_blue_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.blue_style) }
-                    )
+                    ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(RED_STYLE),
+                            resources,
+                            R.string.colors_style_red,
+                            R.string.colors_style_red_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
+                        .build(),
+                    ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(GREEN_STYLE),
+                            resources,
+                            R.string.colors_style_green,
+                            R.string.colors_style_green_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
+                        .build(),
+                    ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(BLUE_STYLE),
+                            resources,
+                            R.string.colors_style_blue,
+                            R.string.colors_style_blue_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
+                        .build()
                 ),
-            listOf(
-                WatchFaceLayer.BASE,
-                WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                listOf(
+                    WatchFaceLayer.BASE,
+                    WatchFaceLayer.COMPLICATIONS,
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                ),
+                resources,
+                R.string.colors_style_setting,
+                R.string.colors_style_setting_description
             )
-        )
+            .build()
     }
 
     private val drawHourPipsStyleSetting by lazy {
-        BooleanUserStyleSetting(
-            UserStyleSetting.Id(DRAW_HOUR_PIPS_STYLE_SETTING),
-            resources,
-            R.string.watchface_pips_setting,
-            R.string.watchface_pips_setting_description,
-            null,
-            listOf(WatchFaceLayer.BASE),
-            true
-        )
+        BooleanUserStyleSetting.Builder(
+                UserStyleSetting.Id(DRAW_HOUR_PIPS_STYLE_SETTING),
+                listOf(WatchFaceLayer.BASE),
+                true,
+                resources,
+                R.string.watchface_pips_setting,
+                R.string.watchface_pips_setting_description
+            )
+            .build()
     }
 
     private val watchHandLengthStyleSetting by lazy {
-        DoubleRangeUserStyleSetting(
-            UserStyleSetting.Id(WATCH_HAND_LENGTH_STYLE_SETTING),
-            resources,
-            R.string.watchface_hand_length_setting,
-            R.string.watchface_hand_length_setting_description,
-            null,
-            0.25,
-            1.0,
-            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-            0.75
-        )
+        DoubleRangeUserStyleSetting.Builder(
+                UserStyleSetting.Id(WATCH_HAND_LENGTH_STYLE_SETTING),
+                0.25,
+                1.0,
+                0.75,
+                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                resources,
+                R.string.watchface_hand_length_setting,
+                R.string.watchface_hand_length_setting_description
+            )
+            .build()
     }
 
     // These are style overrides applied on top of the complicationSlots passed into
     // complicationSlotsManager below.
-    @Suppress("Deprecation")
     private val complicationsStyleSetting by lazy {
-        ComplicationSlotsUserStyleSetting(
-            UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),
-            resources,
-            R.string.watchface_complications_setting,
-            R.string.watchface_complications_setting_description,
-            icon = null,
-            complicationConfig =
+        ComplicationSlotsUserStyleSetting.Builder(
+                UserStyleSetting.Id(COMPLICATIONS_STYLE_SETTING),
                 listOf(
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
-                        resources,
-                        R.string.watchface_complications_setting_both,
-                        null,
-                        // NB this list is empty because each [ComplicationSlotOverlay] is applied
-                        // on top of the initial config.
-                        listOf()
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        Option.Id(NO_COMPLICATIONS),
-                        resources,
-                        R.string.watchface_complications_setting_none,
-                        null,
-                        listOf(
-                            ComplicationSlotOverlay(
-                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                                enabled = false
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            Option.Id(LEFT_AND_RIGHT_COMPLICATIONS),
+                            // NB this list is empty because each [ComplicationSlotOverlay] is
+                            // applied on top of the initial config.
+                            listOf(),
+                            resources,
+                            R.string.watchface_complications_setting_both,
+                            R.string.watchface_complications_setting_both
+                        )
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            Option.Id(NO_COMPLICATIONS),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(
+                                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+                                    )
+                                    .setEnabled(false)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(
+                                        EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                                    )
+                                    .setEnabled(false)
+                                    .build()
                             ),
-                            ComplicationSlotOverlay(
-                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                                enabled = false
-                            )
+                            resources,
+                            R.string.watchface_complications_setting_none,
+                            R.string.watchface_complications_setting_none
                         )
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        Option.Id(LEFT_COMPLICATION),
-                        resources,
-                        R.string.watchface_complications_setting_left,
-                        null,
-                        listOf(
-                            ComplicationSlotOverlay(
-                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                                enabled = false
-                            )
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            Option.Id(LEFT_COMPLICATION),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(
+                                        EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                                    )
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            resources,
+                            R.string.watchface_complications_setting_left,
+                            R.string.watchface_complications_setting_left
                         )
-                    ),
-                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                        Option.Id(RIGHT_COMPLICATION),
-                        resources,
-                        R.string.watchface_complications_setting_right,
-                        null,
-                        listOf(
-                            ComplicationSlotOverlay(
-                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                                enabled = false
-                            )
+                        .build(),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
+                            Option.Id(RIGHT_COMPLICATION),
+                            listOf(
+                                ComplicationSlotOverlay.Builder(
+                                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+                                    )
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            resources,
+                            R.string.watchface_complications_setting_right,
+                            R.string.watchface_complications_setting_right
                         )
-                    )
+                        .build()
                 ),
-            listOf(WatchFaceLayer.COMPLICATIONS)
-        )
+                listOf(WatchFaceLayer.COMPLICATIONS),
+                resources,
+                R.string.watchface_complications_setting,
+                R.string.watchface_complications_setting_description
+            )
+            .build()
     }
 
     private val hoursDrawFreqStyleSetting by lazy {
-        LongRangeUserStyleSetting(
-            UserStyleSetting.Id(HOURS_DRAW_FREQ_STYLE_SETTING),
-            resources,
-            R.string.watchface_draw_hours_freq_setting,
-            R.string.watchface_draw_hours_freq_setting_description,
-            null,
-            HOURS_DRAW_FREQ_MIN,
-            HOURS_DRAW_FREQ_MAX,
-            listOf(WatchFaceLayer.BASE),
-            HOURS_DRAW_FREQ_DEFAULT
-        )
+        LongRangeUserStyleSetting.Builder(
+                UserStyleSetting.Id(HOURS_DRAW_FREQ_STYLE_SETTING),
+                HOURS_DRAW_FREQ_MIN,
+                HOURS_DRAW_FREQ_MAX,
+                HOURS_DRAW_FREQ_DEFAULT,
+                listOf(WatchFaceLayer.BASE),
+                resources,
+                R.string.watchface_draw_hours_freq_setting,
+                R.string.watchface_draw_hours_freq_setting_description
+            )
+            .build()
     }
 
     public override fun createUserStyleSchema() =

@@ -66,74 +66,74 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
         override fun createUserStyleSchema() =
             UserStyleSchema(
                 listOf(
-                    ListUserStyleSetting(
-                        UserStyleSetting.Id(COLOR_STYLE_SETTING),
-                        resources,
-                        R.string.colors_style_setting,
-                        R.string.colors_style_setting_description,
-                        icon = null,
-                        options =
+                    ListUserStyleSetting.Builder(
+                            UserStyleSetting.Id(COLOR_STYLE_SETTING),
+                            options =
+                                listOf(
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(RED_STYLE),
+                                            resources,
+                                            R.string.colors_style_red,
+                                            R.string.colors_style_red_screen_reader
+                                        )
+                                        .build(),
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(GREEN_STYLE),
+                                            resources,
+                                            R.string.colors_style_green,
+                                            R.string.colors_style_green_screen_reader
+                                        )
+                                        .build(),
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(BLUE_STYLE),
+                                            resources,
+                                            R.string.colors_style_blue,
+                                            R.string.colors_style_blue_screen_reader
+                                        )
+                                        .build()
+                                ),
                             listOf(
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(RED_STYLE),
-                                    resources,
-                                    R.string.colors_style_red,
-                                    R.string.colors_style_red_screen_reader,
-                                    icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(GREEN_STYLE),
-                                    resources,
-                                    R.string.colors_style_green,
-                                    R.string.colors_style_green_screen_reader,
-                                    icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(BLUE_STYLE),
-                                    resources,
-                                    R.string.colors_style_blue,
-                                    R.string.colors_style_blue_screen_reader,
-                                    icon = null
-                                )
+                                WatchFaceLayer.BASE,
+                                WatchFaceLayer.COMPLICATIONS,
+                                WatchFaceLayer.COMPLICATIONS_OVERLAY
                             ),
-                        listOf(
-                            WatchFaceLayer.BASE,
-                            WatchFaceLayer.COMPLICATIONS,
-                            WatchFaceLayer.COMPLICATIONS_OVERLAY
+                            resources,
+                            R.string.colors_style_setting,
+                            R.string.colors_style_setting_description
                         )
-                    ),
-                    ListUserStyleSetting(
-                        UserStyleSetting.Id(HAND_STYLE_SETTING),
-                        resources,
-                        R.string.hand_style_setting,
-                        R.string.hand_style_setting_description,
-                        icon = null,
-                        options =
-                            listOf(
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(CLASSIC_STYLE),
-                                    resources,
-                                    R.string.hand_style_classic,
-                                    R.string.hand_style_classic_screen_reader,
-                                    icon = null
+                        .build(),
+                    ListUserStyleSetting.Builder(
+                            UserStyleSetting.Id(HAND_STYLE_SETTING),
+                            options =
+                                listOf(
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(CLASSIC_STYLE),
+                                            resources,
+                                            R.string.hand_style_classic,
+                                            R.string.hand_style_classic_screen_reader
+                                        )
+                                        .build(),
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(MODERN_STYLE),
+                                            resources,
+                                            R.string.hand_style_modern,
+                                            R.string.hand_style_modern_screen_reader
+                                        )
+                                        .build(),
+                                    ListUserStyleSetting.ListOption.Builder(
+                                            Option.Id(GOTHIC_STYLE),
+                                            resources,
+                                            R.string.hand_style_gothic,
+                                            R.string.hand_style_gothic_screen_reader
+                                        )
+                                        .build()
                                 ),
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(MODERN_STYLE),
-                                    resources,
-                                    R.string.hand_style_modern,
-                                    R.string.hand_style_modern_screen_reader,
-                                    icon = null
-                                ),
-                                ListUserStyleSetting.ListOption(
-                                    Option.Id(GOTHIC_STYLE),
-                                    resources,
-                                    R.string.hand_style_gothic,
-                                    R.string.hand_style_gothic_screen_reader,
-                                    icon = null
-                                )
-                            ),
-                        listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-                    )
+                            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                            resources,
+                            R.string.hand_style_setting,
+                            R.string.hand_style_setting_description
+                        )
+                        .build()
                 )
             )
 

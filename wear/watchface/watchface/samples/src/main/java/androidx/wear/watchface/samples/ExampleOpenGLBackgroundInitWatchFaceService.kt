@@ -44,31 +44,32 @@ import java.time.ZonedDateTime
  */
 open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceService() {
     private val colorStyleSetting by lazy {
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id("color_style_setting"),
-            resources,
-            R.string.colors_style_setting,
-            R.string.colors_style_setting_description,
-            icon = null,
-            options =
+        UserStyleSetting.ListUserStyleSetting.Builder(
+                UserStyleSetting.Id("color_style_setting"),
                 listOf(
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("yellow_style"),
-                        resources,
-                        R.string.colors_style_yellow,
-                        R.string.colors_style_yellow_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.yellow_style) }
-                    ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        UserStyleSetting.Option.Id("blue_style"),
-                        resources,
-                        R.string.colors_style_blue,
-                        R.string.colors_style_blue_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.blue_style) }
-                    )
+                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                            UserStyleSetting.Option.Id("yellow_style"),
+                            resources,
+                            R.string.colors_style_yellow,
+                            R.string.colors_style_yellow_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.yellow_style) }
+                        .build(),
+                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                            UserStyleSetting.Option.Id("blue_style"),
+                            resources,
+                            R.string.colors_style_blue,
+                            R.string.colors_style_blue_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
+                        .build()
                 ),
-            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
-        )
+                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                resources,
+                R.string.colors_style_setting,
+                R.string.colors_style_setting_description
+            )
+            .build()
     }
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))

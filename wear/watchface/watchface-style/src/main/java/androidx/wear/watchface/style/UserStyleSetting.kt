@@ -44,6 +44,7 @@ import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.complications.moveToStart
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.Id
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
 import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
@@ -739,6 +740,111 @@ private constructor(
     /** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
     public class BooleanUserStyleSetting : UserStyleSetting {
 
+        /** A Builder for [BooleanUserStyleSetting]. */
+        class Builder
+        private constructor(
+            private val id: Id,
+            private val affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            private val defaultValue: Boolean,
+            private val displayName: DisplayText,
+            private val description: DisplayText
+        ) {
+            private var iconProvider: () -> Icon? = { null }
+            private var watchFaceEditorData: WatchFaceEditorData? = null
+
+            /**
+             * Constructs a builder for [BooleanUserStyleSetting].
+             *
+             * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param defaultValue The default value of the BooleanUserStyleSetting.
+             * @param resources The [Resources] from which [displayNameResourceId] and
+             *   [descriptionResourceId] are loaded.
+             * @param displayNameResourceId String resource id for a human readable name for the
+             *   [BooleanUserStyleSetting], used in the userStyle selection UI.
+             * @param descriptionResourceId String resource id for a human readable description
+             *   displayed under the displayName in the userStyle selection UI.
+             */
+            constructor(
+                id: Id,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                defaultValue: Boolean,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                @StringRes descriptionResourceId: Int
+            ) : this(
+                id,
+                affectsWatchFaceLayers,
+                defaultValue,
+                DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId)
+            )
+
+            /**
+             * Constructs a builder for [BooleanUserStyleSetting].
+             *
+             * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param defaultValue The default value of the BooleanUserStyleSetting.
+             * @param displayName A localized human readable name for the [BooleanUserStyleSetting],
+             *   used in the userStyle selection UI.
+             * @param description A localized human readable description displayed under the
+             *   displayName in the userStyle selection UI.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            constructor(
+                id: Id,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                defaultValue: Boolean,
+                displayName: CharSequence,
+                description: CharSequence
+            ) : this(
+                id,
+                affectsWatchFaceLayers,
+                defaultValue,
+                DisplayText.CharSequenceDisplayText(displayName),
+                DisplayText.CharSequenceDisplayText(description)
+            )
+
+            /**
+             * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             */
+            fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+            /**
+             * Sets a provider of an [Icon] for use in the companion userStyle selection UI. This
+             * gets lazily evaluated and is sent to the companion over bluetooth and should be small
+             * (ideally a few kb in size). Note this is not guaranteed to be called on the calling
+             * thread. Note it will be called shortly after watch face initialization completes.
+             */
+            fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+            /**
+             * Sets optional data for an on watch face editor, this will not be sent to the
+             * companion and its contents may be used in preference to other fields by an on watch
+             * face editor.
+             */
+            fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                this.watchFaceEditorData = watchFaceEditorData
+            }
+
+            /** Constructs the [BooleanUserStyleSetting]. */
+            fun build(): BooleanUserStyleSetting {
+                return BooleanUserStyleSetting(
+                    id,
+                    displayName,
+                    description,
+                    iconProvider,
+                    watchFaceEditorData,
+                    affectsWatchFaceLayers,
+                    defaultValue
+                )
+            }
+        }
+
         /**
          * Constructs a BooleanUserStyleSetting.
          *
@@ -755,6 +861,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
         public constructor(
@@ -770,48 +877,6 @@ private constructor(
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             { icon },
-            watchFaceEditorData,
-            listOf(BooleanOption.TRUE, BooleanOption.FALSE),
-            when (defaultValue) {
-                true -> 0
-                false -> 1
-            },
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a BooleanUserStyleSetting, with a lazily evaluated [icon].
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param displayName Localized human readable name for the element, used in the userStyle
-         *   selection UI.
-         * @param description Localized description string displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultValue The default value for this BooleanUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            displayName: CharSequence,
-            description: CharSequence,
-            iconProvider: () -> Icon?,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Boolean,
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.CharSequenceDisplayText(displayName),
-            DisplayText.CharSequenceDisplayText(description),
-            iconProvider,
             watchFaceEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
@@ -841,6 +906,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @JvmOverloads
         public constructor(
             id: Id,
@@ -856,53 +922,6 @@ private constructor(
             DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
             DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             { icon },
-            watchFaceEditorData,
-            listOf(BooleanOption.TRUE, BooleanOption.FALSE),
-            when (defaultValue) {
-                true -> 0
-                false -> 1
-            },
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a BooleanUserStyleSetting with a lazily evaluated [icon], where
-         * [BooleanUserStyleSetting.displayName] and [BooleanUserStyleSetting.description] are
-         * specified as resources.
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param resources The [Resources] from which [displayNameResourceId] and
-         *   [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the
-         *   element, used in the userStyle selection UI.
-         * @param descriptionResourceId String resource id for a human readable description string
-         *   displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultValue The default value for this BooleanUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            resources: Resources,
-            @StringRes displayNameResourceId: Int,
-            @StringRes descriptionResourceId: Int,
-            iconProvider: () -> Icon?,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Boolean,
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
-            iconProvider,
             watchFaceEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
@@ -1036,6 +1055,112 @@ private constructor(
      * Not to be confused with complication data source selection.
      */
     public class ComplicationSlotsUserStyleSetting : UserStyleSetting {
+        /** A Builder for [ComplicationSlotsUserStyleSetting]. */
+        class Builder
+        private constructor(
+            private val id: Id,
+            private val complicationConfig: List<ComplicationSlotsOption>,
+            private val affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            private val displayName: DisplayText,
+            private val description: DisplayText
+        ) {
+            private var iconProvider: () -> Icon? = { null }
+            private var watchFaceEditorData: WatchFaceEditorData? = null
+            private var defaultOption = complicationConfig.first()
+
+            /**
+             * Constructs a builder for [ComplicationSlotsUserStyleSetting].
+             *
+             * @param id [Id] for the [ComplicationSlotsUserStyleSetting], must be unique.
+             * @param complicationConfig The configuration for affected complications.
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param resources The [Resources] from which [displayNameResourceId] and
+             *   [descriptionResourceId] are loaded.
+             * @param displayNameResourceId String resource id for a human readable name for the
+             *   [ComplicationSlotsUserStyleSetting], used in the userStyle selection UI.
+             * @param descriptionResourceId String resource id for a human readable description
+             *   string displayed under the displayName in the userStyle selection UI.
+             */
+            constructor(
+                id: Id,
+                complicationConfig: List<ComplicationSlotsOption>,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                @StringRes descriptionResourceId: Int
+            ) : this(
+                id,
+                complicationConfig,
+                affectsWatchFaceLayers,
+                DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId)
+            )
+
+            /**
+             * Constructs a builder for [ComplicationSlotsUserStyleSetting].
+             *
+             * @param id [Id] for the [ComplicationSlotsUserStyleSetting], must be unique.
+             * @param complicationConfig The configuration for affected complications.
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param displayName Human readable name for the [ComplicationSlotsUserStyleSetting],
+             *   used in the userStyle selection UI.
+             * @param description Human readable description string displayed under the displayName
+             *   in the userStyle selection UI.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            constructor(
+                id: Id,
+                complicationConfig: List<ComplicationSlotsOption>,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                displayName: CharSequence,
+                description: CharSequence
+            ) : this(
+                id,
+                complicationConfig,
+                affectsWatchFaceLayers,
+                DisplayText.CharSequenceDisplayText(displayName),
+                DisplayText.CharSequenceDisplayText(description)
+            )
+
+            /**
+             * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             */
+            fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+            /**
+             * Sets a provider of an [Icon] for use in the companion userStyle selection UI. This
+             * gets lazily evaluated and is sent to the companion over bluetooth and should be small
+             * (ideally a few kb in size). Note this is not guaranteed to be called on the calling
+             * thread. Note it will be called shortly after watch face initialization completes.
+             */
+            fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+            /**
+             * Sets optional data for an on watch face editor, this will not be sent to the
+             * companion and its contents may be used in preference to other fields by an on watch
+             * face editor.
+             */
+            fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                this.watchFaceEditorData = watchFaceEditorData
+            }
+
+            /** Constructs the [ComplicationSlotsUserStyleSetting]. */
+            fun build() =
+                ComplicationSlotsUserStyleSetting(
+                    id,
+                    displayName,
+                    description,
+                    iconProvider,
+                    watchFaceEditorData,
+                    complicationConfig,
+                    complicationConfig.indexOf(defaultOption),
+                    affectsWatchFaceLayers
+                )
+        }
+
         private constructor(
             id: Id,
             displayNameInternal: DisplayText,
@@ -1368,6 +1493,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
@@ -1413,6 +1539,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @JvmOverloads
         public constructor(
             id: Id,
@@ -1429,53 +1556,6 @@ private constructor(
             DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
             DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             { icon },
-            watchFaceEditorData,
-            complicationConfig,
-            complicationConfig.indexOf(defaultOption),
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a ComplicationSlotsUserStyleSetting with a lazily evaluated [icon], where
-         * [ComplicationSlotsUserStyleSetting.displayName] and
-         * [ComplicationSlotsUserStyleSetting.description] are specified as resources.
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param resources The [Resources] from which [displayNameResourceId] and
-         *   [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the
-         *   element, used in the userStyle selection UI.
-         * @param descriptionResourceId String resource id for a human readable description string
-         *   displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param complicationConfig The configuration for affected complications.
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects, must include [WatchFaceLayer.COMPLICATIONS].
-         * @param defaultOption The default option, used when data isn't persisted. Optional
-         *   parameter which defaults to the first element of [complicationConfig].
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            resources: Resources,
-            @StringRes displayNameResourceId: Int,
-            @StringRes descriptionResourceId: Int,
-            iconProvider: () -> Icon?,
-            complicationConfig: List<ComplicationSlotsOption>,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ComplicationSlotsOption = complicationConfig.first(),
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : this(
-            id,
-            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
-            iconProvider,
             watchFaceEditorData,
             complicationConfig,
             complicationConfig.indexOf(defaultOption),
@@ -1645,8 +1725,109 @@ private constructor(
             public var watchFaceEditorData: WatchFaceEditorData?
                 internal set
 
+            /** A Builder for [ComplicationSlotsOption]. */
+            class Builder
+            private constructor(
+                private val id: Id,
+                private val complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
+                private val displayName: DisplayText,
+                private val screenReaderName: DisplayText
+            ) {
+                private var iconProvider: () -> Icon? = { null }
+                private var watchFaceEditorData: WatchFaceEditorData? = null
+
+                /**
+                 * Constructs a builder for [ComplicationSlotsOption].
+                 *
+                 * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+                 * @param complicationSlotOverlays Overlays to be applied when this
+                 *   [ComplicationSlotsOption] is selected. If this is empty then the net result is
+                 *   the initial complication configuration.
+                 * @param resources The [Resources] from which [displayNameResourceId] and
+                 *   [screenReaderNameResourceId] are loaded.
+                 * @param displayNameResourceId String resource id for a human readable name for the
+                 *   [ComplicationSlotsOption], used in the userStyle selection UI.
+                 * @param screenReaderNameResourceId String resource id for a human readable name
+                 *   for the setting, used by screen readers. This should be more descriptive than
+                 *   [displayName]. Note prior to android T this is ignored by companion editors.
+                 */
+                constructor(
+                    id: Id,
+                    complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
+                    resources: Resources,
+                    @StringRes displayNameResourceId: Int,
+                    @StringRes screenReaderNameResourceId: Int
+                ) : this(
+                    id,
+                    complicationSlotOverlays,
+                    DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                    DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
+                )
+
+                /**
+                 * Constructs a builder for [ComplicationSlotsOption].
+                 *
+                 * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+                 * @param complicationSlotOverlays Overlays to be applied when this
+                 *   [ComplicationSlotsOption] is selected. If this is empty then the net result is
+                 *   the initial complication configuration.
+                 * @param displayName A human readable name for the [ComplicationSlotsOption], used
+                 *   in the userStyle selection UI.
+                 * @param screenReaderName A human readable name for the setting, used by screen
+                 *   readers. This should be more descriptive than [displayName]. Note prior to
+                 *   android T this is ignored by companion editors.
+                 */
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                constructor(
+                    id: Id,
+                    complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
+                    displayName: CharSequence,
+                    screenReaderName: CharSequence
+                ) : this(
+                    id,
+                    complicationSlotOverlays,
+                    DisplayText.CharSequenceDisplayText(displayName),
+                    DisplayText.CharSequenceDisplayText(screenReaderName)
+                )
+
+                /**
+                 * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to
+                 * the companion over bluetooth and should be small (ideally a few kb in size).
+                 */
+                fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+                /**
+                 * Sets a provider of an [Icon] for use in the companion userStyle selection UI.
+                 * This gets lazily evaluated and is sent to the companion over bluetooth and should
+                 * be small (ideally a few kb in size). Note this is not guaranteed to be called on
+                 * the calling thread. Note it will be called shortly after watch face
+                 * initialization completes.
+                 */
+                fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+                /**
+                 * Sets optional data for an on watch face editor, this will not be sent to the
+                 * companion and its contents may be used in preference to other fields by an on
+                 * watch face editor.
+                 */
+                fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                    this.watchFaceEditorData = watchFaceEditorData
+                }
+
+                /** Constructs the [ComplicationSlotsOption]. */
+                fun build() =
+                    ComplicationSlotsOption(
+                        id,
+                        displayName,
+                        screenReaderName,
+                        iconProvider,
+                        watchFaceEditorData,
+                        complicationSlotOverlays
+                    )
+            }
+
             /**
-             * Constructs a ComplicationSlotsUserStyleSetting.
+             * Constructs a ComplicationSlotsOption.
              *
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
@@ -1662,6 +1843,7 @@ private constructor(
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
              */
+            @Deprecated("Use the Builder instead")
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmOverloads
             public constructor(
@@ -1680,8 +1862,7 @@ private constructor(
             }
 
             /**
-             * Constructs a ComplicationSlotsUserStyleSetting with [displayName] constructed from
-             * Resources.
+             * Constructs a ComplicationSlotsOption with [displayName] constructed from Resources.
              *
              * @param id [Id] for the element, must be unique.
              * @param resources The [Resources] from which [displayNameResourceId] is load.
@@ -1699,7 +1880,7 @@ private constructor(
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
              */
-            @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
+            @Deprecated("Use the Builder instead")
             @JvmOverloads
             public constructor(
                 id: Id,
@@ -1743,6 +1924,7 @@ private constructor(
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
              */
+            @Deprecated("Use the Builder instead")
             @JvmOverloads
             public constructor(
                 id: Id,
@@ -1759,53 +1941,6 @@ private constructor(
                 this.screenReaderNameInternal =
                     DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
                 this.iconProvider = { icon }
-                this.watchFaceEditorData = watchFaceEditorData
-            }
-
-            /**
-             * Constructs a ComplicationSlotsUserStyleSetting with a lazily evaluated [icon], where
-             * [displayName] is constructed from Resources.
-             *
-             * @param id [Id] for the element, must be unique.
-             * @param resources The [Resources] from which [displayNameResourceId] is load.
-             * @param displayNameResourceId String resource id for a human readable name for the
-             *   element, used in the userStyle selection UI. This should be short, ideally < 20
-             *   characters. Note if the resource string contains `%1$s` that will get replaced with
-             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the
-             *   list of ComplicationSlotsOptions.
-             * @param screenReaderNameResourceId String resource id for a human readable name for
-             *   the element, used by screen readers. This should be more descriptive than
-             *   [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
-             *   replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the
-             *   ComplicationSlotsOption in the list of ComplicationSlotsOptions. Note prior to
-             *   android T this is ignored by companion editors.
-             * @param iconProvider A provider of an [Icon] for use in the companion userStyle
-             *   selection UI. This gets lazily evaluated and is sent to the companion over
-             *   bluetooth and should be small (ideally a few kb in size). Note this is not
-             *   guaranteed to be called on the calling thread.
-             * @param complicationSlotOverlays Overlays to be applied when this
-             *   ComplicationSlotsOption is selected. If this is empty then the net result is the
-             *   initial complication configuration.
-             * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             *   be sent to the companion and its contents may be used in preference to other fields
-             *   by an on watch face editor.
-             */
-            @JvmOverloads
-            public constructor(
-                id: Id,
-                resources: Resources,
-                @StringRes displayNameResourceId: Int,
-                @StringRes screenReaderNameResourceId: Int,
-                iconProvider: () -> Icon?,
-                complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
-                watchFaceEditorData: WatchFaceEditorData? = null
-            ) : super(id, emptyList()) {
-                this.complicationSlotOverlays = complicationSlotOverlays
-                this.displayNameInternal =
-                    DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId)
-                this.screenReaderNameInternal =
-                    DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
-                this.iconProvider = iconProvider
                 this.watchFaceEditorData = watchFaceEditorData
             }
 
@@ -2040,6 +2175,128 @@ private constructor(
             }
         }
 
+        /** A Builder for [DoubleRangeUserStyleSetting]. */
+        class Builder
+        private constructor(
+            private val id: Id,
+            private val minimumValue: Double,
+            private val maximumValue: Double,
+            private val defaultValue: Double,
+            private val affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            private val displayName: DisplayText,
+            private val description: DisplayText
+        ) {
+            private var iconProvider: () -> Icon? = { null }
+            private var watchFaceEditorData: WatchFaceEditorData? = null
+
+            /**
+             * Constructs a builder for [DoubleRangeUserStyleSetting].
+             *
+             * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+             * @param minimumValue Minimum value (inclusive).
+             * @param maximumValue Maximum value (inclusive).
+             * @param defaultValue The default value for the constructed
+             *   [DoubleRangeUserStyleSetting].
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param resources The [Resources] from which [displayNameResourceId] and
+             *   [descriptionResourceId] are loaded.
+             * @param displayNameResourceId String resource id for a human readable name for the
+             *   [DoubleRangeUserStyleSetting], used in the userStyle selection UI.
+             * @param descriptionResourceId String resource id for a human readable description
+             *   string displayed under the displayName in the userStyle selection UI.
+             */
+            constructor(
+                id: Id,
+                minimumValue: Double,
+                maximumValue: Double,
+                defaultValue: Double,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                @StringRes descriptionResourceId: Int
+            ) : this(
+                id,
+                minimumValue,
+                maximumValue,
+                defaultValue,
+                affectsWatchFaceLayers,
+                DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId)
+            )
+
+            /**
+             * Constructs a builder for [DoubleRangeUserStyleSetting].
+             *
+             * @param id [Id] for the BooleanUserStyleSetting, must be unique.
+             * @param minimumValue Minimum value (inclusive).
+             * @param maximumValue Maximum value (inclusive).
+             * @param defaultValue The default value for the constructed
+             *   [DoubleRangeUserStyleSetting].
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param displayName: human readable name for the [DoubleRangeUserStyleSetting] used in
+             *   the userStyle selection UI.
+             * @param description String resource id for a human readable description string
+             *   displayed under the displayName in the userStyle selection UI.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            constructor(
+                id: Id,
+                minimumValue: Double,
+                maximumValue: Double,
+                defaultValue: Double,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                displayName: CharSequence,
+                description: CharSequence
+            ) : this(
+                id,
+                minimumValue,
+                maximumValue,
+                defaultValue,
+                affectsWatchFaceLayers,
+                DisplayText.CharSequenceDisplayText(displayName),
+                DisplayText.CharSequenceDisplayText(description)
+            )
+
+            /**
+             * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             */
+            fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+            /**
+             * Sets a provider of an [Icon] for use in the companion userStyle selection UI. This
+             * gets lazily evaluated and is sent to the companion over bluetooth and should be small
+             * (ideally a few kb in size). Note this is not guaranteed to be called on the calling
+             * thread. Note it will be called shortly after watch face initialization completes.
+             */
+            fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+            /**
+             * Sets optional data for an on watch face editor, this will not be sent to the
+             * companion and its contents may be used in preference to other fields by an on watch
+             * face editor.
+             */
+            fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                this.watchFaceEditorData = watchFaceEditorData
+            }
+
+            /** Constructs the [DoubleRangeUserStyleSetting]. */
+            fun build() =
+                DoubleRangeUserStyleSetting(
+                    id,
+                    displayName,
+                    description,
+                    iconProvider,
+                    watchFaceEditorData,
+                    minimumValue,
+                    maximumValue,
+                    affectsWatchFaceLayers,
+                    defaultValue
+                )
+        }
+
         /**
          * Constructs a DoubleRangeUserStyleSetting.
          *
@@ -2058,6 +2315,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
         public constructor(
@@ -2107,6 +2365,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @JvmOverloads
         public constructor(
             id: Id,
@@ -2124,58 +2383,6 @@ private constructor(
             DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
             DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             { icon },
-            watchFaceEditorData,
-            createOptionsList(minimumValue, maximumValue, defaultValue),
-            // The index of defaultValue can only ever be 0 or 1.
-            when (defaultValue) {
-                minimumValue -> 0
-                else -> 1
-            },
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a DoubleRangeUserStyleSetting with a lazily evaluated [Icon], where
-         * [DoubleRangeUserStyleSetting.displayName] and [DoubleRangeUserStyleSetting.description]
-         * are specified as resources.
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param resources The [Resources] from which [displayNameResourceId] and
-         *   [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the
-         *   element, used in the userStyle selection UI.
-         * @param descriptionResourceId String resource id for a human readable description string
-         *   displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param minimumValue Minimum value (inclusive).
-         * @param maximumValue Maximum value (inclusive).
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            resources: Resources,
-            @StringRes displayNameResourceId: Int,
-            @StringRes descriptionResourceId: Int,
-            iconProvider: () -> Icon?,
-            minimumValue: Double,
-            maximumValue: Double,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Double,
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
-            iconProvider,
             watchFaceEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
@@ -2301,6 +2508,122 @@ private constructor(
     /** A ListUserStyleSetting represents a setting with options selected from a List. */
     public open class ListUserStyleSetting : UserStyleSetting {
 
+        /** A Builder for [ListUserStyleSetting]. */
+        class Builder
+        private constructor(
+            private val id: Id,
+            private val options: List<ListOption>,
+            private val affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            private val displayName: DisplayText,
+            private val description: DisplayText
+        ) {
+            private var iconProvider: () -> Icon? = { null }
+            private var watchFaceEditorData: WatchFaceEditorData? = null
+            private var defaultOption = options.first()
+
+            /**
+             * Constructs a builder for [ListUserStyleSetting].
+             *
+             * @param id [Id] for the [ListUserStyleSetting], must be unique.
+             * @param options: List<ListOption>,
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param resources The [Resources] from which [displayNameResourceId] and
+             *   [descriptionResourceId] are loaded.
+             * @param displayNameResourceId String resource id for a human readable name for the
+             *   [ListUserStyleSetting], used in the userStyle selection UI.
+             * @param descriptionResourceId String resource id for a human readable description
+             *   string displayed under the displayName in the userStyle selection UI.
+             */
+            constructor(
+                id: Id,
+                options: List<ListOption>,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                @StringRes descriptionResourceId: Int
+            ) : this(
+                id,
+                options,
+                affectsWatchFaceLayers,
+                DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId)
+            )
+
+            /**
+             * Constructs a builder for [ListUserStyleSetting].
+             *
+             * @param id [Id] for the [ListUserStyleSetting], must be unique.
+             * @param options: List<ListOption>,
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param displayName Human readable name for the [ListUserStyleSetting], used in the
+             *   userStyle selection UI.
+             * @param description Human readable description string displayed under the displayName
+             *   in the userStyle selection UI.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            constructor(
+                id: Id,
+                options: List<ListOption>,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                displayName: CharSequence,
+                description: CharSequence
+            ) : this(
+                id,
+                options,
+                affectsWatchFaceLayers,
+                DisplayText.CharSequenceDisplayText(displayName),
+                DisplayText.CharSequenceDisplayText(description)
+            )
+
+            /**
+             * Sets the default option. If not specified, the default will be the first element of
+             * [options].
+             *
+             * @param defaultOption The default option, used when data isn't persisted.
+             */
+            fun setDefaultOption(defaultOption: ListOption) = apply {
+                this.defaultOption = defaultOption
+            }
+
+            /**
+             * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             */
+            fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+            /**
+             * Sets a provider of an [Icon] for use in the companion userStyle selection UI. This
+             * gets lazily evaluated and is sent to the companion over bluetooth and should be small
+             * (ideally a few kb in size). Note this is not guaranteed to be called on the calling
+             * thread. Note it will be called shortly after watch face initialization completes.
+             */
+            fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+            /**
+             * Sets optional data for an on watch face editor, this will not be sent to the
+             * companion and its contents may be used in preference to other fields by an on watch
+             * face editor.
+             */
+            fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                this.watchFaceEditorData = watchFaceEditorData
+            }
+
+            /** Constructs the [ListUserStyleSetting]. */
+            fun build() =
+                ListUserStyleSetting(
+                    id,
+                    displayName,
+                    description,
+                    iconProvider,
+                    watchFaceEditorData,
+                    options,
+                    affectsWatchFaceLayers,
+                    options.indexOf(defaultOption)
+                )
+        }
+
         /**
          * Constructs a ListUserStyleSetting.
          *
@@ -2319,6 +2642,7 @@ private constructor(
          *   on watch face editor.
          */
         @JvmOverloads
+        @Deprecated("Use the Builder instead")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
             id: Id,
@@ -2334,47 +2658,6 @@ private constructor(
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             { icon },
-            watchFaceEditorData,
-            options,
-            options.indexOf(defaultOption),
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a ListUserStyleSetting with a lazily evaluated [Icon].
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param displayName Localized human readable name for the element, used in the userStyle
-         *   selection UI.
-         * @param description Localized description string displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param options List of all options for this ListUserStyleSetting.
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultOption The default option, used when data isn't persisted.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public constructor(
-            id: Id,
-            displayName: CharSequence,
-            description: CharSequence,
-            iconProvider: () -> Icon?,
-            options: List<ListOption>,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ListOption = options.first(),
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.CharSequenceDisplayText(displayName),
-            DisplayText.CharSequenceDisplayText(description),
-            iconProvider,
             watchFaceEditorData,
             options,
             options.indexOf(defaultOption),
@@ -2403,6 +2686,7 @@ private constructor(
          *   on watch face editor.
          */
         @JvmOverloads
+        @Deprecated("Use the Builder instead")
         public constructor(
             id: Id,
             resources: Resources,
@@ -2418,52 +2702,6 @@ private constructor(
             DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
             DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             { icon },
-            watchFaceEditorData,
-            options,
-            options.indexOf(defaultOption),
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a ListUserStyleSetting with a lazily evaluated [Icon], where
-         * [ListUserStyleSetting.displayName] and [ListUserStyleSetting.description] are specified
-         * as resources.
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param resources The [Resources] from which [displayNameResourceId] and
-         *   [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the
-         *   element, used in the userStyle selection UI.
-         * @param descriptionResourceId String resource id for a human readable description string
-         *   displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param options List of all options for this ListUserStyleSetting.
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultOption The default option, used when data isn't persisted.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            resources: Resources,
-            @StringRes displayNameResourceId: Int,
-            @StringRes descriptionResourceId: Int,
-            iconProvider: () -> Icon?,
-            options: List<ListOption>,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ListOption = options.first(),
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
-            iconProvider,
             watchFaceEditorData,
             options,
             options.indexOf(defaultOption),
@@ -2617,6 +2855,109 @@ private constructor(
             public var watchFaceEditorData: WatchFaceEditorData?
                 internal set
 
+            /** A Builder for [ListOption]. */
+            class Builder
+            private constructor(
+                private val id: Id,
+                private val displayName: DisplayText,
+                private val screenReaderName: DisplayText
+            ) {
+                private var iconProvider: () -> Icon? = { null }
+                private var childSettings: Collection<UserStyleSetting> = emptyList()
+                private var watchFaceEditorData: WatchFaceEditorData? = null
+
+                /**
+                 * Constructs a builder for [ListOption].
+                 *
+                 * @param id [Id] for the [ListOption], must be unique within the parent
+                 *   [ListUserStyleSetting].
+                 * @param resources The [Resources] from which [displayNameResourceId] and
+                 *   [screenReaderNameResourceId] are loaded.
+                 * @param displayNameResourceId String resource id for a human readable name for the
+                 *   [ListOption], used in the userStyle selection UI.
+                 * @param screenReaderNameResourceId String resource id for a human readable name
+                 *   for the [ListOption], used by screen readers. This should be more descriptive
+                 *   than [displayName]. Note prior to android T this is ignored by companion
+                 *   editors.
+                 */
+                constructor(
+                    id: Id,
+                    resources: Resources,
+                    @StringRes displayNameResourceId: Int,
+                    @StringRes screenReaderNameResourceId: Int
+                ) : this(
+                    id,
+                    DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                    DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
+                )
+
+                /**
+                 * Constructs a builder for [ListOption].
+                 *
+                 * @param id [Id] for the [ListOption], must be unique within the parent
+                 *   [ListUserStyleSetting].
+                 * @param displayName Human readable name for the [ListOption], used in the
+                 *   userStyle selection UI.
+                 * @param screenReaderName Human readable name for the [ListOption], used by screen
+                 *   readers. This should be more descriptive than [displayName]. Note prior to
+                 *   android T this is ignored by companion editors.
+                 */
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                constructor(
+                    id: Id,
+                    displayName: CharSequence,
+                    screenReaderName: CharSequence
+                ) : this(
+                    id,
+                    DisplayText.CharSequenceDisplayText(displayName),
+                    DisplayText.CharSequenceDisplayText(screenReaderName)
+                )
+
+                /**
+                 * Used to present a hierarchical style in the editor. Sets the list of child
+                 * [UserStyleSetting]s, which may be empty. Any child settings must be listed in
+                 * [UserStyleSchema.userStyleSettings].
+                 */
+                fun setChildSettings(childSettings: Collection<UserStyleSetting>) = apply {
+                    this.childSettings = childSettings
+                }
+
+                /**
+                 * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to
+                 * the companion over bluetooth and should be small (ideally a few kb in size).
+                 */
+                fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+                /**
+                 * Sets a provider of an [Icon] for use in the companion userStyle selection UI.
+                 * This gets lazily evaluated and is sent to the companion over bluetooth and should
+                 * be small (ideally a few kb in size). Note this is not guaranteed to be called on
+                 * the calling thread. Note it will be called shortly after watch face
+                 * initialization completes.
+                 */
+                fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+                /**
+                 * Sets optional data for an on watch face editor, this will not be sent to the
+                 * companion and its contents may be used in preference to other fields by an on
+                 * watch face editor.
+                 */
+                fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                    this.watchFaceEditorData = watchFaceEditorData
+                }
+
+                /** Constructs the [ListOption]. */
+                fun build() =
+                    ListOption(
+                        id,
+                        displayName,
+                        screenReaderName,
+                        iconProvider,
+                        watchFaceEditorData,
+                        childSettings
+                    )
+            }
+
             /**
              * Constructs a ListOption.
              *
@@ -2636,6 +2977,7 @@ private constructor(
              *   by an on watch face editor.
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @Deprecated("Use the Builder instead")
             constructor(
                 id: Id,
                 displayName: CharSequence,
@@ -2647,22 +2989,6 @@ private constructor(
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 screenReaderNameInternal = DisplayText.CharSequenceDisplayText(screenReaderName)
                 this.iconProvider = { icon }
-                this.watchFaceEditorData = watchFaceEditorData
-            }
-
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            @JvmOverloads
-            constructor(
-                id: Id,
-                displayName: CharSequence,
-                screenReaderName: CharSequence,
-                iconProvider: () -> Icon?,
-                childSettings: Collection<UserStyleSetting> = emptyList(),
-                watchFaceEditorData: WatchFaceEditorData? = null
-            ) : super(id, childSettings) {
-                displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
-                screenReaderNameInternal = DisplayText.CharSequenceDisplayText(screenReaderName)
-                this.iconProvider = iconProvider
                 this.watchFaceEditorData = watchFaceEditorData
             }
 
@@ -2684,7 +3010,7 @@ private constructor(
              *   by an on watch face editor.
              */
             @JvmOverloads
-            @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
+            @Deprecated("Use the Builder instead")
             constructor(
                 id: Id,
                 resources: Resources,
@@ -2716,7 +3042,7 @@ private constructor(
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
              */
-            @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
+            @Deprecated("Use the Builder instead")
             constructor(
                 id: Id,
                 resources: Resources,
@@ -2756,6 +3082,7 @@ private constructor(
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
              */
+            @Deprecated("Use the Builder instead")
             @JvmOverloads
             constructor(
                 id: Id,
@@ -2771,50 +3098,6 @@ private constructor(
                 screenReaderNameInternal =
                     DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
                 this.iconProvider = { icon }
-                this.watchFaceEditorData = watchFaceEditorData
-            }
-
-            /**
-             * Constructs a ListOption with a lazily evaluated [icon].
-             *
-             * @param id The [Id] of this ListOption, must be unique within the
-             *   [ListUserStyleSetting].
-             * @param resources The [Resources] used to load [displayNameResourceId].
-             * @param displayNameResourceId String resource id for a human readable name for the
-             *   element, used in the userStyle selection UI. This should be short, ideally < 20
-             *   characters. Note if the resource string contains `%1$s` that will get replaced with
-             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
-             *   ListOptions.
-             * @param screenReaderNameResourceId String resource id for a human readable name for
-             *   the element, used by screen readers. This should be more descriptive than
-             *   [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
-             *   replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the
-             *   list of ListOptions. Note prior to android T this is ignored by companion editors.
-             * @param iconProvider A provider of an [Icon] for use in the companion userStyle
-             *   selection UI. This gets lazily evaluated and is sent to the companion over
-             *   bluetooth and should be small (ideally a few kb in size). Note this is not
-             *   guaranteed to be called on the calling thread.
-             * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
-             *   child settings must be listed in [UserStyleSchema.userStyleSettings].
-             * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             *   be sent to the companion and its contents may be used in preference to other fields
-             *   by an on watch face editor.
-             */
-            @JvmOverloads
-            constructor(
-                id: Id,
-                resources: Resources,
-                @StringRes displayNameResourceId: Int,
-                @StringRes screenReaderNameResourceId: Int,
-                iconProvider: () -> Icon?,
-                childSettings: Collection<UserStyleSetting> = emptyList(),
-                watchFaceEditorData: WatchFaceEditorData? = null
-            ) : super(id, childSettings) {
-                displayNameInternal =
-                    DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId)
-                screenReaderNameInternal =
-                    DisplayText.ResourceDisplayTextWithIndex(resources, screenReaderNameResourceId)
-                this.iconProvider = iconProvider
                 this.watchFaceEditorData = watchFaceEditorData
             }
 
@@ -3015,6 +3298,128 @@ private constructor(
             }
         }
 
+        /** A builder for [LongRangeUserStyleSetting]. */
+        class Builder
+        private constructor(
+            private val id: Id,
+            private val minimumValue: Long,
+            private val maximumValue: Long,
+            private val defaultValue: Long,
+            private val affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            private val displayName: DisplayText,
+            private val description: DisplayText
+        ) {
+            private var iconProvider: () -> Icon? = { null }
+            private var watchFaceEditorData: WatchFaceEditorData? = null
+
+            /**
+             * Constructs a builder for [LongRangeUserStyleSetting].
+             *
+             * @param id [Id] for the [LongRangeUserStyleSetting], must be unique.
+             * @param minimumValue Minimum value (inclusive).
+             * @param maximumValue Maximum value (inclusive).
+             * @param defaultValue The default value for the constructed
+             *   [LongRangeUserStyleSetting].
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param resources The [Resources] from which [displayNameResourceId] and
+             *   [descriptionResourceId] are loaded.
+             * @param displayNameResourceId String resource id for a human readable name for the
+             *   [LongRangeUserStyleSetting], used in the userStyle selection UI.
+             * @param descriptionResourceId String resource id for a human readable description
+             *   string displayed under the displayName in the userStyle selection UI.
+             */
+            constructor(
+                id: Id,
+                minimumValue: Long,
+                maximumValue: Long,
+                defaultValue: Long,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                @StringRes descriptionResourceId: Int
+            ) : this(
+                id,
+                minimumValue,
+                maximumValue,
+                defaultValue,
+                affectsWatchFaceLayers,
+                DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
+                DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId)
+            )
+
+            /**
+             * Constructs a builder for [LongRangeUserStyleSetting].
+             *
+             * @param id [Id] for the [LongRangeUserStyleSetting], must be unique.
+             * @param minimumValue Minimum value (inclusive).
+             * @param maximumValue Maximum value (inclusive).
+             * @param defaultValue The default value for the constructed
+             *   [LongRangeUserStyleSetting].
+             * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which
+             *   watch face rendering layers this style affects.
+             * @param displayName Human readable name for the [LongRangeUserStyleSetting], used in
+             *   the userStyle selection UI.
+             * @param description Human readable description string displayed under the displayName
+             *   in the userStyle selection UI.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            constructor(
+                id: Id,
+                minimumValue: Long,
+                maximumValue: Long,
+                defaultValue: Long,
+                affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+                displayName: CharSequence,
+                description: CharSequence
+            ) : this(
+                id,
+                minimumValue,
+                maximumValue,
+                defaultValue,
+                affectsWatchFaceLayers,
+                DisplayText.CharSequenceDisplayText(displayName),
+                DisplayText.CharSequenceDisplayText(description)
+            )
+
+            /**
+             * Sets an [Icon] for use in the companion userStyle selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             */
+            fun setIcon(icon: Icon) = apply { iconProvider = { icon } }
+
+            /**
+             * Sets a provider of an [Icon] for use in the companion userStyle selection UI. This
+             * gets lazily evaluated and is sent to the companion over bluetooth and should be small
+             * (ideally a few kb in size). Note this is not guaranteed to be called on the calling
+             * thread. Note it will be called shortly after watch face initialization completes.
+             */
+            fun setIcon(iconProvider: () -> Icon?) = apply { this.iconProvider = iconProvider }
+
+            /**
+             * Sets optional data for an on watch face editor, this will not be sent to the
+             * companion and its contents may be used in preference to other fields by an on watch
+             * face editor.
+             */
+            fun setWatchFaceEditorData(watchFaceEditorData: WatchFaceEditorData) = apply {
+                this.watchFaceEditorData = watchFaceEditorData
+            }
+
+            /** Constructs the [LongRangeUserStyleSetting]. */
+            fun build() =
+                LongRangeUserStyleSetting(
+                    id,
+                    displayName,
+                    description,
+                    iconProvider,
+                    watchFaceEditorData,
+                    minimumValue,
+                    maximumValue,
+                    affectsWatchFaceLayers,
+                    defaultValue
+                )
+        }
+
         /**
          * Constructs a LongRangeUserStyleSetting.
          *
@@ -3033,6 +3438,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
         public constructor(
@@ -3082,6 +3488,7 @@ private constructor(
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
          */
+        @Deprecated("Use the Builder instead")
         @JvmOverloads
         public constructor(
             id: Id,
@@ -3099,58 +3506,6 @@ private constructor(
             DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
             DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
             { icon },
-            watchFaceEditorData,
-            createOptionsList(minimumValue, maximumValue, defaultValue),
-            // The index of defaultValue can only ever be 0 or 1.
-            when (defaultValue) {
-                minimumValue -> 0
-                else -> 1
-            },
-            affectsWatchFaceLayers
-        )
-
-        /**
-         * Constructs a LongRangeUserStyleSetting where [LongRangeUserStyleSetting.displayName] and
-         * [LongRangeUserStyleSetting.description] are specified as resources, with a lazily
-         * constructed [icon].
-         *
-         * @param id [Id] for the element, must be unique.
-         * @param resources The [Resources] from which [displayNameResourceId] and
-         *   [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the
-         *   element, used in the userStyle selection UI.
-         * @param descriptionResourceId String resource id for a human readable description string
-         *   displayed under the displayName.
-         * @param iconProvider A provider of an [Icon] for use in the companion userStyle selection
-         *   UI. This gets lazily evaluated and is sent to the companion over bluetooth and should
-         *   be small (ideally a few kb in size). Note this is not guaranteed to be called on the
-         *   calling thread.
-         * @param minimumValue Minimum value (inclusive).
-         * @param maximumValue Maximum value (inclusive).
-         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         *   face rendering layers this style affects.
-         * @param defaultValue The default value for this LongRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         *   sent to the companion and its contents may be used in preference to other fields by an
-         *   on watch face editor.
-         */
-        @JvmOverloads
-        public constructor(
-            id: Id,
-            resources: Resources,
-            @StringRes displayNameResourceId: Int,
-            @StringRes descriptionResourceId: Int,
-            iconProvider: () -> Icon?,
-            minimumValue: Long,
-            maximumValue: Long,
-            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Long,
-            watchFaceEditorData: WatchFaceEditorData? = null
-        ) : super(
-            id,
-            DisplayText.ResourceDisplayTextWithIndex(resources, displayNameResourceId),
-            DisplayText.ResourceDisplayTextWithIndex(resources, descriptionResourceId),
-            iconProvider,
             watchFaceEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.

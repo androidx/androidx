@@ -51,127 +51,147 @@ class OldClientAidlCompatTest {
         private val CONTEXT: Context = ApplicationProvider.getApplicationContext()
 
         private val COLOR_STYLE_SETTING =
-            ListUserStyleSetting(
-                UserStyleSetting.Id("COLOR_STYLE_SETTING"),
-                CONTEXT.resources,
-                R.string.colors_style_setting,
-                R.string.colors_style_setting_description,
-                icon = null,
-                options =
+            ListUserStyleSetting.Builder(
+                    UserStyleSetting.Id("COLOR_STYLE_SETTING"),
+                    options =
+                        listOf(
+                            ListUserStyleSetting.ListOption.Builder(
+                                    Option.Id("RED_STYLE"),
+                                    CONTEXT.resources,
+                                    R.string.colors_style_red,
+                                    R.string.colors_style_red_screen_reader
+                                )
+                                .setIcon(Icon.createWithResource(CONTEXT, R.drawable.red_style))
+                                .build(),
+                            ListUserStyleSetting.ListOption.Builder(
+                                    Option.Id("GREEN_STYLE"),
+                                    CONTEXT.resources,
+                                    R.string.colors_style_green,
+                                    R.string.colors_style_green_screen_reader
+                                )
+                                .setIcon(Icon.createWithResource(CONTEXT, R.drawable.green_style))
+                                .build(),
+                            ListUserStyleSetting.ListOption.Builder(
+                                    Option.Id("BLUE_STYLE"),
+                                    CONTEXT.resources,
+                                    R.string.colors_style_blue,
+                                    R.string.colors_style_blue_screen_reader
+                                )
+                                .setIcon(Icon.createWithResource(CONTEXT, R.drawable.blue_style))
+                                .build()
+                        ),
                     listOf(
-                        ListUserStyleSetting.ListOption(
-                            Option.Id("RED_STYLE"),
-                            CONTEXT.resources,
-                            R.string.colors_style_red,
-                            R.string.colors_style_red_screen_reader,
-                            Icon.createWithResource(CONTEXT, R.drawable.red_style)
-                        ),
-                        ListUserStyleSetting.ListOption(
-                            Option.Id("GREEN_STYLE"),
-                            CONTEXT.resources,
-                            R.string.colors_style_green,
-                            R.string.colors_style_green_screen_reader,
-                            Icon.createWithResource(CONTEXT, R.drawable.green_style)
-                        ),
-                        ListUserStyleSetting.ListOption(
-                            Option.Id("BLUE_STYLE"),
-                            CONTEXT.resources,
-                            R.string.colors_style_blue,
-                            R.string.colors_style_blue_screen_reader,
-                            Icon.createWithResource(CONTEXT, R.drawable.blue_style)
-                        )
+                        WatchFaceLayer.BASE,
+                        WatchFaceLayer.COMPLICATIONS,
+                        WatchFaceLayer.COMPLICATIONS_OVERLAY
                     ),
-                listOf(
-                    WatchFaceLayer.BASE,
-                    WatchFaceLayer.COMPLICATIONS,
-                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                    CONTEXT.resources,
+                    R.string.colors_style_setting,
+                    R.string.colors_style_setting_description
                 )
-            )
+                .build()
 
         private val DRAW_HOUR_PIPS_SETTING =
-            UserStyleSetting.BooleanUserStyleSetting(
-                UserStyleSetting.Id("DRAW_HOUR_PIPS_STYLE_SETTING"),
-                CONTEXT.resources,
-                R.string.watchface_pips_setting,
-                R.string.watchface_pips_setting_description,
-                icon = null,
-                listOf(WatchFaceLayer.BASE),
-                true
-            )
+            UserStyleSetting.BooleanUserStyleSetting.Builder(
+                    UserStyleSetting.Id("DRAW_HOUR_PIPS_STYLE_SETTING"),
+                    listOf(WatchFaceLayer.BASE),
+                    true,
+                    CONTEXT.resources,
+                    R.string.watchface_pips_setting,
+                    R.string.watchface_pips_setting_description
+                )
+                .build()
 
         private val WATCH_HAND_LENGTH_SETTING =
-            UserStyleSetting.DoubleRangeUserStyleSetting(
-                UserStyleSetting.Id("WATCH_HAND_LENGTH_STYLE_SETTING"),
-                CONTEXT.resources,
-                R.string.watchface_hand_length_setting,
-                R.string.watchface_hand_length_setting_description,
-                icon = null,
-                minimumValue = 0.25,
-                maximumValue = 1.0,
-                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-                defaultValue = 0.75
-            )
+            UserStyleSetting.DoubleRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("WATCH_HAND_LENGTH_STYLE_SETTING"),
+                    minimumValue = 0.25,
+                    maximumValue = 1.0,
+                    defaultValue = 0.75,
+                    listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
+                    CONTEXT.resources,
+                    R.string.watchface_hand_length_setting,
+                    R.string.watchface_hand_length_setting_description
+                )
+                .build()
 
-        @Suppress("Deprecation")
         private val COMPLICATIONS_STYLE_SETTING =
-            ComplicationSlotsUserStyleSetting(
-                UserStyleSetting.Id("COMPLICATIONS_STYLE_SETTING"),
-                CONTEXT.resources,
-                R.string.watchface_complications_setting,
-                R.string.watchface_complications_setting_description,
-                icon = null,
-                complicationConfig =
+            ComplicationSlotsUserStyleSetting.Builder(
+                    UserStyleSetting.Id("COMPLICATIONS_STYLE_SETTING"),
                     listOf(
+                        @Suppress("deprecation")
                         ComplicationSlotsOption(
                             Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                             CONTEXT.resources,
                             R.string.watchface_complications_setting_both,
-                            icon = null,
+                            null,
                             // NB this list is empty because each [ComplicationSlotOverlay] is
-                            // applied on
-                            // top of the initial config.
-                            listOf()
+                            // applied on top of the initial config.
+                            listOf(),
+                            null
                         ),
+                        @Suppress("deprecation")
                         ComplicationSlotsOption(
                             Option.Id("NO_COMPLICATIONS"),
                             CONTEXT.resources,
                             R.string.watchface_complications_setting_none,
-                            icon = null,
+                            null,
                             listOf(
-                                ComplicationSlotOverlay(complicationSlotId = 1, enabled = false),
-                                ComplicationSlotOverlay(complicationSlotId = 2, enabled = false)
-                            )
+                                ComplicationSlotOverlay.Builder(complicationSlotId = 1)
+                                    .setEnabled(false)
+                                    .build(),
+                                ComplicationSlotOverlay.Builder(complicationSlotId = 2)
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            null
                         ),
+                        @Suppress("deprecation")
                         ComplicationSlotsOption(
                             Option.Id("LEFT_COMPLICATION"),
                             CONTEXT.resources,
                             R.string.watchface_complications_setting_left,
-                            icon = null,
-                            listOf(ComplicationSlotOverlay(complicationSlotId = 1, enabled = false))
+                            null,
+                            listOf(
+                                ComplicationSlotOverlay.Builder(complicationSlotId = 1)
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            null
                         ),
+                        @Suppress("deprecation")
                         ComplicationSlotsOption(
                             Option.Id("RIGHT_COMPLICATION"),
                             CONTEXT.resources,
                             R.string.watchface_complications_setting_right,
-                            icon = null,
-                            listOf(ComplicationSlotOverlay(complicationSlotId = 2, enabled = false))
-                        )
+                            null,
+                            listOf(
+                                ComplicationSlotOverlay.Builder(complicationSlotId = 2)
+                                    .setEnabled(false)
+                                    .build()
+                            ),
+                            null
+                        ),
                     ),
-                listOf(WatchFaceLayer.COMPLICATIONS)
-            )
+                    listOf(WatchFaceLayer.COMPLICATIONS),
+                    CONTEXT.resources,
+                    R.string.watchface_complications_setting,
+                    R.string.watchface_complications_setting_description
+                )
+                .build()
 
         private val LONG_RANGE_SETTING =
-            UserStyleSetting.LongRangeUserStyleSetting(
-                UserStyleSetting.Id("HOURS_DRAW_FREQ_STYLE_SETTING"),
-                CONTEXT.resources,
-                R.string.watchface_draw_hours_freq_setting,
-                R.string.watchface_draw_hours_freq_setting_description,
-                icon = null,
-                minimumValue = 0,
-                maximumValue = 4,
-                listOf(WatchFaceLayer.BASE),
-                defaultValue = 1
-            )
+            UserStyleSetting.LongRangeUserStyleSetting.Builder(
+                    UserStyleSetting.Id("HOURS_DRAW_FREQ_STYLE_SETTING"),
+                    minimumValue = 0,
+                    maximumValue = 4,
+                    defaultValue = 1,
+                    listOf(WatchFaceLayer.BASE),
+                    CONTEXT.resources,
+                    R.string.watchface_draw_hours_freq_setting,
+                    R.string.watchface_draw_hours_freq_setting_description
+                )
+                .build()
 
         private val SCHEMA =
             UserStyleSchema(

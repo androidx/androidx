@@ -77,42 +77,44 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 
     private val colorStyleSetting by lazy {
-        UserStyleSetting.ListUserStyleSetting(
-            UserStyleSetting.Id(COLOR_STYLE_SETTING),
-            resources,
-            R.string.colors_style_setting,
-            R.string.colors_style_setting_description,
-            icon = null,
-            options =
+        UserStyleSetting.ListUserStyleSetting.Builder(
+                UserStyleSetting.Id(COLOR_STYLE_SETTING),
                 listOf(
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        Option.Id(RED_STYLE),
-                        resources,
-                        R.string.colors_style_red,
-                        R.string.colors_style_red_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.red_style) }
-                    ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        Option.Id(GREEN_STYLE),
-                        resources,
-                        R.string.colors_style_green,
-                        R.string.colors_style_green_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.green_style) }
-                    ),
-                    UserStyleSetting.ListUserStyleSetting.ListOption(
-                        Option.Id(BLUE_STYLE),
-                        resources,
-                        R.string.colors_style_blue,
-                        R.string.colors_style_blue_screen_reader,
-                        { Icon.createWithResource(this, R.drawable.blue_style) }
-                    )
+                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(RED_STYLE),
+                            resources,
+                            R.string.colors_style_red,
+                            R.string.colors_style_red_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
+                        .build(),
+                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(GREEN_STYLE),
+                            resources,
+                            R.string.colors_style_green,
+                            R.string.colors_style_green_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
+                        .build(),
+                    UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
+                            Option.Id(BLUE_STYLE),
+                            resources,
+                            R.string.colors_style_blue,
+                            R.string.colors_style_blue_screen_reader
+                        )
+                        .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
+                        .build()
                 ),
-            listOf(
-                WatchFaceLayer.BASE,
-                WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                listOf(
+                    WatchFaceLayer.BASE,
+                    WatchFaceLayer.COMPLICATIONS,
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                ),
+                resources,
+                R.string.colors_style_setting,
+                R.string.colors_style_setting_description
             )
-        )
+            .build()
     }
 
     private val canvasComplicationFactory = CanvasComplicationFactory { watchState, listener ->
