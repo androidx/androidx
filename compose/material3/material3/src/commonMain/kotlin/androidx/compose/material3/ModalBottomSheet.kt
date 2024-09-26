@@ -333,7 +333,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                         Modifier.align(Alignment.CenterHorizontally)
                             .clickable {
                                 when (sheetState.currentValue) {
-                                    Expanded -> scope.launch { sheetState.hide() }
+                                    Expanded -> animateToDismiss()
                                     PartiallyExpanded -> scope.launch { sheetState.expand() }
                                     else -> scope.launch { sheetState.show() }
                                 }
