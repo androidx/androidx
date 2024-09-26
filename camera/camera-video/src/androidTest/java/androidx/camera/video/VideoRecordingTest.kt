@@ -58,6 +58,7 @@ import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSuppo
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraTaskTrackingExecutor
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.InternalTestConvenience.ignoreTestForCameraPipe
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -1176,7 +1177,4 @@ class VideoRecordingTest(
             }
         }
     }
-
-    private fun String.ignoreTestForCameraPipe(message: String) =
-        assumeTrue(message, !this.contains(CameraPipeConfig::class.simpleName!!))
 }
