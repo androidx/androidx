@@ -35,6 +35,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
+    androidTestImplementation(libs.espressoIdlingResource)
 
     debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.1")
     debugImplementation("androidx.fragment:fragment-testing:1.7.1")

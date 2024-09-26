@@ -26,7 +26,9 @@ import androidx.pdf.actions.SelectionViewActions
 import androidx.pdf.matchers.SearchViewAssertions
 import androidx.pdf.util.Preconditions
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.action.ViewActions.pressKey
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.swipeUp
@@ -40,6 +42,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -47,6 +51,33 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PdfViewerFragmentTestSuite {
+
+    private lateinit var scenario: FragmentScenario<MockPdfViewerFragment>
+
+    @Before
+    fun setup() {
+        scenario =
+            launchFragmentInContainer<MockPdfViewerFragment>(
+                themeResId =
+                    com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
+                initialState = Lifecycle.State.INITIALIZED
+            )
+        scenario.onFragment { fragment ->
+            // Register idling resource
+            IdlingRegistry.getInstance()
+                .register(fragment.pdfLoadingIdlingResource.countingIdlingResource)
+        }
+    }
+
+    @After
+    fun cleanup() {
+        scenario.onFragment { fragment ->
+            // Un-register idling resource
+            IdlingRegistry.getInstance()
+                .unregister(fragment.pdfLoadingIdlingResource.countingIdlingResource)
+        }
+        scenario.close()
+    }
 
     private fun scenarioLoadDocument(
         filename: String,
@@ -56,12 +87,6 @@ class PdfViewerFragmentTestSuite {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
 
-        val scenario =
-            launchFragmentInContainer<MockPdfViewerFragment>(
-                themeResId =
-                    com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
-                initialState = Lifecycle.State.INITIALIZED
-            )
         scenario.moveToState(nextState)
         scenario.onFragment { it.requireActivity().requestedOrientation = orientation }
 
@@ -70,6 +95,7 @@ class PdfViewerFragmentTestSuite {
 
         // Load the document in the fragment
         scenario.onFragment { fragment ->
+            fragment.pdfLoadingIdlingResource.increment()
             fragment.documentUri = TestUtils.saveStream(inputStream, fragment.requireContext())
         }
 
@@ -86,8 +112,6 @@ class PdfViewerFragmentTestSuite {
             )
 
         // Delay required for the PDF to load
-        // TODO: Implement callback based delay and remove Thread.sleep
-        Thread.sleep(DELAY_TIME_MS)
         onView(withId(R.id.loadingView))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
         scenario.onFragment {
@@ -103,16 +127,16 @@ class PdfViewerFragmentTestSuite {
 
         // Selection
         val selectionViewActions = SelectionViewActions()
-        onView(isRoot()).perform(selectionViewActions.longPress(550, 800))
+        onView(isRoot()).perform(longClick())
         onView(withId(R.id.start_drag_handle)).check(matches(isDisplayed()))
         onView(withId(R.id.stop_drag_handle)).check(matches(isDisplayed()))
 
         onView(withId(R.id.parent_pdf_container))
             .perform(selectionViewActions.longClickAndDragRight())
         onView(withId(R.id.parent_pdf_container)).check(selectionViewActions.stopHandleMoved())
-        scenario.close()
     }
 
+    @Test
     fun testPdfViewerFragment_isTextSearchActive_toggleMenu() {
         val scenario =
             scenarioLoadDocument(
@@ -121,9 +145,6 @@ class PdfViewerFragmentTestSuite {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             )
 
-        // Delay required for the PDF to load
-        // TODO: Implement callback based delay and remove Thread.sleep
-        Thread.sleep(DELAY_TIME_MS)
         onView(withId(R.id.loadingView))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
         scenario.onFragment {
@@ -156,7 +177,6 @@ class PdfViewerFragmentTestSuite {
         onView(withId(R.id.close_btn)).perform(click())
         onView(withId(R.id.find_query_box))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
-        scenario.close()
     }
 
     fun testPdfViewerFragment_setDocumentUri_passwordProtected_portrait() {
@@ -201,9 +221,7 @@ class PdfViewerFragmentTestSuite {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             )
 
-        // Delay required for the PDF to load
-        // TODO: Implement callback based delay and remove Thread.sleep
-        Thread.sleep(DELAY_TIME_MS)
+        onView(withId(R.id.errorTextView)).check(matches(isDisplayed()))
         scenario.onFragment { fragment ->
             Preconditions.checkArgument(
                 fragment.documentError is RuntimeException,
@@ -216,7 +234,6 @@ class PdfViewerFragmentTestSuite {
                 "Incorrect exception returned ${fragment.documentError?.message}"
             )
         }
-        scenario.close()
     }
 
     companion object {

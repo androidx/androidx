@@ -317,6 +317,7 @@ public open class PdfViewerFragment : Fragment() {
                 },
                 onDocumentLoaded = {
                     documentLoaded = true
+                    onLoadDocumentSuccess()
                     if (shouldRedrawOnDocumentLoaded) {
                         shouldRedrawOnDocumentLoaded = false
                     }
@@ -865,7 +866,6 @@ public open class PdfViewerFragment : Fragment() {
             object : FutureValue.Callback<Openable> {
                 override fun available(value: Openable) {
                     viewerAvailable(fileUri, fileName, value)
-                    onLoadDocumentSuccess()
                 }
 
                 override fun failed(thrown: Throwable) {
