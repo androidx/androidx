@@ -39,6 +39,7 @@ class JavaPluginTest : BasePluginTest() {
             suffix =
                 """
                 android {
+                    namespace "androidx.navigation.testapp"
                     flavorDimensions "mode"
                     productFlavors {
                         foo {
