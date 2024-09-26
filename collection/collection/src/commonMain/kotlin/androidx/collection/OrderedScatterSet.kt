@@ -258,7 +258,7 @@ public sealed class OrderedScatterSet<E> {
         var candidate = tail
         while (candidate != NodeInvalidLink) {
             val previousNode = nodes[candidate].previousNode
-            @Suppress("UNCHECKED_CAST") block(candidate)
+            block(candidate)
             candidate = previousNode
         }
     }
