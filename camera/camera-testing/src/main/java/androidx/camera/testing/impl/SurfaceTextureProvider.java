@@ -41,6 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -213,7 +214,8 @@ public final class SurfaceTextureProvider {
                 GLES20.glGenTextures(1, textureIds, 0);
                 SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
                 surfaceTexture.setDefaultBufferSize(width, height);
-                surfaceTexture.setOnFrameAvailableListener(it ->
+                surfaceTexture.setOnFrameAvailableListener(it -> {
+                    try {
                         glExecutor.execute(() -> {
                             synchronized (lock) {
                                 if (surfaceTextureReleased.get()) {
@@ -224,7 +226,11 @@ public final class SurfaceTextureProvider {
                                     frameAvailableListener.onFrameAvailable(surfaceTexture);
                                 }
                             }
-                        }));
+                        });
+                    } catch (RejectedExecutionException e) {
+                        Logger.d(TAG, "The handler of the glExecutor might have been quited.");
+                    }
+                });
 
                 completer.set(
                         new SurfaceTextureHolder(surfaceTexture, () -> glExecutor.execute(() -> {
