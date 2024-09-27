@@ -258,6 +258,19 @@ constructor(
         }
     }
 
+    /**
+     * Awaits for flash mode to be updated (if required) and returns the initial flash mode value
+     * i.e. the value for which the waiting was started.
+     */
+    public suspend fun awaitFlashModeUpdate(): Int {
+        debug { "FlashControl: Waiting for any ongoing update to be completed" }
+        // The flash mode may change while waiting for it to be updated, snapshotting it to ensure
+        // the initial flash mode value (for which waiting started) is returned afterwards.
+        val initialFlashMode = flashMode
+        updateSignal.join()
+        return initialFlashMode
+    }
+
     @Module
     public abstract class Bindings {
         @Binds

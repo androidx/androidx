@@ -51,7 +51,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.InternalTestConvenience.ignoreTestForCameraPipe
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -208,11 +207,6 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
 
     @Test
     fun flashEnabledInRequest_whenCapturedWithFlashOnAndSharedEffect() {
-        implName.ignoreTestForCameraPipe(
-            "TODO: b/368559255 - Since the related feature is not implemented in CameraPipe yet" +
-                ", the test will be running only on CameraX lab in case of camera-pipe config"
-        )
-
         verifyRequestAeOrFlashModeForFlashModeCapture(
             ImageCapture.FLASH_MODE_ON,
             addSharedEffect = true

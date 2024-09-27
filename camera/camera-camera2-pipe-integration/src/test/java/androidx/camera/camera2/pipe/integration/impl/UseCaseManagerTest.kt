@@ -693,7 +693,6 @@ class UseCaseManagerTest {
                 requestListener = ComboRequestListener(),
                 cameraConfig = CameraConfig(cameraId),
                 builder = useCaseCameraComponentBuilder,
-                cameraControl = fakeCamera.cameraControlInternal,
                 zslControl = ZslControlNoOpImpl(),
                 controls = controls as java.util.Set<UseCaseCameraControl>,
                 camera2CameraControl =

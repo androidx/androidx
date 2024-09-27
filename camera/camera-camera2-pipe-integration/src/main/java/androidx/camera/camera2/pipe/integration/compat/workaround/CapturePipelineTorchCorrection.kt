@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import javax.inject.Inject
@@ -89,6 +90,13 @@ constructor(
 
         return deferredResults
     }
+
+    override suspend fun getCameraCapturePipeline(
+        captureMode: Int,
+        flashMode: Int,
+        flashType: Int
+    ): CameraCapturePipeline =
+        capturePipelineImpl.getCameraCapturePipeline(captureMode, flashMode, flashType)
 
     override var template: Int = CameraDevice.TEMPLATE_PREVIEW
         set(value) {

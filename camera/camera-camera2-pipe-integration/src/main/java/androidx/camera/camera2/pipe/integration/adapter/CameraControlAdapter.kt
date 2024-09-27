@@ -31,15 +31,19 @@ import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.StillCaptureRequestControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.core.CameraControl.OperationCanceledException
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -74,6 +78,8 @@ constructor(
     private val zoomControl: ZoomControl,
     private val zslControl: ZslControl,
     public val camera2cameraControl: Camera2CameraControl,
+    private val useCaseManager: UseCaseManager,
+    private val threads: UseCaseThreads,
 ) : CameraControlInternal {
     override fun getSensorRect(): Rect {
         val sensorRect =
@@ -167,6 +173,24 @@ constructor(
         @ImageCapture.FlashType flashType: Int,
     ): ListenableFuture<List<Void?>> =
         stillCaptureRequestControl.issueCaptureRequests(captureConfigs, captureMode, flashType)
+
+    override fun getCameraCapturePipelineAsync(
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashType flashType: Int
+    ): ListenableFuture<CameraCapturePipeline> {
+        val camera =
+            useCaseManager.camera
+                ?: return Futures.immediateFailedFuture(
+                    OperationCanceledException("Camera is not active.")
+                )
+        return threads.sequentialScope.future {
+            camera.getCameraCapturePipeline(
+                captureMode,
+                flashControl.awaitFlashModeUpdate(),
+                flashType
+            )
+        }
+    }
 
     override fun getSessionConfig(): SessionConfig {
         warn { "TODO: getSessionConfig is not yet supported" }

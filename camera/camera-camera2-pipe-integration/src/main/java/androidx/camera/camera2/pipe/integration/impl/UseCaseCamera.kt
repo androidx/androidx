@@ -26,7 +26,9 @@ import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionProcessorSurface
 import dagger.Binds
@@ -48,6 +50,12 @@ public interface UseCaseCamera {
     // RequestControl of the UseCaseCamera
     public val requestControl: UseCaseCameraRequestControl
 
+    public suspend fun getCameraCapturePipeline(
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashMode flashMode: Int,
+        @ImageCapture.FlashType flashType: Int,
+    ): CameraCapturePipeline
+
     public fun setActiveResumeMode(enabled: Boolean) {}
 
     // Lifecycle
@@ -68,6 +76,7 @@ constructor(
     private val sessionProcessorManager: SessionProcessorManager?,
     private val sessionConfigAdapter: SessionConfigAdapter,
     override val requestControl: UseCaseCameraRequestControl,
+    private val capturePipeline: CapturePipeline
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
@@ -138,6 +147,13 @@ constructor(
     }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
+
+    override suspend fun getCameraCapturePipeline(
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashMode flashMode: Int,
+        @ImageCapture.FlashType flashType: Int,
+    ): CameraCapturePipeline =
+        capturePipeline.getCameraCapturePipeline(captureMode, flashMode, flashType)
 
     @Module
     public abstract class Bindings {

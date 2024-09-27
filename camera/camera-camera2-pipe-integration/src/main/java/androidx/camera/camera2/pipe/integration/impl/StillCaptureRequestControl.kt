@@ -138,12 +138,10 @@ constructor(
         requestControl: UseCaseCameraRequestControl
     ): Deferred<List<Void?>> {
         debug { "StillCaptureRequestControl: submitting $request at $requestControl" }
-        val flashMode = flashControl.flashMode
         // Prior to submitStillCaptures, wait until the pending flash mode session change is
         // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
-        debug { "StillCaptureRequestControl: Waiting for flash control" }
-        flashControl.updateSignal.join()
+        val flashMode = flashControl.awaitFlashModeUpdate()
         debug { "StillCaptureRequestControl: Issuing single capture" }
         val deferredList =
             requestControl.issueSingleCaptureAsync(

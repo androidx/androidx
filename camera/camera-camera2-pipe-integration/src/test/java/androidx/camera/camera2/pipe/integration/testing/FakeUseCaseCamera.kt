@@ -34,10 +34,12 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.testing.impl.FakeCameraCapturePipeline
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import kotlinx.coroutines.CompletableDeferred
@@ -238,6 +240,11 @@ open class FakeUseCaseCameraRequestControl(
 class FakeUseCaseCamera(
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
+    override suspend fun getCameraCapturePipeline(
+        captureMode: Int,
+        flashMode: Int,
+        flashType: Int
+    ): CameraCapturePipeline = FakeCameraCapturePipeline()
 
     override fun close(): Job {
         return CompletableDeferred(Unit)
