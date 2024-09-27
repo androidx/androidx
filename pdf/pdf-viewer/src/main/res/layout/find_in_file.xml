@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:hint="@string/hint_find"
             android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOutline"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
             android:paddingLeft="14dp"
             android:imeOptions="actionSearch"
             android:inputType="textFilter"
