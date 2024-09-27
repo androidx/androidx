@@ -206,13 +206,23 @@ internal class CaptureSessionState(
             }
 
             if (cameraCaptureSession == null && session != null) {
-                captureSession =
-                    ConfiguredCameraCaptureSession(
-                        session,
-                        GraphRequestProcessor.from(
-                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                val captureSequenceProcessor =
+                    captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                if (captureSequenceProcessor is Camera2CaptureSequenceProcessor) {
+                    captureSession =
+                        ConfiguredCameraCaptureSession(
+                            session,
+                            GraphRequestProcessor.from(captureSequenceProcessor),
+                            captureSequenceProcessor
                         )
-                    )
+                } else {
+                    captureSession =
+                        ConfiguredCameraCaptureSession(
+                            session,
+                            GraphRequestProcessor.from(captureSequenceProcessor),
+                            null
+                        )
+                }
                 cameraCaptureSession = captureSession
             } else {
                 captureSession = cameraCaptureSession
@@ -268,9 +278,9 @@ internal class CaptureSessionState(
             configuredCaptureSession = cameraCaptureSession
             cameraCaptureSession = null
         }
-
-        val graphProcessor = configuredCaptureSession?.processor
-        if (graphProcessor != null) {
+        val captureSession = configuredCaptureSession
+        if (captureSession != null) {
+            val graphProcessor = captureSession.processor
             // WARNING:
             // This normally does NOT call close on the captureSession to avoid potentially slow
             // reconfiguration during mode switch and shutdown. This avoids unintentional restarts
@@ -296,6 +306,13 @@ internal class CaptureSessionState(
                 Debug.traceStop()
             }
 
+            // Explicitly release ImageWriter resources for the edge case when two capture sessions
+            // share the same input surface.
+            // b/369203626
+            Debug.traceStart { "$this#disconnect" }
+            captureSession.captureSequenceProcessor?.disconnect()
+            Debug.traceStop()
+
             // There are rare, extraordinary circumstances where we might need to close the capture
             // session. It is possible the app might explicitly wait for the captures to be
             // completely stopped through signals from CameraSurfaceManager, and in which case
@@ -306,11 +323,9 @@ internal class CaptureSessionState(
             // [1] b/277310425
             // [2] b/277675483
             if (cameraGraphFlags.closeCaptureSessionOnDisconnect) {
-                val captureSession = configuredCaptureSession?.session
-                checkNotNull(captureSession)
                 Debug.trace("$this CameraCaptureSessionWrapper#close") {
                     Log.debug { "Closing capture session for $this" }
-                    captureSession.close()
+                    captureSession.session.close()
                 }
             }
             Debug.traceStop()
@@ -507,6 +522,7 @@ internal class CaptureSessionState(
 
     private data class ConfiguredCameraCaptureSession(
         val session: CameraCaptureSessionWrapper,
-        val processor: GraphRequestProcessor
+        val processor: GraphRequestProcessor,
+        val captureSequenceProcessor: Camera2CaptureSequenceProcessor?
     )
 }
