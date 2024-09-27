@@ -165,7 +165,7 @@ public class NativeSQLiteStatement(
         return getColumnType(index) == SQLITE_NULL
     }
 
-    private fun getColumnType(index: Int): Int {
+    override fun getColumnType(index: Int): Int {
         throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)

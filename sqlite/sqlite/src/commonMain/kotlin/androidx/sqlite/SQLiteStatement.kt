@@ -191,6 +191,17 @@ public interface SQLiteStatement {
     }
 
     /**
+     * Returns the data type of a column at [index] in the result of the statement.
+     *
+     * The data type can be used to determine the preferred `get*()` function to be used for the
+     * column but other getters may perform data type conversion.
+     *
+     * @param index the 0-based index of the column
+     * @return the data type of the column
+     */
+    @DataType public fun getColumnType(index: Int): Int
+
+    /**
      * Executes the statement and evaluates the next result row if available.
      *
      * A statement is initially prepared and compiled but is not executed until one or more calls to
@@ -203,7 +214,7 @@ public interface SQLiteStatement {
 
     /**
      * Resets the prepared statement back to initial state so that it can be re-executed via [step].
-     * Any parameter bound via the bind*() APIs will retain their value.
+     * Any parameter bound via the `bind*()` APIs will retain their value.
      */
     public fun reset()
 

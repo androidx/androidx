@@ -90,6 +90,11 @@ public actual class BundledSQLiteStatement(
         return nativeGetColumnName(statementPointer, index)
     }
 
+    override fun getColumnType(index: Int): Int {
+        throwIfClosed()
+        return nativeGetColumnType(statementPointer, index)
+    }
+
     override fun step(): Boolean {
         throwIfClosed()
         return nativeStep(statementPointer)

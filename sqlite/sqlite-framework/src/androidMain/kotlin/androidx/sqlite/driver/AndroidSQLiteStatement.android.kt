@@ -17,9 +17,19 @@
 package androidx.sqlite.driver
 
 import android.database.Cursor
+import android.database.Cursor.FIELD_TYPE_BLOB
+import android.database.Cursor.FIELD_TYPE_FLOAT
+import android.database.Cursor.FIELD_TYPE_INTEGER
+import android.database.Cursor.FIELD_TYPE_NULL
+import android.database.Cursor.FIELD_TYPE_STRING
 import android.database.sqlite.SQLiteCursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteProgram
+import androidx.sqlite.SQLITE_DATA_BLOB
+import androidx.sqlite.SQLITE_DATA_FLOAT
+import androidx.sqlite.SQLITE_DATA_INTEGER
+import androidx.sqlite.SQLITE_DATA_NULL
+import androidx.sqlite.SQLITE_DATA_TEXT
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.ResultCode.SQLITE_MISUSE
 import androidx.sqlite.driver.ResultCode.SQLITE_RANGE
@@ -80,36 +90,36 @@ internal sealed class AndroidSQLiteStatement(
 
         override fun bindBlob(index: Int, value: ByteArray) {
             throwIfClosed()
-            ensureCapacity(COLUMN_TYPE_BLOB, index)
-            bindingTypes[index] = COLUMN_TYPE_BLOB
+            ensureCapacity(SQLITE_DATA_BLOB, index)
+            bindingTypes[index] = SQLITE_DATA_BLOB
             blobBindings[index] = value
         }
 
         override fun bindDouble(index: Int, value: Double) {
             throwIfClosed()
-            ensureCapacity(COLUMN_TYPE_DOUBLE, index)
-            bindingTypes[index] = COLUMN_TYPE_DOUBLE
+            ensureCapacity(SQLITE_DATA_FLOAT, index)
+            bindingTypes[index] = SQLITE_DATA_FLOAT
             doubleBindings[index] = value
         }
 
         override fun bindLong(index: Int, value: Long) {
             throwIfClosed()
-            ensureCapacity(COLUMN_TYPE_LONG, index)
-            bindingTypes[index] = COLUMN_TYPE_LONG
+            ensureCapacity(SQLITE_DATA_INTEGER, index)
+            bindingTypes[index] = SQLITE_DATA_INTEGER
             longBindings[index] = value
         }
 
         override fun bindText(index: Int, value: String) {
             throwIfClosed()
-            ensureCapacity(COLUMN_TYPE_STRING, index)
-            bindingTypes[index] = COLUMN_TYPE_STRING
+            ensureCapacity(SQLITE_DATA_TEXT, index)
+            bindingTypes[index] = SQLITE_DATA_TEXT
             stringBindings[index] = value
         }
 
         override fun bindNull(index: Int) {
             throwIfClosed()
-            ensureCapacity(COLUMN_TYPE_NULL, index)
-            bindingTypes[index] = COLUMN_TYPE_NULL
+            ensureCapacity(SQLITE_DATA_NULL, index)
+            bindingTypes[index] = SQLITE_DATA_NULL
         }
 
         override fun getBlob(index: Int): ByteArray {
@@ -161,6 +171,14 @@ internal sealed class AndroidSQLiteStatement(
             return c.getColumnName(index)
         }
 
+        override fun getColumnType(index: Int): Int {
+            throwIfClosed()
+            ensureCursor()
+            val c = checkNotNull(cursor)
+            throwIfInvalidColumn(c, index)
+            return c.getDataType(index)
+        }
+
         override fun step(): Boolean {
             throwIfClosed()
             ensureCursor()
@@ -195,22 +213,22 @@ internal sealed class AndroidSQLiteStatement(
                 bindingTypes = bindingTypes.copyOf(requiredSize)
             }
             when (columnType) {
-                COLUMN_TYPE_LONG -> {
+                SQLITE_DATA_INTEGER -> {
                     if (longBindings.size < requiredSize) {
                         longBindings = longBindings.copyOf(requiredSize)
                     }
                 }
-                COLUMN_TYPE_DOUBLE -> {
+                SQLITE_DATA_FLOAT -> {
                     if (doubleBindings.size < requiredSize) {
                         doubleBindings = doubleBindings.copyOf(requiredSize)
                     }
                 }
-                COLUMN_TYPE_STRING -> {
+                SQLITE_DATA_TEXT -> {
                     if (stringBindings.size < requiredSize) {
                         stringBindings = stringBindings.copyOf(requiredSize)
                     }
                 }
-                COLUMN_TYPE_BLOB -> {
+                SQLITE_DATA_BLOB -> {
                     if (blobBindings.size < requiredSize) {
                         blobBindings = blobBindings.copyOf(requiredSize)
                     }
@@ -236,11 +254,11 @@ internal sealed class AndroidSQLiteStatement(
         private fun bindTo(query: SQLiteProgram) {
             for (index in 1 until bindingTypes.size) {
                 when (bindingTypes[index]) {
-                    COLUMN_TYPE_LONG -> query.bindLong(index, longBindings[index])
-                    COLUMN_TYPE_DOUBLE -> query.bindDouble(index, doubleBindings[index])
-                    COLUMN_TYPE_STRING -> query.bindString(index, stringBindings[index])
-                    COLUMN_TYPE_BLOB -> query.bindBlob(index, blobBindings[index])
-                    COLUMN_TYPE_NULL -> query.bindNull(index)
+                    SQLITE_DATA_INTEGER -> query.bindLong(index, longBindings[index])
+                    SQLITE_DATA_FLOAT -> query.bindDouble(index, doubleBindings[index])
+                    SQLITE_DATA_TEXT -> query.bindString(index, stringBindings[index])
+                    SQLITE_DATA_BLOB -> query.bindBlob(index, blobBindings[index])
+                    SQLITE_DATA_NULL -> query.bindNull(index)
                 }
             }
         }
@@ -256,11 +274,17 @@ internal sealed class AndroidSQLiteStatement(
         }
 
         companion object {
-            private const val COLUMN_TYPE_LONG = 1
-            private const val COLUMN_TYPE_DOUBLE = 2
-            private const val COLUMN_TYPE_STRING = 3
-            private const val COLUMN_TYPE_BLOB = 4
-            private const val COLUMN_TYPE_NULL = 5
+            private fun Cursor.getDataType(index: Int): Int {
+                val fieldType = this.getType(index)
+                return when (this.getType(index)) {
+                    FIELD_TYPE_NULL -> SQLITE_DATA_NULL
+                    FIELD_TYPE_INTEGER -> SQLITE_DATA_INTEGER
+                    FIELD_TYPE_FLOAT -> SQLITE_DATA_FLOAT
+                    FIELD_TYPE_STRING -> SQLITE_DATA_TEXT
+                    FIELD_TYPE_BLOB -> SQLITE_DATA_BLOB
+                    else -> error("Unknown field type: $fieldType")
+                }
+            }
         }
     }
 
@@ -325,6 +349,11 @@ internal sealed class AndroidSQLiteStatement(
         }
 
         override fun getColumnName(index: Int): String {
+            throwIfClosed()
+            throwSQLiteException(SQLITE_MISUSE, "no row")
+        }
+
+        override fun getColumnType(index: Int): Int {
             throwIfClosed()
             throwSQLiteException(SQLITE_MISUSE, "no row")
         }

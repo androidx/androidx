@@ -503,6 +503,8 @@ private class PooledConnectionImpl(
 
         override fun getColumnName(index: Int) = withStateCheck { delegate.getColumnName(index) }
 
+        override fun getColumnType(index: Int) = withStateCheck { delegate.getColumnType(index) }
+
         override fun step(): Boolean = withStateCheck { delegate.step() }
 
         override fun reset() = withStateCheck { delegate.reset() }
