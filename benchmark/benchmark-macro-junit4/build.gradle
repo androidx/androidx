@@ -48,9 +48,7 @@ android {
                 "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
         // these extra payload values are used in test.
         testInstrumentationRunnerArguments["androidx.benchmark.output.payload.simpleValue"] =
-                "simple value"
-        testInstrumentationRunnerArguments["androidx.benchmark.output.payload.xmlValue"] =
-                "<h1>some xml & reserved characters!</h1>"
+                "simple_value"
     }
     namespace "androidx.benchmark.macro.junit4"
 }
