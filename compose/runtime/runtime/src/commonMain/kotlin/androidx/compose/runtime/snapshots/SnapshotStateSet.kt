@@ -148,19 +148,7 @@ class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
             val builder = oldSet?.builder() ?: error("No set to mutate")
             result = block(builder)
             val newSet = builder.build()
-            if (
-                newSet == oldSet ||
-                    writable {
-                        synchronized(sync) {
-                            if (modification == currentModification) {
-                                set = newSet
-                                modification++
-                                true
-                            } else false
-                        }
-                    }
-            )
-                break
+            if (newSet == oldSet || writable { attemptUpdate(currentModification, newSet) }) break
         }
         return result
     }
@@ -180,23 +168,26 @@ class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
                 result = false
                 break
             }
-            if (
-                writable {
-                    synchronized(sync) {
-                        if (modification == currentModification) {
-                            set = newSet
-                            modification++
-                            true
-                        } else false
-                    }
-                }
-            ) {
+            if (writable { attemptUpdate(currentModification, newSet) }) {
                 result = true
                 break
             }
         }
         result
     }
+
+    // NOTE: do not inline this method to avoid class verification failures, see b/369909868
+    private fun StateSetStateRecord<T>.attemptUpdate(
+        currentModification: Int,
+        newSet: PersistentSet<T>
+    ): Boolean =
+        synchronized(sync) {
+            if (modification == currentModification) {
+                set = newSet
+                modification++
+                true
+            } else false
+        }
 
     private fun stateRecordWith(set: PersistentSet<T>): StateRecord {
         return StateSetStateRecord(set).also {

@@ -167,33 +167,34 @@ class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
             val builder = oldMap!!.builder()
             result = block(builder)
             val newMap = builder.build()
-            if (
-                newMap == oldMap ||
-                    writable {
-                        synchronized(sync) {
-                            if (modification == currentModification) {
-                                map = newMap
-                                modification++
-                                true
-                            } else false
-                        }
-                    }
-            )
-                break
+            if (newMap == oldMap || writable { attemptUpdate(currentModification, newMap) }) break
         }
         return result
     }
 
+    private fun StateMapStateRecord<K, V>.attemptUpdate(
+        currentModification: Int,
+        newMap: PersistentMap<K, V>
+    ) =
+        synchronized(sync) {
+            if (modification == currentModification) {
+                map = newMap
+                modification++
+                true
+            } else false
+        }
+
     private inline fun update(block: (PersistentMap<K, V>) -> PersistentMap<K, V>) = withCurrent {
         val newMap = block(map)
-        if (newMap !== map)
-            writable {
-                synchronized(sync) {
-                    map = newMap
-                    modification++
-                }
-            }
+        if (newMap !== map) writable { commitUpdate(newMap) }
     }
+
+    // NOTE: do not inline this method to avoid class verification failures, see b/369909868
+    private fun StateMapStateRecord<K, V>.commitUpdate(newMap: PersistentMap<K, V>) =
+        synchronized(sync) {
+            map = newMap
+            modification++
+        }
 
     /** Implementation class of [SnapshotStateMap]. Do not use. */
     internal class StateMapStateRecord<K, V>
