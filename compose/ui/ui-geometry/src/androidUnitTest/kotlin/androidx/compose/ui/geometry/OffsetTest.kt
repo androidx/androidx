@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("RedundantSuppression")
+
 package androidx.compose.ui.geometry
 
 import androidx.compose.ui.util.floatFromBits
@@ -57,7 +59,7 @@ class OffsetTest {
         try {
             Offset.Unspecified.x
             Assert.fail("Offset.Unspecified.x is not allowed")
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             // no-op
         }
     }
@@ -67,7 +69,7 @@ class OffsetTest {
         try {
             Offset.Unspecified.y
             Assert.fail("Offset.Unspecified.y is not allowed")
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             // no-op
         }
     }
@@ -78,7 +80,7 @@ class OffsetTest {
             Offset.Unspecified.copy(x = 100f)
             Offset.Unspecified.copy(y = 70f)
             Assert.fail("Offset.Unspecified.copy is not allowed")
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             // no-op
         }
     }
@@ -88,7 +90,7 @@ class OffsetTest {
         try {
             val (_, _) = Offset.Unspecified
             Assert.fail("Size.Unspecified component assignment is not allowed")
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             // no-op
         }
     }

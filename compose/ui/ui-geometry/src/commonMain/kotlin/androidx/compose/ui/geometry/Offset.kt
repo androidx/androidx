@@ -107,9 +107,9 @@ value class Offset(val packedValue: Long) {
      */
     @Stable
     inline fun isValid(): Boolean {
-        // Take the unsigned packed floats and see if they are < InfinityBase + 1 (first NaN)
+        // Take the unsigned packed floats and see if they are > InfinityBase (any NaN)
         val v = packedValue and DualUnsignedFloatMask
-        return (v - DualFirstNaN) and Uint64High32 == Uint64High32
+        return (v + DualLoadedSignificand) and Uint64High32 == 0L
     }
 
     /**

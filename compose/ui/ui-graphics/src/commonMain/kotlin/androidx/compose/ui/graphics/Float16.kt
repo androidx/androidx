@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.util.floatFromBits
@@ -153,7 +155,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      */
     fun toBits(): Int =
         if (isNaN()) {
-            NaN.halfValue.toInt()
+            Fp16TheNaN
         } else {
             halfValue.toInt() and 0xffff
         }
@@ -206,13 +208,16 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * * `NaN.sign` is `NaN`
      */
     val sign: Float16
-        get() =
-            when {
-                isNaN() -> NaN
-                this < NegativeZero -> NegativeOne
-                this > PositiveZero -> One
-                else -> this // this is zero, either positive or negative
-            }
+        get() {
+            val v = halfValue.toInt() and Fp16Combined
+            val u =
+                if ((v > Fp16ExponentMax) or (v == 0)) { // 0.0 or NaN
+                    v
+                } else {
+                    (halfValue.toInt() and Fp16SignMask) or Fp16One
+                }
+            return Float16(u.toShort())
+        }
 
     /** Returns a [Float16] with the magnitude of this and the sign of [sign] */
     fun withSign(sign: Float16): Float16 =
@@ -394,8 +399,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return True if the value is normalized, false otherwise
      */
     fun isNormalized(): Boolean {
-        return halfValue.toInt() and Fp16ExponentMax != 0 &&
-            halfValue.toInt() and Fp16ExponentMax != Fp16ExponentMax
+        val v = halfValue.toInt() and Fp16ExponentMax
+        return (v != 0) and (v != Fp16ExponentMax)
     }
 
     /**
@@ -491,9 +496,6 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     }
 }
 
-private val One = Float16(1f)
-private val NegativeOne = Float16(-1f)
-
 private const val Fp16SignShift = 15
 private const val Fp16SignMask = 0x8000
 private const val Fp16ExponentShift = 10
@@ -502,6 +504,8 @@ private const val Fp16SignificandMask = 0x3ff
 private const val Fp16ExponentBias = 15
 private const val Fp16Combined = 0x7fff
 private const val Fp16ExponentMax = 0x7c00
+private const val Fp16One = 0x3c00
+private const val Fp16TheNaN = 0x7e00
 
 private const val Fp32SignShift = 31
 private const val Fp32ExponentShift = 23

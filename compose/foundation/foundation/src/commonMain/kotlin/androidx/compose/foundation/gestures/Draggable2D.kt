@@ -31,7 +31,6 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 
 /**
@@ -303,9 +302,8 @@ internal class Draggable2DNode(
         )
     }
 
-    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
-
-    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    @Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+    private inline fun Offset.reverseIfNeeded() = if (reverseDirection) -this else this
 }
 
 private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable2DState {
@@ -326,7 +324,5 @@ private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable
     }
 }
 
-private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
 private val NoOpOnDragStart: (startedPosition: Offset) -> Unit = {}
-private val NoOpOnDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = {}
 private val NoOpOnDragStop: (velocity: Velocity) -> Unit = {}
