@@ -45,6 +45,8 @@ internal const val NOTFOO_DYNAMIC_DIRECTIONS = "$MAIN_DIR/DynFeatureFragmentDire
 internal const val NAV_RESOURCES = "src/main/res/navigation"
 internal const val SEC = 1000L
 
+internal const val NAVIGATION_RUNTIME = "androidx.navigation:navigation-runtime:2.4.0"
+
 abstract class BasePluginTest {
     @get:Rule val projectSetup = ProjectSetupRule()
 
@@ -94,7 +96,7 @@ abstract class BasePluginTest {
                     namespace 'androidx.navigation.testapp'
                 }
                 dependencies {
-                    implementation "${projectSetup.props.navigationRuntime}"
+                    implementation "$NAVIGATION_RUNTIME"
                 }
             """
                     .trimIndent()
@@ -116,7 +118,7 @@ abstract class BasePluginTest {
                 ext.buildTools = "${props.buildToolsVersion}"
                 ext.minSdk = ${props.minSdkVersion}
                 ext.debugKeystoreFile = "${props.debugKeystore}"
-                ext.navigationCommonDep = "${props.navigationRuntime}"
+                ext.navigationCommonDep = "$NAVIGATION_RUNTIME"
             }
 
             allprojects {
@@ -150,7 +152,7 @@ abstract class BasePluginTest {
                 }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
-                    implementation "${projectSetup.props.navigationRuntime}"
+                    implementation "$NAVIGATION_RUNTIME"
                 }
                 tasks.withType(
                     org.jetbrains.kotlin.gradle.tasks.KotlinCompile

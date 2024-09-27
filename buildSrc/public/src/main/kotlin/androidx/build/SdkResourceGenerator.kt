@@ -16,9 +16,6 @@
 
 package androidx.build
 
-import androidx.build.dependencies.AGP_LATEST
-import androidx.build.dependencies.KOTLIN_GRADLE_PLUGIN_VERSION
-import androidx.build.dependencies.KSP_VERSION
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
 import org.gradle.api.DefaultTask
@@ -52,15 +49,13 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
     @get:Input abstract val minSdkVersion: Property<Int>
 
-    @get:Input val agpDependency: String = AGP_LATEST
-
-    @get:Input val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0"
+    @get:Input abstract val agpDependency: Property<String>
 
     @get:Input abstract val kotlinStdlib: Property<String>
 
     @get:Input abstract val kgpVersion: Property<String>
 
-    @get:Input val kspVersion: String = KSP_VERSION
+    @get:Input abstract val kspVersion: Property<String>
 
     @get:Input lateinit var repositoryUrls: List<String>
 
@@ -97,14 +92,13 @@ abstract class SdkResourceGenerator : DefaultTask() {
             val encodedRepositoryUrls = repositoryUrls.joinToString(",")
             writer.write("repositoryUrls=$encodedRepositoryUrls\n")
 
-            writer.write("agpDependency=$agpDependency\n")
-            writer.write("navigationRuntime=$navigationRuntime\n")
+            writer.write("agpDependency=${agpDependency.get()}\n")
             writer.write("kotlinStdlib=${kotlinStdlib.get()}\n")
             writer.write("compileSdk=${compileSdk.get()}\n")
             writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
             writer.write("minSdkVersion=${minSdkVersion.get()}\n")
             writer.write("kgpVersion=${kgpVersion.get()}\n")
-            writer.write("kspVersion=$kspVersion\n")
+            writer.write("kspVersion=${kspVersion.get()}\n")
             if (prebuiltsRelativePath != null) {
                 writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
             }
@@ -123,7 +117,12 @@ abstract class SdkResourceGenerator : DefaultTask() {
         }
 
         @VisibleForTesting
-        fun registerSdkResourceGeneratorTask(project: Project): TaskProvider<SdkResourceGenerator> {
+        fun registerSdkResourceGeneratorTask(
+            project: Project,
+            kspVersion: String = project.getVersionByName("ksp"),
+            agpVersion: String = project.getVersionByName("androidGradlePlugin"),
+            kgpVersion: String = project.getVersionByName("kotlin")
+        ): TaskProvider<SdkResourceGenerator> {
             val generatedDirectory = project.layout.buildDirectory.dir("generated/resources")
             return project.tasks.register(TASK_NAME, SdkResourceGenerator::class.java) {
                 it.tipOfTreeMavenRepoRelativePath =
@@ -140,7 +139,9 @@ abstract class SdkResourceGenerator : DefaultTask() {
                         "org.jetbrains.kotlin:kotlin-stdlib:$version"
                     }
                 )
-                it.kgpVersion.set(KOTLIN_GRADLE_PLUGIN_VERSION)
+                it.kspVersion.set(kspVersion)
+                it.agpDependency.set("com.android.tools.build:gradle:$agpVersion")
+                it.kgpVersion.set(kgpVersion)
                 // Copy repositories used for the library project so that it can replicate the same
                 // maven structure in test.
                 it.repositoryUrls =
