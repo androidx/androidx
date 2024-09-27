@@ -128,18 +128,31 @@ abstract class BaseKtfmtTask : DefaultTask() {
     protected fun runKtfmt(format: Boolean) {
         if (getInputFiles().files.isEmpty()) return
         val outputStream = ByteArrayOutputStream()
+        val errorStream = ByteArrayOutputStream()
         execOperations.javaexec { javaExecSpec ->
             javaExecSpec.standardOutput = outputStream
+            javaExecSpec.errorOutput = errorStream
             javaExecSpec.mainClass.set(MainClass)
             javaExecSpec.classpath = ktfmtClasspath
             javaExecSpec.args = getArgsList(format = format)
             javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
             overrideDirectory?.let { javaExecSpec.workingDir = it }
         }
-        val output = outputStream.toString()
-        if (output.isNotEmpty()) {
-            processOutput(output)
+
+        // https://github.com/facebook/ktfmt/blob/9830466327b72879808b0d6266d2cc69ef0197b2/core/src/main/java/com/facebook/ktfmt/cli/Main.kt#L168
+        // Info messages are printed to error, filter these out to avoid stderr clutter.
+        val error =
+            errorStream
+                .toString()
+                .lines()
+                .filterNot { it.startsWith("Done formatting ") }
+                .joinToString(separator = "\n")
+
+        if (error.isNotBlank()) {
+            System.err.println(error)
         }
+
+        val output = outputStream.toString()
         if (output.isNotEmpty()) {
             error(processOutput(output))
         }
