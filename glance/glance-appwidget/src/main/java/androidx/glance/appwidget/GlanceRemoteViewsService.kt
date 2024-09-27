@@ -26,7 +26,6 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.glance.session.GlanceSessionManager
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.runBlocking
 
@@ -127,18 +126,16 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
 
         private suspend fun startSessionIfNeededAndWaitUntilReady(glanceId: AppWidgetId) {
             val job =
-                getGlanceAppWidget()?.let { widget ->
-                    GlanceSessionManager.runWithLock {
-                        if (isSessionRunning(context, glanceId.toSessionKey())) {
-                            // If session is already running, data must have already been loaded
-                            // into
-                            // the store during composition.
-                            return@runWithLock null
-                        }
-                        startSession(context, AppWidgetSession(widget, glanceId))
-                        val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
-                        session.waitForReady()
-                    }
+                getGlanceAppWidget()?.getOrCreateAppWidgetSession(
+                    context = context,
+                    glanceId = glanceId,
+                    options = null
+                ) { session, wasRunning ->
+                    // If session is already running, data must have already been loaded
+                    // into
+                    // the store during composition.
+                    if (wasRunning) return@getOrCreateAppWidgetSession null
+                    session.waitForReady()
                 } ?: UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()
             // The following join() may throw CancellationException if the session is closed before
             // it is ready. This will have the effect of cancelling the runBlocking scope.
