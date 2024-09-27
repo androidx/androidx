@@ -1153,14 +1153,18 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_testDragHandleClick() {
         lateinit var sheetState: SheetState
+        var showBottomSheet by mutableStateOf(true)
+
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
-            ) {
-                Box(Modifier.fillMaxSize().testTag(sheetTag))
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showBottomSheet = false },
+                    sheetState = sheetState,
+                    dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+                ) {
+                    Box(Modifier.fillMaxSize().testTag(sheetTag))
+                }
             }
         }
 
@@ -1174,6 +1178,7 @@ class ModalBottomSheetTest {
         rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
         rule.waitForIdle()
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
+        rule.onNodeWithTag(sheetTag).assertDoesNotExist()
     }
 
     private val Bundle.traversalBefore: Int
