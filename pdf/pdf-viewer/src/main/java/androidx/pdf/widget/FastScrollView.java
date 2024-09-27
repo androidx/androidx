@@ -445,8 +445,11 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         // Update PageIndicator as page dimensions become known
         requireZoomViewAndPaginationModel();
         ZoomView.ZoomScroll position = mZoomView.zoomScroll().get();
-        mPageIndicator.setRangeAndZoom(computeImportantRange(position), position.zoom,
-                position.stable);
+
+        if (mZoomView.getIsInitialZoomDone()) {
+            mPageIndicator.setRangeAndZoom(computeImportantRange(position), mZoomView.getZoom(),
+                    position.stable);
+        }
     }
 
     private void requireZoomViewAndPaginationModel() {
