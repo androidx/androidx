@@ -169,7 +169,7 @@ def filterOutUnskippableBaselinedChanges(inputString):
     for i in range(len(result)):  # check for consecutive `diff -r` lines: the first has no content
         if not result[i-nRemoved].startswith("diff -r "): continue
         if not result[i+1-nRemoved].startswith("diff -r "): continue
-        del result[i]
+        del result[i-nRemoved]
         nRemoved+=1
     if not result[-1]: del result[-1]  # remove possible ending blank line
     if result[-1].startswith("diff -r "): del result[-1]  # terminal `diff -r` line: has no content
