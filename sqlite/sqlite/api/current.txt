@@ -1,10 +1,18 @@
 // Signature format: 4.0
 package androidx.sqlite {
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public @interface DataType {
+  }
+
   public final class SQLite {
     method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
     method public static Void throwSQLiteException(int errorCode, String? errorMsg);
     method public static inline <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
+    field public static final int SQLITE_DATA_BLOB = 4; // 0x4
+    field public static final int SQLITE_DATA_FLOAT = 2; // 0x2
+    field public static final int SQLITE_DATA_INTEGER = 1; // 0x1
+    field public static final int SQLITE_DATA_NULL = 5; // 0x5
+    field public static final int SQLITE_DATA_TEXT = 3; // 0x3
   }
 
   public interface SQLiteConnection {
@@ -32,6 +40,7 @@ package androidx.sqlite {
     method public int getColumnCount();
     method public String getColumnName(int index);
     method public default java.util.List<java.lang.String> getColumnNames();
+    method @androidx.sqlite.DataType public int getColumnType(int index);
     method public double getDouble(int index);
     method public default float getFloat(int index);
     method public default int getInt(int index);

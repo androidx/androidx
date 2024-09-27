@@ -17,6 +17,11 @@
 package androidx.sqlite.driver.test
 
 import androidx.kruth.assertThat
+import androidx.sqlite.SQLITE_DATA_BLOB
+import androidx.sqlite.SQLITE_DATA_FLOAT
+import androidx.sqlite.SQLITE_DATA_INTEGER
+import androidx.sqlite.SQLITE_DATA_NULL
+import androidx.sqlite.SQLITE_DATA_TEXT
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
@@ -115,6 +120,13 @@ abstract class BaseConformanceTest {
                     "blobCol"
                 )
                 .inOrder()
+            assertThat(it.getColumnType(0)).isEqualTo(SQLITE_DATA_INTEGER)
+            assertThat(it.getColumnType(1)).isEqualTo(SQLITE_DATA_INTEGER)
+            assertThat(it.getColumnType(2)).isEqualTo(SQLITE_DATA_INTEGER)
+            assertThat(it.getColumnType(3)).isEqualTo(SQLITE_DATA_FLOAT)
+            assertThat(it.getColumnType(4)).isEqualTo(SQLITE_DATA_FLOAT)
+            assertThat(it.getColumnType(5)).isEqualTo(SQLITE_DATA_TEXT)
+            assertThat(it.getColumnType(6)).isEqualTo(SQLITE_DATA_BLOB)
             assertThat(it.getLong(0)).isEqualTo(3)
             assertThat(it.getInt(1)).isEqualTo(22)
             assertThat(it.getBoolean(2)).isTrue()
@@ -194,6 +206,7 @@ abstract class BaseConformanceTest {
         }
         connection.prepare("SELECT * FROM Test").use {
             assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.getColumnType(0)).isEqualTo(SQLITE_DATA_NULL)
             assertThat(it.isNull(0)).isTrue()
         }
     }

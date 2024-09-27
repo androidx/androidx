@@ -18,7 +18,39 @@
 
 package androidx.sqlite
 
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmName
+
+/** The data type for a 64-bit signed integer. */
+public const val SQLITE_DATA_INTEGER: Int = 1
+
+/** The data type for a 64-bit IEEE floating point number. */
+public const val SQLITE_DATA_FLOAT: Int = 2
+
+/** The data type for a [String]. */
+public const val SQLITE_DATA_TEXT: Int = 3
+
+/** The data type for a `BLOB` value, i.e. binary data. */
+public const val SQLITE_DATA_BLOB: Int = 4
+
+/** The data type for a `NULL` value. */
+public const val SQLITE_DATA_NULL: Int = 5
+
+/** The data type constants. */
+@IntDef(
+    value =
+        [
+            SQLITE_DATA_INTEGER,
+            SQLITE_DATA_FLOAT,
+            SQLITE_DATA_TEXT,
+            SQLITE_DATA_BLOB,
+            SQLITE_DATA_NULL,
+        ]
+)
+@Retention(AnnotationRetention.SOURCE)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public annotation class DataType
 
 /** Executes a single SQL statement that returns no values. */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized

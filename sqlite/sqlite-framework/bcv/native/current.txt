@@ -40,6 +40,7 @@ final class androidx.sqlite.driver/NativeSQLiteStatement : androidx.sqlite/SQLit
     final fun getBlob(kotlin/Int): kotlin/ByteArray // androidx.sqlite.driver/NativeSQLiteStatement.getBlob|getBlob(kotlin.Int){}[0]
     final fun getColumnCount(): kotlin/Int // androidx.sqlite.driver/NativeSQLiteStatement.getColumnCount|getColumnCount(){}[0]
     final fun getColumnName(kotlin/Int): kotlin/String // androidx.sqlite.driver/NativeSQLiteStatement.getColumnName|getColumnName(kotlin.Int){}[0]
+    final fun getColumnType(kotlin/Int): kotlin/Int // androidx.sqlite.driver/NativeSQLiteStatement.getColumnType|getColumnType(kotlin.Int){}[0]
     final fun getDouble(kotlin/Int): kotlin/Double // androidx.sqlite.driver/NativeSQLiteStatement.getDouble|getDouble(kotlin.Int){}[0]
     final fun getLong(kotlin/Int): kotlin/Long // androidx.sqlite.driver/NativeSQLiteStatement.getLong|getLong(kotlin.Int){}[0]
     final fun getText(kotlin/Int): kotlin/String // androidx.sqlite.driver/NativeSQLiteStatement.getText|getText(kotlin.Int){}[0]

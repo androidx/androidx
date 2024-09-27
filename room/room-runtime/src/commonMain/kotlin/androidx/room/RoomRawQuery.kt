@@ -77,6 +77,10 @@ private class BindOnlySQLiteStatement(delegate: SQLiteStatement) : SQLiteStateme
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
     }
 
+    override fun getColumnType(index: Int): Int {
+        error(ONLY_BIND_CALLS_ALLOWED_ERROR)
+    }
+
     override fun step(): Boolean {
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
     }

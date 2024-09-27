@@ -735,6 +735,10 @@ class InvalidationTrackerTest {
                 error("Should not be called")
             }
 
+            override fun getColumnType(index: Int): Int {
+                error("Should not be called")
+            }
+
             override fun step(): Boolean {
                 if (invalidateTables != null) {
                     return ++position < invalidateTables.size
