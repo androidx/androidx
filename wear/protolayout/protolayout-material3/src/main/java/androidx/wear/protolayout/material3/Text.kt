@@ -47,6 +47,8 @@ import androidx.wear.protolayout.material3.Typography.TypographyToken
  * @param multilineAlignment The horizontal alignment of the multiple lines of text.
  * @param overflow The overflow strategy when text doesn't have enough space to be shown.
  * @param modifiers The additional [Modifiers] for this text.
+ * @sample androidx.wear.protolayout.material3.samples.helloWorldTextDefault
+ * @sample androidx.wear.protolayout.material3.samples.helloWorldTextDynamicCustom
  */
 public fun MaterialScope.text(
     text: StringProp,

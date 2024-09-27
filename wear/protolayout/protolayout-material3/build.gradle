@@ -36,6 +36,7 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-material-core"))
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     lintPublish(project(":wear:protolayout:protolayout-lint"))
+    compileOnly(project(":annotation:annotation-sampled"))
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
@@ -66,4 +67,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_PROTOLAYOUT_MATERIAL3
     inceptionYear = "2024"
     description = "Material3 components library for ProtoLayout."
+    samples(project(":wear:protolayout:protolayout-material3-samples"))
 }

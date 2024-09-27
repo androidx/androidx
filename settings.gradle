@@ -1009,6 +1009,7 @@ includeProject(":wear:protolayout:protolayout-external-protobuf", [BuildType.MAI
 includeProject(":wear:protolayout:protolayout-material", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-material-core", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-material3", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:protolayout:protolayout-material3-samples", "wear/protolayout/protolayout-material3/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-lint", [BuildType.MAIN, BuildType.WEAR])
