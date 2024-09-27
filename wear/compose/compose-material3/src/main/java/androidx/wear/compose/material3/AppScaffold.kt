@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 
 /**
  * [AppScaffold] is one of the Wear Material3 scaffold components.
@@ -47,11 +48,20 @@ fun AppScaffold(
     modifier: Modifier = Modifier,
     timeText: @Composable () -> Unit = { TimeText { time() } },
     content: @Composable BoxScope.() -> Unit,
-) =
-    CompositionLocalProvider(LocalScaffoldState provides ScaffoldState(timeText)) {
+) {
+    CompositionLocalProvider(
+        LocalScaffoldState provides ScaffoldState(timeText),
+    ) {
         val scaffoldState = LocalScaffoldState.current
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier =
+                modifier.fillMaxSize().graphicsLayer {
+                    scaleX = scaffoldState.parentScale.floatValue
+                    scaleY = scaffoldState.parentScale.floatValue
+                }
+        ) {
             content()
             scaffoldState.timeText()
         }
     }
+}

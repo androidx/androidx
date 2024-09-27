@@ -16,6 +16,10 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -27,10 +31,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -54,10 +60,19 @@ import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.padding
+import androidx.wear.compose.material3.MotionScheme.Companion.expressive
+import androidx.wear.compose.material3.MotionScheme.Companion.standard
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
+import androidx.wear.compose.material3.tokens.MotionTokens
+import androidx.wear.compose.material3.tokens.MotionTokens.DurationLong2
+import androidx.wear.compose.material3.tokens.MotionTokens.DurationShort2
+import androidx.wear.compose.material3.tokens.MotionTokens.DurationShort3
+import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.materialcore.screenHeightDp
+import androidx.wear.compose.materialcore.screenHeightPx
 import androidx.wear.compose.materialcore.screenWidthDp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Shows a [Confirmation] dialog with an icon and optional very short curved text. The length of the
@@ -100,13 +115,30 @@ fun Confirmation(
         show = show,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        iconContainer = confirmationIconContainer(true, colors.iconContainerColor),
         curvedText = curvedText,
         colors = colors,
         properties = properties,
         durationMillis = durationMillis,
-        content = content
-    )
+    ) {
+        IconContainer(
+            iconColor = colors.iconColor,
+            iconBackground = confirmationIconContainer(true, colors.iconContainerColor),
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.IconContainer(
+    modifier: Modifier = Modifier,
+    iconColor: Color,
+    iconBackground: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(modifier.align(Alignment.Center), contentAlignment = Alignment.Center) {
+        iconBackground()
+        CompositionLocalProvider(LocalContentColor provides iconColor) { content() }
+    }
 }
 
 /**
@@ -167,6 +199,17 @@ fun Confirmation(
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {
+        val textTransitionStart = screenHeightPx() * ConfirmationTextTransitionFraction
+
+        val translationYAnimatable = remember { Animatable(textTransitionStart) }
+        val alphaAnimatable = remember { Animatable(0f) }
+
+        LaunchedEffect(Unit) {
+            delay(DurationShort3.toLong())
+            launch { translationYAnimatable.animateTo(0f, ConfirmationTranslationSpec) }
+            alphaAnimatable.animateTo(1f, AlphaAnimationSpec)
+        }
+
         Box(Modifier.fillMaxSize()) {
             val horizontalPadding = screenWidthDp().dp * HorizontalLinearContentPaddingFraction
             Column(
@@ -194,7 +237,15 @@ fun Confirmation(
                 ) {
                     if (text != null) {
                         Spacer(Modifier.height(LinearContentSpacing))
-                        text()
+                        Column(
+                            modifier =
+                                Modifier.fillMaxWidth().graphicsLayer {
+                                    translationY = translationYAnimatable.value
+                                    alpha = alphaAnimatable.value
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            content = text
+                        )
                         Spacer(Modifier.height(LinearContentSpacing))
                     }
                 }
@@ -243,13 +294,18 @@ fun SuccessConfirmation(
         show = show,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        content = content,
-        iconContainer = successIconContainer(colors.iconContainerColor),
         curvedText = curvedText,
         colors = colors,
         properties = properties,
         durationMillis = durationMillis
-    )
+    ) {
+        IconContainer(
+            modifier = Modifier.fillMaxSize(),
+            iconColor = colors.iconColor,
+            iconBackground = successIconContainer(colors.iconContainerColor),
+            content = content
+        )
+    }
 }
 
 /**
@@ -292,13 +348,30 @@ fun FailureConfirmation(
         show = show,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        iconContainer = failureIconContainer(colors.iconContainerColor),
         curvedText = curvedText,
         colors = colors,
         properties = properties,
         durationMillis = durationMillis,
-        content = content
-    )
+    ) {
+        val translationXAnimatable = remember { Animatable(FailureContentTransition[0]) }
+        LaunchedEffect(Unit) {
+            delay(DurationShort3.toLong())
+            translationXAnimatable.animateTo(
+                FailureContentTransition[1],
+                FailureContentAnimationSpecs[0]
+            )
+            translationXAnimatable.animateTo(
+                FailureContentTransition[2],
+                FailureContentAnimationSpecs[1]
+            )
+        }
+        IconContainer(
+            modifier = Modifier.graphicsLayer { translationX = translationXAnimatable.value },
+            iconColor = colors.iconColor,
+            iconBackground = failureIconContainer(colors.iconContainerColor),
+            content = content
+        )
+    }
 }
 
 /** Contains default values used by [Confirmation] composable. */
@@ -502,7 +575,7 @@ object ConfirmationDefaults {
                     .also { defaultFailureConfirmationColorsCached = it }
         }
 
-    private val IconDelay = 67L
+    private val IconDelay = DurationShort2.toLong()
 }
 
 /**
@@ -552,12 +625,11 @@ internal fun ConfirmationImpl(
     show: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier,
-    iconContainer: @Composable BoxScope.() -> Unit,
     curvedText: (CurvedScope.() -> Unit)?,
     colors: ConfirmationColors,
     properties: DialogProperties,
     durationMillis: Long,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val a11yDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
@@ -567,8 +639,14 @@ internal fun ConfirmationImpl(
             containsControls = false,
         ) ?: durationMillis
 
+    val alphaAnimatable = remember(show) { Animatable(0f) }
+
     LaunchedEffect(show, a11yDurationMillis) {
         if (show) {
+            launch {
+                delay(DurationShort3.toLong())
+                alphaAnimatable.animateTo(1f, AlphaAnimationSpec)
+            }
             delay(a11yDurationMillis)
             onDismissRequest()
         }
@@ -581,12 +659,15 @@ internal fun ConfirmationImpl(
         properties = properties,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                iconContainer()
-                CompositionLocalProvider(LocalContentColor provides colors.iconColor) { content() }
-            }
+            content()
             CompositionLocalProvider(LocalContentColor provides colors.textColor) {
-                curvedText?.let { CurvedLayout(anchor = 90f, contentBuilder = curvedText) }
+                curvedText?.let {
+                    CurvedLayout(
+                        modifier = Modifier.graphicsLayer { alpha = alphaAnimatable.value },
+                        anchor = 90f,
+                        contentBuilder = curvedText
+                    )
+                }
             }
         }
     }
@@ -596,17 +677,34 @@ private fun confirmationIconContainer(
     curvedContent: Boolean,
     color: Color
 ): @Composable BoxScope.() -> Unit = {
-    val iconShape =
-        if (curvedContent) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large
     val width =
         if (curvedContent) {
             (screenWidthDp() * ConfirmationSizeFraction).dp
         } else ConfirmationLinearIconContainerSize
 
+    val startShape = ShapeTokens.CornerFull
+    val targetShape =
+        (if (curvedContent) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large)
+            as RoundedCornerShape
+
+    val rotateAnimatable = remember { Animatable(ConfirmationIconInitialAngle) }
+    val shapeAnimatable = remember { Animatable(0f) }
+    val shape =
+        remember(shapeAnimatable) {
+            AnimatedRoundedCornerShape(startShape, targetShape) { shapeAnimatable.value }
+        }
+
+    LaunchedEffect(Unit) {
+        delay(DurationShort3.toLong())
+        launch { shapeAnimatable.animateTo(1f, ContainerAnimationSpec) }
+        rotateAnimatable.animateTo(0f, StandardDecelerateSpec)
+    }
+
     Box(
         Modifier.size(width)
             .graphicsLayer {
-                shape = iconShape
+                this.shape = shape
+                rotationZ = rotateAnimatable.value
                 clip = true
             }
             .background(color)
@@ -616,9 +714,16 @@ private fun confirmationIconContainer(
 
 private fun successIconContainer(color: Color): @Composable BoxScope.() -> Unit = {
     val width = screenWidthDp() * SuccessWidthFraction
-    val height = screenHeightDp() * SuccessHeightFraction
+
+    val targetHeight = screenHeightDp() * SuccessHeightFraction.toFloat()
+    val heightAnimatable = remember { Animatable(width) }
+
+    LaunchedEffect(Unit) {
+        delay(DurationShort3.toLong())
+        heightAnimatable.animateTo(targetHeight, ContainerAnimationSpec)
+    }
     Box(
-        Modifier.size(width.dp, height.dp)
+        Modifier.size(width.dp, heightAnimatable.value.dp)
             .graphicsLayer {
                 rotationZ = 45f
                 shape = CircleShape
@@ -629,12 +734,25 @@ private fun successIconContainer(color: Color): @Composable BoxScope.() -> Unit 
 }
 
 private fun failureIconContainer(color: Color): @Composable BoxScope.() -> Unit = {
-    val iconShape = MaterialTheme.shapes.extraLarge
-    val width = screenWidthDp() * FailureSizeFraction
+    val size = screenWidthDp() * FailureSizeFraction
+
+    val startShape = ShapeTokens.CornerFull
+    val targetShape = MaterialTheme.shapes.extraLarge as RoundedCornerShape
+    val shapeAnimatable = remember { Animatable(0f) }
+    val shape =
+        remember(shapeAnimatable) {
+            AnimatedRoundedCornerShape(startShape, targetShape) { shapeAnimatable.value }
+        }
+
+    LaunchedEffect(Unit) {
+        delay(DurationShort3.toLong())
+        shapeAnimatable.animateTo(1f, ContainerAnimationSpec)
+    }
+
     Box(
-        Modifier.size(width.dp)
+        Modifier.size(size.dp)
             .graphicsLayer {
-                shape = iconShape
+                this.shape = shape
                 clip = true
             }
             .background(color)
@@ -657,3 +775,25 @@ private const val ConfirmationSizeFraction = 1 - ConfirmationSizePaddingFraction
 
 private const val LinearContentMaxLines = 3
 private const val HorizontalLinearContentPaddingFraction = 0.12f
+
+private const val ConfirmationTextTransitionFraction = 0.015f
+private const val ConfirmationIconInitialAngle = -45f
+
+private val FailureContentTransition = arrayOf(-15f, -20f, 0f)
+private val FailureContentAnimationSpecs =
+    arrayOf(
+        spring(
+            dampingRatio = ExpressiveDefaultDamping,
+            stiffness = ExpressiveDefaultStiffness,
+            visibilityThreshold = 0f
+        ),
+        spring(
+            dampingRatio = 0.5f,
+            stiffness = ExpressiveDefaultStiffness,
+        )
+    )
+private val AlphaAnimationSpec: AnimationSpec<Float> = standard().fastEffectsSpec()
+private val ConfirmationTranslationSpec: AnimationSpec<Float> = standard().slowSpatialSpec()
+private val ContainerAnimationSpec: AnimationSpec<Float> = expressive().defaultSpatialSpec()
+private val StandardDecelerateSpec: AnimationSpec<Float> =
+    tween(DurationLong2, easing = MotionTokens.EasingStandardDecelerate)
