@@ -116,6 +116,10 @@ public class FindInFileView extends LinearLayout {
                         Accessibility.get().announce(getContext(), FindInFileView.this,
                                 matchStatusText);
                     }
+                    else {
+                        Accessibility.get().announce(getContext(), FindInFileView.this,
+                                R.string.message_no_match_status);
+                    }
                 } else {
                     matchStatusText += MATCH_STATUS_COUNTING;  // Not yet all counted, use ellipses.
                 }
