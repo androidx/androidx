@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -379,18 +378,14 @@ internal fun AnimatedNavigationItem(
                 animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
             )
 
-        val textStyle by remember {
-            derivedStateOf {
-                if (isIconPositionTop && iconPositionProgress < 0.5f) topIconLabelTextStyle
-                else startIconLabelTextStyle
-            }
-        }
         val styledLabel: @Composable (() -> Unit)? =
             if (label != null) {
                 {
                     StyledLabel(
                         selected = selected,
-                        labelTextStyle = textStyle,
+                        labelTextStyle =
+                            if (isIconPositionTop) topIconLabelTextStyle
+                            else startIconLabelTextStyle,
                         colors = colors,
                         enabled = enabled,
                         content = label
