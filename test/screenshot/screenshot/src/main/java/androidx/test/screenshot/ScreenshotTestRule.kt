@@ -26,8 +26,7 @@ import androidx.test.screenshot.matchers.BitmapMatcher
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.proto.DiffResultProto
-import androidx.test.screenshot.proto.ScreenshotResultProto
-import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
+import androidx.test.screenshot.proto.DiffResultProto.DiffResult.Status
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -182,7 +181,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
         val expected = fetchExpectedImage(goldenIdentifier)
         if (expected == null) {
             reportResult(
-                status = Status.MISSING_GOLDEN,
+                status = Status.MISSING_REFERENCE,
                 goldenIdentifier = goldenIdentifier,
                 actual = actual
             )
@@ -195,7 +194,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
 
         if (actual.width != expected.width || actual.height != expected.height) {
             reportResult(
-                status = Status.SIZE_MISMATCH,
+                status = Status.FAILED,
                 goldenIdentifier = goldenIdentifier,
                 actual = actual,
                 expected = expected
@@ -225,7 +224,6 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
             status = status,
             goldenIdentifier = goldenIdentifier,
             actual = actual,
-            comparisonStatistics = comparisonResult.comparisonStatistics,
             expected = expected,
             diff = comparisonResult.diff
         )
@@ -242,32 +240,10 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
         status: Status,
         goldenIdentifier: String,
         actual: Bitmap,
-        comparisonStatistics: String? = null,
         expected: Bitmap? = null,
         diff: Bitmap? = null
     ) {
-        val statusType =
-            when (status) {
-                Status.UNSPECIFIED -> DiffResultProto.DiffResult.Status.UNSPECIFIED
-                Status.PASSED -> DiffResultProto.DiffResult.Status.PASSED
-                Status.FAILED -> DiffResultProto.DiffResult.Status.FAILED
-                Status.MISSING_GOLDEN -> DiffResultProto.DiffResult.Status.MISSING_REFERENCE
-                Status.SIZE_MISMATCH -> DiffResultProto.DiffResult.Status.FAILED
-                Status.UNRECOGNIZED -> DiffResultProto.DiffResult.Status.UNRECOGNIZED
-            }
-
-        val resultProto = ScreenshotResultProto.ScreenshotResult.newBuilder().setResult(status)
-
-        val diffResultProto = DiffResultProto.DiffResult.newBuilder().setResultType(statusType)
-
-        resultProto.comparisonStatistics = comparisonStatistics.orEmpty()
-        resultProto.repoRootPath = repoRootPathForGoldens
-        resultProto.locationOfGoldenInRepo =
-            if (pathToGoldensInRepo.isEmpty()) {
-                goldenIdentifierResolver(goldenIdentifier)
-            } else {
-                "$pathToGoldensInRepo/${goldenIdentifierResolver(goldenIdentifier)}"
-            }
+        val diffResultProto = DiffResultProto.DiffResult.newBuilder().setResultType(status)
 
         diffResultProto.setImageLocationGolden(
             if (pathToGoldensInRepo.isEmpty()) {
@@ -289,20 +265,17 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
 
         if (status != Status.PASSED) {
             actual.writeToDevice(OutputFileType.IMAGE_ACTUAL, status).also {
-                resultProto.currentScreenshotFileName = it.name
                 diffResultProto.imageLocationTest = it.name
                 report.putString(bundleKeyPrefix + OutputFileType.IMAGE_ACTUAL, it.absolutePath)
             }
             diff?.run {
                 writeToDevice(OutputFileType.IMAGE_DIFF, status).also {
-                    resultProto.diffImageFileName = it.name
                     diffResultProto.imageLocationDiff = it.name
                     report.putString(bundleKeyPrefix + OutputFileType.IMAGE_DIFF, it.absolutePath)
                 }
             }
             expected?.run {
                 writeToDevice(OutputFileType.IMAGE_EXPECTED, status).also {
-                    resultProto.expectedImageFileName = it.name
                     diffResultProto.imageLocationReference = it.name
                     report.putString(
                         bundleKeyPrefix + OutputFileType.IMAGE_EXPECTED,
@@ -311,16 +284,6 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
                 }
             }
         }
-
-        writeToDevice(OutputFileType.TEXT_RESULT_PROTO, status) {
-                it.write(resultProto.build().toString().toByteArray())
-            }
-            .also {
-                report.putString(
-                    bundleKeyPrefix + OutputFileType.TEXT_RESULT_PROTO,
-                    it.absolutePath
-                )
-            }
 
         writeToDevice(OutputFileType.DIFF_TEXT_RESULT_PROTO, status) {
                 it.write(diffResultProto.build().toString().toByteArray())
