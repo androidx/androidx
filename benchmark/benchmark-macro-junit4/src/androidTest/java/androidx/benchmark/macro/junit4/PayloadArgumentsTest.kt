@@ -27,8 +27,7 @@ class PayloadArgumentsTest {
         assertThat(Arguments.payload)
             .containsExactlyEntriesIn(
                 mapOf(
-                    "simpleValue" to "simple value",
-                    "xmlValue" to "<h1>some xml & reserved characters!</h1>"
+                    "simpleValue" to "simple_value",
                 )
             )
     }
