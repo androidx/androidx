@@ -325,13 +325,7 @@ internal constructor(
         val numOfItemsToTeleport = 100 * layoutInfo.slots.sizes.size
         scroll {
             LazyLayoutScrollScope(this@LazyStaggeredGridState, this)
-                .animateScrollToItem(
-                    index,
-                    scrollOffset,
-                    numOfItemsToTeleport,
-                    layoutInfo.density,
-                    this
-                )
+                .animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, layoutInfo.density)
         }
     }
 
