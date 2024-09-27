@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Threads
+import kotlinx.coroutines.joinAll
 
 /** Provides an implementation for interacting with CameraBackends. */
 internal class CameraBackendsImpl(
@@ -49,6 +50,11 @@ internal class CameraBackendsImpl(
 
     override val activeIds: Set<CameraBackendId>
         get() = synchronized(lock) { activeCameraBackends.keys }
+
+    override suspend fun shutdown() {
+        val shutdownJobs = activeCameraBackends.map { it.value.shutdownAsync() }
+        shutdownJobs.joinAll()
+    }
 
     override fun get(backendId: CameraBackendId): CameraBackend? {
         synchronized(lock) {
