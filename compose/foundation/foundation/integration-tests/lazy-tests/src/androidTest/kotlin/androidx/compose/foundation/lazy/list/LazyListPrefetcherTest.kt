@@ -20,19 +20,25 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.PrefetchRequestScope
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -466,5 +472,115 @@ class LazyListPrefetcherTest(val config: Config) :
                 }
             }
         }
+    }
+
+    @Test
+    fun precomposedItemIsNotMeasuredWhenReused() {
+        var measuredItems = 0
+        rule.setContent {
+            state = rememberLazyListState(prefetchStrategy = strategy)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 1.5f),
+                state,
+            ) {
+                items(100) {
+                    Box {
+                        Spacer(
+                            Modifier.mainAxisSize(itemsSizeDp + it.dp).layout {
+                                measurable,
+                                constraints ->
+                                measuredItems++
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // deactivate some items and add prefetch requests
+        rule.runOnIdle { repeat(3) { runBlocking { state.scrollBy(itemsSizePx * 1f) } } }
+
+        rule.runOnIdle {
+            measuredItems = 0
+            val scope =
+                object : PrefetchRequestScope {
+                    var firstRequest = true
+
+                    override fun availableTimeNanos(): Long {
+                        if (firstRequest) {
+                            firstRequest = false
+                            return Long.MAX_VALUE
+                        }
+                        return 0
+                    }
+                }
+            scheduler.executeActiveRequests(scope)
+        }
+
+        rule.runOnIdle { assertThat(measuredItems).isEqualTo(0) }
+    }
+
+    @Test
+    fun precomposedItemIsNotDrawnWhenInvalidated() {
+        var drawnItems = 0
+        val modifierElement =
+            object : ModifierNodeElement<Modifier.Node>() {
+                override fun create(): Modifier.Node =
+                    object : Modifier.Node(), DrawModifierNode {
+                        override fun ContentDrawScope.draw() {
+                            drawContent()
+                        }
+                    }
+
+                override fun hashCode(): Int = -1
+
+                override fun equals(other: Any?): Boolean = other === this
+
+                override fun update(node: Modifier.Node) {}
+            }
+        rule.setContent {
+            state = rememberLazyListState(prefetchStrategy = strategy)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 1.5f),
+                state,
+            ) {
+                items(100) {
+                    Box {
+                        Spacer(
+                            Modifier.then(modifierElement)
+                                .mainAxisSize(itemsSizeDp + it.dp)
+                                .drawWithContent {
+                                    drawnItems++
+                                    drawContent()
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        // deactivate some items and add prefetch requests
+        rule.runOnIdle { repeat(3) { runBlocking { state.scrollBy(itemsSizePx * 1f) } } }
+
+        rule.runOnIdle {
+            drawnItems = 0
+            val scope =
+                object : PrefetchRequestScope {
+                    var firstRequest = true
+
+                    override fun availableTimeNanos(): Long {
+                        if (firstRequest) {
+                            firstRequest = false
+                            return Long.MAX_VALUE
+                        }
+                        return 0
+                    }
+                }
+            scheduler.executeActiveRequests(scope)
+        }
+
+        rule.runOnIdle { assertThat(drawnItems).isEqualTo(0) }
     }
 }

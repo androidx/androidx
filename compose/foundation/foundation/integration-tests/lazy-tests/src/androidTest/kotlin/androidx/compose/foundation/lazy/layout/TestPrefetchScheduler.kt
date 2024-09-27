@@ -27,7 +27,7 @@ internal class TestPrefetchScheduler : PrefetchScheduler {
         activeRequests.add(prefetchRequest)
     }
 
-    fun executeActiveRequests() {
+    fun executeActiveRequests(scope: PrefetchRequestScope = this.scope) {
         activeRequests.forEach { with(it) { scope.execute() } }
         activeRequests.clear()
     }
