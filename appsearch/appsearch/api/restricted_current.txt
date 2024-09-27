@@ -879,6 +879,7 @@ package androidx.appsearch.ast {
     field public static final String FUNCTION_NAME_GET_SEARCH_STRING_PARAMETER = "getSearchStringParameter";
     field public static final String FUNCTION_NAME_HAS_PROPERTY = "hasProperty";
     field public static final String FUNCTION_NAME_PROPERTY_DEFINED = "propertyDefined";
+    field public static final String FUNCTION_NAME_SEARCH = "search";
   }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class NegationNode implements androidx.appsearch.ast.Node {
@@ -970,6 +971,17 @@ package androidx.appsearch.ast.query {
     method public String getFunctionName();
     method public androidx.appsearch.app.PropertyPath getProperty();
     method public void setProperty(androidx.appsearch.app.PropertyPath);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class SearchNode implements androidx.appsearch.ast.FunctionNode {
+    ctor public SearchNode(androidx.appsearch.ast.Node);
+    ctor public SearchNode(androidx.appsearch.ast.Node, java.util.List<androidx.appsearch.app.PropertyPath!>);
+    method public void addProperty(androidx.appsearch.app.PropertyPath);
+    method public androidx.appsearch.ast.Node getChild();
+    method public String getFunctionName();
+    method public java.util.List<androidx.appsearch.app.PropertyPath!> getProperties();
+    method public void setChild(androidx.appsearch.ast.Node);
+    method public void setProperties(java.util.List<androidx.appsearch.app.PropertyPath!>);
   }
 
 }
