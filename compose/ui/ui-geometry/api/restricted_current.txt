@@ -36,6 +36,7 @@ package androidx.compose.ui.geometry {
     field @kotlin.PublishedApi internal static final long DualFirstNaN = 9187343246269874177L; // 0x7f8000017f800001L
     field @kotlin.PublishedApi internal static final long DualFloatInfinityBase = 9187343241974906880L; // 0x7f8000007f800000L
     field @kotlin.PublishedApi internal static final long DualFloatSignBit = -9223372034707292160L; // 0x8000000080000000L
+    field @kotlin.PublishedApi internal static final long DualLoadedSignificand = 36028792732385279L; // 0x7fffff007fffffL
     field @kotlin.PublishedApi internal static final long DualUnsignedFloatMask = 9223372034707292159L; // 0x7fffffff7fffffffL
     field @kotlin.PublishedApi internal static final int FloatInfinityBase = 2139095040; // 0x7f800000
     field @kotlin.PublishedApi internal static final long Uint64High32 = -9223372034707292160L; // 0x8000000080000000L

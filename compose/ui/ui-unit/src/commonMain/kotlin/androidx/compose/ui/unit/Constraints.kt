@@ -20,7 +20,6 @@ package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.Constraints.Companion.Infinity
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceIn
 import kotlin.jvm.JvmInline
@@ -351,40 +350,17 @@ value class Constraints(@PublishedApi internal val value: Long) {
 private const val Infinity = Int.MAX_VALUE
 
 /**
- * The bit distribution when the focus of the bits should be on the width, but only a minimal
- * difference in focus.
- *
- * 16 bits assigned to width, 15 bits assigned to height.
- */
-private const val MinFocusWidth = 0x2
-
-/**
- * The bit distribution when the focus of the bits should be on the width, and a maximal number of
- * bits assigned to the width.
- *
- * 18 bits assigned to width, 13 bits assigned to height.
- */
-private const val MaxFocusWidth = 0x3
-
-/**
- * The bit distribution when the focus of the bits should be on the height, but only a minimal
- * difference in focus.
- *
- * 15 bits assigned to width, 16 bits assigned to height.
- */
-private const val MinFocusHeight = 0x1
-
-/**
- * The bit distribution when the focus of the bits should be on the height, and a a maximal number
- * of bits assigned to the height.
- *
- * 13 bits assigned to width, 18 bits assigned to height.
- */
-private const val MaxFocusHeight = 0x0
-
-/**
- * The mask to retrieve the focus ([MinFocusWidth], [MaxFocusWidth], [MinFocusHeight],
- * [MaxFocusHeight]).
+ * The mask to retrieve the focus:
+ * - MaxFocusHeight = 0x0. The bit distribution when the focus of the bits should be on the height,
+ *   and a a maximal number of bits assigned to the height. 13 bits assigned to width, 18 bits
+ *   assigned to height.
+ * - MinFocusHeight = 0x1. The bit distribution when the focus of the bits should be on the height,
+ *   but only a minimal difference in focus. 15 bits assigned to width, 16 bits assigned to height.
+ * - MinFocusWidth = 0x2. The bit distribution when the focus of the bits should be on the width,
+ *   but only a minimal difference in focus. 16 bits assigned to width, 15 bits assigned to height.
+ * - MaxFocusWidth = 0x3 .The bit distribution when the focus of the bits should be on the width,
+ *   and a maximal number of bits assigned to the width. 18 bits assigned to width, 13 bits assigned
+ *   to height.
  */
 private const val FocusMask = 0x3L
 

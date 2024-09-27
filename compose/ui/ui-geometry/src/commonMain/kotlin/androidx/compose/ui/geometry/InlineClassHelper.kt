@@ -40,3 +40,6 @@ package androidx.compose.ui.geometry
 
 // Encodes the first valid NaN in each of the 32 bit chunk of a 64 bit word
 @PublishedApi internal const val DualFirstNaN = 0x7f800001_7f800001L
+
+// Set all the significand bits for each 32 bit chunk in a 64 bit word
+@PublishedApi internal const val DualLoadedSignificand = 0x007fffff_007fffffL
