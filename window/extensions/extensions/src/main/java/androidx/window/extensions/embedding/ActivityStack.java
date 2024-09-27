@@ -25,7 +25,6 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.util.ArrayList;
@@ -105,19 +104,6 @@ public class ActivityStack {
     @NonNull
     public Token getActivityStackToken() {
         return mToken;
-    }
-
-    // TODO(b/329997430): Remove it after there's no more usages.
-    /**
-     * @deprecated Use {@link #getActivityStackToken()} instead. Use this method only if
-     * {@link #getActivityStackToken()} cannot be used.
-     */
-    @RequiresVendorApiLevel(level = 5, deprecatedSince = 5)
-    @Deprecated
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public IBinder getToken() {
-        return mToken.getRawToken();
     }
 
     /**

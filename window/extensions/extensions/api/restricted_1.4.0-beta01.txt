@@ -102,7 +102,6 @@ package androidx.window.extensions.embedding {
     method public java.util.List<android.app.Activity!> getActivities();
     method public androidx.window.extensions.embedding.ActivityStack.Token getActivityStackToken();
     method public String? getTag();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.IBinder getToken();
     method public boolean isEmpty();
   }
 

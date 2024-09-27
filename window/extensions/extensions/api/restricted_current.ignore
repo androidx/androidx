@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.window.extensions.embedding.ActivityStack#getToken():
+    Removed deprecated method androidx.window.extensions.embedding.ActivityStack.getToken()
