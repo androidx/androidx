@@ -720,7 +720,9 @@ private fun DateRangePickerContent(
 ) {
     val displayedMonth = calendarModel.getMonth(displayedMonthMillis)
     val monthsListState =
-        rememberLazyListState(initialFirstVisibleItemIndex = displayedMonth.indexIn(yearRange))
+        rememberLazyListState(
+            initialFirstVisibleItemIndex = displayedMonth.indexIn(yearRange).coerceAtLeast(0)
+        )
     Column(modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding)) {
         WeekDays(colors, calendarModel)
         VerticalMonthsList(
