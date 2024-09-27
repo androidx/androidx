@@ -16,10 +16,15 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -162,6 +167,50 @@ class DatePickerTest {
         (2019..2031).forEach { year ->
             rule.onNodeWithText(yearDescriptionFormat.format(year)).assertIsNotEnabled()
         }
+    }
+
+    @Test
+    fun selectableDates_updatedSelection() {
+        lateinit var datePickerState: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val allEnabled =
+                object : SelectableDates {
+                    // All dates are valid.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = true
+                }
+            val allDisabled =
+                object : SelectableDates {
+                    // All dates are invalid.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                }
+
+            var selectableDates: SelectableDates by remember { mutableStateOf(allEnabled) }
+            Column {
+                val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
+                datePickerState =
+                    rememberDatePickerState(
+                        initialDisplayedMonthMillis = monthInUtcMillis,
+                        selectableDates = selectableDates
+                    )
+                DatePicker(state = datePickerState)
+                Button(
+                    onClick = { selectableDates = allDisabled },
+                    modifier = Modifier.testTag("disableSelection")
+                ) {
+                    Text("Disable selection")
+                }
+            }
+        }
+
+        // Assert that the 27th of the month is enabled.
+        rule.onNode(hasText("27", substring = true) and hasClickAction()).assertIsEnabled()
+
+        // Click the button to disable all dates.
+        rule.onNodeWithTag("disableSelection").performClick()
+        rule.waitForIdle()
+
+        // Assert that the 27th of the month is disabled.
+        rule.onNode(hasText("27", substring = true) and hasClickAction()).assertIsNotEnabled()
     }
 
     @Test
