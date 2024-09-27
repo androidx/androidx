@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.window
 
+import android.graphics.Point
 import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.KeyEvent
@@ -319,6 +320,104 @@ class DialogTest {
     }
 
     @Test
+    fun smallDialogHasSmallWindowDefaultWidthDecorFits() {
+        lateinit var dialogView: View
+        rule.setContent {
+            Dialog(
+                {},
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true)
+            ) {
+                dialogView = LocalView.current
+                Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
+            }
+        }
+        rule.runOnIdle {
+            var root = dialogView
+            while (root.parent is View) {
+                root = root.parent as View
+            }
+            assertThat(root.width).isEqualTo(100)
+            assertThat(root.height).isEqualTo(100)
+        }
+    }
+
+    @Test
+    fun smallDialogHasSmallWindowNotDefaultWidthDecorFits() {
+        lateinit var dialogView: View
+        rule.setContent {
+            Dialog(
+                {},
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)
+            ) {
+                dialogView = LocalView.current
+                Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
+            }
+        }
+        rule.runOnIdle {
+            var root = dialogView
+            while (root.parent is View) {
+                root = root.parent as View
+            }
+            assertThat(root.height).isEqualTo(100)
+        }
+    }
+
+    @Test
+    fun smallDialogHasSmallWindowDefaultWidthNoDecorFits() {
+        lateinit var dialogView: View
+        rule.setContent {
+            Dialog(
+                {},
+                properties =
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false)
+            ) {
+                dialogView = LocalView.current
+                Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
+            }
+        }
+        rule.runOnIdle {
+            val point = Point()
+            @Suppress("DEPRECATION") dialogView.display.getRealSize(point)
+            var root = dialogView
+            while (root.parent is View) {
+                root = root.parent as View
+            }
+            // For some reason, when decorFitsSystemWindows = false, the window doesn't
+            // WRAP_CONTENT the dialog, but the width should be less than the full width of the
+            // screen.
+            assertThat(root.width).isLessThan(point.x)
+            assertThat(root.height).isEqualTo(100)
+        }
+    }
+
+    @Test
+    fun smallDialogHasSmallWindowNotDefaultWidthNoDecorFits() {
+        lateinit var dialogView: View
+        rule.setContent {
+            Dialog(
+                {},
+                properties =
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = false
+                    )
+            ) {
+                dialogView = LocalView.current
+                Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
+            }
+        }
+        rule.runOnIdle {
+            var root = dialogView
+            while (root.parent is View) {
+                root = root.parent as View
+            }
+            assertThat(root.height).isEqualTo(100)
+        }
+    }
+
+    @Test
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
         var box2Width = 0
@@ -424,6 +523,72 @@ class DialogTest {
             Dialog(
                 onDismissRequest = { dismissed = true },
                 properties =
+                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)
+            ) {
+                composeView = LocalView.current
+                Box(Modifier.size(10.dp).testTag(clickBoxTag).clickable { clicked = true })
+            }
+        }
+
+        // click inside the compose view
+        rule.onNodeWithTag(clickBoxTag).performClick()
+
+        rule.waitForIdle()
+
+        assertThat(dismissed).isFalse()
+        assertThat(clicked).isTrue()
+
+        clicked = false
+
+        // click outside the compose view
+        rule.waitForIdle()
+        var root = composeView
+        while (root.parent is View) {
+            root = root.parent as View
+        }
+
+        rule.runOnIdle {
+            val x = 1f
+            val y = 1f
+            val down =
+                MotionEvent(
+                    eventTime = 0,
+                    action = ACTION_DOWN,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties = arrayOf(PointerProperties(0)),
+                    pointerCoords = arrayOf(PointerCoords(x, y)),
+                    root
+                )
+            root.dispatchTouchEvent(down)
+            val up =
+                MotionEvent(
+                    eventTime = 10,
+                    action = ACTION_UP,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties = arrayOf(PointerProperties(0)),
+                    pointerCoords = arrayOf(PointerCoords(x, y)),
+                    root
+                )
+            root.dispatchTouchEvent(up)
+        }
+        rule.waitForIdle()
+
+        assertThat(dismissed).isTrue()
+        assertThat(clicked).isFalse()
+    }
+
+    @Test
+    fun dismissWhenClickingOutsideContentNoDecorFitsSystemWindows() {
+        var dismissed = false
+        var clicked = false
+        lateinit var composeView: View
+        val clickBoxTag = "clickBox"
+        rule.setContent {
+            Dialog(
+                onDismissRequest = { dismissed = true },
+                properties =
                     DialogProperties(
                         usePlatformDefaultWidth = false,
                         decorFitsSystemWindows = false
@@ -452,8 +617,8 @@ class DialogTest {
         }
 
         rule.runOnIdle {
-            val x = root.width / 4f
-            val y = root.height / 4f
+            val x = 1f
+            val y = 1f
             val down =
                 MotionEvent(
                     eventTime = 0,
