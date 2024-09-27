@@ -18,6 +18,8 @@ package androidx.camera.view;
 
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.Rect;
+import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.AnyThread;
@@ -40,6 +42,9 @@ class PreviewViewMeteringPointFactory extends MeteringPointFactory {
 
     @NonNull
     private final PreviewTransformation mPreviewTransformation;
+    @GuardedBy("this")
+    @Nullable
+    private Rect mSensorRect = null;
 
     @GuardedBy("this")
     @Nullable
@@ -63,17 +68,26 @@ class PreviewViewMeteringPointFactory extends MeteringPointFactory {
         return new PointF(point[0], point[1]);
     }
 
+    public void setSensorRect(Rect sensorRect) {
+        setSurfaceAspectRatio(new Rational(sensorRect.width(), sensorRect.height()));
+        synchronized (this) {
+            mSensorRect = sensorRect;
+        }
+    }
+
     @UiThread
     void recalculate(@NonNull Size previewViewSize, int layoutDirection) {
         Threads.checkMainThread();
         synchronized (this) {
-            if (previewViewSize.getWidth() == 0 || previewViewSize.getHeight() == 0) {
+            if (previewViewSize.getWidth() == 0 || previewViewSize.getHeight() == 0
+                    || mSensorRect == null) {
                 mMatrix = null;
                 return;
             }
-            mMatrix = mPreviewTransformation.getPreviewViewToNormalizedSurfaceMatrix(
+            mMatrix = mPreviewTransformation.getPreviewViewToNormalizedSensorMatrix(
                     previewViewSize,
-                    layoutDirection);
+                    layoutDirection,
+                    mSensorRect);
         }
     }
 }

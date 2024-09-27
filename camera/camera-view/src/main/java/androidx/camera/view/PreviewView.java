@@ -213,6 +213,10 @@ public final class PreviewView extends FrameLayout {
             Logger.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = surfaceRequest.getCamera();
             mCameraInfoInternal = camera.getCameraInfoInternal();
+            // PreviewViewMeteringPointFactory will convert the coordinates from previewView (x,y)
+            // to sensor coordinates and then to normalized coordinates. Thus sensor rect is needed.
+            mPreviewViewMeteringPointFactory.setSensorRect(
+                    camera.getCameraControlInternal().getSensorRect());
             surfaceRequest.setTransformationInfoListener(
                     getMainExecutor(getContext()),
                     transformationInfo -> {

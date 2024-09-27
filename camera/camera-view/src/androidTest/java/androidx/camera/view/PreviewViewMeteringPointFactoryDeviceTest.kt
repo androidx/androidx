@@ -19,6 +19,7 @@ package androidx.camera.view
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
 import android.util.LayoutDirection
 import android.util.Size
 import androidx.camera.core.SurfaceRequest
@@ -74,6 +75,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
 
         // Crop rect with the same aspect ratio as the view.
         private val VIEW_CROP_RECT = Rect(15, 10, 39, 28)
+        private val SENSOR_RECT = Rect(0, 0, 4000, 3000)
 
         @JvmStatic
         @Parameterized.Parameters
@@ -198,6 +200,38 @@ class PreviewViewMeteringPointFactoryDeviceTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
+    private fun getSurfaceNormalizedPt(sensorNormalizedPt: PointF): PointF {
+        val matrix = getSensorToBufferTransformMatrix(surfaceSize)
+
+        val normalization = Matrix()
+        normalization.setRectToRect(
+            RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat()),
+            RectF(0f, 0f, 1f, 1f),
+            Matrix.ScaleToFit.FILL
+        )
+        matrix.postConcat(normalization)
+        val pointArray =
+            floatArrayOf(
+                sensorNormalizedPt.x * SENSOR_RECT.width(),
+                sensorNormalizedPt.y * SENSOR_RECT.height()
+            )
+        matrix.mapPoints(pointArray)
+        return PointF(pointArray[0], pointArray[1])
+    }
+
+    private fun getSensorToBufferTransformMatrix(surfaceSize: Size): Matrix {
+        val fullSensorRectF = RectF(SENSOR_RECT)
+        val sensorToUseCaseTransformation = Matrix()
+        val srcRect = RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat())
+        sensorToUseCaseTransformation.setRectToRect(
+            srcRect,
+            fullSensorRectF,
+            Matrix.ScaleToFit.CENTER
+        )
+        sensorToUseCaseTransformation.invert(sensorToUseCaseTransformation)
+        return sensorToUseCaseTransformation
+    }
+
     @Test
     fun verifyMeteringPoint() {
         // Arrange.
@@ -209,19 +243,21 @@ class PreviewViewMeteringPointFactoryDeviceTest(
                 rotationDegrees,
                 FAKE_TARGET_ROTATION,
                 /*hasCameraTransform=*/ true,
-                /*sensorToBufferTransform=*/ Matrix(),
+                /*sensorToBufferTransform=*/ getSensorToBufferTransformMatrix(surfaceSize),
                 /*mirroring=*/ false
             ),
             surfaceSize,
             isFrontCamera
         )
         val meteringPointFactory = PreviewViewMeteringPointFactory(previewTransformation)
+        meteringPointFactory.setSensorRect(SENSOR_RECT)
 
         // Act.
         instrumentation.runOnMainSync {
             meteringPointFactory.recalculate(previewViewSize, layoutDirection)
         }
-        val meteringPoint = meteringPointFactory.convertPoint(uiPoint.x, uiPoint.y)
+        val meteringPoint =
+            getSurfaceNormalizedPt(meteringPointFactory.convertPoint(uiPoint.x, uiPoint.y))
 
         // Assert.
         assertThat(meteringPoint.x).isWithin(FLOAT_ERROR).of(expectedMeteringPoint.x)

@@ -476,19 +476,20 @@ final class PreviewTransformation {
      * @return null if transformation info is not set.
      */
     @Nullable
-    Matrix getPreviewViewToNormalizedSurfaceMatrix(Size previewViewSize, int layoutDirection) {
+    Matrix getPreviewViewToNormalizedSensorMatrix(
+            Size previewViewSize, int layoutDirection, Rect sensorRect) {
         if (!isTransformationInfoReady()) {
             return null;
         }
         Matrix matrix = new Matrix();
 
         // Map PreviewView coordinates to Surface coordinates.
-        getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection).invert(matrix);
+        getSensorToViewTransform(previewViewSize, layoutDirection).invert(matrix);
 
         // Map Surface coordinates to normalized coordinates (-1, -1) - (1, 1).
         Matrix normalization = new Matrix();
         normalization.setRectToRect(
-                new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight()),
+                new RectF(0, 0, sensorRect.width(), sensorRect.height()),
                 new RectF(0, 0, 1, 1), Matrix.ScaleToFit.FILL);
         matrix.postConcat(normalization);
 
