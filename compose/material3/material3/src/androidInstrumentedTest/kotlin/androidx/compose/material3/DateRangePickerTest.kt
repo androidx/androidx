@@ -16,17 +16,28 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.internal.MillisecondsIn24Hours
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.getString
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -431,6 +442,52 @@ class DateRangePickerTest {
                     .isEqualTo(1649721600000L + MillisecondsIn24Hours)
             }
         }
+    }
+
+    @Test
+    fun selectableDates_updatedSelection() {
+        lateinit var dateRangePickerState: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val allEnabled =
+                object : SelectableDates {
+                    // All dates are valid.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = true
+                }
+            val allDisabled =
+                object : SelectableDates {
+                    // All dates are invalid.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                }
+
+            var selectableDates: SelectableDates by remember { mutableStateOf(allEnabled) }
+            Column {
+                val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
+                dateRangePickerState =
+                    rememberDateRangePickerState(
+                        initialDisplayedMonthMillis = monthInUtcMillis,
+                        selectableDates = selectableDates
+                    )
+                // Apply a Modifier.weight(1f) to ensure that the Button below will be visible.
+                DateRangePicker(state = dateRangePickerState, modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { selectableDates = allDisabled },
+                    modifier = Modifier.testTag("disableSelection")
+                ) {
+                    Text("Disable selection")
+                }
+            }
+        }
+
+        // Pick the 27th and ensure it's enabled for all the displayed months.
+        rule.onAllNodes(hasText("27", substring = true) and hasClickAction()).assertAll(isEnabled())
+
+        // Click the button to disable all dates.
+        rule.onNodeWithTag("disableSelection").performClick()
+        rule.waitForIdle()
+        // Assert that the 27th of the month is disabled for all the displayed months.
+        rule
+            .onAllNodes(hasText("27", substring = true) and hasClickAction())
+            .assertAll(isNotEnabled())
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's

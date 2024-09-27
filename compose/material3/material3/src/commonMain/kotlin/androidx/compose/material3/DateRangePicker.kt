@@ -261,16 +261,20 @@ fun rememberDateRangePickerState(
 ): DateRangePickerState {
     val locale = defaultLocale()
     return rememberSaveable(saver = DateRangePickerStateImpl.Saver(selectableDates, locale)) {
-        DateRangePickerStateImpl(
-            initialSelectedStartDateMillis = initialSelectedStartDateMillis,
-            initialSelectedEndDateMillis = initialSelectedEndDateMillis,
-            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-            yearRange = yearRange,
-            initialDisplayMode = initialDisplayMode,
-            selectableDates = selectableDates,
-            locale = locale
-        )
-    }
+            DateRangePickerStateImpl(
+                initialSelectedStartDateMillis = initialSelectedStartDateMillis,
+                initialSelectedEndDateMillis = initialSelectedEndDateMillis,
+                initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+                yearRange = yearRange,
+                initialDisplayMode = initialDisplayMode,
+                selectableDates = selectableDates,
+                locale = locale
+            )
+        }
+        .apply {
+            // Update the state's selectable dates if they were changed.
+            this.selectableDates = selectableDates
+        }
 }
 
 /**
