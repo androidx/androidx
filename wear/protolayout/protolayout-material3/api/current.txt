@@ -1,1 +1,72 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.material3 {
+
+  public final class ColorTokens {
+    field public static final int BACKGROUND = 0; // 0x0
+    field public static final int ERROR = 1; // 0x1
+    field public static final int ERROR_CONTAINER = 2; // 0x2
+    field public static final androidx.wear.protolayout.material3.ColorTokens INSTANCE;
+    field public static final int ON_BACKGROUND = 3; // 0x3
+    field public static final int ON_ERROR = 4; // 0x4
+    field public static final int ON_ERROR_CONTAINER = 5; // 0x5
+    field public static final int ON_PRIMARY = 6; // 0x6
+    field public static final int ON_PRIMARY_CONTAINER = 7; // 0x7
+    field public static final int ON_SECONDARY = 8; // 0x8
+    field public static final int ON_SECONDARY_CONTAINER = 9; // 0x9
+    field public static final int ON_SURFACE = 10; // 0xa
+    field public static final int ON_SURFACE_VARIANT = 11; // 0xb
+    field public static final int ON_TERTIARY = 12; // 0xc
+    field public static final int ON_TERTIARY_CONTAINER = 13; // 0xd
+    field public static final int OUTLINE = 14; // 0xe
+    field public static final int OUTLINE_VARIANT = 15; // 0xf
+    field public static final int PRIMARY = 16; // 0x10
+    field public static final int PRIMARY_CONTAINER = 17; // 0x11
+    field public static final int PRIMARY_DIM = 18; // 0x12
+    field public static final int SECONDARY = 19; // 0x13
+    field public static final int SECONDARY_CONTAINER = 20; // 0x14
+    field public static final int SECONDARY_DIM = 21; // 0x15
+    field public static final int SURFACE_CONTAINER = 22; // 0x16
+    field public static final int SURFACE_CONTAINER_HIGH = 23; // 0x17
+    field public static final int SURFACE_CONTAINER_LOW = 24; // 0x18
+    field public static final int TERTIARY = 25; // 0x19
+    field public static final int TERTIARY_CONTAINER = 26; // 0x1a
+    field public static final int TERTIARY_DIM = 27; // 0x1b
+  }
+
+  public final class Shape {
+    field public static final int CORNER_EXTRA_LARGE = 0; // 0x0
+    field public static final int CORNER_EXTRA_SMALL = 1; // 0x1
+    field public static final int CORNER_FULL = 2; // 0x2
+    field public static final int CORNER_LARGE = 3; // 0x3
+    field public static final int CORNER_MEDIUM = 4; // 0x4
+    field public static final int CORNER_NONE = 5; // 0x5
+    field public static final int CORNER_SMALL = 6; // 0x6
+    field public static final androidx.wear.protolayout.material3.Shape INSTANCE;
+  }
+
+  public final class Typography {
+    field public static final int ARC_MEDIUM = 0; // 0x0
+    field public static final int ARC_SMALL = 1; // 0x1
+    field public static final int BODY_EXTRA_SMALL = 2; // 0x2
+    field public static final int BODY_LARGE = 3; // 0x3
+    field public static final int BODY_MEDIUM = 4; // 0x4
+    field public static final int BODY_SMALL = 5; // 0x5
+    field public static final int DISPLAY_LARGE = 6; // 0x6
+    field public static final int DISPLAY_MEDIUM = 7; // 0x7
+    field public static final int DISPLAY_SMALL = 8; // 0x8
+    field public static final androidx.wear.protolayout.material3.Typography INSTANCE;
+    field public static final int LABEL_LARGE = 9; // 0x9
+    field public static final int LABEL_MEDIUM = 10; // 0xa
+    field public static final int LABEL_SMALL = 11; // 0xb
+    field public static final int NUMERAL_EXTRA_LARGE = 12; // 0xc
+    field public static final int NUMERAL_EXTRA_SMALL = 13; // 0xd
+    field public static final int NUMERAL_LARGE = 14; // 0xe
+    field public static final int NUMERAL_MEDIUM = 15; // 0xf
+    field public static final int NUMERAL_SMALL = 16; // 0x10
+    field public static final int TITLE_LARGE = 17; // 0x11
+    field public static final int TITLE_MEDIUM = 18; // 0x12
+    field public static final int TITLE_SMALL = 19; // 0x13
+  }
+
+}
+

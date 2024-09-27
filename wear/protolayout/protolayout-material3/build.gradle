@@ -26,11 +26,25 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     annotationProcessor(libs.nullaway)
     api(project(":wear:protolayout:protolayout"))
+    api(libs.kotlinStdlib)
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
 }
 
 android {
@@ -39,6 +53,9 @@ android {
     }
 
     namespace "androidx.wear.protolayout.material3"
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 androidx {
