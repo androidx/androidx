@@ -42,6 +42,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -57,6 +58,7 @@ internal class CallSession(
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
     private val callChannels: CallChannels,
+    private val onStateChangedCallback: MutableSharedFlow<CallStateEvent>,
     private val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
     private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.CallControlCallback, android.telecom.CallEventCallback, AutoCloseable {
@@ -72,6 +74,14 @@ internal class CallSession(
     private val mIsAvailableEndpointsSet = CompletableDeferred<Unit>()
     private val mIsCurrentlyDisplayingVideo = attributes.isVideoCall()
     internal val mJetpackToPlatformCallEndpoint: HashMap<ParcelUuid, CallEndpoint> = HashMap()
+
+    init {
+        CoroutineScope(coroutineContext).launch {
+            val state =
+                if (attributes.isOutgoingCall()) CallStateEvent.DIALING else CallStateEvent.RINGING
+            onStateChangedCallback.emit(state)
+        }
+    }
 
     companion object {
         private val TAG: String = CallSession::class.java.simpleName
@@ -167,6 +177,13 @@ internal class CallSession(
     }
 
     override fun onMuteStateChanged(isMuted: Boolean) {
+        CoroutineScope(coroutineContext).launch {
+            if (isMuted) {
+                onStateChangedCallback.emit(CallStateEvent.GLOBAL_MUTED)
+            } else {
+                onStateChangedCallback.emit(CallStateEvent.GLOBAL_UNMUTE)
+            }
+        }
         callChannels.isMutedChannel.trySend(isMuted).getOrThrow()
     }
 
@@ -311,7 +328,6 @@ internal class CallSession(
     }
 
     override fun onEvent(event: String, extras: Bundle) {
-        Log.i(TAG, "onEvent: received $event")
         CoroutineScope(coroutineContext).launch { onEventCallback(event, extras) }
     }
 
@@ -351,25 +367,37 @@ internal class CallSession(
         return mPlatformInterface!!.callId
     }
 
+    private fun moveState(result: CallControlResult, callState: CallStateEvent) {
+        if (result == CallControlResult.Success()) {
+            CoroutineScope(coroutineContext).launch { onStateChangedCallback.emit(callState) }
+        }
+    }
+
     suspend fun setActive(): CallControlResult {
         val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setActive(Runnable::run, CallControlReceiver(result))
         result.await()
-        return result.getCompleted()
+        val callControlResult = result.getCompleted()
+        moveState(callControlResult, CallStateEvent.ACTIVE)
+        return callControlResult
     }
 
     suspend fun setInactive(): CallControlResult {
         val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setInactive(Runnable::run, CallControlReceiver(result))
         result.await()
-        return result.getCompleted()
+        val callControlResult = result.getCompleted()
+        moveState(callControlResult, CallStateEvent.INACTIVE)
+        return callControlResult
     }
 
     suspend fun answer(videoState: Int): CallControlResult {
         val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.answer(videoState, Runnable::run, CallControlReceiver(result))
         result.await()
-        return result.getCompleted()
+        val callControlResult = result.getCompleted()
+        moveState(callControlResult, CallStateEvent.ACTIVE)
+        return callControlResult
     }
 
     fun sendEvent(event: String, extras: Bundle = Bundle.EMPTY) {
@@ -413,6 +441,8 @@ internal class CallSession(
         val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.disconnect(disconnectCause, Runnable::run, CallControlReceiver(result))
         result.await()
+        val callControlResult = result.getCompleted()
+        moveState(callControlResult, CallStateEvent.DISCONNECTED)
         return result.getCompleted()
     }
 
@@ -422,6 +452,7 @@ internal class CallSession(
             try {
                 onSetActiveCallback()
                 wasCompleted.accept(true)
+                onStateChangedCallback.emit(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(wasCompleted, e)
             }
@@ -433,6 +464,7 @@ internal class CallSession(
             try {
                 onSetInactiveCallback()
                 wasCompleted.accept(true)
+                onStateChangedCallback.emit(CallStateEvent.INACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(wasCompleted, e)
             }
@@ -444,6 +476,7 @@ internal class CallSession(
             try {
                 onAnswerCallback(videoState)
                 wasCompleted.accept(true)
+                onStateChangedCallback.emit(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(wasCompleted, e)
             }
@@ -455,6 +488,7 @@ internal class CallSession(
             try {
                 onDisconnectCallback(cause)
                 wasCompleted.accept(true)
+                onStateChangedCallback.emit(CallStateEvent.DISCONNECTED)
             } catch (e: Exception) {
                 wasCompleted.accept(false)
                 throw e

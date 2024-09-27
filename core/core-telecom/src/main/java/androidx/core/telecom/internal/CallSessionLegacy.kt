@@ -45,6 +45,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -59,6 +60,7 @@ internal class CallSessionLegacy(
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
     val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
+    val onStateChangedCallback: MutableSharedFlow<CallStateEvent>,
     private val preferredStartingCallEndpoint: CallEndpointCompat? = null,
     private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.Connection(), AutoCloseable {
@@ -72,6 +74,14 @@ internal class CallSessionLegacy(
     private var mAvailableCallEndpoints: List<CallEndpointCompat>? = null
     private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
     private val mCallSessionLegacyId: Int = CallEndpointUuidTracker.startSession()
+
+    init {
+        CoroutineScope(coroutineContext).launch {
+            val state =
+                if (attributes.isOutgoingCall()) CallStateEvent.DIALING else CallStateEvent.RINGING
+            onStateChangedCallback.emit(state)
+        }
+    }
 
     companion object {
         private const val WAIT_FOR_BT_TO_CONNECT_TIMEOUT: Long = 1000L
@@ -151,6 +161,13 @@ internal class CallSessionLegacy(
         setCurrentCallEndpoint(state)
         setAvailableCallEndpoints(state)
         callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
+        CoroutineScope(coroutineContext).launch {
+            if (state.isMuted) {
+                onStateChangedCallback.emit(CallStateEvent.GLOBAL_MUTED)
+            } else {
+                onStateChangedCallback.emit(CallStateEvent.GLOBAL_UNMUTE)
+            }
+        }
         // On the first call audio state change, determine if the platform started on the correct
         // audio route.  Otherwise, request an endpoint switch.
         switchStartingCallEndpointOnCallStart(mAvailableCallEndpoints!!)
@@ -298,14 +315,20 @@ internal class CallSessionLegacy(
         return id
     }
 
+    private fun moveState(callState: CallStateEvent) {
+        CoroutineScope(coroutineContext).launch { onStateChangedCallback.emit(callState) }
+    }
+
     fun answer(videoState: Int): CallControlResult {
         setVideoState(videoState)
         setActive()
+        moveState(CallStateEvent.ACTIVE)
         return CallControlResult.Success()
     }
 
     fun setConnectionActive(): CallControlResult {
         setActive()
+        moveState(CallStateEvent.ACTIVE)
         return CallControlResult.Success()
     }
 
@@ -314,6 +337,7 @@ internal class CallSessionLegacy(
             this.connectionCapabilities.and(CAPABILITY_SUPPORT_HOLD) == CAPABILITY_SUPPORT_HOLD
         ) {
             setOnHold()
+            moveState(CallStateEvent.INACTIVE)
             CallControlResult.Success()
         } else {
             CallControlResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD)
@@ -323,6 +347,7 @@ internal class CallSessionLegacy(
     fun setConnectionDisconnect(cause: DisconnectCause): CallControlResult {
         setDisconnected(cause)
         destroy()
+        moveState(CallStateEvent.DISCONNECTED)
         return CallControlResult.Success()
     }
 
@@ -418,6 +443,7 @@ internal class CallSessionLegacy(
                 onAnswerCallback(videoState)
                 setActive()
                 setVideoState(videoState)
+                moveState(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(e)
             }
@@ -429,6 +455,7 @@ internal class CallSessionLegacy(
             try {
                 onSetActiveCallback()
                 setActive()
+                moveState(CallStateEvent.ACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(e)
             }
@@ -440,6 +467,7 @@ internal class CallSessionLegacy(
             try {
                 onSetInactiveCallback()
                 setOnHold()
+                moveState(CallStateEvent.INACTIVE)
             } catch (e: Exception) {
                 handleCallbackFailure(e)
             }
@@ -447,6 +475,7 @@ internal class CallSessionLegacy(
     }
 
     private fun handleCallbackFailure(e: Exception) {
+        moveState(CallStateEvent.DISCONNECTED)
         setConnectionDisconnect(DisconnectCause(DisconnectCause.LOCAL))
         blockingSessionExecution.complete(Unit)
         throw e

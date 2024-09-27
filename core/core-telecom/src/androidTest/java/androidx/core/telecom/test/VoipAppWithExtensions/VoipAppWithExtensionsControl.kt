@@ -106,6 +106,11 @@ open class VoipAppWithExtensionsControl : Service() {
                                 mOnSetActiveLambda,
                                 mOnSetInActiveLambda
                             ) {
+                                launch { setActive() }
+                                isMuted
+                                    .onEach { mCallback?.onGlobalMuteStateChanged(it) }
+                                    .launchIn(this)
+
                                 participantsFlow
                                     .onEach {
                                         TestUtils.printParticipants(it, "VoIP participants")

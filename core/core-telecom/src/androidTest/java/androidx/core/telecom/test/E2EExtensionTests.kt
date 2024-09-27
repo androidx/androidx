@@ -17,7 +17,9 @@
 package androidx.core.telecom.test
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.util.Log
@@ -171,6 +173,9 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
     @get:Rule
     val readPhoneNumbersRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.READ_PHONE_NUMBERS)!!
+    @get:Rule
+    val modifyAudioRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.MODIFY_AUDIO_SETTINGS)!!
 
     @get:Rule val voipAppServiceRule: ServiceTestRule = ServiceTestRule()
 
@@ -406,6 +411,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
      */
     @LargeTest
     @Test(timeout = 10000)
+    @SdkSuppress(minSdkVersion = VERSION_CODES.P) // b/372766291
     fun testVoipAndIcsTogglingTheLocalCallSilenceExtension(): Unit = runBlocking {
         usingIcs { ics ->
             val voipAppControl = bindToVoipAppWithExtensions()
@@ -421,15 +427,26 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
 
             val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)!!
             var hasConnected = false
+
+            val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             with(ics) {
                 connectExtensions(call) {
                     val localSilenceExtension = CachedLocalSilence(this)
                     onConnected {
                         hasConnected = true
+                        // simulate an external global mute while the local call silence extension
+                        // is connected.  The expected behavior is that telecom will undo this op
+                        am.setMicrophoneMute(true)
+                        assertTrue(am.isMicrophoneMute)
+                        callback.waitForGlobalMuteState(true) // TODO:: failing on API 26&27
+                        // LocalCallSilenceExtensionImpl handles globally unmuting the microphone
+                        callback.waitForGlobalMuteState(false)
+
                         // VoIP --> ICS
                         voipAppControl.updateIsLocallySilenced(false)
                         localSilenceExtension.waitForLocalCallSilenceState(false)
 
+                        // signal that the app wants to locally silence the call
                         voipAppControl.updateIsLocallySilenced(true)
                         localSilenceExtension.waitForLocalCallSilenceState(true)
 

@@ -32,6 +32,7 @@ import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -222,6 +223,7 @@ class CallSessionTest : BaseTelecomTest() {
             TestUtils.mOnSetActiveLambda,
             TestUtils.mOnSetInActiveLambda,
             callChannels,
+            MutableSharedFlow(),
             { _, _ -> },
             CompletableDeferred(Unit)
         )

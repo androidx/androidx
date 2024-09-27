@@ -30,6 +30,7 @@ import androidx.core.telecom.test.services.CallAudioEndpoint
 import androidx.core.telecom.test.services.CallData
 import androidx.core.telecom.test.services.CallState
 import androidx.core.telecom.test.services.Capability
+import androidx.core.telecom.test.services.LocalCallSilenceData
 import androidx.core.telecom.test.services.ParticipantExtensionData
 import androidx.core.telecom.test.services.RemoteCallProvider
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -134,7 +135,21 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
             direction = fullCallData.callData.direction,
             callType = fullCallData.callData.callType,
             onStateChanged = { fullCallData.callData.onStateChanged(it) },
-            participantUiState = mapToUiParticipantExtension(fullCallData.participantExtensionData)
+            participantUiState = mapToUiParticipantExtension(fullCallData.participantExtensionData),
+            localCallSilenceUiState = mapToUiLocalSilenceExtension(fullCallData.localSilenceData)
+        )
+    }
+
+    @OptIn(ExperimentalAppActions::class)
+    private fun mapToUiLocalSilenceExtension(
+        localCallSilenceExtensionData: LocalCallSilenceData?
+    ): LocalCallSilenceExtensionUiState {
+        if (localCallSilenceExtensionData == null) {
+            return LocalCallSilenceExtensionUiState(false, null)
+        }
+        return LocalCallSilenceExtensionUiState(
+            localCallSilenceExtensionData.isLocallySilenced,
+            localCallSilenceExtensionData.extension
         )
     }
 

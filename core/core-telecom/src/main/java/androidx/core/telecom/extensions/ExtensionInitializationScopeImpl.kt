@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.extensions
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
@@ -23,10 +24,13 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.internal.CallStateEvent
 import androidx.core.telecom.internal.CapabilityExchangeRemote
 import androidx.core.telecom.internal.CapabilityExchangeRepository
 import androidx.core.telecom.util.ExperimentalAppActions
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
@@ -41,7 +45,11 @@ import kotlinx.coroutines.launch
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAppActions::class)
-internal class ExtensionInitializationScopeImpl : ExtensionInitializationScope {
+internal class ExtensionInitializationScopeImpl(
+    private val context: Context,
+    private val coroutineContext: CoroutineContext,
+    private val callStateFlow: MutableSharedFlow<CallStateEvent>
+) : ExtensionInitializationScope {
     private companion object {
         const val LOG_TAG = Extensions.LOG_TAG + "(EIS)"
     }
@@ -69,7 +77,13 @@ internal class ExtensionInitializationScopeImpl : ExtensionInitializationScope {
         onLocalSilenceUpdate: (suspend (Boolean) -> Unit)
     ): LocalCallSilenceExtension {
         val localSilenceExtension =
-            LocalCallSilenceExtensionImpl(initialCallSilenceState, onLocalSilenceUpdate)
+            LocalCallSilenceExtensionImpl(
+                context,
+                coroutineContext,
+                callStateFlow,
+                initialCallSilenceState,
+                onLocalSilenceUpdate
+            )
         registerExtension(onExchangeStarted = localSilenceExtension::onExchangeStarted)
         return localSilenceExtension
     }

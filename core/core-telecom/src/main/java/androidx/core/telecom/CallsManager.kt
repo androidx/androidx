@@ -48,6 +48,7 @@ import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
+import androidx.core.telecom.internal.CallStateEvent
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.PreCallEndpoints
 import androidx.core.telecom.internal.utils.AudioManagerUtil.Companion.getAvailableAudioDevices
@@ -282,6 +283,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             onDisconnect,
             onSetActive,
             onSetInactive,
+            MutableSharedFlow(),
             onEvent = { _, _ -> },
             block
         )
@@ -329,7 +331,8 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     ): Unit = coroutineScope {
         Log.v(TAG, "addCall: begin")
         val eventFlow = MutableSharedFlow<CallEvent>()
-        val scope = ExtensionInitializationScopeImpl()
+        val callStateFlow = MutableSharedFlow<CallStateEvent>()
+        val scope = ExtensionInitializationScopeImpl(mContext, coroutineContext, callStateFlow)
         scope.init()
         val extensionJob = launch {
             Log.d(TAG, "addCall: connecting extensions")
@@ -342,6 +345,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             onDisconnect,
             onSetActive,
             onSetInactive,
+            callStateFlow,
             onEvent = { event, extras -> eventFlow.emit(CallEvent(event, extras)) }
         ) {
             Log.d(TAG, "addCall: invoking delegates")
@@ -419,12 +423,13 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     @Suppress("ClassVerificationFailure")
     @OptIn(ExperimentalCoroutinesApi::class)
     @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-    public suspend fun addCall(
+    internal suspend fun addCall(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
+        onCallStateEventChanged: MutableSharedFlow<CallStateEvent>,
         onEvent: suspend (event: String, extras: Bundle) -> Unit,
         block: CallControlScope.() -> Unit
     ) {
@@ -456,6 +461,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     onSetActive,
                     onSetInactive,
                     callChannels,
+                    onCallStateEventChanged,
                     onEvent,
                     blockingSessionExecution
                 )
@@ -521,6 +527,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     onSetActive,
                     onSetInactive,
                     onEvent,
+                    onCallStateEventChanged,
                     callAttributes.preferredStartingCallEndpoint,
                     blockingSessionExecution
                 )

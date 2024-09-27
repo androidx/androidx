@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
@@ -48,6 +49,7 @@ class CallListAdapter(
         val currentState: TextView = itemView.findViewById(R.id.callStateTextView)
         val currentEndpoint: TextView = itemView.findViewById(R.id.endpointStateTextView)
         val participants: TextView = itemView.findViewById(R.id.participantsTextView)
+        val localCallSilenceIcon: ImageView = itemView.findViewById(R.id.LocalCallSilenceImage)
 
         // Call State Buttons
         val activeButton: Button = itemView.findViewById(R.id.activeButton)
@@ -62,6 +64,10 @@ class CallListAdapter(
         // Participant Buttons
         val addParticipantButton: Button = itemView.findViewById(R.id.addParticipantButton)
         val removeParticipantButton: Button = itemView.findViewById(R.id.removeParticipantButton)
+
+        // Toggle Local Call Silence button
+        val toggleLocalCallSilenceButton: Button =
+            itemView.findViewById(R.id.toggleLocalCallSilence)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -197,6 +203,13 @@ class CallListAdapter(
                     ItemsViewModel.callObject.mParticipantControl?.onParticipantRemoved?.invoke()
                 }
             }
+
+            holder.localCallSilenceIcon.setImageResource(R.drawable.mic)
+            holder.toggleLocalCallSilenceButton.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    ItemsViewModel.callObject.toggleLocalCallSilence()
+                }
+            }
         }
     }
 
@@ -211,6 +224,17 @@ class CallListAdapter(
         CoroutineScope(Dispatchers.Main).launch {
             val holder = mCallIdToViewHolder[callId]
             holder?.callIdTextView?.text = "currentState=[$state]"
+        }
+    }
+
+    fun updateLocalCallSilenceIcon(callId: String, isSilenced: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val holder = mCallIdToViewHolder[callId]
+            if (isSilenced) {
+                holder?.localCallSilenceIcon?.setImageResource(R.drawable.mic_off_24px)
+            } else {
+                holder?.localCallSilenceIcon?.setImageResource(R.drawable.mic)
+            }
         }
     }
 
