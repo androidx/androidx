@@ -21,6 +21,7 @@ import android.provider.Settings
 import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.ColorBuilders.ColorProp
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders.ImageDimension
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_CENTER
 import androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE
@@ -64,8 +65,22 @@ internal constructor(
     public val deviceConfiguration: DeviceParameters,
     internal val theme: MaterialTheme = DEFAULT_MATERIAL_THEME,
     internal val allowDynamicTheme: Boolean = true,
-    internal val defaultTextElementStyle: TextElementStyle = TextElementStyle()
-)
+    internal val defaultTextElementStyle: TextElementStyle = TextElementStyle(),
+    internal val defaultIconStyle: IconStyle = IconStyle()
+) {
+    internal fun withStyle(
+        defaultTextElementStyle: TextElementStyle = this.defaultTextElementStyle,
+        defaultIconStyle: IconStyle = this.defaultIconStyle
+    ): MaterialScope =
+        MaterialScope(
+            context = context,
+            deviceConfiguration = deviceConfiguration,
+            theme = theme,
+            allowDynamicTheme = allowDynamicTheme,
+            defaultTextElementStyle = defaultTextElementStyle,
+            defaultIconStyle = defaultIconStyle
+        )
+}
 
 /**
  * Retrieves the [Corner] shape from the default Material theme with shape token name.
@@ -145,4 +160,9 @@ internal class TextElementStyle(
     val maxLines: Int = 1,
     @TextAlignment val multilineAlignment: Int = TEXT_ALIGN_CENTER,
     @TextOverflow val overflow: Int = TEXT_OVERFLOW_ELLIPSIZE,
+)
+
+internal class IconStyle(
+    val size: ImageDimension = 24.toDp(),
+    val tintColor: ColorProp = fromToken(ColorTokens.PRIMARY),
 )

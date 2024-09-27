@@ -47,6 +47,39 @@ package androidx.wear.protolayout.material3 {
     field public static final int TERTIARY_DIM = 27; // 0x1b
   }
 
+  public final class EdgeButtonColors {
+    ctor public EdgeButtonColors(androidx.wear.protolayout.ColorBuilders.ColorProp container, androidx.wear.protolayout.ColorBuilders.ColorProp content);
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp getContainer();
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp getContent();
+    property public final androidx.wear.protolayout.ColorBuilders.ColorProp container;
+    property public final androidx.wear.protolayout.ColorBuilders.ColorProp content;
+  }
+
+  public final class EdgeButtonDefaults {
+    method public androidx.wear.protolayout.material3.EdgeButtonColors filled(androidx.wear.protolayout.material3.MaterialScope);
+    method public androidx.wear.protolayout.material3.EdgeButtonColors filledTonal(androidx.wear.protolayout.material3.MaterialScope);
+    method public androidx.wear.protolayout.material3.EdgeButtonColors filledVariant(androidx.wear.protolayout.material3.MaterialScope);
+    field public static final androidx.wear.protolayout.material3.EdgeButtonDefaults INSTANCE;
+  }
+
+  public final class EdgeButtonKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement iconEdgeButton(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.protolayout.ModifiersBuilders.Clickable onClick, androidx.wear.protolayout.TypeBuilders.StringProp contentDescription, optional androidx.wear.protolayout.material3.EdgeButtonColors colors, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> iconContent);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement textEdgeButton(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.protolayout.ModifiersBuilders.Clickable onClick, androidx.wear.protolayout.TypeBuilders.StringProp contentDescription, optional androidx.wear.protolayout.material3.EdgeButtonColors colors, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> labelContent);
+  }
+
+  public final class EdgeButtonStyle {
+    field public static final androidx.wear.protolayout.material3.EdgeButtonStyle.Companion Companion;
+    field public static final androidx.wear.protolayout.material3.EdgeButtonStyle DEFAULT;
+    field public static final androidx.wear.protolayout.material3.EdgeButtonStyle TOP_ALIGN;
+  }
+
+  public static final class EdgeButtonStyle.Companion {
+  }
+
+  public final class IconKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement icon(androidx.wear.protolayout.material3.MaterialScope, String protoLayoutResourceId, optional androidx.wear.protolayout.DimensionBuilders.ImageDimension size, optional androidx.wear.protolayout.ColorBuilders.ColorProp tintColor);
+  }
+
   @androidx.wear.protolayout.material3.MaterialScopeMarker public class MaterialScope {
     method public final androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     property public final androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration;
