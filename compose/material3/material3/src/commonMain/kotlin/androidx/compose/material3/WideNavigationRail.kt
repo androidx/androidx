@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.WideNavigationRailItemDefaults.defaultWideNavigationRailItemColors
 import androidx.compose.material3.internal.DraggableAnchors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
@@ -214,11 +213,6 @@ private fun WideNavigationRailLayout(
             targetValue = if (!expanded) NavigationRailCollapsedTokens.ItemVerticalSpace else 0.dp,
             animationSpec = animationSpec
         )
-    val itemMarginStart by
-        animateDpAsState(
-            targetValue = if (!expanded) 0.dp else ExpandedRailHorizontalItemPadding,
-            animationSpec = animationSpec
-        )
 
     Surface(
         color = if (!isModal) colors.containerColor else colors.modalContainerColor,
@@ -292,11 +286,7 @@ private fun WideNavigationRailLayout(
                                             .offset(vertical = -constraintsOffset)
                                             .constrain(
                                                 Constraints.fitPrioritizingWidth(
-                                                    minWidth =
-                                                        min(
-                                                            ItemMinWidth.roundToPx(),
-                                                            itemMaxWidthConstraint
-                                                        ),
+                                                    minWidth = minimumA11ySize.roundToPx(),
                                                     minHeight =
                                                         if (!expanded)
                                                             TopIconItemMinHeight.roundToPx()
@@ -309,8 +299,7 @@ private fun WideNavigationRailLayout(
                                 val maxItemWidth = measuredItem.measuredWidth
                                 if (expanded && expandedItemMaxWidth < maxItemWidth) {
                                     expandedItemMaxWidth =
-                                        maxItemWidth +
-                                            (ExpandedRailHorizontalItemPadding * 2).roundToPx()
+                                        maxItemWidth + ItemHorizontalPadding.roundToPx()
                                 }
                                 constraintsOffset = measuredItem.height
                                 itemsPlaceables.add(measuredItem)
@@ -379,8 +368,7 @@ private fun WideNavigationRailLayout(
                                 y = y.coerceAtLeast(headerHeight)
                             }
                             itemsPlaceables?.fastForEach { item ->
-                                val x = itemMarginStart.roundToPx()
-                                item.placeRelative(x, y)
+                                item.placeRelative(0, y)
                                 y += item.height + verticalPadding
                             }
                         }
@@ -717,7 +705,7 @@ fun WideNavigationRailItem(
         startIconIndicatorVerticalPadding = ItemStartIconIndicatorVerticalPadding,
         noLabelIndicatorPadding = WNRItemNoLabelIndicatorPadding,
         startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
-        startIconItemPadding = ExpandedRailHorizontalItemPadding,
+        itemHorizontalPadding = ItemHorizontalPadding,
         colors = colors,
         modifier = modifier,
         enabled = enabled,
@@ -1156,7 +1144,7 @@ internal val WNRItemNoLabelIndicatorPadding =
     (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
         NavigationRailBaselineItemTokens.IconSize) / 2
 
-private val ExpandedRailHorizontalItemPadding = 20.dp
+private val ItemHorizontalPadding = 20.dp
 // Vertical padding between the contents of the wide navigation rail and its top/bottom.
 private val WNRVerticalPadding = NavigationRailCollapsedTokens.TopSpace
 // Padding at the bottom of the rail's header. This padding will only be added when the header is

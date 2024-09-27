@@ -336,7 +336,7 @@ internal fun AnimatedNavigationItem(
     startIconIndicatorVerticalPadding: Dp,
     noLabelIndicatorPadding: Dp,
     startIconToLabelHorizontalPadding: Dp,
-    startIconItemPadding: Dp,
+    itemHorizontalPadding: Dp,
     colors: NavigationItemColors,
     modifier: Modifier,
     enabled: Boolean,
@@ -430,7 +430,7 @@ internal fun AnimatedNavigationItem(
             startIconIndicatorVerticalPadding = startIconIndicatorVerticalPadding,
             noLabelIndicatorPadding = noLabelIndicatorPadding,
             startIconToLabelHorizontalPadding = startIconToLabelHorizontalPadding,
-            startIconItemPadding = startIconItemPadding
+            itemHorizontalPadding = itemHorizontalPadding
         )
     }
 }
@@ -505,7 +505,7 @@ private fun AnimatedNavigationItemLayout(
     startIconIndicatorVerticalPadding: Dp,
     noLabelIndicatorPadding: Dp,
     startIconToLabelHorizontalPadding: Dp,
-    startIconItemPadding: Dp,
+    itemHorizontalPadding: Dp,
 ) {
     Layout(
         modifier = Modifier.badgeBounds(),
@@ -534,7 +534,7 @@ private fun AnimatedNavigationItemLayout(
                     startIconIndicatorHorizontalPadding = startIconIndicatorHorizontalPadding,
                     startIconIndicatorVerticalPadding = startIconIndicatorVerticalPadding,
                     startIconToLabelHorizontalPadding = startIconToLabelHorizontalPadding,
-                    startIconItemPadding = startIconItemPadding
+                    itemHorizontalPadding = itemHorizontalPadding
                 )
             } else {
                 // If no label, default to circular indicator for the item.
@@ -746,7 +746,7 @@ private class AnimatedMeasurePolicy(
     val startIconIndicatorHorizontalPadding: Dp,
     val startIconIndicatorVerticalPadding: Dp,
     val startIconToLabelHorizontalPadding: Dp,
-    val startIconItemPadding: Dp,
+    val itemHorizontalPadding: Dp,
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -817,10 +817,11 @@ private class AnimatedMeasurePolicy(
             constraints = looseConstraints,
             topIconIndicatorToLabelVerticalPadding = topIconIndicatorToLabelVerticalPadding,
             topIconIndicatorVerticalPadding = topIconIndicatorVerticalPadding,
+            topIconIndicatorHorizontalPadding = topIconIndicatorHorizontalPadding,
             startIconIndicatorHorizontalPadding = startIconIndicatorHorizontalPadding,
             startIconIndicatorVerticalPadding = startIconIndicatorVerticalPadding,
             startIconToLabelHorizontalPadding = startIconToLabelHorizontalPadding,
-            startIconItemPadding = startIconItemPadding
+            itemHorizontalPadding = itemHorizontalPadding
         )
     }
 
@@ -834,11 +835,14 @@ private class AnimatedMeasurePolicy(
             measurables.fastFirst { it.layoutId == LabelLayoutIdTag }.maxIntrinsicWidth(height)
 
         if (iconPosition == NavigationItemIconPosition.Top) {
-            val paddings = (topIconIndicatorHorizontalPadding * 2).roundToPx()
+            val paddings =
+                (topIconIndicatorHorizontalPadding * 2 + itemHorizontalPadding * 2).roundToPx()
             return maxOf(labelWidth, (iconWidth + paddings))
         } else {
             val paddings =
-                (startIconIndicatorHorizontalPadding * 2 + startIconToLabelHorizontalPadding)
+                (startIconIndicatorHorizontalPadding * 2 +
+                        startIconToLabelHorizontalPadding +
+                        itemHorizontalPadding)
                     .roundToPx()
             return iconWidth + labelWidth + paddings
         }
@@ -984,16 +988,25 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     constraints: Constraints,
     topIconIndicatorToLabelVerticalPadding: Dp,
     topIconIndicatorVerticalPadding: Dp,
+    topIconIndicatorHorizontalPadding: Dp,
     startIconIndicatorHorizontalPadding: Dp,
     startIconIndicatorVerticalPadding: Dp,
     startIconToLabelHorizontalPadding: Dp,
-    startIconItemPadding: Dp,
+    itemHorizontalPadding: Dp,
 ): MeasureResult {
     @Suppress("NAME_SHADOWING") val iconPositionProgress = iconPositionProgress()
     val isIconPositionTop = iconPosition == NavigationItemIconPosition.Top
     val widthTopIcon =
-        constraints.constrainWidth(maxOf(labelPlaceable.width, topIconIndicatorWidth))
-    val widthStartIcon = constraints.constrainWidth(indicatorRipplePlaceable.width)
+        constraints.constrainWidth(
+            maxOf(
+                labelPlaceable.width,
+                (topIconIndicatorWidth + (itemHorizontalPadding * 2).roundToPx())
+            )
+        )
+    val widthStartIcon =
+        constraints.constrainWidth(
+            indicatorRipplePlaceable.width + itemHorizontalPadding.roundToPx()
+        )
     val width = widthTopIcon + (widthStartIcon - widthTopIcon) * iconPositionProgress
 
     val heightTopIcon =
@@ -1006,19 +1019,10 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     val heightStartIcon = constraints.constrainHeight(indicatorRipplePlaceable.height)
     val height = lerp(heightTopIcon, heightStartIcon, iconPositionProgress)
 
-    val topIconHorizontalOffset = startIconItemPadding.roundToPx() * iconPositionProgress
+    val indicatorAndRippleX = itemHorizontalPadding.roundToPx()
 
-    val indicatorXTopIcon =
-        ((widthTopIcon - indicatorPlaceable.width) / 2 + topIconHorizontalOffset).roundToInt()
-    val indicatorXStartIcon = (widthStartIcon - indicatorPlaceable.width) / 2
-    val indicatorX = lerp(indicatorXTopIcon, indicatorXStartIcon, iconPositionProgress)
-
-    val rippleXTopIcon = (width - indicatorRipplePlaceable.width) / 2 + topIconHorizontalOffset
-    val rippleXStartIcon = (width - indicatorRipplePlaceable.width) / 2
-    val rippleX = lerp(rippleXTopIcon, rippleXStartIcon, iconPositionProgress)
-
-    val iconXTopIcon = (widthTopIcon - iconPlaceable.width) / 2
-    val iconXStartIcon = startIconIndicatorHorizontalPadding.roundToPx()
+    val iconXTopIcon = indicatorAndRippleX + topIconIndicatorHorizontalPadding.roundToPx()
+    val iconXStartIcon = indicatorAndRippleX + startIconIndicatorHorizontalPadding.roundToPx()
 
     val iconYTopIcon = topIconIndicatorVerticalPadding.roundToPx()
     val iconYStartIcon = startIconIndicatorVerticalPadding.roundToPx()
@@ -1026,7 +1030,10 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     val iconX = lerp(iconXTopIcon, iconXStartIcon, iconPositionProgress)
     val iconY = lerp(iconYTopIcon, iconYStartIcon, iconPositionProgress)
 
-    val labelXTopIcon = (widthTopIcon - labelPlaceable.width) / 2
+    val labelXTopIcon =
+        ((iconPlaceable.width +
+            (topIconIndicatorHorizontalPadding * 2 + itemHorizontalPadding * 2).roundToPx()) -
+            labelPlaceable.width) / 2
     val labelYTopIcon =
         iconY +
             iconPlaceable.height +
@@ -1037,7 +1044,7 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
         if (isIconPositionTop && iconPositionProgress > 0f) {
             0f
         } else {
-            startIconItemPadding.roundToPx() * (1f - iconPositionProgress)
+            itemHorizontalPadding.roundToPx() * (1f - iconPositionProgress)
         }
     val labelXStartIcon =
         iconX + iconPlaceable.width + startIconToLabelHorizontalPadding.roundToPx() -
@@ -1047,7 +1054,7 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
         if (iconPositionProgress < 0.5f) labelXTopIcon else labelXStartIcon * iconPositionProgress
     val labelY = if (iconPositionProgress < 0.5f) labelYTopIcon else labelYStartIcon
     return layout(width.roundToInt(), height) {
-        indicatorPlaceable.placeRelativeWithLayer(indicatorX, 0)
+        indicatorPlaceable.placeRelativeWithLayer(indicatorAndRippleX, 0)
         iconPlaceable.placeRelativeWithLayer(iconX, iconY)
         labelPlaceable.placeRelativeWithLayer(
             x = labelX.toInt(),
@@ -1056,7 +1063,7 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
                 alpha = 4 * (iconPositionProgress - 0.5f) * (iconPositionProgress - 0.5f)
             }
         )
-        indicatorRipplePlaceable.placeRelativeWithLayer(rippleX.roundToInt(), 0)
+        indicatorRipplePlaceable.placeRelativeWithLayer(indicatorAndRippleX, 0)
     }
 }
 
