@@ -46,4 +46,12 @@ class ComposeViewTest {
                 as ViewGroup
         assertFalse("XML overrides ComposeView.isTransitionGroup", view.isTransitionGroup)
     }
+
+    @Test
+    fun createComposeViewWithApplicationContext_doesNotCrash() {
+        val activity = rule.activity
+        val view = ComposeView(activity.applicationContext)
+        rule.runOnIdle { activity.setContentView(view) }
+        rule.waitForIdle()
+    }
 }
