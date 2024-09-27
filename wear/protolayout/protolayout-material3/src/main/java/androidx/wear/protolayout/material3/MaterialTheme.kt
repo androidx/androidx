@@ -30,34 +30,28 @@ import androidx.wear.protolayout.material3.tokens.TextStyle
  * MaterialTheme defines the styling principle from the Wear Material3 design specification which
  * extends the Material design specification.
  *
- * <p>The default MaterialTheme provides:
- * <ul>
- * <li>A baseline color theme and color set
- * <li>A typography set using a flex font
- * <li>A corner shape set
- * </ul>
+ * The default MaterialTheme provides:
+ * * A baseline color theme and color set
+ * * A typography set using a flex font
+ * * A corner shape set
  *
- * <p>Some of these attributes values are allowed to be customized with limitation. Any values that
- * are not customized will use default values.
+ * Some of these attributes values are allowed to be customized with limitation. Any values that are
+ * not customized will use default values.
  *
- * <p>While a custom color scheme can be created manually, it is highly recommended to generate one
- * using source colors from your brand. The <a
- * href="https://material-foundation.github.io/material-theme-builder/">Material Theme Builder
- * tool</a> allows you to do this.
+ * While a custom color scheme can be created manually, it is highly recommended to generate one
+ * using source colors from your brand. The
+ * [Material Theme Builder tool](https://material-foundation.github.io/material-theme-builder/)
+ * allows you to do this.
  *
- * <p>ProtoLayout Material3 components use the values provided here to style their looks.
+ * ProtoLayout Material3 components use the values provided here to style their looks.
  *
- * @param customColorScheme The map with the customized colors. The keys are predefined in {@link
- *   ColorScheme.ColorName} as color roles, and the values in the provided map will override the
- *   defaults values correspondingly.
+ * @param customColorScheme The map with the customized colors. The keys are predefined in
+ *   [ColorToken] as color roles, and the values in the provided map will override the defaults
+ *   values correspondingly.
  */
-// TODO: b/352308384 - Add helper to read the exported Json or XML file from the Material Theme
-//    Builder tool.
-// TODO: b/350927030 - Customization setters of shape and typography, which are not fully
-// customizable.
 // TODO: b/369350414 - Rethink API for Color/Typography/Shape with value instead of an enum.
 internal class MaterialTheme(private val customColorScheme: Map<Int, ColorProp> = emptyMap()) {
-    /** Retrieves the {@link FontStyle.Builder} with the typography name. */
+    /** Retrieves the [FontStyle.Builder] with the typography name. */
     internal fun getFontStyleBuilder(@TypographyToken typographyToken: Int) =
         createFontStyleBuilder(textStyle = Typography.fromToken(typographyToken))
 
