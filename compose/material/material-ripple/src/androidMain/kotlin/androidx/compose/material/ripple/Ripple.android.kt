@@ -131,14 +131,21 @@ internal class AndroidRippleNode(
                 // currently drawn ripples if the ripples are being drawn on the RenderThread,
                 // since only the software paint is updated, not the hardware paint used in
                 // RippleForeground.
-                // Radius updates will not take effect until the next ripple, so if the size changes
-                // the only way to update the calculated radius is by using
+
+                // For radius:
+                // - On R and below, updates will not take effect until the next ripple, so if the
+                // size changes the only way to update the calculated radius is by using
                 // RippleDrawable.RADIUS_AUTO to calculate the radius from the bounds automatically.
                 // But in this case, if the bounds change, the animation will switch to the UI
                 // thread instead of render thread, so this isn't clearly desired either.
                 // b/183019123
+                // - On S and above, when hotspot bounds change mid-ripple, the radius / bounds /
+                // origin will be updated for the ongoing ripple, even for explicitly set radii.
+                // Note that for this to work the radius _must_ be set before we update bounds, as
+                // changing the radius on its own won't do anything.
                 setRippleProperties(
                     size = rippleSize,
+                    radius = targetRadius.roundToInt(),
                     color = rippleColor,
                     alpha = rippleAlpha().pressedAlpha
                 )
@@ -265,7 +272,12 @@ internal class AndroidRippleIndicationInstance(
                 // currently drawn ripples if the ripples are being drawn on the RenderThread,
                 // since only the software paint is updated, not the hardware paint used in
                 // RippleForeground.
-                setRippleProperties(size = size, color = color, alpha = alpha)
+                setRippleProperties(
+                    size = size,
+                    radius = rippleRadius,
+                    color = color,
+                    alpha = alpha
+                )
 
                 draw(canvas.nativeCanvas)
             }

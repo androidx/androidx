@@ -324,9 +324,7 @@ internal abstract class RippleNode(
     // The following are calculated inside onRemeasured(). These must be initialized before adding
     // a ripple.
 
-    // Target radius updating over time for existing ripples isn't supported for Android, and
-    // isn't implemented in common, so for now it can be private.
-    private var targetRadius: Float = 0f
+    protected var targetRadius: Float = 0f
     // The size is needed for Android to update ripple bounds if the size changes
     protected var rippleSize: Size = Size.Zero
         private set
