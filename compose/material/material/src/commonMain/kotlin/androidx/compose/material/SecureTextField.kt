@@ -61,9 +61,6 @@ import androidx.compose.ui.text.input.VisualTransformation
  * @param enabled controls the enabled state of the [TextField]. When `false`, the text field will
  *   be neither editable nor focusable, the input of the text field will not be selectable, visually
  *   text field will appear in the disabled UI state.
- * @param readOnly controls the editable state of the [TextField]. When `true`, the text field can
- *   not be modified. However, a user can focus it. Read-only text fields are usually used to
- *   display pre-filled forms that user can not edit.
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
  *   [LocalTextStyle] defined by the theme.
  * @param label the optional label to be displayed inside the text field container. The default text
@@ -108,7 +105,6 @@ fun SecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
@@ -142,7 +138,6 @@ fun SecureTextField(
                     minHeight = TextFieldDefaults.MinHeight
                 ),
         enabled = enabled,
-        readOnly = readOnly,
         textStyle = mergedTextStyle,
         cursorBrush = SolidColor(colors.cursorColor(isError).value),
         inputTransformation = inputTransformation,
@@ -189,9 +184,6 @@ fun SecureTextField(
  * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text
  *   field will be neither editable nor focusable, the input of the text field will not be
  *   selectable, visually text field will appear in the disabled UI state
- * @param readOnly controls the editable state of the [OutlinedTextField]. When `true`, the text
- *   field can not be modified, however, a user can focus it and copy text from it. Read-only text
- *   fields are usually used to display pre-filled forms that user can not edit
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
  *   [LocalTextStyle] defined by the theme
  * @param label the optional label to be displayed inside the text field container. The default text
@@ -236,7 +228,6 @@ fun OutlinedSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
@@ -282,7 +273,6 @@ fun OutlinedSecureTextField(
                     minHeight = TextFieldDefaults.MinHeight
                 ),
         enabled = enabled,
-        readOnly = readOnly,
         textStyle = mergedTextStyle,
         cursorBrush = SolidColor(colors.cursorColor(isError).value),
         inputTransformation = inputTransformation,

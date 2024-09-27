@@ -44,7 +44,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api("androidx.compose.animation:animation-core:1.7.1")
-                api(project(":compose:foundation:foundation"))
+                api("androidx.compose.foundation:foundation:1.7.1")
                 api("androidx.compose.ui:ui-text:1.7.1")
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
@@ -96,6 +96,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
+                implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:material:material:material-samples"))
                 implementation(project(":compose:test-utils"))
                 implementation("androidx.compose.ui:ui-test:1.6.0")

@@ -378,7 +378,7 @@ private fun ScaffoldLayout(
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
 
-        val looseConstraints = constraints.copyMaxDimensions()
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         val topBarPlaceables =
             subcompose(ScaffoldLayoutContent.TopBar, topBar).fastMap {
