@@ -448,7 +448,7 @@ constructor(
     suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         scroll {
             LazyLayoutScrollScope(this@LazyGridState, this)
-                .animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density, this)
+                .animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
         }
     }
 
