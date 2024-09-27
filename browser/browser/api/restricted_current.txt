@@ -3,9 +3,23 @@ package androidx.browser.auth {
 
   @SuppressCompatibility @androidx.browser.auth.ExperimentalAuthTab public class AuthTabIntent {
     method public void launch(androidx.activity.result.ActivityResultLauncher<android.content.Intent!>, android.net.Uri, String);
-    method public static androidx.activity.result.ActivityResultLauncher<android.content.Intent!> registerActivityResultLauncher(androidx.activity.result.ActivityResultCaller, androidx.activity.result.ActivityResultCallback<android.net.Uri!>);
+    method public void launch(androidx.activity.result.ActivityResultLauncher<android.content.Intent!>, android.net.Uri, String, String);
+    method public static androidx.activity.result.ActivityResultLauncher<android.content.Intent!> registerActivityResultLauncher(androidx.activity.result.ActivityResultCaller, androidx.activity.result.ActivityResultCallback<androidx.browser.auth.AuthTabIntent.AuthResult!>);
+    field public static final String EXTRA_HTTPS_REDIRECT_HOST = "androidx.browser.auth.extra.HTTPS_REDIRECT_HOST";
+    field public static final String EXTRA_HTTPS_REDIRECT_PATH = "androidx.browser.auth.extra.HTTPS_REDIRECT_PATH";
     field public static final String EXTRA_LAUNCH_AUTH_TAB = "androidx.browser.auth.extra.LAUNCH_AUTH_TAB";
     field public static final String EXTRA_REDIRECT_SCHEME = "androidx.browser.auth.extra.REDIRECT_SCHEME";
+    field public static final int RESULT_CANCELED = 0; // 0x0
+    field public static final int RESULT_OK = -1; // 0xffffffff
+    field public static final int RESULT_UNKNOWN_CODE = -2; // 0xfffffffe
+    field public static final int RESULT_VERIFICATION_FAILED = 2; // 0x2
+    field public static final int RESULT_VERIFICATION_TIMED_OUT = 3; // 0x3
+    field public final android.content.Intent intent;
+  }
+
+  public static final class AuthTabIntent.AuthResult {
+    field public final int resultCode;
+    field public final android.net.Uri? resultUri;
   }
 
   public static final class AuthTabIntent.Builder {
