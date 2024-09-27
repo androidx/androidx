@@ -16,6 +16,11 @@
 
 package androidx.wear.protolayout.material3
 
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+import androidx.annotation.Dimension
+import androidx.annotation.Dimension.Companion.SP
+import androidx.wear.protolayout.materialcore.fontscaling.FontScaleConverterFactory
 import java.nio.charset.StandardCharsets
 
 /** Returns byte array representation of tag from String. */
@@ -31,4 +36,14 @@ internal fun <T> Iterable<T>.addBetween(newItem: T): Sequence<T> = sequence {
         }
         yield(element)
     }
+}
+
+@Dimension(unit = SP)
+internal fun Float.dpToSp(fontScale: Float): Float =
+    (if (SDK_INT >= UPSIDE_DOWN_CAKE) FontScaleConverterFactory.forScale(fontScale) else null)
+        ?.convertDpToSp(this) ?: dpToSpLinear(fontScale)
+
+@Dimension(unit = SP)
+private fun Float.dpToSpLinear(fontScale: Float): Float {
+    return this / fontScale
 }

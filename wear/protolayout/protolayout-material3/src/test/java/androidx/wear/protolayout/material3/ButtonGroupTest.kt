@@ -36,7 +36,7 @@ class ButtonGroupTest {
         val element2 = Box.Builder().setWidth(expand()).build()
 
         val buttonGroup =
-            primaryScope(
+            materialScope(
                 context = ApplicationProvider.getApplicationContext(),
                 deviceConfiguration = DEVICE_PARAMETERS
             ) {

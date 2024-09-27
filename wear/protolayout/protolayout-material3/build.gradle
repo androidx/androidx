@@ -33,6 +33,7 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api(project(":wear:protolayout:protolayout"))
     api(libs.kotlinStdlib)
+    implementation(project(":wear:protolayout:protolayout-material-core"))
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     lintPublish(project(":wear:protolayout:protolayout-lint"))
 

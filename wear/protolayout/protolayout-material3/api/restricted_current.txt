@@ -56,6 +56,8 @@ package androidx.wear.protolayout.material3 {
     method public static androidx.wear.protolayout.ColorBuilders.ColorProp getColorProp(androidx.wear.protolayout.material3.MaterialScope, int colorToken);
     method public static androidx.wear.protolayout.ModifiersBuilders.Corner getCorner(androidx.wear.protolayout.material3.MaterialScope, int shapeToken);
     method public static boolean isDynamicThemeEnabled(android.content.Context);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement materialScope(android.content.Context context, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration, optional boolean allowDynamicTheme, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> layout);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement materialScope(android.content.Context context, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> layout);
   }
 
   @kotlin.DslMarker public @interface MaterialScopeMarker {
@@ -70,6 +72,10 @@ package androidx.wear.protolayout.material3 {
     field public static final int CORNER_NONE = 5; // 0x5
     field public static final int CORNER_SMALL = 6; // 0x6
     field public static final androidx.wear.protolayout.material3.Shape INSTANCE;
+  }
+
+  public final class TextKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement text(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.protolayout.TypeBuilders.StringProp text, optional androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint stringLayoutConstraint, optional int typography, optional androidx.wear.protolayout.ColorBuilders.ColorProp color, optional boolean italic, optional boolean underline, optional boolean scalable, optional int maxLines, optional int multilineAlignment, optional int overflow, optional androidx.wear.protolayout.ModifiersBuilders.Modifiers modifiers);
   }
 
   public final class Typography {
