@@ -69,6 +69,9 @@ internal val STUBS =
                 interface Provider<T> {
                     fun get() : T
                 }
+                interface Property<T> : Provider<T> {
+                    fun set(value: T)
+                }
             """
                 .trimIndent()
         ),
