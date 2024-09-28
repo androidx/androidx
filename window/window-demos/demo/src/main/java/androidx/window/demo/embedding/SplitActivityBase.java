@@ -33,13 +33,12 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.R;
 import androidx.window.demo.common.EdgeToEdgeActivity;
@@ -48,6 +47,7 @@ import androidx.window.embedding.ActivityEmbeddingController;
 import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
+import androidx.window.embedding.ActivityStack;
 import androidx.window.embedding.DividerAttributes;
 import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes;
 import androidx.window.embedding.DividerAttributes.FixedDividerAttributes;
@@ -64,6 +64,8 @@ import androidx.window.embedding.SplitPlaceholderRule;
 import androidx.window.java.embedding.ActivityEmbeddingControllerCallbackAdapter;
 import androidx.window.java.embedding.SplitControllerCallbackAdapter;
 
+import kotlin.Unit;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,8 +74,7 @@ import java.util.Set;
  * Sample showcase of split activity rules. Allows the user to select some split configuration
  * options with checkboxes and launch activities with those options applied.
  */
-public class SplitActivityBase extends EdgeToEdgeActivity
-        implements CompoundButton.OnCheckedChangeListener {
+public class SplitActivityBase extends EdgeToEdgeActivity {
 
     private static final String TAG = "SplitActivityTest";
     static final int MIN_SPLIT_WIDTH_DP = 600;
@@ -82,9 +83,10 @@ public class SplitActivityBase extends EdgeToEdgeActivity
 
     /**
      * The {@link SplitController} adapter to use callback shaped APIs to get {@link SplitInfo}
-     *  changes
+     * changes
      */
     private SplitControllerCallbackAdapter mSplitControllerAdapter;
+
     private RuleController mRuleController;
     private SplitInfoCallback mSplitInfoCallback;
 
@@ -92,7 +94,7 @@ public class SplitActivityBase extends EdgeToEdgeActivity
     private ActivityEmbeddingControllerCallbackAdapter mActivityEmbeddingControllerCallbackAdapter;
     private EmbeddedActivityWindowInfoCallback mEmbeddedActivityWindowInfoCallbackCallback;
 
-    private ActivitySplitActivityLayoutBinding mViewBinding;
+    private SplitActivityRecyclerViewBindingData mRecyclerViewBindingData;
 
     /** In the process of updating checkboxes based on split rule. */
     private boolean mUpdatingConfigs;
@@ -105,147 +107,26 @@ public class SplitActivityBase extends EdgeToEdgeActivity
         final SplitController.SplitSupportStatus splitSupportStatus =
                 splitController.getSplitSupportStatus();
         if (splitSupportStatus == SPLIT_UNAVAILABLE) {
-            Toast.makeText(this, R.string.toast_split_not_available,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_split_not_available, Toast.LENGTH_SHORT).show();
             finish();
             return;
         } else if (splitSupportStatus == SPLIT_ERROR_PROPERTY_NOT_DECLARED) {
-            Toast.makeText(this, R.string.toast_split_not_support,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_split_not_support, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        mViewBinding = ActivitySplitActivityLayoutBinding.inflate(getLayoutInflater());
-        setContentView(mViewBinding.getRoot());
-
-        final int extensionVersion = WindowSdkExtensions.getInstance().getExtensionVersion();
+        mRecyclerViewBindingData = new SplitActivityRecyclerViewBindingData();
+        final ActivitySplitActivityLayoutBinding viewBinding =
+                ActivitySplitActivityLayoutBinding.inflate(getLayoutInflater());
+        setContentView(viewBinding.getRoot());
+        viewBinding.rootSplitActivityLayout.setLayoutManager(new LinearLayoutManager(this));
+        viewBinding.rootSplitActivityLayout.setAdapter(
+                new SplitActivityRecyclerViewAdapter(mRecyclerViewBindingData.getItems()));
         mActivityEmbeddingController = ActivityEmbeddingController.getInstance(this);
 
-        // Setup activity launch buttons and config options.
-        mViewBinding.launchB.setOnClickListener((View v) ->
-                startActivity(new Intent(this, SplitActivityB.class)));
-        mViewBinding.launchBAndC.setOnClickListener((View v) -> {
-            Intent bStartIntent = new Intent(this, SplitActivityB.class);
-            bStartIntent.putExtra(EXTRA_LAUNCH_C_TO_SIDE, true);
-            startActivity(bStartIntent);
-        });
-        mViewBinding.launchE.setOnClickListener((View v) -> {
-            Bundle bundle = null;
-            if (mViewBinding.setLaunchingEInActivityStack.isChecked()) {
-                try {
-                    bundle = ActivityEmbeddingOptions.setLaunchingActivityStack(
-                            ActivityOptions.makeBasic().toBundle(), this,
-                            mActivityEmbeddingController.getActivityStack(this));
-                } catch (UnsupportedOperationException ex) {
-                    Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
-                }
-            }
-            startActivity(new Intent(this, SplitActivityE.class), bundle);
-        });
-        if (extensionVersion < 3) {
-            mViewBinding.setLaunchingEInActivityStack.setVisibility(View.GONE);
-        }
-        mViewBinding.launchF.setOnClickListener((View v) ->
-                startActivity(new Intent(this, SplitActivityF.class)));
-        mViewBinding.launchFPendingIntent.setOnClickListener((View v) -> {
-            try {
-                PendingIntent.getActivity(this, 0, new Intent(this, SplitActivityF.class),
-                        FLAG_IMMUTABLE).send();
-            } catch (PendingIntent.CanceledException e) {
-                Log.e(TAG, e.getMessage());
-            }
-        });
-        mViewBinding.launchUid2Trusted.setOnClickListener((View v) -> {
-            final Intent intent = new Intent();
-            // Use an explicit package and class name to start an Activity from a different
-            // package/UID.
-            intent.setClassName(
-                    "androidx.window.demo2",
-                    "androidx.window.demo2.embedding.TrustedEmbeddingActivity"
-            );
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
-            }
-        });
-        mViewBinding.launchUid2Untrusted.setOnClickListener((View v) -> {
-            final Intent intent = new Intent();
-            // Use an explicit package and class name to start an Activity from a different
-            // package/UID.
-            intent.setClassName(
-                    "androidx.window.demo2",
-                    "androidx.window.demo2.embedding.UntrustedEmbeddingActivity"
-            );
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
-            }
-        });
-        mViewBinding.launchUid2UntrustedDisplayFeatures.setOnClickListener((View v) -> {
-            final Intent intent = new Intent();
-            // Use an explicit package and class name to start an Activity from a different
-            // package/UID.
-            intent.setClassName(
-                    "androidx.window.demo2",
-                    "androidx.window.demo.common.DisplayFeaturesActivity"
-            );
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
-            }
-        });
-        mViewBinding.launchExpandedDialogButton.setOnClickListener((View v) ->
-                startActivity(new Intent(this, ExpandedDialogActivity.class)));
-        mViewBinding.launchDialogActivityButton.setOnClickListener((View v) ->
-                startActivity(new Intent(this, DialogActivity.class)));
-        mViewBinding.launchDialogButton.setOnClickListener((View v) ->
-                new AlertDialog.Builder(this)
-                        .setTitle("Alert dialog demo")
-                        .setMessage("This is a dialog demo").create().show());
-
-        if (extensionVersion < 5) {
-            mViewBinding.pinTopActivityStackButton.setVisibility(View.GONE);
-            mViewBinding.unpinTopActivityStackButton.setVisibility(View.GONE);
-        } else {
-            mViewBinding.pinTopActivityStackButton.setOnClickListener((View v) -> {
-                        splitController.pinTopActivityStack(getTaskId(),
-                                new SplitPinRule.Builder().setSticky(
-                                        mViewBinding.stickyPinRule.isChecked()).build());
-                    }
-            );
-            mViewBinding.unpinTopActivityStackButton.setOnClickListener((View v) -> {
-                        splitController.unpinTopActivityStack(getTaskId());
-                    }
-            );
-        }
-        if (extensionVersion < 6) {
-            mViewBinding.dividerCheckBox.setVisibility(View.GONE);
-            mViewBinding.draggableDividerCheckBox.setVisibility(View.GONE);
-        } else {
-            mViewBinding.dividerCheckBox.setOnCheckedChangeListener(this);
-            mViewBinding.draggableDividerCheckBox.setOnCheckedChangeListener(this);
-        }
-
-        // Listen for split configuration checkboxes to update the rules before launching
-        // activities.
-        mViewBinding.splitMainCheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.usePlaceholderCheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.useStickyPlaceholderCheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.splitBCCheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.finishBCCheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
-        mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
-
-        if (extensionVersion < 6) {
-            mViewBinding.buttonLaunchOverlayAssociatedActivity.setVisibility(View.GONE);
-        } else {
-            mViewBinding.buttonLaunchOverlayAssociatedActivity.setOnClickListener((View v) ->
-                    startActivity(new Intent(this, OverlayAssociatedActivityA.class)));
-        }
+        final int extensionVersion = WindowSdkExtensions.getInstance().getExtensionVersion();
+        setupRecyclerViewItems(splitController, extensionVersion);
 
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
         if (extensionVersion >= 6) {
@@ -294,50 +175,30 @@ public class SplitActivityBase extends EdgeToEdgeActivity
     private class SplitInfoCallback implements Consumer<List<SplitInfo>> {
         @Override
         public void accept(List<SplitInfo> splitInfoList) {
-            runOnUiThread(() -> {
-                if (mActivityEmbeddingControllerCallbackAdapter == null) {
-                    // Otherwise, the embedded status will be updated from
-                    // EmbeddedActivityWindowInfoCallback.
-                    updateEmbeddedStatus(mActivityEmbeddingController.isActivityEmbedded(
-                            SplitActivityBase.this));
-                }
-                updateCheckboxesFromCurrentConfig();
-            });
+            runOnUiThread(
+                    () -> {
+                        if (mActivityEmbeddingControllerCallbackAdapter == null) {
+                            // Otherwise, the embedded status will be updated from
+                            // EmbeddedActivityWindowInfoCallback.
+                            updateEmbeddedStatus(
+                                    mActivityEmbeddingController.isActivityEmbedded(
+                                            SplitActivityBase.this));
+                        }
+                        updateCheckboxesFromCurrentConfig();
+                    });
         }
     }
 
     /** Updates the embedding status when receives callback from the extension. */
-    private class EmbeddedActivityWindowInfoCallback implements
-            Consumer<EmbeddedActivityWindowInfo> {
+    private class EmbeddedActivityWindowInfoCallback
+            implements Consumer<EmbeddedActivityWindowInfo> {
         @Override
         public void accept(EmbeddedActivityWindowInfo embeddedActivityWindowInfo) {
-            runOnUiThread(() -> {
-                updateEmbeddedStatus(embeddedActivityWindowInfo.isEmbedded());
-                updateEmbeddedWindowInfo(embeddedActivityWindowInfo);
-            });
-        }
-    }
-
-    /** Called on checkbox changed. */
-    @Override
-    public void onCheckedChanged(@NonNull CompoundButton c, boolean isChecked) {
-        if (c.getId() == mViewBinding.splitBCCheckBox.getId()) {
-            if (isChecked) {
-                mViewBinding.finishBCCheckBox.setEnabled(true);
-            } else {
-                mViewBinding.finishBCCheckBox.setEnabled(false);
-                mViewBinding.finishBCCheckBox.setChecked(false);
-            }
-        } else if (c.getId() == mViewBinding.usePlaceholderCheckBox.getId()) {
-            if (isChecked) {
-                mViewBinding.useStickyPlaceholderCheckBox.setEnabled(true);
-            } else {
-                mViewBinding.useStickyPlaceholderCheckBox.setEnabled(false);
-                mViewBinding.useStickyPlaceholderCheckBox.setChecked(false);
-            }
-        }
-        if (!mUpdatingConfigs) {
-            updateRulesFromCheckboxes();
+            runOnUiThread(
+                    () -> {
+                        updateEmbeddedStatus(embeddedActivityWindowInfo.isEmbedded());
+                        updateEmbeddedWindowInfo(embeddedActivityWindowInfo);
+                    });
         }
     }
 
@@ -346,28 +207,29 @@ public class SplitActivityBase extends EdgeToEdgeActivity
         mUpdatingConfigs = true;
 
         SplitPairRule splitMainConfig = getRuleFor(SplitActivityA.class, null);
-        mViewBinding.splitMainCheckBox.setChecked(splitMainConfig != null);
+        mRecyclerViewBindingData.splitMainCheckBox.setChecked(splitMainConfig != null);
 
         SplitPlaceholderRule placeholderForBConfig = getPlaceholderRule(SplitActivityB.class);
-        mViewBinding.usePlaceholderCheckBox.setChecked(placeholderForBConfig != null);
-        mViewBinding.useStickyPlaceholderCheckBox.setEnabled(placeholderForBConfig != null);
-        mViewBinding.useStickyPlaceholderCheckBox.setChecked(placeholderForBConfig != null
-                && placeholderForBConfig.isSticky());
+        mRecyclerViewBindingData.usePlaceholderCheckBox.setChecked(placeholderForBConfig != null);
+        mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setEnabled(
+                placeholderForBConfig != null);
+        mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setChecked(
+                placeholderForBConfig != null && placeholderForBConfig.isSticky());
 
-        SplitPairRule bAndCPairConfig = getRuleFor(SplitActivityB.class,
-                SplitActivityC.class);
-        mViewBinding.splitBCCheckBox.setChecked(bAndCPairConfig != null);
-        mViewBinding.finishBCCheckBox.setEnabled(bAndCPairConfig != null);
-        mViewBinding.finishBCCheckBox.setChecked(bAndCPairConfig != null
-                && bAndCPairConfig.getFinishPrimaryWithSecondary() == ALWAYS
-                && bAndCPairConfig.getFinishSecondaryWithPrimary() == ALWAYS);
+        SplitPairRule bAndCPairConfig = getRuleFor(SplitActivityB.class, SplitActivityC.class);
+        mRecyclerViewBindingData.splitBCCheckBox.setChecked(bAndCPairConfig != null);
+        mRecyclerViewBindingData.finishBCCheckBox.setEnabled(bAndCPairConfig != null);
+        mRecyclerViewBindingData.finishBCCheckBox.setChecked(
+                bAndCPairConfig != null
+                        && bAndCPairConfig.getFinishPrimaryWithSecondary() == ALWAYS
+                        && bAndCPairConfig.getFinishSecondaryWithPrimary() == ALWAYS);
 
         SplitPairRule fConfig = getRuleFor(null, SplitActivityF.class);
-        mViewBinding.splitWithFCheckBox.setChecked(fConfig != null);
+        mRecyclerViewBindingData.splitWithFCheckBox.setChecked(fConfig != null);
 
         ActivityRule configE = getRuleFor(SplitActivityE.class);
-        mViewBinding.fullscreenECheckBox.setChecked(configE != null && configE.getAlwaysExpand());
-
+        mRecyclerViewBindingData.fullscreenECheckBox.setChecked(
+                configE != null && configE.getAlwaysExpand());
         mUpdatingConfigs = false;
     }
 
@@ -383,7 +245,7 @@ public class SplitActivityBase extends EdgeToEdgeActivity
     }
 
     /** Gets the placeholder rule for the given activity. */
-    SplitPlaceholderRule getPlaceholderRule(@NonNull Class<? extends Activity> a) {
+    private SplitPlaceholderRule getPlaceholderRule(@NonNull Class<? extends Activity> a) {
         Set<EmbeddingRule> currentRules = mRuleController.getRules();
         for (EmbeddingRule rule : currentRules) {
             if (rule instanceof SplitPlaceholderRule) {
@@ -409,19 +271,19 @@ public class SplitActivityBase extends EdgeToEdgeActivity
     }
 
     /** Whether the given rule is for splitting the given activity pair. */
-    private boolean isRuleFor(Class<? extends Activity> a, Class<? extends Activity> b,
-            SplitPairRule pairConfig) {
-        return isRuleFor(a != null ? a.getName() : "*", b != null ? b.getName() : "*",
-                pairConfig);
+    private boolean isRuleFor(
+            Class<? extends Activity> a, Class<? extends Activity> b, SplitPairRule pairConfig) {
+        return isRuleFor(a != null ? a.getName() : "*", b != null ? b.getName() : "*", pairConfig);
     }
 
     /** Whether the given rule is for splitting the given activity pair. */
-    private boolean isRuleFor(String primaryActivityName, String secondaryActivityName,
-            SplitPairRule pairConfig) {
+    private boolean isRuleFor(
+            String primaryActivityName, String secondaryActivityName, SplitPairRule pairConfig) {
         for (SplitPairFilter filter : pairConfig.getFilters()) {
             if (filter.getPrimaryActivityName().getClassName().contains(primaryActivityName)
-                    && filter.getSecondaryActivityName().getClassName()
-                    .contains(secondaryActivityName)) {
+                    && filter.getSecondaryActivityName()
+                            .getClassName()
+                            .contains(secondaryActivityName)) {
                 return true;
             }
         }
@@ -438,123 +300,363 @@ public class SplitActivityBase extends EdgeToEdgeActivity
         return false;
     }
 
+    private void setupRecyclerViewItems(
+            @NonNull SplitController splitController, int extensionVersion) {
+        // Setup activity launch buttons and config options.
+        mRecyclerViewBindingData.launchBButton.onClicked =
+                () -> {
+                    startActivity(new Intent(this, SplitActivityB.class));
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchBCButton.onClicked =
+                () -> {
+                    Intent bStartIntent = new Intent(this, SplitActivityB.class);
+                    bStartIntent.putExtra(EXTRA_LAUNCH_C_TO_SIDE, true);
+                    startActivity(bStartIntent);
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchEButton.onClicked =
+                () -> {
+                    Bundle bundle = null;
+                    if (mRecyclerViewBindingData.launchingEInActivityStackCheckBox.isChecked()) {
+                        try {
+                            final ActivityStack activityStack =
+                                    mActivityEmbeddingController.getActivityStack(this);
+                            if (activityStack != null) {
+                                bundle =
+                                        ActivityEmbeddingOptions.setLaunchingActivityStack(
+                                                ActivityOptions.makeBasic().toBundle(),
+                                                this,
+                                                activityStack);
+                            } else {
+                                Log.w(TAG, "#getActivityStack returns null");
+                            }
+                        } catch (UnsupportedOperationException ex) {
+                            Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
+                        }
+                    }
+                    startActivity(new Intent(this, SplitActivityE.class), bundle);
+                    return Unit.INSTANCE;
+                };
+        if (extensionVersion < 3) {
+            mRecyclerViewBindingData.launchingEInActivityStackCheckBox.setVisible(true);
+        }
+        mRecyclerViewBindingData.launchFButton.onClicked =
+                () -> {
+                    startActivity(new Intent(this, SplitActivityF.class));
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchFPendingIntentButton.onClicked =
+                () -> {
+                    try {
+                        PendingIntent.getActivity(
+                                        this,
+                                        0,
+                                        new Intent(this, SplitActivityF.class),
+                                        FLAG_IMMUTABLE)
+                                .send();
+                    } catch (PendingIntent.CanceledException e) {
+                        final String errorMsg = e.getMessage();
+                        if (errorMsg != null) {
+                            Log.e(TAG, errorMsg);
+                        }
+                    }
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchUid2TrustedButton.onClicked =
+                () -> {
+                    final Intent intent = new Intent();
+                    // Use an explicit package and class name to start an Activity from a different
+                    // package/UID.
+                    intent.setClassName(
+                            "androidx.window.demo2",
+                            "androidx.window.demo2.embedding.TrustedEmbeddingActivity");
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
+                    }
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchUid2UntrustedButton.onClicked =
+                () -> {
+                    final Intent intent = new Intent();
+                    // Use an explicit package and class name to start an Activity from a different
+                    // package/UID.
+                    intent.setClassName(
+                            "androidx.window.demo2",
+                            "androidx.window.demo2.embedding.UntrustedEmbeddingActivity");
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
+                    }
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchUid2UntrustedDisplayFeaturesButton.onClicked =
+                () -> {
+                    final Intent intent = new Intent();
+                    // Use an explicit package and class name to start an Activity from a different
+                    // package/UID.
+                    intent.setClassName(
+                            "androidx.window.demo2",
+                            "androidx.window.demo.common.DisplayFeaturesActivity");
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show();
+                    }
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchExpandedDialogButton.onClicked =
+                () -> {
+                    startActivity(new Intent(this, ExpandedDialogActivity.class));
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchDialogActivityButton.onClicked =
+                () -> {
+                    startActivity(new Intent(this, DialogActivity.class));
+                    return Unit.INSTANCE;
+                };
+        mRecyclerViewBindingData.launchDialogButton.onClicked =
+                () -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Alert dialog demo")
+                            .setMessage("This is a dialog demo")
+                            .create()
+                            .show();
+                    return Unit.INSTANCE;
+                };
+
+        if (extensionVersion < 5) {
+            mRecyclerViewBindingData.pinTopActivityStackButton.setVisible(false);
+            mRecyclerViewBindingData.unpinTopActivityStackButton.setVisible(false);
+        } else {
+            mRecyclerViewBindingData.pinTopActivityStackButton.onClicked =
+                    () -> {
+                        splitController.pinTopActivityStack(
+                                getTaskId(),
+                                new SplitPinRule.Builder()
+                                        .setSticky(
+                                                mRecyclerViewBindingData.stickyPinRuleCheckBox
+                                                        .isChecked())
+                                        .build());
+                        return Unit.INSTANCE;
+                    };
+            mRecyclerViewBindingData.unpinTopActivityStackButton.onClicked =
+                    () -> {
+                        splitController.unpinTopActivityStack(getTaskId());
+                        return Unit.INSTANCE;
+                    };
+        }
+
+        if (extensionVersion < 6) {
+            mRecyclerViewBindingData.dividerCheckBox.setVisible(false);
+            mRecyclerViewBindingData.draggableDividerCheckBox.setVisible(false);
+        } else {
+            setCheckedChanged(mRecyclerViewBindingData.dividerCheckBox);
+            setCheckedChanged(mRecyclerViewBindingData.draggableDividerCheckBox);
+        }
+
+        // Listen for split configuration checkboxes to update the rules before launching
+        // activities.
+        setCheckedChanged(
+                mRecyclerViewBindingData.splitBCCheckBox,
+                (isChecked) -> {
+                    if (isChecked) {
+                        mRecyclerViewBindingData.finishBCCheckBox.setEnabled(true);
+                    } else {
+                        mRecyclerViewBindingData.finishBCCheckBox.setEnabled(false);
+                        mRecyclerViewBindingData.finishBCCheckBox.setChecked(false);
+                    }
+                });
+        setCheckedChanged(
+                mRecyclerViewBindingData.usePlaceholderCheckBox,
+                (isChecked) -> {
+                    if (isChecked) {
+                        mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setEnabled(true);
+                    } else {
+                        mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setEnabled(false);
+                        mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setChecked(false);
+                    }
+                });
+
+        setCheckedChanged(mRecyclerViewBindingData.splitMainCheckBox);
+        setCheckedChanged(mRecyclerViewBindingData.useStickyPlaceholderCheckBox);
+        setCheckedChanged(mRecyclerViewBindingData.finishBCCheckBox);
+        setCheckedChanged(mRecyclerViewBindingData.fullscreenECheckBox);
+        setCheckedChanged(mRecyclerViewBindingData.splitWithFCheckBox);
+
+        if (extensionVersion < 6) {
+            mRecyclerViewBindingData.launchOverlayAssociatedActivityButton.setVisible(false);
+        } else {
+            mRecyclerViewBindingData.launchOverlayAssociatedActivityButton.onClicked =
+                    () -> {
+                        startActivity(new Intent(this, OverlayAssociatedActivityA.class));
+                        return Unit.INSTANCE;
+                    };
+        }
+    }
+
+    private interface CheckedChangedPreviousOperation {
+        void perform(Boolean isChecked);
+    }
+
+    private void setCheckedChanged(SplitActivityRecyclerViewBindingData.Item checkBox) {
+        setCheckedChanged(checkBox, null);
+    }
+    private void setCheckedChanged(
+            SplitActivityRecyclerViewBindingData.Item checkBox,
+            @Nullable CheckedChangedPreviousOperation previousOp) {
+        checkBox.onCheckedChange =
+                (Boolean isChecked) -> {
+                    if (previousOp != null) {
+                        previousOp.perform(isChecked);
+                    }
+                    updateRulesFromCheckboxes();
+                    return Unit.INSTANCE;
+                };
+    }
+
     /** Updates the split rules based on the current selection on checkboxes. */
     private void updateRulesFromCheckboxes() {
+        if (mUpdatingConfigs) {
+            return;
+        }
         mRuleController.clearRules();
 
         final DividerAttributes dividerAttributes;
-        if (mViewBinding.dividerCheckBox.isChecked()) {
-            dividerAttributes = mViewBinding.draggableDividerCheckBox.isChecked()
-                    ? new DraggableDividerAttributes.Builder().setWidthDp(1).build()
-                    : new FixedDividerAttributes.Builder().setWidthDp(1).build();
+        if (mRecyclerViewBindingData.dividerCheckBox.isChecked()) {
+            if (mRecyclerViewBindingData.draggableDividerCheckBox.isChecked()) {
+                dividerAttributes =
+                        new DraggableDividerAttributes.Builder()
+                                .setWidthDp(1)
+                                .build();
+            } else {
+                dividerAttributes = new FixedDividerAttributes.Builder().setWidthDp(1).build();
+            }
         } else {
             dividerAttributes = DividerAttributes.NO_DIVIDER;
         }
 
-        final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
-                .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
-                .setDividerAttributes(dividerAttributes)
-                .build();
+        final SplitAttributes defaultSplitAttributes =
+                new SplitAttributes.Builder()
+                        .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
+                        .setDividerAttributes(dividerAttributes)
+                        .build();
 
-        if (mViewBinding.splitMainCheckBox.isChecked()) {
+        if (mRecyclerViewBindingData.splitMainCheckBox.isChecked()) {
             // Split main with any activity.
             final Set<SplitPairFilter> pairFilters = new HashSet<>();
-            pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
-                    new ComponentName("*", "*"), null));
-            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
-                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                    .setMinHeightDp(0)
-                    .setMinSmallestWidthDp(0)
-                    .setFinishPrimaryWithSecondary(NEVER)
-                    .setFinishSecondaryWithPrimary(NEVER)
-                    .setClearTop(true)
-                    .setDefaultSplitAttributes(defaultSplitAttributes)
-                    .build();
+            pairFilters.add(
+                    new SplitPairFilter(
+                            componentName(SplitActivityA.class),
+                            new ComponentName("*", "*"),
+                            null));
+            final SplitPairRule rule =
+                    new SplitPairRule.Builder(pairFilters)
+                            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                            .setMinHeightDp(0)
+                            .setMinSmallestWidthDp(0)
+                            .setFinishPrimaryWithSecondary(NEVER)
+                            .setFinishSecondaryWithPrimary(NEVER)
+                            .setClearTop(true)
+                            .setDefaultSplitAttributes(defaultSplitAttributes)
+                            .build();
             mRuleController.addRule(rule);
         }
 
-        mViewBinding.draggableDividerCheckBox.setEnabled(mViewBinding.dividerCheckBox.isChecked());
+        mRecyclerViewBindingData.draggableDividerCheckBox.setEnabled(
+                mRecyclerViewBindingData.dividerCheckBox.isChecked());
 
-        if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
+        if (mRecyclerViewBindingData.usePlaceholderCheckBox.isChecked()) {
             // Split B with placeholder.
             final Set<ActivityFilter> activityFilters = new HashSet<>();
             activityFilters.add(new ActivityFilter(componentName(SplitActivityB.class), null));
             final Intent intent = new Intent();
             intent.setComponent(componentName(SplitActivityPlaceholder.class));
-            final SplitPlaceholderRule rule = new SplitPlaceholderRule.Builder(
-                    activityFilters,
-                    intent
-            )
-                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                    .setMinHeightDp(0)
-                    .setMinSmallestWidthDp(0)
-                    .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
-                    .setFinishPrimaryWithPlaceholder(ADJACENT)
-                    .setDefaultSplitAttributes(defaultSplitAttributes)
-                    .build();
+            final SplitPlaceholderRule rule =
+                    new SplitPlaceholderRule.Builder(activityFilters, intent)
+                            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                            .setMinHeightDp(0)
+                            .setMinSmallestWidthDp(0)
+                            .setSticky(
+                                    mRecyclerViewBindingData.useStickyPlaceholderCheckBox
+                                            .isChecked())
+                            .setFinishPrimaryWithPlaceholder(ADJACENT)
+                            .setDefaultSplitAttributes(defaultSplitAttributes)
+                            .build();
             mRuleController.addRule(rule);
         }
 
-        if (mViewBinding.splitBCCheckBox.isChecked()) {
+        if (mRecyclerViewBindingData.splitBCCheckBox.isChecked()) {
             // Split B with C.
             final Set<SplitPairFilter> pairFilters = new HashSet<>();
-            pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
-                    componentName(SplitActivityC.class), null));
-            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
-                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                    .setMinHeightDp(0)
-                    .setMinSmallestWidthDp(0)
-                    .setFinishPrimaryWithSecondary(
-                            mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
-                    )
-                    .setFinishSecondaryWithPrimary(
-                            mViewBinding.finishBCCheckBox.isChecked() ? ALWAYS : NEVER
-                    )
-                    .setClearTop(true)
-                    .setDefaultSplitAttributes(defaultSplitAttributes)
-                    .build();
+            pairFilters.add(
+                    new SplitPairFilter(
+                            componentName(SplitActivityB.class),
+                            componentName(SplitActivityC.class),
+                            null));
+            final SplitPairRule rule =
+                    new SplitPairRule.Builder(pairFilters)
+                            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                            .setMinHeightDp(0)
+                            .setMinSmallestWidthDp(0)
+                            .setFinishPrimaryWithSecondary(
+                                    mRecyclerViewBindingData.finishBCCheckBox.isChecked()
+                                            ? ALWAYS
+                                            : NEVER)
+                            .setFinishSecondaryWithPrimary(
+                                    mRecyclerViewBindingData.finishBCCheckBox.isChecked()
+                                            ? ALWAYS
+                                            : NEVER)
+                            .setClearTop(true)
+                            .setDefaultSplitAttributes(defaultSplitAttributes)
+                            .build();
             mRuleController.addRule(rule);
         }
 
-        if (mViewBinding.splitWithFCheckBox.isChecked()) {
+        if (mRecyclerViewBindingData.splitWithFCheckBox.isChecked()) {
             // Split any activity with F.
             final Set<SplitPairFilter> pairFilters = new HashSet<>();
-            pairFilters.add(new SplitPairFilter(new ComponentName("*", "*"),
-                    componentName(SplitActivityF.class), null));
-            final SplitPairRule rule = new SplitPairRule.Builder(pairFilters)
-                    .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-                    .setMinHeightDp(0)
-                    .setMinSmallestWidthDp(0)
-                    .setFinishPrimaryWithSecondary(NEVER)
-                    .setFinishSecondaryWithPrimary(NEVER)
-                    .setClearTop(true)
-                    .setDefaultSplitAttributes(defaultSplitAttributes)
-                    .build();
+            pairFilters.add(
+                    new SplitPairFilter(
+                            new ComponentName("*", "*"),
+                            componentName(SplitActivityF.class),
+                            null));
+            final SplitPairRule rule =
+                    new SplitPairRule.Builder(pairFilters)
+                            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                            .setMinHeightDp(0)
+                            .setMinSmallestWidthDp(0)
+                            .setFinishPrimaryWithSecondary(NEVER)
+                            .setFinishSecondaryWithPrimary(NEVER)
+                            .setClearTop(true)
+                            .setDefaultSplitAttributes(defaultSplitAttributes)
+                            .build();
             mRuleController.addRule(rule);
         }
 
-        if (mViewBinding.fullscreenECheckBox.isChecked()) {
+        if (mRecyclerViewBindingData.fullscreenECheckBox.isChecked()) {
             // Launch E in fullscreen.
             final Set<ActivityFilter> activityFilters = new HashSet<>();
             activityFilters.add(new ActivityFilter(componentName(SplitActivityE.class), null));
-            final ActivityRule activityRule = new ActivityRule.Builder(activityFilters)
-                    .setAlwaysExpand(true)
-                    .build();
+            final ActivityRule activityRule =
+                    new ActivityRule.Builder(activityFilters).setAlwaysExpand(true).build();
             mRuleController.addRule(activityRule);
         }
 
         // Always expand the dialog activity.
         final Set<ActivityFilter> dialogActivityFilters = new HashSet<>();
-        dialogActivityFilters.add(new ActivityFilter(componentName(
-                ExpandedDialogActivity.class), null));
-        mRuleController.addRule(new ActivityRule.Builder(dialogActivityFilters)
-                .setAlwaysExpand(true)
-                .build());
+        dialogActivityFilters.add(
+                new ActivityFilter(componentName(ExpandedDialogActivity.class), null));
+        mRuleController.addRule(
+                new ActivityRule.Builder(dialogActivityFilters).setAlwaysExpand(true).build());
     }
 
     ComponentName componentName(Class<? extends Activity> activityClass) {
-        return new ComponentName(getPackageName(),
-                activityClass != null ? activityClass.getName() : "*");
+        return new ComponentName(
+                getPackageName(), activityClass != null ? activityClass.getName() : "*");
     }
 
     ComponentName componentName(String className) {
@@ -563,20 +665,17 @@ public class SplitActivityBase extends EdgeToEdgeActivity
 
     /** Updates the status label that says when an activity is embedded. */
     private void updateEmbeddedStatus(boolean isEmbedded) {
-        mViewBinding.activityEmbeddedStatusTextView.setVisibility(isEmbedded
-                ? View.VISIBLE
-                : View.GONE);
+        mRecyclerViewBindingData.embeddedStatusTextView.setVisible(isEmbedded);
     }
 
-    private void updateEmbeddedWindowInfo(
-            @NonNull EmbeddedActivityWindowInfo info) {
+    private void updateEmbeddedWindowInfo(@NonNull EmbeddedActivityWindowInfo info) {
         Log.d(TAG, "EmbeddedActivityWindowInfo changed for r=" + this + "\ninfo=" + info);
         if (!info.isEmbedded()) {
-            mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.GONE);
+            mRecyclerViewBindingData.embeddedBoundsTextView.setVisible(false);
             return;
         }
-        mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.VISIBLE);
-        mViewBinding.activityEmbeddedBoundsTextView.setText(
+        mRecyclerViewBindingData.embeddedBoundsTextView.setVisible(true);
+        mRecyclerViewBindingData.embeddedBoundsTextView.setText(
                 "Embedded bounds=" + info.getBoundsInParentHost());
     }
 }

@@ -26,4 +26,6 @@
     <color name="colorSplitControlsBackground">#475ABFF3</color>
 
     <color name="imeBackground">#EEEEEE</color>
+
+    <color name="colorSplitRecyclerViewDivider">#AAAAAA</color>
 </resources>
