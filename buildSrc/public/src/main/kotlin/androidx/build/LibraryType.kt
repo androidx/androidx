@@ -79,6 +79,12 @@ sealed class LibraryType(
         @JvmStatic val LINT = Lint()
         @JvmStatic val PUBLISHED_LIBRARY = PublishedLibrary()
         @JvmStatic
+        val PUBLISHED_PROTO_LIBRARY =
+            PublishedLibrary(
+                checkApi =
+                    RunApiTasks.No("Metalava doesn't properly parse the proto sources b/180579063")
+            )
+        @JvmStatic
         val PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS =
             PublishedLibrary(targetsKotlinConsumersOnly = true)
         @JvmStatic val PUBLISHED_TEST_LIBRARY = PublishedTestLibrary()
@@ -92,6 +98,7 @@ sealed class LibraryType(
         private val allTypes =
             mapOf(
                 "PUBLISHED_LIBRARY" to PUBLISHED_LIBRARY,
+                "PUBLISHED_PROTO_LIBRARY" to PUBLISHED_PROTO_LIBRARY,
                 "PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS" to
                     PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS,
                 "PUBLISHED_TEST_LIBRARY" to PUBLISHED_TEST_LIBRARY,
@@ -116,13 +123,14 @@ sealed class LibraryType(
     }
 
     open class PublishedLibrary(
+        checkApi: RunApiTasks = RunApiTasks.Yes(),
         allowCallingVisibleForTestsApis: Boolean = false,
         targetsKotlinConsumersOnly: Boolean = false
     ) :
         LibraryType(
             publish = Publish.SNAPSHOT_AND_RELEASE,
             sourceJars = true,
-            checkApi = RunApiTasks.Yes(),
+            checkApi = checkApi,
             allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis,
             targetsKotlinConsumersOnly = targetsKotlinConsumersOnly
         )

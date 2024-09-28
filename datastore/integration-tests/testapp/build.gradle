@@ -26,21 +26,6 @@ android {
     namespace "androidx.datastore.testapp"
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
 dependencies {
     implementation(libs.okio)
     implementation(libs.protobufLite)

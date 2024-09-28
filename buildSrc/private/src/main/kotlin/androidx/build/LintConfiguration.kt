@@ -293,7 +293,11 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             fatal.add("UnusedResources")
             fatal.add("KotlinPropertyAccess")
             fatal.add("LambdaLast")
-            fatal.add("UnknownNullness")
+            if (extension.type != LibraryType.PUBLISHED_PROTO_LIBRARY) {
+                // Enforce UnknownNullness for all device targeting projects except for proto
+                // projects that generate code without proper nullability annotations.
+                fatal.add("UnknownNullness")
+            }
 
             // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
             // remove these accessors

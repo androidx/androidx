@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.BuildServerConfigurationKt
 
 plugins {
     id("java-library")
@@ -31,26 +30,6 @@ plugins {
 
 dependencies {
     api(libs.protobufLite)
-}
-
-tasks.withType(Jar) {
-    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(rootProject))
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
 }
 
 afterEvaluate {

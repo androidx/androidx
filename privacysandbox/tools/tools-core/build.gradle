@@ -68,21 +68,6 @@ tasks.withType(Test).configureEach { test ->
     }
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS

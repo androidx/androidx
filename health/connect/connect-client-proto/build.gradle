@@ -23,7 +23,6 @@
  */
 
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -48,38 +47,9 @@ dependencies {
     api(project(":health:connect:connect-client-external-protobuf"))
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        ofSourceSet("main").each { task ->
-            project.sourceSets.main.java.srcDir(task)
-        }
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
-afterEvaluate {
-    lint {
-        lintOptions {
-            // protobuf generates unannotated methods
-            disable("UnknownNullness")
-        }
-    }
-}
-
 androidx {
     name = "Health Connect Client Proto"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_PROTO_LIBRARY
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"
-    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
-            "(b/180579063)")
 }

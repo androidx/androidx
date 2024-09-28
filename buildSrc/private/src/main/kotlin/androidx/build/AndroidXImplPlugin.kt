@@ -65,6 +65,8 @@ import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.api.PrivacySandboxSdkPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import com.android.utils.appendCapitalized
+import com.google.protobuf.gradle.ProtobufExtension
+import com.google.protobuf.gradle.ProtobufPlugin
 import java.io.File
 import java.time.Duration
 import java.util.Locale
@@ -167,6 +169,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                         androidXKmpExtension
                     )
                 is PrivacySandboxSdkPlugin -> configureWithPrivacySandboxSdkPlugin(project)
+                is ProtobufPlugin -> configureProtobufPlugin(project)
             }
         }
 
@@ -733,6 +736,27 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 .use(taskProvider)
                 .wiredWithFiles(RepackagingTask::aarFile, RepackagingTask::output)
                 .toTransform(SingleArtifact.AAR)
+        }
+    }
+
+    private fun configureProtobufPlugin(project: Project) {
+        project.extensions.getByType(ProtobufExtension::class.java).apply {
+            protoc { it.artifact = project.getLibraryByName("protobufCompiler").toString() }
+            generateProtoTasks {
+                it.all().configureEach { task ->
+                    // java projects have "java" output enabled, however Android projects do not
+                    // so we need to create it for Android projects.
+                    // https://github.com/google/protobuf-gradle-plugin?tab=readme-ov-file#default-outputs
+                    val java =
+                        if (
+                            project.plugins.hasPlugin("com.android.library") ||
+                                project.plugins.hasPlugin("com.android.application")
+                        ) {
+                            task.builtins.register("java")
+                        } else task.builtins.named("java")
+                    java.configure { options -> options.option("lite") }
+                }
+            }
         }
     }
 

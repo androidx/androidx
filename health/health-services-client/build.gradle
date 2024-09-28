@@ -66,21 +66,6 @@ android {
     namespace "androidx.health.services.client"
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-                task.builtins {
-                    java {
-                        option 'lite'
-                    }
-                }
-        }
-    }
-}
-
 androidx {
     name = "Health Services Client"
     type = LibraryType.PUBLISHED_LIBRARY
