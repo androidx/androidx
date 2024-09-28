@@ -43,8 +43,15 @@ public interface FunctionNode extends Node {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
+            FUNCTION_NAME_HAS_PROPERTY,
     })
     @interface FunctionName {}
+
+    /**
+     * Name of the query function represented by
+     * {@link androidx.appsearch.ast.query.HasPropertyNode}.
+     */
+    String FUNCTION_NAME_HAS_PROPERTY = "hasProperty";
 
     /**
      * Gets the name of the node that extends the {@link FunctionNode}.
