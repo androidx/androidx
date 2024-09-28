@@ -185,7 +185,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val allHostTests = project.tasks.register("allHostTests")
         // copy host side test results to DIST
         project.tasks.withType(AbstractTestTask::class.java) { task ->
-            configureTestTask(project, task, allHostTests)
+            configureTestTask(project, task, allHostTests, androidXExtension)
         }
 
         project.tasks.withType(Test::class.java).configureEach { task ->
@@ -321,6 +321,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project: Project,
         task: AbstractTestTask,
         anchorTask: TaskProvider<Task>,
+        androidXExtension: AndroidXExtension,
     ) {
         anchorTask.configure { it.dependsOn(task) }
         val ignoreFailuresProperty =
@@ -334,6 +335,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val xmlReportDestDir = project.getHostTestResultDirectory()
         val testName = "${project.path}:${task.name}"
         project.addToModuleInfo(testName)
+        androidXExtension.testModuleNames.add(testName)
         val archiveName = "$testName.zip"
         if (project.isDisplayTestOutput()) {
             // Enable tracing to see results in command line

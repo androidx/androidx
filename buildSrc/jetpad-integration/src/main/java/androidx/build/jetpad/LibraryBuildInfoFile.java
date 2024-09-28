@@ -55,6 +55,7 @@ public final class LibraryBuildInfoFile {
     public String target;
     public ArrayList<Check> checks;
     public Set<String> kmpChildren;
+    public Set<String> testModuleNames;
 
     /**
      * @property isTipOfTree boolean that specifies whether the dependency is tip-of-tree

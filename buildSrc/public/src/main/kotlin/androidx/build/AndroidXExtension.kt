@@ -23,6 +23,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
@@ -391,6 +392,13 @@ abstract class AndroidXExtension(
      * upgrade their Kotlin API version ahead of the rest of Jetpack.
      */
     abstract val kotlinTarget: Property<KotlinTarget>
+
+    /**
+     * A list of test module names for the project.
+     *
+     * Includes both host and device tests. These names should match the ones in AnTS.
+     */
+    abstract val testModuleNames: SetProperty<String>
 
     override val kotlinApiVersion: Provider<KotlinVersion>
         get() = kotlinTarget.map { it.apiVersion }

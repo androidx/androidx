@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.androidXExtension
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.deviceTestsForEachCompat
@@ -191,6 +192,7 @@ private fun Project.registerGenerateTestConfigurationTask(
         .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
     addToModuleInfo(testName = xmlName)
+    androidXExtension.testModuleNames.add(xmlName)
 }
 
 /**
@@ -409,14 +411,15 @@ private fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
         // We don't test the combination of previous versions of service and client as that is not
         // useful data. We always want at least one tip of tree project.
         if (!clientToT && !serviceToT) return
-        addToModuleInfo(
-            testName =
-                getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true)
-        )
-        addToModuleInfo(
-            testName =
-                getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = false)
-        )
+
+        var testName =
+            getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true)
+        addToModuleInfo(testName)
+        extensions.getByType<AndroidXExtension>().testModuleNames.add(testName)
+
+        testName = getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = false)
+        addToModuleInfo(testName)
+        extensions.getByType<AndroidXExtension>().testModuleNames.add(testName)
     }
     val isClient = this.name.contains("client")
     val isPrevious = this.name.contains("previous")
