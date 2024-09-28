@@ -876,6 +876,7 @@ package androidx.appsearch.ast {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public interface FunctionNode extends androidx.appsearch.ast.Node {
     method public String getFunctionName();
+    field public static final String FUNCTION_NAME_GET_SEARCH_STRING_PARAMETER = "getSearchStringParameter";
     field public static final String FUNCTION_NAME_HAS_PROPERTY = "hasProperty";
   }
 
@@ -925,6 +926,13 @@ package androidx.appsearch.ast.operators {
 }
 
 package androidx.appsearch.ast.query {
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class GetSearchStringParameterNode implements androidx.appsearch.ast.FunctionNode {
+    ctor public GetSearchStringParameterNode(int);
+    method public String getFunctionName();
+    method public int getSearchStringIndex();
+    method public void setSearchStringIndex(int);
+  }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class HasPropertyNode implements androidx.appsearch.ast.FunctionNode {
     ctor public HasPropertyNode(androidx.appsearch.app.PropertyPath);
