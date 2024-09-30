@@ -413,6 +413,15 @@ abstract class AndroidXExtension(
     fun samples(samplesProject: Project) {
         samplesProjects.add(samplesProject)
     }
+
+    /** Locates a project by path. */
+    // This method is needed for Gradle project isolation to avoid calls to parent projects due to
+    // androidx { samples(project(":foo")) }
+    // Without this method, the call above results into a call to the parent object, because
+    // AndroidXExtension has `val project: Project`, which from groovy `project` call within
+    // `androidx` block tries retrieves that project object and calls to look for :foo property
+    // on it, then checking all the parents for it.
+    fun project(name: String): Project = project.project(name)
 }
 
 class License {
