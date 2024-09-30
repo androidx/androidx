@@ -85,6 +85,7 @@ class DateRangePickerTest {
                         .getMonth(year = 2022, month = 4)
                         .startUtcTimeMillis
                 )
+            assertThat(locale).isEqualTo(Locale.getDefault())
         }
     }
 

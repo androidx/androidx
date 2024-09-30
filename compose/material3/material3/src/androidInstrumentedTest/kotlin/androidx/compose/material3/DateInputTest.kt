@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
@@ -32,6 +33,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
@@ -92,6 +94,31 @@ class DateInputTest {
         }
 
         rule.onNodeWithText("05/11/2010").assertExists()
+        rule.onNodeWithText("May 11, 2010").assertExists()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun dateInputWithInitialDate_alternateLocale() {
+        lateinit var state: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            state =
+                DatePickerState(
+                    locale = Locale.forLanguageTag("HE"),
+                    initialSelectedDateMillis = initialDateMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
+            DatePicker(state = state)
+        }
+
+        // For Hebrew Locale, the month precedes the date.
+        rule.onNodeWithText("11.05.2010").assertExists()
+        // Setting the Locale at the state would not affect the displayed date at the headline, and
+        // it will still be displayed as "May 11, 2010" with the default locale. To ensure that the
+        // entire date picker UI is localized, there is a need to wrap the picker's code in a
+        // CompositionLocalProvider with a new Context Configuration, but this test does not cover
+        // that.
         rule.onNodeWithText("May 11, 2010").assertExists()
     }
 

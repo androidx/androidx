@@ -113,8 +113,14 @@ fun DateRangePicker(
     },
     showModeToggle: Boolean = true
 ) {
-    val defaultLocale = defaultLocale()
-    val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
+    val calendarModel =
+        remember(state.locale) {
+            if (state is BaseDatePickerStateImpl) {
+                state.calendarModel
+            } else {
+                createCalendarModel(state.locale)
+            }
+        }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -265,6 +271,12 @@ interface DateRangePickerState {
     val selectableDates: SelectableDates
 
     /**
+     * A locale that will be used when formatting dates, determining the input format, week-days,
+     * and more.
+     */
+    val locale: CalendarLocale
+
+    /**
      * Sets a start and end selection dates.
      *
      * The function expects the dates to be within the state's year-range, and for the start date to
@@ -336,11 +348,19 @@ fun rememberDateRangePickerState(
 /**
  * Creates a [DateRangePickerState].
  *
- * Note that in most cases, you are advised to use the [rememberDateRangePickerState] when in a
- * composition.
+ * For most cases, you are advised to use the [rememberDateRangePickerState] when in a composition.
  *
- * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
- *   and more
+ * Note that in case you provide a [locale] that is different than the default platform locale, you
+ * may need to ensure that the picker's title and headline localized correctly. The following sample
+ * shows one possible way of doing so by applying a local composition of a `LocalContext` and
+ * `LocaleConfiguration`.
+ *
+ * @sample androidx.compose.material3.samples.DatePickerCustomLocaleSample
+ * @param locale the [CalendarLocale] that will be used when formatting dates, determining the input
+ *   format, displaying the week-day, determining the first day of the week, and more. Note that in
+ *   case the provided [CalendarLocale] differs from the platform's default Locale, you may need to
+ *   ensure that the picker's title and headline localized correctly, and in some cases, you may
+ *   need to apply an RTL layout.
  * @param initialSelectedStartDateMillis timestamp in _UTC_ milliseconds from the epoch that
  *   represents an initial selection of a start date. Provide a `null` to indicate no selection.
  * @param initialSelectedEndDateMillis timestamp in _UTC_ milliseconds from the epoch that
@@ -468,6 +488,7 @@ object DateRangePickerDefaults {
             startDatePlaceholder = { Text(text = startDateText, color = contentColor) },
             endDatePlaceholder = { Text(text = endDateText, color = contentColor) },
             datesDelimiter = { Text(text = "-", color = contentColor) },
+            locale = defaultLocale()
         )
     }
 
@@ -529,6 +550,8 @@ object DateRangePickerDefaults {
      *   date (i.e a [Text] with an "End date" string)
      * @param datesDelimiter a composable to be displayed as a headline delimiter between the start
      *   and the end dates
+     * @param locale a [CalendarLocale] to be used when formatting dates at the headline. The
+     *   default value holds the default locale of the platform.
      */
     @Composable
     private fun DateRangePickerHeadline(
@@ -543,18 +566,18 @@ object DateRangePickerDefaults {
         startDatePlaceholder: @Composable () -> Unit,
         endDatePlaceholder: @Composable () -> Unit,
         datesDelimiter: @Composable () -> Unit,
+        locale: CalendarLocale
     ) {
-        val defaultLocale = defaultLocale()
         val formatterStartDate =
-            dateFormatter.formatDate(dateMillis = selectedStartDateMillis, locale = defaultLocale)
+            dateFormatter.formatDate(dateMillis = selectedStartDateMillis, locale = locale)
 
         val formatterEndDate =
-            dateFormatter.formatDate(dateMillis = selectedEndDateMillis, locale = defaultLocale)
+            dateFormatter.formatDate(dateMillis = selectedEndDateMillis, locale = locale)
 
         val verboseStartDateDescription =
             dateFormatter.formatDate(
                 dateMillis = selectedStartDateMillis,
-                locale = defaultLocale,
+                locale = locale,
                 forContentDescription = true
             )
                 ?: when (displayMode) {
@@ -566,7 +589,7 @@ object DateRangePickerDefaults {
         val verboseEndDateDescription =
             dateFormatter.formatDate(
                 dateMillis = selectedEndDateMillis,
-                locale = defaultLocale,
+                locale = locale,
                 forContentDescription = true
             )
                 ?: when (displayMode) {
@@ -941,8 +964,8 @@ private fun VerticalMonthsList(
                         Text(
                             text =
                                 dateFormatter.formatMonthYear(
-                                    month.startUtcTimeMillis,
-                                    defaultLocale()
+                                    monthMillis = month.startUtcTimeMillis,
+                                    locale = calendarModel.locale
                                 ) ?: "-",
                             modifier =
                                 Modifier.padding(paddingValues = CalendarMonthSubheadPadding)
@@ -972,7 +995,8 @@ private fun VerticalMonthsList(
                         rangeSelectionInfo = rangeSelectionInfo,
                         dateFormatter = dateFormatter,
                         selectableDates = selectableDates,
-                        colors = colors
+                        colors = colors,
+                        locale = calendarModel.locale
                     )
                 }
             }

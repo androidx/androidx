@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
@@ -33,6 +34,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
@@ -112,6 +114,36 @@ class DateRangeInputTest {
         rule.onNodeWithText("10/20/2020").assertExists()
         rule.onNodeWithText("May 11, 2010", useUnmergedTree = true).assertExists()
         rule.onNodeWithText("Oct 20, 2020", useUnmergedTree = true).assertExists()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun dateRangeInputWithInitialDate_alternateLocale() {
+        lateinit var state: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialStartDateMillis =
+                dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            val initialEndDateMillis = dayInUtcMilliseconds(year = 2020, month = 5, dayOfMonth = 20)
+            state =
+                DateRangePickerState(
+                    locale = Locale.forLanguageTag("HE"),
+                    initialSelectedStartDateMillis = initialStartDateMillis,
+                    initialSelectedEndDateMillis = initialEndDateMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
+            DateRangePicker(state = state)
+        }
+
+        // For Hebrew Locale, the month precedes the date.
+        rule.onNodeWithText("11.05.2010").assertExists()
+        rule.onNodeWithText("20.05.2020").assertExists()
+        // Setting the Locale at the state would not affect the displayed dates at the headline, and
+        // it will still be displayed as "May 11, 2010" with the default locale. To ensure that the
+        // entire date picker UI is localized, there is a need to wrap the picker's code in a
+        // CompositionLocalProvider with a new Context Configuration, but this test does not cover
+        // that.
+        rule.onNodeWithText("May 11, 2010", useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("May 20, 2020", useUnmergedTree = true).assertExists()
     }
 
     @Test

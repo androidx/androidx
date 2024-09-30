@@ -15,7 +15,9 @@
  */
 package androidx.compose.material3.samples
 
+import android.content.res.Configuration
 import android.os.Build
+import android.os.LocaleList
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,13 +47,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import java.time.DayOfWeek
@@ -233,5 +241,44 @@ fun DateRangePickerSample() {
             }
         }
         DateRangePicker(state = state, modifier = Modifier.weight(1f))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun DatePickerCustomLocaleSample() {
+    val preferredLocales = LocaleList.forLanguageTags("HE")
+    val config = Configuration()
+    config.setLocales(preferredLocales)
+    val newContext = LocalContext.current.createConfigurationContext(config)
+    CompositionLocalProvider(
+        LocalContext provides newContext,
+        LocalConfiguration provides config,
+        LocalLayoutDirection provides LayoutDirection.Rtl
+    ) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Pre-select a date for January 4, 2020
+            // Initialize date picker with the preferred locale. Here we create a state directly,
+            // but since the Locale was set at the CompositionLocalProvider through a Configuration,
+            // a `val datePickerState = rememberDatePickerState(...)` will have the same effect.
+            val datePickerState = remember {
+                DatePickerState(
+                    initialSelectedDateMillis = 1578096000000,
+                    // Set to "HE" locale.
+                    locale = preferredLocales.get(0)
+                )
+            }
+            DatePicker(state = datePickerState, modifier = Modifier.padding(16.dp))
+
+            Text(
+                "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
     }
 }
