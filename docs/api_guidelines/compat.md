@@ -387,6 +387,22 @@ if (BuildCompat.isAtLeastQ()) {
 }
 ```
 
+#### Shadowing platform classes {#sdk-shadowing}
+
+Generally, libraries should **never** create new classes in the `android.*`
+namespace or re-define any classes that may be present in the boot classpath.
+**Do not** create a library class with the same fully-qualified name as one in
+the platform SDK, a Mainline module, sidecar JAR, or another library. Keep all
+classes within your own package based on your Maven group ID.
+
+The reverse also applies: the platform SDK, Mainline modules, sidecar JARs, and
+other libraries **must not** define classes in the `androidx.*` namespace.
+
+In *extremely limited* cases, the overhead of reflecting on a platform class may
+cause performance issues for apps on a scale that warrants using a compile-only
+stub of the platform class to avoid reflection. Any instances of this **must**
+be approved by Jetpack Working Group before submitting the change.
+
 ### Inter-process communication {#ipc}
 
 Protocols and data structures used for IPC must support interoperability between
