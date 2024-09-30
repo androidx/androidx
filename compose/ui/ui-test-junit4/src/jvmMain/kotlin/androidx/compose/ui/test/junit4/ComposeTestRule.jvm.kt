@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.junit4
 
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
@@ -235,9 +236,12 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      * Accessibility checks are platform dependent, refer to the documentation of the platform
      * specific variant of [ComposeTestRule] to see if it is supported and how you can configure it.
      *
+     * On Android, this requires API 34+ (Android U), and currently does not work on Robolectric.
+     *
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeTestRule_sample
      * @see disableAccessibilityChecks
      */
+    @RequiresApi(34)
     fun enableAccessibilityChecks() {
         throw NotImplementedError("Accessibility Checks are not implemented on this platform")
     }
@@ -248,6 +252,7 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
      * @see enableAccessibilityChecks
      */
+    @RequiresApi(34)
     fun disableAccessibilityChecks() {
         throw NotImplementedError("Accessibility Checks are not implemented on this platform")
     }

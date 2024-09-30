@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
@@ -51,7 +52,7 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 
     actual fun setContent(composable: @Composable () -> Unit)
 
-    actual fun enableAccessibilityChecks()
+    @RequiresApi(34) actual fun enableAccessibilityChecks()
 
-    actual fun disableAccessibilityChecks()
+    @RequiresApi(34) actual fun disableAccessibilityChecks()
 }

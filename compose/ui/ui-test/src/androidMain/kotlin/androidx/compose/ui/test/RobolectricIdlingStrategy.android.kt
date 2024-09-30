@@ -16,10 +16,20 @@
 
 package androidx.compose.ui.test
 
+import android.os.Build
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
+
+/**
+ * Whether or not this test is running on Robolectric.
+ *
+ * The implementation of this check is widely used but not officially supported and should therefore
+ * stay internal.
+ */
+internal val HasRobolectricFingerprint
+    get() = Build.FINGERPRINT.lowercase() == "robolectric"
 
 /**
  * Idling strategy for use with Robolectric.
