@@ -1017,7 +1017,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                         lp.width > 0 -> lp.width
                         else -> measuredWidth
                     }
-                if (measuredWidth != newWidth) {
+                if (skippedFirstPass || measuredWidth != newWidth) {
                     val childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY)
                     val childHeightSpec =
                         getChildHeightMeasureSpec(
