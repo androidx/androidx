@@ -100,6 +100,7 @@ import kotlinx.coroutines.launch
  * @param sheetState The state of the bottom sheet.
  * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take. Pass in
  *   [Dp.Unspecified] for a sheet that spans the entire screen width.
+ * @param sheetGesturesEnabled Whether the bottom sheet can be interacted with by gestures.
  * @param shape The shape of the bottom sheet.
  * @param containerColor The color used for the background of this bottom sheet
  * @param contentColor The preferred color for content inside this bottom sheet. Defaults to either
@@ -123,6 +124,7 @@ fun ModalBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    sheetGesturesEnabled: Boolean = true,
     shape: Shape = BottomSheetDefaults.ExpandedShape,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -193,6 +195,7 @@ fun ModalBottomSheet(
                 modifier,
                 sheetState,
                 sheetMaxWidth,
+                sheetGesturesEnabled,
                 shape,
                 containerColor,
                 contentColor,
@@ -208,6 +211,44 @@ fun ModalBottomSheet(
     }
 }
 
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Maintained for Binary compatibility. Use overload with sheetGesturesEnabled param."
+)
+@Composable
+@ExperimentalMaterial3Api
+fun ModalBottomSheet(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    shape: Shape = BottomSheetDefaults.ExpandedShape,
+    containerColor: Color = BottomSheetDefaults.ContainerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    tonalElevation: Dp = 0.dp,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
+    content: @Composable ColumnScope.() -> Unit,
+) =
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        sheetState = sheetState,
+        sheetMaxWidth = sheetMaxWidth,
+        sheetGesturesEnabled = true,
+        shape = shape,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tonalElevation = tonalElevation,
+        scrimColor = scrimColor,
+        dragHandle = dragHandle,
+        contentWindowInsets = contentWindowInsets,
+        properties = properties,
+        content = content,
+    )
+
 @Composable
 @ExperimentalMaterial3Api
 internal fun BoxScope.ModalBottomSheetContent(
@@ -218,6 +259,7 @@ internal fun BoxScope.ModalBottomSheetContent(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    sheetGesturesEnabled: Boolean = true,
     shape: Shape = BottomSheetDefaults.ExpandedShape,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -234,14 +276,18 @@ internal fun BoxScope.ModalBottomSheetContent(
                 .align(Alignment.TopCenter)
                 .widthIn(max = sheetMaxWidth)
                 .fillMaxWidth()
-                .nestedScroll(
-                    remember(sheetState) {
-                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                            sheetState = sheetState,
-                            orientation = Orientation.Vertical,
-                            onFling = settleToDismiss
+                .then(
+                    if (sheetGesturesEnabled)
+                        Modifier.nestedScroll(
+                            remember(sheetState) {
+                                ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                                    sheetState = sheetState,
+                                    orientation = Orientation.Vertical,
+                                    onFling = settleToDismiss
+                                )
+                            }
                         )
-                    }
+                    else Modifier
                 )
                 .draggableAnchors(sheetState.anchoredDraggableState, Orientation.Vertical) {
                     sheetSize,
@@ -276,7 +322,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                 .draggable(
                     state = sheetState.anchoredDraggableState.draggableState,
                     orientation = Orientation.Vertical,
-                    enabled = sheetState.isVisible,
+                    enabled = sheetGesturesEnabled && sheetState.isVisible,
                     startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                     onDragStopped = { settleToDismiss(it) }
                 )
@@ -341,30 +387,34 @@ internal fun BoxScope.ModalBottomSheetContent(
                             .semantics(mergeDescendants = true) {
                                 // Provides semantics to interact with the bottomsheet based on its
                                 // current value.
-                                with(sheetState) {
-                                    dismiss(dismissActionLabel) {
-                                        animateToDismiss()
-                                        true
-                                    }
-                                    if (currentValue == PartiallyExpanded) {
-                                        expand(expandActionLabel) {
-                                            if (
-                                                anchoredDraggableState.confirmValueChange(Expanded)
-                                            ) {
-                                                scope.launch { sheetState.expand() }
-                                            }
+                                if (sheetGesturesEnabled) {
+                                    with(sheetState) {
+                                        dismiss(dismissActionLabel) {
+                                            animateToDismiss()
                                             true
                                         }
-                                    } else if (hasPartiallyExpandedState) {
-                                        collapse(collapseActionLabel) {
-                                            if (
-                                                anchoredDraggableState.confirmValueChange(
-                                                    PartiallyExpanded
-                                                )
-                                            ) {
-                                                scope.launch { partialExpand() }
+                                        if (currentValue == PartiallyExpanded) {
+                                            expand(expandActionLabel) {
+                                                if (
+                                                    anchoredDraggableState.confirmValueChange(
+                                                        Expanded
+                                                    )
+                                                ) {
+                                                    scope.launch { sheetState.expand() }
+                                                }
+                                                true
                                             }
-                                            true
+                                        } else if (hasPartiallyExpandedState) {
+                                            collapse(collapseActionLabel) {
+                                                if (
+                                                    anchoredDraggableState.confirmValueChange(
+                                                        PartiallyExpanded
+                                                    )
+                                                ) {
+                                                    scope.launch { partialExpand() }
+                                                }
+                                                true
+                                            }
                                         }
                                     }
                                 }
