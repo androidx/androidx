@@ -195,16 +195,7 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
             val newList = builder.build()
             if (
                 newList == oldList ||
-                    writable {
-                        synchronized(sync) {
-                            if (modification == currentModification) {
-                                list = newList
-                                modification++
-                                structuralChange++
-                                true
-                            } else false
-                        }
-                    }
+                    writable { attemptUpdate(currentModification, newList, structural = true) }
             )
                 break
         }
@@ -236,24 +227,28 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
                 result = false
                 break
             }
-            if (
-                writable {
-                    synchronized(sync) {
-                        if (modification == currentModification) {
-                            list = newList
-                            if (structural) structuralChange++
-                            modification++
-                            true
-                        } else false
-                    }
-                }
-            ) {
+            if (writable { attemptUpdate(currentModification, newList, structural) }) {
                 result = true
                 break
             }
         }
         result
     }
+
+    // NOTE: do not inline this method to avoid class verification failures, see b/369909868
+    private fun StateListStateRecord<T>.attemptUpdate(
+        currentModification: Int,
+        newList: PersistentList<T>,
+        structural: Boolean
+    ): Boolean =
+        synchronized(sync) {
+            if (modification == currentModification) {
+                list = newList
+                if (structural) structuralChange++
+                modification++
+                true
+            } else false
+        }
 
     private fun stateRecordWith(list: PersistentList<T>): StateRecord {
         return StateListStateRecord(list).also {
