@@ -18,6 +18,7 @@ package androidx.window.testing.layout
 
 import android.content.Context
 import android.graphics.Point
+import android.graphics.Rect
 import android.os.Build
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
@@ -40,6 +41,13 @@ import org.junit.runners.model.Statement
 class WindowMetricsCalculatorRuleTest {
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
     private val mWindowMetricsCalculatorRule = WindowMetricsCalculatorRule()
+
+    // Set the override values to really weird numbers so they don't conflict with any real values.
+    private val overrideLeft = 100
+    private val overrideTop = 200
+    private val overrideWidth = 300
+    private val overrideHeight = 400
+    private val overrideRect = Rect(overrideLeft, overrideTop, overrideWidth, overrideHeight)
 
     @get:Rule val testRule: TestRule
 
@@ -128,6 +136,108 @@ class WindowMetricsCalculatorRuleTest {
             assertEquals(currentMetrics.bounds.top, maximumMetrics.bounds.top)
             assertEquals(currentMetrics.bounds.right, maximumMetrics.bounds.right)
             assertEquals(currentMetrics.bounds.bottom, maximumMetrics.bounds.bottom)
+        }
+    }
+
+    @Test
+    fun testCurrentWindowMetrics_overrideWindowBoundsRect() {
+        activityRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+            val displayMetrics = activity.resources.displayMetrics
+            val actual = calculator.computeCurrentWindowMetrics(activity)
+
+            assertEquals(0, actual.bounds.left)
+            assertEquals(0, actual.bounds.top)
+            assertEquals(displayMetrics.widthPixels, actual.bounds.right)
+            assertEquals(displayMetrics.heightPixels, actual.bounds.bottom)
+
+            mWindowMetricsCalculatorRule.overrideCurrentWindowBounds(
+                TestWindowMetrics(overrideRect)
+            )
+
+            val overrideActual = calculator.computeCurrentWindowMetrics(activity)
+            assertEquals(overrideLeft, overrideActual.bounds.left)
+            assertEquals(overrideTop, overrideActual.bounds.top)
+            assertEquals(overrideWidth, overrideActual.bounds.right)
+            assertEquals(overrideHeight, overrideActual.bounds.bottom)
+        }
+    }
+
+    @Test
+    fun testCurrentWindowMetrics_overrideWindowBoundsCoordinates() {
+        activityRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+            val displayMetrics = activity.resources.displayMetrics
+            val actual = calculator.computeCurrentWindowMetrics(activity)
+
+            assertEquals(0, actual.bounds.left)
+            assertEquals(0, actual.bounds.top)
+            assertEquals(displayMetrics.widthPixels, actual.bounds.right)
+            assertEquals(displayMetrics.heightPixels, actual.bounds.bottom)
+
+            mWindowMetricsCalculatorRule.overrideCurrentWindowBounds(
+                overrideLeft,
+                overrideTop,
+                overrideWidth,
+                overrideHeight
+            )
+
+            val overrideActual = calculator.computeCurrentWindowMetrics(activity)
+            assertEquals(overrideLeft, overrideActual.bounds.left)
+            assertEquals(overrideTop, overrideActual.bounds.top)
+            assertEquals(overrideWidth, overrideActual.bounds.right)
+            assertEquals(overrideHeight, overrideActual.bounds.bottom)
+        }
+    }
+
+    @Test
+    fun testCurrentWindowMetrics_context_overrideWindowBoundsRect() {
+        activityRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+            val currentMetrics = calculator.computeCurrentWindowMetrics(activity as Context)
+            val maximumMetrics = calculator.computeMaximumWindowMetrics(activity as Context)
+
+            assertEquals(currentMetrics.bounds.left, maximumMetrics.bounds.left)
+            assertEquals(currentMetrics.bounds.top, maximumMetrics.bounds.top)
+            assertEquals(currentMetrics.bounds.right, maximumMetrics.bounds.right)
+            assertEquals(currentMetrics.bounds.bottom, maximumMetrics.bounds.bottom)
+
+            mWindowMetricsCalculatorRule.overrideCurrentWindowBounds(
+                TestWindowMetrics(overrideRect)
+            )
+
+            val overrideActual = calculator.computeCurrentWindowMetrics(activity)
+            assertEquals(overrideLeft, overrideActual.bounds.left)
+            assertEquals(overrideTop, overrideActual.bounds.top)
+            assertEquals(overrideWidth, overrideActual.bounds.right)
+            assertEquals(overrideHeight, overrideActual.bounds.bottom)
+        }
+    }
+
+    @Test
+    fun testCurrentWindowMetrics_context_overrideWindowBoundsCoordinates() {
+        activityRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+            val currentMetrics = calculator.computeCurrentWindowMetrics(activity as Context)
+            val maximumMetrics = calculator.computeMaximumWindowMetrics(activity as Context)
+
+            assertEquals(currentMetrics.bounds.left, maximumMetrics.bounds.left)
+            assertEquals(currentMetrics.bounds.top, maximumMetrics.bounds.top)
+            assertEquals(currentMetrics.bounds.right, maximumMetrics.bounds.right)
+            assertEquals(currentMetrics.bounds.bottom, maximumMetrics.bounds.bottom)
+
+            mWindowMetricsCalculatorRule.overrideCurrentWindowBounds(
+                overrideLeft,
+                overrideTop,
+                overrideWidth,
+                overrideHeight
+            )
+
+            val overrideActual = calculator.computeCurrentWindowMetrics(activity)
+            assertEquals(overrideLeft, overrideActual.bounds.left)
+            assertEquals(overrideTop, overrideActual.bounds.top)
+            assertEquals(overrideWidth, overrideActual.bounds.right)
+            assertEquals(overrideHeight, overrideActual.bounds.bottom)
         }
     }
 
