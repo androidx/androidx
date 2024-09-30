@@ -5,6 +5,14 @@ function echoAndDo() {
   eval "$@"
 }
 
+# Substitute for `sed -i` because different versions of sed differ in how to supply the argument for -i.
+function sedInPlace() {
+  TEMP_FILE=".sedOutput.tmp"
+  sed "$1" $2 > $TEMP_FILE
+  cat $TEMP_FILE > $2
+  rm $TEMP_FILE
+}
+
 # Versions that the user should update when running this script
 echo Getting Studio version and link
 AGP_VERSION=${1:-8.8.0-alpha01}
@@ -34,8 +42,8 @@ ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:linux,"
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:osx,"
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION,"
 LINT_VERSIONS=`curl "https://dl.google.com/dl/android/maven2/com/android/tools/lint/group-index.xml" | grep lint | sed 's/.*versions="\(.*\)"\/>/\1/g'`
-LINT_MINOR_VERSION=`echo $AGP_VERSION | sed 's/[0-9]\+\.\(.*\)/\1/g'`
-LINT_VERSION=`echo $LINT_VERSIONS | sed "s/.*[,| ]\([0-9]\+\.$LINT_MINOR_VERSION\).*/\1/g"`
+LINT_MINOR_VERSION=`echo $AGP_VERSION | sed -r 's/[0-9]+\.(.*)/\1/g'`
+LINT_VERSION=`echo $LINT_VERSIONS | sed -r "s/.*[,| ]([0-9]+\.$LINT_MINOR_VERSION).*/\1/g"`
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint:$LINT_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint-tests:$LINT_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint-gradle:$LINT_VERSION,"
@@ -43,22 +51,22 @@ ARTIFACTS_TO_DOWNLOAD+="com.android.tools:ninepatch:$LINT_VERSION,"
 
 # Update libs.versions.toml
 echo Updating dependency versions
-sed -i "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
-sed -i "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
-sed -i "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
 
-# update settings.gradle
-sed -i "s/com.android.settings:com.android.settings.gradle.plugin:[0-9a-z\.\-]*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION\")/g" settings.gradle
+# update settings.gradle -- don't match the line with :$agpOverride
+sedInPlace "s/com.android.settings:com.android.settings.gradle.plugin:[^$][0-9a-z\.\-]*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION/g" settings.gradle
 
 # Pull all UTP artifacts for ADT version
 ADT_VERSION=${3:-$LINT_VERSION}
 while read line
     do
-    ARTIFACT=`echo $line | sed 's/<\([[:lower:]-]\+\).*/\1/g'`
+    ARTIFACT=`echo $line | sed -r 's/<([[:lower:]-]+).*/\1/g'`
     ARTIFACTS_TO_DOWNLOAD+="com.android.tools.utp:$ARTIFACT:$ADT_VERSION,"
   done < <(curl -sL "https://dl.google.com/android/maven2/com/android/tools/utp/group-index.xml" \
              | tail -n +3 \
-             | head -n -1)
+             | sed '$ d') # Remove the last line
 
 ATP_VERSION=${4:-0.0.9-alpha02}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
