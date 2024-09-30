@@ -234,8 +234,14 @@ public open class PdfViewerFragment : Fragment() {
         this.mEventCallback = eventCallback
     }
 
-    /** Indicates whether the toolbox should be visible. */
-    private var isToolboxVisible: Boolean
+    /**
+     * Indicates whether the toolbox should be visible.
+     *
+     * The host app can control this property to show/hide the toolbox based on its state and the
+     * `onRequestImmersiveMode` callback. The setter updates the UI elements within the fragment
+     * accordingly.
+     */
+    public var isToolboxVisible: Boolean
         get() = arguments?.getBoolean(KEY_TOOLBOX_VISIBILITY) ?: true
         set(value) {
             (arguments ?: Bundle()).apply { putBoolean(KEY_TOOLBOX_VISIBILITY, value) }
@@ -244,11 +250,14 @@ public open class PdfViewerFragment : Fragment() {
 
     /**
      * Called when the PDF view wants to enter or exit immersive mode based on user's interaction
-     * with the content.
+     * with the content. Apps would typically hide their top bar or other navigational interface
+     * when in immersive mode. The default implementation keeps toolbox visibility in sync with the
+     * enterImmersive mode. It is recommended that apps keep this behaviour by calling
+     * super.onRequestImmersiveMode while overriding this method.
      *
-     * @param enterImmersive true to enter immersive mode, false to exit
+     * @param enterImmersive true to enter immersive mode, false to exit.
      */
-    private fun onRequestImmersiveMode(enterImmersive: Boolean) {
+    public open fun onRequestImmersiveMode(enterImmersive: Boolean) {
         // Update toolbox visibility
         isToolboxVisible = !enterImmersive
     }

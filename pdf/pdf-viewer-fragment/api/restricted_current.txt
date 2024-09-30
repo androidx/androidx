@@ -5,12 +5,16 @@ package androidx.pdf.viewer.fragment {
     ctor public PdfViewerFragment();
     method public final android.net.Uri? getDocumentUri();
     method public final boolean isTextSearchActive();
+    method public final boolean isToolboxVisible();
     method public void onLoadDocumentError(Throwable error);
     method public void onLoadDocumentSuccess();
+    method public void onRequestImmersiveMode(boolean enterImmersive);
     method public final void setDocumentUri(android.net.Uri?);
     method public final void setTextSearchActive(boolean);
+    method public final void setToolboxVisible(boolean);
     property public final android.net.Uri? documentUri;
     property public final boolean isTextSearchActive;
+    property public final boolean isToolboxVisible;
   }
 
 }
