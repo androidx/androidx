@@ -77,8 +77,6 @@ internal fun assertFeaturesEqualish(expected: Feature, actual: Feature) {
     assertEquals(expected::class, actual::class)
 
     if (expected is Feature.Corner && actual is Feature.Corner) {
-        pointsEqualish(expected.vertex, actual.vertex)
-        pointsEqualish(expected.roundedCenter, actual.roundedCenter)
         assertEquals(expected.convex, actual.convex)
     }
 }

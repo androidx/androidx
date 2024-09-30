@@ -58,17 +58,11 @@ internal abstract class Feature(val cubics: List<Cubic>) {
 
     /**
      * Corners contain the list of cubic curves which describe how the corner is rounded (or not),
-     * plus the vertex at the corner (which the cubics may or may not pass through, depending on
-     * whether the corner is rounded) and a flag indicating whether the corner is convex. A regular
-     * polygon has all convex corners, while a star polygon generally (but not necessarily) has both
-     * convex (outer) and concave (inner) corners.
+     * and a flag indicating whether the corner is convex. A regular polygon has all convex corners,
+     * while a star polygon generally (but not necessarily) has both convex (outer) and concave
+     * (inner) corners.
      */
-    internal class Corner(
-        cubics: List<Cubic>,
-        val vertex: Point,
-        val roundedCenter: Point,
-        val convex: Boolean = true
-    ) : Feature(cubics) {
+    internal class Corner(cubics: List<Cubic>, val convex: Boolean = true) : Feature(cubics) {
         override fun transformed(f: PointTransformer): Feature {
             return Corner(
                 buildList {
@@ -78,8 +72,6 @@ internal abstract class Feature(val cubics: List<Cubic>) {
                         add(cubics[i].transformed(f))
                     }
                 },
-                vertex.transformed(f),
-                roundedCenter.transformed(f),
                 convex
             )
         }
@@ -93,11 +85,11 @@ internal abstract class Feature(val cubics: List<Cubic>) {
 
             // TODO: b/369320447 - Revert flag negation when [RoundedPolygon] ignores orientation
             // for setting the flag
-            return Corner(reversedCubics, vertex, roundedCenter, !convex)
+            return Corner(reversedCubics, !convex)
         }
 
         override fun toString(): String {
-            return "Corner: vertex=$vertex, center=$roundedCenter, convex=$convex"
+            return "Corner: cubics=${cubics.joinToString(separator = ", "){"[$it]"}} convex=$convex"
         }
     }
 }

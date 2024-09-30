@@ -19,7 +19,6 @@ package androidx.graphics.shapes
 import android.graphics.Matrix
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -175,30 +174,6 @@ class PolygonTest {
         val squareCopyFeatures = squareCopy.features
         nonzeroCubics = nonzeroCubics(squareCopyFeatures.flatMap { it.cubics })
         assertCubicListsEqualish(squareCopy.cubics, nonzeroCubics)
-
-        // Test other elements of Features
-        val translator = translateTransform(1f, 2f)
-        val features = square.features
-        val preTransformVertices = mutableListOf<Point>()
-        val preTransformCenters = mutableListOf<Point>()
-        for (feature in features) {
-            if (feature is Feature.Corner) {
-                // Copy into new Point objects since the ones in the feature should transform
-                preTransformVertices.add(Point(feature.vertex.x, feature.vertex.y))
-                preTransformCenters.add(Point(feature.roundedCenter.x, feature.roundedCenter.y))
-            }
-        }
-        val transformedFeatures = square.transformed(translator).features
-        val postTransformVertices = mutableListOf<Point>()
-        val postTransformCenters = mutableListOf<Point>()
-        for (feature in transformedFeatures) {
-            if (feature is Feature.Corner) {
-                postTransformVertices.add(feature.vertex)
-                postTransformCenters.add(feature.roundedCenter)
-            }
-        }
-        assertNotEquals(preTransformVertices, postTransformVertices)
-        assertNotEquals(preTransformCenters, postTransformCenters)
     }
 
     @Test
