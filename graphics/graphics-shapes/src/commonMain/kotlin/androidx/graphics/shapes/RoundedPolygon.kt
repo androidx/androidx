@@ -422,7 +422,7 @@ fun RoundedPolygon(
         val prevVertex = Point(vertices[prevVtxIndex * 2], vertices[prevVtxIndex * 2 + 1])
         val nextVertex = Point(vertices[nextVtxIndex * 2], vertices[nextVtxIndex * 2 + 1])
         val convex = (currVertex - prevVertex).clockwise(nextVertex - currVertex)
-        tempFeatures.add(Feature.Corner(corners[i], currVertex, roundedCorners[i].center, convex))
+        tempFeatures.add(Feature.Corner(corners[i], convex))
         tempFeatures.add(
             Feature.Edge(
                 listOf(
