@@ -270,6 +270,20 @@ class DatePickerTest {
     }
 
     @Test
+    fun yearRange_minYearAfterCurrentYear() {
+        var currentYear = 0
+        rule.setMaterialContent(lightColorScheme()) {
+            currentYear = createCalendarModel(Locale.getDefault()).today.year
+            DatePicker(
+                state =
+                    rememberDatePickerState(yearRange = IntRange(currentYear + 1, currentYear + 10))
+            )
+        }
+
+        rule.onNodeWithText("January ${currentYear + 1}").assertIsDisplayed()
+    }
+
+    @Test
     fun monthsTraversal() {
         rule.setMaterialContent(lightColorScheme()) {
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2018, month = 1, dayOfMonth = 1)

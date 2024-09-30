@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
@@ -488,6 +489,22 @@ class DateRangePickerTest {
         rule
             .onAllNodes(hasText("27", substring = true) and hasClickAction())
             .assertAll(isNotEnabled())
+    }
+
+    @Test
+    fun yearRange_minYearAfterCurrentYear() {
+        var currentYear = 0
+        rule.setMaterialContent(lightColorScheme()) {
+            currentYear = createCalendarModel(Locale.getDefault()).today.year
+            DateRangePicker(
+                state =
+                    rememberDateRangePickerState(
+                        yearRange = IntRange(currentYear + 1, currentYear + 10)
+                    )
+            )
+        }
+
+        rule.onNodeWithText("January ${currentYear + 1}").assertIsDisplayed()
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's
