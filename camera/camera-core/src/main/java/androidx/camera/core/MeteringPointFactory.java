@@ -96,6 +96,14 @@ public abstract class MeteringPointFactory {
     protected abstract PointF convertPoint(float x, float y);
 
     /**
+     * Sets the surface aspect ratio used to created {@link MeteringPoint}s.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected void setSurfaceAspectRatio(@NonNull Rational surfaceAspectRatio) {
+        mSurfaceAspectRatio = surfaceAspectRatio;
+    }
+
+    /**
      * Creates a {@link MeteringPoint} by x, y.
      *
      * <p>The (x, y) is a position from the area defined by the specific
