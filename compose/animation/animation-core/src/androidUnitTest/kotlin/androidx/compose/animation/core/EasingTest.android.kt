@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.compose.ui.util.floatFromBits
+import kotlin.math.max
 import kotlin.math.ulp
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -53,6 +54,9 @@ class EasingTestAndroid {
                 EaseInOutQuint,
                 EaseInSine,
                 EaseOut,
+                // Not included because it overshoots 1.0f on purpose, so it can't be tested the
+                // same way as the other curves. See canSolveOvershootingCurve()
+                // EaseOutBack,
                 EaseOutCirc,
                 EaseOutCubic,
                 EaseOutExpo,
@@ -64,7 +68,7 @@ class EasingTestAndroid {
 
         for (curve in curves) {
             // Test the last 16 ulps until 1.0f
-            for (i in 0x3f7ffff0..0x3f7fffff) {
+            for (i in 0x3f7f9d99..0x3f7fffff) {
                 val fraction = floatFromBits(i)
                 val t = curve.transform(fraction)
                 assertTrue(
@@ -73,5 +77,16 @@ class EasingTestAndroid {
                 )
             }
         }
+    }
+
+    @Test
+    fun canSolveOvershootingCurve() {
+        // We only really care that we don't throw an exception
+        var t = Float.MIN_VALUE
+        for (i in 0x3f7f9d99..0x3f7fffff) {
+            val fraction = floatFromBits(i)
+            t = max(t, EaseOutBack.transform(fraction))
+        }
+        assertTrue(t > Float.MIN_VALUE)
     }
 }
