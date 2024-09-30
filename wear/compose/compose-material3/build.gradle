@@ -63,6 +63,10 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+
+    // Include the wear-sdk jar
+    compileOnly files("../../wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {
