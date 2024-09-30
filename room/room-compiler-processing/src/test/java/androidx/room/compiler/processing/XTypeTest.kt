@@ -1176,11 +1176,7 @@ class XTypeTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(
-            sources = listOf(src, javaSource),
-            // https://github.com/google/ksp/issues/1918
-            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
-        ) { invocation ->
+        runProcessorTest(sources = listOf(src, javaSource)) { invocation ->
             val styleApplier = invocation.processingEnv.requireType("StyleApplier")
             val styleBuilder = invocation.processingEnv.requireType("StyleBuilder")
             assertThat(styleApplier.typeName.dumpToString(5))
@@ -1715,7 +1711,7 @@ class XTypeTest {
                     )
                 ),
             createProcessingSteps = { listOf(WildcardProcessingStep()) },
-            // TODO(b/314151707): reproduce in the KSP project
+            // https://github.com/google/ksp/issues/2113
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { result ->
             result.hasError()

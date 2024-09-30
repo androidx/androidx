@@ -68,10 +68,20 @@ internal object KotlinCliRunner {
 
     /** Get the language version specified with `-language-version=xxx`. */
     fun getLanguageVersion(kotlincArguments: List<String>): LanguageVersion {
-        val cliArguments = compiler.createArguments()
-        compiler.parseArguments(kotlincArguments.toTypedArray(), cliArguments)
-        return cliArguments.languageVersion?.let { LanguageVersion.fromVersionString(it) }
-            ?: TestDefaultOptions.kotlinLanguageVersion
+        return parseArguments(kotlincArguments).languageVersion?.let {
+            LanguageVersion.fromVersionString(it)
+        } ?: TestDefaultOptions.kotlinLanguageVersion
+    }
+
+    /** Get the JVM module name specified with `-module-name`. */
+    fun getJvmModuleName(kotlincArguments: List<String>): String {
+        return parseArguments(kotlincArguments).moduleName ?: TestDefaultOptions.jvmModuleName
+    }
+
+    private fun parseArguments(kotlincArguments: List<String>): K2JVMCompilerArguments {
+        return compiler.createArguments().apply {
+            compiler.parseArguments(kotlincArguments.toTypedArray(), this)
+        }
     }
 
     private fun CompilationStepArguments.copyToCliArguments(cliArguments: K2JVMCompilerArguments) {
@@ -93,6 +103,8 @@ internal object KotlinCliRunner {
         cliArguments.compileJava = false
 
         cliArguments.javacArguments = javacArguments.toTypedArray()
+
+        cliArguments.useK2Kapt = false
 
         val inherited =
             if (inheritClasspaths) {

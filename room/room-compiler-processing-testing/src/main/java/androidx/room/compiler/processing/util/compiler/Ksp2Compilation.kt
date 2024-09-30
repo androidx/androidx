@@ -107,7 +107,7 @@ internal class Ksp2Compilation(
 
                 cachesDir = workingDir.resolve(CACHE_FOLDER_NAME)
 
-                moduleName = ""
+                moduleName = KotlinCliRunner.getJvmModuleName(arguments.kotlincArguments)
 
                 languageVersion = TestDefaultOptions.kotlinLanguageVersion.versionString
                 apiVersion = TestDefaultOptions.kotlinApiVersion.versionString

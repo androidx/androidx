@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
-import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import javax.tools.Diagnostic
@@ -194,9 +193,7 @@ class XMessagerTest {
                     """
                             .trimIndent()
                     )
-                ),
-            // Not yet implemented: KSValueArgumentLiteImpl.getLocation
-            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+                )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("test.Foo")
             val fooAnnotations =
