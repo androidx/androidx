@@ -914,6 +914,21 @@ package androidx.appsearch.ast.operators {
     method public void setChildren(java.util.List<androidx.appsearch.ast.Node!>);
   }
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public class ComparatorNode implements androidx.appsearch.ast.Node {
+    ctor public ComparatorNode(int, androidx.appsearch.app.PropertyPath, long);
+    method public int getComparator();
+    method public androidx.appsearch.app.PropertyPath getPropertyPath();
+    method public long getValue();
+    method public void setComparator(int);
+    method public void setPropertyPath(androidx.appsearch.app.PropertyPath);
+    method public void setValue(long);
+    field public static final int EQUALS = 0; // 0x0
+    field public static final int GREATER_EQUALS = 4; // 0x4
+    field public static final int GREATER_THAN = 3; // 0x3
+    field public static final int LESS_EQUALS = 2; // 0x2
+    field public static final int LESS_THAN = 1; // 0x1
+  }
+
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class OrNode implements androidx.appsearch.ast.Node {
     ctor public OrNode(androidx.appsearch.ast.Node, androidx.appsearch.ast.Node, androidx.appsearch.ast.Node!...);
     ctor public OrNode(java.util.List<androidx.appsearch.ast.Node!>);
@@ -921,6 +936,14 @@ package androidx.appsearch.ast.operators {
     method public void removeChild(int);
     method public void setChild(int, androidx.appsearch.ast.Node);
     method public void setChildren(java.util.List<androidx.appsearch.ast.Node!>);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public class PropertyRestrictNode implements androidx.appsearch.ast.Node {
+    ctor public PropertyRestrictNode(androidx.appsearch.app.PropertyPath, androidx.appsearch.ast.Node);
+    method public androidx.appsearch.ast.Node getChild();
+    method public androidx.appsearch.app.PropertyPath getProperty();
+    method public void setChild(androidx.appsearch.ast.Node);
+    method public void setProperty(androidx.appsearch.app.PropertyPath);
   }
 
 }
