@@ -365,7 +365,7 @@ internal fun snapWithSpringBehavior(
     return PagerDefaults.snapFlingBehavior(
         state = state,
         pagerSnapDistance = PagerSnapDistance.atMost(1),
-        snapAnimationSpec = spring(dampingRatio = 1f, stiffness = 200f),
+        snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
         snapPositionalThreshold = 0.35f,
     )
 }
