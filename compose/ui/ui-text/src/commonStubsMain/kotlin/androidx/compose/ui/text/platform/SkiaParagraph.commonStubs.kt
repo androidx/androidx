@@ -15,11 +15,11 @@
  */
 package androidx.compose.ui.text.platform
 
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.Density
 internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<Range<SpanStyle>>,
+    annotations: List<Range<out AnnotatedString.Annotation>>,
     placeholders: List<Range<Placeholder>>,
     maxLines: Int,
     ellipsis: Boolean,
@@ -43,7 +43,7 @@ internal actual fun ActualParagraph(
 internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<Range<SpanStyle>>,
+    annotations: List<Range<out AnnotatedString.Annotation>>,
     placeholders: List<Range<Placeholder>>,
     maxLines: Int,
     overflow: TextOverflow,

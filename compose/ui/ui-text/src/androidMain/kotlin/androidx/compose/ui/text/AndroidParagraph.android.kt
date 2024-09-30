@@ -108,7 +108,7 @@ internal class AndroidParagraph(
     constructor(
         text: String,
         style: TextStyle,
-        spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+        annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
         placeholders: List<AnnotatedString.Range<Placeholder>>,
         maxLines: Int,
         overflow: TextOverflow,
@@ -120,8 +120,8 @@ internal class AndroidParagraph(
             AndroidParagraphIntrinsics(
                 text = text,
                 style = style,
+                annotations = annotations,
                 placeholders = placeholders,
-                spanStyles = spanStyles,
                 fontFamilyResolver = fontFamilyResolver,
                 density = density
             ),

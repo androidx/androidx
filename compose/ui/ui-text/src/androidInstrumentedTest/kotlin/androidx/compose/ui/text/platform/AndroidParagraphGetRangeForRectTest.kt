@@ -509,7 +509,7 @@ class AndroidParagraphGetRangeForRectTest {
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
-            spanStyles = spanStyles,
+            annotations = spanStyles,
             placeholders = listOf(),
             style =
                 TextStyle(

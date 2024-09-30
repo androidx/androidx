@@ -25,9 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.DefaultIncludeFontPadding
 import androidx.compose.ui.text.EmojiSupportMatch
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -46,12 +44,12 @@ import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_ALL
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_DEFAULT
 
-@OptIn(InternalPlatformTextApi::class)
+@Suppress("UNCHECKED_CAST")
 internal fun createCharSequence(
     text: String,
     contextFontSize: Float,
     contextTextStyle: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
@@ -74,7 +72,7 @@ internal fun createCharSequence(
         }
 
     if (
-        spanStyles.isEmpty() &&
+        annotations.isEmpty() &&
             placeholders.isEmpty() &&
             contextTextStyle.textIndent == TextIndent.None &&
             contextTextStyle.lineHeight.isUnspecified
@@ -119,7 +117,7 @@ internal fun createCharSequence(
 
     spannableString.setTextIndent(contextTextStyle.textIndent, contextFontSize, density)
 
-    spannableString.setSpanStyles(contextTextStyle, spanStyles, density, resolveTypeface)
+    spannableString.setSpanStyles(contextTextStyle, annotations, density, resolveTypeface)
 
     spannableString.setPlaceholders(placeholders, density)
 

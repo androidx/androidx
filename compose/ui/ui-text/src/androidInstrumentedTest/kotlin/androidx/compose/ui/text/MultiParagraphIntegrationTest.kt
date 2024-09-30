@@ -1779,6 +1779,31 @@ class MultiParagraphIntegrationTest {
         }
     }
 
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun mapEachParagraphStyle_containsAllAnnotations_excludingParagraphStyle() {
+        val tag1 = "annotation1"
+        val value1 = "value1"
+
+        val strings = mutableListOf<AnnotatedString>()
+        buildAnnotatedString {
+                withStyle(ParagraphStyle()) { withStyle(SpanStyle()) { append("a") } }
+                withAnnotation(tag1, value1) { append("a") }
+                withStyle(ParagraphStyle()) { append("a") }
+                withStyle(SpanStyle()) { append("a") }
+            }
+            .mapEachParagraphStyle(ParagraphStyle()) { annotatedString, _ ->
+                strings.add(annotatedString)
+            }
+
+        assertThat(strings.size).isEqualTo(4)
+        assertThat(strings[0].annotations).containsExactly(Range(SpanStyle(), 0, 1))
+        assertThat(strings[1].annotations)
+            .containsExactly(Range(StringAnnotation(value1), 0, 1, tag1))
+        assertThat(strings[2].annotations).isNull()
+        assertThat(strings[3].annotations).containsExactly(Range(SpanStyle(), 0, 1))
+    }
+
     private fun MultiParagraph.disableAntialias() {
         paragraphInfoList.forEach {
             (it.paragraph as AndroidParagraph).textPaint.isAntiAlias = false

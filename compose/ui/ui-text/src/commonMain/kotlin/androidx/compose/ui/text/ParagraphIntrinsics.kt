@@ -78,12 +78,18 @@ fun ParagraphIntrinsics(
     ActualParagraphIntrinsics(
         text = text,
         style = style,
-        spanStyles = spanStyles,
+        annotations = spanStyles,
         placeholders = placeholders,
         density = density,
         fontFamilyResolver = createFontFamilyResolver(resourceLoader)
     )
 
+@Deprecated(
+    "Use an overload that takes `annotations` instead",
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
+    )
+)
 fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -95,7 +101,32 @@ fun ParagraphIntrinsics(
     ActualParagraphIntrinsics(
         text = text,
         style = style,
-        spanStyles = spanStyles,
+        annotations = spanStyles,
+        placeholders = placeholders,
+        density = density,
+        fontFamilyResolver = fontFamilyResolver
+    )
+
+/**
+ * Factory method to create a [ParagraphIntrinsics].
+ *
+ * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
+ * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
+ *
+ * @see ParagraphIntrinsics
+ */
+fun ParagraphIntrinsics(
+    text: String,
+    style: TextStyle,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
+): ParagraphIntrinsics =
+    ActualParagraphIntrinsics(
+        text = text,
+        style = style,
+        annotations = annotations,
         placeholders = placeholders,
         density = density,
         fontFamilyResolver = fontFamilyResolver

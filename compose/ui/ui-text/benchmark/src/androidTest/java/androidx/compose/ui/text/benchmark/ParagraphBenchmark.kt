@@ -117,10 +117,11 @@ class ParagraphBenchmark(
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
-            density = Density(density = instrumentationContext.resources.displayMetrics.density),
             style = TextStyle(fontSize = fontSize),
+            annotations = spanStyles,
+            density = Density(density = instrumentationContext.resources.displayMetrics.density),
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-            spanStyles = spanStyles
+            placeholders = listOf()
         )
     }
 

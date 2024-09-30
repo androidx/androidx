@@ -515,7 +515,7 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+            annotations = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             density = Density(1f, 1f),
             resolveTypeface = { _, _, _, _ -> Typeface.DEFAULT }
         )
@@ -533,7 +533,7 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+            annotations = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             density = Density(1f, 1f),
             resolveTypeface = { _, _, _, _ -> Typeface.DEFAULT }
         )
@@ -550,7 +550,7 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
+            annotations = listOf(AnnotatedString.Range(spanStyle, 0, text.length)),
             density = Density(1f, 1f),
             resolveTypeface = { _, _, _, _ -> Typeface.DEFAULT }
         )
@@ -565,7 +565,7 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles =
+            annotations =
                 listOf(
                     AnnotatedString.Range(brushStyle, 0, text.length),
                     AnnotatedString.Range(colorStyle, 0, text.length)
@@ -589,7 +589,7 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles =
+            annotations =
                 listOf(
                     AnnotatedString.Range(brushStyle, 0, text.length),
                     AnnotatedString.Range(colorStyle, 0, text.length)

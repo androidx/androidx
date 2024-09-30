@@ -39,7 +39,7 @@ open class TextLineBreaker {
     ): Paragraph {
         return AndroidParagraph(
             text = text,
-            spanStyles = listOf(),
+            annotations = listOf(),
             placeholders = listOf(),
             style = textStyle,
             maxLines = Int.MAX_VALUE,

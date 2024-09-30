@@ -189,11 +189,11 @@ class ParagraphIntrinsicIntegrationTest {
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
-            spanStyles = spanStyles,
-            placeholders = listOf(),
             style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize).merge(style),
+            annotations = spanStyles,
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            placeholders = listOf()
         )
     }
 }

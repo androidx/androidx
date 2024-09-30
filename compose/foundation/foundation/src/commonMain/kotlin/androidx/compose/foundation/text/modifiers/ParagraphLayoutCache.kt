@@ -278,8 +278,10 @@ internal class ParagraphLayoutCache(
                 ParagraphIntrinsics(
                     text = text,
                     style = resolveDefaults(style, layoutDirection),
+                    annotations = listOf(),
                     density = density!!,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
+                    placeholders = listOf()
                 )
             } else {
                 localIntrinsics
@@ -464,8 +466,10 @@ internal class ParagraphLayoutCache(
                 ParagraphIntrinsics(
                     text = text,
                     style = usedStyle,
+                    annotations = listOf(),
                     density = this@ParagraphLayoutCache.density!!,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
+                    placeholders = listOf()
                 )
 
             val localParagraph =
