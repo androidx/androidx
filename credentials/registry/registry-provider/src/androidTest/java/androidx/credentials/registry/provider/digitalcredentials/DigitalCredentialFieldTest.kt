@@ -27,19 +27,19 @@ import org.junit.runner.RunWith
 class DigitalCredentialFieldTest {
     companion object {
         val DISPLAY_DATA =
-            VerificationFieldDisplayData(
+            VerificationFieldDisplayProperties(
                 displayName = "displayName",
                 displayValue = "displayValue",
             )
     }
 
     class TestFormatDigitalCredentialField :
-        DigitalCredentialField(fieldDisplayData = setOf(DISPLAY_DATA))
+        DigitalCredentialField(fieldDisplayPropertySet = setOf(DISPLAY_DATA))
 
     @Test
     fun subclassConstruction_success() {
         val entry = TestFormatDigitalCredentialField()
 
-        assertThat(entry.fieldDisplayData).containsExactly(DISPLAY_DATA)
+        assertThat(entry.fieldDisplayPropertySet).containsExactly(DISPLAY_DATA)
     }
 }

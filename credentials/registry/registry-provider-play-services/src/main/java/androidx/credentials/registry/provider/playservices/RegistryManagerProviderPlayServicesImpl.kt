@@ -66,7 +66,7 @@ public class RegistryManagerProviderPlayServicesImpl(private val context: Contex
             }
     }
 
-    override fun isAvailableOnDevice(): Boolean {
+    override fun isAvailable(): Boolean {
         return isAvailableOnDevice(MIN_GMS_APK_VERSION)
     }
 

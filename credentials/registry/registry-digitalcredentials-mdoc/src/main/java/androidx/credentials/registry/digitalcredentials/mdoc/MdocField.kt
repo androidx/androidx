@@ -16,9 +16,8 @@
 
 package androidx.credentials.registry.digitalcredentials.mdoc
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialField
-import androidx.credentials.registry.provider.digitalcredentials.FieldDisplayData
+import androidx.credentials.registry.provider.digitalcredentials.FieldDisplayProperties
 
 /**
  * A property of a [MdocEntry].
@@ -27,29 +26,30 @@ import androidx.credentials.registry.provider.digitalcredentials.FieldDisplayDat
  * @property fieldName the field name, used for matching purpose; for example, the field name of an
  *   ISO mDL age-over-twenty-one property is "org.iso.18013.5.1.age_over_21"
  * @property fieldValue the field value, used for matching purpose; for example, the field value of
- *   an ISO mDL age-over-twenty-one property may be `true`
- * @property fieldDisplayData a set of field display metadata, each serving a different UI style
- *   variant
+ *   an ISO mDL age-over-twenty-one property may be `true`; a null value means that the exact value
+ *   of this field cannot be used for matching (e.g. a user photo), or in other words, attempt to do
+ *   value matching on this field will automatically fail
+ * @property fieldDisplayPropertySet a set of field display metadata, each serving a different UI
+ *   style variant
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MdocField(
     public val fieldName: String,
     public val fieldValue: Any?,
-    fieldDisplayData: Set<FieldDisplayData>,
+    fieldDisplayPropertySet: Set<FieldDisplayProperties>,
 ) :
     DigitalCredentialField(
-        fieldDisplayData = fieldDisplayData,
+        fieldDisplayPropertySet = fieldDisplayPropertySet,
     ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MdocField) return false
-        return this.fieldDisplayData == other.fieldDisplayData &&
+        return this.fieldDisplayPropertySet == other.fieldDisplayPropertySet &&
             this.fieldName == other.fieldName &&
             this.fieldValue == other.fieldValue
     }
 
     override fun hashCode(): Int {
-        var result = fieldDisplayData.hashCode()
+        var result = fieldDisplayPropertySet.hashCode()
         result = 31 * result + fieldName.hashCode()
         result = 31 * result + (fieldValue?.hashCode() ?: 0)
         return result

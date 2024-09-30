@@ -21,8 +21,8 @@ import androidx.credentials.registry.digitalcredentials.mdoc.MdocEntry
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocField
 import androidx.credentials.registry.digitalcredentials.preview.PreviewRegistry.Companion.getDefaultPreviewMatcher
 import androidx.credentials.registry.digitalcredentials.preview.PreviewRegistry.Companion.toCredentialBytes
-import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayData
-import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayData
+import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayProperties
+import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -42,17 +42,17 @@ class PreviewRegistryTest {
                         MdocField(
                             "fieldName1",
                             "fieldVal1",
-                            setOf(VerificationFieldDisplayData("displayName1"))
+                            setOf(VerificationFieldDisplayProperties("displayName1"))
                         ),
                         MdocField(
                             "fieldName2",
                             null,
-                            setOf(VerificationFieldDisplayData("displayName2"))
+                            setOf(VerificationFieldDisplayProperties("displayName2"))
                         )
                     ),
-                entryDisplayData =
+                entryDisplayPropertySet =
                     setOf(
-                        VerificationEntryDisplayData(
+                        VerificationEntryDisplayProperties(
                             title = "document-1",
                             subtitle = "test-subtitle",
                             icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
@@ -68,12 +68,12 @@ class PreviewRegistryTest {
                         MdocField(
                             "fieldName",
                             "fieldVal",
-                            setOf(VerificationFieldDisplayData("displayName1"))
+                            setOf(VerificationFieldDisplayProperties("displayName1"))
                         )
                     ),
-                entryDisplayData =
+                entryDisplayPropertySet =
                     setOf(
-                        VerificationEntryDisplayData(
+                        VerificationEntryDisplayProperties(
                             title = "document-2",
                             subtitle = null,
                             icon = Bitmap.createBitmap(32, 32, Bitmap.Config.ALPHA_8)
@@ -100,17 +100,17 @@ class PreviewRegistryTest {
                         MdocField(
                             "fieldName1",
                             "fieldVal1",
-                            setOf(VerificationFieldDisplayData("displayName1"))
+                            setOf(VerificationFieldDisplayProperties("displayName1"))
                         ),
                         MdocField(
                             "fieldName2",
                             null,
-                            setOf(VerificationFieldDisplayData("displayName2"))
+                            setOf(VerificationFieldDisplayProperties("displayName2"))
                         )
                     ),
-                entryDisplayData =
+                entryDisplayPropertySet =
                     setOf(
-                        VerificationEntryDisplayData(
+                        VerificationEntryDisplayProperties(
                             title = "document-1",
                             subtitle = "test-subtitle",
                             icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)

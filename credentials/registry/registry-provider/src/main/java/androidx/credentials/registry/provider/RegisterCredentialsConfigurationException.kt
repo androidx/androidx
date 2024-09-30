@@ -16,8 +16,6 @@
 
 package androidx.credentials.registry.provider
 
-import androidx.annotation.RestrictTo
-
 /**
  * During the [RegistryManager.registerCredentials] transaction, this is thrown when configurations
  * are mismatched for the RegistryManager service, typically indicating the service provider
@@ -29,7 +27,6 @@ import androidx.annotation.RestrictTo
  *
  * @param errorMessage the error message
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RegisterCredentialsConfigurationException(errorMessage: CharSequence? = null) :
     RegisterCredentialsException(
         type = TYPE_REGISTER_CREDENTIALS_CONFIGURATION_EXCEPTION,

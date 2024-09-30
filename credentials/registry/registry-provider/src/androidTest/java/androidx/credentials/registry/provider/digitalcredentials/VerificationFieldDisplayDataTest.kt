@@ -29,7 +29,7 @@ class VerificationFieldDisplayDataTest {
     @Test
     fun construction_success() {
         val data =
-            VerificationFieldDisplayData(
+            VerificationFieldDisplayProperties(
                 displayName = "testDisplayName",
                 displayValue = "testDisplayVal",
             )

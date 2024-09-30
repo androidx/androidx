@@ -16,7 +16,6 @@
 
 package androidx.credentials.registry.provider.digitalcredentials
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
@@ -33,7 +32,6 @@ import androidx.credentials.registry.provider.RegisterCredentialsRequest
  *   credentials given the [credentials] and the request
  * @constructor
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @OptIn(ExperimentalDigitalCredentialApi::class)
 public abstract class DigitalCredentialRegistry(
     id: String,

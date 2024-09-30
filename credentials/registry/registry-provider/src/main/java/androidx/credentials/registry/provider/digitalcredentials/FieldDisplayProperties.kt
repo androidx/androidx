@@ -16,15 +16,10 @@
 
 package androidx.credentials.registry.provider.digitalcredentials
 
-import androidx.annotation.RestrictTo
-
 /**
- * Super class for a [DigitalCredentialEntry]'s display properties.
+ * Super class for a [DigitalCredentialField]'s display properties.
  *
  * @constructor
  * @property displayType type of the credential selector UI that will be displayed to the user
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EntryDisplayData(
-    public val displayType: @DisplayType Int,
-)
+public abstract class FieldDisplayProperties(public val displayType: @DisplayType Int)

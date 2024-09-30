@@ -17,7 +17,6 @@
 package androidx.credentials.registry.provider
 
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
 import java.util.concurrent.Executor
 
@@ -26,7 +25,6 @@ import java.util.concurrent.Executor
  * fulfill [RegistryManager] requests. The implementation **must** have a constructor that takes in
  * a context.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RegistryManagerProvider {
 
     /**
@@ -46,5 +44,5 @@ public interface RegistryManagerProvider {
     )
 
     /** Returns true if the provider is available on this device, or otherwise false. */
-    public fun isAvailableOnDevice(): Boolean
+    public fun isAvailable(): Boolean
 }
