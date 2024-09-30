@@ -18,6 +18,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import androidx.compose.runtime.mock.EmptyApplier
+import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
 import androidx.compose.runtime.mock.TestMonotonicFrameClock
 import androidx.compose.runtime.mock.Text
@@ -677,6 +678,29 @@ class CompositionLocalTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun testValueChangeWhileRemoving() = compositionTest {
+        val LocalText = compositionLocalOf { "" }
+        var showContent by mutableStateOf(true)
+        var text by mutableStateOf("Hello")
+
+        compose {
+            if (showContent) {
+                Linear {
+                    CompositionLocalProvider(LocalText provides text) { Text(LocalText.current) }
+                }
+            }
+        }
+
+        validate { Linear { Text("Hello") } }
+
+        text = "Goodbye"
+        showContent = false
+        expectChanges()
+
+        validate { /* Empty Composition */ }
     }
 
     @Suppress("LocalVariableName")

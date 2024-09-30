@@ -23,7 +23,6 @@ import androidx.compose.runtime.mock.compositionTest
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class LiveEditTests {
@@ -50,8 +49,7 @@ class LiveEditTests {
             }
         }
 
-    // TODO: This should pass but doesn't. Need to investigate why.
-    @Ignore
+    @Test
     fun testNonRestartableTargetAtRootScope() = liveEditTest { Target("b", restartable = false) }
 
     @Test
