@@ -1005,7 +1005,6 @@ class AnchoredDraggableState<T>(
         val targetValue =
             anchors.computeTarget(
                 currentOffset = requireOffset(),
-                currentValue = previousValue,
                 velocity = velocity,
                 positionalThreshold,
                 velocityThreshold
@@ -1409,31 +1408,31 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
  */
 private fun <T> DraggableAnchors<T>.computeTarget(
     currentOffset: Float,
-    currentValue: T,
     velocity: Float,
     positionalThreshold: (totalDistance: Float) -> Float,
     velocityThreshold: () -> Float
 ): T {
     val currentAnchors = this
-    val currentAnchorPosition = currentAnchors.positionOf(currentValue)
-    val velocityThresholdPx = velocityThreshold()
-    return if (currentAnchorPosition == currentOffset || currentAnchorPosition.isNaN()) {
-        currentValue
+    require(!currentOffset.isNaN()) { "The offset provided to computeTarget must not be NaN." }
+    val velocitySign = sign(velocity)
+    val isMoving = velocitySign == 1.0f || velocitySign == 1.0f
+    val isMovingForward = isMoving && sign(velocity) > 0f
+    // When we're not moving, just pick the closest anchor and don't consider directionality
+    return if (!isMoving) {
+        currentAnchors.closestAnchor(currentOffset)!!
+    } else if (abs(velocity) >= abs(velocityThreshold())) {
+        currentAnchors.closestAnchor(currentOffset, searchUpwards = isMovingForward)!!
     } else {
-        if (abs(velocity) >= abs(velocityThresholdPx)) {
-            currentAnchors.closestAnchor(currentOffset, sign(velocity) > 0)!!
-        } else {
-            val neighborAnchor =
-                currentAnchors.closestAnchor(
-                    currentOffset,
-                    currentOffset - currentAnchorPosition > 0
-                )!!
-            val neighborAnchorPosition = currentAnchors.positionOf(neighborAnchor)
-            val distance = abs(currentAnchorPosition - neighborAnchorPosition)
-            val relativeThreshold = abs(positionalThreshold(distance))
-            val relativePosition = abs(currentAnchorPosition - currentOffset)
-            if (relativePosition <= relativeThreshold) currentValue else neighborAnchor
-        }
+        val left = currentAnchors.closestAnchor(currentOffset, false)!!
+        val leftAnchorPosition = currentAnchors.positionOf(left)
+        val right = currentAnchors.closestAnchor(currentOffset, true)!!
+        val rightAnchorPosition = currentAnchors.positionOf(right)
+        val distance = abs(leftAnchorPosition - rightAnchorPosition)
+        val relativeThreshold = abs(positionalThreshold(distance))
+        val closestAnchorFromStart =
+            if (isMovingForward) leftAnchorPosition else rightAnchorPosition
+        val relativePosition = abs(closestAnchorFromStart - currentOffset)
+        if (relativePosition <= relativeThreshold) left else right
     }
 }
 
@@ -1600,7 +1599,7 @@ private class DefaultDraggableAnchors<T>(
     override fun toString() = buildString {
         append("DraggableAnchors(anchors={")
         for (i in 0 until size) {
-            append("${anchorAt(0)}=${positionAt(i)}")
+            append("${anchorAt(i)}=${positionAt(i)}")
             if (i < size - 1) {
                 append(", ")
             }
@@ -1667,7 +1666,6 @@ private fun <T> AnchoredDraggableLayoutInfoProvider(
             val target =
                 state.anchors.computeTarget(
                     currentOffset = currentOffset,
-                    currentValue = state.currentValue,
                     velocity = velocity,
                     positionalThreshold = positionalThreshold,
                     velocityThreshold = velocityThreshold

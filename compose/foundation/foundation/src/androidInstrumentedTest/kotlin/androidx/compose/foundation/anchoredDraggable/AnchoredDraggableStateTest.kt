@@ -1394,6 +1394,44 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
         assertThat(state.offset).isEqualTo(200f)
     }
 
+    @Test
+    fun anchoredDraggable_fling_offsetPastHalfwayBetweenAnchors_beforePosThreshold_doesntAdvance() {
+        val velocityThreshold = with(rule.density) { 125.dp.toPx() }
+        val positionalThreshold: (Float) -> Float = { it * 0.9f }
+        val state =
+            createAnchoredDraggableState(
+                initialValue = A,
+                anchors =
+                    DraggableAnchors {
+                        A at 0f
+                        B at 100f
+                        C at 200f
+                    },
+                positionalThreshold = positionalThreshold
+            )
+        val flingBehavior =
+            createAnchoredDraggableFlingBehavior(
+                state = state,
+                density = rule.density,
+                positionalThreshold = positionalThreshold,
+                snapAnimationSpec = tween()
+            )
+
+        state.dispatchRawDelta(80f)
+
+        assertThat(state.offset).isEqualTo(80f)
+        assertThat(state.settledValue).isEqualTo(A)
+        assertThat(state.currentValue).isEqualTo(B)
+
+        runBlocking(AutoTestFrameClock()) {
+            performFling(flingBehavior, state, velocityThreshold - 1f)
+        }
+
+        assertThat(state.offset).isEqualTo(0f)
+        assertThat(state.settledValue).isEqualTo(A)
+        assertThat(state.currentValue).isEqualTo(A)
+    }
+
     /** Test the [valueUnderTest] progressively for each delta from [from] to [to]. */
     private suspend fun <T> AnchoredDraggableState<T>.testProgression(
         valueUnderTest: AnchoredDraggableState<T>.() -> Any,
