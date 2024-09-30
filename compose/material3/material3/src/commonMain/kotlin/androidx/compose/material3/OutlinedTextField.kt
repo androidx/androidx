@@ -57,9 +57,11 @@ import androidx.compose.material3.internal.SupportingId
 import androidx.compose.material3.internal.TextFieldId
 import androidx.compose.material3.internal.TrailingId
 import androidx.compose.material3.internal.defaultErrorSemantics
+import androidx.compose.material3.internal.expandedAlignment
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
+import androidx.compose.material3.internal.minimizedAlignment
 import androidx.compose.material3.internal.minimizedLabelHalfHeight
 import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.material3.internal.textFieldHorizontalIconPadding
@@ -201,7 +203,7 @@ fun OutlinedTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -1349,11 +1351,11 @@ private class OutlinedTextFieldMeasurePolicy(
                         // Multiline text fields have text components aligned to top with padding.
                         topPadding
                     }
-            return if (labelPosition is TextFieldLabelPosition.Default) {
+            return if (labelPosition is TextFieldLabelPosition.Above) {
+                defaultPosition
+            } else {
                 // Ensure components are placed below label when it's in the border
                 max(defaultPosition, labelPlaceable.heightOrZero / 2)
-            } else {
-                defaultPosition
             }
         }
 

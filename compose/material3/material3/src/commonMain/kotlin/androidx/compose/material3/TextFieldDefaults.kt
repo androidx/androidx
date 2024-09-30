@@ -150,7 +150,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -423,7 +423,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Default(),
+            labelPosition = TextFieldLabelPosition.Attached(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -970,7 +970,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Attached(),
         label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -1180,7 +1180,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            labelPosition = TextFieldLabelPosition.Default(),
+            labelPosition = TextFieldLabelPosition.Attached(),
             label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -2003,20 +2003,27 @@ constructor(
 /** The position of the label with respect to the text field. */
 abstract class TextFieldLabelPosition private constructor() {
     /**
-     * The default label position.
+     * The default label position according to the Material specification.
      *
      * For [TextField], the label is positioned inside the text field container. For
      * [OutlinedTextField], the label is positioned inside the text field container when expanded
      * and cuts into the border when minimized.
+     *
+     * @param alwaysMinimize Whether to always keep the label of the text field minimized. If
+     *   `false`, the label will expand to occupy the input area when the text field is unfocused
+     *   and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     *   the label when the text field is unfocused and empty.
+     * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
+     * @param expandedAlignment The horizontal alignment of the label when it is expanded.
      */
-    class Default(
-        @get:Suppress("GetterSetterNames") override val alwaysMinimize: Boolean = false,
-        override val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
-        override val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    class Attached(
+        @get:Suppress("GetterSetterNames") val alwaysMinimize: Boolean = false,
+        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is Default) return false
+            if (other !is Attached) return false
 
             if (alwaysMinimize != other.alwaysMinimize) return false
             if (minimizedAlignment != other.minimizedAlignment) return false
@@ -2033,7 +2040,7 @@ abstract class TextFieldLabelPosition private constructor() {
         }
 
         override fun toString(): String {
-            return "Default(" +
+            return "Attached(" +
                 "alwaysMinimize=$alwaysMinimize, " +
                 "minimizedAlignment=$minimizedAlignment, " +
                 "expandedAlignment=$expandedAlignment" +
@@ -2044,42 +2051,23 @@ abstract class TextFieldLabelPosition private constructor() {
     /**
      * The label is positioned above and outside the text field container. This results in the label
      * always being minimized.
+     *
+     * @param alignment The horizontal alignment of the label.
      */
-    class Above(override val minimizedAlignment: Alignment.Horizontal = Alignment.Start) :
-        TextFieldLabelPosition() {
-        @get:Suppress("GetterSetterNames")
-        override val alwaysMinimize: Boolean
-            get() = true
-
+    class Above(val alignment: Alignment.Horizontal = Alignment.Start) : TextFieldLabelPosition() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Above) return false
 
-            return minimizedAlignment == other.minimizedAlignment
+            return alignment == other.alignment
         }
 
         override fun hashCode(): Int {
-            return minimizedAlignment.hashCode()
+            return alignment.hashCode()
         }
 
-        override fun toString(): String = "Above(minimizedAlignment=$minimizedAlignment)"
+        override fun toString(): String = "Above(alignment=$alignment)"
     }
-
-    /**
-     * Whether to always keep the label of the text field minimized.
-     *
-     * If `false`, the label will expand to occupy the input area when the text field is unfocused
-     * and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
-     * the label when the text field is unfocused and empty.
-     */
-    @get:Suppress("GetterSetterNames") abstract val alwaysMinimize: Boolean
-
-    /** The horizontal alignment of the label when it is minimized. */
-    abstract val minimizedAlignment: Alignment.Horizontal
-
-    /** The horizontal alignment of the label when it is expanded. */
-    open val expandedAlignment: Alignment.Horizontal
-        get() = minimizedAlignment
 }
 
 /** Scope for the label of a [TextField] or [OutlinedTextField]. */
@@ -2090,8 +2078,8 @@ interface TextFieldLabelScope {
      * represents an expanded label and 1 represents a minimized label.
      *
      * Label animation is handled by the framework when using a component that reads from
-     * [LocalTextStyle], such as the default [Text]. This [progress] value can be used to coordinate
-     * other animations in conjunction with the default animation.
+     * [LocalTextStyle], such as the default [Text]. This [labelMinimizedProgress] value can be used
+     * to coordinate other animations in conjunction with the default animation.
      */
-    @get:FloatRange(from = 0.0, to = 1.0) val progress: Float
+    @get:FloatRange(from = 0.0, to = 1.0) val labelMinimizedProgress: Float
 }
