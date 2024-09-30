@@ -181,7 +181,10 @@ internal class Operations : OperationsDebugStringFormattable() {
         @OptIn(InternalComposeApi::class) pushOp(operation)
         WriteScope(this).args()
 
-        // Verify all arguments were written to.
+        ensureAllArgumentsPushedFor(operation)
+    }
+
+    fun ensureAllArgumentsPushedFor(operation: Operation) {
         debugRuntimeCheck(
             pushedIntMask == createExpectedArgMask(operation.ints) &&
                 pushedObjectMask == createExpectedArgMask(operation.objects)
@@ -194,7 +197,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         var missingIntCount = 0
         val missingInts = buildString {
             repeat(operation.ints) { arg ->
-                if ((0b1 shl arg) and pushedIntMask != 0b0) {
+                if ((0b1 shl arg) and pushedIntMask == 0b0) {
                     if (missingIntCount > 0) append(", ")
                     append(operation.intParamName(IntParameter(arg)))
                     missingIntCount++
@@ -205,7 +208,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         var missingObjectCount = 0
         val missingObjects = buildString {
             repeat(operation.objects) { arg ->
-                if ((0b1 shl arg) and pushedObjectMask != 0b0) {
+                if ((0b1 shl arg) and pushedObjectMask == 0b0) {
                     if (missingIntCount > 0) append(", ")
                     append(operation.objectParamName(ObjectParameter<Nothing>(arg)))
                     missingObjectCount++
@@ -260,32 +263,25 @@ internal class Operations : OperationsDebugStringFormattable() {
 
         other.pushOp(op)
 
-        var thisObjIdx = objectArgsSize
-        val objectArgs = objectArgs
-        var otherObjIdx = other.objectArgsSize
-        val otherObjectArs = other.objectArgs
+        // Move the objects then null out our contents
+        objectArgs.copyInto(
+            destination = other.objectArgs,
+            destinationOffset = other.objectArgsSize - op.objects,
+            startIndex = objectArgsSize - op.objects,
+            endIndex = objectArgsSize
+        )
+        objectArgs.fill(null, objectArgsSize - op.objects, objectArgsSize)
+
+        // Move the ints too, but no need to clear our current values
+        intArgs.copyInto(
+            destination = other.intArgs,
+            destinationOffset = other.intArgsSize - op.ints,
+            startIndex = intArgsSize - op.ints,
+            endIndex = intArgsSize
+        )
 
         objectArgsSize -= op.objects
-        repeat(op.objects) {
-            otherObjIdx--
-            thisObjIdx--
-            otherObjectArs[otherObjIdx] = objectArgs[thisObjIdx]
-            objectArgs[thisObjIdx] = null
-        }
-
-        var thisIntIdx = intArgsSize
-        val intArgs = intArgs
-        var otherIntIdx = other.intArgsSize
-        val otherIntArgs = other.intArgs
-
         intArgsSize -= op.ints
-        repeat(op.ints) {
-            otherIntIdx--
-            thisIntIdx--
-            otherIntArgs[otherIntIdx] = intArgs[thisIntIdx]
-            // We don't need to zero out the ints
-            // intArgs[thisIntIdx] = 0
-        }
     }
 
     /**
@@ -395,6 +391,14 @@ internal class Operations : OperationsDebugStringFormattable() {
         @Suppress("UNCHECKED_CAST")
         override fun <T> getObject(parameter: ObjectParameter<T>): T =
             objectArgs[objIdx + parameter.offset] as T
+
+        @Suppress("UNUSED")
+        fun currentOperationDebugString() = buildString {
+            append("operation[")
+            append(opIdx)
+            append("] = ")
+            append(currentOpToDebugString(""))
+        }
     }
 
     companion object {
@@ -413,7 +417,7 @@ internal class Operations : OperationsDebugStringFormattable() {
 
     override fun toDebugString(linePrefix: String): String {
         return buildString {
-            var opNumber = 1
+            var opNumber = 0
             this@Operations.forEach {
                 append(linePrefix)
                 append(opNumber++)
