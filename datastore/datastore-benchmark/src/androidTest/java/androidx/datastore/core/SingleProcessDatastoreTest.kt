@@ -109,34 +109,25 @@ class SingleProcessDatastoreTest {
 
     @Test
     @MediumTest
-    fun read() {
-        lateinit var job: Job
-        lateinit var store: DataStore<Byte>
-
-        suspend fun reinitDataStore() {
-            job = Job()
-            store =
-                DataStoreFactory.create(
-                        serializer = TestingSerializer(),
-                        scope = CoroutineScope(job),
-                        produceFile = { tmp.newFile() }
-                    )
-                    .also { it.updateData { 1 } }
-        }
-
-        runBlocking { reinitDataStore() }
-        benchmark.measureRepeated {
-            runBlocking {
-                val result = store.data.first()
-
-                runWithTimingDisabled {
-                    assertEquals(1, result)
-                    job.cancelAndJoin()
-                    reinitDataStore()
+    fun read() =
+        testScope.runTest {
+            val scope = this
+            val testFile = tmp.newFile()
+            val store =
+                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                    testFile
+                }
+            store.updateData { 1 }
+            benchmark.measureRepeated {
+                runBlocking(scope.coroutineContext) {
+                    val data = store.data.first()
+                    runWithTimingDisabled {
+                        val exp: Byte = 1
+                        Assert.assertEquals(exp, data)
+                    }
                 }
             }
         }
-    }
 
     @Test
     @MediumTest
