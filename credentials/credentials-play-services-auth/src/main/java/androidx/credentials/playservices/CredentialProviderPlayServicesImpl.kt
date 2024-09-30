@@ -17,6 +17,7 @@
 package androidx.credentials.playservices
 
 import android.content.Context
+import android.os.Build
 import android.os.CancellationSignal
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -90,8 +91,21 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                 }
                 return
             }
-            CredentialProviderGetDigitalCredentialController(context)
-                .invokePlayServices(request, callback, executor, cancellationSignal)
+            if (Build.VERSION.SDK_INT >= 23) {
+                CredentialProviderGetDigitalCredentialController(context)
+                    .invokePlayServices(request, callback, executor, cancellationSignal)
+            } else {
+                cancellationReviewerWithCallback(cancellationSignal) {
+                    executor.execute {
+                        callback.onError(
+                            GetCredentialProviderConfigurationException(
+                                "this feature requires the minimum API level to be 23"
+                            )
+                        )
+                    }
+                }
+                return
+            }
         } else if (isGetRestoreCredentialRequest(request)) {
             if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
                 cancellationReviewerWithCallback(cancellationSignal) {

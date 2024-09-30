@@ -24,6 +24,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ResultReceiver
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManagerCallback
@@ -41,14 +42,15 @@ import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.IdentityCredentialApiHiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
+import androidx.credentials.provider.PendingIntentHandler
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
-import com.google.android.gms.identitycredentials.IntentHelper
 import java.util.concurrent.Executor
 
 /** A controller to handle the GetRestoreCredential flow with play services. */
 @OptIn(ExperimentalDigitalCredentialApi::class)
+@RequiresApi(23)
 internal class CredentialProviderGetDigitalCredentialController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
@@ -117,17 +119,30 @@ internal class CredentialProviderGetDigitalCredentialController(private val cont
             return
         }
 
-        try {
-            val response = IntentHelper.extractGetCredentialResponse(resultCode, data?.extras!!)
+        if (data == null) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
                 this.executor.execute {
-                    this.callback.onResult(convertResponseToCredentialManager(response))
+                    this.callback.onError(
+                        GetCredentialUnknownException("No provider data returned.")
+                    )
                 }
             }
-        } catch (e: Exception) {
-            val getException = fromGmsException(e)
-            cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute { callback.onError(getException) }
+        } else {
+            val response = PendingIntentHandler.retrieveGetCredentialResponse(data)
+            if (response != null) {
+                cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                    this.executor.execute { this.callback.onResult(response) }
+                }
+            } else {
+                val providerException = PendingIntentHandler.retrieveGetCredentialException(data)
+                cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                    this.executor.execute {
+                        this.callback.onError(
+                            providerException
+                                ?: GetCredentialUnknownException("Unexpected configuration error")
+                        )
+                    }
+                }
             }
         }
     }

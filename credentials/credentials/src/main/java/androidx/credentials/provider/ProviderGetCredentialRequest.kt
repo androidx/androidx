@@ -18,6 +18,7 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
 import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
@@ -31,7 +32,9 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * set on the [CredentialEntry] that the user selected. The request must be extracted using the
  * [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper API.
  *
- * @constructor constructs an instance of [ProviderGetCredentialRequest]
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
+ *
  * @property credentialOptions the list of credential retrieval options containing the required
  *   parameters, expected to contain a single [CredentialOption] when this request is retrieved from
  *   the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
@@ -42,25 +45,52 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * @property biometricPromptResult the result of a Biometric Prompt authentication flow, that is
  *   propagated to the provider if the provider requested for
  *   [androidx.credentials.CredentialManager] to handle the authentication flow
- *
- * Note : Credential providers are not expected to utilize the constructor in this class for any
- * production flow. This constructor must only be used for testing purposes.
  */
 class ProviderGetCredentialRequest
-@JvmOverloads
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo,
-    val biometricPromptResult: BiometricPromptResult? = null,
+    val biometricPromptResult: BiometricPromptResult?,
+    // The source Bundle used to construct this request, if applicable
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val sourceBundle: Bundle?,
 ) {
+
+    /**
+     * Constructs an instance of [ProviderGetCredentialRequest]
+     *
+     * @param credentialOptions the list of credential retrieval options containing the required
+     *   parameters, expected to contain a single [CredentialOption] when this request is retrieved
+     *   from the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
+     *   [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain multiple
+     *   [CredentialOption] when this request is retrieved from the [android.app.Activity] invoked
+     *   by the [android.app.PendingIntent] set on a [RemoteEntry]
+     * @param callingAppInfo information pertaining to the calling application
+     * @param biometricPromptResult the result of a Biometric Prompt authentication flow, that is
+     *   propagated to the provider if the provider requested for
+     *   [androidx.credentials.CredentialManager] to handle the authentication flow
+     */
+    @JvmOverloads
+    constructor(
+        credentialOptions: List<CredentialOption>,
+        callingAppInfo: CallingAppInfo,
+        biometricPromptResult: BiometricPromptResult? = null,
+    ) : this(credentialOptions, callingAppInfo, biometricPromptResult, null)
+
     companion object {
         @JvmStatic
         internal fun createFrom(
             options: List<CredentialOption>,
             callingAppInfo: CallingAppInfo,
-            biometricPromptResult: BiometricPromptResult? = null
+            biometricPromptResult: BiometricPromptResult? = null,
+            sourceBundle: Bundle?
         ): ProviderGetCredentialRequest {
-            return ProviderGetCredentialRequest(options, callingAppInfo, biometricPromptResult)
+            return ProviderGetCredentialRequest(
+                options,
+                callingAppInfo,
+                biometricPromptResult,
+                sourceBundle
+            )
         }
 
         private const val EXTRA_CREDENTIAL_OPTION_SIZE =
@@ -173,7 +203,7 @@ constructor(
                 )
             }
 
-            return createFrom(options, callingAppInfo)
+            return createFrom(options, callingAppInfo, biometricPromptResult = null, bundle)
         }
     }
 }

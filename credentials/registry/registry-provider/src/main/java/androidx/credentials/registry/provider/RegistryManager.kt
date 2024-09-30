@@ -18,6 +18,7 @@ package androidx.credentials.registry.provider
 
 import android.content.Context
 import android.os.CancellationSignal
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
@@ -38,6 +39,14 @@ public abstract class RegistryManager internal constructor() {
          */
         @JvmStatic
         public fun create(context: Context): RegistryManager = RegistryManagerImpl(context)
+
+        /**
+         * The intent action name used to find and invoke your activity when the user selects a
+         * credential that is part of your registry.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public const val ACTION_GET_CREDENTIAL: String =
+            "androidx.credentials.registry.provider.action.GET_CREDENTIAL"
     }
 
     /**
