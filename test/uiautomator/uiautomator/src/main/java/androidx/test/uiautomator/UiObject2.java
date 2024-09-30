@@ -804,8 +804,6 @@ public class UiObject2 implements Searchable {
         int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
         int nullScrollRetryCount = 0;
 
-        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
-
         if (!node.isScrollable()) {
             Log.w(TAG, String.format("Scrolling on non-scrollable object: %s", node));
         }
@@ -824,6 +822,7 @@ public class UiObject2 implements Searchable {
             }
             PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
                     DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
+            EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
             Boolean scrollFinishedResult =
                     mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe);
             if (Boolean.TRUE.equals(scrollFinishedResult)) {
@@ -862,31 +861,6 @@ public class UiObject2 implements Searchable {
         int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
         int nullScrollRetryCount = 0;
 
-        // combine the input condition with scroll finished condition.
-        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
-        EventCondition<Boolean> combinedEventCondition = new EventCondition<Boolean>() {
-            @Override
-            public Boolean getResult() {
-                if (Boolean.TRUE.equals(scrollFinished.getResult())) {
-                    // scroll has finished.
-                    return true;
-                }
-                U result = condition.getResult();
-                return result != null && !Boolean.FALSE.equals(result);
-            }
-
-            @Override
-            public boolean accept(AccessibilityEvent event) {
-                return condition.accept(event) || scrollFinished.accept(event);
-            }
-
-            @NonNull
-            @Override
-            public String toString() {
-                return condition + " || " + scrollFinished;
-            }
-        };
-
         if (!node.isScrollable()) {
             Log.w(TAG, String.format("Scrolling on non-scrollable object: %s", node));
         }
@@ -894,6 +868,30 @@ public class UiObject2 implements Searchable {
         // To scroll, we swipe in the opposite direction
         final Direction swipeDirection = Direction.reverse(direction);
         while (true) {
+            // combine the input condition with scroll finished condition.
+            EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
+            EventCondition<Boolean> combinedEventCondition = new EventCondition<Boolean>() {
+                @Override
+                public Boolean getResult() {
+                    if (Boolean.TRUE.equals(scrollFinished.getResult())) {
+                        // scroll has finished.
+                        return true;
+                    }
+                    U result = condition.getResult();
+                    return result != null && !Boolean.FALSE.equals(result);
+                }
+
+                @Override
+                public boolean accept(AccessibilityEvent event) {
+                    return condition.accept(event) || scrollFinished.accept(event);
+                }
+
+                @NonNull
+                @Override
+                public String toString() {
+                    return condition + " || " + scrollFinished;
+                }
+            };
             PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
                     DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
             if (mGestureController.performGestureAndWait(combinedEventCondition, SCROLL_TIMEOUT,
