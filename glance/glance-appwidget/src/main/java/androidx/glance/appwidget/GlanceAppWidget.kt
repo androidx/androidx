@@ -59,7 +59,7 @@ abstract class GlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected open fun getSessionManager(context: Context): SessionManager = GlanceSessionManager
+    open fun getSessionManager(context: Context): SessionManager = GlanceSessionManager
 
     /**
      * Override this function to provide the Glance Composable.
@@ -163,13 +163,8 @@ abstract class GlanceAppWidget(
     ) {
         Tracing.beginGlanceAppWidgetUpdate()
         val glanceId = AppWidgetId(appWidgetId)
-        getSessionManager(context).runWithLock {
-            if (!isSessionRunning(context, glanceId.toSessionKey())) {
-                startSession(context, createAppWidgetSession(context, glanceId, options))
-                return@runWithLock
-            }
-            val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
-            session.updateGlance()
+        getOrCreateAppWidgetSession(context, glanceId, options) { session, wasRunning ->
+            if (wasRunning) session.updateGlance()
         }
     }
 
@@ -184,8 +179,7 @@ abstract class GlanceAppWidget(
         options: Bundle? = null,
     ) {
         val glanceId = AppWidgetId(appWidgetId)
-        getSessionManager(context).getOrCreateAppWidgetSession(context, glanceId, options) { session
-            ->
+        getOrCreateAppWidgetSession(context, glanceId, options) { session, _ ->
             session.runLambda(actionKey)
         }
     }
@@ -201,8 +195,7 @@ abstract class GlanceAppWidget(
             return
         }
         val glanceId = AppWidgetId(appWidgetId)
-        getSessionManager(context).getOrCreateAppWidgetSession(context, glanceId, options) { session
-            ->
+        getOrCreateAppWidgetSession(context, glanceId, options) { session, _ ->
             session.updateAppWidgetOptions(options)
         }
     }
@@ -242,18 +235,20 @@ abstract class GlanceAppWidget(
         }
     }
 
-    private suspend fun SessionManager.getOrCreateAppWidgetSession(
+    internal suspend fun <T> getOrCreateAppWidgetSession(
         context: Context,
         glanceId: AppWidgetId,
         options: Bundle? = null,
-        block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
-    ) = runWithLock {
-        if (!isSessionRunning(context, glanceId.toSessionKey())) {
-            startSession(context, createAppWidgetSession(context, glanceId, options))
+        block: suspend SessionManagerScope.(AppWidgetSession, Boolean) -> T,
+    ): T =
+        getSessionManager(context).runWithLock {
+            val wasRunning = isSessionRunning(context, glanceId.toSessionKey())
+            if (!wasRunning) {
+                startSession(context, createAppWidgetSession(context, glanceId, options))
+            }
+            val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
+            return@runWithLock block(session, wasRunning)
         }
-        val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
-        block(session)
-    }
 
     /**
      * Override this function to specify the components that will be used for actions and

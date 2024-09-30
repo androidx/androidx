@@ -54,7 +54,7 @@ public abstract class MultiProcessGlanceAppWidget(
         getMultiProcessConfig(context)?.toGlanceComponents()
 
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final override fun getSessionManager(context: Context): SessionManager =
+    final override fun getSessionManager(context: Context): SessionManager =
         if (getMultiProcessConfig(context) != null) {
             RemoteSessionManager
         } else {
