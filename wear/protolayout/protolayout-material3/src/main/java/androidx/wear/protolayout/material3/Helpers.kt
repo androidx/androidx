@@ -19,8 +19,11 @@ package androidx.wear.protolayout.material3
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import androidx.annotation.Dimension
+import androidx.annotation.Dimension.Companion.DP
 import androidx.annotation.Dimension.Companion.SP
 import androidx.wear.protolayout.DimensionBuilders.dp
+import androidx.wear.protolayout.DimensionBuilders.expand
+import androidx.wear.protolayout.LayoutElementBuilders.Spacer
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata
 import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_BUTTON
 import androidx.wear.protolayout.ModifiersBuilders.Semantics
@@ -30,6 +33,9 @@ import java.nio.charset.StandardCharsets
 
 /** Returns byte array representation of tag from String. */
 internal fun String.toTagBytes(): ByteArray = toByteArray(StandardCharsets.UTF_8)
+
+/** Returns String representation of tag from Metadata. */
+internal fun ElementMetadata.toTagName(): String = String(tagData, StandardCharsets.UTF_8)
 
 internal fun <T> Iterable<T>.addBetween(newItem: T): Sequence<T> = sequence {
     var isFirst = true
@@ -59,3 +65,8 @@ internal fun StringProp.buttonRoleSemantics() =
 internal fun Int.toDp() = dp(this.toFloat())
 
 internal fun String.toElementMetadata() = ElementMetadata.Builder().setTagData(toTagBytes()).build()
+
+/** Builds a horizontal Spacer, with width set to expand and height set to the given value. */
+internal fun horizontalSpacer(@Dimension(unit = DP) heightDp: Int): Spacer {
+    return Spacer.Builder().setWidth(expand()).setHeight(dp(heightDp.toFloat())).build()
+}

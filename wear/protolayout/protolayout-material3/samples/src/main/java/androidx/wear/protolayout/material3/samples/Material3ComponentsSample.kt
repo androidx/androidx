@@ -26,10 +26,12 @@ import androidx.wear.protolayout.TypeBuilders.StringProp
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.material3.ColorTokens
 import androidx.wear.protolayout.material3.Typography
+import androidx.wear.protolayout.material3.buttonGroup
 import androidx.wear.protolayout.material3.getColorProp
 import androidx.wear.protolayout.material3.icon
 import androidx.wear.protolayout.material3.iconEdgeButton
 import androidx.wear.protolayout.material3.materialScope
+import androidx.wear.protolayout.material3.primaryLayout
 import androidx.wear.protolayout.material3.text
 import androidx.wear.protolayout.material3.textEdgeButton
 
@@ -82,6 +84,24 @@ fun edgeButtonSampleText(
         textEdgeButton(onClick = clickable, contentDescription = "Description of a button".prop()) {
             text("Hello".prop())
         }
+    }
+
+@Sampled
+fun topLeveLayout(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    clickable: Clickable
+): LayoutElement =
+    materialScope(context, deviceConfiguration) {
+        primaryLayout(
+            titleSlot = { text("App title".prop()) },
+            mainSlot = {
+                buttonGroup {
+                    // To be populated
+                }
+            },
+            bottomSlot = { iconEdgeButton(clickable, "Description".prop()) { icon("id") } }
+        )
     }
 
 fun String.prop() = StringProp.Builder(this).build()

@@ -96,6 +96,10 @@ package androidx.wear.protolayout.material3 {
   @kotlin.DslMarker public @interface MaterialScopeMarker {
   }
 
+  public final class PrimaryLayoutKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement primaryLayout(androidx.wear.protolayout.material3.MaterialScope, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> mainSlot, optional kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>? titleSlot, optional kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>? bottomSlot, optional kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>? labelForBottomSlot, optional androidx.wear.protolayout.ModifiersBuilders.Clickable? onClick);
+  }
+
   public final class Shape {
     field public static final int CORNER_EXTRA_LARGE = 0; // 0x0
     field public static final int CORNER_EXTRA_SMALL = 1; // 0x1
