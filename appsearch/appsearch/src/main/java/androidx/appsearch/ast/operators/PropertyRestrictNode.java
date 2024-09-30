@@ -102,4 +102,17 @@ public class PropertyRestrictNode implements Node {
     public void setChild(@NonNull Node childNode) {
         mChildren.set(0, Preconditions.checkNotNull(childNode));
     }
+
+    /**
+     * Get the query string representation of {@link PropertyRestrictNode}.
+     *
+     * <p>The string representation is the string representation of the property path joined from
+     * the left to the query sub expression surrounded in parentheses with the property restrict
+     * symbol (":").
+     */
+    @NonNull
+    @Override
+    public String toString() {
+        return "(" + mProperty + ":" + getChild() + ")";
+    }
 }

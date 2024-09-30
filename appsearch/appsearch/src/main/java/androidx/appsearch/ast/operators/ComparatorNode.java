@@ -138,4 +138,36 @@ public class ComparatorNode implements Node {
     public void setValue(long value) {
         mValue = value;
     }
+
+    /**
+     * Get the query string representation of {@link ComparatorNode}.
+     *
+     * <p>The string representation is the string representation of the property path joined from
+     * the left to the value being compared with the string representation of the
+     * {@link Comparator}.
+     */
+    @NonNull
+    @Override
+    public String toString() {
+        String comparatorString = "";
+        switch (mComparator) {
+            case ComparatorNode.EQUALS:
+                comparatorString = "==";
+                break;
+            case ComparatorNode.LESS_THAN:
+                comparatorString = "<";
+                break;
+            case ComparatorNode.LESS_EQUALS:
+                comparatorString = "<=";
+                break;
+            case ComparatorNode.GREATER_THAN:
+                comparatorString = ">";
+                break;
+            case ComparatorNode.GREATER_EQUALS:
+                comparatorString = ">=";
+        }
+        // Equivalent in behavior but more efficient than
+        // String.format("(%s %s %s)", mPropertyPath, comparatorString, mValue);
+        return "(" + mPropertyPath + " " + comparatorString + " " + mValue + ")";
+    }
 }

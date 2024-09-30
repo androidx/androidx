@@ -138,4 +138,79 @@ public class ComparatorNodeCtsTest {
                 () -> new ComparatorNode(ComparatorNode.LESS_EQUALS, propertyPath, value)
                         .setPropertyPath(null));
     }
+
+    @Test
+    public void testToString_equals_returnsCorrectString() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+        int value = 0;
+
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.EQUALS, propertyPath,
+                value);
+
+        assertThat(comparatorNode.toString()).isEqualTo("(example.property.path == 0)");
+    }
+
+    @Test
+    public void testToString_lessThan_returnsCorrectString() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+        int value = 0;
+
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.LESS_THAN, propertyPath,
+                value);
+
+        assertThat(comparatorNode.toString()).isEqualTo("(example.property.path < 0)");
+    }
+
+    @Test
+    public void testToString_lessEquals_returnsCorrectString() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+        int value = 0;
+
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.LESS_EQUALS, propertyPath,
+                value);
+
+        assertThat(comparatorNode.toString()).isEqualTo("(example.property.path <= 0)");
+    }
+
+    @Test
+    public void testToString_greaterThan_returnsCorrectString() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+        int value = 0;
+
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.GREATER_THAN,
+                propertyPath, value);
+
+        assertThat(comparatorNode.toString()).isEqualTo("(example.property.path > 0)");
+    }
+
+    @Test
+    public void testToString_greaterEquals_returnsCorrectString() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+        int value = 0;
+
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.GREATER_EQUALS,
+                propertyPath, value);
+
+        assertThat(comparatorNode.toString()).isEqualTo("(example.property.path >= 0)");
+    }
 }
