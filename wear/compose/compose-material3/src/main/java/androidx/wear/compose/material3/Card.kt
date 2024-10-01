@@ -131,8 +131,8 @@ fun Card(
         shape = shape
     ) {
         CompositionLocalProvider(
-            LocalContentColor provides colors.contentColor,
-            LocalTextStyle provides CardTokens.ContentTypography.value,
+            LocalContentColor provides colors.titleColor,
+            LocalTextStyle provides CardTokens.TitleTypography.value,
         ) {
             content()
         }
@@ -252,7 +252,7 @@ fun AppCard(
             ) {
                 appImage?.let {
                     appImage()
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(4.dp))
                 }
                 CompositionLocalProvider(
                     LocalContentColor provides colors.appNameColor,

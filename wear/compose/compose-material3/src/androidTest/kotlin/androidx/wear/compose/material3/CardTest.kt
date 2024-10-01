@@ -354,7 +354,7 @@ class CardTest {
         verifyColors(
             CardStatus.Enabled,
         ) {
-            MaterialTheme.colorScheme.onSurfaceVariant
+            MaterialTheme.colorScheme.onSurface
         }
 
     @Test
@@ -362,7 +362,7 @@ class CardTest {
         verifyColors(
             CardStatus.Disabled,
         ) {
-            MaterialTheme.colorScheme.onSurfaceVariant
+            MaterialTheme.colorScheme.onSurface
         }
 
     @Test
@@ -379,7 +379,7 @@ class CardTest {
 
         rule.setContentWithTheme {
             expectedAppColor = MaterialTheme.colorScheme.onSurface
-            expectedTimeColor = MaterialTheme.colorScheme.onSurface
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -412,7 +412,7 @@ class CardTest {
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedTimeColor = MaterialTheme.colorScheme.onSurface
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -443,7 +443,7 @@ class CardTest {
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedTimeColor = MaterialTheme.colorScheme.onSurface
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
             expectedSubtitleColor = MaterialTheme.colorScheme.tertiary
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -544,7 +544,7 @@ class CardTest {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.bodyLarge
+            expectedTextStyle = MaterialTheme.typography.titleMedium
             Card(
                 onClick = {},
                 content = { actualTextStyle = LocalTextStyle.current },
