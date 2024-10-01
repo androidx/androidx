@@ -52,6 +52,10 @@ import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import kotlinx.coroutines.coroutineScope
 
 /**
@@ -88,6 +92,9 @@ import kotlinx.coroutines.coroutineScope
  *   the leftmost 25% of the screen will trigger the gesture. Even when RTL mode is enabled, this
  *   parameter only ever applies to the left edge of the screen. Setting this to 0 will disable the
  *   gesture.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior. By default rotary support
+ *   is disabled for [HorizontalPager]. It can be enabled by passing
+ *   [RotaryScrollableDefaults.snapBehavior] with pagerState parameter.
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
@@ -103,6 +110,7 @@ fun HorizontalPager(
     key: ((index: Int) -> Any)? = null,
     @FloatRange(from = 0.0, to = 1.0)
     swipeToDismissEdgeZoneFraction: Float = PagerDefaults.SwipeToDismissEdgeZoneFraction,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = null,
     content: @Composable PagerScope.(page: Int) -> Unit
 ) {
     val swipeToDismissEnabled = swipeToDismissEdgeZoneFraction != 0f
@@ -117,6 +125,15 @@ fun HorizontalPager(
             if (swipeToDismissEnabled) originalTouchSlop * CustomTouchSlopMultiplier
             else originalTouchSlop
     ) {
+        val rotaryModifier =
+            if (rotaryScrollableBehavior != null && userScrollEnabled)
+                Modifier.rotaryScrollable(
+                    behavior = rotaryScrollableBehavior,
+                    focusRequester = rememberActiveFocusRequester(),
+                    reverseDirection = reverseLayout
+                )
+            else Modifier
+
         HorizontalPager(
             state = state,
             modifier =
@@ -143,7 +160,8 @@ fun HorizontalPager(
                                 // signals system swipe to dismiss that it can take over
                                 ScrollAxisRange(value = { 0f }, maxValue = { 0f })
                             }
-                    },
+                    }
+                    .then(rotaryModifier),
             contentPadding = contentPadding,
             pageSize = PageSize.Fill,
             beyondViewportPageCount = beyondViewportPageCount,
@@ -156,7 +174,12 @@ fun HorizontalPager(
             snapPosition = SnapPosition.Start,
         ) { page ->
             CustomTouchSlopProvider(newTouchSlop = originalTouchSlop) {
-                FocusedPageContent(page = page, pagerState = state, content = { content(page) })
+                HierarchicalFocusCoordinator(
+                    requiresFocus = {
+                        rotaryScrollableBehavior == null && state.currentPage == page
+                    },
+                    content = { content(page) }
+                )
             }
         }
     }
@@ -166,6 +189,10 @@ fun HorizontalPager(
  * A full-screen vertically scrolling Pager optimized for Wear OS devices. This component wraps the
  * standard Compose Foundation [VerticalPager] and provides Wear-specific enhancements to improve
  * performance, usability, and adherence to Wear OS design guidelines.
+ *
+ * [VerticalPager] supports rotary input by default. Rotary input allows users to scroll through the
+ * pager's content - by using a crown or a rotating bezel on their Wear OS device. It can be
+ * modified or turned off using the [rotaryScrollableBehavior] parameter.
  *
  * Please refer to the sample to learn how to use this API.
  *
@@ -190,6 +217,9 @@ fun HorizontalPager(
  *   position will be maintained based on the key, which means if you add/remove items before the
  *   current visible item the item with the given key will be kept as the first visible one. If null
  *   is passed the position in the list will represent the key.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior. We recommend to use
+ *   [RotaryScrollableDefaults.snapBehavior] with pagerState parameter. Passing null turns off the
+ *   rotary handling if it is not required.
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
@@ -203,11 +233,22 @@ fun VerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? =
+        RotaryScrollableDefaults.snapBehavior(state),
     content: @Composable PagerScope.(page: Int) -> Unit
 ) {
+    val rotaryModifier =
+        if (rotaryScrollableBehavior != null && userScrollEnabled)
+            Modifier.rotaryScrollable(
+                behavior = rotaryScrollableBehavior,
+                focusRequester = rememberActiveFocusRequester(),
+                reverseDirection = reverseLayout
+            )
+        else Modifier
+
     VerticalPager(
         state = state,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().then(rotaryModifier),
         contentPadding = contentPadding,
         pageSize = PageSize.Fill,
         beyondViewportPageCount = beyondViewportPageCount,
@@ -219,7 +260,10 @@ fun VerticalPager(
         key = key,
         snapPosition = SnapPosition.Start,
     ) { page ->
-        FocusedPageContent(page = page, pagerState = state, content = { content(page) })
+        HierarchicalFocusCoordinator(
+            requiresFocus = { rotaryScrollableBehavior == null && state.currentPage == page },
+            content = { content(page) }
+        )
     }
 }
 
@@ -279,18 +323,6 @@ object PagerDefaults {
      * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
      */
     const val BeyondViewportPageCount = 0
-}
-
-@Composable
-internal fun FocusedPageContent(
-    page: Int,
-    pagerState: PagerState,
-    content: @Composable () -> Unit
-) {
-    HierarchicalFocusCoordinator(
-        requiresFocus = { pagerState.currentPage == page },
-        content = content
-    )
 }
 
 @Composable

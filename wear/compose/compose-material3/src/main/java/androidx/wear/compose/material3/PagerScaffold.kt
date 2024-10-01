@@ -52,6 +52,8 @@ import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
+import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import kotlin.math.absoluteValue
 
 /**
@@ -76,6 +78,9 @@ import kotlin.math.absoluteValue
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimation] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior. By default rotary support
+ *   is disabled for [HorizontalPagerScaffold]. It can be enabled by passing
+ *   [RotaryScrollableDefaults.snapBehavior] with pagerState parameter.
  * @param content A composable function that takes the current page index as a parameter and defines
  *   the content to be displayed on that page.
  */
@@ -85,11 +90,18 @@ fun HorizontalPagerScaffold(
     modifier: Modifier = Modifier,
     pageIndicator: (@Composable BoxScope.() -> Unit)? = { HorizontalPageIndicator(pagerState) },
     pageIndicatorAnimationSpec: AnimationSpec<Float>? = null,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = null,
     content: @Composable PagerScope.(page: Int) -> Unit,
 ) =
     PagerScaffoldImpl(
         scrollInfoProvider = ScrollInfoProvider(pagerState, orientation = Orientation.Horizontal),
-        pagerContent = { AnimatedHorizontalPager(pagerState, content = content) },
+        pagerContent = {
+            AnimatedHorizontalPager(
+                state = pagerState,
+                rotaryScrollableBehavior = rotaryScrollableBehavior,
+                content = content
+            )
+        },
         modifier = modifier,
         pagerState = pagerState,
         pageIndicator = pageIndicator,
@@ -106,6 +118,10 @@ fun HorizontalPagerScaffold(
  * default and coordinates showing/hiding [TimeText] and [VerticalPageIndicator] according to
  * whether the Pager is being paged, this is determined by the [PagerState].
  *
+ * [VerticalPagerScaffold] supports rotary input by default. Rotary input allows users to scroll
+ * through the pager's content - by using a crown or a rotating bezel on their Wear OS device. It
+ * can be modified or turned off using the [rotaryScrollableBehavior] parameter.
+ *
  * Example of using [AppScaffold] and [VerticalPagerScaffold]:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
@@ -118,6 +134,9 @@ fun HorizontalPagerScaffold(
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimation] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior. We recommend to use
+ *   [RotaryScrollableDefaults.snapBehavior] with pagerState parameter. Passing null turns off the
+ *   rotary handling if it is not required.
  * @param content A composable function that takes the current page index as a parameter and defines
  *   the content to be displayed on that page.
  */
@@ -127,11 +146,19 @@ fun VerticalPagerScaffold(
     modifier: Modifier = Modifier,
     pageIndicator: (@Composable BoxScope.() -> Unit)? = { VerticalPageIndicator(pagerState) },
     pageIndicatorAnimationSpec: AnimationSpec<Float>? = null,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? =
+        RotaryScrollableDefaults.snapBehavior(pagerState),
     content: @Composable PagerScope.(page: Int) -> Unit,
 ) =
     PagerScaffoldImpl(
         scrollInfoProvider = ScrollInfoProvider(pagerState, orientation = Orientation.Vertical),
-        pagerContent = { AnimatedVerticalPager(pagerState, content = content) },
+        pagerContent = {
+            AnimatedVerticalPager(
+                state = pagerState,
+                rotaryScrollableBehavior = rotaryScrollableBehavior,
+                content = content
+            )
+        },
         modifier = modifier,
         pagerState = pagerState,
         pageIndicator = pageIndicator,
@@ -220,6 +247,7 @@ private fun PagerScaffoldImpl(
  *   the leftmost 25% of the screen will trigger the gesture. Even when RTL mode is enabled, this
  *   parameter only ever applies to the left edge of the screen. Setting this to 0 will disable the
  *   gesture.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
@@ -236,6 +264,7 @@ internal fun AnimatedHorizontalPager(
     key: ((index: Int) -> Any)? = null,
     @FloatRange(from = 0.0, to = 1.0)
     swipeToDismissEdgeZoneFraction: Float = PagerDefaults.SwipeToDismissEdgeZoneFraction,
+    rotaryScrollableBehavior: RotaryScrollableBehavior?,
     content: @Composable PagerScope.(page: Int) -> Unit
 ) {
     val touchExplorationStateProvider = remember { DefaultTouchExplorationStateProvider() }
@@ -252,6 +281,7 @@ internal fun AnimatedHorizontalPager(
         key = key,
         swipeToDismissEdgeZoneFraction =
             if (touchExplorationServicesEnabled) 0f else swipeToDismissEdgeZoneFraction,
+        rotaryScrollableBehavior = rotaryScrollableBehavior
     ) { page ->
         AnimatedPageContent(
             orientation = Orientation.Horizontal,
@@ -289,6 +319,7 @@ internal fun AnimatedHorizontalPager(
  *   position will be maintained based on the key, which means if you add/remove items before the
  *   current visible item the item with the given key will be kept as the first visible one. If null
  *   is passed the position in the list will represent the key.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior.
  * @param content A composable function that defines the content of each page displayed by the
  *   Pager. This is where the UI elements that should appear within each page should be placed.
  */
@@ -303,6 +334,7 @@ internal fun AnimatedVerticalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
+    rotaryScrollableBehavior: RotaryScrollableBehavior?,
     content: @Composable PagerScope.(page: Int) -> Unit
 ) {
     VerticalPager(
@@ -314,6 +346,7 @@ internal fun AnimatedVerticalPager(
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
         key = key,
+        rotaryScrollableBehavior = rotaryScrollableBehavior
     ) { page ->
         AnimatedPageContent(
             orientation = Orientation.Vertical,
