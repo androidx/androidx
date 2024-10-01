@@ -82,10 +82,13 @@ class MaterialScopeTest {
             MaterialScope(
                 context = ApplicationProvider.getApplicationContext(),
                 deviceConfiguration = DEVICE_PARAMETERS,
-                customColorScheme =
-                    mapOf(
-                        ColorTokens.ERROR to ColorBuilders.argb(customErrorColor),
-                        ColorTokens.TERTIARY to ColorBuilders.argb(customTertiaryColor)
+                theme =
+                    MaterialTheme(
+                        customColorScheme =
+                            mapOf(
+                                ColorTokens.ERROR to ColorBuilders.argb(customErrorColor),
+                                ColorTokens.TERTIARY to ColorBuilders.argb(customTertiaryColor)
+                            )
                     ),
                 allowDynamicTheme = false
             )
@@ -117,10 +120,13 @@ class MaterialScopeTest {
             MaterialScope(
                 context = ApplicationProvider.getApplicationContext(),
                 deviceConfiguration = DEVICE_PARAMETERS,
-                customColorScheme =
-                    mapOf(
-                        ColorTokens.ERROR to ColorBuilders.argb(customErrorColor),
-                        ColorTokens.TERTIARY to ColorBuilders.argb(customTertiaryColor)
+                theme =
+                    MaterialTheme(
+                        customColorScheme =
+                            mapOf(
+                                ColorTokens.ERROR to ColorBuilders.argb(customErrorColor),
+                                ColorTokens.TERTIARY to ColorBuilders.argb(customTertiaryColor)
+                            )
                     )
             )
 
@@ -144,7 +150,7 @@ class MaterialScopeTest {
     }
 
     companion object {
-        private val DEVICE_PARAMETERS =
+        internal val DEVICE_PARAMETERS =
             DeviceParametersBuilders.DeviceParameters.Builder()
                 .setScreenWidthDp(192)
                 .setScreenHeightDp(192)
