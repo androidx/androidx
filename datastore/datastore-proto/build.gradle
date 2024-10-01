@@ -58,14 +58,6 @@ protobuf {
     }
 }
 
-androidx {
-    name = "Proto DataStore"
-    publish = Publish.NONE
-    inceptionYear = "2020"
-    description = "Android Proto DataStore"
-    runApiTasks = new RunApiTasks.No("Unreleased library.")
-}
-
 android {
     namespace "androidx.datastore.protodatastore"
 }
