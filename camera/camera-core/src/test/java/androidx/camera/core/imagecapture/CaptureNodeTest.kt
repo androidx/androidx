@@ -261,6 +261,7 @@ class CaptureNodeTest {
         // Act: notify onCaptureProcessProgressed that is not 100 after request starts.
         captureNodeIn.cameraCaptureCallback.onCaptureProcessProgressed(1, 50)
         captureNodeIn.cameraCaptureCallback.onCaptureProcessProgressed(1, 90)
+        shadowOf(getMainLooper()).idle()
 
         imageReaderProxy.triggerImageAvailableSync(tagBundle)
         shadowOf(getMainLooper()).idle()
