@@ -255,6 +255,7 @@ internal class PullToRefreshModifierNode(
     override fun onAttach() {
         delegate(nestedScrollNode)
         coroutineScope.launch { state.snapTo(if (isRefreshing) 1f else 0f) }
+        verticalOffset = if (isRefreshing) thresholdPx.toFloat() else 0f
     }
 
     override fun onPreScroll(
