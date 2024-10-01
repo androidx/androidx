@@ -431,7 +431,7 @@ private class ModalBottomSheetDialogLayout(
                 view
                     .findOnBackInvokedDispatcher()
                     ?.registerOnBackInvokedCallback(
-                        OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                        OnBackInvokedDispatcher.PRIORITY_DEFAULT,
                         backCallback
                     )
             }
