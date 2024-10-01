@@ -16,15 +16,18 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -35,7 +38,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
+class TransformingLazyColumnTransformingLazyColumnContentPaddingMeasurementStrategyTest {
     private val screenHeight = 100
     private val screenWidth = 120
 
@@ -49,7 +52,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun emptyList_emptyResult() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result = strategy.measure(listOf())
 
@@ -58,7 +65,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun fullScreenItem_takesFullHeight() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result = strategy.measure(listOf(screenHeight))
 
@@ -72,7 +83,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun fullScreenItem_scrollsBackToCenter() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result =
             strategy.measure(
@@ -90,43 +105,63 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
     }
 
     @Test
-    fun halfScreenItem_takesHalfHeightAndCentered() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+    fun halfScreenItem_takesHalfHeightAndTopAligned() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result = strategy.measure(listOf(screenHeight / 2))
 
         assertThat(result.visibleItems.size).isEqualTo(1)
 
         assertThat(result.visibleItems.first().index).isEqualTo(0)
-        assertThat(result.visibleItems.first().offset).isEqualTo(screenHeight / 4)
+        assertThat(result.visibleItems.first().offset).isEqualTo(0)
+        assertThat(result.visibleItems.first().measuredHeight).isEqualTo(screenHeight / 2)
+        assertThat(result.visibleItems.first().transformedHeight).isEqualTo(screenHeight / 2)
     }
 
     @Test
-    fun twoItemsWithFirstOneCentered_measuredWithCorrectOffsets() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
-
-        val result =
-            strategy.measure(
-                listOf(
-                    // Is centered.
-                    screenHeight / 2,
-                    screenHeight / 2,
-                )
+    fun twoItemsWithFirstTopAligned_measuredWithCorrectOffsets() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
             )
+
+        val result = strategy.measure(listOf(screenHeight / 2, screenHeight / 2))
 
         assertThat(result.visibleItems.size).isEqualTo(2)
-        assertThat(result.visibleItems.map { it.offset })
-            .isEqualTo(
-                listOf(
-                    screenHeight / 4,
-                    screenHeight * 3 / 4,
-                )
-            )
+
+        assertThat(result.visibleItems.map { it.offset }).isEqualTo(listOf(0, screenHeight / 2))
     }
 
     @Test
-    fun threeHalfScreenItemsWithFirstOneCentered_pushesLastItemOffscreen() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+    fun twoItemsWithFirstTopAlignedWithPadding_measuredWithCorrectOffsets() {
+        val topPadding = 5.dp
+        val topPaddingPx = with(measureScope) { topPadding.roundToPx() }
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(top = topPadding),
+                measureScope
+            )
+
+        val result = strategy.measure(listOf(screenHeight / 2, screenHeight / 2))
+
+        assertThat(result.visibleItems.size).isEqualTo(2)
+
+        assertThat(result.visibleItems.map { it.offset })
+            .isEqualTo(listOf(0 + topPaddingPx, screenHeight / 2 + topPaddingPx))
+    }
+
+    @Test
+    fun threeHalfScreenItemsWithFirstOneTopAligned_pushesLastItemOffscreen() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result =
             strategy.measure(
@@ -144,7 +179,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun threeItemsWithSecondOneCentered_measuredWithCorrectOffsets() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
 
         val result =
             strategy.measure(
@@ -165,7 +204,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun threeItemsWithSecondOneCenteredAndOffset_measuredWithCorrectOffsets() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
         val tinyOffset = 5
         val result =
             strategy.measure(
@@ -192,7 +235,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun threeItemsWithSecondOneCenteredAndScrolled_measuredWithCorrectOffsets() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
         val scrollAmount = 5
         val result =
             strategy.measure(
@@ -220,7 +267,11 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
 
     @Test
     fun fullScreenItemWithTransformedHeight_takesHalfOfHeight() {
-        val strategy = TransformingLazyColumnCenterBoundsMeasurementStrategy()
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
         val result =
             strategy.measure(
                 listOf(
@@ -231,7 +282,7 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
             )
 
         assertThat(result.visibleItems.size).isEqualTo(1)
-        assertThat(result.visibleItems.first().offset).isEqualTo(screenHeight / 4)
+        assertThat(result.visibleItems.first().offset).isEqualTo(0)
         assertThat(result.visibleItems.first().measuredHeight).isEqualTo(screenHeight)
         assertThat(result.visibleItems.first().transformedHeight).isEqualTo(screenHeight / 2)
     }
@@ -258,6 +309,13 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
         assertThat(result.visibleItems.size).isEqualTo(2)
         assertThat(result.visibleItems.map { it.offset }).isEqualTo(listOf(0, screenHeight / 4))
     }
+
+    private val measureScope: IntrinsicMeasureScope =
+        object : IntrinsicMeasureScope {
+            override val fontScale = 1f
+            override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
+            override val density = 1f
+        }
 
     private fun TransformingLazyColumnMeasurementStrategy.measure(
         itemHeights: List<Int>,
