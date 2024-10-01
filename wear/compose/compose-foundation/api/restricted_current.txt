@@ -397,11 +397,12 @@ package androidx.wear.compose.foundation.lazy {
     method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
   }
 
-  public sealed interface LazyColumnItemScrollProgress {
+  @kotlin.jvm.JvmInline public final value class LazyColumnItemScrollProgress {
+    ctor public LazyColumnItemScrollProgress(float topOffsetFraction, float bottomOffsetFraction);
     method public float getBottomOffsetFraction();
     method public float getTopOffsetFraction();
-    property public abstract float bottomOffsetFraction;
-    property public abstract float topOffsetFraction;
+    property public final float bottomOffsetFraction;
+    property public final float topOffsetFraction;
   }
 
   public final class LazyColumnKt {
@@ -448,13 +449,13 @@ package androidx.wear.compose.foundation.lazy {
     method public int getIndex();
     method public Object getKey();
     method public int getOffset();
-    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress getScrollProgress();
+    method public long getScrollProgress();
     property public abstract Object? contentType;
     property public abstract int height;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int offset;
-    property public abstract androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress scrollProgress;
+    property public abstract long scrollProgress;
   }
 
   public final class ScalingLazyColumnDefaults {
