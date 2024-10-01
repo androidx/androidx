@@ -152,7 +152,7 @@ val WearMaterial3Demos =
                 title = "Page Indicator",
                 listOf(
                     ComposableDemo("HorizontalPageIndicator") {
-                        HorizontalPageIndicatorWithPagerSample(it.swipeToDismissBoxState)
+                        HorizontalPageIndicatorWithPagerSample()
                     },
                     ComposableDemo("VerticalPageIndicator") {
                         VerticalPageIndicatorWithPagerSample()
