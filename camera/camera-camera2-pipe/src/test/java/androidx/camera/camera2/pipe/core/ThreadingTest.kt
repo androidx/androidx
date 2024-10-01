@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -31,10 +30,10 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 21)
 class ThreadingTest {
     @Test
-    fun runBlockingWithTimeoutThrowsOnTimeout() = runTest {
+    fun runBlockingCheckedThrowsOnTimeout() = runTest {
         val latch = CountDownLatch(1)
-        assertThrows<TimeoutCancellationException> {
-            Threading.runBlockingWithTimeout(Dispatchers.IO, 500L) {
+        assertThrows<IllegalStateException> {
+            Threading.runBlockingChecked(Dispatchers.IO, 500L) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
@@ -42,13 +41,32 @@ class ThreadingTest {
     }
 
     @Test
-    fun runBlockingWithTimeoutOrNullReturnsNullOnTimeout() = runTest {
+    fun runBlockingCheckedDoesNotThrowWhenNotTimedOut() = runTest {
+        val latch = CountDownLatch(1)
+        Threading.runBlockingChecked(Dispatchers.IO, 10_000L) {
+            latch.await(500, TimeUnit.MILLISECONDS)
+        }
+    }
+
+    @Test
+    fun runBlockingCheckedOrNullReturnsNullOnTimeout() = runTest {
         val latch = CountDownLatch(1)
         val result =
-            Threading.runBlockingWithTimeoutOrNull(Dispatchers.IO, 500L) {
+            Threading.runBlockingCheckedOrNull(Dispatchers.IO, 500L) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
         assertThat(result).isNull()
+    }
+
+    @Test
+    fun runBlockingCheckedOrNullReturnsNonNullWhenNotTimeout() = runTest {
+        val latch = CountDownLatch(1)
+        val result =
+            Threading.runBlockingCheckedOrNull(Dispatchers.IO, 10_000L) {
+                // Simulate a long call that should time out.
+                latch.await(500, TimeUnit.MILLISECONDS)
+            }
+        assertThat(result).isNotNull()
     }
 }
