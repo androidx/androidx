@@ -1332,12 +1332,13 @@ class NavHostTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalStateException::class)
     fun nestedNavHostRestore() {
         lateinit var navController: NavHostController
+        lateinit var innerNavController: NavHostController
         composeTestRule.setContent {
             navController = rememberNavController()
-            val innerNavController = rememberNavController()
+            innerNavController = rememberNavController()
             NavHost(navController, startDestination = first) {
                 composable(first) {
                     NavHost(innerNavController, "nested1") {
@@ -1367,7 +1368,16 @@ class NavHostTest {
 
         composeTestRule.runOnUiThread {
             assertThat(navController.currentDestination?.route).isEqualTo(first)
+
+            // Setting graph early to force failure on test thread
+            innerNavController.graph =
+                innerNavController.createGraph(startDestination = "nested1") {
+                    composable("nested1") {}
+                    composable("nested2") {}
+                }
         }
+
+        composeTestRule.waitForIdle()
     }
 
     private fun createNavController(context: Context): TestNavHostController {

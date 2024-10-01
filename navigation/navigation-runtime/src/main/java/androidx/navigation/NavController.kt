@@ -1318,6 +1318,11 @@ public open class NavController(
     @MainThread
     @CallSuper
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
+        check(backQueue.isEmpty() || hostLifecycleState != Lifecycle.State.DESTROYED) {
+            "You cannot set a new graph on a NavController with entries on the back stack " +
+                "after the NavController has been destroyed. Please ensure that your NavHost " +
+                "has the same lifetime as your NavController."
+        }
         if (_graph != graph) {
             _graph?.let { previousGraph ->
                 // Clear all saved back stacks by iterating through a copy of the saved keys,
