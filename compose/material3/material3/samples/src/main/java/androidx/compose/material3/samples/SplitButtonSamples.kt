@@ -24,15 +24,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedSplitButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledSplitButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedSplitButton
-import androidx.compose.material3.SplitButton
 import androidx.compose.material3.SplitButtonDefaults
+import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
-import androidx.compose.material3.TonalSplitButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,10 +45,10 @@ import androidx.compose.ui.tooling.preview.Preview
 @Sampled
 @Composable
 @Preview
-fun SplitButtonSample() {
+fun FilledSplitButtonSample() {
     var checked by remember { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -68,8 +64,8 @@ fun SplitButtonSample() {
         },
         trailingButton = {
             SplitButtonDefaults.TrailingButton(
-                onClick = { checked = !checked },
                 checked = checked,
+                onCheckedChange = { checked = it },
                 modifier =
                     Modifier.semantics {
                         stateDescription = if (checked) "Checked" else "Unchecked"
@@ -98,36 +94,31 @@ fun SplitButtonSample() {
 @Sampled
 @Composable
 @Preview
-fun FilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
-
-    FilledSplitButton(
-        onLeadingButtonClick = {},
-        checked = checked,
-        onTrailingButtonClick = { checked = !checked },
-        leadingContent = {
-            Icon(
-                Icons.Filled.Edit,
-                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-                contentDescription = "Localized description"
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("My Button")
-        },
-        trailingContent = {
-            val rotation: Float by
-                animateFloatAsState(
-                    targetValue = if (checked) 180f else 0f,
-                    label = "Trailing Icon Rotation"
+fun SplitButtonWithUnCheckableTrailingButtonSample() {
+    SplitButtonLayout(
+        leadingButton = {
+            SplitButtonDefaults.LeadingButton(
+                onClick = { /* Do Nothing */ },
+            ) {
+                Icon(
+                    Icons.Filled.Edit,
+                    modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                    contentDescription = "Localized description",
                 )
-            Icon(
-                Icons.Filled.KeyboardArrowDown,
-                modifier =
-                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                        this.rotationZ = rotation
-                    },
-                contentDescription = "Localized description"
-            )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("My Button")
+            }
+        },
+        trailingButton = {
+            SplitButtonDefaults.TrailingButton(
+                onClick = { /* Do Nothing */ },
+            ) {
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    modifier = Modifier.size(SplitButtonDefaults.TrailingIconSize),
+                    contentDescription = "Localized description"
+                )
+            }
         }
     )
 }
@@ -139,33 +130,44 @@ fun FilledSplitButtonSample() {
 fun TonalSplitButtonSample() {
     var checked by remember { mutableStateOf(false) }
 
-    TonalSplitButton(
-        onLeadingButtonClick = {},
-        checked = checked,
-        onTrailingButtonClick = { checked = !checked },
-        leadingContent = {
-            Icon(
-                Icons.Filled.Edit,
-                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-                contentDescription = "Localized description"
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("My Button")
-        },
-        trailingContent = {
-            val rotation: Float by
-                animateFloatAsState(
-                    targetValue = if (checked) 180f else 0f,
-                    label = "Trailing Icon Rotation"
+    SplitButtonLayout(
+        leadingButton = {
+            SplitButtonDefaults.TonalLeadingButton(
+                onClick = { /* Do Nothing */ },
+            ) {
+                Icon(
+                    Icons.Filled.Edit,
+                    modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                    contentDescription = "Localized description",
                 )
-            Icon(
-                Icons.Filled.KeyboardArrowDown,
-                modifier =
-                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                        this.rotationZ = rotation
-                    },
-                contentDescription = "Localized description"
-            )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("My Button")
+            }
+        },
+        trailingButton = {
+            SplitButtonDefaults.TonalTrailingButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                //                modifier =
+                //                    Modifier.semantics {
+                //                        stateDescription = if (checked) "Checked" else "Unchecked"
+                //                        contentDescription = "Toggle Button"
+                //                    },
+            ) {
+                val rotation: Float by
+                    animateFloatAsState(
+                        targetValue = if (checked) 180f else 0f,
+                        label = "Trailing Icon Rotation"
+                    )
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    modifier =
+                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                            this.rotationZ = rotation
+                        },
+                    contentDescription = "Localized description"
+                )
+            }
         }
     )
 }
@@ -177,33 +179,44 @@ fun TonalSplitButtonSample() {
 fun ElevatedSplitButtonSample() {
     var checked by remember { mutableStateOf(false) }
 
-    ElevatedSplitButton(
-        onLeadingButtonClick = {},
-        checked = checked,
-        onTrailingButtonClick = { checked = !checked },
-        leadingContent = {
-            Icon(
-                Icons.Filled.Edit,
-                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-                contentDescription = "Localized description"
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("My Button")
-        },
-        trailingContent = {
-            val rotation: Float by
-                animateFloatAsState(
-                    targetValue = if (checked) 180f else 0f,
-                    label = "Trailing Icon Rotation"
+    SplitButtonLayout(
+        leadingButton = {
+            SplitButtonDefaults.ElevatedLeadingButton(
+                onClick = { /* Do Nothing */ },
+            ) {
+                Icon(
+                    Icons.Filled.Edit,
+                    modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                    contentDescription = "Localized description",
                 )
-            Icon(
-                Icons.Filled.KeyboardArrowDown,
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("My Button")
+            }
+        },
+        trailingButton = {
+            SplitButtonDefaults.ElevatedTrailingButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
                 modifier =
-                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                        this.rotationZ = rotation
+                    Modifier.semantics {
+                        stateDescription = if (checked) "Checked" else "Unchecked"
+                        contentDescription = "Toggle Button"
                     },
-                contentDescription = "Localized description"
-            )
+            ) {
+                val rotation: Float by
+                    animateFloatAsState(
+                        targetValue = if (checked) 180f else 0f,
+                        label = "Trailing Icon Rotation"
+                    )
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    modifier =
+                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                            this.rotationZ = rotation
+                        },
+                    contentDescription = "Localized description"
+                )
+            }
         }
     )
 }
@@ -215,33 +228,44 @@ fun ElevatedSplitButtonSample() {
 fun OutlinedSplitButtonSample() {
     var checked by remember { mutableStateOf(false) }
 
-    OutlinedSplitButton(
-        onLeadingButtonClick = {},
-        checked = checked,
-        onTrailingButtonClick = { checked = !checked },
-        leadingContent = {
-            Icon(
-                Icons.Filled.Edit,
-                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-                contentDescription = "Localized description"
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("My Button")
-        },
-        trailingContent = {
-            val rotation: Float by
-                animateFloatAsState(
-                    targetValue = if (checked) 180f else 0f,
-                    label = "Trailing Icon Rotation"
+    SplitButtonLayout(
+        leadingButton = {
+            SplitButtonDefaults.OutlinedLeadingButton(
+                onClick = { /* Do Nothing */ },
+            ) {
+                Icon(
+                    Icons.Filled.Edit,
+                    modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                    contentDescription = "Localized description",
                 )
-            Icon(
-                Icons.Filled.KeyboardArrowDown,
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("My Button")
+            }
+        },
+        trailingButton = {
+            SplitButtonDefaults.OutlinedTrailingButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
                 modifier =
-                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                        this.rotationZ = rotation
+                    Modifier.semantics {
+                        stateDescription = if (checked) "Checked" else "Unchecked"
+                        contentDescription = "Toggle Button"
                     },
-                contentDescription = "Localized description"
-            )
+            ) {
+                val rotation: Float by
+                    animateFloatAsState(
+                        targetValue = if (checked) 180f else 0f,
+                        label = "Trailing Icon Rotation"
+                    )
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    modifier =
+                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                            this.rotationZ = rotation
+                        },
+                    contentDescription = "Localized description"
+                )
+            }
         }
     )
 }
@@ -253,7 +277,7 @@ fun OutlinedSplitButtonSample() {
 fun SplitButtonWithTextSample() {
     var checked by remember { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -263,8 +287,8 @@ fun SplitButtonWithTextSample() {
         },
         trailingButton = {
             SplitButtonDefaults.TrailingButton(
-                onClick = { checked = !checked },
                 checked = checked,
+                onCheckedChange = { checked = it }
             ) {
                 val rotation: Float by
                     animateFloatAsState(
@@ -291,7 +315,7 @@ fun SplitButtonWithTextSample() {
 fun SplitButtonWithIconSample() {
     var checked by remember { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -305,8 +329,8 @@ fun SplitButtonWithIconSample() {
         },
         trailingButton = {
             SplitButtonDefaults.TrailingButton(
-                onClick = { checked = !checked },
                 checked = checked,
+                onCheckedChange = { checked = it }
             ) {
                 val rotation: Float by
                     animateFloatAsState(

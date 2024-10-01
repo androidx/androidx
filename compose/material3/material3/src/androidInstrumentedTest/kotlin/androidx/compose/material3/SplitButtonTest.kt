@@ -35,7 +35,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Rule
@@ -45,14 +44,14 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+// TODO: b/370605854 - Add test case for checked trailing button
 class SplitButtonTest {
-
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun basicSplitButton_contentDisplay() {
+    fun filledSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButton(
+            SplitButtonLayout(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -70,7 +69,7 @@ class SplitButtonTest {
                     SplitButtonDefaults.TrailingButton(
                         modifier = Modifier.size(34.dp).testTag("trailingButton"),
                         checked = false,
-                        onClick = {},
+                        onCheckedChange = {},
                     ) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
                     }
@@ -86,9 +85,9 @@ class SplitButtonTest {
     }
 
     @Test
-    fun basicSplitButton_defaultSemantics() {
+    fun filledSplitButton_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButton(
+            SplitButtonLayout(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -99,7 +98,7 @@ class SplitButtonTest {
                 },
                 trailingButton = {
                     SplitButtonDefaults.TrailingButton(
-                        onClick = {},
+                        onCheckedChange = {},
                         checked = false,
                         modifier = Modifier.size(34.dp).testTag("trailing button"),
                     ) {
@@ -114,15 +113,15 @@ class SplitButtonTest {
             assertIsEnabled()
         }
         rule.onNodeWithTag("trailing button").apply {
-            assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             assertIsEnabled()
         }
     }
 
     @Test
-    fun basicSplitButton_disabledSemantics() {
+    fun filledSplitButton_disabledSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            SplitButton(
+            SplitButtonLayout(
                 leadingButton = {
                     SplitButtonDefaults.LeadingButton(
                         onClick = { /* Do Nothing */ },
@@ -134,7 +133,7 @@ class SplitButtonTest {
                 },
                 trailingButton = {
                     SplitButtonDefaults.TrailingButton(
-                        onClick = {},
+                        onCheckedChange = {},
                         checked = false,
                         modifier = Modifier.size(34.dp).testTag("trailing button"),
                         enabled = false,
@@ -150,56 +149,36 @@ class SplitButtonTest {
             assertIsNotEnabled()
         }
         rule.onNodeWithTag("trailing button").apply {
-            assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             assertIsNotEnabled()
         }
     }
 
     @Test
-    fun FilledSplitButton_contentDisplay() {
-        rule.setMaterialContent(lightColorScheme()) {
-            FilledSplitButton(
-                onLeadingButtonClick = {},
-                checked = false,
-                onTrailingButtonClick = {},
-                leadingContent = {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = "Leading Icon",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("My Button", fontSize = 15.sp)
-                },
-                trailingContent = {
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
-                }
-            )
-        }
-
-        rule.onNodeWithText("My Button").assertIsDisplayed()
-        rule.onNodeWithContentDescription("Leading Icon").assertIsDisplayed()
-        rule.onNodeWithContentDescription("Trailing Icon").assertIsDisplayed()
-    }
-
-    @Test
     fun TonalSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            TonalSplitButton(
-                onLeadingButtonClick = {},
-                checked = false,
-                onTrailingButtonClick = {},
-                leadingContent = {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = "Leading Icon",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("My Button", fontSize = 15.sp)
+            SplitButtonLayout(
+                leadingButton = {
+                    SplitButtonDefaults.TonalLeadingButton(
+                        onClick = { /* Do Nothing */ },
+                        modifier = Modifier.testTag("leadingButton")
+                    ) {
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = "Leading Icon",
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text("My Button")
+                    }
                 },
-                trailingContent = {
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                trailingButton = {
+                    SplitButtonDefaults.TonalTrailingButton(
+                        modifier = Modifier.size(34.dp).testTag("trailingButton"),
+                        checked = false,
+                        onCheckedChange = {},
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                    }
                 }
             )
         }
@@ -212,21 +191,28 @@ class SplitButtonTest {
     @Test
     fun ElevatedSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            ElevatedSplitButton(
-                onLeadingButtonClick = {},
-                checked = false,
-                onTrailingButtonClick = {},
-                leadingContent = {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = "Leading Icon",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("My Button", fontSize = 15.sp)
+            SplitButtonLayout(
+                leadingButton = {
+                    SplitButtonDefaults.ElevatedLeadingButton(
+                        onClick = { /* Do Nothing */ },
+                        modifier = Modifier.testTag("leadingButton")
+                    ) {
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = "Leading Icon",
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text("My Button")
+                    }
                 },
-                trailingContent = {
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                trailingButton = {
+                    SplitButtonDefaults.ElevatedTrailingButton(
+                        modifier = Modifier.size(34.dp).testTag("trailingButton"),
+                        checked = false,
+                        onCheckedChange = {},
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                    }
                 }
             )
         }
@@ -239,21 +225,28 @@ class SplitButtonTest {
     @Test
     fun OutlinedSplitButton_contentDisplay() {
         rule.setMaterialContent(lightColorScheme()) {
-            OutlinedSplitButton(
-                onLeadingButtonClick = {},
-                checked = false,
-                onTrailingButtonClick = {},
-                leadingContent = {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = "Leading Icon",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("My Button", fontSize = 15.sp)
+            SplitButtonLayout(
+                leadingButton = {
+                    SplitButtonDefaults.OutlinedLeadingButton(
+                        onClick = { /* Do Nothing */ },
+                        modifier = Modifier.testTag("leadingButton")
+                    ) {
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = "Leading Icon",
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text("My Button")
+                    }
                 },
-                trailingContent = {
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                trailingButton = {
+                    SplitButtonDefaults.OutlinedTrailingButton(
+                        modifier = Modifier.size(34.dp).testTag("trailingButton"),
+                        checked = false,
+                        onCheckedChange = {},
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
+                    }
                 }
             )
         }
