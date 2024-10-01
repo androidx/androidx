@@ -72,7 +72,8 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
 
     /** This is an internal implementation class of [SnapshotStateList]. Do not use. */
     internal class StateListStateRecord<T>
-    internal constructor(internal var list: PersistentList<T>) : StateRecord() {
+    internal constructor(snapshotId: Int, internal var list: PersistentList<T>) :
+        StateRecord(snapshotId) {
         internal var modification = 0
         internal var structuralChange = 0
 
@@ -85,7 +86,9 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
             }
         }
 
-        override fun create(): StateRecord = StateListStateRecord(list)
+        override fun create(): StateRecord = create(currentSnapshot().id)
+
+        override fun create(snapshotId: Int): StateRecord = StateListStateRecord(snapshotId, list)
     }
 
     override val size: Int
@@ -251,12 +254,10 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
         }
 
     private fun stateRecordWith(list: PersistentList<T>): StateRecord {
-        return StateListStateRecord(list).also {
-            if (Snapshot.isInSnapshot) {
-                it.next =
-                    StateListStateRecord(list).also { next ->
-                        next.snapshotId = Snapshot.PreexistingSnapshotId
-                    }
+        val snapshot = currentSnapshot()
+        return StateListStateRecord(snapshot.id, list).also {
+            if (snapshot !is GlobalSnapshot) {
+                it.next = StateListStateRecord(Snapshot.PreexistingSnapshotId, list)
             }
         }
     }

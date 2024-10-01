@@ -35,12 +35,10 @@ import kotlin.jvm.JvmName
 class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override var firstStateRecord: StateRecord =
         persistentHashMapOf<K, V>().let { map ->
-            StateMapStateRecord(map).also {
-                if (Snapshot.isInSnapshot) {
-                    it.next =
-                        StateMapStateRecord(map).also { next ->
-                            next.snapshotId = Snapshot.PreexistingSnapshotId
-                        }
+            val snapshot = currentSnapshot()
+            StateMapStateRecord(snapshot.id, map).also {
+                if (snapshot !is GlobalSnapshot) {
+                    it.next = StateMapStateRecord(Snapshot.PreexistingSnapshotId, map)
                 }
             }
         }
@@ -198,7 +196,8 @@ class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
 
     /** Implementation class of [SnapshotStateMap]. Do not use. */
     internal class StateMapStateRecord<K, V>
-    internal constructor(internal var map: PersistentMap<K, V>) : StateRecord() {
+    internal constructor(snapshotId: Int, internal var map: PersistentMap<K, V>) :
+        StateRecord(snapshotId) {
         internal var modification = 0
 
         override fun assign(value: StateRecord) {
@@ -209,7 +208,9 @@ class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
             }
         }
 
-        override fun create(): StateRecord = StateMapStateRecord(map)
+        override fun create(): StateRecord = StateMapStateRecord(currentSnapshot().id, map)
+
+        override fun create(snapshotId: Int): StateRecord = StateMapStateRecord(snapshotId, map)
     }
 }
 
