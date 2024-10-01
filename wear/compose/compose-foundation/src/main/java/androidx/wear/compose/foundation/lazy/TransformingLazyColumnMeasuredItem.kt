@@ -32,6 +32,16 @@ internal data class TransformingLazyColumnMeasuredItem(
     val containerConstraints: Constraints,
     /** The vertical offset of the item from the top of the list after transformations applied. */
     override var offset: Int,
+    /**
+     * The horizontal padding before the item. This doesn't affect vertical calculations, but needs
+     * to be added to during final placement.
+     */
+    val leftPadding: Int,
+    /**
+     * The horizontal padding after the item. This doesn't affect vertical calculations, but needs
+     * to be added to during final placement.
+     */
+    val rightPadding: Int,
     /** Scroll progress of the item used to calculate transformations applied. */
     override var scrollProgress: TransformingLazyColumnItemScrollProgress,
     /** The horizontal alignment to apply during placement. */
@@ -45,7 +55,6 @@ internal data class TransformingLazyColumnMeasuredItem(
     /** The height of the item after transformations applied. */
     override val transformedHeight: Int
         get() =
-            // TODO: b/372233263 - Add caching of transformed height.
             (placeable.parentData as? HeightProviderParentData)?.let {
                 it.heightProvider(placeable.height, scrollProgress)
             } ?: placeable.height
@@ -55,12 +64,14 @@ internal data class TransformingLazyColumnMeasuredItem(
     fun place(scope: Placeable.PlacementScope) =
         with(scope) {
             placeable.placeWithLayer(
-                horizontalAlignment.align(
-                    space = containerConstraints.maxWidth,
-                    size = placeable.width,
-                    layoutDirection = layoutDirection
-                ),
-                offset
+                x =
+                    leftPadding +
+                        horizontalAlignment.align(
+                            space = containerConstraints.maxWidth - rightPadding - leftPadding,
+                            size = placeable.width,
+                            layoutDirection = layoutDirection
+                        ),
+                y = offset,
             )
         }
 
