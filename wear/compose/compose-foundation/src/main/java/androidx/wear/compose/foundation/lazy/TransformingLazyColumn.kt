@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
@@ -84,6 +85,10 @@ fun LazyColumn(
  * is a wear specific version of LazyColumn that adds support for scaling and morphing animations.
  *
  * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
+ * @param contentPadding a padding around the whole content. This will add padding for the content
+ *   after it has been clipped, which is not possible via [modifier] param. You can use it to add a
+ *   padding before the first item or after the last one. If you want to add a spacing between each
+ *   item use [verticalArrangement].
  * @param modifier The modifier to be applied to the layout.
  * @param state The state object to be used to control the list and the applied layout.
  * @param verticalArrangement The vertical arrangement of the items.
@@ -99,16 +104,65 @@ fun LazyColumn(
  *   separate [Modifier.rotaryScrollable] modifier.
  * @param content The content of the list.
  */
+// TODO: b/372629395 - Default to ContentPaddingMeasurementStrategy when no contentPadding provided.
+@Composable
+fun TransformingLazyColumn(
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    state: TransformingLazyColumnState = rememberTransformingLazyColumnState(),
+    verticalArrangement: Arrangement.Vertical =
+        Arrangement.spacedBy(space = 4.dp, alignment = Alignment.Top),
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
+    content: TransformingLazyColumnScope.() -> Unit
+) {
+    TransformingLazyColumnImpl(
+        modifier = modifier,
+        state = state,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+        measurementStrategyProvider = {
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                contentPadding = contentPadding,
+                intrinsicMeasureScope = this
+            )
+        },
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        rotaryScrollableBehavior = rotaryScrollableBehavior,
+        content = content,
+    )
+}
+
+/**
+ * The vertically scrolling list that only composes and lays out the currently visible items. This
+ * is a wear specific version of LazyColumn that adds support for scaling and morphing animations.
+ *
+ * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
+ * @param modifier The modifier to be applied to the layout.
+ * @param state The state object to be used to control the list and the applied layout.
+ * @param verticalArrangement The vertical arrangement of the items.
+ * @param horizontalAlignment The horizontal alignment of the items.
+ * @param flingBehavior The fling behavior to be used for the list. This parameter and the
+ *   [rotaryScrollableBehavior] (which controls rotary scroll) should produce similar scroll effect
+ *   visually.
+ * @param userScrollEnabled Whether the user should be able to scroll the list. This also affects
+ *   scrolling with rotary.
+ * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. This parameter
+ *   and the [flingBehavior] (which controls touch scroll) should produce similar scroll effect. Can
+ *   be null if rotary support is not required or when it should be handled externally with a
+ *   separate [Modifier.rotaryScrollable] modifier.
+ * @param content The content of the list.
+ */
+// TODO: b/372629395 - Remove this overload without contentPadding when clients are migrated.
 @Composable
 fun TransformingLazyColumn(
     modifier: Modifier = Modifier,
     state: TransformingLazyColumnState = rememberTransformingLazyColumnState(),
     verticalArrangement: Arrangement.Vertical =
-        Arrangement.spacedBy(
-            space = 4.dp,
-            // TODO: b/352513793 - Add support for reverseLayout.
-            alignment = Alignment.Top
-        ),
+        Arrangement.spacedBy(space = 4.dp, alignment = Alignment.Top),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
