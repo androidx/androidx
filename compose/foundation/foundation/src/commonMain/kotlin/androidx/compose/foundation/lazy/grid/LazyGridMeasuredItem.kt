@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -165,43 +166,55 @@ internal class LazyGridMeasuredItem(
         maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
     }
 
-    fun applyScrollDelta(delta: Int) {
+    fun applyScrollDelta(delta: Int, updateAnimations: Boolean) {
         if (nonScrollableItem) {
             return
         }
         offset = offset.copy { it + delta }
-        repeat(placeablesCount) { index ->
-            val animation = animator.getAnimation(key, index)
-            if (animation != null) {
-                animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+        if (updateAnimations) {
+            repeat(placeablesCount) { index ->
+                val animation = animator.getAnimation(key, index)
+                if (animation != null) {
+                    animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+                }
             }
         }
     }
 
-    fun place(
-        scope: Placeable.PlacementScope,
-    ) =
+    fun place(scope: Placeable.PlacementScope, isLookingAhead: Boolean) =
         with(scope) {
             requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
             repeat(placeablesCount) { index ->
                 val placeable = placeables[index]
                 val minOffset = minMainAxisOffset - placeable.mainAxisSize
                 val maxOffset = maxMainAxisOffset
-
                 var offset = offset
                 val animation = animator.getAnimation(key, index)
                 val layer: GraphicsLayer?
                 if (animation != null) {
-                    val animatedOffset = offset + animation.placementDelta
-                    // cancel the animation if current and target offsets are both out of the
-                    // bounds.
-                    if (
-                        (offset.mainAxis <= minOffset && animatedOffset.mainAxis <= minOffset) ||
-                            (offset.mainAxis >= maxOffset && animatedOffset.mainAxis >= maxOffset)
-                    ) {
-                        animation.cancelPlacementAnimation()
+                    if (isLookingAhead) {
+                        // Skip animation in lookahead pass
+                        animation.lookaheadOffset = offset
+                    } else {
+                        val targetOffset =
+                            if (animation.lookaheadOffset != NotInitialized) {
+                                animation.lookaheadOffset
+                            } else {
+                                offset
+                            }
+                        val animatedOffset = targetOffset + animation.placementDelta
+                        // cancel the animation if current and target offsets are both out of the
+                        // bounds.
+                        if (
+                            (offset.mainAxis <= minOffset &&
+                                animatedOffset.mainAxis <= minOffset) ||
+                                (offset.mainAxis >= maxOffset &&
+                                    animatedOffset.mainAxis >= maxOffset)
+                        ) {
+                            animation.cancelPlacementAnimation()
+                        }
+                        offset = animatedOffset
                     }
-                    offset = animatedOffset
                     layer = animation.layer
                 } else {
                     layer = null
@@ -213,7 +226,9 @@ internal class LazyGridMeasuredItem(
                         }
                 }
                 offset += visualOffset
-                animation?.finalOffset = offset
+                if (!isLookingAhead) {
+                    animation?.finalOffset = offset
+                }
                 if (isVertical) {
                     if (layer != null) {
                         placeable.placeWithLayer(offset, layer)
