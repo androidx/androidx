@@ -506,7 +506,9 @@ fun SwipeToReveal(
                 .swipeableV2(
                     state = state.swipeableState,
                     orientation = Orientation.Horizontal,
-                    enabled = state.currentValue != RevealValue.RightRevealed,
+                    enabled =
+                        state.currentValue != RevealValue.LeftRevealed &&
+                            state.currentValue != RevealValue.RightRevealed,
                 )
                 .swipeAnchors(
                     state = state.swipeableState,
@@ -697,7 +699,8 @@ fun SwipeToReveal(
         }
         LaunchedEffect(state.currentValue) {
             if (
-                state.currentValue == RevealValue.RightRevealed &&
+                (state.currentValue == RevealValue.LeftRevealed ||
+                    state.currentValue == RevealValue.RightRevealed) &&
                     state.lastActionType == RevealActionType.None
             ) {
                 onFullSwipe()

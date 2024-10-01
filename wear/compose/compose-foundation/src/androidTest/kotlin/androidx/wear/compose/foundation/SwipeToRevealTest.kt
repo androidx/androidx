@@ -109,12 +109,40 @@ class SwipeToRevealTest {
 
     @Test
     fun noSwipe_onFullSwipeRight() {
-        verifyGesture(revealValue = RevealValue.Covered, gesture = { swipeRight() })
+        var onFullSwipeTriggered = false
+
+        verifyGesture(
+            revealValue = RevealValue.Covered,
+            onFullSwipe = { onFullSwipeTriggered = true },
+            gesture = { swipeRight() }
+        )
+
+        assertEquals(false, onFullSwipeTriggered)
     }
 
     @Test
     fun stateToSwiped_onFullSwipeLeft() {
-        verifyGesture(revealValue = RevealValue.RightRevealed, gesture = { swipeLeft() })
+        var onFullSwipeTriggered = false
+        verifyGesture(
+            revealValue = RevealValue.RightRevealed,
+            onFullSwipe = { onFullSwipeTriggered = true },
+            gesture = { swipeLeft() }
+        )
+
+        assertEquals(true, onFullSwipeTriggered)
+    }
+
+    @Test
+    fun stateToSwiped_onFullSwipeRight() {
+        var onFullSwipeTriggered = false
+        verifyGesture(
+            revealValue = RevealValue.LeftRevealed,
+            onFullSwipe = { onFullSwipeTriggered = true },
+            swipeDirection = SwipeDirection.Both,
+            gesture = { swipeRight() }
+        )
+
+        assertEquals(true, onFullSwipeTriggered)
     }
 
     @Test
@@ -429,11 +457,21 @@ class SwipeToRevealTest {
         rule.runOnIdle { assertEquals(expectedClickType, revealState.lastActionType) }
     }
 
-    private fun verifyGesture(revealValue: RevealValue, gesture: TouchInjectionScope.() -> Unit) {
+    private fun verifyGesture(
+        revealValue: RevealValue,
+        gesture: TouchInjectionScope.() -> Unit,
+        onFullSwipe: () -> Unit = {},
+        swipeDirection: SwipeDirection = SwipeDirection.RightToLeft
+    ) {
         lateinit var revealState: RevealState
         rule.setContent {
-            revealState = rememberRevealState()
-            swipeToRevealWithDefaults(state = revealState, modifier = Modifier.testTag(TEST_TAG))
+            revealState =
+                rememberRevealState(anchors = createAnchors(swipeDirection = swipeDirection))
+            swipeToRevealWithDefaults(
+                state = revealState,
+                onFullSwipe = onFullSwipe,
+                modifier = Modifier.testTag(TEST_TAG)
+            )
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput(gesture)
@@ -448,6 +486,7 @@ class SwipeToRevealTest {
         modifier: Modifier = Modifier,
         secondaryAction: (@Composable RevealScope.() -> Unit)? = null,
         undoAction: (@Composable RevealScope.() -> Unit)? = null,
+        onFullSwipe: () -> Unit = {},
         content: @Composable () -> Unit = { getBoxContent() }
     ) {
         SwipeToReveal(
@@ -456,6 +495,7 @@ class SwipeToRevealTest {
             modifier = modifier,
             secondaryAction = secondaryAction,
             undoAction = undoAction,
+            onFullSwipe = onFullSwipe,
             content = content
         )
     }
