@@ -25,12 +25,10 @@ import android.view.WindowManager
 import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
-import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
 import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 
 /** Provides compatibility behavior for functionality related to [WindowMetricsCalculator]. */
@@ -113,7 +111,6 @@ internal object WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper {
         // TODO (b/233899790): compute insets for other platform versions below R
         return WindowMetrics(
             Bounds(BoundsHelper.getInstance().currentWindowBounds(activity)),
-            WindowInsetsCompat.Builder().build(),
             densityCompatHelper.density(activity)
         )
     }
@@ -125,7 +122,6 @@ internal object WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper {
         // TODO (b/233899790): compute insets for other platform versions below Rs
         return WindowMetrics(
             Bounds(BoundsHelper.getInstance().maximumWindowBounds(context)),
-            WindowInsetsCompat.Builder().build(),
             densityCompatHelper.density(context)
         )
     }
@@ -138,11 +134,7 @@ internal object WindowMetricsCompatHelperApi30Impl : WindowMetricsCompatHelper {
         windowMetrics: AndroidWindowMetrics,
         density: Float
     ): WindowMetrics {
-        return WindowMetrics(
-            windowMetrics.bounds,
-            WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets),
-            density
-        )
+        return WindowMetrics(windowMetrics.bounds, density)
     }
 
     override fun currentWindowMetrics(
@@ -150,9 +142,8 @@ internal object WindowMetricsCompatHelperApi30Impl : WindowMetricsCompatHelper {
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics {
         val wm = context.getSystemService(WindowManager::class.java)
-        val insets = WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets)
         val density = context.resources.displayMetrics.density
-        return WindowMetrics(wm.currentWindowMetrics.bounds, insets, density)
+        return WindowMetrics(wm.currentWindowMetrics.bounds, density)
     }
 
     override fun currentWindowMetrics(
@@ -161,7 +152,6 @@ internal object WindowMetricsCompatHelperApi30Impl : WindowMetricsCompatHelper {
     ): WindowMetrics {
         return WindowMetrics(
             Bounds(BoundsHelper.getInstance().currentWindowBounds(activity)),
-            currentWindowInsets(activity),
             densityCompatHelper.density(activity)
         )
     }
@@ -172,7 +162,6 @@ internal object WindowMetricsCompatHelperApi30Impl : WindowMetricsCompatHelper {
     ): WindowMetrics {
         return WindowMetrics(
             Bounds(BoundsHelper.getInstance().maximumWindowBounds(context)),
-            currentWindowInsets(context),
             densityCompatHelper.density(context)
         )
     }
@@ -185,11 +174,7 @@ internal object WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelper {
         windowMetrics: AndroidWindowMetrics,
         density: Float
     ): WindowMetrics {
-        return WindowMetrics(
-            windowMetrics.bounds,
-            WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets),
-            windowMetrics.density
-        )
+        return WindowMetrics(windowMetrics.bounds, windowMetrics.density)
     }
 
     override fun currentWindowMetrics(
@@ -197,11 +182,7 @@ internal object WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelper {
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics {
         val wm = context.getSystemService(WindowManager::class.java)
-        return WindowMetrics(
-            wm.currentWindowMetrics.bounds,
-            WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets),
-            wm.currentWindowMetrics.density
-        )
+        return WindowMetrics(wm.currentWindowMetrics.bounds, wm.currentWindowMetrics.density)
     }
 
     override fun currentWindowMetrics(

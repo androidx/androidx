@@ -16,23 +16,17 @@
 package androidx.window.layout
 
 import android.graphics.Rect
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.graphics.Insets
-import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.window.core.Bounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Tests for [WindowMetrics] class. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class WindowMetricsTest {
+class WindowMetricsTest {
     @Test
     fun testGetBounds() {
         val bounds = Rect(1, 2, 3, 4)
@@ -71,58 +65,5 @@ public class WindowMetricsTest {
         val windowMetrics0 = WindowMetrics(bounds, density = 1f)
         val windowMetrics1 = WindowMetrics(bounds, density = 1f)
         assertEquals(windowMetrics0.hashCode().toLong(), windowMetrics1.hashCode().toLong())
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    @Test
-    fun testSameWindowInsets_emptyInsets() {
-        assumePlatformROrAbove()
-        val bounds = Bounds(1, 2, 3, 4)
-        val windowInsetsCompat = WindowInsetsCompat.Builder().build()
-        val windowMetricsA = WindowMetrics(bounds, windowInsetsCompat, 1f /* density */)
-        val windowMetricsB = WindowMetrics(bounds, windowInsetsCompat, 1f /* density */)
-        assertEquals(windowMetricsA, windowMetricsB)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    @Test
-    fun testSameWindowInsets_nonEmptyInsets() {
-        assumePlatformROrAbove()
-        val bounds = Bounds(1, 2, 3, 4)
-        val insets = Insets.of(6, 7, 8, 9)
-        val builder = WindowInsetsCompat.Builder()
-        for (type in WindowMetricsCalculatorCompat().insetsTypeMasks) {
-            builder.setInsets(type, insets)
-        }
-        val windowInsetsCompat = builder.build()
-        val windowMetricsA = WindowMetrics(bounds, windowInsetsCompat, 1f /* density */)
-        val windowMetricsB = WindowMetrics(bounds, windowInsetsCompat, 1f /* density */)
-        assertEquals(windowMetricsA, windowMetricsB)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    @Test
-    fun testDiffWindowInsets() {
-        assumePlatformROrAbove()
-        val bounds = Bounds(1, 2, 3, 4)
-        val insetsA = Insets.of(1, 2, 3, 4)
-        val insetsB = Insets.of(6, 7, 8, 9)
-        val builderA = WindowInsetsCompat.Builder()
-        val builderB = WindowInsetsCompat.Builder()
-        for (type in WindowMetricsCalculatorCompat().insetsTypeMasks) {
-            builderA.setInsets(type, insetsA)
-            builderB.setInsets(type, insetsB)
-        }
-        val windowInsetsCompatA = builderA.build()
-        val windowInsetsCompatB = builderB.build()
-        val windowMetricsA = WindowMetrics(bounds, windowInsetsCompatA, 1f /* density */)
-        val windowMetricsB = WindowMetrics(bounds, windowInsetsCompatB, 1f /* density */)
-        assertNotEquals(windowMetricsA, windowMetricsB)
-    }
-
-    private companion object {
-        private fun assumePlatformROrAbove() {
-            assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        }
     }
 }

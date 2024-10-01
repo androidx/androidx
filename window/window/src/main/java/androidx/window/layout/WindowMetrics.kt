@@ -16,13 +16,9 @@
 package androidx.window.layout
 
 import android.graphics.Rect
-import android.os.Build.VERSION_CODES
 import android.util.DisplayMetrics
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Metrics about a [android.view.Window], consisting of its bounds.
@@ -35,7 +31,6 @@ import androidx.window.core.ExperimentalWindowApi
 class WindowMetrics
 internal constructor(
     private val _bounds: Bounds,
-    private val _windowInsetsCompat: WindowInsetsCompat,
     /**
      * Returns the logical density of the display this window is in.
      *
@@ -46,11 +41,7 @@ internal constructor(
 
     /** An internal constructor for [WindowMetrics] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        bounds: Rect,
-        insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build(),
-        density: Float
-    ) : this(Bounds(bounds), insets, density)
+    constructor(bounds: Rect, density: Float) : this(Bounds(bounds), density)
 
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
@@ -64,16 +55,6 @@ internal constructor(
     val bounds: Rect
         get() = _bounds.toRect()
 
-    /**
-     * Returns the [WindowInsetsCompat] of the area associated with this window or visual context.
-     */
-    @ExperimentalWindowApi
-    @RequiresApi(VERSION_CODES.R)
-    // TODO (b/238354685): Match interface style of Bounds after the API is fully backported
-    fun getWindowInsets(): WindowInsetsCompat {
-        return _windowInsetsCompat
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -81,7 +62,6 @@ internal constructor(
         other as WindowMetrics
 
         if (_bounds != other._bounds) return false
-        if (_windowInsetsCompat != other._windowInsetsCompat) return false
         if (density != other.density) return false
 
         return true
@@ -89,12 +69,11 @@ internal constructor(
 
     override fun hashCode(): Int {
         var result = _bounds.hashCode()
-        result = 31 * result + _windowInsetsCompat.hashCode()
         result = 31 * result + density.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "WindowMetrics(_bounds=$_bounds, _windowInsetsCompat=$_windowInsetsCompat, density=$density)"
+        return "WindowMetrics(_bounds=$_bounds, density=$density)"
     }
 }

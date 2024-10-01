@@ -21,7 +21,6 @@ import android.os.Build
 import android.view.Display
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
-import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ActivityScenario.ActivityAction
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,7 +31,6 @@ import androidx.window.WindowTestUtils.Companion.assumePlatformROrAbove
 import androidx.window.WindowTestUtils.Companion.assumePlatformUOrAbove
 import androidx.window.WindowTestUtils.Companion.isInMultiWindowMode
 import androidx.window.WindowTestUtils.Companion.runActionsAcrossActivityLifecycle
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -210,36 +208,6 @@ class WindowMetricsCalculatorCompatTest {
                 WindowMetricsCalculatorCompat().computeMaximumWindowMetrics(activity).bounds
             val windowMetricsBounds = activity.windowManager.maximumWindowMetrics.bounds
             assertEquals(windowMetricsBounds, bounds)
-        }
-    }
-
-    @SuppressLint("NewApi")
-    @Test
-    @OptIn(ExperimentalWindowApi::class)
-    fun testGetWindowInsetsCompat_currentWindowMetrics_postR() {
-        assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
-            val windowMetrics =
-                WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity)
-            val windowInsets = windowMetrics.getWindowInsets()
-            val platformInsets = activity.windowManager.currentWindowMetrics.windowInsets
-            val platformWindowInsets = WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
-            assertEquals(platformWindowInsets, windowInsets)
-        }
-    }
-
-    @SuppressLint("NewApi")
-    @Test
-    @OptIn(ExperimentalWindowApi::class)
-    fun testGetWindowInsetsCompat_maximumWindowMetrics_postR() {
-        assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
-            val windowMetrics =
-                WindowMetricsCalculatorCompat().computeMaximumWindowMetrics(activity)
-            val windowInsets = windowMetrics.getWindowInsets()
-            val platformInsets = activity.windowManager.maximumWindowMetrics.windowInsets
-            val platformWindowInsets = WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
-            assertEquals(platformWindowInsets, windowInsets)
         }
     }
 

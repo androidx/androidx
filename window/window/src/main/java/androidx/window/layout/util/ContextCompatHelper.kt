@@ -20,11 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
-import android.os.Build
-import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
-import androidx.core.view.WindowInsetsCompat
 
 internal object ContextCompatHelper {
     /**
@@ -54,20 +50,5 @@ internal object ContextCompatHelper {
         //  this ambiguity will no longer exist. Again for clarity, on APIs before R, UiContexts are
         //  Activities or InputMethodServices, so we should never reach this point.
         throw IllegalArgumentException("Context $context is not a UiContext")
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.R)
-internal object ContextCompatHelperApi30 {
-
-    /**
-     * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
-     *
-     * @see androidx.window.layout.WindowMetrics.getWindowInsets
-     */
-    fun currentWindowInsets(@UiContext context: Context): WindowInsetsCompat {
-        val platformInsets =
-            context.getSystemService(WindowManager::class.java).currentWindowMetrics.windowInsets
-        return WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
     }
 }
