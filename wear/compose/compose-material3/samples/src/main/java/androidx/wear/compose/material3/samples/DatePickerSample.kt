@@ -17,8 +17,12 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
@@ -29,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.DatePicker
 import androidx.wear.compose.material3.DatePickerType
@@ -102,11 +107,13 @@ fun DatePickerYearMonthDaySample() {
 @Sampled
 @Composable
 fun DatePickerFromDateToDateSample() {
-    var showDatePicker by remember { mutableStateOf(true) }
+    var showDatePicker by remember { mutableStateOf(false) }
     var datePickerDate by remember { mutableStateOf(LocalDate.of(2024, 9, 2)) }
     val formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
             .withLocale(LocalConfiguration.current.locales[0])
+    val minDate = LocalDate.of(2022, 10, 15)
+    val maxDate = LocalDate.of(2025, 2, 4)
     if (showDatePicker) {
         DatePicker(
             initialDate = datePickerDate, // Initialize with last picked date on reopen
@@ -114,15 +121,18 @@ fun DatePickerFromDateToDateSample() {
                 datePickerDate = it
                 showDatePicker = false
             },
-            minDate = LocalDate.of(2023, 10, 15),
-            maxDate = LocalDate.of(2025, 2, 4),
+            minDate = minDate,
+            maxDate = maxDate,
             datePickerType = DatePickerType.YearMonthDay
         )
     } else {
-        Box(
+        Column(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(text = "${minDate.format(formatter)} ~ ${maxDate.format(formatter)}")
+            Spacer(modifier = Modifier.height(6.dp))
             Button(
                 onClick = { showDatePicker = true },
                 label = { Text("Selected Date") },

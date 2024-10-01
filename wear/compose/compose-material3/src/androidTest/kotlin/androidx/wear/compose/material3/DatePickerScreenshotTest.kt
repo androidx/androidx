@@ -323,6 +323,7 @@ class DatePickerScreenshotTest {
             }
         }
         action?.let { it() }
+        rule.waitForIdle()
 
         onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
     }
