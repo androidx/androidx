@@ -135,7 +135,15 @@ internal class LegacyCursorAnchorInfoController(
         }
 
     private fun updateCursorAnchorInfo() {
-        if (!inputMethodManager.isActive()) return
+        if (
+            !inputMethodManager.isActive() ||
+                textFieldValue == null ||
+                offsetMapping == null ||
+                textLayoutResult == null ||
+                innerTextFieldBounds == null ||
+                decorationBoxBounds == null
+        )
+            return
 
         matrix.reset()
         // Updates matrix to transform decoration box coordinates to screen coordinates.
