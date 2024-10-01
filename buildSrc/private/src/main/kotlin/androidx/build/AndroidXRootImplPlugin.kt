@@ -33,9 +33,11 @@ import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Zip
@@ -46,7 +48,8 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
+    @get:Inject abstract val registry: BuildEventsListenerRegistry
+    @Suppress("UnstableApiUsage") @get:Inject abstract val buildFeatures: BuildFeatures
 
     override fun apply(project: Project) {
         if (!project.isRoot) {
@@ -82,12 +85,14 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java)
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
-        buildOnServerTask.dependsOn(
-            tasks.register(
-                CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
-                CreateAggregateLibraryBuildInfoFileTask::class.java
+        if (!buildFeatures.isIsolatedProjectsEnabled()) {
+            buildOnServerTask.dependsOn(
+                tasks.register(
+                    CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
+                    CreateAggregateLibraryBuildInfoFileTask::class.java
+                )
             )
-        )
+        }
 
         VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
@@ -124,7 +129,9 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         AffectedModuleDetector.configure(gradle, this)
 
-        registerOwnersServiceTasks()
+        if (!buildFeatures.isIsolatedProjectsEnabled()) {
+            registerOwnersServiceTasks()
+        }
         registerStudioTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->

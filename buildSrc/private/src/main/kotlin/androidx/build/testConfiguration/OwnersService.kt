@@ -82,15 +82,17 @@ internal fun Project.registerOwnersServiceTasks() {
     }
 }
 
-internal fun Project.addToModuleInfo(testName: String) {
-    rootProject.tasks.named(CREATE_MODULE_INFO).configure {
-        it as ModuleInfoGenerator
-        it.testModules.add(
-            TestModule(
-                name = testName,
-                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+internal fun Project.addToModuleInfo(testName: String, projectIsolationEnabled: Boolean) {
+    if (!projectIsolationEnabled) {
+        rootProject.tasks.named(CREATE_MODULE_INFO).configure {
+            it as ModuleInfoGenerator
+            it.testModules.add(
+                TestModule(
+                    name = testName,
+                    path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+                )
             )
-        )
+        }
     }
 }
 

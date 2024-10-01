@@ -17,8 +17,10 @@
 package androidx.build
 
 import groovy.lang.Closure
+import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
@@ -49,6 +51,12 @@ abstract class AndroidXExtension(
         setDefaultGroupFromProjectPath()
         mavenGroup = chooseLibraryGroup()
         chooseProjectVersion()
+    }
+
+    @get:Inject abstract val buildFeatures: BuildFeatures
+
+    fun isIsolatedProjectsEnabled(): Boolean {
+        return buildFeatures.isIsolatedProjectsEnabled()
     }
 
     /**
