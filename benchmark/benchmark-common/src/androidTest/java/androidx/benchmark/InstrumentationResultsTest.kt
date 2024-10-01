@@ -19,9 +19,9 @@ package androidx.benchmark
 import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.assertFailsWith
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -137,15 +137,6 @@ class InstrumentationResultsTest {
         assertEquals(
             """
                 |foo
-                |  Metric   min 0.0,   median 1.1,   max 2.2
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
-        assertEquals(
-            """
-                |foo
                 |  Metric   [min 0.0](file://iter0.trace),   [median 1.1](file://iter1.trace),   [max 2.2](file://iter2.trace)
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
                 |
@@ -153,6 +144,8 @@ class InstrumentationResultsTest {
                 .trimMargin(),
             summary.summaryV2
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -172,16 +165,6 @@ class InstrumentationResultsTest {
         assertEquals(
             """
                 |foo
-                |  Metric1   min   0.0,   median   1.0,   max   2.0
-                |  Metric2   min   0.0,   median 111.0,   max 222.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
-        assertEquals(
-            """
-                |foo
                 |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
                 |  Metric2   [min   0.0](file://iter2.trace),   [median 111.0](file://iter1.trace),   [max 222.0](file://iter0.trace)
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
@@ -190,6 +173,8 @@ class InstrumentationResultsTest {
                 .trimMargin(),
             summary.summaryV2
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -209,21 +194,14 @@ class InstrumentationResultsTest {
             """
                 |foo
                 |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
-        assertEquals(
-            """
-                |foo
-                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
                 |
             """
                 .trimMargin(),
             summary.summaryV2
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -241,16 +219,6 @@ class InstrumentationResultsTest {
         assertEquals(
             """
                 |foo
-                |  Metric1   min   0.0,   median   1.0,   max   2.0
-                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
-        assertEquals(
-            """
-                |foo
                 |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
                 |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
@@ -259,6 +227,8 @@ class InstrumentationResultsTest {
                 .trimMargin(),
             summary.summaryV2
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -282,9 +252,9 @@ class InstrumentationResultsTest {
                 |            0.0 ns    foo
             """
                 .trimMargin(),
-            summary.summaryV1
+            summary.summaryV2
         )
-        // no links so both versions are equivalent
+        // v1 is deprecated and should be the same as v2
         assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
@@ -309,17 +279,6 @@ class InstrumentationResultsTest {
                 |warning
                 |string
                 |foo
-                |  Metric   min 0.0,   median 1.0,   max 2.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
-        assertEquals(
-            """
-                |warning
-                |string
-                |foo
                 |  Metric   [min 0.0](file://iter0.trace),   [median 1.0](file://iter1.trace),   [max 2.0](file://iter2.trace)
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
                 |
@@ -327,6 +286,8 @@ class InstrumentationResultsTest {
                 .trimMargin(),
             summary.summaryV2
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -339,3 +300,5 @@ class InstrumentationResultsTest {
         }
     }
 }
+
+private fun <T> assertEquals(expected: T, actual: T) = assertThat(actual).isEqualTo(expected)
