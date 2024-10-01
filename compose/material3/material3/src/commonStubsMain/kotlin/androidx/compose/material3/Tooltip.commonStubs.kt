@@ -38,11 +38,40 @@ actual fun TooltipScope.PlainTooltip(
 
 @Composable
 @ExperimentalMaterial3Api
+actual fun TooltipScope.PlainTooltip(
+    modifier: Modifier,
+    caretSize: DpSize,
+    maxWidth: Dp,
+    shape: Shape,
+    contentColor: Color,
+    containerColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    content: @Composable () -> Unit
+): Unit = implementedInJetBrainsFork()
+
+@Composable
+@ExperimentalMaterial3Api
 actual fun TooltipScope.RichTooltip(
     modifier: Modifier,
     title: (@Composable () -> Unit)?,
     action: (@Composable () -> Unit)?,
     caretSize: DpSize,
+    shape: Shape,
+    colors: RichTooltipColors,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    text: @Composable () -> Unit
+): Unit = implementedInJetBrainsFork()
+
+@Composable
+@ExperimentalMaterial3Api
+actual fun TooltipScope.RichTooltip(
+    modifier: Modifier,
+    title: (@Composable () -> Unit)?,
+    action: (@Composable () -> Unit)?,
+    caretSize: DpSize,
+    maxWidth: Dp,
     shape: Shape,
     colors: RichTooltipColors,
     tonalElevation: Dp,
