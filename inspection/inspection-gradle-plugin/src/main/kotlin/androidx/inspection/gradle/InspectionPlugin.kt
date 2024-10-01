@@ -19,9 +19,6 @@ package androidx.inspection.gradle
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.LibraryExtension
-import com.google.protobuf.gradle.GenerateProtoTask
-import com.google.protobuf.gradle.ProtobufExtension
-import com.google.protobuf.gradle.ProtobufPlugin
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -107,19 +104,6 @@ class InspectionPlugin : Plugin<Project> {
         }
 
         project.apply(plugin = "com.google.protobuf")
-        project.plugins.configureEach {
-            if (it is ProtobufPlugin) {
-                val protobufExtension = project.extensions.getByType(ProtobufExtension::class.java)
-                protobufExtension.apply {
-                    protoc { it.artifact = project.getLibraryByName("protobufCompiler").toString() }
-                    generateProtoTasks {
-                        it.all().forEach { task: GenerateProtoTask ->
-                            task.builtins.create("java") { options -> options.option("lite") }
-                        }
-                    }
-                }
-            }
-        }
 
         project.dependencies { add("implementation", project.getLibraryByName("protobufLite")) }
 

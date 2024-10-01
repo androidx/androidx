@@ -87,13 +87,14 @@ android {
 }
 
 protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
     generateProtoTasks {
-        all().each { task ->
+        all().configureEach { task ->
             task.builtins {
-                java {}
+                java {
+                    // AndroidXPlugin defaults to lite as most projects should use that library,
+                    // however TileRendererGoldenTest relies on full proto library.
+                    options.remove("lite")
+                }
             }
         }
     }

@@ -21,8 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -42,22 +40,6 @@ dependencies {
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(libs.kotlinCoroutinesTest)
 }
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
 android {
     namespace "androidx.datastore.protodatastore"
 }

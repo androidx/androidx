@@ -38,7 +38,6 @@ dependencies {
     // For DataStore with protos
     implementation(project(":datastore:datastore"))
 
-
     implementation(libs.protobufLite)
     implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -52,21 +51,6 @@ dependencies {
 
     // For kotlin serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
 }
 
 android {

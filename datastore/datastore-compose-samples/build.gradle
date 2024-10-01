@@ -60,19 +60,3 @@ android {
         minSdk 28
     }
 }
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option 'lite'
-                }
-            }
-        }
-    }
-}
-
