@@ -34,7 +34,12 @@ import java.lang.annotation.Target;
  * and providers, they are already generally not able to be obfuscated.
  *
  * @see CallbackReceiver#createRemoteCallback
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface RemoteCallable {
