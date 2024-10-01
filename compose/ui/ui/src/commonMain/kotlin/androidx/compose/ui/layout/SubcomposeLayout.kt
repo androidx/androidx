@@ -42,7 +42,6 @@ import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.LayoutNode.LayoutRequestMode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
 import androidx.compose.ui.node.TraversableNode
@@ -463,11 +462,8 @@ internal class LayoutNodeSubcompositionsState(
             slotIdToNode.getOrPut(slotId) {
                 val precomposed = precomposeMap.remove(slotId)
                 if (precomposed != null) {
-                    checkPrecondition(precomposedCount > 0) {
-                        "precomposedCount should be > 0 when state has precomposed nodes, was $precomposedCount"
-                    }
+                    @Suppress("ExceptionMessage") checkPrecondition(precomposedCount > 0)
                     precomposedCount--
-                    precomposed.unmarkPrefetched()
                     precomposed
                 } else {
                     takeNodeFromReusables(slotId) ?: createNodeAt(currentIndex)
@@ -663,21 +659,7 @@ internal class LayoutNodeSubcompositionsState(
 
     private fun LayoutNode.resetLayoutState() {
         measurePassDelegate.measuredByParent = UsageByParent.NotUsed
-
         lookaheadPassDelegate?.let { it.measuredByParent = UsageByParent.NotUsed }
-    }
-
-    private fun LayoutNode.markPrefetched() {
-        layoutRequestMode = LayoutRequestMode.MarkPending
-
-        forEachChild { it.markPrefetched() }
-    }
-
-    private fun LayoutNode.unmarkPrefetched() {
-        layoutRequestMode = LayoutRequestMode.Request
-        rescheduleRemeasureOrRelayout(this)
-
-        forEachChild { it.unmarkPrefetched() }
     }
 
     private fun takeNodeFromReusables(slotId: Any?): LayoutNode? {
@@ -823,7 +805,6 @@ internal class LayoutNodeSubcompositionsState(
                         val nodeIndex = root.foldedChildren.indexOf(reusedNode)
                         move(nodeIndex, root.foldedChildren.size, 1)
                         precomposedCount++
-                        reusedNode.markPrefetched()
                         reusedNode
                     } else {
                         createNodeAt(root.foldedChildren.size).also { precomposedCount++ }
