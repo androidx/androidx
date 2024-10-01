@@ -39,7 +39,12 @@ import androidx.annotation.RestrictTo;
  *
  * @param <T> Should be specified as the root class (e.g. class X extends
  *           ContentProviderWithCallbacks\<X>)
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 @SuppressWarnings("HiddenSuperclass")
 public abstract class ContentProviderWithCallbacks<T extends ContentProviderWithCallbacks> extends
         ContentProvider implements CallbackReceiver<T>, CallbackBase<T> {

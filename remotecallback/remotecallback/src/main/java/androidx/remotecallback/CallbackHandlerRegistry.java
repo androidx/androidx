@@ -39,7 +39,12 @@ import java.lang.reflect.InvocationTargetException;
  * The holder for callbacks that are tagged with {@link RemoteCallable}.
  * Note: This should only be referenced by generated code, there is no reason to reference this
  * otherwise.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 public class CallbackHandlerRegistry {
     /**
      */

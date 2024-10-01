@@ -1,75 +1,75 @@
 // Signature format: 4.0
 package androidx.remotecallback {
 
-  public class AppWidgetProviderWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.appwidget.AppWidgetProvider implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
-    ctor public AppWidgetProviderWithCallbacks();
-    method public T createRemoteCallback(android.content.Context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
+  @Deprecated public class AppWidgetProviderWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.appwidget.AppWidgetProvider implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
+    ctor @Deprecated public AppWidgetProviderWithCallbacks();
+    method @Deprecated public T createRemoteCallback(android.content.Context);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
   }
 
-  public abstract class BroadcastReceiverWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.content.BroadcastReceiver implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
-    ctor public BroadcastReceiverWithCallbacks();
-    method public T createRemoteCallback(android.content.Context);
-    method public void onReceive(android.content.Context!, android.content.Intent!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
-    field public static final String ACTION_BROADCAST_CALLBACK = "androidx.remotecallback.action.BROADCAST_CALLBACK";
+  @Deprecated public abstract class BroadcastReceiverWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.content.BroadcastReceiver implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
+    ctor @Deprecated public BroadcastReceiverWithCallbacks();
+    method @Deprecated public T createRemoteCallback(android.content.Context);
+    method @Deprecated public void onReceive(android.content.Context!, android.content.Intent!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
+    field @Deprecated public static final String ACTION_BROADCAST_CALLBACK = "androidx.remotecallback.action.BROADCAST_CALLBACK";
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface CallbackBase<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String, android.os.Bundle, String);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface CallbackBase<T> {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String, android.os.Bundle, String);
   }
 
-  public class CallbackHandlerRegistry {
-    ctor public CallbackHandlerRegistry();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver!>, android.content.Context, String?);
-    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.content.Intent);
-    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.os.Bundle);
-    method public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>, String, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>?);
-    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver!>, android.os.Bundle, String?);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.remotecallback.CallbackHandlerRegistry! sInstance;
+  @Deprecated public class CallbackHandlerRegistry {
+    ctor @Deprecated public CallbackHandlerRegistry();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver!>, android.content.Context, String?);
+    method @Deprecated public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.content.Intent);
+    method @Deprecated public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.os.Bundle);
+    method @Deprecated public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>, String, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>?);
+    method @Deprecated public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver!>, android.os.Bundle, String?);
+    field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.remotecallback.CallbackHandlerRegistry! sInstance;
   }
 
-  public static interface CallbackHandlerRegistry.CallbackHandler<T extends androidx.remotecallback.CallbackReceiver> {
-    method public void executeCallback(android.content.Context, T!, android.os.Bundle);
+  @Deprecated public static interface CallbackHandlerRegistry.CallbackHandler<T extends androidx.remotecallback.CallbackReceiver> {
+    method @Deprecated public void executeCallback(android.content.Context, T!, android.os.Bundle);
   }
 
-  public interface CallbackReceiver<T> {
-    method public T createRemoteCallback(android.content.Context);
+  @Deprecated public interface CallbackReceiver<T> {
+    method @Deprecated public T createRemoteCallback(android.content.Context);
   }
 
-  public abstract class ContentProviderWithCallbacks<T extends androidx.remotecallback.ContentProviderWithCallbacks> extends android.content.ContentProvider implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
-    ctor public ContentProviderWithCallbacks();
-    method public T createRemoteCallback(android.content.Context);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
+  @Deprecated public abstract class ContentProviderWithCallbacks<T extends androidx.remotecallback.ContentProviderWithCallbacks> extends android.content.ContentProvider implements androidx.remotecallback.CallbackBase<T!> androidx.remotecallback.CallbackReceiver<T!> {
+    ctor @Deprecated public ContentProviderWithCallbacks();
+    method @Deprecated public T createRemoteCallback(android.content.Context);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) public @interface ExternalInput {
-    method public abstract String value();
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) public @interface ExternalInput {
+    method @Deprecated public abstract String value();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProviderRelayReceiver extends android.content.BroadcastReceiver {
-    ctor public ProviderRelayReceiver();
-    method public void onReceive(android.content.Context!, android.content.Intent!);
-    field public static final String ACTION_PROVIDER_RELAY = "androidx.remotecallback.action.PROVIDER_RELAY";
-    field public static final String EXTRA_AUTHORITY = "androidx.remotecallback.extra.AUTHORITY";
-    field public static final String METHOD_PROVIDER_CALLBACK = "androidx.remotecallback.method.PROVIDER_CALLBACK";
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProviderRelayReceiver extends android.content.BroadcastReceiver {
+    ctor @Deprecated public ProviderRelayReceiver();
+    method @Deprecated public void onReceive(android.content.Context!, android.content.Intent!);
+    field @Deprecated public static final String ACTION_PROVIDER_RELAY = "androidx.remotecallback.action.PROVIDER_RELAY";
+    field @Deprecated public static final String EXTRA_AUTHORITY = "androidx.remotecallback.extra.AUTHORITY";
+    field @Deprecated public static final String METHOD_PROVIDER_CALLBACK = "androidx.remotecallback.method.PROVIDER_CALLBACK";
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface RemoteCallable {
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface RemoteCallable {
   }
 
-  public class RemoteCallback {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RemoteCallback(android.content.Context, int, android.content.Intent, String, android.os.Bundle);
-    method public static <T extends androidx.remotecallback.CallbackReceiver> T! create(Class<T!>!, android.content.Context!);
-    method public android.os.Bundle! getArgumentBundle();
-    method public String! getMethodName();
-    method public String getReceiverClass();
-    method public int getType();
-    method public android.app.PendingIntent! toPendingIntent();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String EXTRA_METHOD = "remotecallback.method";
-    field public static final androidx.remotecallback.RemoteCallback! LOCAL;
-    field public static final int TYPE_PROVIDER = 1; // 0x1
-    field public static final int TYPE_RECEIVER = 0; // 0x0
+  @Deprecated public class RemoteCallback {
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RemoteCallback(android.content.Context, int, android.content.Intent, String, android.os.Bundle);
+    method @Deprecated public static <T extends androidx.remotecallback.CallbackReceiver> T! create(Class<T!>!, android.content.Context!);
+    method @Deprecated public android.os.Bundle! getArgumentBundle();
+    method @Deprecated public String! getMethodName();
+    method @Deprecated public String getReceiverClass();
+    method @Deprecated public int getType();
+    method @Deprecated public android.app.PendingIntent! toPendingIntent();
+    field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String EXTRA_METHOD = "remotecallback.method";
+    field @Deprecated public static final androidx.remotecallback.RemoteCallback! LOCAL;
+    field @Deprecated public static final int TYPE_PROVIDER = 1; // 0x1
+    field @Deprecated public static final int TYPE_RECEIVER = 0; // 0x0
   }
 
 }

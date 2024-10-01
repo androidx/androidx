@@ -27,7 +27,12 @@ import androidx.annotation.RestrictTo;
 /**
  * The receiver used to call into providers when a pending intent is requested.
  *
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProviderRelayReceiver extends BroadcastReceiver {
 
