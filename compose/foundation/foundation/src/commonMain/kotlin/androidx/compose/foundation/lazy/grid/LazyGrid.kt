@@ -110,6 +110,18 @@ internal fun LazyGrid(
             reverseLayout
         )
 
+    val beyondBoundsModifier =
+        if (userScrollEnabled) {
+            Modifier.lazyLayoutBeyondBoundsModifier(
+                state = rememberLazyGridBeyondBoundsState(state = state),
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                orientation = orientation
+            )
+        } else {
+            Modifier
+        }
+
     LazyLayout(
         modifier =
             modifier
@@ -122,14 +134,7 @@ internal fun LazyGrid(
                     userScrollEnabled = userScrollEnabled,
                     reverseScrolling = reverseLayout,
                 )
-                .lazyLayoutBeyondBoundsModifier(
-                    state = rememberLazyGridBeyondBoundsState(state = state),
-                    beyondBoundsInfo = state.beyondBoundsInfo,
-                    reverseLayout = reverseLayout,
-                    layoutDirection = LocalLayoutDirection.current,
-                    orientation = orientation,
-                    enabled = userScrollEnabled
-                )
+                .then(beyondBoundsModifier)
                 .then(state.itemAnimator.modifier)
                 .scrollingContainer(
                     state = state,
