@@ -148,6 +148,22 @@ internal fun Pager(
             reverseLayout
         )
 
+    val beyondBoundsModifier =
+        if (userScrollEnabled) {
+            Modifier.lazyLayoutBeyondBoundsModifier(
+                state =
+                    rememberPagerBeyondBoundsState(
+                        state = state,
+                        beyondViewportPageCount = beyondViewportPageCount
+                    ),
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                orientation = orientation,
+            )
+        } else {
+            Modifier
+        }
+
     LazyLayout(
         modifier =
             modifier
@@ -166,18 +182,7 @@ internal fun Pager(
                     coroutineScope,
                     userScrollEnabled
                 )
-                .lazyLayoutBeyondBoundsModifier(
-                    state =
-                        rememberPagerBeyondBoundsState(
-                            state = state,
-                            beyondViewportPageCount = beyondViewportPageCount
-                        ),
-                    beyondBoundsInfo = state.beyondBoundsInfo,
-                    reverseLayout = reverseLayout,
-                    layoutDirection = LocalLayoutDirection.current,
-                    orientation = orientation,
-                    enabled = userScrollEnabled
-                )
+                .then(beyondBoundsModifier)
                 .scrollingContainer(
                     state = state,
                     orientation = orientation,
