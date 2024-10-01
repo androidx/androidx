@@ -5366,14 +5366,14 @@ public class AccessibilityNodeInfoCompat {
         public static CollectionInfoCompat buildCollectionInfoCompat(int rowCount, int columnCount,
                 boolean hierarchical, int selectionMode, int itemCount,
                 int importantForAccessibilityItemCount) {
-            return new CollectionInfoCompat.Builder()
+            return new CollectionInfoCompat(new AccessibilityNodeInfo.CollectionInfo.Builder()
                     .setRowCount(rowCount)
                     .setColumnCount(columnCount)
                     .setHierarchical(hierarchical)
                     .setSelectionMode(selectionMode)
                     .setItemCount(itemCount)
                     .setImportantForAccessibilityItemCount(importantForAccessibilityItemCount)
-                    .build();
+                    .build());
         }
     }
 }
