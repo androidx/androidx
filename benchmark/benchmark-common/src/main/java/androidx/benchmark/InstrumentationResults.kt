@@ -24,18 +24,14 @@ import java.lang.StringBuilder
 import java.util.Locale
 import org.jetbrains.annotations.TestOnly
 
-/**
- * Wrapper for multi studio version link format
- *
- * TODO: drop support for very old versions of Studio in Benchmark 1.3, and remove v1 protocol
- *   support for simplicity (just post v2 twice)
- */
+/** Wrapper for multi studio version link format */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class IdeSummaryPair(val summaryV1: String, val summaryV2: String) {
-    constructor(
-        v1lines: List<String>,
-        v2lines: List<String>
-    ) : this(summaryV1 = v1lines.joinToString("\n"), summaryV2 = v2lines.joinToString("\n"))
+data class IdeSummaryPair(val summaryV2: String) {
+    constructor(v2lines: List<String>) : this(summaryV2 = v2lines.joinToString("\n"))
+
+    /** Fallback for very old versions of Studio */
+    val summaryV1: String
+        get() = summaryV2
 }
 
 /** Provides a way to capture all the instrumentation results which needs to be reported. */
@@ -43,15 +39,13 @@ data class IdeSummaryPair(val summaryV1: String, val summaryV2: String) {
 class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
 
     private fun reportIdeSummary(
-        /** Simple text-only result summary string to output to IDE. */
-        summaryV1: String,
         /**
          * V2 output string, supports linking to files in the output dir via links of the format
          * `[link](file://<relative-path-to-trace>`).
          */
-        summaryV2: String = summaryV1
+        summaryV2: String
     ) {
-        bundle.putString(IDE_V1_SUMMARY_KEY, summaryV1)
+        bundle.putString(IDE_V1_SUMMARY_KEY, summaryV2) // deprecating v1 with a "graceful" fallback
         // Outputs.outputDirectory is safe to use in the context of Studio currently.
         // This is because AGP does not populate the `additionalTestOutputDir` argument.
         bundle.putString(IDE_V2_OUTPUT_DIR_PATH_KEY, Outputs.outputDirectory.absolutePath)
@@ -81,7 +75,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
                 insights = insights,
                 useTreeDisplayFormat = useTreeDisplayFormat
             )
-        reportIdeSummary(summaryV1 = summaryPair.summaryV1, summaryV2 = summaryPair.summaryV2)
+        reportIdeSummary(summaryV2 = summaryPair.summaryV2)
     }
 
     public fun fileRecord(key: String, path: String) {
@@ -180,7 +174,6 @@ object InstrumentationResults {
         val warningMessage = ideWarningPrefix.ifEmpty { null }
         ideWarningPrefix = ""
 
-        val v1metricLines: List<String>
         val v2metricLines: List<String>
         val linkableIterTraces =
             iterationTracePaths?.map { absolutePath ->
@@ -205,8 +198,6 @@ object InstrumentationResults {
                 // add newline (note that multi-line codepath below handles newline separately)
                 val warningPrefix = if (warningMessage == null) "" else warningMessage + "\n"
                 return IdeSummaryPair(
-                    summaryV1 =
-                        warningPrefix + ideSummaryBasicMicro(testName, nanos, allocs, emptyList()),
                     summaryV2 =
                         warningPrefix +
                             ideSummaryBasicMicro(testName, nanos, allocs, profilerResults)
@@ -251,9 +242,6 @@ object InstrumentationResults {
                         "  $name   P50  $p50,   P90  $p90,   P95  $p95,   P99  $p99"
                     }
 
-            v1metricLines = metricLines { name, min, median, max, _ ->
-                "  $name   min $min,   median $median,   max $max"
-            }
             v2metricLines =
                 if (linkableIterTraces.isNotEmpty()) {
                     // Per iteration trace paths present, so link min/med/max to respective
@@ -266,18 +254,18 @@ object InstrumentationResults {
                     }
                 } else {
                     // No iteration traces, so just basic list
-                    v1metricLines
+                    metricLines { name, min, median, max, _ ->
+                        "  $name   min $min,   median $median,   max $max"
+                    }
                 }
         } else {
             // no metrics to report
-            v1metricLines = emptyList()
             v2metricLines = emptyList()
         }
 
-        fun markdownFileLink(label: String, outputRelativePath: String): String =
-            "[$label](file://$outputRelativePath)"
+        fun markdownFileLink(label: String, sanitizedOutputRelativePath: String): String =
+            "[$label](file://$sanitizedOutputRelativePath)"
 
-        // TODO(353692849): split into methods and remove the v1 format (replace with a v2 getter)
         val v2lines =
             if (!useTreeDisplayFormat) { // use the regular output format
                 val v2traceLinks =
@@ -334,12 +322,7 @@ object InstrumentationResults {
                 }
             }
 
-        // TODO(353692849): replace the v1 format with a v2 format regardless insights
-        val v1lines =
-            if (insights.isNotEmpty()) v2lines
-            else listOfNotNull(warningMessage, testName, message) + v1metricLines + /* adds \n */ ""
-
-        return IdeSummaryPair(v1lines = v1lines, v2lines = v2lines)
+        return IdeSummaryPair(v2lines = v2lines)
     }
 
     /**
