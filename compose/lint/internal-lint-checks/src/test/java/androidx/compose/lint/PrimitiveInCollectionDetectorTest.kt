@@ -513,7 +513,11 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
                 """
             package androidx.compose.lint
 
-            @JvmInline value class ContainsInt(val value: Int)
+            @JvmInline value class ContainsInt(val value: Int) {
+                 companion object {
+                    val companionField = 0
+                 }
+            }
             """
                     .trimIndent()
             )
