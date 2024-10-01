@@ -69,3 +69,30 @@ fun WifiOffIcon(modifier: Modifier = Modifier) {
         modifier = modifier.size(ButtonDefaults.IconSize)
     )
 }
+
+@Composable
+fun HeadphoneIcon(size: Dp) {
+    Icon(
+        painter = painterResource(R.drawable.ic_headphones),
+        contentDescription = "Headphone icon",
+        modifier = Modifier.size(size)
+    )
+}
+
+@Composable
+fun VolumeUpIcon(size: Dp) {
+    Icon(
+        painter = painterResource(R.drawable.ic_volume_up),
+        contentDescription = "Volume up icon",
+        modifier = Modifier.size(size)
+    )
+}
+
+@Composable
+fun VolumeDownIcon(size: Dp) {
+    Icon(
+        painter = painterResource(R.drawable.ic_volume_down),
+        contentDescription = "Volume down icon",
+        modifier = Modifier.size(size)
+    )
+}

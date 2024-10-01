@@ -38,6 +38,9 @@
     <string description="Content description of the next button of DatePicker and TimePicker components. It lets the user to move to the next picker. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_next_button_content_description">Next</string>
     <string description="Content description of the decrease button of Slider components. It lets the user decrease value of the slider. [CHAR_LIMIT=NONE]" name="wear_m3c_slider_decrease_content_description">Decrease</string>
     <string description="Content description of the increase button of Slider components. It lets the user increase value of the slider. [CHAR_LIMIT=NONE]" name="wear_m3c_slider_increase_content_description">Increase</string>
+    <string description="Content description of the decrease icon of Stepper components. It lets the user decrease value of the stepper. [CHAR_LIMIT=NONE]" name="wear_m3c_stepper_decrease_content_description">Decrease</string>
+    <string description="Content description of the increase icon of Stepper components. It lets the user increase value of the stepper. [CHAR_LIMIT=NONE]" name="wear_m3c_stepper_increase_content_description">Increase</string>
+
 
     <string description="A message which is used to indicate that an action failed in a FailureConfirmation [CHAR_LIMIT=12]" name="wear_m3c_confirmation_failure_message">Failed</string>
     <string description="A message which is used to indicate that an action succeeded in a SuccessConfirmation [CHAR_LIMIT=12]" name="wear_m3c_confirmation_success_message">Success</string>

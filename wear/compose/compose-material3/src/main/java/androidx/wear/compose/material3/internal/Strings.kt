@@ -85,6 +85,12 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val SliderIncreaseButtonContentDescription
             get() = Strings(R.string.wear_m3c_slider_increase_content_description)
+
+        inline val StepperDecreaseIconContentDescription
+            get() = Strings(R.string.wear_m3c_stepper_decrease_content_description)
+
+        inline val StepperIncreaseIconContentDescription
+            get() = Strings(R.string.wear_m3c_stepper_increase_content_description)
     }
 }
 
