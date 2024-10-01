@@ -67,4 +67,6 @@ androidx {
 
 android {
     namespace "androidx.viewpager2"
+    // b/370769491
+    experimentalProperties["android.lint.useK2Uast"] = false
 }

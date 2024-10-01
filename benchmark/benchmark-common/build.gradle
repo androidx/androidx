@@ -60,6 +60,8 @@ android {
             version libs.versions.cmake.get()
         }
     }
+    // b/370769491
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 wire {
