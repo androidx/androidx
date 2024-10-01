@@ -229,9 +229,6 @@ class ThreePaneMotion(
             "delayedPositionAnimationSpec=$delayedPositionAnimationSpec)"
     }
 
-    internal fun toPaneMotionList(ltrOrder: ThreePaneScaffoldHorizontalOrder): List<PaneMotion> =
-        listOf(this[ltrOrder.firstPane], this[ltrOrder.secondPane], this[ltrOrder.thirdPane])
-
     companion object {
         /** A default [ThreePaneMotion] instance that specifies no motions. */
         val NoMotion =
@@ -242,8 +239,7 @@ class ThreePaneMotion(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
 internal class ThreePaneScaffoldMotionScopeImpl : PaneScaffoldMotionScope {
-    internal lateinit var threePaneMotion: ThreePaneMotion
-        private set
+    private lateinit var threePaneMotion: ThreePaneMotion
 
     override val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
         get() = threePaneMotion.sizeAnimationSpec
@@ -262,8 +258,11 @@ internal class ThreePaneScaffoldMotionScopeImpl : PaneScaffoldMotionScope {
         threePaneMotion: ThreePaneMotion,
         ltrOrder: ThreePaneScaffoldHorizontalOrder
     ) {
-        val paneMotions = threePaneMotion.toPaneMotionList(ltrOrder)
-        this.paneMotionDataList.fastForEachIndexed { index, it -> it.motion = paneMotions[index] }
+        this.paneMotionDataList.fastForEachIndexed { index, it ->
+            val role = ltrOrder[index]
+            it.motion = threePaneMotion[role]
+            it.isOriginSizeAndPositionSet = false
+        }
         this.threePaneMotion = threePaneMotion
     }
 }
@@ -363,7 +362,7 @@ object ThreePaneMotionDefaults {
     val PanePositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             dampingRatio = 0.8f,
-            stiffness = 600f,
+            stiffness = 380f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
 
@@ -375,7 +374,7 @@ object ThreePaneMotionDefaults {
     val PanePositionAnimationSpecDelayed: FiniteAnimationSpec<IntOffset> =
         DelayedSpringSpec(
             dampingRatio = 0.8f,
-            stiffness = 600f,
+            stiffness = 380f,
             delayedRatio = 0.1f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
@@ -384,7 +383,7 @@ object ThreePaneMotionDefaults {
     val PaneSizeAnimationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             dampingRatio = 0.8f,
-            stiffness = 600f,
+            stiffness = 380f,
             visibilityThreshold = IntSize.VisibilityThreshold
         )
 }

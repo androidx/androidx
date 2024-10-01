@@ -630,14 +630,20 @@ private class ThreePaneContentMeasurePolicy(
     }
 
     private fun PaneMeasurement.save(role: ThreePaneScaffoldRole, isLookingAhead: Boolean) {
-        val paneMotionData = paneMotionScope.paneMotionDataList[paneOrder.indexOf(role)]
-        if (isLookingAhead) {
-            paneMotionData.targetSize = this.size
-            paneMotionData.targetPosition = this.offset
-        } else {
-            paneMotionData.currentSize = this.size
-            paneMotionData.currentPosition = this.offset
+        if (!isLookingAhead) {
+            return
         }
+        val paneMotionData = paneMotionScope.paneMotionDataList[paneOrder.indexOf(role)]
+        if (!paneMotionData.isOriginSizeAndPositionSet) {
+            // During animation remeasuring can happen multiple times, with the measuring result
+            // equals to the lookahead measure. We don't want to override the original measurement
+            // so we only use the very first measurement
+            paneMotionData.originSize = paneMotionData.targetSize
+            paneMotionData.originPosition = paneMotionData.targetPosition
+            paneMotionData.isOriginSizeAndPositionSet = true
+        }
+        paneMotionData.targetSize = size
+        paneMotionData.targetPosition = offset
     }
 
     private fun Placeable.PlacementScope.getLocalBounds(bounds: Rect): IntRect {
