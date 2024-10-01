@@ -414,9 +414,10 @@ internal fun BasicTextField(
 @Composable
 internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
     // Does not recompose if only position of the handle changes.
-    val cursorHandleState by remember {
-        derivedStateOf { selectionState.getCursorHandleState(includePosition = false) }
-    }
+    val cursorHandleState by
+        remember(selectionState) {
+            derivedStateOf { selectionState.getCursorHandleState(includePosition = false) }
+        }
     if (cursorHandleState.visible) {
         CursorHandle(
             offsetProvider = {
