@@ -93,6 +93,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertFalse
@@ -1180,6 +1181,52 @@ class ModalBottomSheetTest {
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
         rule.onNodeWithTag(sheetTag).assertDoesNotExist()
     }
+
+    @Test
+    fun modalBottomSheet_gesturesDisabled_doesNotParticipateInNestedScroll() =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var scope: CoroutineScope
+            lateinit var sheetState: SheetState
+            val scrollConnection = object : NestedScrollConnection {}
+            val scrollDispatcher = NestedScrollDispatcher()
+            val sheetHeight = 300.dp
+            val sheetHeightPx = with(rule.density) { sheetHeight.toPx() }
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                sheetState = rememberModalBottomSheetState()
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = {},
+                    sheetGesturesEnabled = false,
+                ) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .requiredHeight(sheetHeight)
+                            .nestedScroll(scrollConnection, scrollDispatcher)
+                            .testTag(sheetTag),
+                    )
+                }
+            }
+            scope.launch { sheetState.expand() }
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+            val offsetBeforeScroll = sheetState.requireOffset()
+            scrollDispatcher.dispatchPreScroll(
+                Offset(x = 0f, y = -sheetHeightPx),
+                NestedScrollSource.UserInput,
+            )
+            rule.waitForIdle()
+            assertWithMessage("Offset after scroll is equal to offset before scroll")
+                .that(sheetState.requireOffset())
+                .isEqualTo(offsetBeforeScroll)
+
+            val highFlingVelocity = Velocity(x = 0f, y = with(rule.density) { 500.dp.toPx() })
+            scrollDispatcher.dispatchPreFling(highFlingVelocity)
+            rule.waitForIdle()
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+        }
 
     private val Bundle.traversalBefore: Int
         get() = getInt("android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL")
