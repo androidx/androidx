@@ -86,6 +86,7 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.waitForFutureFrame
 import com.google.common.truth.Truth.assertThat
@@ -94,7 +95,6 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -1534,12 +1534,9 @@ class AndroidPointerInputTest {
      * NOTE 2: The [MotionEvent.obtain()] that allows you to set classification, is only available
      * in U. (Thus, why this test request at least that version.)
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun motionEventDispatch_withValidClassification_shouldMatchInPointerEvent() {
-        // Skips this test if the SDK is below Android U
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-
         // --> Arrange
         var boxLayoutCoordinates: LayoutCoordinates? = null
         val setUpFinishedLatch = CountDownLatch(1)
