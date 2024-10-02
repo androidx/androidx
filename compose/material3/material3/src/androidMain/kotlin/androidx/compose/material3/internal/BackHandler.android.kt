@@ -16,11 +16,21 @@
 
 package androidx.compose.material3.internal
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
+import androidx.compose.runtime.Composable
+import kotlinx.coroutines.flow.Flow
 
-private val PredictiveBackEasing: Easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f)
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+internal actual typealias BackEventCompat = androidx.activity.BackEventCompat
 
-internal object PredictiveBack {
-    internal fun transform(progress: Float) = PredictiveBackEasing.transform(progress)
+@Composable
+internal actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
+    androidx.activity.compose.BackHandler(enabled, onBack)
+}
+
+@Composable
+internal actual fun PredictiveBackHandler(
+    enabled: Boolean,
+    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
+) {
+    androidx.activity.compose.PredictiveBackHandler(enabled, onBack)
 }

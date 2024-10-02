@@ -20,7 +20,6 @@ import android.graphics.Rect as ViewRect
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
@@ -35,6 +34,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.internal.BackHandler
 import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.MenuPosition
 import androidx.compose.material3.internal.Strings

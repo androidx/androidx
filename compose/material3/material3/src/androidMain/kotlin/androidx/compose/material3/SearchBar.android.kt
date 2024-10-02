@@ -16,9 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.activity.BackEventCompat
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -62,8 +59,11 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.SearchBarDefaults.InputFieldHeight
+import androidx.compose.material3.internal.BackEventCompat
+import androidx.compose.material3.internal.BackHandler
 import androidx.compose.material3.internal.MutableWindowInsets
 import androidx.compose.material3.internal.PredictiveBack
+import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.textFieldBackground
