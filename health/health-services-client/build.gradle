@@ -26,7 +26,6 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
     id("androidx.stableaidl")
 }
@@ -39,7 +38,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(libs.protobufLite)
+    implementation(project(":health:health-services-client-proto"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinReflect)

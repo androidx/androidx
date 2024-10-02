@@ -17,8 +17,8 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
+import androidx.health.services.client.proto.ByteString
 import androidx.health.services.client.proto.DataProto
-import com.google.protobuf.ByteString
 
 /** Utility methods for working with Bundles. */
 internal object BundlesUtil {

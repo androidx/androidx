@@ -19,11 +19,11 @@ package androidx.health.services.client.data
 import android.util.Log
 import androidx.health.services.client.data.DataType.Companion.DISTANCE
 import androidx.health.services.client.data.DataType.TimeType
+import androidx.health.services.client.proto.ByteString
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_INTERVAL
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_SAMPLE
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_UNKNOWN
-import com.google.protobuf.ByteString
 
 /**
  * [DataType] that represents a granular, non-aggregated point in time. This will map to
