@@ -39,6 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 
 /**
  * The vertically scrolling list that only composes and lays out the currently visible items. This
@@ -49,8 +53,15 @@ import androidx.compose.ui.unit.dp
  * @param state The state object to be used to control the list and the applied layout.
  * @param verticalArrangement The vertical arrangement of the items.
  * @param horizontalAlignment The horizontal alignment of the items.
- * @param flingBehavior The fling behavior to be used for the list.
- * @param userScrollEnabled Whether the user should be able to scroll the list.
+ * @param flingBehavior The fling behavior to be used for the list. This parameter and the
+ *   [rotaryScrollableBehavior] (which controls rotary scroll) should produce similar scroll effect
+ *   visually.
+ * @param userScrollEnabled Whether the user should be able to scroll the list. This also affects
+ *   scrolling with rotary.
+ * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. This parameter
+ *   and the [flingBehavior] (which controls touch scroll) should produce similar scroll effect. Can
+ *   be null if rotary support is not required or when it should be handled externally with a
+ *   separate [Modifier.rotaryScrollable] modifier.
  * @param content The content of the list.
  */
 @OptIn(ExperimentalFoundationApi::class)
@@ -67,6 +78,7 @@ fun LazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
     content: LazyColumnScope.() -> Unit
 ) {
     val latestContent = rememberUpdatedState(newValue = content)
@@ -103,10 +115,19 @@ fun LazyColumn(
             Orientation.Vertical,
             reverseScrolling = false
         )
+
     LazyLayout(
         itemProvider = itemProviderLambda,
         modifier =
             modifier
+                .then(
+                    if (rotaryScrollableBehavior != null && userScrollEnabled)
+                        Modifier.rotaryScrollable(
+                            behavior = rotaryScrollableBehavior,
+                            focusRequester = rememberActiveFocusRequester(),
+                        )
+                    else Modifier
+                )
                 .then(state.remeasurementModifier)
                 .scrollable(
                     state = state,

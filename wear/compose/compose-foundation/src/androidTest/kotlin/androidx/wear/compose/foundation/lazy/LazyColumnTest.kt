@@ -35,18 +35,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performRotaryScrollInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -75,8 +79,11 @@ class LazyColumnTest {
                     Box(
                         Modifier.requiredSize(50.dp)
                             .testTag(
-                                if (it == 0) firstItemTag
-                                else if (it == 99) lastItemTag else "empty"
+                                when (it) {
+                                    0 -> firstItemTag
+                                    99 -> lastItemTag
+                                    else -> "empty"
+                                }
                             )
                     )
                 }
@@ -357,6 +364,64 @@ class LazyColumnTest {
         }
         rule.runOnIdle { compose = false }
         rule.runOnIdle { runBlocking { state.scrollBy(itemSize) } }
+    }
+
+    @Test
+    fun isNotFocusedWithDisabledRotary() {
+        var focusSet = false
+
+        rule.setContent {
+            LazyColumn(
+                modifier = Modifier.onFocusChanged { focusSet = it.isFocused },
+                // Disable rotary and focus as well
+                rotaryScrollableBehavior = null,
+            ) {
+                items(100) { BasicText("item $it") }
+            }
+        }
+
+        assert(!focusSet)
+    }
+
+    @Test
+    fun rotaryInputWhenScrollEnabled() {
+        testLazyColumnRotary(true, 2)
+    }
+
+    @Test
+    fun rotaryInputWhenScrollDisabled() {
+        testLazyColumnRotary(false, 0)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    private fun testLazyColumnRotary(
+        userScrollEnabled: Boolean,
+        scrollTarget: Int,
+        itemsToScroll: Int = 2
+    ) {
+        lateinit var state: LazyColumnState
+        val itemSizePx = 50
+        var itemSizeDp: Dp
+        rule.setContent {
+            with(rule.density) { itemSizeDp = itemSizePx.toDp() }
+            state = rememberLazyColumnState()
+            LazyColumn(
+                state = state,
+                modifier = Modifier.testTag(lazyListTag),
+                userScrollEnabled = userScrollEnabled
+            ) {
+                items(100) {
+                    BasicText(text = "item $it", modifier = Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+        rule.onNodeWithTag(lazyListTag).performRotaryScrollInput {
+            // try to scroll by N items
+            rotateToScrollVertically(itemSizePx.toFloat() * itemsToScroll)
+        }
+        rule.waitForIdle()
+
+        assertThat(state.anchorItemIndex).isEqualTo(scrollTarget)
     }
 }
 
