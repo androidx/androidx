@@ -1400,11 +1400,15 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class ModalBottomSheetProperties {
     ctor public ModalBottomSheetProperties();
-    ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
     ctor @Deprecated public ModalBottomSheetProperties(androidx.compose.ui.window.SecureFlagPolicy securePolicy, boolean isFocusable, boolean shouldDismissOnBackPress);
-    ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress);
+    ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress, optional boolean isAppearanceLightStatusBars, optional boolean isAppearanceLightNavigationBars);
+    ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress, optional boolean isAppearanceLightStatusBars, optional boolean isAppearanceLightNavigationBars);
     method public androidx.compose.ui.window.SecureFlagPolicy getSecurePolicy();
     method public boolean getShouldDismissOnBackPress();
+    method public boolean isAppearanceLightNavigationBars();
+    method public boolean isAppearanceLightStatusBars();
+    property public final boolean isAppearanceLightNavigationBars;
+    property public final boolean isAppearanceLightStatusBars;
     property public final androidx.compose.ui.window.SecureFlagPolicy securePolicy;
     property public final boolean shouldDismissOnBackPress;
   }

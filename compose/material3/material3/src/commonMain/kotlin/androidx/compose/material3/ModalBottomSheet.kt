@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.collapse
@@ -132,7 +133,11 @@ fun ModalBottomSheet(
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
+    properties: ModalBottomSheetProperties =
+        ModalBottomSheetProperties(
+            isAppearanceLightStatusBars = contentColor.isDark(),
+            isAppearanceLightNavigationBars = contentColor.isDark()
+        ),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // TODO Load the motionScheme tokens from the component tokens file
@@ -451,13 +456,23 @@ private fun GraphicsLayerScope.calculatePredictiveBackScaleY(progress: Float): F
  *
  * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing the
  *   back button. If true, pressing the back button will call onDismissRequest.
+ * @param isAppearanceLightStatusBars If true, changes the foreground color of the status bars to
+ *   light so that the items on the bar can be read clearly. If false, reverts to the default
+ *   appearance.
+ * @param isAppearanceLightNavigationBars If true, changes the foreground color of the navigation
+ *   bars to light so that the items on the bar can be read clearly. If false, reverts to the
+ *   default appearance.
  */
 @Immutable
 @ExperimentalMaterial3Api
 expect class ModalBottomSheetProperties(
     shouldDismissOnBackPress: Boolean = true,
+    isAppearanceLightStatusBars: Boolean = true,
+    isAppearanceLightNavigationBars: Boolean = true,
 ) {
     val shouldDismissOnBackPress: Boolean
+    val isAppearanceLightStatusBars: Boolean
+    val isAppearanceLightNavigationBars: Boolean
 }
 
 /** Default values for [ModalBottomSheet] */
@@ -527,6 +542,11 @@ internal expect fun ModalBottomSheetDialog(
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit
 )
+
+/** Determines if a color should be considered light or dark. */
+internal fun Color.isDark(): Boolean {
+    return this != Color.Transparent && luminance() <= 0.5
+}
 
 private val PredictiveBackMaxScaleXDistance = 48.dp
 private val PredictiveBackMaxScaleYDistance = 24.dp
