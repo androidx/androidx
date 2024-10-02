@@ -80,6 +80,14 @@
             <trusting group="^com[.]squareup($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="06A228AAB83A18A8DF7B84B08614D6AB265B4C63" group="org.apache.ant"/>
+         <trusted-key id="073F7A9345756F3B40CDB99E6C70A3B7599C5736">
+            <trusting group="org.apache.maven"/>
+            <trusting group="org.codehaus.plexus"/>
+         </trusted-key>
+         <trusted-key id="077E8893A6DCC33DD4A4D5B256E73BA9A0B592D0">
+            <trusting group="org.apache.logging.log4j"/>
+            <trusting group="org.apache.logging"/>
+         </trusted-key>
          <trusted-key id="0785B3EFF60B1B1BEA94E0BB7C25280EAE63EBE5" group="org.apache.httpcomponents"/>
          <trusted-key id="08F0AAB4D0C1A4BDDE340765B341DDB020FCB6AB" group="org.bouncycastle"/>
          <trusted-key id="0A123C1ED3F13A6A0140E166C71FB765CD9DE313" group="org.apache.ant"/>
@@ -170,7 +178,10 @@
             <trusting group="org.jetbrains" name="annotations"/>
             <trusting group="org.jetbrains.trove4j" name="trove4j"/>
          </trusted-key>
-         <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B" group="org.codehaus.groovy"/>
+         <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B">
+            <trusting group="org.apache.groovy"/>
+            <trusting group="org.codehaus.groovy"/>
+         </trusted-key>
          <trusted-key id="3872ED7D5904493D23D78FA2C4C8CB73B1435348" group="com.android.tools.build"/>
          <trusted-key id="3D11126EA77E4E07FBABB38614A84C976D265B25" group="com.google.protobuf"/>
          <trusted-key id="3DBC5D7DC2FB8DD68AA429BD353A436E043E3145" group="com.google.code.findbugs"/>
@@ -206,6 +217,7 @@
          </trusted-key>
          <trusted-key id="47EB6836245D2D40E89DFB4136D4E9618F3ADAB5" group="io.github.microutils" name="kotlin-logging-jvm"/>
          <trusted-key id="4857D1CE04E78FAB2A172E8F39B48E1BADDB933F" group="com.gradleup.shadow"/>
+         <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425" group="org.springframework"/>
          <trusted-key id="4BF79B8259007B566D2FCE82296CD27F60EED12C" group="com.google.crypto.tink"/>
          <trusted-key id="4DADED739CDF2CD0E48E0EC44044EDF1BB73EFEA" group="jaxen" name="jaxen"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>
@@ -328,6 +340,7 @@
             <trusting group="org.apache"/>
             <trusting group="org.apache.maven" name="maven-parent"/>
             <trusting group="org.codehaus.mojo"/>
+            <trusting group="org.codehaus.plexus"/>
          </trusted-key>
          <trusted-key id="8569C95CADC508B09FE90F3002216ED811210DAA" group="io.github.detekt.sarif4k"/>
          <trusted-key id="86616CD3C4F0803E73374A434DBF5995D492505D" group="org.json" name="json"/>
@@ -528,7 +541,10 @@
          <trusted-key id="E85AED155021AF8A6C6B7A4A7C7D8456294423BA" group="org.objenesis"/>
          <trusted-key id="E8BF633B386B7DDCF1E1A9B3358A4ABAE72947C2" group="com.google.testparameterinjector"/>
          <trusted-key id="EA0B70B5050192C98CFA7E4F3F36885C24DF4B75" group="org.mozilla"/>
-         <trusted-key id="EA23DB1360D9029481E7F2EFECDFEA3CB4493B94" group="jline"/>
+         <trusted-key id="EA23DB1360D9029481E7F2EFECDFEA3CB4493B94">
+            <trusting group="jline"/>
+            <trusting group="org.apache.maven"/>
+         </trusted-key>
          <trusted-key id="EAA526B91DD83BA3E1B9636FA730529CA355A63E" group="org.ccil.cowan.tagsoup"/>
          <trusted-key id="EB1B3DE71713C9EC2E87CC26EE92349AD86DE446" group="com.google.j2objc"/>
          <trusted-key id="EC86F41279F2EC8FFD2F54906CCC36CC6C69FC17" group="com.google"/>
