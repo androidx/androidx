@@ -16,7 +16,6 @@
 
 package androidx.build.docs
 
-import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
 import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
@@ -29,7 +28,8 @@ import androidx.build.getKeystore
 import androidx.build.getLibraryByName
 import androidx.build.getSupportRootFolder
 import androidx.build.metalava.versionMetadataUsage
-import androidx.build.multiplatformUsage
+import androidx.build.sources.PROJECT_STRUCTURE_METADATA_FILENAME
+import androidx.build.sources.multiplatformUsage
 import androidx.build.versionCatalog
 import androidx.build.workaroundPrebuiltTakingPrecedenceOverProject
 import com.android.build.api.attributes.BuildTypeAttr
