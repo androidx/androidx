@@ -403,11 +403,6 @@ import java.util.Set;
     }
 
     /* package */ void selectRoute(
-            @NonNull MediaRouter.RouteInfo route, @MediaRouter.UnselectReason int unselectReason) {
-        selectRoute(route, unselectReason, /* syncMediaRoute1Provider= */ true);
-    }
-
-    /* package */ void selectRoute(
             @NonNull MediaRouter.RouteInfo route,
             @MediaRouter.UnselectReason int unselectReason,
             boolean syncMediaRoute1Provider) {
@@ -659,7 +654,10 @@ import java.util.Set;
             @NonNull RegisteredMediaRouteProvider provider,
             @NonNull MediaRouteProvider.RouteController controller) {
         if (mSelectedRouteController == controller) {
-            selectRoute(chooseFallbackRoute(), UNSELECT_REASON_STOPPED);
+            selectRoute(
+                    chooseFallbackRoute(),
+                    UNSELECT_REASON_STOPPED,
+                    /* syncMediaRoute1Provider= */ true);
         }
         // TODO: Maybe release a member route controller if the given controller is a member of
         // the selected route.

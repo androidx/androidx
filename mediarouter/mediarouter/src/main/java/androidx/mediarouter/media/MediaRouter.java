@@ -458,7 +458,10 @@ public final class MediaRouter {
         RouteInfo route = globalRouter.getSelectedRoute();
         if (!route.isDefaultOrBluetooth() && !route.matchesSelector(selector)) {
             route = globalRouter.chooseFallbackRoute();
-            globalRouter.selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
+            globalRouter.selectRoute(
+                    route,
+                    MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                    /* syncMediaRoute1Provider= */ true);
         }
         return route;
     }
@@ -503,7 +506,7 @@ public final class MediaRouter {
         GlobalMediaRouter globalRouter = getGlobalRouter();
         RouteInfo fallbackRoute = globalRouter.chooseFallbackRoute();
         if (globalRouter.getSelectedRoute() != fallbackRoute) {
-            globalRouter.selectRoute(fallbackRoute, reason);
+            globalRouter.selectRoute(fallbackRoute, reason, /* syncMediaRoute1Provider= */ true);
         }
     }
 
