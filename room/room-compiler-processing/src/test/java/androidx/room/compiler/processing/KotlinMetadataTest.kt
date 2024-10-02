@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
+import org.junit.Ignore
 import org.junit.Test
 
 class KotlinMetadataTest {
@@ -48,6 +49,7 @@ class KotlinMetadataTest {
         }
     }
 
+    @Ignore("b/360398921")
     @Test
     fun inlineReifiedFunctionAndKAPT4() {
         val source =

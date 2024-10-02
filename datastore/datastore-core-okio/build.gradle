@@ -22,6 +22,8 @@
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -101,5 +103,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     metalavaK2UastEnabled = false
 }

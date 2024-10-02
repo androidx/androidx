@@ -35,7 +35,9 @@ import org.gradle.process.ExecOperations
 import org.gradle.process.ExecSpec
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
+import org.jetbrains.kotlin.konan.TempFiles
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.LinkerArguments
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.jetbrains.kotlin.konan.target.Platform
 import org.jetbrains.kotlin.konan.target.PlatformManager
@@ -138,18 +140,22 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         val objectFiles = parameters.objectFiles.regularFilePaths()
         val linkedObjectFiles = parameters.linkedObjects.regularFilePaths()
         val linkCommands =
-            platform.linker.finalLinkCommands(
-                objectFiles = objectFiles,
-                executable = outputFile.canonicalPath,
-                libraries = linkedObjectFiles,
-                linkerArgs = linkerFlags,
-                optimize = true,
-                debug = false,
-                kind = LinkerOutputKind.DYNAMIC_LIBRARY,
-                outputDsymBundle = "unused",
-                mimallocEnabled = false,
-                sanitizer = null
-            )
+            with(platform.linker) {
+                LinkerArguments(
+                        TempFiles(),
+                        objectFiles = objectFiles,
+                        executable = outputFile.canonicalPath,
+                        libraries = linkedObjectFiles,
+                        linkerArgs = linkerFlags,
+                        optimize = true,
+                        debug = false,
+                        kind = LinkerOutputKind.DYNAMIC_LIBRARY,
+                        outputDsymBundle = "unused",
+                        mimallocEnabled = false,
+                        sanitizer = null
+                    )
+                    .finalLinkCommands()
+            }
         linkCommands
             .map { it.argsWithExecutable }
             .forEach { args ->
