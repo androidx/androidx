@@ -1976,13 +1976,7 @@ public final class MediaRouter {
             select(/* syncMediaRoute1Provider= */ true);
         }
 
-        /**
-         * Selects this media route.
-         *
-         * @param syncMediaRoute1Provider Whether this selection should be passed through to {@link
-         *     PlatformMediaRouter1RouteProvider}. Should be false when this call is the result of a
-         *     {@link MediaRouter.Callback#onRouteSelected} call.
-         */
+        /** See {@link GlobalMediaRouter#selectRoute}. */
         @RestrictTo(LIBRARY)
         @MainThread
         public void select(boolean syncMediaRoute1Provider) {

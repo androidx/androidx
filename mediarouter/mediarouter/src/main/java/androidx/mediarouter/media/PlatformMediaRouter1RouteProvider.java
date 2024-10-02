@@ -382,7 +382,7 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
                 if (index >= 0) {
                     SystemRouteRecord record = mSystemRouteRecords.get(index);
                     if (record.mRouteDescriptorId.equals(route.getDescriptorId())) {
-                        route.select();
+                        route.select(/* syncMediaRoute1Provider= */ false);
                     }
                 }
             }
