@@ -367,6 +367,7 @@ dependencies {
     docs(project(":wear:protolayout:protolayout-material-core"))
     docs(project(":wear:protolayout:protolayout-material3"))
     docs(project(":wear:protolayout:protolayout-renderer"))
+    docs(project(":wear:protolayout:protolayout-testing"))
     docs(project(":wear:tiles:tiles"))
     docs(project(":wear:tiles:tiles-material"))
     docs(project(":wear:tiles:tiles-renderer"))

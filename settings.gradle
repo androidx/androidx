@@ -1014,6 +1014,7 @@ includeProject(":wear:protolayout:protolayout-material3", [BuildType.MAIN, Build
 includeProject(":wear:protolayout:protolayout-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-lint", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:protolayout:protolayout-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":wear:benchmark:integration-tests:macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
