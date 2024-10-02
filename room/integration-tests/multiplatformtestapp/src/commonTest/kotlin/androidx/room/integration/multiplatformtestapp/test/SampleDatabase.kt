@@ -49,6 +49,38 @@ data class SampleEntity(
 )
 
 @Entity
+data class SampleEntity1Byte(@PrimaryKey val pk: ByteArray) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SampleEntity1Byte
+
+        return pk.contentEquals(other.pk)
+    }
+
+    override fun hashCode(): Int {
+        return pk.contentHashCode()
+    }
+}
+
+@Entity
+data class SampleEntity2Byte(@PrimaryKey val pk2: ByteArray) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SampleEntity2Byte
+
+        return pk2.contentEquals(other.pk2)
+    }
+
+    override fun hashCode(): Int {
+        return pk2.contentHashCode()
+    }
+}
+
+@Entity
 data class SampleEntity2(
     @PrimaryKey val pk2: Long,
     @ColumnInfo(defaultValue = "0") val data2: Long
@@ -167,6 +199,10 @@ interface SampleDao {
 
     @Insert suspend fun insert(entity: SampleEntity)
 
+    @Insert suspend fun insert(entity: SampleEntity1Byte)
+
+    @Insert suspend fun insert(entity: SampleEntity2Byte)
+
     @Insert suspend fun insertArray(entities: Array<SampleEntity>)
 
     @Insert suspend fun insertSampleEntityList(entities: List<SampleEntity>)
@@ -197,6 +233,10 @@ interface SampleDao {
 
     @Transaction @Query("SELECT * FROM SampleEntity") suspend fun getSample1To2(): Sample1And2
 
+    @Transaction
+    @Query("SELECT * FROM SampleEntity1Byte")
+    suspend fun getSample1To2Byte(): Sample1And2Byte
+
     @Transaction @Query("SELECT * FROM SampleEntity") suspend fun getSample1ToMany(): Sample1AndMany
 
     @Transaction
@@ -212,6 +252,11 @@ interface SampleDao {
     data class Sample1And2(
         @Embedded val sample1: SampleEntity,
         @Relation(parentColumn = "pk", entityColumn = "pk2") val sample2: SampleEntity2
+    )
+
+    data class Sample1And2Byte(
+        @Embedded val sample1: SampleEntity1Byte,
+        @Relation(parentColumn = "pk", entityColumn = "pk2") val sample2: SampleEntity2Byte
     )
 
     data class Sample1AndMany(
@@ -241,6 +286,8 @@ interface SampleDao {
             SampleEntity::class,
             SampleEntity2::class,
             SampleEntity3::class,
+            SampleEntity1Byte::class,
+            SampleEntity2Byte::class,
             SampleEntityCopy::class,
             StringSampleEntity1::class,
             StringSampleEntity2::class,
