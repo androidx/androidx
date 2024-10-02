@@ -107,6 +107,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     @get:[Input Optional]
     abstract val dependencyConstraintList: ListProperty<LibraryBuildInfoFile.Dependency>
 
+    @get:[Input Optional]
+    abstract val testModuleNames: SetProperty<String>
+
     /** the local project directory without the full framework/support root directory path */
     @get:Input abstract val projectSpecificDirectory: Property<String>
 
@@ -164,6 +167,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.target = target.get()
         libraryBuildInfoFile.kmpChildren =
             if (kmpChildren.isPresent) kmpChildren.get() else emptySet()
+        libraryBuildInfoFile.testModuleNames =
+            if (testModuleNames.isPresent) testModuleNames.get() else emptySet()
         return libraryBuildInfoFile
     }
 
@@ -191,6 +196,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             isKmp: Boolean,
             target: String,
             kmpChildren: Set<String>,
+            testModuleNames: Provider<Set<String>>,
         ): TaskProvider<CreateLibraryBuildInfoFileTask> {
             return project.tasks.register(
                 TASK_NAME + variant.taskSuffix,
@@ -233,6 +239,12 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 task.kmp.set(isKmp)
                 task.target.set(target)
                 task.kmpChildren.set(kmpChildren)
+
+                // We only want test module names for the parent build info file for Gradle projects
+                // that have multiple build info files, like KMP.
+                if (variant.taskSuffix.isBlank()) {
+                    task.testModuleNames.set(testModuleNames)
+                }
             }
         }
 
@@ -310,7 +322,8 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                         isKmp = androidXKmpExtension.supportedPlatforms.isNotEmpty(),
                         buildTarget = buildTarget,
                         kmpChildren =
-                            androidXKmpExtension.supportedPlatforms.mapToSetOrEmpty { it.id }
+                            androidXKmpExtension.supportedPlatforms.mapToSetOrEmpty { it.id },
+                        testModuleNames = androidXExtension.testModuleNames
                     )
                 }
             }
@@ -327,6 +340,7 @@ private fun Project.createTaskForComponent(
     isKmp: Boolean,
     buildTarget: String,
     kmpChildren: Set<String>,
+    testModuleNames: Provider<Set<String>>,
 ) {
     val task =
         createBuildInfoTask(
@@ -338,6 +352,7 @@ private fun Project.createTaskForComponent(
             isKmp = isKmp,
             buildTarget = buildTarget,
             kmpChildren = kmpChildren,
+            testModuleNames = testModuleNames,
         )
     anchorTask.dependsOn(task)
     addTaskToAggregateBuildInfoFileTask(task)
@@ -352,6 +367,7 @@ private fun Project.createBuildInfoTask(
     isKmp: Boolean,
     buildTarget: String,
     kmpChildren: Set<String>,
+    testModuleNames: Provider<Set<String>>,
 ): TaskProvider<CreateLibraryBuildInfoFileTask> {
     val kmpTaskSuffix = computeTaskSuffix(name, artifactId)
     return CreateLibraryBuildInfoFileTask.setup(
@@ -379,6 +395,7 @@ private fun Project.createBuildInfoTask(
         isKmp = isKmp,
         target = buildTarget,
         kmpChildren = kmpChildren,
+        testModuleNames = testModuleNames,
     )
 }
 

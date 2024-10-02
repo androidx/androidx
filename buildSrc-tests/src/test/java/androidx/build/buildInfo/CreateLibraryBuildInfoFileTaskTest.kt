@@ -98,6 +98,34 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     @Test
+    fun buildInfoTaskAddsTestModuleNames() {
+        setupBuildInfoProject()
+        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+
+        val buildInfoFile =
+            distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
+        assertThat(buildInfoFile.exists()).isTrue()
+
+        val buildInfo = parseBuildInfo(buildInfoFile)
+
+        assertThat(buildInfo.testModuleNames).containsExactly("test.xml")
+    }
+
+    @Test
+    fun buildInfoTaskWithSuffixSkipsTestModuleNames() {
+        setupBuildInfoProjectForArtifactWithSuffix()
+        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+
+        val buildInfoFile =
+            distDir.root.resolve("build-info/androidx.build_info_test_test-jvm_build_info.txt")
+        assertThat(buildInfoFile.exists()).isTrue()
+
+        val buildInfo = parseBuildInfo(buildInfoFile)
+
+        assertThat(buildInfo.testModuleNames).isEmpty()
+    }
+
+    @Test
     fun hasApplePlatform_withAtLeastOnePlatformIdentifierTargetingAnApplePlatform_returnsTrue() {
         val platforms =
             setOf(
@@ -119,6 +147,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     private fun setupBuildInfoProject() {
+        // Set the project name to be equal to artifact id, so that it is not adding a suffix to
+        // the task name.
+        File(projectSetup.rootDir, "settings.gradle").writeText("rootProject.name = \"test\"")
         projectSetup.writeDefaultBuildGradle(
             prefix =
                 """
@@ -166,7 +197,68 @@ class CreateLibraryBuildInfoFileTaskTest {
                             false,
                             false,
                             "androidx",
-                            ["android", "jvm"].toSet()
+                            ["android", "jvm"].toSet(),
+                            project.provider { ["test.xml"] },
+                        )
+                    }
+                }
+            }
+            """
+                    .trimIndent()
+        )
+    }
+
+    private fun setupBuildInfoProjectForArtifactWithSuffix() {
+        File(projectSetup.rootDir, "settings.gradle").writeText("rootProject.name = \"test\"")
+        projectSetup.writeDefaultBuildGradle(
+            prefix =
+                """
+                import androidx.build.buildInfo.CreateLibraryBuildInfoFileTaskKt
+                plugins {
+                    id("com.android.library")
+                    id("maven-publish")
+                    id("kotlin-android")
+                }
+                ext {
+                    supportRootFolder = new File("${projectSetup.rootDir}")
+                }
+            """
+                    .trimIndent(),
+            suffix =
+                """
+            version = "0.0.1"
+            dependencies {
+                constraints {
+                    implementation("androidx.core:core-ktx:1.1.0")
+                }
+                implementation("androidx.core:core:1.1.0")
+            }
+            android {
+                 namespace 'androidx.build_info'
+            }
+            group = "androidx.build_info_test"
+            afterEvaluate {
+                publishing {
+                    publications {
+                        maven(MavenPublication) {
+                            groupId = 'androidx.build_info_test'
+                            artifactId = 'test-jvm'
+                            version = '0.0.1'
+                            from(components.release)
+                        }
+                    }
+                    publications.withType(MavenPublication) {
+                        CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                            project,
+                            it,
+                            null,
+                            it.artifactId,
+                            project.provider { "fakeSha" },
+                            false,
+                            false,
+                            "androidx",
+                            ["android", "jvm"].toSet(),
+                            project.provider { ["test.xml"] },
                         )
                     }
                 }
