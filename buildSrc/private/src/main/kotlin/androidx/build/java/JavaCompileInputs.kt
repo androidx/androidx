@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.build.java
 
+import androidx.build.DeprecatedKotlinMultiplatformAndroidTarget
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import org.gradle.api.Project
@@ -132,7 +133,9 @@ data class JavaCompileInputs(
                         .trimIndent()
                 }
             val target =
-                kmpExtension.targets.withType(KotlinMultiplatformAndroidTarget::class.java).single()
+                kmpExtension.targets
+                    .withType(DeprecatedKotlinMultiplatformAndroidTarget::class.java)
+                    .single()
             val compilation = target.findCompilation(KotlinCompilation.MAIN_COMPILATION_NAME)
             val sourceCollection = project.sourceFiles(compilation)
 

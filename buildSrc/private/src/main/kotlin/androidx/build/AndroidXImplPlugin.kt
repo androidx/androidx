@@ -50,7 +50,6 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 import com.android.build.api.dsl.LibraryExtension
@@ -681,9 +680,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureJavaCompilationWarnings(androidXExtension)
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     private fun configureWithKotlinMultiplatformAndroidPlugin(
         project: Project,
-        kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
+        kotlinMultiplatformAndroidTarget: DeprecatedKotlinMultiplatformAndroidTarget,
         androidXExtension: AndroidXExtension
     ) {
         val kotlinMultiplatformAndroidComponentsExtension =
@@ -1164,7 +1164,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         )
     }
 
-    private fun KotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
+    private fun DeprecatedKotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
         project: Project,
         componentsExtension: KotlinMultiplatformAndroidComponentsExtension
     ) {

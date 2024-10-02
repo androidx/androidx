@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.build.sources
 
+import androidx.build.DeprecatedKotlinMultiplatformAndroidTarget
 import androidx.build.LazyInputsCopyTask
 import androidx.build.capitalize
 import androidx.build.dackka.DokkaAnalysisPlatform
@@ -23,7 +25,6 @@ import androidx.build.dackka.docsPlatform
 import androidx.build.hasAndroidMultiplatformPlugin
 import androidx.build.multiplatformExtension
 import androidx.build.registerAsComponentForPublishing
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
@@ -88,7 +89,7 @@ fun Project.configureSourceJarForAndroid(
 
 fun Project.configureMultiplatformSourcesForAndroid(
     variantName: String,
-    target: KotlinMultiplatformAndroidTarget,
+    target: DeprecatedKotlinMultiplatformAndroidTarget,
     samplesProjects: MutableCollection<Project>
 ) {
     val sourceJar =
