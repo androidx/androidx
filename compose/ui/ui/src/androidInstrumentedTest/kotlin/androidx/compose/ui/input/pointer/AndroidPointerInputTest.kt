@@ -18,8 +18,6 @@ package androidx.compose.ui.input.pointer
 
 import android.content.Context
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_BUTTON_PRESS
@@ -55,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AbsoluteAlignment
@@ -92,6 +91,9 @@ import androidx.testutils.waitForFutureFrame
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -715,25 +717,89 @@ class AndroidPointerInputTest {
         }
     }
 
+    /*
+     * Tests that a long press is NOT triggered when an up event (following a down event) isn't
+     * executed right away because the UI thread is delayed past the long press timeout.
+     *
+     * Note: This test is a bit complicated because it needs to properly execute events in order
+     * using multiple coroutine delay()s and Thread.sleep() in the main thread.
+     *
+     * Expected behavior: When the UI thread wakes up, the up event should be triggered before the
+     * second delay() in the withTimeout() (which foundation's long press uses). Thus, the tap
+     * triggers and NOT the long press.
+     *
+     * Actual steps this test uses to recreate this scenario:
+     *   1. Down event is triggered
+     *   2. An up event is scheduled to be triggered BEFORE the timeout for a long press (uses
+     *       a coroutine sleep() that is less than the long press timeout).
+     *   3. The UI thread sleeps before the sleep() awakens to fire the up event (the sleep time is
+     *       LONGER than the long press timeout).
+     *   4. The UI thread wakes up, executes the first sleep() for the long press timeout
+     *       (in withTimeout() implementation [`SuspendingPointerInputModifierNodeImpl`])
+     *   5. The up event is fired (sleep() for test coroutine finishes).
+     *   6. Tap is triggered (that is, long press is NOT triggered because the second sleep() is
+     *       NOT executed in withTimeout()).
+     */
     @Test
     fun detectTapGestures_blockedMainThread() {
         var didLongPress = false
         var didTap = false
-        var inputLatch = CountDownLatch(1)
+
         val positionedLatch = CountDownLatch(1)
+        var pressLatch = CountDownLatch(1)
+        var clickOrLongPressLatch = CountDownLatch(1)
+
+        lateinit var coroutineScope: CoroutineScope
+
+        val locationInWindow = IntArray(2)
+
+        // Less than long press timeout
+        val touchUpDelay = 100
+        // 400L
+        val longPressTimeout = android.view.ViewConfiguration.getLongPressTimeout()
+        // Goes past long press timeout (above)
+        val sleepTime = longPressTimeout + 100L
+        // matches first delay time in [PointerEventHandlerCoroutine.withTimeout()]
+        val withTimeoutDelay = longPressTimeout - WITH_TIMEOUT_MICRO_DELAY_MILLIS
+        var upEvent: MotionEvent? = null
 
         rule.runOnUiThread {
             container.setContent {
+                coroutineScope = rememberCoroutineScope()
+
                 FillLayout(
                     Modifier.pointerInput(Unit) {
                             detectTapGestures(
                                 onLongPress = {
                                     didLongPress = true
-                                    inputLatch.countDown()
+                                    clickOrLongPressLatch.countDown()
                                 },
                                 onTap = {
                                     didTap = true
-                                    inputLatch.countDown()
+                                    clickOrLongPressLatch.countDown()
+                                },
+                                onPress = {
+                                    // AwaitPointerEventScope.waitForLongPress() uses
+                                    // PointerEventHandlerCoroutine.withTimeout() as part of
+                                    // the timeout logic to see if a long press has occurred.
+                                    //
+                                    // Within PointerEventHandlerCoroutine.withTimeout(), there
+                                    // is a coroutine with two delay() calls and we are
+                                    // specifically testing that an up event that is put to
+                                    // sleep (but within the timeout time), does not trigger a
+                                    // long press when it comes in between those delay() calls.
+                                    //
+                                    // To do that, we want to get the timing of this coroutine
+                                    // as close to timeout as possible. That is, executing the
+                                    // up event (after the delay below) right between those
+                                    // delays to avoid the test being flaky.
+                                    coroutineScope.launch {
+                                        // Matches first delay used with withTimeout() for long
+                                        // press.
+                                        delay(withTimeoutDelay)
+                                        findRootView(container).dispatchTouchEvent(upEvent!!)
+                                    }
+                                    pressLatch.countDown()
                                 }
                             )
                         }
@@ -743,13 +809,7 @@ class AndroidPointerInputTest {
         }
 
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
-        val locationInWindow = IntArray(2)
         container.getLocationInWindow(locationInWindow)
-
-        val handler = Handler(Looper.getMainLooper())
-
-        val touchUpDelay = 100
-        val sleepTime = android.view.ViewConfiguration.getLongPressTimeout() + 100L
 
         repeat(5) { iteration ->
             rule.runOnUiThread {
@@ -759,33 +819,32 @@ class AndroidPointerInputTest {
                         ACTION_DOWN,
                         locationInWindow
                     )
-                findRootView(container).dispatchTouchEvent(downEvent)
-            }
 
-            rule.runOnUiThread {
-                val upEvent =
+                upEvent =
                     createPointerEventAt(
                         touchUpDelay + iteration * sleepTime.toInt(),
                         ACTION_UP,
                         locationInWindow
                     )
-                handler.postDelayed(
-                    Runnable { findRootView(container).dispatchTouchEvent(upEvent) },
-                    touchUpDelay.toLong()
-                )
-
-                // Block the UI thread from now until past the long-press
-                // timeout. This tests that even in pathological situations,
-                // the upEvent is still processed before the long-press timeout.
-                Thread.sleep(sleepTime)
+                findRootView(container).dispatchTouchEvent(downEvent)
             }
 
-            assertTrue(inputLatch.await(1, TimeUnit.SECONDS))
+            assertTrue(pressLatch.await(1, TimeUnit.SECONDS))
+
+            // Blocks the UI thread from now until past the long-press
+            // timeout. This tests that even in pathological situations,
+            // the upEvent is still processed before the long-press
+            // timeout.
+            rule.runOnUiThread { Thread.sleep(sleepTime) }
+
+            assertTrue(clickOrLongPressLatch.await(1, TimeUnit.SECONDS))
+
             assertFalse(didLongPress)
             assertTrue(didTap)
 
             didTap = false
-            inputLatch = CountDownLatch(1)
+            clickOrLongPressLatch = CountDownLatch(1)
+            pressLatch = CountDownLatch(1)
         }
     }
 
