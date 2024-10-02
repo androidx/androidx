@@ -63,9 +63,6 @@ sealed class Profiler() {
             )
         }
 
-        val sanitizedOutputRelativePath: String
-            get() = outputRelativePath.replace("(", "\\(").replace(")", "\\)")
-
         companion object {
             fun ofPerfettoTrace(label: String, absolutePath: String) =
                 ResultFile(

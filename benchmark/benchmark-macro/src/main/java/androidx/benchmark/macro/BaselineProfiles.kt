@@ -24,6 +24,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Markdown
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.UserInfo
@@ -321,13 +322,12 @@ private fun summaryRecord(record: Summary): String {
     // Links
 
     // Link to a path with timestamp to prevent studio from caching the file
-    val relativePath =
-        Outputs.relativePathFor(record.profileTsPath).replace("(", "\\(").replace(")", "\\)")
+    val relativePath = Outputs.relativePathFor(record.profileTsPath)
 
     summary.append(
         """
             Total run time Ns: ${record.totalRunTime}.
-            Baseline profile [results](file://$relativePath)
+            Baseline profile ${Markdown.createFileLink("results", relativePath)}
         """
             .trimIndent()
     )
