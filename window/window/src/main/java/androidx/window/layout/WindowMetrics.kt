@@ -46,14 +46,25 @@ internal constructor(
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
      *
-     * **Note that the size of the reported bounds can have different size than [Display#getSize].**
-     * This method reports the window size including all system decorations, while [Display#getSize]
-     * reports the area excluding navigation bars and display cutout areas.
+     * **Note that the size of the reported bounds can have different size than
+     * [android.view.Display.getSize].** This method reports the window size including insets from
+     * all system decorations, while [android.view.Display.getSize] reports the area excluding
+     * navigation bars and display cutout areas.
      *
      * @return window bounds in pixels.
      */
     val bounds: Rect
         get() = _bounds.toRect()
+
+    /** Returns the width of the [Rect] in DP units including insets from all system decorations. */
+    val widthDp: Float
+        get() = bounds.width() / density
+
+    /**
+     * Returns the height of the [Rect] in DP units including insets from all system decorations.
+     */
+    val heightDp: Float
+        get() = bounds.height() / density
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

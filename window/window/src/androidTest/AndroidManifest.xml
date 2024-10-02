@@ -18,6 +18,7 @@
 
     <application>
         <activity android:name="androidx.window.TestActivity" />
+        <activity android:name="androidx.window.TestActivityEdgeToEdge" />
         <activity android:name="androidx.window.TestConfigChangeHandlingActivity"
             android:configChanges="orientation|screenLayout|screenSize"/>
 

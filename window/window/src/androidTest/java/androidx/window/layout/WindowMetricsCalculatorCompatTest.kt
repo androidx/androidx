@@ -18,14 +18,18 @@ package androidx.window.layout
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
 import android.os.Build
+import android.util.TypedValue
 import android.view.Display
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.ActivityAction
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.TestActivity
+import androidx.window.TestActivityEdgeToEdge
 import androidx.window.WindowTestUtils.Companion.assumePlatformBeforeR
 import androidx.window.WindowTestUtils.Companion.assumePlatformROrAbove
 import androidx.window.WindowTestUtils.Companion.assumePlatformUOrAbove
@@ -35,6 +39,7 @@ import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.AssumptionViolatedException
 import org.junit.Rule
 import org.junit.Test
@@ -233,6 +238,62 @@ class WindowMetricsCalculatorCompatTest {
             val androidWindowMetrics = wm.currentWindowMetrics
             assertEquals(androidWindowMetrics.bounds, windowMetrics.bounds)
             assertEquals(androidWindowMetrics.density, windowMetrics.density)
+        }
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testDpBoundsMatchCalculatedDimension() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        activityScenarioRule.scenario.onActivity { activity ->
+            val windowMetrics =
+                WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
+            val displayMetrics = activity.resources.displayMetrics
+            val widthDp =
+                TypedValue.deriveDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    windowMetrics.bounds.width().toFloat(),
+                    displayMetrics
+                )
+            val heightDp =
+                TypedValue.deriveDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    windowMetrics.bounds.height().toFloat(),
+                    displayMetrics
+                )
+
+            assertEquals(
+                "Width DP must be within 1dp of configuration value.",
+                widthDp,
+                windowMetrics.widthDp,
+                1f
+            )
+            assertEquals(
+                "Height DP must be within 1dp of configuration value.",
+                heightDp,
+                windowMetrics.heightDp,
+                1f
+            )
+        }
+    }
+
+    @Test
+    fun testWindowMetricBoundsMatchesEdgeToEdgeFullScreenView() {
+        ActivityScenario.launch(TestActivityEdgeToEdge::class.java).onActivity { activity ->
+            val windowMetrics =
+                WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
+            val rootView = activity.findViewById<FrameLayout>(androidx.window.test.R.id.view_home)
+
+            assertEquals(
+                "Full screen view width must match window metrics width",
+                windowMetrics.bounds.width(),
+                rootView.width
+            )
+            assertEquals(
+                "Full screen view height must match window metrics height",
+                windowMetrics.bounds.height(),
+                rootView.height
+            )
         }
     }
 
