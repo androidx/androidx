@@ -171,8 +171,8 @@ private inline fun materialIcon(
             name = name,
             defaultWidth = MaterialIconDimension,
             defaultHeight = MaterialIconDimension,
-            viewportWidth = MaterialIconViewPointDimension,
-            viewportHeight = MaterialIconViewPointDimension,
+            viewportWidth = MaterialIconViewPortDimension,
+            viewportHeight = MaterialIconViewPortDimension,
             autoMirror = autoMirror
         )
         .block()
@@ -182,4 +182,4 @@ private inline fun ImageVector.Builder.materialPath(pathBuilder: PathBuilder.() 
     path(fill = SolidColor(Color.White), pathBuilder = pathBuilder)
 
 private val MaterialIconDimension = 24.dp
-private const val MaterialIconViewPointDimension = 960f
+private const val MaterialIconViewPortDimension = 960f
