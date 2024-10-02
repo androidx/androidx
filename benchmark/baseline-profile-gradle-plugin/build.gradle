@@ -49,7 +49,7 @@ dependencies {
     compileOnly(libs.kotlinGradlePluginz)
 
     implementation(gradleApi())
-    implementation(libs.protobuf)
+    implementation("com.google.protobuf:protobuf-java:3.22.3")
     implementation(libs.agpTestingPlatformCoreProto)
 
     testImplementation(gradleTestKit())

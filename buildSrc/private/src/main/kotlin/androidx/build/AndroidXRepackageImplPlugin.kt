@@ -58,6 +58,11 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
                         dropResourcesWithSuffix = ".proto"
                     }
                 )
+                task.transformers.add(
+                    BundleInsideHelper.DontIncludeResourceTransformer().apply {
+                        dropResourcesWithSuffix = ".proto.bin"
+                    }
+                )
                 task.from(sourceSets.named("main").map { it.output })
                 relocationExtension.getRelocations().forEach {
                     task.relocate(it.sourcePackage, it.targetPackage)
