@@ -173,6 +173,7 @@ package androidx.core.uwb {
     method public suspend Object? controleeSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControleeSessionScope>);
     method public suspend Object? controllerSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControllerSessionScope>);
     method public static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
+    method public suspend Object? isAvailable(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     field public static final androidx.core.uwb.UwbManager.Companion Companion;
   }
 
