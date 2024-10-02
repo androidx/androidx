@@ -79,6 +79,16 @@ package androidx.compose.material3.adaptive.layout {
     property public final String Hidden;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class PaneAnimationSpecs {
+    ctor public PaneAnimationSpecs(androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect> boundsAnimationSpec);
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect> getBoundsAnimationSpec();
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getOffsetAnimationSpec();
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getSizeAnimationSpec();
+    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect> boundsAnimationSpec;
+    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> offsetAnimationSpec;
+    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public abstract sealed class PaneExpansionAnchor {
   }
 
@@ -225,16 +235,14 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldMotionScope {
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getDelayedPositionAnimationSpec();
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getAnimationSpecs();
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getDelayedAnimationSpecs();
     method public java.util.List<androidx.compose.material3.adaptive.layout.PaneMotionData> getPaneMotionDataList();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPositionAnimationSpec();
     method public long getScaffoldSize();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getSizeAnimationSpec();
-    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> delayedPositionAnimationSpec;
+    property public abstract androidx.compose.material3.adaptive.layout.PaneAnimationSpecs animationSpecs;
+    property public abstract androidx.compose.material3.adaptive.layout.PaneAnimationSpecs delayedAnimationSpecs;
     property public abstract java.util.List<androidx.compose.material3.adaptive.layout.PaneMotionData> paneMotionDataList;
-    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec;
     property public abstract long scaffoldSize;
-    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldPaneScope<Role> {
@@ -280,15 +288,13 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneMotion {
-    ctor public ThreePaneMotion(androidx.compose.material3.adaptive.layout.PaneMotion primaryPaneMotion, androidx.compose.material3.adaptive.layout.PaneMotion secondaryPaneMotion, androidx.compose.material3.adaptive.layout.PaneMotion tertiaryPaneMotion, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> delayedPositionAnimationSpec);
-    method public androidx.compose.material3.adaptive.layout.ThreePaneMotion copy(optional androidx.compose.material3.adaptive.layout.PaneMotion primaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneMotion secondaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneMotion tertiaryPaneMotion, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> delayedPositionAnimationSpec);
+    ctor public ThreePaneMotion(androidx.compose.material3.adaptive.layout.PaneMotion primaryPaneMotion, androidx.compose.material3.adaptive.layout.PaneMotion secondaryPaneMotion, androidx.compose.material3.adaptive.layout.PaneMotion tertiaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneAnimationSpecs animationSpecs, optional androidx.compose.material3.adaptive.layout.PaneAnimationSpecs delayedAnimationSpecs);
+    method public androidx.compose.material3.adaptive.layout.ThreePaneMotion copy(optional androidx.compose.material3.adaptive.layout.PaneMotion primaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneMotion secondaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneMotion tertiaryPaneMotion, optional androidx.compose.material3.adaptive.layout.PaneAnimationSpecs animationSpecs, optional androidx.compose.material3.adaptive.layout.PaneAnimationSpecs delayedAnimationSpecs);
     method public operator androidx.compose.material3.adaptive.layout.PaneMotion get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role);
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getDelayedPositionAnimationSpec();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPositionAnimationSpec();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getSizeAnimationSpec();
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> delayedPositionAnimationSpec;
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec;
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getAnimationSpecs();
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getDelayedAnimationSpecs();
+    property public final androidx.compose.material3.adaptive.layout.PaneAnimationSpecs animationSpecs;
+    property public final androidx.compose.material3.adaptive.layout.PaneAnimationSpecs delayedAnimationSpecs;
     field public static final androidx.compose.material3.adaptive.layout.ThreePaneMotion.Companion Companion;
   }
 
@@ -298,12 +304,10 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneMotionDefaults {
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPanePositionAnimationSpec();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPanePositionAnimationSpecDelayed();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getPaneSizeAnimationSpec();
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> PanePositionAnimationSpec;
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> PanePositionAnimationSpecDelayed;
-    property public final androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> PaneSizeAnimationSpec;
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getAnimationSpecs();
+    method public androidx.compose.material3.adaptive.layout.PaneAnimationSpecs getAnimationSpecsDelayed();
+    property public final androidx.compose.material3.adaptive.layout.PaneAnimationSpecs AnimationSpecs;
+    property public final androidx.compose.material3.adaptive.layout.PaneAnimationSpecs AnimationSpecsDelayed;
     field public static final androidx.compose.material3.adaptive.layout.ThreePaneMotionDefaults INSTANCE;
   }
 
