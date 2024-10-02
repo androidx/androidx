@@ -46,6 +46,8 @@
     <string name="next_button_description" msgid="4702699322249103693">"다음"</string>
     <string name="close_button_description" msgid="7379823906921067675">"닫기"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <!-- no translation found for message_no_match_status (5929387004361286433) -->
+    <skip />
     <string name="action_edit" msgid="5882082700509010966">"파일 수정"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"잠금 해제하려면 비밀번호 입력"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"재시도"</string>

@@ -46,6 +46,7 @@
     <string name="next_button_description" msgid="4702699322249103693">"ถัดไป"</string>
     <string name="close_button_description" msgid="7379823906921067675">"ปิด"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <string name="message_no_match_status" msgid="5929387004361286433">"ไม่มีผลลัพธ์ที่ตรงกัน"</string>
     <string name="action_edit" msgid="5882082700509010966">"แก้ไขไฟล์"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ป้อนรหัสผ่านเพื่อปลดล็อก"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"ลองอีกครั้ง"</string>
