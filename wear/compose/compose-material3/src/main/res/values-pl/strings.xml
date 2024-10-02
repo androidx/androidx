@@ -46,6 +46,10 @@
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Dalej"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"Zmniejsz"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Zwiększ"</string>
+    <!-- no translation found for wear_m3c_stepper_decrease_content_description (6939134411425530620) -->
+    <skip />
+    <!-- no translation found for wear_m3c_stepper_increase_content_description (6513575827514139918) -->
+    <skip />
     <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Niepowodzenie"</string>
     <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Udało się"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Otwórz na telefonie"</string>
