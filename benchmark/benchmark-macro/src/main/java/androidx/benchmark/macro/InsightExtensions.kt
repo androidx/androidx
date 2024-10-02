@@ -17,6 +17,8 @@
 package androidx.benchmark.macro
 
 import androidx.benchmark.Insight
+import androidx.benchmark.Markdown
+import androidx.benchmark.Outputs
 import androidx.benchmark.StartupInsightsConfig
 import java.net.URLEncoder
 import perfetto.protos.AndroidStartupMetric.SlowStartReason
@@ -30,7 +32,8 @@ import perfetto.protos.AndroidStartupMetric.ThresholdValue.ThresholdUnit
  */
 internal fun createInsightsIdeSummary(
     rawInsights: List<List<SlowStartReason>>,
-    startupInsightsConfig: StartupInsightsConfig?
+    startupInsightsConfig: StartupInsightsConfig?,
+    tracePaths: List<String>
 ): List<Insight> {
     fun createInsightString(
         criterion: SlowStartReason,
@@ -93,7 +96,18 @@ internal fun createInsightsIdeSummary(
                     } else {
                         "$actualValue$unitSuffix"
                     }
-                "${it.index}($actualString)"
+
+                // TODO(364590575): implement zoom-in on relevant parts of the trace and then make
+                //  the 'actualString' also part of the link.
+                val relativePath =
+                    tracePaths.getOrNull(it.index)?.let { Outputs.relativePathFor(it) }
+                val traceLink =
+                    when (relativePath) {
+                        null -> "${it.index}"
+                        else -> Markdown.createFileLink("${it.index}", relativePath)
+                    }
+
+                "$traceLink($actualString)"
             }
 
         return Insight(criterionString, observedString)

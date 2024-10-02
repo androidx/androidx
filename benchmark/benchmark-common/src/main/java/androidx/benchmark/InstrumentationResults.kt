@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Markdown.createFileLink
 import androidx.test.platform.app.InstrumentationRegistry
 import java.lang.StringBuilder
 import java.util.Locale
@@ -130,7 +131,7 @@ object InstrumentationResults {
             output += "    %8d allocs".format(Locale.US, allocations.toInt())
         }
         profilerResults.forEach {
-            output += "    [${it.label}](file://${it.sanitizedOutputRelativePath})"
+            output += "    ${createFileLink(it.label, it.outputRelativePath)}"
         }
         output += "    $benchmarkName"
         return output
@@ -176,9 +177,8 @@ object InstrumentationResults {
 
         val v2metricLines: List<String>
         val linkableIterTraces =
-            iterationTracePaths?.map { absolutePath ->
-                Outputs.relativePathFor(absolutePath).replace("(", "\\(").replace(")", "\\)")
-            } ?: emptyList()
+            iterationTracePaths?.map { absolutePath -> Outputs.relativePathFor(absolutePath) }
+                ?: emptyList()
 
         if (measurements != null) {
             require(measurements.isNotEmpty()) { "Require non-empty list of metric results." }
@@ -248,9 +248,9 @@ object InstrumentationResults {
                     // iteration traces
                     metricLines { name, min, median, max, result ->
                         "  $name" +
-                            "   [min $min](file://${linkableIterTraces[result.minIndex]})," +
-                            "   [median $median](file://${linkableIterTraces[result.medianIndex]})," +
-                            "   [max $max](file://${linkableIterTraces[result.maxIndex]})"
+                            "   ${createFileLink("min $min", linkableIterTraces[result.minIndex])}," +
+                            "   ${createFileLink("median $median", linkableIterTraces[result.medianIndex])}," +
+                            "   ${createFileLink("max $max", linkableIterTraces[result.maxIndex])}"
                     }
                 } else {
                     // No iteration traces, so just basic list
@@ -263,9 +263,6 @@ object InstrumentationResults {
             v2metricLines = emptyList()
         }
 
-        fun markdownFileLink(label: String, sanitizedOutputRelativePath: String): String =
-            "[$label](file://$sanitizedOutputRelativePath)"
-
         val v2lines =
             if (!useTreeDisplayFormat) { // use the regular output format
                 val v2traceLinks =
@@ -273,14 +270,14 @@ object InstrumentationResults {
                         listOf(
                             "    Traces: Iteration " +
                                 linkableIterTraces
-                                    .mapIndexed { index, path -> markdownFileLink("$index", path) }
+                                    .mapIndexed { index, path -> createFileLink("$index", path) }
                                     .joinToString(" ")
                         )
                     } else {
                         emptyList()
                     } +
                         profilerResults.map {
-                            "    ${markdownFileLink(it.label, it.sanitizedOutputRelativePath)}"
+                            "    ${createFileLink(it.label, it.outputRelativePath)}"
                         }
                 listOfNotNull(warningMessage, testName, message) +
                     v2metricLines +
@@ -308,12 +305,12 @@ object InstrumentationResults {
                         if (linkableIterTraces.isNotEmpty())
                             tree.append(
                                 linkableIterTraces
-                                    .mapIndexed { ix, trace -> markdownFileLink("$ix", trace) }
+                                    .mapIndexed { ix, trace -> createFileLink("$ix", trace) }
                                     .joinToString(prefix = "Iteration ", separator = " "),
                                 1
                             )
                         for (line in profilerResults) tree.append(
-                            markdownFileLink(line.label, line.sanitizedOutputRelativePath),
+                            createFileLink(line.label, line.outputRelativePath),
                             1
                         )
                     }

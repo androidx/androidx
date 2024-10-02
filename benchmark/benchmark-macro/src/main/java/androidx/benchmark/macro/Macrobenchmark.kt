@@ -331,7 +331,11 @@ private fun macrobenchmark(
             testName = uniqueName,
             measurements = measurements,
             insights =
-                createInsightsIdeSummary(insightsList, experimentalConfig?.startupInsightsConfig),
+                createInsightsIdeSummary(
+                    insightsList,
+                    experimentalConfig?.startupInsightsConfig,
+                    tracePaths
+                ),
             iterationTracePaths = tracePaths,
             profilerResults = profilerResults,
             useTreeDisplayFormat = experimentalConfig?.startupInsightsConfig?.isEnabled == true
