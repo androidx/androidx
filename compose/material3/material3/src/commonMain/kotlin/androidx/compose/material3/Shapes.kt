@@ -257,6 +257,9 @@ constructor(
             "extralargeIncreased=$extraLargeIncreased, " +
             "extraExtraLarge=$extraExtraLarge)"
     }
+
+    /** Cached shapes used in components */
+    internal var defaultToggleButtonShapesCached: ButtonShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */
