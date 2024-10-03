@@ -58,7 +58,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -244,11 +243,6 @@ class CameraDisconnectTest(
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun canRecovered_afterReceivingCameraOnDisconnectedEvent() {
-        // TODO(b/344749041) The tests can run failed on API 27 devices in camera-pipe config
-        assumeFalse(
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1 &&
-                implName == CameraPipeConfig::class.simpleName
-        )
         // Launch CameraX activity
         cameraXActivityScenario = launchCameraXActivity(cameraId)
         with(cameraXActivityScenario) {
