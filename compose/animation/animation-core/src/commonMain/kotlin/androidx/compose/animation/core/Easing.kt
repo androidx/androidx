@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.computeCubicVerticalBounds
 import androidx.compose.ui.graphics.evaluateCubic
 import androidx.compose.ui.graphics.findFirstCubicRoot
 import androidx.compose.ui.util.fastCoerceIn
+import kotlin.math.max
+import kotlin.math.ulp
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning elements to speed
@@ -125,12 +127,16 @@ public class CubicBezierEasing(
      */
     override fun transform(fraction: Float): Float {
         return if (fraction > 0f && fraction < 1f) {
+            // We translate the coordinates by the fraction when calling findFirstCubicRoot,
+            // but we need to make sure the translation can be done at 1.0f so we take at
+            // least 1 ulp at 1.0f
+            val f = max(fraction, 1f.ulp)
             val t =
                 findFirstCubicRoot(
-                    0.0f - fraction,
-                    a - fraction,
-                    c - fraction,
-                    1.0f - fraction,
+                    0.0f - f,
+                    a - f,
+                    c - f,
+                    1.0f - f,
                 )
 
             // No root, the cubic curve has no solution
