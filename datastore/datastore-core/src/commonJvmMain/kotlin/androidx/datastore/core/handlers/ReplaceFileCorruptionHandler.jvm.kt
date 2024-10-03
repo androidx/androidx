@@ -33,7 +33,7 @@ import kotlin.jvm.Throws
  *   writing the data, this is a good place to log the exception.
  */
 public actual class ReplaceFileCorruptionHandler<T>
-constructor(private val produceNewData: (CorruptionException) -> T) : CorruptionHandler<T> {
+actual constructor(private val produceNewData: (CorruptionException) -> T) : CorruptionHandler<T> {
 
     @Throws(IOException::class)
     actual override suspend fun handleCorruption(ex: CorruptionException): T {
