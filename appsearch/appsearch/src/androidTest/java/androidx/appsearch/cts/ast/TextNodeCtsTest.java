@@ -21,10 +21,19 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.ast.TextNode;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
 
+@RequiresFlagsEnabled(Flags.FLAG_ENABLE_ABSTRACT_SYNTAX_TREES)
 public class TextNodeCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testConstructor_prefixVerbatimFalseByDefault() {
         TextNode defaultTextNode = new TextNode("foo");
