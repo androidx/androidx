@@ -55,15 +55,13 @@ import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
  * @param content Slot for [ListHeader] content, expected to be a single line of text.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
 @Composable
 fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = ListHeaderTokens.ContentColor.value,
-    contentPadding: PaddingValues = ListHeaderDefaults.HeaderContentPadding,
+    contentColor: Color = ListHeaderDefaults.ContentColor,
+    contentPadding: PaddingValues = ListHeaderDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
@@ -87,32 +85,30 @@ fun ListHeader(
 }
 
 /**
- * A two slot based composable for creating a list subheader item. [ListSubheader]s offer slots for
+ * A two slot based composable for creating a list sub-header item. [ListSubHeader]s offer slots for
  * an icon and for a text label. The contents will be start and end padded.
  *
- * Example of a [ListSubheader]:
+ * Example of a [ListSubHeader]:
  *
- * @sample androidx.wear.compose.material3.samples.ListSubheaderSample
+ * @sample androidx.wear.compose.material3.samples.ListSubHeaderSample
  *
- * Example of a [ListSubheader] with an icon:
+ * Example of a [ListSubHeader] with an icon:
  *
- * @sample androidx.wear.compose.material3.samples.ListSubheaderWithIconSample
- * @param modifier The modifier for the [ListSubheader].
+ * @sample androidx.wear.compose.material3.samples.ListSubHeaderWithIconSample
+ * @param modifier The modifier for the [ListSubHeader].
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param icon A slot for providing icon to the [ListSubheader].
- * @param label A slot for providing label to the [ListSubheader].
- *
- * TODO(b/261838497) Add Material3 UX guidance links
+ * @param icon A slot for providing icon to the [ListSubHeader].
+ * @param label A slot for providing label to the [ListSubHeader].
  */
 @Composable
-fun ListSubheader(
+fun ListSubHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = ListSubHeaderTokens.ContentColor.value,
-    contentPadding: PaddingValues = ListHeaderDefaults.SubheaderContentPadding,
+    contentColor: Color = ListHeaderDefaults.subHeaderContentColor,
+    contentPadding: PaddingValues = ListHeaderDefaults.SubHeaderContentPadding,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit,
 ) {
@@ -147,12 +143,23 @@ fun ListSubheader(
 
 object ListHeaderDefaults {
     private val TopPadding = 16.dp
-    private val SubheaderBottomPadding = 8.dp
+    private val SubHeaderBottomPadding = 8.dp
     private val HeaderBottomPadding = 12.dp
     private val HorizontalPadding = 14.dp
 
-    val HeaderContentPadding =
+    /** The default content padding for ListHeader */
+    val ContentPadding =
         PaddingValues(HorizontalPadding, TopPadding, HorizontalPadding, HeaderBottomPadding)
-    val SubheaderContentPadding =
-        PaddingValues(HorizontalPadding, TopPadding, HorizontalPadding, SubheaderBottomPadding)
+
+    /** The default content padding for ListSubHeader */
+    val SubHeaderContentPadding =
+        PaddingValues(HorizontalPadding, TopPadding, HorizontalPadding, SubHeaderBottomPadding)
+
+    /** The default color for ListHeader */
+    val ContentColor: Color
+        @Composable get() = ListHeaderTokens.ContentColor.value
+
+    /** The default color for ListSubHeader */
+    val subHeaderContentColor: Color
+        @Composable get() = ListSubHeaderTokens.ContentColor.value
 }

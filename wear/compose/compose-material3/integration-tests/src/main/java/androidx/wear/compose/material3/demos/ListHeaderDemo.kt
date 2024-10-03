@@ -18,14 +18,14 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.samples.ListHeaderSample
-import androidx.wear.compose.material3.samples.ListSubheaderSample
-import androidx.wear.compose.material3.samples.ListSubheaderWithIconSample
+import androidx.wear.compose.material3.samples.ListSubHeaderSample
+import androidx.wear.compose.material3.samples.ListSubHeaderWithIconSample
 
 @Composable
 fun ListHeaderDemo() {
     ScalingLazyDemo {
         item { ListHeaderSample() }
-        item { ListSubheaderSample() }
-        item { ListSubheaderWithIconSample() }
+        item { ListSubHeaderSample() }
+        item { ListSubHeaderWithIconSample() }
     }
 }

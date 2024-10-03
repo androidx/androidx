@@ -35,7 +35,7 @@ import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.ListSubheader
+import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonExtraLargeIconSample
@@ -62,9 +62,9 @@ fun BaseButtonDemo() {
     // to the content slot.
     ScalingLazyDemo {
         item { ListHeader { Text("Base Button") } }
-        item { ListSubheader { Text("Default alignment") } }
+        item { ListSubHeader { Text("Default alignment") } }
         item { Button(onClick = {}, modifier = Modifier.fillMaxWidth()) { Text("Base Button") } }
-        item { ListSubheader { Text("Top Alignment") } }
+        item { ListSubHeader { Text("Top Alignment") } }
         item {
             Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
                 Text("Base Button", modifier = Modifier.align(Alignment.Top))

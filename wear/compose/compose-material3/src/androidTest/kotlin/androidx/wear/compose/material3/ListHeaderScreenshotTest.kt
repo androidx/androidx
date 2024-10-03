@@ -54,7 +54,7 @@ class ListHeaderScreenshotTest {
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
         ) {
-            ListSubheader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
+            ListSubHeader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
         }
 
     @Test
@@ -64,7 +64,7 @@ class ListHeaderScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl,
         ) {
-            ListSubheader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
+            ListSubHeader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
         }
 
     @Test
@@ -74,7 +74,7 @@ class ListHeaderScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Ltr,
         ) {
-            ListSubheader(
+            ListSubHeader(
                 modifier = Modifier.testTag(TEST_TAG),
                 label = { Text(text = "Subheader") },
                 icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
@@ -88,7 +88,7 @@ class ListHeaderScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl
         ) {
-            ListSubheader(
+            ListSubHeader(
                 modifier = Modifier.testTag(TEST_TAG),
                 label = { Text(text = "Subheader") },
                 icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
