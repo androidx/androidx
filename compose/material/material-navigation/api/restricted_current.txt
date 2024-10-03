@@ -39,6 +39,7 @@ package androidx.compose.material.navigation {
   public final class NavGraphBuilderKt {
     method public static void bottomSheet(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
     method public static inline <reified T> void bottomSheet(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method @kotlin.PublishedApi internal static void bottomSheet(androidx.navigation.NavGraphBuilder, kotlin.reflect.KClass<? extends java.lang.Object?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
 }
