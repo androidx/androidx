@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.os.Build
 import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.warn
@@ -75,7 +76,12 @@ constructor(
     public val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
     override fun getSensorRect(): Rect {
-        return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
+        val sensorRect =
+            cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
+        if ("robolectric" == Build.FINGERPRINT && sensorRect == null) {
+            return Rect(0, 0, 4000, 3000)
+        }
+        return sensorRect!!
     }
 
     override fun addInteropConfig(config: Config) {

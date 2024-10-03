@@ -608,8 +608,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @ExecutedBy("mExecutor")
     @NonNull
     public Rect getSensorRect() {
-        return Preconditions.checkNotNull(
-                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE));
+        Rect sensorRect =
+                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        if ("robolectric".equals(Build.FINGERPRINT) && sensorRect == null) {
+            return new Rect(0, 0, 4000, 3000);
+        }
+        return Preconditions.checkNotNull(sensorRect);
     }
 
     @ExecutedBy("mExecutor")

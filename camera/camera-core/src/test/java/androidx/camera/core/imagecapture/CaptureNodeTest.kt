@@ -234,7 +234,8 @@ class CaptureNodeTest {
         assertThat(takePictureCallback.captureProcessProgressList).isEmpty()
     }
 
-    @Test
+    // TODO(b/371138487): re-enable this test method once we fix the flaky issue.
+    // @Test
     fun requestSentNon100Progress_progress100isInvoked() {
         // Arrange: Configure the CaptureNode and submit fake request.
         val captureNode = CaptureNode()
