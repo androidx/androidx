@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_71
+// VERSION: v0_87
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -38,7 +38,7 @@ internal object TypographyTokens {
             fontWeight = FontWeight(TypeScaleTokens.ArcLargeWeight.toInt()),
             fontSize = TypeScaleTokens.ArcLargeSize,
             lineHeight = TypeScaleTokens.ArcLargeLineHeight,
-            letterSpacing = TypeScaleTokens.ArcLargeTracking,
+            letterSpacing = TypeScaleTokens.ArcLargeTrackingTop,
         )
     val ArcMedium =
         DefaultTextStyle.copy(
@@ -53,7 +53,7 @@ internal object TypographyTokens {
             fontWeight = FontWeight(TypeScaleTokens.ArcMediumWeight.toInt()),
             fontSize = TypeScaleTokens.ArcMediumSize,
             lineHeight = TypeScaleTokens.ArcMediumLineHeight,
-            letterSpacing = TypeScaleTokens.ArcMediumTracking,
+            letterSpacing = TypeScaleTokens.ArcMediumTrackingTop,
         )
     val ArcSmall =
         DefaultTextStyle.copy(
@@ -67,7 +67,7 @@ internal object TypographyTokens {
             fontWeight = FontWeight(TypeScaleTokens.ArcSmallWeight.toInt()),
             fontSize = TypeScaleTokens.ArcSmallSize,
             lineHeight = TypeScaleTokens.ArcSmallLineHeight,
-            letterSpacing = TypeScaleTokens.ArcSmallTracking,
+            letterSpacing = TypeScaleTokens.ArcSmallTrackingTop,
         )
     val BodyExtraSmall =
         DefaultTextStyle.copy(

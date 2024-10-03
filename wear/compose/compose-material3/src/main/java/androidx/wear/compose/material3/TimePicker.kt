@@ -424,11 +424,11 @@ object TimePickerDefaults {
             return defaultTimePickerColorsCached
                 ?: TimePickerColors(
                         selectedPickerContentColor =
-                            fromToken(TimePickerTokens.SelectedPickerContentColor),
+                            fromToken(TimePickerTokens.SelectedContentColor),
                         unselectedPickerContentColor =
-                            fromToken(TimePickerTokens.UnselectedPickerContentColor),
+                            fromToken(TimePickerTokens.UnselectedContentColor),
                         separatorColor = fromToken(TimePickerTokens.SeparatorColor),
-                        pickerLabelColor = fromToken(TimePickerTokens.PickerLabelColor),
+                        pickerLabelColor = fromToken(TimePickerTokens.LabelColor),
                         confirmButtonContentColor =
                             fromToken(TimePickerTokens.ConfirmButtonContentColor),
                         confirmButtonContainerColor =
@@ -512,17 +512,17 @@ private fun getTimePickerStyles(
     val isLargeScreen = LocalConfiguration.current.screenWidthDp > 225
     val labelTextStyle =
         if (isLargeScreen) {
-                TimePickerTokens.PickerLabelLargeTypography
+                TimePickerTokens.LabelLargeTypography
             } else {
-                TimePickerTokens.PickerLabelTypography
+                TimePickerTokens.LabelTypography
             }
             .value
 
     val optionTextStyle =
         if (isLargeScreen || timePickerType == TimePickerType.HoursMinutes24H) {
-                TimePickerTokens.PickerContentLargeTypography
+                TimePickerTokens.ContentLargeTypography
             } else {
-                TimePickerTokens.PickerContentTypography
+                TimePickerTokens.ContentTypography
             }
             .value
             .copy(textAlign = TextAlign.Center)

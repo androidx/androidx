@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_71
+// VERSION: v0_87
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -26,5 +26,6 @@ internal object TypefaceTokens {
     val Brand = FontFamily.SansSerif
     val Plain = FontFamily.SansSerif
     val WeightBold = FontWeight.Bold
+    val WeightMedium = FontWeight.Medium
     val WeightRegular = FontWeight.Normal
 }

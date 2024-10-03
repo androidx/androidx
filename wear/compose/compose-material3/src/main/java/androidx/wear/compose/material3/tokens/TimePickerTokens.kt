@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
+// VERSION: v0_87
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 package androidx.wear.compose.material3.tokens
-
 internal object TimePickerTokens {
-    val SelectedPickerContentColor = ColorSchemeKeyTokens.OnBackground
-    val UnselectedPickerContentColor = ColorSchemeKeyTokens.SecondaryDim
-    val SeparatorColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PickerLabelColor = ColorSchemeKeyTokens.Primary
-    val ConfirmButtonContentColor = ColorSchemeKeyTokens.OnPrimary
     val ConfirmButtonContainerColor = ColorSchemeKeyTokens.PrimaryDim
-
-    val PickerLabelLargeTypography = TypographyKeyTokens.TitleLarge
-    val PickerLabelTypography = TypographyKeyTokens.TitleMedium
-    val PickerContentLargeTypography = TypographyKeyTokens.NumeralMedium
-    val PickerContentTypography = TypographyKeyTokens.NumeralSmall
+    val ConfirmButtonContentColor = ColorSchemeKeyTokens.OnPrimary
+    val ContentLargeTypography = TypographyKeyTokens.NumeralMedium
+    val ContentTypography = TypographyKeyTokens.NumeralSmall
+    val LabelColor = ColorSchemeKeyTokens.Primary
+    val LabelLargeTypography = TypographyKeyTokens.TitleLarge
+    val LabelTypography = TypographyKeyTokens.TitleMedium
+    val SelectedContentColor = ColorSchemeKeyTokens.OnBackground
+    val SeparatorColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedContentColor = ColorSchemeKeyTokens.SecondaryDim
 }
