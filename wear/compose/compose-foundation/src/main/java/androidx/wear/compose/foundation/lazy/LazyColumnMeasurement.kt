@@ -182,7 +182,7 @@ private fun bottomItemScrollProgress(
     height: Int,
     containerHeight: Int
 ): LazyColumnItemScrollProgress =
-    LazyColumnItemScrollProgressImpl(
+    LazyColumnItemScrollProgress(
         topOffsetFraction = offset.toFloat() / containerHeight.toFloat(),
         bottomOffsetFraction = (offset + height).toFloat() / containerHeight.toFloat(),
     )
@@ -192,15 +192,10 @@ private fun topItemScrollProgress(
     height: Int,
     containerHeight: Int
 ): LazyColumnItemScrollProgress =
-    LazyColumnItemScrollProgressImpl(
+    LazyColumnItemScrollProgress(
         topOffsetFraction = (offset - height).toFloat() / containerHeight.toFloat(),
         bottomOffsetFraction = offset / containerHeight.toFloat(),
     )
-
-internal data class LazyColumnItemScrollProgressImpl(
-    override val topOffsetFraction: Float,
-    override val bottomOffsetFraction: Float
-) : LazyColumnItemScrollProgress
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)

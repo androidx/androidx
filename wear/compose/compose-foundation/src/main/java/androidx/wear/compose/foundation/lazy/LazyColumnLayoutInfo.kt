@@ -17,29 +17,48 @@
 package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
 
 /**
  * Scroll progress of an item in a [LazyColumn] before any modifications to the item's height are
  * applied (using [LazyColumnItemScope.transformedHeight] modifier).
  */
-sealed interface LazyColumnItemScrollProgress {
+@JvmInline
+value class LazyColumnItemScrollProgress internal constructor(private val packedValue: Long) {
     /**
-     * The offset as a fraction of the top of the item relative to the list container. Is within
-     * (0, 1) when item is inside the screen and could be negative if the top of the item is off the
-     * screen. Value is calculated from the top of the container. This value is calculated before
-     * any height modifications are applied (using [LazyColumnItemScope.transformedHeight]
-     * modifier).
+     * The top offset (between the top of the list container and the top of the item) as a fraction
+     * of the height of the list container. Is within (0, 1) when item is inside the screen and
+     * could be negative if the top of the item is off the screen. Value is calculated from the top
+     * of the container. This value is calculated before any height modifications are applied (using
+     * [LazyColumnItemScope.transformedHeight] modifier).
      */
     val topOffsetFraction: Float
+        get() = unpackFloat1(packedValue)
 
     /**
-     * The offset as a fraction of the bottom of the item relative to the list container. Is within
-     * (0, 1) when item is inside the screen and could exceed 1 when the bottom of item is off the
-     * screen. Value is calculated from the top of the container. This value is calculated before
-     * any height modifications are applied (using [LazyColumnItemScope.transformedHeight]
-     * modifier).
+     * The bottom offset (between the top of the list container and the bottom of the item) as a
+     * fraction of the height of the list container. Is within (0, 1) when item is inside the screen
+     * and could exceed 1 when the bottom of item is off the screen. Value is calculated from the
+     * top of the container. This value is calculated before any height modifications are applied
+     * (using [LazyColumnItemScope.transformedHeight] modifier).
      */
     val bottomOffsetFraction: Float
+        get() = unpackFloat2(packedValue)
+
+    /**
+     * Constructs a [LazyColumnItemScrollProgress] with two offset fraction [Float] values.
+     *
+     * @param topOffsetFraction The top offset (between the top of the list container and the top of
+     *   the item) as a fraction of the height of the list container.
+     * @param bottomOffsetFraction The bottom offset (between the top of the list container and the
+     *   bottom of the item) as a fraction of the height of the list container.
+     */
+    constructor(
+        topOffsetFraction: Float,
+        bottomOffsetFraction: Float
+    ) : this(packFloats(topOffsetFraction, bottomOffsetFraction))
 }
 
 /** Represents an item that is visible in the [LazyColumn] component. */
