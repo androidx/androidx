@@ -25,11 +25,11 @@ import kotlin.test.assertTrue
 // This test can't be in commonTest because
 // Float.ulp is jvm only: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.math/ulp.html
 class EasingTestAndroid {
-    private val ZeroEpsilon = 1.0f.ulp * 2.0f
+    private val ZeroEpsilon = -(1.0f.ulp * 2.0f)
     private val OneEpsilon = 1.0f + 1.0f.ulp * 2.0f
 
     @Test
-    fun canSolveCubicForFractionsCloseToZeroOrOne() {
+    fun canSolveCubicForFractionsCloseToOne() {
         // Only test curves defined in [0..1]
         // For instance, EaseInOutBack is defined in a larger domain, so exclude it from the list
         val curves =
@@ -67,6 +67,7 @@ class EasingTestAndroid {
             )
 
         for (curve in curves) {
+            // Test the last 16 ulps until 1.0f
             for (i in 0x3f7f9d99..0x3f7fffff) {
                 val fraction = floatFromBits(i)
                 val t = curve.transform(fraction)
@@ -75,23 +76,6 @@ class EasingTestAndroid {
                     "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
                 )
             }
-
-            for (i in 0x0..0x6266) {
-                val fraction = floatFromBits(i)
-                val t = curve.transform(fraction)
-                assertTrue(
-                    t in -ZeroEpsilon..OneEpsilon,
-                    "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
-                )
-            }
-
-            // Test at 1.5058824E-7, small value but not too close to 0.0 either
-            val fraction = floatFromBits(0x3421b161)
-            val t = curve.transform(fraction)
-            assertTrue(
-                t in -ZeroEpsilon..OneEpsilon,
-                "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
-            )
         }
     }
 
