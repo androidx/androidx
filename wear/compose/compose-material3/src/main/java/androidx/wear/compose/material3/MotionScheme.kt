@@ -20,9 +20,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.spring
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
@@ -30,8 +28,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
  *
  * Motion schemes are designed to create a harmonious motion for components in the app.
  *
- * There are two built-in schemes, a [standardMotionScheme] and an [expressiveMotionScheme], that
- * can be used as-is or customized.
+ * There are two built-in schemes, a [standard] and an [expressive], that can be used as-is or
+ * customized.
  */
 @Immutable
 interface MotionScheme {
@@ -44,9 +42,6 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberDefaultSpatialSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T>
 
@@ -59,9 +54,6 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberFastSpatialSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> fastSpatialSpec(): FiniteAnimationSpec<T>
 
@@ -74,9 +66,6 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberSlowSpatialSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> slowSpatialSpec(): FiniteAnimationSpec<T>
 
@@ -88,9 +77,6 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberDefaultEffectsSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T>
 
@@ -102,9 +88,6 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberFastEffectsSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> fastEffectsSpec(): FiniteAnimationSpec<T>
 
@@ -116,165 +99,151 @@ interface MotionScheme {
      *
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
-     *
-     * When called from a Composable, use [rememberSlowEffectsSpec] extension to ensure that the
-     * returned animation spec is remembered across compositions.
      */
     fun <T> slowEffectsSpec(): FiniteAnimationSpec<T>
+
+    companion object {
+        /**
+         * Returns a standard Material motion scheme.
+         *
+         * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
+         * recurring interactions. It provides a linear motion feel.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun standard(): MotionScheme =
+            object : MotionScheme {
+                private val defaultSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = StandardSpatialDampingRatio,
+                        stiffness = StandardDefaultStiffness
+                    )
+
+                private val fastSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = StandardSpatialDampingRatio,
+                        stiffness = StandardFastStiffness
+                    )
+
+                private val slowSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = StandardSpatialDampingRatio,
+                        stiffness = StandardSlowStiffness
+                    )
+
+                private val defaultEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsDefaultStiffness
+                    )
+
+                private val fastEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsFastStiffness
+                    )
+
+                private val slowEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsSlowStiffness
+                    )
+
+                override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
+                    return defaultSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
+                    return fastSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
+                    return slowSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
+                    return defaultEffectsSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
+                    return fastEffectsSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
+                    return slowEffectsSpec as FiniteAnimationSpec<T>
+                }
+            }
+
+        /**
+         * Returns an expressive Material motion scheme.
+         *
+         * The expressive scheme is Material's recommended motion scheme for prominent UI elements
+         * and hero interactions. It provides a visually engaging motion feel.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun expressive(): MotionScheme =
+            object : MotionScheme {
+                private val defaultSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = ExpressiveDefaultDamping,
+                        stiffness = ExpressiveDefaultStiffness
+                    )
+
+                private val fastSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = ExpressiveFastDamping,
+                        stiffness = ExpressiveFastStiffness
+                    )
+
+                private val slowSpatialSpec =
+                    spring<Any>(
+                        dampingRatio = ExpressiveSlowDamping,
+                        stiffness = ExpressiveSlowStiffness
+                    )
+
+                private val defaultEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsDefaultStiffness
+                    )
+
+                private val fastEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsFastStiffness
+                    )
+
+                private val slowEffectsSpec =
+                    spring<Any>(
+                        dampingRatio = EffectsDampingRatio,
+                        stiffness = EffectsSlowStiffness
+                    )
+
+                override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
+                    return defaultSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
+                    return fastSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
+                    return slowSpatialSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
+                    return defaultEffectsSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
+                    return fastEffectsSpec as FiniteAnimationSpec<T>
+                }
+
+                override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
+                    return slowEffectsSpec as FiniteAnimationSpec<T>
+                }
+            }
+    }
 }
-
-/**
- * A default spatial motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system, as long as the appropriate
- * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
- *
- * @see [MotionScheme.defaultSpatialSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberDefaultSpatialSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = defaultSpatialSpec()
-        spec
-    }
-
-/**
- * A fast spatial motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system.
- *
- * @see [MotionScheme.fastSpatialSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberFastSpatialSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = fastSpatialSpec()
-        spec
-    }
-
-/**
- * A slow spatial motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system.
- *
- * @see [MotionScheme.slowSpatialSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberSlowSpatialSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = slowSpatialSpec()
-        spec
-    }
-
-/**
- * A default effects motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system.
- *
- * @see [MotionScheme.defaultEffectsSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberDefaultEffectsSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = defaultEffectsSpec()
-        spec
-    }
-
-/**
- * A fast effects motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system.
- *
- * @see [MotionScheme.fastEffectsSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberFastEffectsSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = fastEffectsSpec()
-        spec
-    }
-
-/**
- * A slow effects motion [FiniteAnimationSpec] that is remembered across compositions.
- *
- * [T] is the generic data type that will be animated by the system.
- *
- * @see [MotionScheme.slowEffectsSpec]
- */
-@Composable
-inline fun <reified T> MotionScheme.rememberSlowEffectsSpec() =
-    remember(this, T::class) {
-        val spec: FiniteAnimationSpec<T> = slowEffectsSpec()
-        spec
-    }
-
-/** Returns a standard Material motion scheme. */
-fun standardMotionScheme(): MotionScheme =
-    object : MotionScheme {
-        override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(
-                dampingRatio = StandardSpatialDampingRatio,
-                stiffness = StandardDefaultStiffness
-            )
-        }
-
-        override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(
-                dampingRatio = StandardSpatialDampingRatio,
-                stiffness = StandardFastStiffness
-            )
-        }
-
-        override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(
-                dampingRatio = StandardSpatialDampingRatio,
-                stiffness = StandardSlowStiffness
-            )
-        }
-
-        override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsDefaultStiffness)
-        }
-
-        override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsFastStiffness)
-        }
-
-        override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsSlowStiffness)
-        }
-    }
-
-/** Returns an expressive Material motion scheme. */
-fun expressiveMotionScheme(): MotionScheme =
-    object : MotionScheme {
-        override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(
-                dampingRatio = ExpressiveDefaultDamping,
-                stiffness = ExpressiveDefaultStiffness
-            )
-        }
-
-        override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = ExpressiveFastDamping, stiffness = ExpressiveFastStiffness)
-        }
-
-        override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = ExpressiveSlowDamping, stiffness = ExpressiveSlowStiffness)
-        }
-
-        override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsDefaultStiffness)
-        }
-
-        override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsFastStiffness)
-        }
-
-        override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsSlowStiffness)
-        }
-    }
 
 /**
  * CompositionLocal used to pass [MotionScheme] down the tree.
@@ -283,7 +252,7 @@ fun expressiveMotionScheme(): MotionScheme =
  * value of this CompositionLocal, use [MaterialTheme.motionScheme].
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-internal val LocalMotionScheme = staticCompositionLocalOf { standardMotionScheme() }
+internal val LocalMotionScheme = staticCompositionLocalOf { MotionScheme.standard() }
 
 // TODO - These values should come from Tokens.
 private const val StandardSpatialDampingRatio = 0.9f

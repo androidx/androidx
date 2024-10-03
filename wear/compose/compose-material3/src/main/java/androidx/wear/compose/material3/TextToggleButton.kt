@@ -209,7 +209,7 @@ object TextToggleButtonDefaults {
         checkedCornerSize: CornerSize = CheckedCornerSize,
         pressedCornerSize: CornerSize = PressedCornerSize,
         onPressAnimationSpec: FiniteAnimationSpec<Float> =
-            MaterialTheme.motionScheme.rememberFastSpatialSpec(),
+            MaterialTheme.motionScheme.fastSpatialSpec(),
         onReleaseAnimationSpec: FiniteAnimationSpec<Float> =
             MaterialTheme.motionScheme.slowSpatialSpec(),
     ): Shape {
