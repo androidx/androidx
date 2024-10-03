@@ -203,9 +203,9 @@ import androidx.compose.material3.samples.SmallButtonSample
 import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.SmallFloatingActionButtonSample
-import androidx.compose.material3.samples.SplitButtonSample
 import androidx.compose.material3.samples.SplitButtonWithIconSample
 import androidx.compose.material3.samples.SplitButtonWithTextSample
+import androidx.compose.material3.samples.SplitButtonWithUnCheckableTrailingButtonSample
 import androidx.compose.material3.samples.SquareButtonSample
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
@@ -1664,18 +1664,18 @@ private const val SplitButtonSourceUrl = "$SampleSourceUrl/SplitButtonSamples.kt
 val SplitButtonExamples =
     listOf(
         Example(
-            name = "SplitButtonSample",
-            description = SplitButtonExampleDescription,
-            sourceUrl = SplitButtonSourceUrl
-        ) {
-            SplitButtonSample()
-        },
-        Example(
             name = "FilledSplitButtonSample",
             description = SplitButtonExampleDescription,
             sourceUrl = SplitButtonSourceUrl
         ) {
             FilledSplitButtonSample()
+        },
+        Example(
+            name = "SplitButtonWithUnCheckableTrailingButtonSample",
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            SplitButtonWithUnCheckableTrailingButtonSample()
         },
         Example(
             name = "TonalSplitButtonSample",

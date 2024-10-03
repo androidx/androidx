@@ -63,16 +63,38 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
 
 /**
- * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
+ * A [SplitButtonLayout] let user define a button group consisting of 2 buttons. The leading button
  * performs a primary action, and the trailing button performs a secondary action that is
  * contextually related to the primary action.
  *
- * @sample androidx.compose.material3.samples.SplitButtonSample
+ * @sample androidx.compose.material3.samples.FilledSplitButtonSample
+ * @sample androidx.compose.material3.samples.TonalSplitButtonSample
+ * @sample androidx.compose.material3.samples.ElevatedSplitButtonSample
+ * @sample androidx.compose.material3.samples.OutlinedSplitButtonSample
+ * @sample androidx.compose.material3.samples.SplitButtonWithUnCheckableTrailingButtonSample
  * @sample androidx.compose.material3.samples.SplitButtonWithTextSample
  * @sample androidx.compose.material3.samples.SplitButtonWithIconSample
  *
  * Choose the best split button for an action based on the amount of emphasis it needs. The more
  * important an action is, the higher emphasis its button should be.
+ *
+ * Use [SplitButtonDefaults.LeadingButton] and [SplitButtonDefaults.TrailingButton] to construct a
+ * `FilledSplitButton`. Filled split button is the high-emphasis version of split button. It should
+ * be used for emphasizing important or final actions.
+ *
+ * Use [SplitButtonDefaults.TonalLeadingButton] and [SplitButtonDefaults.TonalTrailingButton] to
+ * construct a `tonal SplitButton`. Tonal split button is the medium-emphasis version of split
+ * buttons. It's a middle ground between `filled SplitButton` and `outlined SplitButton`
+ *
+ * Use [SplitButtonDefaults.ElevatedLeadingButton] and [SplitButtonDefaults.ElevatedTrailingButton]
+ * to construct a `elevated SplitButton`. Elevated split buttons are essentially `tonal
+ * SplitButton`s with a shadow. To prevent shadow creep, only use them when absolutely necessary,
+ * such as when the button requires visual separation from patterned container.
+ *
+ * Use [SplitButtonDefaults.OutlinedLeadingButton] and [SplitButtonDefaults.OutlinedTrailingButton]
+ * to construct a `outlined SplitButton`. Outlined split buttons are medium-emphasis buttons. They
+ * contain actions that are important, but are not the primary action in an app. Outlined buttons
+ * pair well with `filled SplitButton`s to indicate an alternative, secondary action.
  *
  * @param leadingButton the leading button. You can specify your own composable or construct a
  *   [SplitButtonDefaults.LeadingButton]
@@ -80,328 +102,14 @@ import androidx.compose.ui.util.fastSumBy
  *   [SplitButtonDefaults.TrailingButton]
  * @param modifier the [Modifier] to be applied to this split button.
  * @param spacing The spacing between the [leadingButton] and [trailingButton]
- * @see FilledSplitButton for a high-emphasis split button without a shadow.
- * @see OutlinedSplitButton for a medium-emphasis split button with a border.
- * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
- * @see ElevatedSplitButton for an [TonalSplitButton] with a shadow.
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun SplitButton(
+fun SplitButtonLayout(
     leadingButton: @Composable () -> Unit,
     trailingButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     spacing: Dp = SplitButtonDefaults.Spacing,
-) {
-    SplitButtonLayout(
-        leadingButton,
-        trailingButton,
-        spacing,
-        modifier.minimumInteractiveComponentSize()
-    )
-}
-
-/**
- * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
- * contextually related to the primary action.
- *
- * Filled split button is the high-emphasis version of split button. It should be used for
- * emphasizing important or final actions.
- *
- * @sample androidx.compose.material3.samples.FilledSplitButtonSample
- *
- * Choose the best split button for an action based on the amount of emphasis it needs. The more
- * important an action is, the higher emphasis its button should be.
- *
- * @param onLeadingButtonClick called when the leading button is clicked
- * @param onTrailingButtonClick called when the trailing button is clicked
- * @param leadingContent the content to be placed inside the leading button. A container will be
- *   provided internally to offer the standard design and style for a [FilledSplitButton].
- * @param trailingContent the content to be placed inside the trailing button. A container is
- *   provided internally to ensure the standard design and style of a [FilledSplitButton]. The
- *   container corner radius morphs to `full` when the [checked] state changes to `true`.
- * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
- *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
- * @param modifier the [Modifier] to be applied to this this split button.
- * @param enabled controls the enabled state of the split button. When `false`, this component will
- *   not respond to user input, and it will appear visually disabled and disabled to accessibility
- *   services.
- * @param innerCornerSize The size for leading button's end corners and trailing button's start
- *   corners
- * @param spacing The spacing between the leading and trailing buttons
- * @see OutlinedSplitButton for a medium-emphasis split button with a border.
- * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
- * @see ElevatedSplitButton for an [TonalSplitButton] with a shadow.
- *
- * The default text style for internal [Text] components will be set to [Typography.labelLarge].
- */
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-fun FilledSplitButton(
-    onLeadingButtonClick: () -> Unit,
-    onTrailingButtonClick: () -> Unit,
-    leadingContent: @Composable RowScope.() -> Unit,
-    trailingContent: @Composable RowScope.() -> Unit,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
-    spacing: Dp = SplitButtonDefaults.Spacing
-) {
-    SplitButton(
-        modifier = modifier,
-        spacing = spacing,
-        leadingButton = {
-            SplitButtonDefaults.LeadingButton(
-                onClick = onLeadingButtonClick,
-                enabled = enabled,
-                shapes = SplitButtonDefaults.leadingButtonShapes(innerCornerSize),
-                content = leadingContent
-            )
-        },
-        trailingButton = {
-            SplitButtonDefaults.TrailingButton(
-                onClick = onTrailingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                checked = checked,
-                shapes =
-                    SplitButtonDefaults.trailingButtonShapes(startCornerSize = innerCornerSize),
-                content = trailingContent,
-            )
-        },
-    )
-}
-
-/**
- * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
- * contextually related to the primary action.
- *
- * Tonal split button is the medium-emphasis version of split buttons. It's a middle ground between
- * [FilledSplitButton] and [OutlinedSplitButton]
- *
- * @sample androidx.compose.material3.samples.TonalSplitButtonSample
- *
- * Choose the best split button for an action based on the amount of emphasis it needs. The more
- * important an action is, the higher emphasis its button should be.
- *
- * @param onLeadingButtonClick called when the leading button is clicked
- * @param onTrailingButtonClick called when the trailing button is clicked
- * @param leadingContent the content to be placed inside the leading button. A container will be
- *   provided internally to offer the standard design and style for a [TonalSplitButton].
- * @param trailingContent the content to be placed inside the trailing button. A container is
- *   provided internally to ensure the standard design and style of a [TonalSplitButton]. The
- *   container corner radius morphs to full when the [checked] state changes to `true`.
- * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
- *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
- * @param modifier the [Modifier] to be applied to this split button.
- * @param enabled controls the enabled state of the split button. When `false`, this component will
- *   not respond to user input, and it will appear visually disabled and disabled to accessibility
- *   services.
- * @param innerCornerSize The size for leading button's end corners and trailing button's start
- *   corners
- * @param spacing The spacing between the leading and trailing buttons
- * @see FilledSplitButton for a high-emphasis split button without a shadow.
- * @see OutlinedSplitButton for a medium-emphasis split button with a border.
- * @see ElevatedSplitButton for an [TonalSplitButton] with a shadow.
- *
- * The default text style for internal [Text] components will be set to [Typography.labelLarge].
- */
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-fun TonalSplitButton(
-    onLeadingButtonClick: () -> Unit,
-    onTrailingButtonClick: () -> Unit,
-    leadingContent: @Composable RowScope.() -> Unit,
-    trailingContent: @Composable RowScope.() -> Unit,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
-    spacing: Dp = SplitButtonDefaults.Spacing
-) {
-    SplitButton(
-        leadingButton = {
-            TonalLeadingButton(
-                onClick = onLeadingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                shapes = SplitButtonDefaults.leadingButtonShapes(endCornerSize = innerCornerSize),
-                content = leadingContent,
-            )
-        },
-        trailingButton = {
-            TonalTrailingButton(
-                onClick = onTrailingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                checked = checked,
-                shapes = SplitButtonDefaults.trailingButtonShapes(innerCornerSize),
-                content = trailingContent,
-            )
-        },
-        modifier = modifier,
-        spacing = spacing
-    )
-}
-
-/**
- * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
- * contextually related to the primary action.
- *
- * Elevated split buttons are essentially [OutlinedSplitButton]s with a shadow. To prevent shadow
- * creep, only use them when absolutely necessary, such as when the button requires visual
- * separation from patterned container.
- *
- * @sample androidx.compose.material3.samples.ElevatedSplitButtonSample
- *
- * Choose the best split button for an action based on the amount of emphasis it needs. The more
- * important an action is, the higher emphasis its button should be.
- *
- * @param onLeadingButtonClick called when the leading button is clicked
- * @param onTrailingButtonClick called when the trailing button is clicked
- * @param leadingContent the content to be placed inside the leading button. A container will be
- *   provided internally to offer the standard design and style for a [ElevatedSplitButton].
- * @param trailingContent the content to be placed inside the trailing button. A container is
- *   provided internally to ensure the standard design and style of a [ElevatedSplitButton]. The
- *   container corner radius morphs to full when the [checked] state changes to `true`.
- * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
- *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
- * @param modifier the [Modifier] to be applied to this split button.
- * @param enabled controls the enabled state of the split button. When `false`, this component will
- *   not respond to user input, and it will appear visually disabled and disabled to accessibility
- *   services.
- * @param innerCornerSize The size for leading button's end corners and trailing button's start
- *   corners
- * @param spacing The spacing between the leading and trailing buttons
- * @see FilledSplitButton for a high-emphasis split button without a shadow.
- * @see OutlinedSplitButton for a medium-emphasis split button with a border.
- * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
- *
- * The default text style for internal [Text] components will be set to [Typography.labelLarge].
- */
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-fun ElevatedSplitButton(
-    onLeadingButtonClick: () -> Unit,
-    onTrailingButtonClick: () -> Unit,
-    leadingContent: @Composable RowScope.() -> Unit,
-    trailingContent: @Composable RowScope.() -> Unit,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
-    spacing: Dp = SplitButtonDefaults.Spacing
-) {
-    SplitButton(
-        leadingButton = {
-            ElevatedLeadingButton(
-                onClick = onLeadingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                shapes = SplitButtonDefaults.leadingButtonShapes(endCornerSize = innerCornerSize),
-                content = leadingContent,
-            )
-        },
-        trailingButton = {
-            ElevatedTrailingButton(
-                onClick = onTrailingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                checked = checked,
-                shapes =
-                    SplitButtonDefaults.trailingButtonShapes(startCornerSize = innerCornerSize),
-                content = trailingContent
-            )
-        },
-        modifier = modifier,
-        spacing = spacing
-    )
-}
-
-/**
- * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
- * contextually related to the primary action.
- *
- * Outlined split buttons are medium-emphasis split buttons that are essentially
- * [OutlinedSplitButton]s with a shadow. They contain actions that are important, but aren’t the
- * primary action in an app.
- *
- * @sample androidx.compose.material3.samples.OutlinedSplitButtonSample
- *
- * Choose the best split button for an action based on the amount of emphasis it needs. The more
- * important an action is, the higher emphasis its button should be.
- *
- * @param onLeadingButtonClick called when the leading button is clicked
- * @param onTrailingButtonClick called when the trailing button is clicked
- * @param leadingContent the content to be placed inside the leading button. A container will be
- *   provided internally to offer the standard design and style for a [OutlinedSplitButton].
- * @param trailingContent the content to be placed inside the trailing button. A container is
- *   provided internally to ensure the standard design and style of a [OutlinedSplitButton]. The
- *   container corner radius morphs to full when the [checked] state changes to `true`.
- * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
- *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
- * @param modifier the [Modifier] to be applied to this split button.
- * @param enabled controls the enabled state of the split button. When `false`, this component will
- *   not respond to user input, and it will appear visually disabled and disabled to accessibility
- *   services.
- * @param innerCornerSize The size for leading button's end corners and trailing button's start
- *   corners
- * @param spacing The spacing between the leading and trailing buttons
- * @see FilledSplitButton for a high-emphasis split button without a shadow.
- * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
- * @see ElevatedSplitButton for an [TonalSplitButton] with a shadow.
- *
- * The default text style for internal [Text] components will be set to [Typography.labelLarge].
- */
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-fun OutlinedSplitButton(
-    onLeadingButtonClick: () -> Unit,
-    onTrailingButtonClick: () -> Unit,
-    leadingContent: @Composable RowScope.() -> Unit,
-    trailingContent: @Composable RowScope.() -> Unit,
-    checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
-    spacing: Dp = SplitButtonDefaults.Spacing
-) {
-    SplitButton(
-        leadingButton = {
-            OutlinedLeadingButton(
-                onClick = onLeadingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                shapes = SplitButtonDefaults.leadingButtonShapes(innerCornerSize),
-                content = leadingContent,
-            )
-        },
-        trailingButton = {
-            OutlinedTrailingButton(
-                onClick = onTrailingButtonClick,
-                modifier = Modifier,
-                enabled = enabled,
-                shapes = SplitButtonDefaults.trailingButtonShapes(innerCornerSize),
-                checked = checked,
-                content = trailingContent
-            )
-        },
-        modifier = modifier,
-        spacing = spacing
-    )
-}
-
-@Composable
-private fun SplitButtonLayout(
-    leadingButton: @Composable () -> Unit,
-    trailingButton: @Composable () -> Unit,
-    spacing: Dp,
-    modifier: Modifier = Modifier,
 ) {
     Layout(
         {
@@ -420,7 +128,7 @@ private fun SplitButtonLayout(
                 )
             }
         },
-        modifier,
+        modifier.minimumInteractiveComponentSize(),
         measurePolicy = { measurables, constraints ->
             val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
@@ -462,7 +170,7 @@ private fun SplitButtonLayout(
     )
 }
 
-/** Contains default values used by [SplitButton] and its style variants. */
+/** Contains default values used by [SplitButtonLayout] and its style variants. */
 @ExperimentalMaterial3ExpressiveApi
 object SplitButtonDefaults {
     /** Default icon size for the leading button */
@@ -641,9 +349,7 @@ object SplitButtonDefaults {
     }
 
     /**
-     * Creates a `trailing` button that has the same visual as a Filled[Button]. When [checked] is
-     * updated from `false` to `true`, the buttons corners will morph to `full` by default. Pressed
-     * shape and checked shape can be customized via [shapes] param.
+     * Creates a `trailing` button that has the same visual as a [Button].
      *
      * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
      * can be passed in. For example, [ElevatedButton].
@@ -651,8 +357,6 @@ object SplitButtonDefaults {
      * The default text style for internal [Text] components will be set to [Typography.labelLarge].
      *
      * @param onClick called when the button is clicked
-     * @param checked indicates whether the button is toggled to a `checked` state. This will
-     *   trigger the corner morphing animation to reflect the updated state.
      * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
      *   will not respond to user input, and it will appear visually disabled and disabled to
@@ -678,7 +382,6 @@ object SplitButtonDefaults {
     @ExperimentalMaterial3ExpressiveApi
     fun TrailingButton(
         onClick: () -> Unit,
-        checked: Boolean,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
         shapes: SplitButtonShapes = trailingButtonShapes(),
@@ -696,24 +399,11 @@ object SplitButtonDefaults {
         val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
         val pressed by interactionSource.collectIsPressedAsState()
 
-        val density = LocalDensity.current
-        val shape = shapeByInteraction(shapes, pressed, checked, defaultAnimationSpec)
+        val shape = shapeByInteraction(shapes, pressed, false, defaultAnimationSpec)
 
         Surface(
             onClick = onClick,
-            modifier =
-                modifier
-                    .drawWithContent {
-                        drawContent()
-                        if (checked) {
-                            drawOutline(
-                                outline = shape.createOutline(size, layoutDirection, density),
-                                color = colors.contentColor,
-                                alpha = TrailingButtonStateLayerAlpha
-                            )
-                        }
-                    }
-                    .semantics { role = Role.Button },
+            modifier = modifier.semantics { role = Role.Button },
             enabled = enabled,
             shape = shape,
             color = colors.containerColor,
@@ -757,138 +447,488 @@ object SplitButtonDefaults {
             }
         }
     }
-}
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun TonalLeadingButton(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.LeadingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        colors = ButtonDefaults.filledTonalButtonColors(),
-        elevation = ButtonDefaults.filledTonalButtonElevation(),
-        border = null,
-        content = content,
-    )
-}
+    /**
+     * Creates a `trailing` button that has the same visual as a [Button]. When [checked] is updated
+     * from `false` to `true`, the buttons corners will morph to `full` by default. Pressed shape
+     * and checked shape can be customized via [shapes] param.
+     *
+     * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param checked indicates whether the button is toggled to a `checked` state. This will
+     *   trigger the corner morphing animation to reflect the updated state.
+     * @param onCheckedChange called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content to be placed in the button
+     */
+    @Composable
+    @ExperimentalMaterial3ExpressiveApi
+    fun TrailingButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = trailingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.buttonColors(),
+        elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+        border: BorderStroke? = null,
+        contentPadding: PaddingValues = TrailingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        @Suppress("NAME_SHADOWING")
+        val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun TonalTrailingButton(
-    onClick: () -> Unit,
-    checked: Boolean,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.TrailingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        checked = checked,
-        colors = ButtonDefaults.filledTonalButtonColors(),
-        elevation = ButtonDefaults.filledTonalButtonElevation(),
-        border = null,
-        content = content
-    )
-}
+        // TODO Load the motionScheme tokens from the component tokens file
+        val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
+        val pressed by interactionSource.collectIsPressedAsState()
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun OutlinedLeadingButton(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.LeadingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        colors = ButtonDefaults.outlinedButtonColors(),
-        elevation = null,
-        border = ButtonDefaults.outlinedButtonBorder(enabled),
-        content = content
-    )
-}
+        val density = LocalDensity.current
+        val shape = shapeByInteraction(shapes, pressed, checked, defaultAnimationSpec)
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun OutlinedTrailingButton(
-    onClick: () -> Unit,
-    checked: Boolean,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.TrailingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        checked = checked,
-        colors = ButtonDefaults.outlinedButtonColors(),
-        elevation = null,
-        border = ButtonDefaults.outlinedButtonBorder(enabled),
-        content = content
-    )
-}
+        Surface(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier =
+                modifier
+                    .drawWithContent {
+                        drawContent()
+                        if (checked) {
+                            drawOutline(
+                                outline = shape.createOutline(size, layoutDirection, density),
+                                color = colors.contentColor,
+                                alpha = TrailingButtonStateLayerAlpha
+                            )
+                        }
+                    }
+                    .semantics { role = Role.Checkbox },
+            enabled = enabled,
+            shape = shape,
+            color = colors.containerColor,
+            contentColor = colors.contentColor,
+            shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
+            border = border,
+            interactionSource = interactionSource
+        ) {
+            ProvideContentColorTextStyle(
+                contentColor = colors.contentColor,
+                textStyle = MaterialTheme.typography.labelLarge
+            ) {
+                Row(
+                    Modifier.defaultMinSize(
+                            minWidth = TrailingButtonMinWidth,
+                            minHeight = MinHeight
+                        )
+                        .then(
+                            when (shape) {
+                                is ShapeWithOpticalCentering -> {
+                                    Modifier.opticalCentering(
+                                        shape = shape,
+                                        basePadding = contentPadding
+                                    )
+                                }
+                                is CornerBasedShape -> {
+                                    Modifier.opticalCentering(
+                                        shape = shape,
+                                        basePadding = contentPadding
+                                    )
+                                }
+                                else -> {
+                                    Modifier.padding(contentPadding)
+                                }
+                            }
+                        ),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
+            }
+        }
+    }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun ElevatedLeadingButton(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.LeadingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        colors = ButtonDefaults.elevatedButtonColors(),
-        elevation = ButtonDefaults.elevatedButtonElevation(),
-        border = null,
-        content = content
-    )
-}
+    /**
+     * Create a tonal `leading` button that has the same visual as a Tonal[Button]. To create a
+     * `filled`, `outlined`, or `elevated` version, the default value of [Button] params can be
+     * passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param onClick called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content for the button.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun TonalLeadingButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = leadingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+        elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
+        border: BorderStroke? = null,
+        contentPadding: PaddingValues = LeadingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        LeadingButton(
+            modifier = modifier,
+            onClick = onClick,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content,
+        )
+    }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun ElevatedTrailingButton(
-    onClick: () -> Unit,
-    checked: Boolean,
-    modifier: Modifier,
-    enabled: Boolean,
-    shapes: SplitButtonShapes,
-    content: @Composable RowScope.() -> Unit
-) {
-    SplitButtonDefaults.TrailingButton(
-        modifier = modifier,
-        onClick = onClick,
-        enabled = enabled,
-        shapes = shapes,
-        checked = checked,
-        colors = ButtonDefaults.elevatedButtonColors(),
-        elevation = ButtonDefaults.elevatedButtonElevation(),
-        border = null,
-        content = content
-    )
+    /**
+     * Creates a tonal `trailing` button that has the same visual as a [FilledTonalButton]. When
+     * [checked] is updated from `false` to `true`, the buttons corners will morph to `full` by
+     * default. Pressed shape and checked shape can be customized via [shapes] param.
+     *
+     * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param checked indicates whether the button is toggled to a `checked` state. This will
+     *   trigger the corner morphing animation to reflect the updated state.
+     * @param onCheckedChange called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content to be placed in the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun TonalTrailingButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = trailingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+        elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
+        border: BorderStroke? = null,
+        contentPadding: PaddingValues = TrailingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        TrailingButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content
+        )
+    }
+
+    /**
+     * Create a elevated `leading` button that has the same visual as a [ElevatedButton]. To create
+     * a `filled`, `outlined`, or `elevated` version, the default value of [Button] params can be
+     * passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param onClick called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content for the button.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun OutlinedLeadingButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = leadingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+        elevation: ButtonElevation? = null,
+        border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
+        contentPadding: PaddingValues = LeadingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        LeadingButton(
+            modifier = modifier,
+            onClick = onClick,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content,
+        )
+    }
+
+    /**
+     * Creates a outlined `trailing` button that has the same visual as a [OutlinedButton]. When
+     * [checked] is updated from `false` to `true`, the buttons corners will morph to `full` by
+     * default. Pressed shape and checked shape can be customized via [shapes] param.
+     *
+     * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param checked indicates whether the button is toggled to a `checked` state. This will
+     *   trigger the corner morphing animation to reflect the updated state.
+     * @param onCheckedChange called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content to be placed in the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun OutlinedTrailingButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = trailingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+        elevation: ButtonElevation? = null,
+        border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
+        contentPadding: PaddingValues = TrailingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        TrailingButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content
+        )
+    }
+
+    /**
+     * Create a elevated `leading` button that has the same visual as a [ElevatedButton]. To create
+     * a `filled`, `outlined`, or `elevated` version, the default value of [Button] params can be
+     * passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param onClick called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content for the button.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun ElevatedLeadingButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = leadingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.elevatedButtonColors(),
+        elevation: ButtonElevation? = ButtonDefaults.elevatedButtonElevation(),
+        border: BorderStroke? = null,
+        contentPadding: PaddingValues = LeadingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        LeadingButton(
+            modifier = modifier,
+            onClick = onClick,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content,
+        )
+    }
+
+    /**
+     * Creates a elevated `trailing` button that has the same visual as a [ElevatedButton]. When
+     * [checked] is updated from `false` to `true`, the buttons corners will morph to `full` by
+     * default. Pressed shape and checked shape can be customized via [shapes] param.
+     *
+     * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
+     * can be passed in. For example, [ElevatedButton].
+     *
+     * The default text style for internal [Text] components will be set to [Typography.labelLarge].
+     *
+     * @param checked indicates whether the button is toggled to a `checked` state. This will
+     *   trigger the corner morphing animation to reflect the updated state.
+     * @param onCheckedChange called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
+     * @param enabled controls the enabled state of the split button. When `false`, this component
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
+     * @param colors [ButtonColors] that will be used to resolve the colors for this button in
+     *   different states. See [ButtonDefaults.buttonColors].
+     * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
+     *   states. This controls the size of the shadow below the button. See
+     *   [ButtonElevation.shadowElevation].
+     * @param border the border to draw around the container of this button contentPadding the
+     *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this button. You can use this to change the button's appearance
+     *   or preview the button in different states. Note that if `null` is provided, interactions
+     *   will still happen internally.
+     * @param content the content to be placed in the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun ElevatedTrailingButton(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        shapes: SplitButtonShapes = trailingButtonShapes(),
+        colors: ButtonColors = ButtonDefaults.elevatedButtonColors(),
+        elevation: ButtonElevation? = ButtonDefaults.elevatedButtonElevation(),
+        border: BorderStroke? = null,
+        contentPadding: PaddingValues = TrailingButtonContentPadding,
+        interactionSource: MutableInteractionSource? = null,
+        content: @Composable RowScope.() -> Unit
+    ) {
+        TrailingButton(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = modifier,
+            enabled = enabled,
+            shapes = shapes,
+            colors = colors,
+            elevation = elevation,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -912,7 +952,7 @@ private fun shapeByInteraction(
 }
 
 /**
- * The shapes that will be used in [SplitButton]. Split button will morph between these shapes
+ * The shapes that will be used in [SplitButtonLayout]. Split button will morph between these shapes
  * depending on the interaction of the buttons, assuming all of the shapes are [CornerBasedShape]s.
  *
  * @property shape is the default shape.

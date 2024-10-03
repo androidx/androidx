@@ -19,12 +19,10 @@ package androidx.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
@@ -58,10 +56,10 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     private val trailingButtonTag = "trailingButton"
 
     @Test
-    fun splitButton() {
+    fun filledSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -77,8 +75,8 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingButton = {
                         SplitButtonDefaults.TrailingButton(
-                            onClick = {},
                             checked = false,
+                            onCheckedChange = {},
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
@@ -95,67 +93,36 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun filledSplitButton() {
+    fun filledSplitButtonChecked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                FilledSplitButton(
-                    onLeadingButtonClick = {},
-                    onTrailingButtonClick = {},
-                    checked = false,
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Localized description",
-                            Modifier.size(SplitButtonDefaults.LeadingIconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
+                SplitButtonLayout(
+                    leadingButton = {
+                        SplitButtonDefaults.LeadingButton(
+                            onClick = { /* Do Nothing */ },
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
                     },
-                    trailingContent = {
-                        Box(
-                            modifier = Modifier.fillMaxHeight(),
-                            contentAlignment = Alignment.Center
+                    trailingButton = {
+                        SplitButtonDefaults.TrailingButton(
+                            checked = true,
+                            onCheckedChange = {},
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
-                                Modifier.size(SplitButtonDefaults.TrailingIconSize)
-                            )
-                        }
-                    }
-                )
-            }
-        }
-
-        assertAgainstGolden("filledSplitButton_${scheme.name}")
-    }
-
-    @Test
-    fun filledSplitButtonChecked() {
-        rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                FilledSplitButton(
-                    onLeadingButtonClick = {},
-                    checked = true,
-                    onTrailingButtonClick = {},
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Localized description",
-                            Modifier.size(SplitButtonDefaults.LeadingIconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
-                    },
-                    trailingContent = {
-                        Icon(
-                            Icons.Filled.KeyboardArrowDown,
-                            modifier =
                                 Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
                                     this.rotationZ = 180f
                                 },
-                            contentDescription = "Localized description"
-                        )
+                            )
+                        }
                     }
                 )
             }
@@ -168,21 +135,25 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun tonalSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                TonalSplitButton(
-                    onLeadingButtonClick = {},
-                    onTrailingButtonClick = {},
-                    checked = false,
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Localized description",
-                            Modifier.size(SplitButtonDefaults.LeadingIconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
+                SplitButtonLayout(
+                    leadingButton = {
+                        SplitButtonDefaults.TonalLeadingButton(
+                            onClick = { /* Do Nothing */ },
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
                     },
-                    trailingContent = {
-                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                    trailingButton = {
+                        SplitButtonDefaults.TonalTrailingButton(
+                            checked = false,
+                            onCheckedChange = {},
+                        ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
@@ -201,21 +172,25 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun elevatedSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                ElevatedSplitButton(
-                    onLeadingButtonClick = {},
-                    onTrailingButtonClick = {},
-                    checked = false,
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Localized description",
-                            Modifier.size(SplitButtonDefaults.LeadingIconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
+                SplitButtonLayout(
+                    leadingButton = {
+                        SplitButtonDefaults.ElevatedLeadingButton(
+                            onClick = { /* Do Nothing */ },
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
                     },
-                    trailingContent = {
-                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                    trailingButton = {
+                        SplitButtonDefaults.ElevatedTrailingButton(
+                            checked = false,
+                            onCheckedChange = {},
+                        ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
@@ -234,21 +209,25 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun outlinedSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                OutlinedSplitButton(
-                    onLeadingButtonClick = {},
-                    onTrailingButtonClick = {},
-                    checked = false,
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Localized description",
-                            Modifier.size(SplitButtonDefaults.LeadingIconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text("My Button")
+                SplitButtonLayout(
+                    leadingButton = {
+                        SplitButtonDefaults.OutlinedLeadingButton(
+                            onClick = { /* Do Nothing */ },
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
                     },
-                    trailingContent = {
-                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                    trailingButton = {
+                        SplitButtonDefaults.OutlinedTrailingButton(
+                            checked = false,
+                            onCheckedChange = {},
+                        ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
@@ -267,7 +246,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_iconLeadingButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -281,8 +260,8 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingButton = {
                         SplitButtonDefaults.TrailingButton(
-                            onClick = {},
                             checked = false,
+                            onCheckedChange = {},
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
@@ -302,7 +281,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_textLeadingButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -311,7 +290,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         }
                     },
                     trailingButton = {
-                        SplitButtonDefaults.TrailingButton(onClick = {}, checked = false) {
+                        SplitButtonDefaults.TrailingButton(checked = false, onCheckedChange = {}) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
@@ -330,7 +309,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_leadingButton_pressed() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -347,8 +326,8 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingButton = {
                         SplitButtonDefaults.TrailingButton(
-                            onClick = {},
                             checked = false,
+                            onCheckedChange = {},
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
@@ -368,7 +347,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_trailingButton_pressed() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -384,8 +363,8 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingButton = {
                         SplitButtonDefaults.TrailingButton(
-                            onClick = {},
                             checked = false,
+                            onCheckedChange = {},
                             modifier = Modifier.testTag(trailingButtonTag),
                         ) {
                             Icon(
