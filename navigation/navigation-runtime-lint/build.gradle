@@ -38,7 +38,6 @@ dependencies {
     compileOnly(libs.androidToolsCommon)
     compileOnly(libs.intellijCore)
     compileOnly(libs.uast)
-    bundleInside(project(":navigation:navigation-common-lint"))
     bundleInside(project(":navigation:navigation-lint-common"))
 
     testImplementation(libs.kotlinStdlib)
