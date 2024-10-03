@@ -30,6 +30,8 @@ import java.time.ZoneOffset
  * <p>Each record contains a start time, end time, an exercise type and a list of
  * [PlannedExerciseBlock] which describe the details of the planned session. The start and end times
  * may be in the future.
+ *
+ * Requires [androidx.health.connect.client.HealthConnectFeatures.FEATURE_PLANNED_EXERCISE].
  */
 class PlannedExerciseSessionRecord
 internal constructor(

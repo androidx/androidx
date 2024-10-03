@@ -88,9 +88,9 @@ class ExerciseCompletionGoalTest {
 
     @Test
     fun repetitionsGoal_hashCodeAndEquals() {
-        val repetitionsGoal1 = RepetitionsGoal(Duration.ofSeconds(10))
-        val repetitionsGoal1Duplicate = RepetitionsGoal(Duration.ofSeconds(10))
-        val repetitionsGoal2 = RepetitionsGoal(Duration.ofSeconds(20))
+        val repetitionsGoal1 = RepetitionsGoal(12)
+        val repetitionsGoal1Duplicate = RepetitionsGoal(12)
+        val repetitionsGoal2 = RepetitionsGoal(6)
 
         assertThat(repetitionsGoal1.hashCode()).isNotEqualTo(repetitionsGoal2.hashCode())
         assertThat(repetitionsGoal1).isNotEqualTo(repetitionsGoal2)

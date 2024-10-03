@@ -33,7 +33,9 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseCompletionGoal
 import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExercisePerformanceTarget
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSegment
@@ -53,6 +55,9 @@ import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PlannedExerciseBlock
+import androidx.health.connect.client.records.PlannedExerciseSessionRecord
+import androidx.health.connect.client.records.PlannedExerciseStep
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
@@ -68,6 +73,7 @@ import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.isAtLeastSdkExtension13
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.Energy
@@ -84,10 +90,14 @@ import androidx.health.connect.client.units.celsius
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import com.google.common.collect.Iterables
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.math.roundToInt
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -721,6 +731,450 @@ class RecordConvertersTest {
         }
     }
 
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun plannedExerciseSessionRecord_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val blocks =
+            listOf(
+                PlannedExerciseBlock(
+                    repetitions = 3,
+                    steps =
+                        listOf(
+                            PlannedExerciseStep(
+                                exerciseType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
+                                exercisePhase = PlannedExerciseStep.EXERCISE_PHASE_WARMUP,
+                                completionGoal =
+                                    ExerciseCompletionGoal.DurationGoal(Duration.ofMinutes(5)),
+                                performanceTargets =
+                                    listOf(
+                                        ExercisePerformanceTarget.SpeedTarget(
+                                            minSpeed = Velocity.metersPerSecond(2.0),
+                                            maxSpeed = Velocity.metersPerSecond(3.0)
+                                        )
+                                    )
+                            )
+                        )
+                )
+            )
+
+        val plannedExerciseSessionRecord =
+            PlannedExerciseSessionRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                blocks = blocks,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
+                title = "Morning Run",
+                notes = "Easy pace",
+                metadata = METADATA,
+            )
+
+        val platformPlannedExerciseSessionRecord =
+            plannedExerciseSessionRecord.toPlatformRecord() as PlatformPlannedExerciseSessionRecord
+
+        assertPlatformRecord(platformPlannedExerciseSessionRecord) {
+            assertThat(exerciseType)
+                .isEqualTo(PlatformExerciseSessionType.EXERCISE_SESSION_TYPE_RUNNING)
+            assertThat(title).isEqualTo("Morning Run")
+            assertThat(notes).isEqualTo("Easy pace")
+            assertThat(blocks).hasSize(1)
+
+            val platformBlock = Iterables.getOnlyElement(this.blocks)
+            assertThat(platformBlock.repetitions).isEqualTo(3)
+            assertThat(platformBlock.steps).hasSize(1)
+
+            val platformStep = platformBlock.steps[0]
+            assertThat(platformStep.exerciseType)
+                .isEqualTo(PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_RUNNING)
+            assertThat(platformStep.exerciseCategory)
+                .isEqualTo(PlatformPlannedExerciseStep.EXERCISE_CATEGORY_WARMUP)
+            assertThat(platformStep.completionGoal).isInstanceOf(PlatformDurationGoal::class.java)
+
+            val durationGoal = platformStep.completionGoal as PlatformDurationGoal
+            assertThat(durationGoal.duration).isEqualTo(Duration.ofMinutes(5))
+
+            assertThat(platformStep.performanceGoals).hasSize(1)
+            val performanceTarget = platformStep.performanceGoals[0]
+            assertThat(performanceTarget).isInstanceOf(PlatformSpeedTarget::class.java)
+
+            val speedTarget = performanceTarget as PlatformSpeedTarget
+            assertThat(speedTarget.minSpeed).isEqualTo(PlatformVelocity.fromMetersPerSecond(2.0))
+            assertThat(speedTarget.maxSpeed).isEqualTo(PlatformVelocity.fromMetersPerSecond(3.0))
+        }
+
+        val sdkRecord =
+            platformPlannedExerciseSessionRecord.toSdkRecord() as PlannedExerciseSessionRecord
+        assertSdkRecord(sdkRecord) {
+            assertThat(exerciseType).isEqualTo(ExerciseSessionRecord.EXERCISE_TYPE_RUNNING)
+            assertThat(title).isEqualTo("Morning Run")
+            assertThat(notes).isEqualTo("Easy pace")
+            assertThat(blocks).hasSize(1)
+
+            val sdkBlock = Iterables.getOnlyElement(this.blocks)
+            assertThat(sdkBlock.repetitions).isEqualTo(3)
+            assertThat(sdkBlock.steps).hasSize(1)
+
+            val sdkStep = sdkBlock.steps[0]
+            assertThat(sdkStep.exerciseType)
+                .isEqualTo(ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING)
+            assertThat(sdkStep.exercisePhase).isEqualTo(PlannedExerciseStep.EXERCISE_PHASE_WARMUP)
+            assertThat(sdkStep.completionGoal)
+                .isInstanceOf(ExerciseCompletionGoal.DurationGoal::class.java)
+
+            val sdkDurationGoal = sdkStep.completionGoal as ExerciseCompletionGoal.DurationGoal
+            assertThat(sdkDurationGoal.duration).isEqualTo(Duration.ofMinutes(5))
+
+            assertThat(sdkStep.performanceTargets).hasSize(1)
+            val sdkPerformanceTarget = sdkStep.performanceTargets[0]
+            assertThat(sdkPerformanceTarget)
+                .isInstanceOf(ExercisePerformanceTarget.SpeedTarget::class.java)
+
+            val sdkSpeedTarget = sdkPerformanceTarget as ExercisePerformanceTarget.SpeedTarget
+            assertThat(sdkSpeedTarget.minSpeed).isEqualTo(Velocity.metersPerSecond(2.0))
+            assertThat(sdkSpeedTarget.maxSpeed).isEqualTo(Velocity.metersPerSecond(3.0))
+        }
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun plannedExerciseSessionRecord_conversion_multipleBlocksAndSteps() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val blocks =
+            listOf(
+                PlannedExerciseBlock(
+                    repetitions = 5,
+                    steps =
+                        listOf(
+                            PlannedExerciseStep(
+                                exerciseType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_POOL,
+                                exercisePhase = PlannedExerciseStep.EXERCISE_PHASE_ACTIVE,
+                                completionGoal =
+                                    ExerciseCompletionGoal.DurationGoal(Duration.ofMinutes(5)),
+                                performanceTargets =
+                                    listOf(
+                                        ExercisePerformanceTarget.SpeedTarget(
+                                            minSpeed = Velocity.metersPerSecond(2.0),
+                                            maxSpeed = Velocity.metersPerSecond(3.0)
+                                        ),
+                                        ExercisePerformanceTarget.CadenceTarget(
+                                            minCadence = 60.0,
+                                            maxCadence = 65.0
+                                        )
+                                    )
+                            )
+                        )
+                ),
+                PlannedExerciseBlock(
+                    repetitions = 3,
+                    steps =
+                        listOf(
+                            PlannedExerciseStep(
+                                exerciseType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING,
+                                exercisePhase = PlannedExerciseStep.EXERCISE_PHASE_RECOVERY,
+                                completionGoal =
+                                    ExerciseCompletionGoal.DurationGoal(Duration.ofMinutes(5)),
+                                performanceTargets =
+                                    listOf(
+                                        ExercisePerformanceTarget.PowerTarget(
+                                            minPower = Power.watts(200.0),
+                                            maxPower = Power.watts(240.0),
+                                        )
+                                    )
+                            ),
+                            PlannedExerciseStep(
+                                exerciseType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
+                                exercisePhase = PlannedExerciseStep.EXERCISE_PHASE_COOLDOWN,
+                                completionGoal =
+                                    ExerciseCompletionGoal.DurationGoal(Duration.ofMinutes(5)),
+                                performanceTargets =
+                                    listOf(
+                                        ExercisePerformanceTarget.SpeedTarget(
+                                            minSpeed = Velocity.metersPerSecond(2.0),
+                                            maxSpeed = Velocity.metersPerSecond(3.0)
+                                        )
+                                    )
+                            )
+                        )
+                )
+            )
+
+        val plannedExerciseSessionRecord =
+            PlannedExerciseSessionRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                blocks = blocks,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT,
+                title = "Triathlon",
+                notes = "Some notes",
+                metadata = METADATA,
+            )
+
+        assertThat(plannedExerciseSessionRecord.toPlatformRecord().toSdkRecord())
+            .isEqualTo(plannedExerciseSessionRecord)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun plannedExerciseSessionRecord_conversion_localeDateConstructor() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val plannedExerciseSessionRecord =
+            PlannedExerciseSessionRecord(
+                startDate = LocalDate.of(2024, 9, 20),
+                duration = Duration.ofMinutes(45),
+                blocks = emptyList(),
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT,
+                title = "Workout",
+                notes = "Some notes",
+                metadata = METADATA,
+            )
+
+        val platformRecord =
+            plannedExerciseSessionRecord.toPlatformRecord() as PlatformPlannedExerciseSessionRecord
+
+        assertThat(platformRecord.hasExplicitTime()).isFalse()
+        assertThat(platformRecord.toSdkRecord()).isEqualTo(plannedExerciseSessionRecord)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun distanceGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.DistanceGoal(distance = Length.meters(1000.0))
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformDistanceGoal
+        assertThat(platformGoal.distance).isEqualTo(goal.distance.toPlatformLength())
+
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal() as ExerciseCompletionGoal.DistanceGoal
+        assertThat(sdkGoal.distance).isEqualTo(goal.distance)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun distanceAndDurationGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal =
+            ExerciseCompletionGoal.DistanceAndDurationGoal(
+                distance = Length.meters(1000.0),
+                duration = Duration.ofMinutes(5)
+            )
+        val platformGoal =
+            goal.toPlatformExerciseCompletionGoal() as PlatformDistanceAndDurationGoal
+        assertThat(platformGoal.distance).isEqualTo(goal.distance.toPlatformLength())
+        assertThat(platformGoal.duration).isEqualTo(goal.duration)
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal()
+                as ExerciseCompletionGoal.DistanceAndDurationGoal
+        assertThat(sdkGoal.distance).isEqualTo(goal.distance)
+        assertThat(sdkGoal.duration).isEqualTo(goal.duration)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun stepsGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.StepsGoal(steps = 1000)
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformStepsGoal
+        assertThat(platformGoal.steps).isEqualTo(goal.steps)
+        val sdkGoal = platformGoal.toSdkExerciseCompletionGoal() as ExerciseCompletionGoal.StepsGoal
+        assertThat(sdkGoal.steps).isEqualTo(goal.steps)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun durationGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.DurationGoal(duration = Duration.ofMinutes(5))
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformDurationGoal
+        assertThat(platformGoal.duration).isEqualTo(goal.duration)
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal() as ExerciseCompletionGoal.DurationGoal
+        assertThat(sdkGoal.duration).isEqualTo(goal.duration)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun repetitionsGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.RepetitionsGoal(repetitions = 10)
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformRepetitionsGoal
+        assertThat(platformGoal.repetitions).isEqualTo(goal.repetitions)
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal() as ExerciseCompletionGoal.RepetitionsGoal
+        assertThat(sdkGoal.repetitions).isEqualTo(goal.repetitions)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun totalCaloriesBurnedGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal =
+            ExerciseCompletionGoal.TotalCaloriesBurnedGoal(totalCalories = Energy.calories(100.0))
+        val platformGoal =
+            goal.toPlatformExerciseCompletionGoal() as PlatformTotalCaloriesBurnedGoal
+        assertThat(platformGoal.totalCalories).isEqualTo(goal.totalCalories.toPlatformEnergy())
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal()
+                as ExerciseCompletionGoal.TotalCaloriesBurnedGoal
+        assertThat(sdkGoal.totalCalories).isEqualTo(goal.totalCalories)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun activeCaloriesBurnedGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal =
+            ExerciseCompletionGoal.ActiveCaloriesBurnedGoal(activeCalories = Energy.calories(100.0))
+        val platformGoal =
+            goal.toPlatformExerciseCompletionGoal() as PlatformActiveCaloriesBurnedGoal
+        assertThat(platformGoal.activeCalories).isEqualTo(goal.activeCalories.toPlatformEnergy())
+        val sdkGoal =
+            platformGoal.toSdkExerciseCompletionGoal()
+                as ExerciseCompletionGoal.ActiveCaloriesBurnedGoal
+        assertThat(sdkGoal.activeCalories).isEqualTo(goal.activeCalories)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun unknownGoal_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.UnknownGoal
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformUnknownCompletionGoal
+        assertThat(platformGoal).isEqualTo(PlatformUnknownCompletionGoal.INSTANCE)
+        assertThat(platformGoal.toSdkExerciseCompletionGoal()).isEqualTo(goal)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun manualCompletion_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val goal = ExerciseCompletionGoal.ManualCompletion
+        val platformGoal = goal.toPlatformExerciseCompletionGoal() as PlatformManualCompletion
+        assertThat(platformGoal).isEqualTo(PlatformManualCompletion.INSTANCE)
+        assertThat(platformGoal.toSdkExerciseCompletionGoal()).isEqualTo(goal)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun powerTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target =
+            ExercisePerformanceTarget.PowerTarget(
+                minPower = Power.watts(1.0),
+                maxPower = Power.watts(10.0)
+            )
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformPowerTarget
+        assertThat(platformTarget.minPower).isEqualTo(target.minPower.toPlatformPower())
+        assertThat(platformTarget.maxPower).isEqualTo(target.maxPower.toPlatformPower())
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget() as ExercisePerformanceTarget.PowerTarget
+        assertThat(sdkTarget.minPower).isEqualTo(target.minPower)
+        assertThat(sdkTarget.maxPower).isEqualTo(target.maxPower)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun speedTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target =
+            ExercisePerformanceTarget.SpeedTarget(
+                minSpeed = Velocity.metersPerSecond(2.0),
+                maxSpeed = Velocity.metersPerSecond(3.0)
+            )
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformSpeedTarget
+        assertThat(platformTarget.minSpeed).isEqualTo(target.minSpeed.toPlatformVelocity())
+        assertThat(platformTarget.maxSpeed).isEqualTo(target.maxSpeed.toPlatformVelocity())
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget() as ExercisePerformanceTarget.SpeedTarget
+        assertThat(sdkTarget.minSpeed).isEqualTo(target.minSpeed)
+        assertThat(sdkTarget.maxSpeed).isEqualTo(target.maxSpeed)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun cadenceTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target = ExercisePerformanceTarget.CadenceTarget(minCadence = 80.0, maxCadence = 90.0)
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformCadenceTarget
+        assertThat(platformTarget.minRpm).isEqualTo(target.minCadence)
+        assertThat(platformTarget.maxRpm).isEqualTo(target.maxCadence)
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget()
+                as ExercisePerformanceTarget.CadenceTarget
+        assertThat(sdkTarget.minCadence).isEqualTo(target.minCadence)
+        assertThat(sdkTarget.maxCadence).isEqualTo(target.maxCadence)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun heartRateTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target =
+            ExercisePerformanceTarget.HeartRateTarget(minHeartRate = 160.0, maxHeartRate = 170.0)
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformHeartRateTarget
+        assertThat(platformTarget.minBpm).isEqualTo(target.minHeartRate.roundToInt())
+        assertThat(platformTarget.maxBpm).isEqualTo(target.maxHeartRate.roundToInt())
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget()
+                as ExercisePerformanceTarget.HeartRateTarget
+        assertThat(sdkTarget.minHeartRate).isEqualTo(target.minHeartRate)
+        assertThat(sdkTarget.maxHeartRate).isEqualTo(target.maxHeartRate)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun weightTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target = ExercisePerformanceTarget.WeightTarget(mass = Mass.kilograms(100.0))
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformWeightTarget
+        assertThat(platformTarget.mass).isEqualTo(target.mass.toPlatformMass())
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget()
+                as ExercisePerformanceTarget.WeightTarget
+        assertThat(sdkTarget.mass).isEqualTo(target.mass)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun rateOfPerceivedExertionTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target = ExercisePerformanceTarget.RateOfPerceivedExertionTarget(rpe = 8)
+        val platformTarget =
+            target.toPlatformExercisePerformanceTarget() as PlatformRateOfPerceivedExertionTarget
+        assertThat(platformTarget.rpe).isEqualTo(target.rpe)
+        val sdkTarget =
+            platformTarget.toSdkExercisePerformanceTarget()
+                as ExercisePerformanceTarget.RateOfPerceivedExertionTarget
+        assertThat(sdkTarget.rpe).isEqualTo(target.rpe)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun amrapTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target = ExercisePerformanceTarget.AmrapTarget
+        val platformTarget = target.toPlatformExercisePerformanceTarget() as PlatformAmrapTarget
+        assertThat(platformTarget).isEqualTo(PlatformAmrapTarget.INSTANCE)
+        assertThat(platformTarget.toSdkExercisePerformanceTarget()).isEqualTo(target)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun unknownTarget_conversion() {
+        assumeTrue(isAtLeastSdkExtension13())
+        val target = ExercisePerformanceTarget.UnknownTarget
+        val platformTarget =
+            target.toPlatformExercisePerformanceTarget() as PlatformUnknownPerformanceTarget
+        assertThat(platformTarget).isEqualTo(PlatformUnknownPerformanceTarget.INSTANCE)
+        assertThat(platformTarget.toSdkExercisePerformanceTarget()).isEqualTo(target)
+    }
+
     @Test
     fun respiratoryRateRecord_convertToPlatform() {
         val platformRespiratoryRate =
@@ -1334,6 +1788,31 @@ class RecordConvertersTest {
     }
 
     @Test
+    fun exerciseSessionRecord_plannedExerciseSessionId() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val sdkRecord =
+            ExerciseSessionRecord(
+                plannedExerciseSessionId = "some-id",
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = METADATA,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+                title = "HIIT training",
+                notes = "Hard workout",
+                laps = emptyList(),
+                segments = emptyList(),
+                exerciseRoute = null,
+            )
+
+        val roundTripConvertedRecord =
+            sdkRecord.toPlatformRecord().toSdkRecord() as ExerciseSessionRecord
+        assertThat(roundTripConvertedRecord.plannedExerciseSessionId).isEqualTo("some-id")
+    }
+
+    @Test
     fun floorsClimbedRecord_convertToSdk() {
         val sdkFloorsClimbed =
             PlatformFloorsClimbedRecordBuilder(PLATFORM_METADATA, START_TIME, END_TIME, 10.0)
@@ -1804,6 +2283,7 @@ class RecordConvertersTest {
         assertThat(sdkRecord.endZoneOffset).isEqualTo(END_ZONE_OFFSET)
         assertThat(sdkRecord.metadata.id).isEqualTo(METADATA.id)
         assertThat(sdkRecord.metadata.dataOrigin).isEqualTo(METADATA.dataOrigin)
+        assertThat(sdkRecord.metadata.device).isEqualTo(METADATA.device)
         sdkRecord.typeSpecificAssertions()
     }
 
@@ -1830,12 +2310,29 @@ class RecordConvertersTest {
         val START_ZONE_OFFSET: ZoneOffset = ZoneOffset.UTC
         val END_ZONE_OFFSET: ZoneOffset = ZoneOffset.ofHours(2)
 
-        val METADATA = Metadata(id = "someId", dataOrigin = DataOrigin("somePackage"))
+        val METADATA =
+            Metadata(
+                id = "someId",
+                dataOrigin = DataOrigin("somePackage"),
+                device =
+                    Device(
+                        manufacturer = "ACME Corp",
+                        model = "Smartphone",
+                        type = Device.TYPE_PHONE
+                    )
+            )
 
         val PLATFORM_METADATA =
             PlatformMetadataBuilder()
                 .setId("someId")
                 .setDataOrigin(PlatformDataOriginBuilder().setPackageName("somePackage").build())
+                .setDevice(
+                    PlatformDeviceBuilder()
+                        .setManufacturer("ACME Corp")
+                        .setModel("Smartphone")
+                        .setType(Device.TYPE_PHONE)
+                        .build()
+                )
                 .build()
     }
 }

@@ -121,7 +121,8 @@ class HealthConnectClientUpsideDownImplTest {
         for (feature in
             setOf(
                 HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
-                HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE
+                HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE,
+                HealthConnectFeatures.FEATURE_PLANNED_EXERCISE
             )) {
             assertThat(healthConnectClient.features.getFeatureStatus(feature))
                 .isEqualTo(HealthConnectFeatures.FEATURE_STATUS_AVAILABLE)
