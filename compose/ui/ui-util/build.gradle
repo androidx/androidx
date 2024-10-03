@@ -107,4 +107,7 @@ androidxCompose {
 
 android {
     namespace "androidx.compose.ui.util"
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }

@@ -118,4 +118,7 @@ androidx {
 
 android {
     namespace "androidx.compose.ui.unit"
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }

@@ -135,4 +135,7 @@ androidx {
 android {
     compileSdk 35
     namespace "androidx.compose.animation.core"
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }
