@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
+import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
+import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.topItemScrollProgress
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -111,14 +113,14 @@ private fun measureLazyColumn(
             centerItem.offset + centerItem.height / 2 >= containerConstraints.maxHeight / 2
     ) {
         canScrollBackward = false
-        centerItem.offset = containerConstraints.maxHeight / 2 - centerItem.height / 2
+        centerItem.pinToCenter()
     }
     if (
         centerItem.index == itemsCount - 1 &&
             centerItem.offset + centerItem.height / 2 <= containerConstraints.maxHeight / 2
     ) {
         canScrollForward = false
-        centerItem.offset = containerConstraints.maxHeight / 2 - centerItem.height / 2
+        centerItem.pinToCenter()
     }
 
     visibleItems.add(centerItem)
@@ -176,26 +178,6 @@ private fun measureLazyColumn(
             }
     )
 }
-
-private fun bottomItemScrollProgress(
-    offset: Int,
-    height: Int,
-    containerHeight: Int
-): LazyColumnItemScrollProgress =
-    LazyColumnItemScrollProgress(
-        topOffsetFraction = offset.toFloat() / containerHeight.toFloat(),
-        bottomOffsetFraction = (offset + height).toFloat() / containerHeight.toFloat(),
-    )
-
-private fun topItemScrollProgress(
-    offset: Int,
-    height: Int,
-    containerHeight: Int
-): LazyColumnItemScrollProgress =
-    LazyColumnItemScrollProgress(
-        topOffsetFraction = (offset - height).toFloat() / containerHeight.toFloat(),
-        bottomOffsetFraction = offset / containerHeight.toFloat(),
-    )
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)

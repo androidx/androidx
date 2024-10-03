@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.topItemScrollProgress
 
 /** Represents a placeable item in the [LazyColumn] layout. */
 internal data class LazyColumnMeasuredItem(
@@ -32,7 +33,7 @@ internal data class LazyColumnMeasuredItem(
     /** The vertical offset of the item from the top of the list after transformations applied. */
     override var offset: Int,
     /** Scroll progress of the item used to calculate transformations applied. */
-    override val scrollProgress: LazyColumnItemScrollProgress,
+    override var scrollProgress: LazyColumnItemScrollProgress,
     /** The horizontal alignment to apply during placement. */
     val horizontalAlignment: Alignment.Horizontal,
     /** The [LayoutDirection] of the `Layout`. */
@@ -40,11 +41,27 @@ internal data class LazyColumnMeasuredItem(
     override val key: Any,
     override val contentType: Any?,
 ) : LazyColumnVisibleItemInfo {
+    private var lastMeasuredHeight = Int.MIN_VALUE
+    private var lastMeasuredOffset = Int.MIN_VALUE
+    private var lastMeasuredScrollProgress = LazyColumnItemScrollProgress.Zero
+
     /** The height of the item after transformations applied. */
-    override val height =
-        (placeable.parentData as? HeightProviderParentData)?.let {
-            it.heightProvider(placeable.height, scrollProgress)
-        } ?: placeable.height
+    override val height: Int
+        get() {
+            if (
+                lastMeasuredHeight == Int.MIN_VALUE ||
+                    lastMeasuredOffset != offset ||
+                    lastMeasuredScrollProgress != scrollProgress
+            ) {
+                lastMeasuredHeight =
+                    (placeable.parentData as? HeightProviderParentData)?.let {
+                        it.heightProvider(placeable.height, scrollProgress)
+                    } ?: placeable.height
+                lastMeasuredOffset = offset
+                lastMeasuredScrollProgress = scrollProgress
+            }
+            return lastMeasuredHeight
+        }
 
     fun place(scope: Placeable.PlacementScope) =
         with(scope) {
@@ -57,4 +74,14 @@ internal data class LazyColumnMeasuredItem(
                 offset
             )
         }
+
+    fun pinToCenter() {
+        scrollProgress =
+            topItemScrollProgress(
+                containerConstraints.maxHeight / 2 - height / 2,
+                placeable.height,
+                containerConstraints.maxHeight
+            )
+        offset = containerConstraints.maxHeight / 2 - height / 2
+    }
 }
