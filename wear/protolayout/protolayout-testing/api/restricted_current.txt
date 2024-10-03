@@ -1,1 +1,25 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.testing {
+
+  public final class LayoutElementAssertion {
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion assert(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public void assertDoesNotExist();
+    method public void assertExists();
+  }
+
+  public final class LayoutElementAssertionsProvider {
+    ctor public LayoutElementAssertionsProvider(androidx.wear.protolayout.LayoutElementBuilders.Layout layout);
+    ctor public LayoutElementAssertionsProvider(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement layoutRoot);
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion onElement(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion onRoot();
+  }
+
+  public final class LayoutElementMatcher {
+    ctor public LayoutElementMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.LayoutElementBuilders.LayoutElement,java.lang.Boolean> matcher);
+    method public infix androidx.wear.protolayout.testing.LayoutElementMatcher and(androidx.wear.protolayout.testing.LayoutElementMatcher other);
+    method public operator androidx.wear.protolayout.testing.LayoutElementMatcher not();
+    method public infix androidx.wear.protolayout.testing.LayoutElementMatcher or(androidx.wear.protolayout.testing.LayoutElementMatcher other);
+  }
+
+}
+
