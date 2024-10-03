@@ -18,15 +18,19 @@ package androidx.wear.protolayout.material3
 
 import android.content.Context
 import android.provider.Settings
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.ColorBuilders.ColorProp
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_CENTER
+import androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE
+import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment
+import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow
 import androidx.wear.protolayout.ModifiersBuilders.Corner
 import androidx.wear.protolayout.material3.ColorTokens.ColorToken
+import androidx.wear.protolayout.material3.ColorTokens.fromToken
 import androidx.wear.protolayout.material3.Shape.ShapeToken
+import androidx.wear.protolayout.material3.Typography.TypographyToken
 
 /**
  * Receiver scope which is used by all ProtoLayout Material3 components and layout to support
@@ -52,13 +56,15 @@ public open class MaterialScope
  * @param deviceConfiguration The device parameters for where the components will be rendered
  * @param theme The theme to be used. If not set, default Material theme will be applied
  * @param allowDynamicTheme If dynamic colors theme should be used on components, meaning that
+ * @param defaultTextElementStyle The opinionated text style that text component can use as defaults
  */
 internal constructor(
     internal val context: Context,
     /** The device parameters for where the components will be rendered. */
     public val deviceConfiguration: DeviceParameters,
     internal val theme: MaterialTheme = DEFAULT_MATERIAL_THEME,
-    internal val allowDynamicTheme: Boolean = true
+    internal val allowDynamicTheme: Boolean = true,
+    internal val defaultTextElementStyle: TextElementStyle = TextElementStyle()
 )
 
 /**
@@ -97,7 +103,7 @@ public fun Context.isDynamicThemeEnabled(): Boolean {
 
 /**
  * Creates a top-level receiver scope [MaterialScope] that calls the given [layout] to support for
- * opinionated defaults.
+ * opinionated defaults and building Material3 components and layout.
  *
  * @param context The Android Context for the Tile service
  * @param deviceConfiguration The device parameters for where the components will be rendered
@@ -107,9 +113,10 @@ public fun Context.isDynamicThemeEnabled(): Boolean {
  * @param layout Scoped slot for the content of layout to be displayed
  */
 // TODO: b/369350414 - Allow for overriding colors theme.
+// TODO: b/370976767 - Specify in docs that MaterialTileService should be used instead of using this
+// directly.
 @JvmOverloads
-@RestrictTo(Scope.LIBRARY_GROUP)
-public fun primaryScope(
+public fun materialScope(
     context: Context,
     deviceConfiguration: DeviceParameters,
     allowDynamicTheme: Boolean = true,
@@ -128,3 +135,14 @@ public fun primaryScope(
 @VisibleForTesting
 internal const val THEME_CUSTOMIZATION_OVERLAY_PACKAGES: String =
     "theme_customization_overlay_packages"
+
+internal class TextElementStyle(
+    @TypographyToken val typography: Int = Typography.BODY_MEDIUM,
+    val color: ColorProp = fromToken(ColorTokens.PRIMARY),
+    val italic: Boolean = false,
+    val underline: Boolean = false,
+    val scalable: Boolean = true,
+    val maxLines: Int = 1,
+    @TextAlignment val multilineAlignment: Int = TEXT_ALIGN_CENTER,
+    @TextOverflow val overflow: Int = TEXT_OVERFLOW_ELLIPSIZE,
+)

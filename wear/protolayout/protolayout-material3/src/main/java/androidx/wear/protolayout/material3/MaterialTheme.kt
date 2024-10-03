@@ -17,8 +17,10 @@
 package androidx.wear.protolayout.material3
 
 import android.annotation.SuppressLint
-import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.ColorBuilders.ColorProp
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders.SpProp
+import androidx.wear.protolayout.DimensionBuilders.sp
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle
 import androidx.wear.protolayout.ModifiersBuilders.Corner
 import androidx.wear.protolayout.material3.ColorTokens.ColorToken
@@ -53,7 +55,7 @@ import androidx.wear.protolayout.material3.tokens.TextStyle
 internal class MaterialTheme(private val customColorScheme: Map<Int, ColorProp> = emptyMap()) {
     /** Retrieves the [FontStyle.Builder] with the typography name. */
     internal fun getFontStyleBuilder(@TypographyToken typographyToken: Int) =
-        createFontStyleBuilder(textStyle = Typography.fromToken(typographyToken))
+        createFontStyleBuilder(typographyToken)
 
     /** Retrieves the line height with the typography name. */
     internal fun getLineHeight(@TypographyToken typographyToken: Int) =
@@ -70,11 +72,22 @@ internal class MaterialTheme(private val customColorScheme: Map<Int, ColorProp> 
 /** MaterialTheme that uses predefined default values without any customization. */
 @JvmField internal val DEFAULT_MATERIAL_THEME: MaterialTheme = MaterialTheme(emptyMap())
 
-@VisibleForTesting
 @SuppressLint("ResourceType")
-internal fun createFontStyleBuilder(textStyle: TextStyle): FontStyle.Builder {
+internal fun createFontStyleBuilder(
+    @TypographyToken typographyToken: Int,
+    deviceConfiguration: DeviceParameters? = null,
+    isScalable: Boolean = true
+): FontStyle.Builder {
+    val textStyle: TextStyle = Typography.fromToken(typographyToken)
+    val sizeSp: SpProp = textStyle.size
     return FontStyle.Builder()
-        .setSize(textStyle.size)
+        .setSize(
+            if (!isScalable && deviceConfiguration != null) {
+                sp(sizeSp.value.dpToSp(deviceConfiguration.fontScale))
+            } else {
+                sizeSp
+            }
+        )
         .setLetterSpacing(textStyle.letterSpacing)
         .setSettings(*textStyle.fontSettings.toTypedArray())
         .setPreferredFontFamilies(textStyle.fontFamily)
