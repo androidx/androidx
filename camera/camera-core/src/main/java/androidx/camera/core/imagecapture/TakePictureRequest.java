@@ -101,7 +101,13 @@ public abstract class TakePictureRequest {
      * Gets the app provided options for on-disk capture.
      */
     @Nullable
-    public abstract List<ImageCapture.OutputFileOptions> getOutputFileOptions();
+    public abstract ImageCapture.OutputFileOptions getOutputFileOptions();
+
+    /**
+     * Gets the app provided options for secondary on-disk capture.
+     */
+    @Nullable
+    public abstract ImageCapture.OutputFileOptions getSecondaryOutputFileOptions();
 
     /**
      * A snapshot of {@link ImageCapture#getViewPortCropRect()} when
@@ -283,7 +289,8 @@ public abstract class TakePictureRequest {
     public static TakePictureRequest of(@NonNull Executor appExecutor,
             @Nullable ImageCapture.OnImageCapturedCallback inMemoryCallback,
             @Nullable ImageCapture.OnImageSavedCallback onDiskCallback,
-            @Nullable List<ImageCapture.OutputFileOptions> outputFileOptions,
+            @Nullable ImageCapture.OutputFileOptions outputFileOptions,
+            @Nullable ImageCapture.OutputFileOptions secondaryOutputFileOptions,
             @NonNull Rect cropRect,
             @NonNull Matrix sensorToBufferTransform,
             int rotationDegrees,
@@ -296,7 +303,7 @@ public abstract class TakePictureRequest {
         checkArgument((onDiskCallback == null) ^ (inMemoryCallback == null),
                 "One and only one on-disk or in-memory callback should be present.");
         TakePictureRequest request = new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
-                onDiskCallback, outputFileOptions, cropRect,
+                onDiskCallback, outputFileOptions, secondaryOutputFileOptions, cropRect,
                 sensorToBufferTransform, rotationDegrees, jpegQuality, captureMode,
                 isSimultaneousCapture,
                 sessionConfigCameraCaptureCallbacks);

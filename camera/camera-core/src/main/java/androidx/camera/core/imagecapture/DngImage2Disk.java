@@ -20,6 +20,7 @@ import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
 import static androidx.camera.core.imagecapture.FileUtil.createTempFile;
 import static androidx.camera.core.imagecapture.FileUtil.moveFileToTarget;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.DngCreator;
@@ -63,7 +64,7 @@ public class DngImage2Disk implements Operation<DngImage2Disk.In, ImageCapture.O
         File tempFile = createTempFile(options);
         writeImageToFile(tempFile, in.getImageProxy(), in.getRotationDegrees());
         Uri uri = moveFileToTarget(tempFile, options);
-        return new ImageCapture.OutputFileResults(uri);
+        return new ImageCapture.OutputFileResults(uri, ImageFormat.RAW_SENSOR);
     }
 
     /**

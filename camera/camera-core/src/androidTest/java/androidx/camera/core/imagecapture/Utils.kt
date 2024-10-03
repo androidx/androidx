@@ -50,7 +50,8 @@ object Utils {
         )
 
     fun createTakePictureRequest(
-        outputFileOptions: List<ImageCapture.OutputFileOptions>?,
+        outputFileOptions: ImageCapture.OutputFileOptions?,
+        secondaryFileOption: ImageCapture.OutputFileOptions?,
         cropRect: Rect,
         sensorToBufferTransform: Matrix,
         rotationDegrees: Int,
@@ -70,6 +71,7 @@ object Utils {
             onMemoryCallback,
             onDiskCallback,
             outputFileOptions,
+            secondaryFileOption,
             cropRect,
             sensorToBufferTransform,
             rotationDegrees,

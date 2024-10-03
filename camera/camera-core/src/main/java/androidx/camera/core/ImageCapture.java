@@ -922,7 +922,7 @@ public final class ImageCapture extends UseCase {
         }
 
         takePictureInternal(executor, callback, /*onDiskCallback=*/null,
-                /*outputFileOptions=*/null);
+                /*outputFileOptions=*/null, /*secondaryOutputFileOptions=*/null);
     }
 
     /**
@@ -944,7 +944,14 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
-        takePicture(List.of(outputFileOptions), executor, imageSavedCallback);
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            CameraXExecutors.mainThreadExecutor().execute(() -> takePicture(
+                    outputFileOptions, executor, imageSavedCallback));
+            return;
+        }
+
+        takePictureInternal(executor, /*inMemoryCallback=*/null, imageSavedCallback,
+                outputFileOptions, /*secondaryOutputFileOptions=*/null);
     }
 
     /**
@@ -956,7 +963,8 @@ public final class ImageCapture extends UseCase {
      * {@link ImageFormat#RAW_SENSOR} image and the second one is for {@link ImageFormat#JPEG}. The
      * order in which image format is triggered first is not guaranteed.
      *
-     * @param outputFileOptions  List of options to store the newly captured images.
+     * @param rawOutputFileOptions  Options to store the newly captured raw image.
+     * @param jpegOutputFileOptions Options to store the newly captured jpeg image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
      *
@@ -965,17 +973,18 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void takePicture(
-            final @NonNull List<OutputFileOptions> outputFileOptions,
+            final @NonNull OutputFileOptions rawOutputFileOptions,
+            final @NonNull OutputFileOptions jpegOutputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             CameraXExecutors.mainThreadExecutor().execute(
-                    () -> takePicture(outputFileOptions,
+                    () -> takePicture(rawOutputFileOptions, jpegOutputFileOptions,
                             executor, imageSavedCallback));
             return;
         }
         takePictureInternal(executor, /*inMemoryCallback=*/null, imageSavedCallback,
-                outputFileOptions);
+                rawOutputFileOptions, jpegOutputFileOptions);
     }
 
     /**
@@ -1453,8 +1462,9 @@ public final class ImageCapture extends UseCase {
     @MainThread
     private void takePictureInternal(@NonNull Executor executor,
             @Nullable OnImageCapturedCallback inMemoryCallback,
-            @Nullable ImageCapture.OnImageSavedCallback onDiskCallback,
-            @Nullable List<OutputFileOptions> outputFileOptions) {
+            @Nullable OnImageSavedCallback onDiskCallback,
+            @Nullable OutputFileOptions outputFileOptions,
+            @Nullable OutputFileOptions secondaryOutputFileOptions) {
         checkMainThread();
         if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN
                 && mScreenFlashWrapper.getBaseScreenFlash() == null) {
@@ -1471,6 +1481,7 @@ public final class ImageCapture extends UseCase {
                 inMemoryCallback,
                 onDiskCallback,
                 outputFileOptions,
+                secondaryOutputFileOptions,
                 getTakePictureCropRect(),
                 getSensorToBufferTransformMatrix(),
                 getRelativeRotation(camera),
@@ -2193,12 +2204,12 @@ public final class ImageCapture extends UseCase {
         @Nullable
         private final Uri mSavedUri;
 
-        /**
-         *
-         */
+        private final int mImageFormat;
+
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public OutputFileResults(@Nullable Uri savedUri) {
+        public OutputFileResults(@Nullable Uri savedUri, int imageFormat) {
             mSavedUri = savedUri;
+            mImageFormat = imageFormat;
         }
 
         /**
@@ -2211,6 +2222,14 @@ public final class ImageCapture extends UseCase {
         @Nullable
         public Uri getSavedUri() {
             return mSavedUri;
+        }
+
+        /**
+         * Returns the {@link ImageFormat} of the saved file.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public int getImageFormat() {
+            return mImageFormat;
         }
     }
 

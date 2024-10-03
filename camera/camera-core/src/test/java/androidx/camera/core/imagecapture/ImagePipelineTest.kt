@@ -67,7 +67,6 @@ import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.GrayscaleImageEffect
 import androidx.core.util.Pair
-import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -373,7 +372,8 @@ class ImagePipelineTest {
 
                     override fun onError(exception: ImageCaptureException) {}
                 },
-                ImmutableList.of(OUTPUT_FILE_OPTIONS, SECONDARY_OUTPUT_FILE_OPTIONS),
+                OUTPUT_FILE_OPTIONS,
+                SECONDARY_OUTPUT_FILE_OPTIONS,
                 cropRect,
                 SENSOR_TO_BUFFER,
                 ROTATION_DEGREES,

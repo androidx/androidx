@@ -43,7 +43,9 @@ class ProcessingRequest {
     private final int mRequestId;
     @NonNull TakePictureRequest mTakePictureRequest;
     @Nullable
-    private final List<ImageCapture.OutputFileOptions> mOutputFileOptions;
+    private final ImageCapture.OutputFileOptions mOutputFileOptions;
+    @Nullable
+    private final ImageCapture.OutputFileOptions mSecondaryOutputFileOptions;
     @NonNull
     private final Rect mCropRect;
     private final int mRotationDegrees;
@@ -77,6 +79,7 @@ class ProcessingRequest {
         mRequestId = requestId;
         mTakePictureRequest = takePictureRequest;
         mOutputFileOptions = takePictureRequest.getOutputFileOptions();
+        mSecondaryOutputFileOptions = takePictureRequest.getSecondaryOutputFileOptions();
         mJpegQuality = takePictureRequest.getJpegQuality();
         mRotationDegrees = takePictureRequest.getRotationDegrees();
         mCropRect = takePictureRequest.getCropRect();
@@ -110,8 +113,13 @@ class ProcessingRequest {
     }
 
     @Nullable
-    List<ImageCapture.OutputFileOptions> getOutputFileOptions() {
+    ImageCapture.OutputFileOptions getOutputFileOptions() {
         return mOutputFileOptions;
+    }
+
+    @Nullable
+    ImageCapture.OutputFileOptions getSecondaryOutputFileOptions() {
+        return mSecondaryOutputFileOptions;
     }
 
     @NonNull
@@ -133,7 +141,7 @@ class ProcessingRequest {
     }
 
     boolean isInMemoryCapture() {
-        return getOutputFileOptions() == null || getOutputFileOptions().isEmpty();
+        return getOutputFileOptions() == null && getSecondaryOutputFileOptions() == null;
     }
 
     /**
