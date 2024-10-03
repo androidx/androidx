@@ -23,6 +23,7 @@ import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -147,6 +148,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private static final String KEY_RAW_BOUNDS = "b";
     private static final String KEY_PADDING = "pa";
     private static final String KEY_LOOKAT_POINT = "l";
+    private static final String KEY_DOCUMENT_LOADED = "dl";
     private static final int OVERSCROLL_THRESHOLD = 25;
     /** Fallback duration for the zoom animation, when material attributes are unavailable. */
     private static final int FALLBACK_ZOOM_ANIMATION_DURATION_MS = 250;
@@ -239,6 +241,17 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private boolean mTrackedInitialZoom = false;
     private boolean mStableZoomChanged = false;
 
+    /**
+     * Represents if the document has been loaded and the contents are ready for rendering.
+     */
+    private boolean mDocumentLoaded = false;
+    /**
+     * Represents if the configChanges property has been overridden in the manifest. This is
+     * important because we will need to reset mRestoreLookAtPoint manually since
+     * onSaveInstanceState() and onRestoreInstanceState(Parcelable) do not get invoked.
+     */
+    private boolean mIsConfigChangesOverridden = false;
+
     {
         mScroller = new RelativeScroller(getContext());
         mPosition = Observables.newExposedValueWithInitialValue(new ZoomScroll(1, 0, 0, STABLE));
@@ -286,6 +299,14 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         mPositionToRestore = null;
 
         mScaleInProgress = false;
+    }
+
+    /**
+     * Set the document loaded property when the service is ready to receive requests.
+     */
+    public void setDocumentLoaded(boolean documentLoaded) {
+        mDocumentLoaded = documentLoaded;
+        restoreLookAtPointIfNecessary();
     }
 
     /**
@@ -441,10 +462,14 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         return mPosition;
     }
 
-    /** Reports the current position to listeners. */
     private void reportPosition(boolean stable) {
+        reportPosition(stable, /* forceReport = */ false);
+    }
+
+    /** Reports the current position to listeners. */
+    private void reportPosition(boolean stable, boolean forceReport) {
         ZoomScroll newPos = new ZoomScroll(getZoom(), getScrollX(), getScrollY(), stable);
-        if (!Objects.equals(mPosition.get(), newPos)) {
+        if (!Objects.equals(mPosition.get(), newPos) || forceReport) {
             mPosition.set(newPos);
         }
     }
@@ -601,9 +626,9 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
                 }
 
                 zoomChanged = true;
-                if (mSaveState && mRestoreLookAtPoint != null) {
-                    centerAt(mRestoreLookAtPoint.x, mRestoreLookAtPoint.y);
-                } else {
+                restoreLookAtPointIfNecessary();
+
+                if (!mSaveState || mRestoreLookAtPoint == null) {
                     centerAt(lookAtPoint.x, lookAtPoint.y);
                 }
                 shouldConstrainPosition = true;
@@ -632,6 +657,23 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             constrainPosition();
             // Report position needs to be posted because it may trigger requestLayout().
             ThreadUtils.postOnUiThread(() -> reportPosition(STABLE));
+        }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mIsConfigChangesOverridden = true;
+    }
+
+    private void restoreLookAtPointIfNecessary() {
+        if (mSaveState && mRestoreLookAtPoint != null) {
+            if (mDocumentLoaded) {
+                centerAt(mRestoreLookAtPoint.x, mRestoreLookAtPoint.y, /* forceReport= */ true);
+                if (mIsConfigChangesOverridden) {
+                    mRestoreLookAtPoint = null;
+                }
+            }
         }
     }
 
@@ -788,13 +830,17 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * given in the co-ordinate system of the content, before scaling is applied by the zoom factor.
      */
     public void centerAt(float x, float y) {
+        centerAt(x, y, /* forceReport = */ false);
+    }
+
+    private void centerAt(float x, float y, boolean forceReport) {
         float zoom = getZoom();
         int left = (int) (x * zoom - mViewport.width() / 2f);
         int top = (int) (y * zoom - mViewport.height() / 2f);
 
         scrollTo(left, top);
         constrainPosition();
-        reportPosition(STABLE);
+        reportPosition(STABLE, forceReport);
     }
 
     /**
@@ -976,35 +1022,37 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         paginatedView.handleGonePages(false);
         paginatedView.loadInvisibleNearPageRange(this.getStableZoom());
 
-        // The step (4) below requires page Views to be created and laid out.
 
-        // So we create them here and set this flag
-        // if that operation needs to wait for a layout pass.
-        boolean requiresLayoutPass = paginatedView.createPageViewsForVisiblePageRange();
+        if (mDocumentLoaded) {
+            // The step (4) below requires page Views to be created and laid out.
+            // So we create them here and set this flag
+            // if that operation needs to wait for a layout pass.
+            boolean requiresLayoutPass = paginatedView.createPageViewsForVisiblePageRange();
 
-        // 4. Refresh tiles and/or full pages.
-        if (position.stable) {
-            if (viewState != null) {
-                // Perform a full refresh on all visible pages
+            // 4. Refresh tiles and/or full pages.
+            if (position.stable) {
+                if (viewState != null) {
+                    // Perform a full refresh on all visible pages
+                    ViewState currentViewState = viewState.get();
+                    if (currentViewState != null) {
+                        paginatedView.refreshVisiblePages(
+                                requiresLayoutPass, currentViewState, this.getStableZoom());
+                    }
+                }
+                paginatedView.handleGonePages(true);
+            } else if (this.getStableZoom() == position.zoom) {
+                // Just load a few more tiles in case of tile-scroll
                 ViewState currentViewState = viewState.get();
                 if (currentViewState != null) {
-                    paginatedView.refreshVisiblePages(
-                            requiresLayoutPass, currentViewState, this.getStableZoom());
+                    paginatedView.refreshVisibleTiles(requiresLayoutPass, currentViewState);
                 }
             }
-            paginatedView.handleGonePages(true);
-        } else if (this.getStableZoom() == position.zoom) {
-            // Just load a few more tiles in case of tile-scroll
-            ViewState currentViewState = viewState.get();
-            if (currentViewState != null) {
-                paginatedView.refreshVisibleTiles(requiresLayoutPass, currentViewState);
-            }
-        }
 
-        if (paginatedView.getPageRangeHandler().getVisiblePages() != null) {
-            layoutHandler.maybeLayoutPages(
-                    paginatedView.getPageRangeHandler().getVisiblePages().getLast()
-            );
+            if (paginatedView.getPageRangeHandler().getVisiblePages() != null) {
+                layoutHandler.maybeLayoutPages(
+                        paginatedView.getPageRangeHandler().getVisiblePages().getLast()
+                );
+            }
         }
     }
 
@@ -1128,6 +1176,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             bundle.putParcelable(KEY_RAW_BOUNDS, mContentRawBounds);
             bundle.putParcelable(KEY_PADDING, mPaddingOnLastViewportUpdate);
             bundle.putParcelable(KEY_LOOKAT_POINT, computeLookAtPoint());
+            bundle.putBoolean(KEY_DOCUMENT_LOADED, mDocumentLoaded);
         }
         return bundle;
     }
@@ -1146,6 +1195,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             mContentRawBounds.set(Objects.requireNonNull(bundle.getParcelable(KEY_RAW_BOUNDS)));
             mPaddingOnLastViewportUpdate = bundle.getParcelable(KEY_PADDING);
             mRestoreLookAtPoint = bundle.getParcelable(KEY_LOOKAT_POINT);
+            mDocumentLoaded = bundle.getBoolean(KEY_DOCUMENT_LOADED);
         }
     }
 

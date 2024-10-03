@@ -41,10 +41,12 @@ public class PdfLoaderViewModel : ViewModel() {
         context: Context,
         newData: DisplayData,
         callbacks: PdfLoaderCallbacks,
+        onDocumentChanged: () -> Unit
     ) {
         // Case 1: New file opened. Replace the existing loader with a new one
         if (newData != currentData) {
             currentData = newData
+            onDocumentChanged()
             _pdfLoaderStateFlow.update { currentLoader ->
                 // Clear the existing loader
                 currentLoader?.cancelAll()

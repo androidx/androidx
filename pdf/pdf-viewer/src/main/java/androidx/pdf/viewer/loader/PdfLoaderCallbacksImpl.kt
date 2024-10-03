@@ -207,6 +207,7 @@ public class PdfLoaderCallbacksImpl(
             searchModel?.setNumPages(numPages)
         }
 
+        zoomView.setDocumentLoaded(/* documentLoaded= */ true)
         findInFileView.setFindInFileView(isTextSearchActive)
     }
 
