@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.build
+package androidx.build.sources
 
-import com.google.common.truth.Truth.assertThat
+import androidx.build.multiplatformExtension
+import com.google.common.truth.Truth
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.junit.Test
@@ -36,29 +37,28 @@ class SourceJarTaskHelperTest {
         jvmMain.dependsOn(extraMain)
 
         val result = createSourceSetMetadata(extension)
-        assertThat(result).isEqualTo(mapOf(
-          "sourceSets" to listOf(
-            mapOf(
-              "name" to "commonMain",
-              "dependencies" to emptyList<String>(),
-              "analysisPlatform" to "common"
-            ),
-            mapOf(
-              "name" to "extraMain",
-              "dependencies" to listOf(
-                "commonMain"
-                ),
-              "analysisPlatform" to "jvm"
-            ),
-            mapOf(
-              "name" to "jvmMain",
-              "dependencies" to listOf(
-                "commonMain",
-                "extraMain"
-              ),
-              "analysisPlatform" to "jvm"
+        Truth.assertThat(result)
+            .isEqualTo(
+                mapOf(
+                    "sourceSets" to
+                        listOf(
+                            mapOf(
+                                "name" to "commonMain",
+                                "dependencies" to emptyList<String>(),
+                                "analysisPlatform" to "common"
+                            ),
+                            mapOf(
+                                "name" to "extraMain",
+                                "dependencies" to listOf("commonMain"),
+                                "analysisPlatform" to "jvm"
+                            ),
+                            mapOf(
+                                "name" to "jvmMain",
+                                "dependencies" to listOf("commonMain", "extraMain"),
+                                "analysisPlatform" to "jvm"
+                            )
+                        )
+                )
             )
-          )
-        ))
     }
 }

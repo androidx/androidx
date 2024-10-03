@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask
 import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.sources.sourcesConfigurationName
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin

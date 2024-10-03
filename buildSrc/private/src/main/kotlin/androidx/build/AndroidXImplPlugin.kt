@@ -34,6 +34,11 @@ import androidx.build.resources.CopyPublicResourcesDirTask
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
+import androidx.build.sources.configureMultiplatformSourcesForAndroid
+import androidx.build.sources.configureSourceJarForAndroid
+import androidx.build.sources.configureSourceJarForJava
+import androidx.build.sources.configureSourceJarForMultiplatform
+import androidx.build.sources.registerValidateMultiplatformSourceSetNamingTask
 import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.addToModuleInfo

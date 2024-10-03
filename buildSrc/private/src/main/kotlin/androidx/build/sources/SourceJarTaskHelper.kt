@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.build
+package androidx.build.sources
 
+import androidx.build.LazyInputsCopyTask
+import androidx.build.capitalize
 import androidx.build.dackka.DokkaAnalysisPlatform
 import androidx.build.dackka.docsPlatform
+import androidx.build.hasAndroidMultiplatformPlugin
+import androidx.build.multiplatformExtension
+import androidx.build.registerAsComponentForPublishing
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
-import java.util.Locale
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -330,6 +334,12 @@ private fun Project.updateCopySampleSourceJarsTaskWithVariant(publishingVariants
     }
 }
 
+/**
+ * Set of targets are there to serve as stubs, but are not expected to be consumed by library
+ * consumers.
+ */
+private val setOfStubTargets = setOf("commonStubs", "jvmStubs", "linuxx64Stubs")
+
 internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structure-metadata.json"
 
 private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
@@ -338,7 +348,3 @@ private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
 internal const val sourcesConfigurationName = "sourcesElements"
 private const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
 private const val kmpSourcesConfigurationName = "androidxSourcesElements"
-
-internal fun String.capitalize() = replaceFirstChar {
-    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-}
