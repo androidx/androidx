@@ -40,7 +40,7 @@ private const val Epsilon = 1e-7
 // and because we use a fast approximation of cbrt(). The epsilon we use here is
 // slightly larger than the max error of fastCbrt() in the -1f..1f range
 // (8.3446500e-7f) but smaller than 1.0f.ulp * 10.
-private const val FloatEpsilon = 1e-6f
+private const val FloatEpsilon = 1.05e-6f
 
 /**
  * Evaluate the specified [segment] at position [t] and returns the X coordinate of the segment's
