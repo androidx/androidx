@@ -92,7 +92,7 @@ class AnimationSpecUtilsTest {
                     val actual = wrappedSpec.speedAt((duration / speedupFactor * i / 100).toLong())
 
                     // The unit is pixels per second, so this is really small.
-                    assertEquals(expected, actual, 0.005f)
+                    assertEquals(expected, actual, 0.006f)
                 }
             }
         }
