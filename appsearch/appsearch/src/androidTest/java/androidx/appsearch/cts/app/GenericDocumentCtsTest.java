@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.os.Build;
 import android.os.Parcel;
 
 import androidx.appsearch.app.EmbeddingVector;
@@ -29,7 +28,6 @@ import androidx.appsearch.flags.CheckFlagsRule;
 import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.flags.RequiresFlagsEnabled;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -1226,7 +1224,6 @@ public class GenericDocumentCtsTest {
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     public void testWriteToParcel() {
         GenericDocument inDoc =
                 new GenericDocument.Builder<>("namespace", "id1", "schema1")
@@ -1257,5 +1254,32 @@ public class GenericDocumentCtsTest {
                 .isEqualTo("Goodbye");
         assertThat(document.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
                 .isEqualTo(new byte[][] {{3, 4}});
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
+    public void testWriteToParcel_withEmptyDocArray() {
+        GenericDocument inDoc =
+                new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                        .setScore(42)
+                        .setPropertyString("propString", "Hello")
+                        .setPropertyBytes("propBytes", new byte[][] {{1, 2}})
+                        .setPropertyDocument(
+                                "propDocument") // Set the property with an empty doc array.
+                        .build();
+
+        // Serialize the document
+        Parcel parcel = Parcel.obtain();
+        inDoc.writeToParcel(parcel, /* flags= */ 0);
+
+        // Deserialize the document
+        parcel.setDataPosition(0);
+        GenericDocument document = GenericDocument.createFromParcel(parcel);
+        parcel.recycle();
+
+        // Compare results
+        assertThat(document.getPropertyString("propString")).isEqualTo("Hello");
+        assertThat(document.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][] {{1, 2}});
+        assertThat(document.getPropertyDocumentArray("propDocument")).hasLength(0);
     }
 }
