@@ -40,6 +40,7 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
+import org.jetbrains.kotlin.gradle.targets.js.KotlinJsCompilerAttribute
 import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetAttribute
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -428,6 +429,25 @@ ${verificationException.message?.prependIndent("    ")}
                 }
             }
 
+            val js =
+                KOTlIN_USAGES.map { kotlinUsage ->
+                    createConfiguration(*dependencies) {
+                        attributes.apply {
+                            attribute(Category.CATEGORY_ATTRIBUTE, Category.LIBRARY)
+                            attribute(
+                                TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                                "non-jvm"
+                            )
+                            attribute(Usage.USAGE_ATTRIBUTE, kotlinUsage)
+                            attribute(
+                                KotlinJsCompilerAttribute.jsCompilerAttribute,
+                                KotlinJsCompilerAttribute.ir
+                            )
+                            attribute(KotlinPlatformType.attribute, KotlinPlatformType.js)
+                        }
+                    }
+                }
+
             val commonArtifacts = KOTlIN_USAGES.map { kotlinUsage ->
                 createConfiguration(*dependencies) {
                     attributes.apply {
@@ -437,7 +457,7 @@ ${verificationException.message?.prependIndent("    ")}
                     }
                 }
             }
-            return jvmAndAndroid + wasmJs + konanTargetConfigurations + commonArtifacts
+            return jvmAndAndroid + wasmJs + js + konanTargetConfigurations + commonArtifacts
         }
 
         private fun createKonanTargetConfiguration(

@@ -307,7 +307,7 @@ fun sortPomDependencies(pom: String): String {
         // will not move adjacent elements, so any comments would remain in their
         // original order.
         element.content().replaceAll {
-            val index = deps.indexOf(it)
+            val index = sortedDeps.indexOf(it)
             if (index >= 0) {
                 sortedDeps[index]
             } else {

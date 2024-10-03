@@ -136,12 +136,13 @@ val taskNamesKnownToDuplicateOutputs =
 
         // The following tasks have the same output configFile file:
         // projectBuildDir/js/packages/projectName-wasm-js/webpack.config.js
-        // Remove when https://youtrack.jetbrains.com/issue/KT-70029 is resolved
+        // Remove when https://youtrack.jetbrains.com/issue/KT-70029 / b/361319689 is resolved
         // and set configFile location for each task
         "wasmJsBrowserDevelopmentWebpack",
         "wasmJsBrowserDevelopmentRun",
         "wasmJsBrowserProductionWebpack",
         "wasmJsBrowserProductionRun",
+        "jsTestTestDevelopmentExecutableCompileSync",
 
         // Remove when https://youtrack.jetbrains.com/issue/KT-71688 is resolved and set
         // destinationDirectory to the project's build directory

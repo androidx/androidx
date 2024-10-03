@@ -17,15 +17,16 @@ plugins {
 
 androidXMultiplatform {
     androidNative()
+    ios()
+    js()
     jvm()
+    linux()
     mac()
     mingwX64()
-    linux()
-    ios()
-    watchosDeviceArm64()
-    watchos()
     tvos()
     wasmJs()
+    watchos()
+    watchosDeviceArm64()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -41,6 +42,10 @@ androidXMultiplatform {
         }
 
         wasmJsMain {
+            dependsOn(nonJvmMain)
+        }
+
+        jsMain {
             dependsOn(nonJvmMain)
         }
 
