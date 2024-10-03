@@ -20,7 +20,9 @@
 -keep,allowshrinking,allowobfuscation class androidx.compose.runtime.** {
     # java.lang.Void == methods that return Nothing
     static void throw*Exception(...);
+    static void throw*ExceptionForNullCheck(...);
     static java.lang.Void throw*Exception(...);
+    static java.lang.Void throw*ExceptionForNullCheck(...);
 
     static void compose*RuntimeError(...);
     static java.lang.Void compose*RuntimeError(...);
