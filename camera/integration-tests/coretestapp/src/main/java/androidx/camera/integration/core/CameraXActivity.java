@@ -1034,7 +1034,8 @@ public class CameraXActivity extends AppCompatActivity {
                             ImageCapture.OutputFileOptions jpegOutputFileOptions =
                                     createOutputFileOptions(OUTPUT_FORMAT_JPEG);
                             getImageCapture().takePicture(
-                                    List.of(rawOutputFileOptions, jpegOutputFileOptions),
+                                    rawOutputFileOptions,
+                                    jpegOutputFileOptions,
                                     mImageCaptureExecutorService,
                                     callback);
                         } else {

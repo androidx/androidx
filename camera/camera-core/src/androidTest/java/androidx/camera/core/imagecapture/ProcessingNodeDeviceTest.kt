@@ -196,7 +196,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     CROP_RECT,
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -231,7 +232,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -273,7 +275,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -321,7 +324,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -363,7 +367,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -407,7 +412,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     CROP_RECT,
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -452,7 +458,8 @@ class ProcessingNodeDeviceTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    outputFileOptions,
+                    null,
                     CROP_RECT,
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
@@ -507,6 +514,7 @@ class ProcessingNodeDeviceTest {
                 { listOf() },
                 createTakePictureRequest(
                     /*outputFileOptions=*/ null,
+                    /*secondaryOutputFileOptions=*/ null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.

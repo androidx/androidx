@@ -167,23 +167,19 @@ public class TakePictureManagerWrapper(
                 //  user-provided data like bitmap/image proxy and use that to complete capture.
                 val bitmap = takePictureRequest.createBitmap()
 
-                val outputFileOptions =
-                    takePictureRequest.outputFileOptions // enables smartcast for null check
+                val outputFileOptions = takePictureRequest.outputFileOptions // enables
+                val secondaryOutputResults = takePictureRequest.secondaryOutputFileOptions
 
                 if (takePictureRequest.onDiskCallback != null && outputFileOptions != null) {
                     if (outputFileResultsQueue.isEmpty()) {
-                        if (outputFileOptions.size > 1) {
+                        if (secondaryOutputResults != null) {
                             Logger.w(
                                 TAG,
                                 "Simultaneous capture not supported, outputFileOptions = $outputFileOptions"
                             )
                         }
                         onFinalResult(
-                            createOutputFileResults(
-                                takePictureRequest,
-                                outputFileOptions[0],
-                                bitmap
-                            )
+                            createOutputFileResults(takePictureRequest, outputFileOptions, bitmap)
                         )
                     } else {
                         onFinalResult(outputFileResultsQueue.removeFirst())

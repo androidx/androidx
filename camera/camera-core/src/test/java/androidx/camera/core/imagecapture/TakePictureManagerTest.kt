@@ -16,6 +16,7 @@
 
 package androidx.camera.core.imagecapture
 
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Looper.getMainLooper
@@ -173,7 +174,7 @@ class TakePictureManagerTest {
         processingRequest.onImageCaptured()
         // Act.
         processingRequest.onFinalResult(FakeImageProxy(FakeImageInfo()))
-        processingRequest.onFinalResult(OutputFileResults(null))
+        processingRequest.onFinalResult(OutputFileResults(null, ImageFormat.JPEG))
     }
 
     @Test
@@ -327,7 +328,7 @@ class TakePictureManagerTest {
         takePictureManager.offerRequest(request3)
         shadowOf(getMainLooper()).idle()
         val response1 = exception
-        val response2 = OutputFileResults(null)
+        val response2 = OutputFileResults(null, ImageFormat.JPEG)
         val response3 = FakeImageProxy(FakeImageInfo())
         imagePipeline.getProcessingRequest(request1).onImageCaptured()
         shadowOf(getMainLooper()).idle()
@@ -370,7 +371,7 @@ class TakePictureManagerTest {
         takePictureManager.offerRequest(request)
 
         // Act: send OutputFileResults via ImagePipeline
-        val outputFileResults = OutputFileResults(null)
+        val outputFileResults = OutputFileResults(null, ImageFormat.JPEG)
         imagePipeline.getProcessingRequest(request).onImageCaptured()
         imagePipeline.getProcessingRequest(request).onFinalResult(outputFileResults)
         shadowOf(getMainLooper()).idle()

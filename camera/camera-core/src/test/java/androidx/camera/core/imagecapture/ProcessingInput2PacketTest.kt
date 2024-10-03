@@ -139,7 +139,8 @@ class ProcessingInput2PacketTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     CROP_RECT,
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 90,

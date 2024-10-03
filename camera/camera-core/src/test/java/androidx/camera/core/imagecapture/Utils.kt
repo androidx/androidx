@@ -72,7 +72,8 @@ object Utils {
         return ProcessingRequest(
             captureBundle,
             createTakePictureRequest(
-                listOf(OUTPUT_FILE_OPTIONS),
+                OUTPUT_FILE_OPTIONS,
+                null,
                 CROP_RECT,
                 SENSOR_TO_BUFFER,
                 ROTATION_DEGREES,
@@ -113,7 +114,8 @@ object Utils {
     }
 
     fun createTakePictureRequest(
-        outputFileOptions: List<ImageCapture.OutputFileOptions>?,
+        outputFileOptions: ImageCapture.OutputFileOptions?,
+        secondaryOutputFileOptions: ImageCapture.OutputFileOptions?,
         cropRect: Rect,
         sensorToBufferTransform: Matrix,
         rotationDegrees: Int,
@@ -133,6 +135,7 @@ object Utils {
             onMemoryCallback,
             onDiskCallback,
             outputFileOptions,
+            secondaryOutputFileOptions,
             cropRect,
             sensorToBufferTransform,
             rotationDegrees,

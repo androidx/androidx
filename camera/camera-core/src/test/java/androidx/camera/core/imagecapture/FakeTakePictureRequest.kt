@@ -109,8 +109,12 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         imageSavedCallback = onDiskCallback
     }
 
-    override fun getOutputFileOptions(): List<ImageCapture.OutputFileOptions> {
-        return listOfNotNull(fileOptions, secondaryFileOptions)
+    override fun getOutputFileOptions(): ImageCapture.OutputFileOptions? {
+        return fileOptions
+    }
+
+    override fun getSecondaryOutputFileOptions(): ImageCapture.OutputFileOptions? {
+        return secondaryFileOptions
     }
 
     override fun getCropRect(): Rect {

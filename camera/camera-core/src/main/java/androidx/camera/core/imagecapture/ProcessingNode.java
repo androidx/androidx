@@ -252,30 +252,29 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                 String.format("On-disk capture only support JPEG and"
                 + " JPEG/R and RAW output formats. Output format: %s", format));
         ProcessingRequest request = inputPacket.getProcessingRequest();
-        checkArgument(request.getOutputFileOptions() != null
-                && !request.getOutputFileOptions().isEmpty(),
+        checkArgument(request.getOutputFileOptions() != null,
                 "OutputFileOptions cannot be empty");
         Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
         boolean isSimultaneousCaptureEnabled = outputFormats.size() > 1;
         if (isSimultaneousCaptureEnabled) {
-            // If simultaneous capture RAW + JPEG, use the first output file options for JPEG and
-            // the second for RAW.
+            // If simultaneous capture RAW + JPEG, use the first output file options for RAW and
+            // the second for JPEG.
             checkArgument(request.getOutputFileOptions() != null
-                            && request.getOutputFileOptions().size() > 1,
+                            && request.getSecondaryOutputFileOptions() != null,
                     "The number of OutputFileOptions for simultaneous capture "
                             + "should be at least two");
             ImageCapture.OutputFileResults outputFileResults = null;
             switch (originalImage.getFormat()) {
                 case RAW_SENSOR:
                     outputFileResults = saveRawToDisk(originalImage,
-                            requireNonNull(request.getOutputFileOptions()).get(0));
+                            requireNonNull(request.getOutputFileOptions()));
                     request.getTakePictureRequest()
                             .markFormatProcessStatusInSimultaneousCapture(RAW_SENSOR, true);
                     return outputFileResults;
                 case JPEG:
                 default:
                     outputFileResults = saveJpegToDisk(originalImage,
-                            requireNonNull(request.getOutputFileOptions()).get(1),
+                            requireNonNull(request.getSecondaryOutputFileOptions()),
                             request.getJpegQuality());
                     request.getTakePictureRequest()
                             .markFormatProcessStatusInSimultaneousCapture(JPEG, true);
@@ -285,11 +284,11 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             switch (format) {
                 case RAW_SENSOR:
                     return saveRawToDisk(originalImage,
-                            requireNonNull(request.getOutputFileOptions()).get(0));
+                            requireNonNull(request.getOutputFileOptions()));
                 case JPEG:
                 default:
                     return saveJpegToDisk(originalImage,
-                            requireNonNull(request.getOutputFileOptions()).get(0),
+                            requireNonNull(request.getOutputFileOptions()),
                             request.getJpegQuality());
             }
         }

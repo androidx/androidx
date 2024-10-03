@@ -22,6 +22,7 @@ import static androidx.camera.core.imagecapture.FileUtil.updateFileExif;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.ImageFormat;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -55,7 +56,7 @@ public class JpegBytes2Disk implements
         updateFileExif(tempFile, requireNonNull(packet.getExif()), options,
                 packet.getRotationDegrees());
         Uri uri = moveFileToTarget(tempFile, options);
-        return new ImageCapture.OutputFileResults(uri);
+        return new ImageCapture.OutputFileResults(uri, ImageFormat.JPEG);
     }
 
     /**

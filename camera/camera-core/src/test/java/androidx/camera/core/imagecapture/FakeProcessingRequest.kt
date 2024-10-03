@@ -40,9 +40,8 @@ internal class FakeProcessingRequest(
     ProcessingRequest(
         captureBundle,
         createTakePictureRequest(
-            if (outputFileOptions == null) null
-            else if (secondaryOutputFileOptions == null) listOf(outputFileOptions)
-            else listOf(outputFileOptions, secondaryOutputFileOptions),
+            outputFileOptions,
+            secondaryOutputFileOptions,
             cropRect,
             sensorToBufferTransform,
             rotationDegrees,

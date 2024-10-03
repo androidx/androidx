@@ -18,6 +18,7 @@ package androidx.camera.core
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.ImageFormat
 import android.os.Build
 import android.os.Looper
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -225,7 +226,7 @@ class ImageCaptureExtTest {
     @Test
     fun takePicture_onDisk_canGetResult(): Unit = runTest {
         // Arrange
-        val outputFileResults = ImageCapture.OutputFileResults(null)
+        val outputFileResults = ImageCapture.OutputFileResults(null, ImageFormat.JPEG)
 
         // Arrange & Act.
         val takePictureAsync =

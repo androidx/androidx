@@ -84,7 +84,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -113,7 +114,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -144,7 +146,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -183,7 +186,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS, SECONDARY_OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    SECONDARY_OUTPUT_FILE_OPTIONS,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -230,7 +234,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -258,7 +263,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
@@ -287,7 +293,8 @@ class ProcessingNodeTest {
             ProcessingRequest(
                 { listOf() },
                 createTakePictureRequest(
-                    listOf(OUTPUT_FILE_OPTIONS),
+                    OUTPUT_FILE_OPTIONS,
+                    null,
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
