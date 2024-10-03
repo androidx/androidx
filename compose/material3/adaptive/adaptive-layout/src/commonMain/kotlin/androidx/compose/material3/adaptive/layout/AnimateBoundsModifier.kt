@@ -169,7 +169,6 @@ private class BoundsTracker(var animationSpec: FiniteAnimationSpec<IntRect>) {
                 newSize
             }
         target.size = newSize
-        createBoundsAnimationIfPossible()
     }
 
     fun updateTargetOffset(newOffset: IntOffset) {
@@ -185,26 +184,31 @@ private class BoundsTracker(var animationSpec: FiniteAnimationSpec<IntRect>) {
                 newOffset
             }
         target.topLeft = newOffset
-        createBoundsAnimationIfPossible()
     }
 
     fun updateAndGetCurrentBounds(fraction: Float): IntRect {
         current =
-            if (fraction == 0f) {
-                origin.rect
-            } else if (fraction == 1f) {
-                target.rect
-            } else if (boundsAnimation != null) {
-                boundsAnimation!!.valueAtProgress(fraction)
-            } else {
-                InvalidIntRect
+            when (fraction) {
+                0f -> origin.rect
+                1f -> target.rect
+                else -> {
+                    updateBoundsAnimationIfNeeded()
+                    boundsAnimation?.valueAtProgress(fraction) ?: InvalidIntRect
+                }
             }
 
         return current
     }
 
-    private fun createBoundsAnimationIfPossible() {
-        if (origin.isValid && target.isValid) {
+    private fun updateBoundsAnimationIfNeeded() {
+        if (!origin.isValid || !target.isValid) {
+            return
+        }
+        if (
+            boundsAnimation == null ||
+                boundsAnimation!!.initialValue != origin.rect ||
+                boundsAnimation!!.targetValue != target.rect
+        ) {
             boundsAnimation =
                 TargetBasedAnimation(animationSpec, IntRectToVector, origin.rect, target.rect)
         }
