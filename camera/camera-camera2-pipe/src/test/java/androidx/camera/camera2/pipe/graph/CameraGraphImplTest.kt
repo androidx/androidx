@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
+import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.GraphLifecycleManager
@@ -138,6 +139,7 @@ internal class CameraGraphImplTest {
             frameCaptureQueue,
             audioRestriction,
             graphId,
+            CameraGraphParametersImpl()
         )
     private val stream1: CameraStream =
         checkNotNull(cameraGraph.streams[stream1Config]) {

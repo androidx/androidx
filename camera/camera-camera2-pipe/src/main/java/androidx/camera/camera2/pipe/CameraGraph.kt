@@ -69,6 +69,13 @@ public interface CameraGraph : AutoCloseable {
     public var isForeground: Boolean
 
     /**
+     * This enables setting parameter values directly without having callers of [CameraGraph] to
+     * acquire sessions manually, but instead session is acquired on callers' behalf when making
+     * changes in [Parameters]. For detailed usage see [Parameters].
+     */
+    public val parameters: Parameters
+
+    /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
      * [CameraCaptureSession]. While the CameraGraph is alive it will attempt to keep the camera
      * open, active, and in a configured running state.
@@ -749,16 +756,16 @@ public interface CameraGraph : AutoCloseable {
         public operator fun <T> get(key: Metadata.Key<T>): T?
 
         /** Store the [CaptureRequest] key value pair in the class. */
-        public operator fun <T> set(key: CaptureRequest.Key<T>, value: T)
+        public operator fun <T : Any> set(key: CaptureRequest.Key<T>, value: T?)
 
         /** Store the [Metadata] key value pair in the class. */
-        public operator fun <T> set(key: Metadata.Key<T>, value: T)
+        public operator fun <T : Any> set(key: Metadata.Key<T>, value: T?)
 
         /**
          * Store the key value pairs in the class. The key is either [CaptureRequest.Key] or
          * [Metadata.Key].
          */
-        public fun setAll(values: Map<*, Any?>)
+        public fun setAll(newParameters: Map<Any, Any?>)
 
         /** Clear all [CaptureRequest] and [Metadata] parameters stored in the class. */
         public fun clear()
