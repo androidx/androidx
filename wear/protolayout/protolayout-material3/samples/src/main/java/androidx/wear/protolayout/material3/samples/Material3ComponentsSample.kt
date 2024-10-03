@@ -20,14 +20,18 @@ import android.content.Context
 import androidx.annotation.Sampled
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint
 import androidx.wear.protolayout.TypeBuilders.StringProp
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.material3.ColorTokens
 import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.getColorProp
+import androidx.wear.protolayout.material3.icon
+import androidx.wear.protolayout.material3.iconEdgeButton
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.text
+import androidx.wear.protolayout.material3.textEdgeButton
 
 /** Builds Material3 text element with default options. */
 @Sampled
@@ -54,6 +58,30 @@ fun helloWorldTextDynamicCustom(
             underline = true,
             maxLines = 5
         )
+    }
+
+@Sampled
+fun edgeButtonSampleIcon(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    clickable: Clickable
+): LayoutElement =
+    materialScope(context, deviceConfiguration) {
+        iconEdgeButton(onClick = clickable, contentDescription = "Description of a button".prop()) {
+            icon("id")
+        }
+    }
+
+@Sampled
+fun edgeButtonSampleText(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    clickable: Clickable
+): LayoutElement =
+    materialScope(context, deviceConfiguration) {
+        textEdgeButton(onClick = clickable, contentDescription = "Description of a button".prop()) {
+            text("Hello".prop())
+        }
     }
 
 fun String.prop() = StringProp.Builder(this).build()

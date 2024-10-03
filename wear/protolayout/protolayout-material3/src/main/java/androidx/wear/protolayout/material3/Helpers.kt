@@ -20,6 +20,11 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.SP
+import androidx.wear.protolayout.DimensionBuilders.dp
+import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata
+import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_BUTTON
+import androidx.wear.protolayout.ModifiersBuilders.Semantics
+import androidx.wear.protolayout.TypeBuilders.StringProp
 import androidx.wear.protolayout.materialcore.fontscaling.FontScaleConverterFactory
 import java.nio.charset.StandardCharsets
 
@@ -47,3 +52,10 @@ internal fun Float.dpToSp(fontScale: Float): Float =
 private fun Float.dpToSpLinear(fontScale: Float): Float {
     return this / fontScale
 }
+
+internal fun StringProp.buttonRoleSemantics() =
+    Semantics.Builder().setContentDescription(this).setRole(SEMANTICS_ROLE_BUTTON).build()
+
+internal fun Int.toDp() = dp(this.toFloat())
+
+internal fun String.toElementMetadata() = ElementMetadata.Builder().setTagData(toTagBytes()).build()
