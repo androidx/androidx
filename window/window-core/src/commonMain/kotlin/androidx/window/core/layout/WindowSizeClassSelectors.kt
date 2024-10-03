@@ -19,7 +19,6 @@
 package androidx.window.core.layout
 
 import kotlin.jvm.JvmName
-import kotlin.math.ceil
 
 /**
  * Returns the largest [WindowSizeClass] that is within the bounds of ([widthDp], [heightDp]). This
@@ -35,7 +34,7 @@ import kotlin.math.ceil
  * @see computeWindowSizeClass
  */
 fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Float, heightDp: Float): WindowSizeClass {
-    return computeWindowSizeClass(ceil(widthDp).toInt(), ceil(heightDp).toInt())
+    return computeWindowSizeClass(widthDp.toInt(), heightDp.toInt())
 }
 
 /**

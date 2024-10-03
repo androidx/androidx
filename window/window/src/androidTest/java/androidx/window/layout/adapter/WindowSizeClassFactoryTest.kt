@@ -132,13 +132,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -160,13 +160,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -189,13 +189,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -218,13 +218,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -246,13 +246,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -275,13 +275,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
@@ -304,13 +304,13 @@ class WindowSizeClassFactoryTest {
             val rawWidth =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minWidthDp.toFloat(),
+                    (sizeClass.minWidthDp + 1).toFloat(),
                     displayMetrics
                 )
             val rawHeight =
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    sizeClass.minHeightDp.toFloat(),
+                    (sizeClass.minHeightDp + 1).toFloat(),
                     displayMetrics
                 )
             val bounds = Rect(0, 0, rawWidth.toInt(), rawHeight.toInt())
