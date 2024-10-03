@@ -57,41 +57,37 @@
 
     <ImageButton
         android:id="@+id/find_prev_btn"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/find_in_file_button_size"
+        android:layout_height="@dimen/find_in_file_button_size"
         android:background="@drawable/shape_oval"
         android:src="@drawable/keyboard_up"
         app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="3dp"
         android:scaleType="centerInside"
-        android:layout_margin="5dp"
         android:contentDescription = "@string/previous_button_description"/>
 
     <ImageButton
         android:id="@+id/find_next_btn"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/find_in_file_button_size"
+        android:layout_height="@dimen/find_in_file_button_size"
         android:background="@drawable/shape_oval"
         android:src="@drawable/keyboard_down"
         app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="3dp"
         android:scaleType="centerInside"
-        android:layout_margin="5dp"
         android:contentDescription = "@string/next_button_description"/>
     <ImageButton
         android:id="@+id/close_btn"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/find_in_file_button_size"
+        android:layout_height="@dimen/find_in_file_button_size"
         android:background="@drawable/shape_oval"
         android:src="@drawable/close_button"
         app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="5dp"
         android:scaleType="centerInside"
-        android:layout_marginVertical="5dp"
-        android:layout_marginLeft="5dp"
         android:layout_marginRight="10dp"
         android:contentDescription = "@string/close_button_description"/>
 
