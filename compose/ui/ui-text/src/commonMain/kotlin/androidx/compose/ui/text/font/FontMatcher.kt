@@ -99,7 +99,7 @@ internal class FontMatcher {
         return result
     }
 
-    @Suppress("NOTHING_TO_INLINE")
+    @Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
     // @VisibleForTesting
     internal inline fun List<Font>.filterByClosestWeight(
         fontWeight: FontWeight,

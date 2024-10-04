@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.drawMultiParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -378,7 +379,7 @@ class MultiParagraph(
     internal val paragraphInfoList: List<ParagraphInfo>
 
     init {
-        require(constraints.minWidth == 0 && constraints.minHeight == 0) {
+        requirePrecondition(constraints.minWidth == 0 && constraints.minHeight == 0) {
             "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
                 "these should be the default zero values instead."
         }
@@ -511,7 +512,7 @@ class MultiParagraph(
 
     /** Returns path that enclose the given text range. */
     fun getPathForRange(start: Int, end: Int): Path {
-        require(start in 0..end && end <= annotatedString.text.length) {
+        requirePrecondition(start in 0..end && end <= annotatedString.text.length) {
             "Start($start) or End($end) is out of range [0..${annotatedString.text.length})," +
                 " or start > end!"
         }
@@ -977,19 +978,19 @@ class MultiParagraph(
     }
 
     private fun requireIndexInRange(offset: Int) {
-        require(offset in annotatedString.text.indices) {
+        requirePrecondition(offset in annotatedString.text.indices) {
             "offset($offset) is out of bounds [0, ${annotatedString.length})"
         }
     }
 
     private fun requireIndexInRangeInclusiveEnd(offset: Int) {
-        require(offset in 0..annotatedString.text.length) {
+        requirePrecondition(offset in 0..annotatedString.text.length) {
             "offset($offset) is out of bounds [0, ${annotatedString.length}]"
         }
     }
 
     private fun requireLineIndexInRange(lineIndex: Int) {
-        require(lineIndex in 0 until lineCount) {
+        requirePrecondition(lineIndex in 0 until lineCount) {
             "lineIndex($lineIndex) is out of bounds [0, $lineCount)"
         }
     }

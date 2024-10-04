@@ -148,7 +148,7 @@ fun DrawScope.drawText(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     size: Size = Size.Unspecified,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) {

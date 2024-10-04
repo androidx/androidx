@@ -70,7 +70,7 @@ internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
     contract { callsInPlace(transform) }
-    if (size == 0 || size == 1) return emptyList()
+    if (size <= 1) return emptyList()
     val result = mutableListOf<R>()
     var current = get(0)
     // `until` as we don't want to invoke this for the last element, since that won't have a `next`

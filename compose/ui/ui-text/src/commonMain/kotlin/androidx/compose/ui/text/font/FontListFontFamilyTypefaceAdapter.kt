@@ -26,7 +26,7 @@ import androidx.compose.ui.text.platform.FontCacheManagementDispatcher
 import androidx.compose.ui.text.platform.createSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
 import androidx.compose.ui.util.fastDistinctBy
-import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.coroutines.CoroutineContext
@@ -68,8 +68,9 @@ internal class FontListFontFamilyTypefaceAdapter(
         // only preload styles that can be satisfied by async fonts
         val asyncStyles =
             family.fonts
-                .fastFilter { it.loadingStrategy == FontLoadingStrategy.Async }
-                .fastMap { it.weight to it.style }
+                .fastFilteredMap({ it.loadingStrategy == FontLoadingStrategy.Async }) {
+                    it.weight to it.style
+                }
                 .fastDistinctBy { it }
 
         val asyncLoads: MutableList<Font> = mutableListOf()
@@ -252,8 +253,7 @@ private fun List<Font>.firstImmediatelyAvailable(
     return asyncFontsToLoad to fallbackTypeface
 }
 
-internal class AsyncFontListLoader
-constructor(
+internal class AsyncFontListLoader(
     private val fontList: List<Font>,
     initialType: Any,
     private val typefaceRequest: TypefaceRequest,

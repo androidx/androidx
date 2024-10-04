@@ -19,6 +19,7 @@
 package androidx.compose.ui.text.internal
 
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**
@@ -73,7 +74,10 @@ internal fun throwIllegalArgumentExceptionForNullCheck(message: String): Nothing
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun checkPrecondition(value: Boolean, lazyMessage: () -> String) {
-    contract { returns() implies value }
+    contract {
+        callsInPlace(lazyMessage, InvocationKind.AT_MOST_ONCE)
+        returns() implies value
+    }
     if (!value) {
         throwIllegalStateException(lazyMessage())
     }
@@ -87,7 +91,10 @@ internal inline fun checkPrecondition(value: Boolean, lazyMessage: () -> String)
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T : Any> checkPreconditionNotNull(value: T?, lazyMessage: () -> String): T {
-    contract { returns() implies (value != null) }
+    contract {
+        callsInPlace(lazyMessage, InvocationKind.AT_MOST_ONCE)
+        returns() implies (value != null)
+    }
 
     if (value == null) {
         throwIllegalStateExceptionForNullCheck(lazyMessage())
@@ -104,7 +111,10 @@ internal inline fun <T : Any> checkPreconditionNotNull(value: T?, lazyMessage: (
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class) // same opt-in as using Kotlin's require()
 internal inline fun requirePrecondition(value: Boolean, lazyMessage: () -> String) {
-    contract { returns() implies value }
+    contract {
+        callsInPlace(lazyMessage, InvocationKind.AT_MOST_ONCE)
+        returns() implies value
+    }
     if (!value) {
         throwIllegalArgumentException(lazyMessage())
     }
@@ -118,7 +128,10 @@ internal inline fun requirePrecondition(value: Boolean, lazyMessage: () -> Strin
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T : Any> requirePreconditionNotNull(value: T?, lazyMessage: () -> String): T {
-    contract { returns() implies (value != null) }
+    contract {
+        callsInPlace(lazyMessage, InvocationKind.AT_MOST_ONCE)
+        returns() implies (value != null)
+    }
 
     if (value == null) {
         throwIllegalArgumentExceptionForNullCheck(lazyMessage())

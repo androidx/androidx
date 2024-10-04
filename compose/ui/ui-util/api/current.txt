@@ -39,6 +39,7 @@ package androidx.compose.ui.util {
     method public static inline <T, K> java.util.List<T> fastDistinctBy(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends K> selector);
     method public static inline <T> java.util.List<T> fastFilter(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static <T> java.util.List<T> fastFilterNotNull(java.util.List<? extends T?>);
+    method public static inline <T, R> java.util.List<R> fastFilteredMap(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     method public static inline <T> T fastFirst(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static inline <T> T? fastFirstOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static inline <T, R> java.util.List<R> fastFlatMap(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);

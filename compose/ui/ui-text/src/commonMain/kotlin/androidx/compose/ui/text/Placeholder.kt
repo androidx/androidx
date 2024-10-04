@@ -17,6 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 
@@ -40,8 +41,8 @@ class Placeholder(
     val placeholderVerticalAlign: PlaceholderVerticalAlign
 ) {
     init {
-        require(!width.isUnspecified) { "width cannot be TextUnit.Unspecified" }
-        require(!height.isUnspecified) { "height cannot be TextUnit.Unspecified" }
+        requirePrecondition(!width.isUnspecified) { "width cannot be TextUnit.Unspecified" }
+        requirePrecondition(!height.isUnspecified) { "height cannot be TextUnit.Unspecified" }
     }
 
     fun copy(

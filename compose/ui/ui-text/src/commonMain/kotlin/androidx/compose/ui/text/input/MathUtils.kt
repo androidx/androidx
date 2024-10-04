@@ -16,17 +16,27 @@
 
 package androidx.compose.ui.text.input
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
 /** Adds [this] and [right], and if an overflow occurs returns result of [defaultValue]. */
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
 internal inline fun Int.addExactOrElse(right: Int, defaultValue: () -> Int): Int {
+    contract { callsInPlace(defaultValue, InvocationKind.AT_MOST_ONCE) }
     val result = this + right
-    // HD 2-12 Overflow iff both arguments have the opposite sign of the result
+    // HD 2-12 Overflow if both arguments have the opposite sign of the result
     return if (this xor result and (right xor result) < 0) defaultValue() else result
 }
 
 /** Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue]. */
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
 internal inline fun Int.subtractExactOrElse(right: Int, defaultValue: () -> Int): Int {
+    contract { callsInPlace(defaultValue, InvocationKind.AT_MOST_ONCE) }
     val result = this - right
-    // HD 2-12 Overflow iff the arguments have different signs and
+    // HD 2-12 Overflow if the arguments have different signs and
     // the sign of the result is different from the sign of x
     return if (this xor right and (this xor result) < 0) defaultValue() else result
 }
