@@ -77,12 +77,6 @@ internal class CredentialProviderFactory(val context: Context) {
         } else if (request is GetCredentialRequest) {
             for (option in request.credentialOptions) {
                 if (option is GetRestoreCredentialOption || option is GetDigitalCredentialOption) {
-                    if (request.credentialOptions.any { it !is GetDigitalCredentialOption }) {
-                        throw IllegalArgumentException(
-                            "`GetDigitalCredentialOption` cannot be" +
-                                " combined with other option types in a single request"
-                        )
-                    }
                     return tryCreatePreUOemProvider()
                 }
             }

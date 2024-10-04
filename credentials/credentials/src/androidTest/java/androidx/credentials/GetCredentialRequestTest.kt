@@ -27,6 +27,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalDigitalCredentialApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class GetCredentialRequestTest {
@@ -37,6 +38,41 @@ class GetCredentialRequestTest {
     @Test
     fun constructor_emptyCredentialOptions_throws() {
         assertThrows(IllegalArgumentException::class.java) { GetCredentialRequest(ArrayList()) }
+    }
+
+    @Test
+    fun constructor_mixedUseOfGetRestoreCredentialOption_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            val credentialOptions = ArrayList<CredentialOption>()
+            credentialOptions.add(GetRestoreCredentialOption(TEST_JSON))
+            credentialOptions.add(GetPasswordOption())
+            GetCredentialRequest(credentialOptions)
+        }
+    }
+
+    @Test
+    fun constructor_singleUseOfGetRestoreCredentialOption_doesNotThrow() {
+        val credentialOptions = ArrayList<CredentialOption>()
+        credentialOptions.add(GetRestoreCredentialOption(TEST_JSON))
+        GetCredentialRequest(credentialOptions)
+    }
+
+    @Test
+    fun constructor_mixedUseOfDigitalCredentialOption_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            val credentialOptions = ArrayList<CredentialOption>()
+            credentialOptions.add(GetDigitalCredentialOption(TEST_JSON))
+            credentialOptions.add(GetPasswordOption())
+            GetCredentialRequest(credentialOptions)
+        }
+    }
+
+    @Test
+    fun constructor_singleUseOfDigitalCredentialOption_doesNotThrow() {
+        val credentialOptions = ArrayList<CredentialOption>()
+        credentialOptions.add(GetDigitalCredentialOption(TEST_JSON))
+        credentialOptions.add(GetDigitalCredentialOption(TEST_JSON))
+        GetCredentialRequest(credentialOptions)
     }
 
     @Test

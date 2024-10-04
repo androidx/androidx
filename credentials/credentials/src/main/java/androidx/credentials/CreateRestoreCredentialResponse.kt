@@ -19,6 +19,7 @@ package androidx.credentials
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * A response of the [RestoreCredential] flow.
@@ -32,8 +33,18 @@ private constructor(
     data: Bundle,
 ) : CreateCredentialResponse(RestoreCredential.TYPE_RESTORE_CREDENTIAL, data) {
 
-    /** Constructs a [CreateRestoreCredentialResponse]. */
+    /**
+     * Constructs a [CreateRestoreCredentialResponse].
+     *
+     * @throws IllegalArgumentException If [responseJson] is empty, or an invalid JSON
+     */
     constructor(responseJson: String) : this(responseJson, toBundle(responseJson))
+
+    init {
+        require(RequestValidationHelper.isValidJSON(responseJson)) {
+            "registrationResponseJson must not be empty, and must be a valid JSON"
+        }
+    }
 
     companion object {
         const val BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE =

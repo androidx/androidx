@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.credentials.exceptions.NoCredentialException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * A request to get the restore credential from the restore credential provider.
@@ -47,6 +48,13 @@ class GetRestoreCredentialOption(val requestJson: String) :
         allowedProviders = emptySet(),
         typePriorityHint = PRIORITY_DEFAULT,
     ) {
+
+    init {
+        require(RequestValidationHelper.isValidJSON(requestJson)) {
+            "requestJson must not be empty, and must be a valid JSON"
+        }
+    }
+
     private companion object {
         private const val BUNDLE_KEY_GET_RESTORE_CREDENTIAL_REQUEST =
             "androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_REQUEST"

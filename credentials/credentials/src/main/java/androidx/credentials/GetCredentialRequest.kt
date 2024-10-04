@@ -62,6 +62,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   [GetRestoreCredentialOption] with another option (i.e. [GetPasswordOption] or
  *   [GetPublicKeyCredentialOption]).
  */
+@OptIn(ExperimentalDigitalCredentialApi::class)
 class GetCredentialRequest
 @JvmOverloads
 constructor(
@@ -76,6 +77,16 @@ constructor(
     init {
         require(credentialOptions.isNotEmpty()) { "credentialOptions should not be empty" }
         if (credentialOptions.size > 1) {
+            val digitalCredentialOptionCount =
+                credentialOptions.count { it is GetDigitalCredentialOption }
+            if (
+                digitalCredentialOptionCount > 0 &&
+                    digitalCredentialOptionCount != credentialOptions.size
+            ) {
+                throw IllegalArgumentException(
+                    "Digital Credential Option cannot be used with other credential option."
+                )
+            }
             for (option in credentialOptions) {
                 if (option is GetRestoreCredentialOption) {
                     throw IllegalArgumentException(
