@@ -556,9 +556,9 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
     static class SavedState extends View.BaseSavedState {
         final PaginationModel mModel;
 
-        SavedState(Parcelable superState, PaginationModel model) {
-            super(superState);
-            mModel = model;
+        SavedState(Parcel source) {
+            super(source);
+            mModel = ParcelCompat.readParcelable(source, null, PaginationModel.class);
         }
 
         SavedState(Parcel source, ClassLoader loader) {
@@ -566,10 +566,34 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
             mModel = ParcelCompat.readParcelable(source, loader, PaginationModel.class);
         }
 
+        SavedState(Parcelable superState, PaginationModel model) {
+            super(superState);
+            mModel = model;
+        }
+
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeParcelable(mModel, flags);
         }
+
+        public static final ClassLoaderCreator<SavedState> CREATOR =
+                new ClassLoaderCreator<SavedState>() {
+
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState createFromParcel(Parcel source, ClassLoader loader) {
+                        return new SavedState(source, loader);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 }
