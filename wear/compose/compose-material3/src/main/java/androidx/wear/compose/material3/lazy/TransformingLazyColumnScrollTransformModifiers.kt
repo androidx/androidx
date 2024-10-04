@@ -46,8 +46,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScope
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -58,30 +59,31 @@ import org.jetbrains.annotations.TestOnly
  * disabled). When applied to multiple child elements, the last placed child's height we be used for
  * morphing.
  *
- * @sample androidx.wear.compose.material3.samples.LazyColumnTargetMorphingHeightSample
- * @param scope The LazyColumnItemScope provides access to the item's index and key.
+ * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnTargetMorphingHeightSample
+ * @param scope The [TransformingLazyColumnItemScope] provides access to the item's index and key.
  */
 fun Modifier.targetMorphingHeight(
-    @Suppress("UNUSED_PARAMETER") scope: LazyColumnItemScope,
+    @Suppress("UNUSED_PARAMETER") scope: TransformingLazyColumnItemScope,
 ): Modifier = this then TargetMorphingHeightProviderModifierElement()
 
 /**
- * A modifier that enables Material3 Motion transformations for content within a LazyColumn item. It
- * also draws the background behind the content using Material3 Motion transformations. There is
- * also an overload that applies the same visual transformations to the background.
+ * A modifier that enables Material3 Motion transformations for content within a
+ * [TransformingLazyColumn] item. It also draws the background behind the content using Material3
+ * Motion transformations. There is also an overload that applies the same visual transformations to
+ * the background.
  *
  * This modifier calculates and applies transformations to the content based on the
- * [LazyColumnItemScrollProgress] of the item inside the LazyColumn. It adjusts the height,
- * position, applies scaling and morphing effects as the item scrolls.
+ * [TransformingLazyColumnItemScrollProgress] of the item inside the [TransformingLazyColumn]. It
+ * adjusts the height, position, applies scaling and morphing effects as the item scrolls.
  *
- * @sample androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
- * @param scope The LazyColumnItemScope provides access to the item's index and key.
+ * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnScalingMorphingEffectSample
+ * @param scope The [TransformingLazyColumnItemScope] provides access to the item's index and key.
  * @param backgroundColor Color of the background.
  * @param shape Shape of the background.
  */
 @Composable
 fun Modifier.scrollTransform(
-    scope: LazyColumnItemScope,
+    scope: TransformingLazyColumnItemScope,
     backgroundColor: Color,
     shape: Shape = RectangleShape
 ): Modifier =
@@ -102,18 +104,20 @@ fun Modifier.scrollTransform(
     }
 
 /**
- * A modifier that enables Material3 Motion transformations for content within a LazyColumn item.
+ * A modifier that enables Material3 Motion transformations for content within a
+ * [TransformingLazyColumn] item.
  *
  * This modifier calculates and applies transformations to the content and background based on the
- * [LazyColumnItemScrollProgress] of the item inside the LazyColumn. It adjusts the height,
- * position, applies scaling and morphing effects as the item scrolls.
+ * [TransformingLazyColumnItemScrollProgress] of the item inside the
+ * [TransformingLazyColumnItemScope]. It adjusts the height, position, applies scaling and morphing
+ * effects as the item scrolls.
  *
- * @sample androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
- * @param scope The LazyColumnItemScope provides access to the item's index and key.
+ * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnScalingMorphingEffectSample
+ * @param scope The [TransformingLazyColumnItemScope] provides access to the item's index and key.
  */
 @Composable
 fun Modifier.scrollTransform(
-    scope: LazyColumnItemScope,
+    scope: TransformingLazyColumnItemScope,
 ): Modifier =
     with(scope) {
         var minMorphingHeight by remember { mutableStateOf<Float?>(null) }
@@ -129,7 +133,7 @@ fun Modifier.scrollTransform(
 
 private fun GraphicsLayerScope.contentTransformation(
     spec: LazyColumnScrollTransformBehavior,
-    scrollProgress: () -> LazyColumnItemScrollProgress?
+    scrollProgress: () -> TransformingLazyColumnItemScrollProgress?
 ) =
     with(spec) {
         scrollProgress()?.let {
@@ -167,7 +171,7 @@ private class ScalingMorphingBackgroundPainter(
     private val spec: LazyColumnScrollTransformBehavior,
     private val shape: Shape,
     private val backgroundColor: Color,
-    private val progress: DrawScope.() -> LazyColumnItemScrollProgress?
+    private val progress: DrawScope.() -> TransformingLazyColumnItemScrollProgress?
 ) : Painter() {
     override val intrinsicSize: Size
         get() = Size.Unspecified

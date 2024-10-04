@@ -19,8 +19,8 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 
-/** The result of the measure pass of the [LazyColumn]. */
-internal class LazyColumnMeasureResult(
+/** The result of the measure pass of the [TransformingLazyColumn]. */
+internal class TransformingLazyColumnMeasureResult(
     /** MeasureResult defining the layout. */
     measureResult: MeasureResult,
     /** The index of the item that should be considered as an anchor during scrolling. */
@@ -30,13 +30,13 @@ internal class LazyColumnMeasureResult(
     /** Last known height for the anchor item or negative number if it hasn't been measured. */
     val lastMeasuredItemHeight: Int,
     /** Layout information for the visible items. */
-    override val visibleItems: List<LazyColumnVisibleItemInfo>,
-    /** see [LazyColumnLayoutInfo.totalItemsCount] */
+    override val visibleItems: List<TransformingLazyColumnVisibleItemInfo>,
+    /** see [TransformingLazyColumnLayoutInfo.totalItemsCount] */
     override val totalItemsCount: Int,
     var canScrollForward: Boolean,
     var canScrollBackward: Boolean,
-) : LazyColumnLayoutInfo, MeasureResult by measureResult {
-    /** see [LazyColumnLayoutInfo.viewportSize] */
+) : TransformingLazyColumnLayoutInfo, MeasureResult by measureResult {
+    /** see [TransformingLazyColumnLayoutInfo.viewportSize] */
     override val viewportSize: IntSize
         get() = IntSize(width = width, height = height)
 }

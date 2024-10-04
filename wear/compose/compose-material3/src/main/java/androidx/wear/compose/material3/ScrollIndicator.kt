@@ -58,13 +58,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo
-import androidx.wear.compose.foundation.lazy.LazyColumnState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.inverseLerp
 import androidx.wear.compose.material3.ScrollIndicatorDefaults.maxSizeFraction
 import androidx.wear.compose.material3.ScrollIndicatorDefaults.minSizeFraction
@@ -170,13 +170,13 @@ fun ScrollIndicator(
 
 @Composable
 fun ScrollIndicator(
-    state: LazyColumnState,
+    state: TransformingLazyColumnState,
     modifier: Modifier = Modifier,
     reverseDirection: Boolean = false,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec
 ) =
     IndicatorImpl(
-        state = WearLazyColumnStateAdapter(state = state),
+        state = TransformingLazyColumnStateAdapter(state = state),
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
         paddingHorizontal = ScrollIndicatorDefaults.edgePadding,
@@ -635,12 +635,13 @@ internal class ScalingLazyColumnStateAdapter(private val state: ScalingLazyListS
 
 /**
  * An implementation of [IndicatorState] to display the amount and position of a
- * [androidx.compose.foundation.lazy.LazyColumn] component via its [LazyColumnState].
+ * [TransformingLazyColumn] component via its [TransformingLazyColumnState].
  *
- * @param state the [LazyColumnState] to adapt.
+ * @param state the [TransformingLazyColumnState] to adapt.
  * @VisibleForTesting
  */
-internal class WearLazyColumnStateAdapter(private val state: LazyColumnState) : IndicatorState {
+internal class TransformingLazyColumnStateAdapter(private val state: TransformingLazyColumnState) :
+    IndicatorState {
     private var latestSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
 
@@ -690,26 +691,27 @@ internal class WearLazyColumnStateAdapter(private val state: LazyColumnState) : 
     }
 
     override fun equals(other: Any?): Boolean {
-        return (other as? WearLazyColumnStateAdapter)?.state == state
+        return (other as? TransformingLazyColumnStateAdapter)?.state == state
     }
 
-    private fun LazyColumnLayoutInfo.decimalLastItemIndex(): Float =
+    private fun TransformingLazyColumnLayoutInfo.decimalLastItemIndex(): Float =
         visibleItems.lastOrNull()?.let { lastItem ->
             // Coerce item sizes to at least 1 to avoid divide by zero for zero height items.
             val lastItemVisibleSize =
                 (viewportSize.height - lastItem.offset)
-                    .coerceAtMost(lastItem.height)
+                    .coerceAtMost(lastItem.transformedHeight)
                     .coerceAtLeast(0)
             return lastItem.index.toFloat() +
-                lastItemVisibleSize.toFloat() / lastItem.height.coerceAtLeast(1).toFloat()
+                lastItemVisibleSize.toFloat() /
+                    lastItem.transformedHeight.coerceAtLeast(1).toFloat()
         } ?: 0f
 
-    private fun LazyColumnLayoutInfo.decimalFirstItemIndex(): Float =
+    private fun TransformingLazyColumnLayoutInfo.decimalFirstItemIndex(): Float =
         visibleItems.firstOrNull()?.let { firstItem ->
             // Coerce item size to at least 1 to avoid divide by zero for zero height items.
             return firstItem.index.toFloat() -
                 firstItem.offset.coerceAtMost(0).toFloat() /
-                    firstItem.height.coerceAtLeast(1).toFloat()
+                    firstItem.transformedHeight.coerceAtLeast(1).toFloat()
         } ?: 0f
 }
 

@@ -22,10 +22,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.wear.compose.foundation.lazy.LazyColumnState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.startOffset
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
@@ -90,13 +91,13 @@ fun ScrollInfoProvider(state: LazyListState): ScrollInfoProvider =
     LazyListStateScrollInfoProvider(state)
 
 /**
- * Function for creating a [ScrollInfoProvider] from a [LazyColumnState], for use with
- * [androidx.wear.compose.foundation.lazy.LazyColumn] - used to coordinate between scrollable
- * content and scaffold content such as [TimeText] which is scrolled away at the top of the screen
- * and [EdgeButton] which is scaled.
+ * Function for creating a [ScrollInfoProvider] from a [TransformingLazyColumnState], for use with
+ * [TransformingLazyColumn] - used to coordinate between scrollable content and scaffold content
+ * such as [TimeText] which is scrolled away at the top of the screen and [EdgeButton] which is
+ * scaled.
  */
-fun ScrollInfoProvider(state: LazyColumnState): ScrollInfoProvider =
-    LazyColumnStateScrollInfoProvider(state)
+fun ScrollInfoProvider(state: TransformingLazyColumnState): ScrollInfoProvider =
+    TransformingLazyColumnStateScrollInfoProvider(state)
 
 /**
  * Function for creating a [ScrollInfoProvider] from a [ScrollState], for use with [Column] - used
@@ -250,8 +251,10 @@ private class ScrollStateScrollInfoProvider(val state: ScrollState) : ScrollInfo
     }
 }
 
-// Implementation of [ScrollInfoProvider] for [androidx.wear.compose.foundation.lazy.LazyColumn].
-private class LazyColumnStateScrollInfoProvider(val state: LazyColumnState) : ScrollInfoProvider {
+// Implementation of [ScrollInfoProvider] for [TransformingLazyColumn].
+private class TransformingLazyColumnStateScrollInfoProvider(
+    val state: TransformingLazyColumnState
+) : ScrollInfoProvider {
     override val isScrollAwayValid
         get() = state.layoutInfo.totalItemsCount > 0
 
@@ -282,11 +285,14 @@ private class LazyColumnStateScrollInfoProvider(val state: LazyColumnState) : Sc
                 .fastFirstOrNull { ii ->
                     return@fastFirstOrNull ii.index == layoutInfo.totalItemsCount - 1
                 }
-                ?.let { (screenHeightPx - it.offset - it.height).toFloat().coerceAtLeast(0f) } ?: 0f
+                ?.let {
+                    (screenHeightPx - it.offset - it.transformedHeight).toFloat().coerceAtLeast(0f)
+                } ?: 0f
         }
 
     override fun toString(): String {
-        return "LazyColumnStateScrollInfoProvider(isScrollAwayValid=$isScrollAwayValid, " +
+        return "TransformingLazyColumnStateScrollInfoProvider(" +
+            "isScrollAwayValid=$isScrollAwayValid, " +
             "isScrollable=$isScrollable," +
             "isScrollInProgress=$isScrollInProgress, " +
             "anchorItemOffset=$anchorItemOffset, " +

@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -64,7 +63,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class LazyColumnTest {
+class TransformingLazyColumnTest {
     private val firstItemTag = "firstItemTag"
     private val lastItemTag = "lastItemTag"
     private val lazyListTag = "LazyListTag"
@@ -74,7 +73,7 @@ class LazyColumnTest {
     @Test
     fun firstItemIsDisplayed() {
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 items(100) {
                     Box(
                         Modifier.requiredSize(50.dp)
@@ -90,7 +89,8 @@ class LazyColumnTest {
             }
         }
         rule.onNodeWithTag(firstItemTag).assertExists()
-        // LazyColumn is really lazy and doesn't put on the screen until it's scrolled to.
+        // TransformingLazyColumn is really lazy and doesn't put on the screen until it's scrolled
+        // to.
         rule.onNodeWithTag(lastItemTag).assertIsNotPlaced()
     }
 
@@ -104,9 +104,7 @@ class LazyColumnTest {
         var part2 by mutableStateOf(false)
 
         rule.setContentWithTestViewConfiguration {
-            androidx.compose.foundation.lazy.LazyColumn(
-                Modifier.testTag(lazyListTag).fillMaxSize()
-            ) {
+            TransformingLazyColumn(Modifier.testTag(lazyListTag).fillMaxSize()) {
                 items(if (!part2) data1 else data2) {
                     DisposableEffect(NeverEqualObject) {
                         composed++
@@ -149,7 +147,7 @@ class LazyColumnTest {
 
         rule.setContentWithTestViewConfiguration {
             if (emitLazyList) {
-                LazyColumn(Modifier.fillMaxSize()) {
+                TransformingLazyColumn(Modifier.fillMaxSize()) {
                     items(2) {
                         Box(Modifier.requiredSize(100.dp))
                         DisposableEffect(Unit) {
@@ -191,7 +189,7 @@ class LazyColumnTest {
         var itemCount by mutableStateOf(3)
         val tag = "List"
         rule.setContentWithTestViewConfiguration {
-            LazyColumn(Modifier.testTag(tag)) {
+            TransformingLazyColumn(Modifier.testTag(tag)) {
                 items((0 until itemCount).toList()) { BasicText("$it") }
             }
         }
@@ -217,7 +215,7 @@ class LazyColumnTest {
         var dataModel by mutableStateOf(dataLists[0])
         val tag = "List"
         rule.setContentWithTestViewConfiguration {
-            LazyColumn(Modifier.testTag(tag)) {
+            TransformingLazyColumn(Modifier.testTag(tag)) {
                 items(dataModel.size) { BasicText("${dataModel[it]}") }
             }
         }
@@ -242,7 +240,7 @@ class LazyColumnTest {
         var dataModel by mutableStateOf(emptyList<Int>())
         val tag = "List"
         rule.setContentWithTestViewConfiguration {
-            LazyColumn(Modifier.testTag(tag)) {
+            TransformingLazyColumn(Modifier.testTag(tag)) {
                 itemsIndexed(dataModel) { index, element -> BasicText("$index - $element") }
             }
         }
@@ -264,7 +262,9 @@ class LazyColumnTest {
         val itemSize = with(rule.density) { 15.toDp() }
 
         rule.setContentWithTestViewConfiguration {
-            LazyColumn { items(items.size) { Spacer(Modifier.size(itemSize).testTag(items[it])) } }
+            TransformingLazyColumn {
+                items(items.size) { Spacer(Modifier.size(itemSize).testTag(items[it])) }
+            }
         }
 
         rule.runOnIdle { items.removeAt(items.lastIndex) }
@@ -284,7 +284,7 @@ class LazyColumnTest {
 
         rule.setContent {
             val localOuterState = outerState.value
-            LazyColumn {
+            TransformingLazyColumn {
                 items(count = 1) {
                     recompositions.add(localOuterState to innerState.value)
                     Box(Modifier.fillMaxSize())
@@ -303,10 +303,10 @@ class LazyColumnTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun scrolledAwayItemIsNotDisplayedAnymore() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContentWithTestViewConfiguration {
-            state = rememberLazyColumnState()
-            LazyColumn(
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
                 Modifier.requiredSize(10.dp)
                     .testTag(lazyListTag)
                     .graphicsLayer()
@@ -343,14 +343,14 @@ class LazyColumnTest {
         val itemSizeDp = with(rule.density) { itemSize.toDp() }
 
         val subcomposeState = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
-        val state = LazyColumnState()
+        val state = TransformingLazyColumnState()
         var compose by mutableStateOf(true)
         rule.setContent {
             SubcomposeLayout(state = subcomposeState) { constraints ->
                 val node =
                     if (compose) {
                         subcompose(Unit) {
-                                LazyColumn(Modifier.size(itemSizeDp), state) {
+                                TransformingLazyColumn(Modifier.size(itemSizeDp), state) {
                                     items(100) { Box(Modifier.size(itemSizeDp)) }
                                 }
                             }
@@ -371,7 +371,7 @@ class LazyColumnTest {
         var focusSet = false
 
         rule.setContent {
-            LazyColumn(
+            TransformingLazyColumn(
                 modifier = Modifier.onFocusChanged { focusSet = it.isFocused },
                 // Disable rotary and focus as well
                 rotaryScrollableBehavior = null,
@@ -385,27 +385,27 @@ class LazyColumnTest {
 
     @Test
     fun rotaryInputWhenScrollEnabled() {
-        testLazyColumnRotary(true, 2)
+        testTransformingLazyColumnRotary(true, 2)
     }
 
     @Test
     fun rotaryInputWhenScrollDisabled() {
-        testLazyColumnRotary(false, 0)
+        testTransformingLazyColumnRotary(false, 0)
     }
 
     @OptIn(ExperimentalTestApi::class)
-    private fun testLazyColumnRotary(
+    private fun testTransformingLazyColumnRotary(
         userScrollEnabled: Boolean,
         scrollTarget: Int,
         itemsToScroll: Int = 2
     ) {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         val itemSizePx = 50
         var itemSizeDp: Dp
         rule.setContent {
             with(rule.density) { itemSizeDp = itemSizePx.toDp() }
-            state = rememberLazyColumnState()
-            LazyColumn(
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
                 state = state,
                 modifier = Modifier.testTag(lazyListTag),
                 userScrollEnabled = userScrollEnabled

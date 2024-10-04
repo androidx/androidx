@@ -33,15 +33,25 @@ import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import kotlin.math.abs
 
-/** Creates a [LazyColumnState] that is remembered across compositions. */
-@Composable fun rememberLazyColumnState() = remember { LazyColumnState() }
+@Deprecated(
+    "Use rememberTransformingLazyColumnState instead",
+    ReplaceWith("rememberTransformingLazyColumnState()")
+)
+@Composable
+fun rememberLazyColumnState() = rememberTransformingLazyColumnState()
+
+/** Creates a [TransformingLazyColumnState] that is remembered across compositions. */
+@Composable fun rememberTransformingLazyColumnState() = remember { TransformingLazyColumnState() }
+
+@Deprecated("Use TransformingLazyColumnState instead", ReplaceWith("TransformingLazyColumnState"))
+typealias LazyColumnState = TransformingLazyColumnState
 
 /**
  * A state object that can be hoisted to control and observe scrolling.
  *
- * In most cases, this will be created via [rememberLazyColumnState].
+ * In most cases, this will be created via [rememberTransformingLazyColumnState].
  */
-class LazyColumnState : ScrollableState {
+class TransformingLazyColumnState : ScrollableState {
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
@@ -52,7 +62,8 @@ class LazyColumnState : ScrollableState {
         block: suspend ScrollScope.() -> Unit
     ) = scrollableState.scroll(scrollPriority, block)
 
-    private val layoutInfoState = mutableStateOf(EmptyLazyColumnMeasureResult, neverEqualPolicy())
+    private val layoutInfoState =
+        mutableStateOf(EmptyTransformingLazyColumnMeasureResult, neverEqualPolicy())
 
     /**
      * The object of LazyColumnLayoutInfo calculated during the last layout pass. For example, you
@@ -63,7 +74,7 @@ class LazyColumnState : ScrollableState {
      * some side effects like sending an analytics event or updating a state based on this value
      * consider using "snapshotFlow":
      */
-    val layoutInfo: LazyColumnLayoutInfo
+    val layoutInfo: TransformingLazyColumnLayoutInfo
         get() = layoutInfoState.value
 
     internal var scrollToBeConsumed = 0f
@@ -95,11 +106,11 @@ class LazyColumnState : ScrollableState {
     internal val remeasurementModifier =
         object : RemeasurementModifier {
             override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-                this@LazyColumnState.remeasurement = remeasurement
+                this@TransformingLazyColumnState.remeasurement = remeasurement
             }
         }
 
-    internal fun applyMeasureResult(measureResult: LazyColumnMeasureResult) {
+    internal fun applyMeasureResult(measureResult: TransformingLazyColumnMeasureResult) {
         // TODO(artemiy): Don't consume all scroll.
         scrollToBeConsumed = 0f
         anchorItemIndex = measureResult.anchorItemIndex
@@ -185,8 +196,8 @@ class LazyColumnState : ScrollableState {
     }
 }
 
-private val EmptyLazyColumnMeasureResult =
-    LazyColumnMeasureResult(
+private val EmptyTransformingLazyColumnMeasureResult =
+    TransformingLazyColumnMeasureResult(
         anchorItemIndex = 0,
         anchorItemScrollOffset = 0,
         visibleItems = emptyList(),

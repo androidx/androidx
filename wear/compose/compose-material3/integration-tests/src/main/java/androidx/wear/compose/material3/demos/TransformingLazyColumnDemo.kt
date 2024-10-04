@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.LazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
@@ -36,10 +36,10 @@ import androidx.wear.compose.material3.lazy.scrollTransform
 import androidx.wear.compose.material3.lazy.targetMorphingHeight
 
 @Composable
-fun LazyColumnNotificationsDemo() {
+fun TransformingLazyColumnNotificationsDemo() {
     MaterialTheme {
         Box(modifier = Modifier.aspectRatio(1f).background(Color.Black)) {
-            LazyColumn(
+            TransformingLazyColumn(
                 modifier = Modifier.padding(horizontal = 10.dp),
             ) {
                 item { ListHeader { Text("Notifications") } }

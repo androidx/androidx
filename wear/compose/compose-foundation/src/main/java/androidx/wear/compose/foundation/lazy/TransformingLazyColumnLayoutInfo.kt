@@ -21,18 +21,25 @@ import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 
+@Deprecated(
+    "Use TransformingLazyColumnItemScrollProgress instead.",
+    ReplaceWith("TransformingLazyColumnItemScrollProgress")
+)
+typealias LazyColumnItemScrollProgress = TransformingLazyColumnItemScrollProgress
+
 /**
- * Scroll progress of an item in a [LazyColumn] before any modifications to the item's height are
- * applied (using [LazyColumnItemScope.transformedHeight] modifier).
+ * Scroll progress of an item in a [TransformingLazyColumn] before any modifications to the item's
+ * height are applied (using [TransformingLazyColumnItemScope.transformedHeight] modifier).
  */
 @JvmInline
-value class LazyColumnItemScrollProgress internal constructor(private val packedValue: Long) {
+value class TransformingLazyColumnItemScrollProgress
+internal constructor(private val packedValue: Long) {
     /**
      * The top offset (between the top of the list container and the top of the item) as a fraction
      * of the height of the list container. Is within (0, 1) when item is inside the screen and
      * could be negative if the top of the item is off the screen. Value is calculated from the top
      * of the container. This value is calculated before any height modifications are applied (using
-     * [LazyColumnItemScope.transformedHeight] modifier).
+     * [TransformingLazyColumnItemScope.transformedHeight] modifier).
      */
     val topOffsetFraction: Float
         get() = unpackFloat1(packedValue)
@@ -42,13 +49,14 @@ value class LazyColumnItemScrollProgress internal constructor(private val packed
      * fraction of the height of the list container. Is within (0, 1) when item is inside the screen
      * and could exceed 1 when the bottom of item is off the screen. Value is calculated from the
      * top of the container. This value is calculated before any height modifications are applied
-     * (using [LazyColumnItemScope.transformedHeight] modifier).
+     * (using [TransformingLazyColumnItemScope.transformedHeight] modifier).
      */
     val bottomOffsetFraction: Float
         get() = unpackFloat2(packedValue)
 
     /**
-     * Constructs a [LazyColumnItemScrollProgress] with two offset fraction [Float] values.
+     * Constructs a [TransformingLazyColumnItemScrollProgress] with two offset fraction [Float]
+     * values.
      *
      * @param topOffsetFraction The top offset (between the top of the list container and the top of
      *   the item) as a fraction of the height of the list container.
@@ -61,14 +69,14 @@ value class LazyColumnItemScrollProgress internal constructor(private val packed
     ) : this(packFloats(topOffsetFraction, bottomOffsetFraction))
 
     internal companion object {
-        internal val Zero = LazyColumnItemScrollProgress(0f, 0f)
+        internal val Zero = TransformingLazyColumnItemScrollProgress(0f, 0f)
 
         internal fun bottomItemScrollProgress(
             offset: Int,
             height: Int,
             containerHeight: Int
-        ): LazyColumnItemScrollProgress =
-            LazyColumnItemScrollProgress(
+        ): TransformingLazyColumnItemScrollProgress =
+            TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = offset.toFloat() / containerHeight.toFloat(),
                 bottomOffsetFraction = (offset + height).toFloat() / containerHeight.toFloat(),
             )
@@ -77,27 +85,44 @@ value class LazyColumnItemScrollProgress internal constructor(private val packed
             offset: Int,
             height: Int,
             containerHeight: Int
-        ): LazyColumnItemScrollProgress =
-            LazyColumnItemScrollProgress(
+        ): TransformingLazyColumnItemScrollProgress =
+            TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = (offset - height).toFloat() / containerHeight.toFloat(),
                 bottomOffsetFraction = offset / containerHeight.toFloat(),
             )
     }
 }
 
-/** Represents an item that is visible in the [LazyColumn] component. */
-sealed interface LazyColumnVisibleItemInfo {
+@Deprecated(
+    "Use TransformingLazyColumnVisibleItemInfo instead.",
+    ReplaceWith("TransformingLazyColumnVisibleItemInfo")
+)
+typealias LazyColumnVisibleItemInfo = TransformingLazyColumnVisibleItemInfo
+
+/** Represents an item that is visible in the [TransformingLazyColumn] component. */
+sealed interface TransformingLazyColumnVisibleItemInfo {
     /** The index of the item in the underlying data source. */
     val index: Int
 
     /** The offset of the item from the start of the visible area. */
     val offset: Int
 
-    /** The height of the item after applying any height changes. */
+    /** The height of the item after applying height transformation. */
+    val transformedHeight: Int
+
+    /** The height of the item after applying height transformation. */
+    @Deprecated("Use transformedHeight instead.", ReplaceWith("transformedHeight"))
     val height: Int
+        get() = transformedHeight
+
+    /**
+     * The height of the item returned during the measurement phase and before height transformation
+     * is applied.
+     */
+    val measuredHeight: Int
 
     /** The scroll progress of the item, indicating its position within the visible area. */
-    val scrollProgress: LazyColumnItemScrollProgress
+    val scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /** The key of the item which was passed to the item() or items() function. */
     val key: Any
@@ -106,12 +131,21 @@ sealed interface LazyColumnVisibleItemInfo {
     val contentType: Any?
 }
 
-/** Holds the layout information for a [LazyColumn]. */
-sealed interface LazyColumnLayoutInfo {
-    /** A list of [LazyColumnVisibleItemInfo] objects representing the visible items in the list. */
-    val visibleItems: List<LazyColumnVisibleItemInfo>
+@Deprecated(
+    "Use TransformingLazyColumnLayoutInfo instead.",
+    ReplaceWith("TransformingLazyColumnLayoutInfo")
+)
+typealias LazyColumnLayoutInfo = TransformingLazyColumnLayoutInfo
 
-    /** The total count of items passed to [LazyColumn]. */
+/** Holds the layout information for a [TransformingLazyColumn]. */
+sealed interface TransformingLazyColumnLayoutInfo {
+    /**
+     * A list of [TransformingLazyColumnVisibleItemInfo] objects representing the visible items in
+     * the list.
+     */
+    val visibleItems: List<TransformingLazyColumnVisibleItemInfo>
+
+    /** The total count of items passed to [TransformingLazyColumn]. */
     val totalItemsCount: Int
 
     /** The size of the viewport in pixels. */

@@ -41,13 +41,13 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class LazyColumnScrollTest {
+class TransformingLazyColumnScrollTest {
     @get:Rule val rule = createComposeRule()
 
     private val lazyListTag = "LazyList"
 
     private val itemsCount = 20
-    private lateinit var state: LazyColumnState
+    private lateinit var state: TransformingLazyColumnState
 
     private val itemSizePx = 100
     private var itemSizeDp = Dp.Unspecified
@@ -66,7 +66,7 @@ class LazyColumnScrollTest {
         assertBlock: () -> Unit
     ) {
         rule.setContent {
-            state = rememberLazyColumnState()
+            state = rememberTransformingLazyColumnState()
             scope = rememberCoroutineScope()
             with(rule.density) {
                 TestContent(
@@ -126,7 +126,7 @@ class LazyColumnScrollTest {
         spacingDp: Dp,
         containerSizeDp: Dp,
     ) =
-        LazyColumn(
+        TransformingLazyColumn(
             Modifier.height(containerSizeDp).testTag(lazyListTag),
             state,
             verticalArrangement = Arrangement.spacedBy(spacingDp)

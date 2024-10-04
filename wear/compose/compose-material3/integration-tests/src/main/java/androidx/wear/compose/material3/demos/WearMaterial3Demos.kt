@@ -32,14 +32,14 @@ import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
 import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
-import androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
-import androidx.wear.compose.material3.samples.LazyColumnTargetMorphingHeightSample
 import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.SwipeToRevealNonAnchoredSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
+import androidx.wear.compose.material3.samples.TransformingLazyColumnScalingMorphingEffectSample
+import androidx.wear.compose.material3.samples.TransformingLazyColumnTargetMorphingHeightSample
 import androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
 
@@ -202,14 +202,16 @@ val WearMaterial3Demos =
                 ),
                 ComposableDemo("Settings Demo") { SettingsDemo() },
                 Material3DemoCategory(
-                    title = "LazyColumn",
+                    title = "TransformingLazyColumn",
                     listOf(
-                        ComposableDemo("Notifications") { LazyColumnNotificationsDemo() },
+                        ComposableDemo("Notifications") {
+                            TransformingLazyColumnNotificationsDemo()
+                        },
                         ComposableDemo("Scaling Morphing Effect Sample") {
-                            LazyColumnScalingMorphingEffectSample()
+                            TransformingLazyColumnScalingMorphingEffectSample()
                         },
                         ComposableDemo("Target Morphing Height Sample") {
-                            LazyColumnTargetMorphingHeightSample()
+                            TransformingLazyColumnTargetMorphingHeightSample()
                         }
                     )
                 )

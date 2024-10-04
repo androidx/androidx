@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.LazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.material.Text
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 @Preview
 @Sampled
 @Composable
-fun LazyColumnLettersSample() {
+fun TransformingLazyColumnLettersSample() {
     val alphabet = ('A'..'Z').map { it.toString() }
 
     fun rainbowColor(progress: Float): Color {
@@ -45,7 +45,7 @@ fun LazyColumnLettersSample() {
         return Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, value)))
     }
 
-    LazyColumn {
+    TransformingLazyColumn {
         items(count = alphabet.size) { index ->
             Text(
                 alphabet[index],
@@ -87,8 +87,8 @@ fun LazyColumnLettersSample() {
 
 @Preview
 @Composable
-fun LazyColumnRectangularBoxesSample() {
-    LazyColumn {
+fun TransformingLazyColumnRectangularBoxesSample() {
+    TransformingLazyColumn {
         items(count = 10) {
             Text(
                 "Item $it",

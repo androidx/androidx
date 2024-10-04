@@ -44,11 +44,44 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 
+@Deprecated(
+    "Use TransformingLazyColumn instead.",
+    ReplaceWith(
+        "TransformingLazyColumn(modifier = modifier, state = state, verticalArrangement = verticalArrangement, horizontalAlignment = horizontalAlignment, flingBehavior = flingBehavior, userScrollEnabled = userScrollEnabled, rotaryScrollableBehavior = rotaryScrollableBehavior, content = content)"
+    )
+)
+@Composable
+fun LazyColumn(
+    modifier: Modifier = Modifier,
+    state: TransformingLazyColumnState = rememberTransformingLazyColumnState(),
+    verticalArrangement: Arrangement.Vertical =
+        Arrangement.spacedBy(
+            space = 4.dp,
+            // TODO: b/352513793 - Add support for reverseLayout.
+            alignment = Alignment.Top
+        ),
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
+    content: TransformingLazyColumnScope.() -> Unit
+) =
+    TransformingLazyColumn(
+        modifier,
+        state,
+        verticalArrangement,
+        horizontalAlignment,
+        flingBehavior,
+        userScrollEnabled,
+        rotaryScrollableBehavior,
+        content
+    )
+
 /**
  * The vertically scrolling list that only composes and lays out the currently visible items. This
  * is a wear specific version of LazyColumn that adds support for scaling and morphing animations.
  *
- * @sample androidx.wear.compose.foundation.samples.LazyColumnLettersSample
+ * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
  * @param modifier The modifier to be applied to the layout.
  * @param state The state object to be used to control the list and the applied layout.
  * @param verticalArrangement The vertical arrangement of the items.
@@ -66,9 +99,9 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyColumn(
+fun TransformingLazyColumn(
     modifier: Modifier = Modifier,
-    state: LazyColumnState = rememberLazyColumnState(),
+    state: TransformingLazyColumnState = rememberTransformingLazyColumnState(),
     verticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(
             space = 4.dp,
@@ -79,7 +112,7 @@ fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
-    content: LazyColumnScope.() -> Unit
+    content: TransformingLazyColumnScope.() -> Unit
 ) {
     val latestContent = rememberUpdatedState(newValue = content)
 
@@ -87,13 +120,13 @@ fun LazyColumn(
         remember(state) {
             val scope =
                 derivedStateOf(referentialEqualityPolicy()) {
-                    LazyColumnScopeImpl(latestContent.value)
+                    TransformingLazyColumnScopeImpl(latestContent.value)
                 }
             derivedStateOf(referentialEqualityPolicy()) {
                 {
                     val intervalContent = scope.value
                     val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
-                    LazyColumnItemProvider(
+                    TransformingLazyColumnItemProvider(
                         intervalContent = intervalContent,
                         state = state,
                         keyIndexMap = map
@@ -103,7 +136,7 @@ fun LazyColumn(
         }
 
     val measurePolicy =
-        rememberLazyColumnMeasurePolicy(
+        rememberTransformingLazyColumnMeasurePolicy(
             itemProviderLambda = itemProviderLambda,
             state = state,
             horizontalAlignment = horizontalAlignment,
@@ -141,9 +174,9 @@ fun LazyColumn(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyColumnItemProvider(
-    val intervalContent: LazyLayoutIntervalContent<LazyColumnInterval>,
-    val state: LazyColumnState,
+internal class TransformingLazyColumnItemProvider(
+    val intervalContent: LazyLayoutIntervalContent<TransformingLazyColumnInterval>,
+    val state: TransformingLazyColumnState,
     val keyIndexMap: NearestRangeKeyIndexMap
 ) : LazyLayoutItemProvider {
     override val itemCount: Int
@@ -151,7 +184,8 @@ internal class LazyColumnItemProvider(
 
     @Composable
     override fun Item(index: Int, key: Any) {
-        val itemScope = remember(index) { LazyColumnItemScopeImpl(index, state = state) }
+        val itemScope =
+            remember(index) { TransformingLazyColumnItemScopeImpl(index, state = state) }
         intervalContent.withInterval(index) { localIndex, content ->
             content.item(itemScope, localIndex)
         }
@@ -166,7 +200,7 @@ internal class LazyColumnItemProvider(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is LazyColumnItemProvider) return false
+        if (other !is TransformingLazyColumnItemProvider) return false
 
         // the identity of this class is represented by intervalContent object.
         // having equals() allows us to skip items recomposition when intervalContent didn't change

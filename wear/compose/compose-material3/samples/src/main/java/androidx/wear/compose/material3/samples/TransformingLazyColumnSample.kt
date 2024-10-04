@@ -30,9 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.LazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.foundation.lazy.rememberLazyColumnState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
@@ -46,10 +46,10 @@ import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun LazyColumnScrollingSample() {
-    val state = rememberLazyColumnState()
+fun TransformingLazyColumnScrollingSample() {
+    val state = rememberTransformingLazyColumnState()
     val coroutineScope = rememberCoroutineScope()
-    LazyColumn(
+    TransformingLazyColumn(
         state = state,
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background).padding(horizontal = 10.dp)
@@ -79,9 +79,9 @@ fun LazyColumnScrollingSample() {
 @Sampled
 @Preview
 @Composable
-fun LazyColumnScalingMorphingEffectSample() {
+fun TransformingLazyColumnScalingMorphingEffectSample() {
     val allIngredients = listOf("2 eggs", "tomato", "cheese", "bread")
-    val state = rememberLazyColumnState()
+    val state = rememberTransformingLazyColumnState()
     val coroutineScope = rememberCoroutineScope()
     AppScaffold {
         ScreenScaffold(
@@ -92,7 +92,7 @@ fun LazyColumnScalingMorphingEffectSample() {
                 }
             }
         ) {
-            LazyColumn(
+            TransformingLazyColumn(
                 state = state,
                 modifier =
                     Modifier.background(MaterialTheme.colorScheme.background)
@@ -127,7 +127,7 @@ fun LazyColumnScalingMorphingEffectSample() {
 @Sampled
 @Preview
 @Composable
-fun LazyColumnTargetMorphingHeightSample() {
+fun TransformingLazyColumnTargetMorphingHeightSample() {
     data class MenuItem(val title: String, val price: Float)
 
     val drinks =
@@ -139,7 +139,7 @@ fun LazyColumnTargetMorphingHeightSample() {
             MenuItem("Black tea", 2f),
             MenuItem("London fog", 2.6f),
         )
-    val state = rememberLazyColumnState()
+    val state = rememberTransformingLazyColumnState()
     val coroutineScope = rememberCoroutineScope()
     AppScaffold {
         ScreenScaffold(
@@ -157,7 +157,7 @@ fun LazyColumnTargetMorphingHeightSample() {
                 }
             }
         ) {
-            LazyColumn(
+            TransformingLazyColumn(
                 state = state,
                 modifier =
                     Modifier.background(MaterialTheme.colorScheme.background)
