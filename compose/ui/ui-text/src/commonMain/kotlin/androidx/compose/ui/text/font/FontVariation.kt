@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.internal.requirePreconditionNotNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -207,7 +208,9 @@ object FontVariation {
      * @param value value for axis, not validated and directly passed to font
      */
     fun Setting(name: String, value: Float): Setting {
-        require(name.length == 4) { "Name must be exactly four characters. Actual: '$name'" }
+        requirePrecondition(name.length == 4) {
+            "Name must be exactly four characters. Actual: '$name'"
+        }
         return SettingFloat(name, value)
     }
 
@@ -227,7 +230,7 @@ object FontVariation {
      * @param value [0.0f, 1.0f]
      */
     fun italic(value: Float): Setting {
-        require(value in 0.0f..1.0f) { "'ital' must be in 0.0f..1.0f. Actual: $value" }
+        requirePrecondition(value in 0.0f..1.0f) { "'ital' must be in 0.0f..1.0f. Actual: $value" }
         return SettingFloat("ital", value)
     }
 
@@ -249,7 +252,7 @@ object FontVariation {
      * @param textSize font-size at the expected display, must be in sp
      */
     fun opticalSizing(textSize: TextUnit): Setting {
-        require(textSize.isSp) { "'opsz' must be provided in sp units" }
+        requirePrecondition(textSize.isSp) { "'opsz' must be provided in sp units" }
         return SettingTextUnit("opsz", textSize)
     }
 
@@ -264,7 +267,7 @@ object FontVariation {
      * @param value -90f to 90f, represents an angle
      */
     fun slant(value: Float): Setting {
-        require(value in -90f..90f) { "'slnt' must be in -90f..90f. Actual: $value" }
+        requirePrecondition(value in -90f..90f) { "'slnt' must be in -90f..90f. Actual: $value" }
         return SettingFloat("slnt", value)
     }
 
@@ -280,7 +283,7 @@ object FontVariation {
      * @param value > 0.0f represents the width
      */
     fun width(value: Float): Setting {
-        require(value > 0.0f) { "'wdth' must be strictly > 0.0f. Actual: $value" }
+        requirePrecondition(value > 0.0f) { "'wdth' must be strictly > 0.0f. Actual: $value" }
         return SettingFloat("wdth", value)
     }
 
@@ -305,7 +308,9 @@ object FontVariation {
      * @param value weight, in 1..1000
      */
     fun weight(value: Int): Setting {
-        require(value in 1..1000) { "'wght' value must be in [1, 1000]. Actual: $value" }
+        requirePrecondition(value in 1..1000) {
+            "'wght' value must be in [1, 1000]. Actual: $value"
+        }
         return SettingInt("wght", value)
     }
 
@@ -325,7 +330,7 @@ object FontVariation {
      * @param value grade, in -1000..1000
      */
     fun grade(value: Int): Setting {
-        require(value in -1000..1000) { "'GRAD' must be in -1000..1000" }
+        requirePrecondition(value in -1000..1000) { "'GRAD' must be in -1000..1000" }
         return SettingInt("GRAD", value)
     }
 

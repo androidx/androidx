@@ -23,15 +23,15 @@ import androidx.compose.ui.text.AnnotatedString.Annotation
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.internal.checkPrecondition
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.jvm.JvmName
 
 /**
@@ -46,12 +46,12 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     internal val spanStylesOrNull: List<Range<SpanStyle>>?
     /** All [SpanStyle] that have been applied to a range of this String */
     val spanStyles: List<Range<SpanStyle>>
-        get() = spanStylesOrNull ?: emptyList()
+        get() = spanStylesOrNull ?: listOf()
 
     internal val paragraphStylesOrNull: List<Range<ParagraphStyle>>?
     /** All [ParagraphStyle] that have been applied to a range of this String */
     val paragraphStyles: List<Range<ParagraphStyle>>
-        get() = paragraphStylesOrNull ?: emptyList()
+        get() = paragraphStylesOrNull ?: listOf()
 
     /**
      * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you
@@ -101,7 +101,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      */
     constructor(
         text: String,
-        annotations: List<Range<out Annotation>> = emptyList()
+        annotations: List<Range<out Annotation>> = listOf()
     ) : this(annotations.ifEmpty { null }, text)
 
     init {
@@ -129,10 +129,10 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         paragraphStylesOrNull
             ?.sortedBy { it.start }
             ?.fastForEach { paragraphStyle ->
-                require(paragraphStyle.start >= lastStyleEnd) {
+                requirePrecondition(paragraphStyle.start >= lastStyleEnd) {
                     "ParagraphStyle should not overlap"
                 }
-                require(paragraphStyle.end <= text.length) {
+                requirePrecondition(paragraphStyle.end <= text.length) {
                     "ParagraphStyle range [${paragraphStyle.start}, ${paragraphStyle.end})" +
                         " is out of boundary"
                 }
@@ -153,7 +153,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      * @param endIndex the exclusive end offset of the range
      */
     override fun subSequence(startIndex: Int, endIndex: Int): AnnotatedString {
-        require(startIndex <= endIndex) {
+        requirePrecondition(startIndex <= endIndex) {
             "start ($startIndex) should be less or equal to end ($endIndex)"
         }
         if (startIndex == 0 && endIndex == text.length) return this
@@ -197,11 +197,11 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      */
     @Suppress("UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
     fun getStringAnnotations(tag: String, start: Int, end: Int): List<Range<String>> =
-        (annotations?.fastFilterMap({
+        (annotations?.fastFilteredMap({
             it.item is StringAnnotation && tag == it.tag && intersect(start, end, it.start, it.end)
         }) {
             it.unbox()
-        } ?: emptyList())
+        } ?: listOf())
 
     /**
      * Returns true if [getStringAnnotations] with the same parameters would return a non-empty list
@@ -222,11 +222,11 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      */
     @Suppress("UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
     fun getStringAnnotations(start: Int, end: Int): List<Range<String>> =
-        annotations?.fastFilterMap({
+        annotations?.fastFilteredMap({
             it.item is StringAnnotation && intersect(start, end, it.start, it.end)
         }) {
             it.unbox()
-        } ?: emptyList()
+        } ?: listOf()
 
     /**
      * Query all of the [TtsAnnotation]s attached on this [AnnotatedString].
@@ -241,7 +241,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     fun getTtsAnnotations(start: Int, end: Int): List<Range<TtsAnnotation>> =
         ((annotations?.fastFilter {
             it.item is TtsAnnotation && intersect(start, end, it.start, it.end)
-        } ?: emptyList())
+        } ?: listOf())
             as List<Range<TtsAnnotation>>)
 
     /**
@@ -259,7 +259,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     fun getUrlAnnotations(start: Int, end: Int): List<Range<UrlAnnotation>> =
         ((annotations?.fastFilter {
             it.item is UrlAnnotation && intersect(start, end, it.start, it.end)
-        } ?: emptyList())
+        } ?: listOf())
             as List<Range<UrlAnnotation>>)
 
     /**
@@ -275,7 +275,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     fun getLinkAnnotations(start: Int, end: Int): List<Range<LinkAnnotation>> =
         ((annotations?.fastFilter {
             it.item is LinkAnnotation && intersect(start, end, it.start, it.end)
-        } ?: emptyList())
+        } ?: listOf())
             as List<Range<LinkAnnotation>>)
 
     /**
@@ -362,7 +362,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         constructor(item: T, start: Int, end: Int) : this(item, start, end, "")
 
         init {
-            require(start <= end) { "Reversed range is not supported" }
+            requirePrecondition(start <= end) { "Reversed range is not supported" }
         }
     }
 
@@ -896,7 +896,7 @@ internal fun AnnotatedString.normalizedParagraphStyles(
     defaultParagraphStyle: ParagraphStyle
 ): List<Range<ParagraphStyle>> {
     val length = text.length
-    val paragraphStyles = paragraphStylesOrNull ?: emptyList()
+    val paragraphStyles = paragraphStylesOrNull ?: listOf()
 
     var lastOffset = 0
     val result = mutableListOf<Range<ParagraphStyle>>()
@@ -933,7 +933,7 @@ private fun AnnotatedString.getLocalSpanStyles(start: Int, end: Int): List<Range
     if (start == 0 && end >= this.text.length) {
         return spanStyles
     }
-    return spanStyles.fastFilterMap({ intersect(start, end, it.start, it.end) }) {
+    return spanStyles.fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
         Range(
             it.item,
             it.start.fastCoerceIn(start, end) - start,
@@ -959,7 +959,7 @@ private fun AnnotatedString.getLocalParagraphStyles(
     if (start == 0 && end >= this.text.length) {
         return paragraphStyles
     }
-    return paragraphStyles.fastFilterMap({ intersect(start, end, it.start, it.end) }) {
+    return paragraphStyles.fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
         Range(
             it.item,
             it.start.fastCoerceIn(start, end) - start,
@@ -985,7 +985,7 @@ private fun AnnotatedString.getLocalAnnotations(
     if (start == 0 && end >= this.text.length) {
         return annotations
     }
-    return annotations.fastFilterMap({ intersect(start, end, it.start, it.end) }) {
+    return annotations.fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
         Range(
             tag = it.tag,
             item = it.item,
@@ -1007,7 +1007,7 @@ private fun AnnotatedString.getLocalAnnotations(
 private fun AnnotatedString.substringWithoutParagraphStyles(start: Int, end: Int): AnnotatedString {
     return AnnotatedString(
         text = if (start != end) text.substring(start, end) else "",
-        annotations = getLocalSpanStyles(start, end) ?: emptyList()
+        annotations = getLocalSpanStyles(start, end) ?: listOf()
     )
 }
 
@@ -1262,11 +1262,13 @@ inline fun <R : Any> Builder.withLink(link: LinkAnnotation, block: Builder.() ->
  * @param end the exclusive end offset of the text range
  */
 private fun <T> filterRanges(ranges: List<Range<out T>>?, start: Int, end: Int): List<Range<T>>? {
-    require(start <= end) { "start ($start) should be less than or equal to end ($end)" }
+    requirePrecondition(start <= end) {
+        "start ($start) should be less than or equal to end ($end)"
+    }
     val nonNullRange = ranges ?: return null
 
     return nonNullRange
-        .fastFilterMap({ intersect(start, end, it.start, it.end) }) {
+        .fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
             Range(
                 item = it.item,
                 start = maxOf(start, it.start) - start,
@@ -1340,18 +1342,3 @@ private val EmptyAnnotatedString: AnnotatedString = AnnotatedString("")
 
 /** Returns an AnnotatedString with empty text and no annotations. */
 internal fun emptyAnnotatedString() = EmptyAnnotatedString
-
-@OptIn(ExperimentalContracts::class)
-@Suppress("BanInlineOptIn")
-private inline fun <T, R> List<T>.fastFilterMap(
-    predicate: (T) -> Boolean,
-    transform: (T) -> R
-): List<R> {
-    contract {
-        callsInPlace(predicate)
-        callsInPlace(transform)
-    }
-    val target = ArrayList<R>(size)
-    fastForEach { if (predicate(it)) target += transform(it) }
-    return target
-}

@@ -19,11 +19,11 @@ package androidx.compose.ui.text
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastMaxBy
 
 /**
@@ -142,13 +142,12 @@ class MultiParagraphIntrinsics(
 }
 
 private fun List<AnnotatedString.Range<Placeholder>>.getLocalPlaceholders(start: Int, end: Int) =
-    fastFilter { intersect(start, end, it.start, it.end) }
-        .fastMap {
-            require(start <= it.start && it.end <= end) {
-                "placeholder can not overlap with paragraph."
-            }
-            AnnotatedString.Range(it.item, it.start - start, it.end - start)
+    fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
+        requirePrecondition(start <= it.start && it.end <= end) {
+            "placeholder can not overlap with paragraph."
         }
+        AnnotatedString.Range(it.item, it.start - start, it.end - start)
+    }
 
 internal data class ParagraphIntrinsicInfo(
     val intrinsics: ParagraphIntrinsics,

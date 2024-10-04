@@ -234,6 +234,26 @@ inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
 }
 
 /**
+ * Returns a list containing only elements matching the given [predicate], applying the given
+ * [transform] function to each element.
+ *
+ * **Do not use for collections that come from public APIs**, since they may not support random
+ * access in an efficient way, and this method may actually be a lot slower. Only use for
+ * collections that are created by code we control and are known to support random access.
+ */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+inline fun <T, R> List<T>.fastFilteredMap(predicate: (T) -> Boolean, transform: (T) -> R): List<R> {
+    contract {
+        callsInPlace(predicate)
+        callsInPlace(transform)
+    }
+    val target = ArrayList<R>(size)
+    fastForEach { if (predicate(it)) target += transform(it) }
+    return target
+}
+
+/**
  * Accumulates value starting with [initial] value and applying [operation] from left to right to
  * current accumulator value and each element.
  *

@@ -17,6 +17,7 @@ package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.util.lerp
 
 /**
@@ -74,7 +75,7 @@ class FontWeight(val weight: Int) : Comparable<FontWeight> {
     }
 
     init {
-        require(weight in 1..1000) {
+        requirePrecondition(weight in 1..1000) {
             "Font weight can be in range [1, 1000]. Current value: $weight"
         }
     }

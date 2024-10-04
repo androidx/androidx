@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.lerp as lerpColor
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.lerpDiscrete
 import androidx.compose.ui.util.lerp
 import kotlin.jvm.JvmName
@@ -89,7 +90,7 @@ internal interface TextForegroundStyle {
 
 private data class ColorStyle(val value: Color) : TextForegroundStyle {
     init {
-        require(value.isSpecified) {
+        requirePrecondition(value.isSpecified) {
             "ColorStyle value must be specified, use TextForegroundStyle.Unspecified instead."
         }
     }

@@ -144,7 +144,7 @@ class TextMeasurer(
         overflow: TextOverflow = TextOverflow.Clip,
         softWrap: Boolean = true,
         maxLines: Int = Int.MAX_VALUE,
-        placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         constraints: Constraints = Constraints(),
         layoutDirection: LayoutDirection = this.defaultLayoutDirection,
         density: Density = this.defaultDensity,

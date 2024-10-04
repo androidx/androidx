@@ -18,9 +18,12 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import kotlin.math.max
+import kotlin.math.min
 
 fun CharSequence.substring(range: TextRange): String = this.substring(range.min, range.max)
 
@@ -54,11 +57,11 @@ value class TextRange internal constructor(private val packedValue: Long) {
 
     /** The minimum offset of the range. */
     val min: Int
-        get() = if (start > end) end else start
+        get() = min(start, end)
 
     /** The maximum offset of the range. */
     val max: Int
-        get() = if (start > end) start else end
+        get() = max(start, end)
 
     /** Returns true if the range is collapsed */
     val collapsed: Boolean
@@ -73,10 +76,10 @@ value class TextRange internal constructor(private val packedValue: Long) {
         get() = max - min
 
     /** Returns true if the given range has intersection with this range */
-    fun intersects(other: TextRange): Boolean = min < other.max && other.min < max
+    fun intersects(other: TextRange): Boolean = (min < other.max) and (other.min < max)
 
     /** Returns true if this range covers including equals with the given range. */
-    operator fun contains(other: TextRange): Boolean = min <= other.min && other.max <= max
+    operator fun contains(other: TextRange): Boolean = (min <= other.min) and (other.max <= max)
 
     /** Returns true if the given offset is a part of this range. */
     operator fun contains(offset: Int): Boolean = offset in min until max
@@ -103,8 +106,8 @@ fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)
  * @param maximumValue the exclusive maximum value that [TextRange.start] or [TextRange.end] can be.
  */
 fun TextRange.coerceIn(minimumValue: Int, maximumValue: Int): TextRange {
-    val newStart = start.coerceIn(minimumValue, maximumValue)
-    val newEnd = end.coerceIn(minimumValue, maximumValue)
+    val newStart = start.fastCoerceIn(minimumValue, maximumValue)
+    val newEnd = end.fastCoerceIn(minimumValue, maximumValue)
     if (newStart != start || newEnd != end) {
         return TextRange(newStart, newEnd)
     }

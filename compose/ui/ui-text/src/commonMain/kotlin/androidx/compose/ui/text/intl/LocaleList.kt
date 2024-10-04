@@ -35,7 +35,7 @@ class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
          * An empty instance of [LocaleList]. Usually used to reference a lack of explicit [Locale]
          * configuration.
          */
-        val Empty = LocaleList(emptyList())
+        val Empty = LocaleList(listOf())
 
         /** Returns Locale object which represents current locale */
         val current: LocaleList

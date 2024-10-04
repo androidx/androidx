@@ -15,6 +15,10 @@
  */
 package androidx.compose.ui.text.font
 
+private const val AllFlags = 0xffff
+private const val WeightFlag = 0x1
+private const val StyleFlag = 0x2
+
 /**
  * Possible options for font synthesis.
  *
@@ -39,13 +43,14 @@ value class FontSynthesis internal constructor(internal val value: Int) {
     override fun toString(): String {
         return when (this) {
             None -> "None"
-            All -> "All"
             Weight -> "Weight"
             Style -> "Style"
+            All -> "All"
             else -> "Invalid"
         }
     }
 
+    // NOTE: The values below are selected to be used as flags. See isWeightOn for instance.
     companion object {
         /**
          * Turns off font synthesis. Neither bold nor slanted faces are synthesized if they don't
@@ -54,29 +59,29 @@ value class FontSynthesis internal constructor(internal val value: Int) {
         val None = FontSynthesis(0)
 
         /**
-         * The system synthesizes both bold and slanted fonts if either of them are not available in
-         * the [FontFamily]
-         */
-        val All = FontSynthesis(1)
-
-        /**
          * Only a bold font is synthesized, if it is not available in the [FontFamily]. Slanted
          * fonts will not be synthesized.
          */
-        val Weight = FontSynthesis(2)
+        val Weight = FontSynthesis(WeightFlag)
 
         /**
          * Only an slanted font is synthesized, if it is not available in the [FontFamily]. Bold
          * fonts will not be synthesized.
          */
-        val Style = FontSynthesis(3)
+        val Style = FontSynthesis(StyleFlag)
+
+        /**
+         * The system synthesizes both bold and slanted fonts if either of them are not available in
+         * the [FontFamily]
+         */
+        val All = FontSynthesis(AllFlags)
     }
 
     internal val isWeightOn: Boolean
-        get() = this == All || this == Weight
+        get() = value and WeightFlag != 0
 
     internal val isStyleOn: Boolean
-        get() = this == All || this == Style
+        get() = value and StyleFlag != 0
 }
 
 /**

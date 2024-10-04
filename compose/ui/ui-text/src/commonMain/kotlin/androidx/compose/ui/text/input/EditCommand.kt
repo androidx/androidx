@@ -19,6 +19,7 @@ package androidx.compose.ui.text.input
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.findFollowingBreak
 import androidx.compose.ui.text.findPrecedingBreak
+import androidx.compose.ui.text.internal.requirePrecondition
 
 /**
  * [EditCommand] is a command representation for the platform IME API function calls. The commands
@@ -246,7 +247,7 @@ class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCurso
 class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterCursor: Int) :
     EditCommand {
     init {
-        require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
+        requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
             "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
                 "$lengthBeforeCursor and $lengthAfterCursor respectively."
         }
@@ -305,7 +306,7 @@ class DeleteSurroundingTextInCodePointsCommand(
     val lengthAfterCursor: Int
 ) : EditCommand {
     init {
-        require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
+        requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
             "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
                 "$lengthBeforeCursor and $lengthAfterCursor respectively."
         }
