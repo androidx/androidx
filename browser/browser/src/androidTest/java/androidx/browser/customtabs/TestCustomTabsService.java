@@ -87,11 +87,13 @@ public class TestCustomTabsService extends CustomTabsService {
         @Override
         public void prefetch(ICustomTabsCallback callback, Uri url, Bundle options)
                 throws RemoteException {
+            mMock.prefetch(callback, url, options);
         }
 
         @Override
         public void prefetchWithMultipleUrls(ICustomTabsCallback callback, List<Uri> urls,
                 Bundle options) throws RemoteException {
+            mMock.prefetchWithMultipleUrls(callback, urls, options);
         }
 
         @Override
