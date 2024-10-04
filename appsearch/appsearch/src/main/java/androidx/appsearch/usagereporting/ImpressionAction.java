@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,29 +27,39 @@ import androidx.appsearch.app.Features;
 import androidx.core.util.Preconditions;
 
 /**
- * {@link ClickAction} is a built-in AppSearch document type that contains different metrics.
- * Clients can report the user's click actions on a {@link androidx.appsearch.app.SearchResult}
+ * {@link ImpressionAction} is a built-in AppSearch document type that contains different metrics.
+ * Clients can report the user's impression actions on a {@link androidx.appsearch.app.SearchResult}
  * document.
+ * <ul>
+ *     <li>Different from {@link androidx.appsearch.usagereporting.ClickAction}, impression action
+ *     means the user showed impression and took actions (other than click) on the result document,
+ *     such as hovering the result preview.
+ *     <li>If the user clicked on the result document, then it is recommended to use
+ *     {@link androidx.appsearch.usagereporting.ClickAction} instead. Still the caller can decide to
+ *     report both {@link androidx.appsearch.usagereporting.ClickAction} and
+ *     {@link ImpressionAction} for a single result document at the same time, depending on their
+ *     use cases for the action signals (e.g. boost ranking).
+ * </ul>
  *
  * <p>In order to use this document type, the client must explicitly set this schema type via
  * {@link androidx.appsearch.app.SetSchemaRequest.Builder#addDocumentClasses}.
  *
- * <p>Click actions can be used as signals to boost ranking via
+ * <p>Impression actions can be used as signals to boost ranking via
  * {@link androidx.appsearch.app.JoinSpec} API in future search requests.
  *
- * <p>Since {@link ClickAction} is an AppSearch document, the client can handle deletion via
+ * <p>Since {@link ImpressionAction} is an AppSearch document, the client can handle deletion via
  * {@link androidx.appsearch.app.AppSearchSession#removeAsync} or document time-to-live (TTL). The
  * default TTL is 60 days.
  */
-// In ClickAction document, there is a joinable property "referencedQualifiedId" for reporting the
-// qualified id of the clicked document. The client can create personal navboost with click action
-// signals by join query with this property. Therefore, ClickAction document class requires join
-// feature.
+// In ImpressionAction document, there is a joinable property "referencedQualifiedId" for reporting
+// the qualified id of the document that the user was impressed with. The client can create personal
+// navboost with impression action signals by join query with this property. Therefore,
+// ImpressionAction document class requires join feature.
 @RequiresFeature(
         enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
         name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
-@Document(name = "builtin:ClickAction")
-public class ClickAction extends TakenAction {
+@Document(name = "builtin:ImpressionAction")
+public class ImpressionAction extends TakenAction {
     @Nullable
     @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
     private final String mQuery;
@@ -65,25 +75,21 @@ public class ClickAction extends TakenAction {
     @Document.LongProperty
     private final int mResultRankGlobal;
 
-    @Document.LongProperty
-    private final long mTimeStayOnResultMillis;
-
-    ClickAction(@NonNull String namespace, @NonNull String id, long documentTtlMillis,
+    ImpressionAction(@NonNull String namespace, @NonNull String id, long documentTtlMillis,
             long actionTimestampMillis, @TakenAction.ActionType int actionType,
             @Nullable String query, @Nullable String referencedQualifiedId, int resultRankInBlock,
-            int resultRankGlobal, long timeStayOnResultMillis) {
+            int resultRankGlobal) {
         super(namespace, id, documentTtlMillis, actionTimestampMillis, actionType);
 
         mQuery = query;
         mReferencedQualifiedId = referencedQualifiedId;
         mResultRankInBlock = resultRankInBlock;
         mResultRankGlobal = resultRankGlobal;
-        mTimeStayOnResultMillis = timeStayOnResultMillis;
     }
 
     /**
      * Returns the user-entered search input (without any operators or rewriting) that yielded the
-     * {@link androidx.appsearch.app.SearchResult} on which the user clicked.
+     * {@link androidx.appsearch.app.SearchResult} which impressed the user.
      */
     @Nullable
     public String getQuery() {
@@ -91,8 +97,8 @@ public class ClickAction extends TakenAction {
     }
 
     /**
-     * Returns the qualified id of the {@link androidx.appsearch.app.SearchResult} document that the
-     * user clicked on.
+     * Returns the qualified id of the {@link androidx.appsearch.app.SearchResult} document that
+     * impressed the user.
      *
      * <p>A qualified id is a string generated by package, database, namespace, and document id. See
      * {@link androidx.appsearch.util.DocumentIdUtil#createQualifiedId(String,String,String,String)}
@@ -140,26 +146,17 @@ public class ClickAction extends TakenAction {
         return mResultRankGlobal;
     }
 
-    /**
-     * Returns the time in milliseconds that user stays on the
-     * {@link androidx.appsearch.app.SearchResult} document after clicking it.
-     */
-    public long getTimeStayOnResultMillis() {
-        return mTimeStayOnResultMillis;
-    }
-
     // TODO(b/372929164): redesign builder for inheritance to fix the base setter return type issue.
-    /** Builder for {@link ClickAction}. */
+    /** Builder for {@link ImpressionAction}. */
     @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         private String mQuery;
         private String mReferencedQualifiedId;
         private int mResultRankInBlock;
         private int mResultRankGlobal;
-        private long mTimeStayOnResultMillis;
 
         /**
-         * Constructor for {@link ClickAction.Builder}.
+         * Constructor for {@link ImpressionAction.Builder}.
          *
          * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
          * @param id                    Unique identifier for the Document. See {@link Document.Id}.
@@ -167,27 +164,26 @@ public class ClickAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_CLICK);
+            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_IMPRESSION);
         }
 
         /**
-         * Constructs {@link ClickAction.Builder} by copying existing values from the given
-         * {@link ClickAction}.
+         * Constructs {@link ImpressionAction.Builder} by copying existing values from the given
+         * {@link ImpressionAction}.
          *
-         * @param clickAction an existing {@link ClickAction} object.
+         * @param impressionAction an existing {@link ImpressionAction} object.
          */
-        public Builder(@NonNull ClickAction clickAction) {
-            super(Preconditions.checkNotNull(clickAction));
+        public Builder(@NonNull ImpressionAction impressionAction) {
+            super(Preconditions.checkNotNull(impressionAction));
 
-            mQuery = clickAction.getQuery();
-            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
-            mResultRankInBlock = clickAction.getResultRankInBlock();
-            mResultRankGlobal = clickAction.getResultRankGlobal();
-            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
+            mQuery = impressionAction.getQuery();
+            mReferencedQualifiedId = impressionAction.getReferencedQualifiedId();
+            mResultRankInBlock = impressionAction.getResultRankInBlock();
+            mResultRankGlobal = impressionAction.getResultRankGlobal();
         }
 
         /**
-         * Constructor for {@link ClickAction.Builder}.
+         * Constructor for {@link ImpressionAction.Builder}.
          *
          * <p>It is required by {@link Document.BuilderProducer}.
          *
@@ -206,15 +202,11 @@ public class ClickAction extends TakenAction {
             // -1 is used as an unset value and AppSearch will ignore it.
             mResultRankInBlock = -1;
             mResultRankGlobal = -1;
-
-            // Default for unset timeStayOnResultMillis. Since negative number is invalid for
-            // time in millis, -1 is used as an unset value and AppSearch will ignore it.
-            mTimeStayOnResultMillis = -1;
         }
 
         /**
          * Sets the user-entered search input (without any operators or rewriting) that yielded
-         * the {@link androidx.appsearch.app.SearchResult} on which the user clicked.
+         * the {@link androidx.appsearch.app.SearchResult} which impressed the user.
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -242,7 +234,7 @@ public class ClickAction extends TakenAction {
          * Sets the rank of the {@link androidx.appsearch.app.SearchResult} document among the
          * user-defined block.
          *
-         * @see ClickAction#getResultRankInBlock
+         * @see ImpressionAction#getResultRankInBlock
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -254,7 +246,7 @@ public class ClickAction extends TakenAction {
         /**
          * Sets the global rank of the {@link androidx.appsearch.app.SearchResult} document.
          *
-         * @see ClickAction#getResultRankGlobal
+         * @see ImpressionAction#getResultRankGlobal
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -263,24 +255,13 @@ public class ClickAction extends TakenAction {
             return this;
         }
 
-        /**
-         * Sets the time in milliseconds that user stays on the
-         * {@link androidx.appsearch.app.SearchResult} document after clicking it.
-         */
-        @CanIgnoreReturnValue
-        @NonNull
-        public Builder setTimeStayOnResultMillis(long timeStayOnResultMillis) {
-            mTimeStayOnResultMillis = timeStayOnResultMillis;
-            return this;
-        }
-
-        /** Builds a {@link ClickAction}. */
+        /** Builds an {@link ImpressionAction}. */
         @Override
         @NonNull
-        public ClickAction build() {
-            return new ClickAction(mNamespace, mId, mDocumentTtlMillis, mActionTimestampMillis,
+        public ImpressionAction build() {
+            return new ImpressionAction(mNamespace, mId, mDocumentTtlMillis, mActionTimestampMillis,
                     mActionType, mQuery, mReferencedQualifiedId, mResultRankInBlock,
-                    mResultRankGlobal, mTimeStayOnResultMillis);
+                    mResultRankGlobal);
         }
     }
 }

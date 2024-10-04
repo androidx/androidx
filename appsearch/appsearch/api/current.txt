@@ -1046,6 +1046,24 @@ package androidx.appsearch.usagereporting {
     method public androidx.appsearch.usagereporting.ClickAction.Builder setTimeStayOnResultMillis(long);
   }
 
+  @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ImpressionAction") public class ImpressionAction extends androidx.appsearch.usagereporting.TakenAction {
+    method public String? getQuery();
+    method public String? getReferencedQualifiedId();
+    method public int getResultRankGlobal();
+    method public int getResultRankInBlock();
+  }
+
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class ImpressionAction.Builder {
+    ctor public ImpressionAction.Builder(androidx.appsearch.usagereporting.ImpressionAction);
+    ctor public ImpressionAction.Builder(String, String, long);
+    method public androidx.appsearch.usagereporting.ImpressionAction build();
+    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setQuery(String?);
+    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setReferencedQualifiedId(String?);
+    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setResultRankGlobal(int);
+    method public androidx.appsearch.usagereporting.ImpressionAction.Builder setResultRankInBlock(int);
+  }
+
   @androidx.appsearch.annotation.Document(name="builtin:SearchAction") public class SearchAction extends androidx.appsearch.usagereporting.TakenAction {
     method public int getFetchedResultCount();
     method public String? getQuery();
