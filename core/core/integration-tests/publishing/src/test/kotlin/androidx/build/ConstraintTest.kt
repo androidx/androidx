@@ -63,32 +63,15 @@ class ConstraintTest {
               }
             }
           ],
-          variants: [
+          "dependencyConstraints": [
             {
-              "name": "releaseVariantReleaseApiPublication",
-              "dependencyConstraints": [
-                {
-                   "group": "org.jetbrains.kotlin",
-                   "module": "kotlin-stdlib",
-                   "version": {
-                     "requires": "1.8.22"
-                   }
-                }
-              ],
-             },
-             {
-              "name": "releaseVariantReleaseRuntimePublication",
-              "dependencyConstraints": [
-                {
-                  "group": "androidx.preference",
-                  "module": "preference-ktx",
-                  "version": {
-                    "requires": "1.3.0-alpha01"
-                  }
-                }
-              ],
-             }
-          ]
+              "group": "androidx.preference",
+              "module": "preference-ktx",
+              "version": {
+                "requires": "1.3.0-alpha01"
+              }
+            }
+          ],
           "files": [
             {
               "name": "preference-1.3.0-alpha01.aar",
@@ -102,7 +85,7 @@ class ConstraintTest {
     }
 
     private fun getConstraintVersion(metadata: String, groupId: String, artifact: String): String? =
-        getDependencyConstraints(metadata).let {
+        getDependencyConstraints(metadata)?.let {
             Regex(
                     "\"group\": \"$groupId\",\\s+\"module\": " +
                         "\"$artifact\",\\s+\"version\": \\{\\s+\"requires\": \"(.+?)\""
@@ -114,8 +97,8 @@ class ConstraintTest {
         }
 
     private fun getDependencyConstraints(moduleJson: String) =
-        Regex("(?s)\"dependencyConstraints\": \\[(.+?)]").findAll(moduleJson).joinToString("\n") {
-            it.groups.get(1)?.value.orEmpty()
+        moduleJson.let {
+            Regex("(?s)\"dependencyConstraints\": \\[(.+?)]").find(it)?.groups?.get(1)?.value
         }
 
     // Yes, I know https://stackoverflow.com/a/1732454/258688, but it's just a test...
