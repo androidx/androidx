@@ -298,16 +298,6 @@ private class ScrollableNode(
             reverseDirection = reverseDirection,
             flingBehavior = flingBehavior ?: defaultFlingBehavior,
             nestedScrollDispatcher = nestedScrollDispatcher,
-            shouldCancelFling = { flingPixels ->
-                // fling should be cancelled if we try to scroll more than we can or if this node
-                // is detached during a fling.
-                // tries to scroll forward but cannot.
-                (flingPixels > 0.0f && !state.canScrollForward) ||
-                    // tries to scroll backward but cannot.
-                    (flingPixels < 0.0f && !state.canScrollBackward) ||
-                    // node is detached.
-                    !isAttached
-            }
         )
 
     private val nestedScrollConnection =
@@ -350,7 +340,12 @@ private class ScrollableNode(
 
     @OptIn(ExperimentalFoundationApi::class)
     override fun onDragStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScope.launch { scrollingLogic.onDragStopped(velocity) }
+        if (NewNestedFlingPropagationEnabled) {
+            if (!isAttached) return
+            coroutineScope.launch { scrollingLogic.onDragStopped(velocity) }
+        } else {
+            nestedScrollDispatcher.coroutineScope.launch { scrollingLogic.onDragStopped(velocity) }
+        }
     }
 
     override fun startDragImmediately(): Boolean {
@@ -602,7 +597,6 @@ internal class ScrollingLogic(
     private var orientation: Orientation,
     private var reverseDirection: Boolean,
     private var nestedScrollDispatcher: NestedScrollDispatcher,
-    private val shouldCancelFling: (Float) -> Boolean
 ) {
 
     fun Float.toOffset(): Offset =
@@ -723,14 +717,20 @@ internal class ScrollingLogic(
             val reverseScope =
                 object : ScrollScope {
                     override fun scrollBy(pixels: Float): Float {
-                        // Fling has hit the bounds or node left composition,
-                        // cancel it to allow continuation. This will conclude this node's fling,
-                        // allowing the onPostFling signal to be called
+                        // Fling has hit the bounds, cancel it to allow continuation. This will
+                        // conclude this node's fling, allowing the onPostFling signal to be called
                         // with the leftover velocity from the fling animation. Any nested scroll
                         // node above will be able to pick up the left over velocity and continue
                         // the fling.
-                        if (NewNestedFlingPropagationEnabled && shouldCancelFling(pixels)) {
-                            throw FlingCancellationException()
+                        if (NewNestedFlingPropagationEnabled) {
+                            if (
+                                pixels > 0.0f && !scrollableState.canScrollForward ||
+                                    pixels < 0.0f && !scrollableState.canScrollBackward
+                            ) {
+                                throw kotlin.coroutines.cancellation.CancellationException(
+                                    "The fling was cancelled"
+                                )
+                            }
                         }
 
                         return nestedScrollScope
