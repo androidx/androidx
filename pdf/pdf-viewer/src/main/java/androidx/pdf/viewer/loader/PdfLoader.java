@@ -139,7 +139,26 @@ public class PdfLoader {
 
     /** Schedule task to load a PdfDocument. */
     public void reloadDocument() {
-        mExecutor.schedule(new LoadDocumentTask(mLoadedPassword));
+        if (isConnected()) {
+            mExecutor.schedule(new LoadDocumentTask(mLoadedPassword));
+        } else {
+            /*
+            *  For password protected files we kill the service if the app goes into
+            *  background before the document is loaded hence here we just register a
+            *  task which will be executed once the service is reconnected onStart
+            */
+            mConnection.setOnConnectInitializer(
+                    () -> mExecutor.schedule(new LoadDocumentTask(mLoadedPassword)));
+            mConnection.setConnectionFailureHandler(
+                    () -> mCallbacks.documentNotLoaded(PdfStatus.NONE));
+        }
+    }
+
+    /**
+     * Check if PdfLoader is connected to PdfDocumentService
+     */
+    public boolean isConnected() {
+        return mConnection.isConnected();
     }
 
     /**
