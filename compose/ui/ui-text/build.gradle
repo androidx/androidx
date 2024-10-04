@@ -153,4 +153,7 @@ android {
     namespace "androidx.compose.ui.text"
     // TODO(b/328001575)
     experimentalProperties["android.lint.useK2Uast"] = false
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }

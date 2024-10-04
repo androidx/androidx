@@ -72,6 +72,7 @@ import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
 import androidx.compose.ui.text.android.style.getEllipsizedRightPadding
+import androidx.compose.ui.text.internal.requirePrecondition
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
@@ -603,7 +604,7 @@ constructor(
         val range = lineEndOffset - lineStartOffset
         val minArraySize = range * 2
 
-        require(array.size >= minArraySize) {
+        requirePrecondition(array.size >= minArraySize) {
             "array.size - arrayStart must be greater or equal than (endOffset - startOffset) * 2"
         }
 
@@ -670,15 +671,21 @@ constructor(
      */
     fun fillBoundingBoxes(startOffset: Int, endOffset: Int, array: FloatArray, arrayStart: Int) {
         val textLength = text.length
-        require(startOffset >= 0) { "startOffset must be > 0" }
-        require(startOffset < textLength) { "startOffset must be less than text length" }
-        require(endOffset > startOffset) { "endOffset must be greater than startOffset" }
-        require(endOffset <= textLength) { "endOffset must be smaller or equal to text length" }
+        requirePrecondition(startOffset >= 0) { "startOffset must be > 0" }
+        requirePrecondition(startOffset < textLength) {
+            "startOffset must be less than text length"
+        }
+        requirePrecondition(endOffset > startOffset) {
+            "endOffset must be greater than startOffset"
+        }
+        requirePrecondition(endOffset <= textLength) {
+            "endOffset must be smaller or equal to text length"
+        }
 
         val range = endOffset - startOffset
         val minArraySize = range * 4
 
-        require((array.size - arrayStart) >= minArraySize) {
+        requirePrecondition((array.size - arrayStart) >= minArraySize) {
             "array.size - arrayStart must be greater or equal than (endOffset - startOffset) * 4"
         }
 

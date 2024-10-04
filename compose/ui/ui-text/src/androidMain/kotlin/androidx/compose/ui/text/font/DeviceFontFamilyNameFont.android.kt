@@ -20,6 +20,7 @@ package androidx.compose.ui.text.font
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.compose.ui.text.internal.requirePrecondition
 
 /**
  * Describes a system-installed font that may be present on some Android devices.
@@ -74,7 +75,7 @@ fun Font(
 @JvmInline
 value class DeviceFontFamilyName(val name: String) {
     init {
-        require(name.isNotEmpty()) { "name may not be empty" }
+        requirePrecondition(name.isNotEmpty()) { "name may not be empty" }
     }
 }
 

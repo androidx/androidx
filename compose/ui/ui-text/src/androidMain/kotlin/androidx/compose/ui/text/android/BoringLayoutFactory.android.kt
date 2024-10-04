@@ -24,6 +24,7 @@ import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.internal.requirePrecondition
 
 /** Factory Class for BoringLayout */
 @OptIn(InternalPlatformTextApi::class)
@@ -74,8 +75,8 @@ internal object BoringLayoutFactory {
         ellipsize: TruncateAt? = null,
         ellipsizedWidth: Int = width,
     ): BoringLayout {
-        require(width >= 0) { "negative width" }
-        require(ellipsizedWidth >= 0) { "negative ellipsized width" }
+        requirePrecondition(width >= 0) { "negative width" }
+        requirePrecondition(ellipsizedWidth >= 0) { "negative ellipsized width" }
 
         return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.create(

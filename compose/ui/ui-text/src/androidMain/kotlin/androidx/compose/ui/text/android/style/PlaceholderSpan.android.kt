@@ -21,6 +21,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntDef
+import androidx.compose.ui.text.internal.checkPrecondition
+import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.text.internal.throwIllegalArgumentException
+import androidx.compose.ui.text.internal.throwIllegalArgumentExceptionForNullCheck
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -85,7 +89,7 @@ internal class PlaceholderSpan(
     var widthPx: Int = 0
         private set
         get() {
-            check(isLaidOut) { "PlaceholderSpan is not laid out yet." }
+            checkPrecondition(isLaidOut) { "PlaceholderSpan is not laid out yet." }
             return field
         }
 
@@ -93,7 +97,7 @@ internal class PlaceholderSpan(
     var heightPx: Int = 0
         private set
         get() {
-            check(isLaidOut) { "PlaceholderSpan is not laid out yet." }
+            checkPrecondition(isLaidOut) { "PlaceholderSpan is not laid out yet." }
             return field
         }
 
@@ -111,7 +115,7 @@ internal class PlaceholderSpan(
         isLaidOut = true
         val fontSize = paint.textSize
         fontMetrics = paint.fontMetricsInt
-        require(fontMetrics.descent > fontMetrics.ascent) {
+        requirePrecondition(fontMetrics.descent > fontMetrics.ascent) {
             "Invalid fontMetrics: line height can not be negative."
         }
 
@@ -119,14 +123,14 @@ internal class PlaceholderSpan(
             when (widthUnit) {
                 UNIT_SP -> width * pxPerSp
                 UNIT_EM -> width * fontSize
-                else -> throw IllegalArgumentException("Unsupported unit.")
+                else -> throwIllegalArgumentExceptionForNullCheck("Unsupported unit.")
             }.ceilToInt()
 
         heightPx =
             when (heightUnit) {
                 UNIT_SP -> (height * pxPerSp).ceilToInt()
                 UNIT_EM -> (height * fontSize).ceilToInt()
-                else -> throw IllegalArgumentException("Unsupported unit.")
+                else -> throwIllegalArgumentExceptionForNullCheck("Unsupported unit.")
             }
 
         fm?.apply {
@@ -159,7 +163,7 @@ internal class PlaceholderSpan(
                     if (ascent > -heightPx) {
                         ascent = -heightPx
                     }
-                else -> throw IllegalArgumentException("Unknown verticalAlign.")
+                else -> throwIllegalArgumentException("Unknown verticalAlign.")
             }
             // make top/bottom at least same as ascent/descent.
             top = min(fontMetrics.top, ascent)

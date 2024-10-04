@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.PlatformParagraphStyle
+import androidx.compose.ui.text.internal.checkPrecondition
 import kotlin.jvm.JvmInline
 
 /**
@@ -207,7 +208,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
     value class Alignment constructor(internal val topRatio: Float) {
 
         init {
-            check(topRatio in 0f..1f || topRatio == -1f) {
+            checkPrecondition(topRatio in 0f..1f || topRatio == -1f) {
                 "topRatio should be in [0..1] range or -1"
             }
         }

@@ -17,6 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
@@ -111,7 +112,8 @@ fun TextRange.coerceIn(minimumValue: Int, maximumValue: Int): TextRange {
 }
 
 private fun packWithCheck(start: Int, end: Int): Long {
-    require(start >= 0) { "start cannot be negative. [start: $start, end: $end]" }
-    require(end >= 0) { "end cannot be negative. [start: $start, end: $end]" }
+    requirePrecondition(start >= 0 && end >= 0) {
+        "start and end cannot be negative. [start: $start, end: $end]"
+    }
     return packInts(start, end)
 }

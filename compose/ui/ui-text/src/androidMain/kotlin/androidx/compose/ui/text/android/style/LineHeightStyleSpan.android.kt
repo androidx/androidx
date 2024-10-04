@@ -17,6 +17,7 @@ package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
 import androidx.annotation.FloatRange
+import androidx.compose.ui.text.internal.checkPrecondition
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -64,7 +65,9 @@ internal class LineHeightStyleSpan(
         private set
 
     init {
-        check(topRatio in 0f..1f || topRatio == -1f) { "topRatio should be in [0..1] range or -1" }
+        checkPrecondition(topRatio in 0f..1f || topRatio == -1f) {
+            "topRatio should be in [0..1] range or -1"
+        }
     }
 
     override fun chooseHeight(

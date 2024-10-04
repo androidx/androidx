@@ -72,6 +72,7 @@ import androidx.compose.ui.text.android.selection.getWordStart
 import androidx.compose.ui.text.android.style.IndentationFixSpan
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.platform.extensions.setSpan
@@ -134,11 +135,11 @@ internal class AndroidParagraph(
     @VisibleForTesting internal val charSequence: CharSequence
 
     init {
-        require(constraints.minHeight == 0 && constraints.minWidth == 0) {
+        requirePrecondition(constraints.minHeight == 0 && constraints.minWidth == 0) {
             "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
                 "these should be the default zero values instead."
         }
-        require(maxLines >= 1) { "maxLines should be greater than 0" }
+        requirePrecondition(maxLines >= 1) { "maxLines should be greater than 0" }
 
         val style = paragraphIntrinsics.style
 
@@ -384,7 +385,7 @@ internal class AndroidParagraph(
      * the top, bottom, left and right of a character.
      */
     override fun getBoundingBox(offset: Int): Rect {
-        require(offset in charSequence.indices) {
+        requirePrecondition(offset in charSequence.indices) {
             "offset($offset) is out of bounds [0,${charSequence.length})"
         }
         val rectF = layout.getBoundingBox(offset)
@@ -425,7 +426,7 @@ internal class AndroidParagraph(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        require(start in 0..end && end <= charSequence.length) {
+        requirePrecondition(start in 0..end && end <= charSequence.length) {
             "start($start) or end($end) is out of range [0..${charSequence.length}]," +
                 " or start > end!"
         }
@@ -435,7 +436,7 @@ internal class AndroidParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        require(offset in 0..charSequence.length) {
+        requirePrecondition(offset in 0..charSequence.length) {
             "offset($offset) is out of bounds [0,${charSequence.length}]"
         }
         val horizontal = layout.getPrimaryHorizontal(offset)

@@ -22,8 +22,10 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.AnnotatedString.Annotation
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.internal.checkPrecondition
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
@@ -61,7 +63,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      * @param spanStyles a list of [Range]s that specifies [SpanStyle]s on certain portion of the
      *   text. These styles will be applied in the order of the list. And the [SpanStyle]s applied
      *   later can override the former styles. Notice that [SpanStyle] attributes which are null or
-     *   [Unspecified] won't change the current ones.
+     *   unspecified won't change the current ones.
      * @param paragraphStyles a list of [Range]s that specifies [ParagraphStyle]s on certain portion
      *   of the text. Each [ParagraphStyle] with a [Range] defines a paragraph of text. It's
      *   required that [Range]s of paragraphs don't overlap with each other. If there are gaps
@@ -193,7 +195,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      *   with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      *   list will be returned.
      */
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
     fun getStringAnnotations(tag: String, start: Int, end: Int): List<Range<String>> =
         (annotations?.fastFilterMap({
             it.item is StringAnnotation && tag == it.tag && intersect(start, end, it.start, it.end)
@@ -218,7 +220,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      *   with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      *   list will be returned.
      */
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
     fun getStringAnnotations(start: Int, end: Int): List<Range<String>> =
         annotations?.fastFilterMap({
             it.item is StringAnnotation && intersect(start, end, it.start, it.end)
@@ -391,7 +393,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
              */
             fun toRange(defaultEnd: Int = Int.MIN_VALUE): Range<T> {
                 val end = if (end == Int.MIN_VALUE) defaultEnd else end
-                check(end != Int.MIN_VALUE) { "Item.end should be set first" }
+                checkPrecondition(end != Int.MIN_VALUE) { "Item.end should be set first" }
                 return Range(item = item, start = start, end = end, tag = tag)
             }
 
@@ -402,12 +404,12 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
              */
             fun <R> toRange(transform: (T) -> R, defaultEnd: Int = Int.MIN_VALUE): Range<R> {
                 val end = if (end == Int.MIN_VALUE) defaultEnd else end
-                check(end != Int.MIN_VALUE) { "Item.end should be set first" }
+                checkPrecondition(end != Int.MIN_VALUE) { "Item.end should be set first" }
                 return Range(item = transform(item), start = start, end = end, tag = tag)
             }
 
             companion object {
-                fun <T> fromRange(range: AnnotatedString.Range<T>) =
+                fun <T> fromRange(range: Range<T>) =
                     MutableRange(range.item, range.start, range.end, range.tag)
             }
         }
@@ -545,7 +547,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [SpanStyle] for the given [range].
+         * Set a [SpanStyle] for the given range defined by [start] and [end].
          *
          * @param style [SpanStyle] to be applied
          * @param start the inclusive starting offset of the range
@@ -556,8 +558,9 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [ParagraphStyle] for the given [range]. When a [ParagraphStyle] is applied to the
-         * [AnnotatedString], it will be rendered as a separate paragraph.
+         * Set a [ParagraphStyle] for the given range defined by [start] and [end]. When a
+         * [ParagraphStyle] is applied to the [AnnotatedString], it will be rendered as a separate
+         * paragraph.
          *
          * @param style [ParagraphStyle] to be applied
          * @param start the inclusive starting offset of the range
@@ -568,7 +571,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set an Annotation for the given [range].
+         * Set an Annotation for the given range defined by [start] and [end].
          *
          * @param tag the tag used to distinguish annotations
          * @param annotation the string annotation that is attached
@@ -589,7 +592,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [TtsAnnotation] for the given [range].
+         * Set a [TtsAnnotation] for the given range defined by [start] and [end].
          *
          * @param ttsAnnotation an object that stores text to speech metadata that intended for the
          *   TTS engine.
@@ -605,9 +608,9 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [UrlAnnotation] for the given [range]. URLs may be treated specially by screen
-         * readers, including being identified while reading text with an audio icon or being
-         * summarized in a links menu.
+         * Set a [UrlAnnotation] for the given range defined by [start] and [end]. URLs may be
+         * treated specially by screen readers, including being identified while reading text with
+         * an audio icon or being summarized in a links menu.
          *
          * @param urlAnnotation A [UrlAnnotation] object that stores the URL being linked to.
          * @param start the inclusive starting offset of the range
@@ -626,10 +629,10 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [LinkAnnotation.Url] for the given [range].
+         * Set a [LinkAnnotation.Url] for the given range defined by [start] and [end].
          *
-         * When clicking on the text in [range], the corresponding URL from the [url] annotation
-         * will be opened using [androidx.compose.ui.platform.UriHandler].
+         * When clicking on the text in range, the corresponding URL from the [url] annotation will
+         * be opened using [androidx.compose.ui.platform.UriHandler].
          *
          * URLs may be treated specially by screen readers, including being identified while reading
          * text with an audio icon or being summarized in a links menu.
@@ -645,9 +648,9 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         /**
-         * Set a [LinkAnnotation.Clickable] for the given [range].
+         * Set a [LinkAnnotation.Clickable] for the given range defined by [start] and [end].
          *
-         * When clicking on the text in [range], a [LinkInteractionListener] will be triggered with
+         * When clicking on the text in range, a [LinkInteractionListener] will be triggered with
          * the [clickable] object.
          *
          * Clickable link may be treated specially by screen readers, including being identified
@@ -775,7 +778,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * @see pushStringAnnotation
          */
         fun pop() {
-            check(styleStack.isNotEmpty()) { "Nothing to pop." }
+            checkPrecondition(styleStack.isNotEmpty()) { "Nothing to pop." }
             // pop the last element
             val item = styleStack.removeAt(styleStack.size - 1)
             item.end = text.length
@@ -792,7 +795,9 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * @see pushStringAnnotation
          */
         fun pop(index: Int) {
-            check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }
+            checkPrecondition(index < styleStack.size) {
+                "$index should be less than ${styleStack.size}"
+            }
             while ((styleStack.size - 1) >= index) {
                 pop()
             }
@@ -842,7 +847,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     sealed interface Annotation
 
     // Unused private subclass of the marker interface to avoid exhaustive "when" statement
-    private class ExhaustiveAnnotation : Annotation
+    @Suppress("unused") private class ExhaustiveAnnotation : Annotation
 
     companion object {
         /**
@@ -929,7 +934,11 @@ private fun AnnotatedString.getLocalSpanStyles(start: Int, end: Int): List<Range
         return spanStyles
     }
     return spanStyles.fastFilterMap({ intersect(start, end, it.start, it.end) }) {
-        Range(it.item, it.start.coerceIn(start, end) - start, it.end.coerceIn(start, end) - start)
+        Range(
+            it.item,
+            it.start.fastCoerceIn(start, end) - start,
+            it.end.fastCoerceIn(start, end) - start
+        )
     }
 }
 
@@ -951,7 +960,11 @@ private fun AnnotatedString.getLocalParagraphStyles(
         return paragraphStyles
     }
     return paragraphStyles.fastFilterMap({ intersect(start, end, it.start, it.end) }) {
-        Range(it.item, it.start.coerceIn(start, end) - start, it.end.coerceIn(start, end) - start)
+        Range(
+            it.item,
+            it.start.fastCoerceIn(start, end) - start,
+            it.end.fastCoerceIn(start, end) - start
+        )
     }
 }
 
@@ -965,7 +978,7 @@ private fun AnnotatedString.getLocalParagraphStyles(
 private fun AnnotatedString.getLocalAnnotations(
     start: Int,
     end: Int
-): List<Range<out AnnotatedString.Annotation>>? {
+): List<Range<out Annotation>>? {
     if (start == end) return null
     val annotations = annotations ?: return null
     // If the given range covers the whole AnnotatedString, return it without conversion.
@@ -1300,26 +1313,28 @@ inline fun buildAnnotatedString(builder: (Builder).() -> Unit): AnnotatedString 
     Builder().apply(builder).toAnnotatedString()
 
 /**
- * Helper function that checks if the range [baseStart, baseEnd) contains the range [targetStart,
- * targetEnd).
- *
- * @return true if
- *   [baseStart, baseEnd) contains [targetStart, targetEnd), vice versa. When [baseStart]==[baseEnd]
- *   it return true iff [targetStart]==[targetEnd]==[baseStart].
- */
-internal fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd: Int) =
-    (baseStart <= targetStart && targetEnd <= baseEnd) &&
-        (baseEnd != targetEnd || (targetStart == targetEnd) == (baseStart == baseEnd))
-
-/**
  * Helper function that checks if the range [lStart, lEnd) intersects with the range [rStart, rEnd).
  *
  * @return [lStart, lEnd) intersects with range [rStart, rEnd), vice versa.
  */
-internal fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int) =
-    maxOf(lStart, rStart) < minOf(lEnd, rEnd) ||
-        contains(lStart, lEnd, rStart, rEnd) ||
-        contains(rStart, rEnd, lStart, lEnd)
+internal fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int): Boolean {
+    // We can check if two ranges intersect just by performing the following operation:
+    //
+    //     lStart < rEnd && rStart < lEnd
+    //
+    // This operation handles all cases, including when one of the ranges is fully included in the
+    // other ranges. This is however not enough in this particular case because our ranges are open
+    // at the end, but closed at the start.
+    //
+    // This means the test above would fail cases like: [1, 4) intersect [1, 1)
+    // To address this we check if either one of the ranges is a "point" (empty selection). If
+    // that's the case and both ranges share the same start point, then they intersect.
+    //
+    // In addition, we use bitwise operators (or, and) instead of boolean operators (||, &&) to
+    // generate branchless code.
+    return ((lStart == lEnd) or (rStart == rEnd) and (lStart == rStart)) or
+        ((lStart < rEnd) and (rStart < lEnd))
+}
 
 private val EmptyAnnotatedString: AnnotatedString = AnnotatedString("")
 

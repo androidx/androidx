@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.internal.requirePreconditionNotNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.fastAny
@@ -130,7 +131,7 @@ object FontVariation {
         override fun toVariationValue(density: Density?): Float {
             // we don't care about pixel density as 12sp is the same "visual" size on all devices
             // instead we only care about font scaling, which changes visual size
-            requireNotNull(density) { "density must not be null" }
+            requirePreconditionNotNull(density) { "density must not be null" }
             return value.value * density.fontScale
         }
 

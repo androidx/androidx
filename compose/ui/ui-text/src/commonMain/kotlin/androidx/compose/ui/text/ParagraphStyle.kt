@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.internal.checkPrecondition
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -204,7 +205,9 @@ class ParagraphStyle(
     init {
         if (lineHeight != TextUnit.Unspecified) {
             // Since we are checking if it's negative, no need to convert Sp into Px at this point.
-            check(lineHeight.value >= 0f) { "lineHeight can't be negative (${lineHeight.value})" }
+            checkPrecondition(lineHeight.value >= 0f) {
+                "lineHeight can't be negative (${lineHeight.value})"
+            }
         }
     }
 
