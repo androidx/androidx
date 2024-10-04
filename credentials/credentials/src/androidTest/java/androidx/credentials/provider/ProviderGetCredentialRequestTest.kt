@@ -46,7 +46,9 @@ class ProviderGetCredentialRequestTest {
     fun constructor_createFrom_success() {
         ProviderGetCredentialRequest.createFrom(
             listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-            getTestCallingAppInfo("origin")
+            getTestCallingAppInfo("origin"),
+            null,
+            null
         )
     }
 

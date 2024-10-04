@@ -106,7 +106,8 @@ class PendingIntentHandlerApi23Test {
                 ),
                 getTestCallingAppInfo(callingRequest.origin)
             )
-        val intent = Intent().apply { setProviderCreateCredentialRequest(expectedRequest) }
+        val intent = Intent()
+        setProviderCreateCredentialRequest(intent, expectedRequest)
 
         val actualRequest = retrieveProviderCreateCredentialRequest(intent)!!
 
@@ -191,7 +192,7 @@ class PendingIntentHandlerApi23Test {
 
         setBeginGetCredentialResponse(intent, response)
 
-        val actual: BeginGetCredentialResponse = intent.extractBeginGetCredentialResponse()!!
+        val actual: BeginGetCredentialResponse = extractBeginGetCredentialResponse(intent)!!
         assertEquals(mContext, actual, response)
     }
 
@@ -234,7 +235,7 @@ class PendingIntentHandlerApi23Test {
                     )
                 )
             )
-        intent.setBeginGetCredentialRequest(expectedRequest)
+        setBeginGetCredentialRequest(intent, expectedRequest)
 
         val actual = retrieveBeginGetCredentialRequest(intent)!!
 
@@ -274,7 +275,7 @@ class PendingIntentHandlerApi23Test {
                 ),
                 getTestCallingAppInfo(null)
             )
-        intent.setBeginGetCredentialRequest(expectedRequest)
+        setBeginGetCredentialRequest(intent, expectedRequest)
 
         val actual = retrieveBeginGetCredentialRequest(intent)!!
 
@@ -299,7 +300,7 @@ class PendingIntentHandlerApi23Test {
 
         setCreateCredentialResponse(intent, expected)
 
-        val actual: CreateCredentialResponse = intent.extractCreateCredentialResponse()!!
+        val actual: CreateCredentialResponse = extractCreateCredentialResponse(intent)!!
 
         assertEquals(actual, expected)
     }
@@ -312,7 +313,7 @@ class PendingIntentHandlerApi23Test {
 
         setCreateCredentialResponse(intent, expected)
 
-        val actual: CreateCredentialResponse = intent.extractCreateCredentialResponse()!!
+        val actual: CreateCredentialResponse = extractCreateCredentialResponse(intent)!!
         assertEquals(actual, expected)
     }
 
@@ -327,7 +328,7 @@ class PendingIntentHandlerApi23Test {
 
         setCreateCredentialResponse(intent, expected)
 
-        val actual: CreateCredentialResponse = intent.extractCreateCredentialResponse()!!
+        val actual: CreateCredentialResponse = extractCreateCredentialResponse(intent)!!
         assertEquals(actual, expected)
     }
 
@@ -349,7 +350,7 @@ class PendingIntentHandlerApi23Test {
                 listOf(pwdOption1, pwdOption2, passkeyOption, customOption),
                 getTestCallingAppInfo("origin")
             )
-        intent.setProviderGetCredentialRequest(expectedRequest)
+        setProviderGetCredentialRequest(intent, expectedRequest)
 
         val actual = retrieveProviderGetCredentialRequest(intent)!!
 
@@ -375,7 +376,7 @@ class PendingIntentHandlerApi23Test {
 
         setGetCredentialResponse(intent, expected)
 
-        val actual: GetCredentialResponse = intent.extractGetCredentialResponse()!!
+        val actual: GetCredentialResponse = extractGetCredentialResponse(intent)!!
         equals(actual, expected)
     }
 
@@ -388,7 +389,7 @@ class PendingIntentHandlerApi23Test {
 
         setGetCredentialResponse(intent, expected)
 
-        val actual: GetCredentialResponse = intent.extractGetCredentialResponse()!!
+        val actual: GetCredentialResponse = extractGetCredentialResponse(intent)!!
         equals(actual, expected)
     }
 
@@ -404,7 +405,7 @@ class PendingIntentHandlerApi23Test {
 
         setGetCredentialResponse(intent, expected)
 
-        val actual: GetCredentialResponse = intent.extractGetCredentialResponse()!!
+        val actual: GetCredentialResponse = extractGetCredentialResponse(intent)!!
         equals(actual, expected)
     }
 
@@ -416,7 +417,7 @@ class PendingIntentHandlerApi23Test {
 
         setGetCredentialException(intent, expected)
 
-        val actual: GetCredentialException = intent.extractGetCredentialException()!!
+        val actual: GetCredentialException = extractGetCredentialException(intent)!!
         assertThat(actual).isInstanceOf(expected.javaClass)
         assertThat(actual.type).isEqualTo(expected.type)
         assertThat(actual.errorMessage).isEqualTo(expected.errorMessage)
