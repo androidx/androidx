@@ -445,7 +445,9 @@ object SliderDefaults {
                         containerColor = fromToken(SliderTokens.ContainerColor),
                         buttonIconColor = fromToken(SliderTokens.ButtonIconColor),
                         selectedBarColor = fromToken(SliderTokens.SelectedBarColor),
-                        unselectedBarColor = fromToken(SliderTokens.UnselectedBarColor),
+                        unselectedBarColor =
+                            fromToken(SliderTokens.UnselectedBarColor)
+                                .copy(alpha = SliderTokens.UnselectedBarOpacity),
                         selectedBarSeparatorColor =
                             fromToken(SliderTokens.SelectedBarSeparatorColor),
                         unselectedBarSeparatorColor =
@@ -463,11 +465,13 @@ object SliderDefaults {
                                 ),
                         disabledSelectedBarColor = fromToken(SliderTokens.DisabledSelectedBarColor),
                         disabledUnselectedBarColor =
-                            fromToken(SliderTokens.DisabledUnselectedBarColor),
+                            fromToken(SliderTokens.DisabledUnselectedBarColor)
+                                .copy(alpha = SliderTokens.DisabledUnselectedBarOpacity),
                         disabledSelectedBarSeparatorColor =
                             fromToken(SliderTokens.DisabledSelectedBarSeparatorColor),
                         disabledUnselectedBarSeparatorColor =
-                            fromToken(SliderTokens.DisabledUnselectedBarSeparatorColor),
+                            fromToken(SliderTokens.DisabledUnselectedBarSeparatorColor)
+                                .copy(alpha = SliderTokens.DisabledUnselectedBarSeparatorOpacity),
                     )
                     .also { defaultSliderColorsCached = it }
         }
@@ -479,7 +483,9 @@ object SliderDefaults {
                         containerColor = fromToken(SliderTokens.ContainerColor),
                         buttonIconColor = fromToken(SliderTokens.ButtonIconColor),
                         selectedBarColor = fromToken(SliderTokens.VariantSelectedBarColor),
-                        unselectedBarColor = fromToken(SliderTokens.UnselectedBarColor),
+                        unselectedBarColor =
+                            fromToken(SliderTokens.UnselectedBarColor)
+                                .copy(alpha = SliderTokens.UnselectedBarOpacity),
                         selectedBarSeparatorColor =
                             fromToken(SliderTokens.SelectedBarSeparatorColor),
                         unselectedBarSeparatorColor =
@@ -497,11 +503,13 @@ object SliderDefaults {
                                 ),
                         disabledSelectedBarColor = fromToken(SliderTokens.DisabledSelectedBarColor),
                         disabledUnselectedBarColor =
-                            fromToken(SliderTokens.DisabledUnselectedBarColor),
+                            fromToken(SliderTokens.DisabledUnselectedBarColor)
+                                .copy(alpha = SliderTokens.DisabledUnselectedBarOpacity),
                         disabledSelectedBarSeparatorColor =
                             fromToken(SliderTokens.DisabledSelectedBarSeparatorColor),
                         disabledUnselectedBarSeparatorColor =
-                            fromToken(SliderTokens.DisabledUnselectedBarSeparatorColor),
+                            fromToken(SliderTokens.DisabledUnselectedBarSeparatorColor)
+                                .copy(alpha = SliderTokens.DisabledUnselectedBarSeparatorOpacity),
                     )
                     .also { defaultVariantSliderColorsCached = it }
         }

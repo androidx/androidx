@@ -29,10 +29,13 @@ internal object SliderTokens {
     val DisabledSelectedBarColor = ColorSchemeKeyTokens.OutlineVariant
     val DisabledSelectedBarSeparatorColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUnselectedBarColor = ColorSchemeKeyTokens.Background
+    val DisabledUnselectedBarOpacity = 0.3f
     val DisabledUnselectedBarSeparatorColor = ColorSchemeKeyTokens.OutlineVariant
+    val DisabledUnselectedBarSeparatorOpacity = 0.5f
     val SelectedBarColor = ColorSchemeKeyTokens.Primary
     val SelectedBarSeparatorColor = ColorSchemeKeyTokens.PrimaryContainer
     val UnselectedBarColor = ColorSchemeKeyTokens.Background
+    val UnselectedBarOpacity = 0.3f
     val UnselectedBarSeparatorColor = ColorSchemeKeyTokens.Primary
     val UnselectedBarSeparatorOpacity = 0.5f
     val VariantSelectedBarColor = ColorSchemeKeyTokens.PrimaryDim
