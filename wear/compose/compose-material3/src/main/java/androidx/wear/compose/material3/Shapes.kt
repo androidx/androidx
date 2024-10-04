@@ -54,9 +54,8 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  *   [CornerSize] (used by Cards).
  * @param extraLarge By default, provides [ShapeDefaults.ExtraLarge], a [RoundedCornerShape] with
  *   32dp [CornerSize].
- *
- * TODO(b/273226734) Review documentation with references to components that use the shape themes.
  */
+// TODO(b/273226734) Review documentation with references to components that use the shape themes.
 @Immutable
 class Shapes(
     val extraSmall: CornerBasedShape = ShapeDefaults.ExtraSmall,

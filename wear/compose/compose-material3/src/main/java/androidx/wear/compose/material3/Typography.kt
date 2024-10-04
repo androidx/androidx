@@ -109,9 +109,8 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
  * @property numeralExtraSmall NumeralExtraSmall is the smallest role for digits. Numerals use
  *   tabular spacing by default. They are for numbers that need to accommodate longer strings of
  *   digits, where no localization is required like in-workout metrics.
- *
- * TODO(b/273526150) Review documentation for typography, add examples for each size.
  */
+// TODO(b/273526150) Review documentation for typography, add examples for each size.
 @Immutable
 class Typography
 internal constructor(

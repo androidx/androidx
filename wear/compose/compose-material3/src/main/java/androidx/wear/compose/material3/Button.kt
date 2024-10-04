@@ -112,9 +112,8 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the Button
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -191,9 +190,8 @@ fun Button(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the Button
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun FilledTonalButton(
     onClick: () -> Unit,
@@ -269,9 +267,8 @@ fun FilledTonalButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the OutlinedButton
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun OutlinedButton(
     onClick: () -> Unit,
@@ -347,9 +344,8 @@ fun OutlinedButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the ChildButton
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun ChildButton(
     onClick: () -> Unit,
@@ -443,9 +439,8 @@ fun ChildButton(
  *   still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun Button(
     onClick: () -> Unit,
@@ -564,9 +559,8 @@ fun Button(
  *   still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun FilledTonalButton(
     onClick: () -> Unit,
@@ -680,9 +674,8 @@ fun FilledTonalButton(
  *   still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun OutlinedButton(
     onClick: () -> Unit,
@@ -796,9 +789,8 @@ fun OutlinedButton(
  *   still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  *   which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun ChildButton(
     onClick: () -> Unit,
@@ -933,9 +925,8 @@ fun ChildButton(
  *   shape is a key characteristic of the Wear Material3 Theme
  * @param border Optional [BorderStroke] that will be used to resolve the border for this button in
  *   different states.
- *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
  */
+// TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
 fun CompactButton(
     onClick: () -> Unit,

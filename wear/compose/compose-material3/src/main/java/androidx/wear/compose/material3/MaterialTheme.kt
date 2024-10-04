@@ -49,9 +49,8 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
  * @param shapes A set of shapes to be used by the components in this hierarchy
  * @param motionScheme a set of motion specs used to animate content for this hierarchy.
  * @param content Slot for composable content displayed with this theme
- *
- * TODO(b/273543423) Update references to Material3 design specs
  */
+// TODO(b/273543423) Update references to Material3 design specs
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,

@@ -46,9 +46,8 @@ import androidx.compose.ui.unit.dp
  * @param modifier Optional [Modifier] for this Icon
  * @param tint Tint to be applied to [painter]. If [Color.Unspecified] is provided, then no tint is
  *   applied
- *
- * TODO:// Add link to Chip for a clickable icon
  */
+// TODO: Add link to Chip for a clickable icon
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 fun Icon(painter: Painter, contentDescription: String?, modifier: Modifier, tint: Color) {
