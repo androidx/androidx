@@ -59,6 +59,30 @@ value class LazyColumnItemScrollProgress internal constructor(private val packed
         topOffsetFraction: Float,
         bottomOffsetFraction: Float
     ) : this(packFloats(topOffsetFraction, bottomOffsetFraction))
+
+    internal companion object {
+        internal val Zero = LazyColumnItemScrollProgress(0f, 0f)
+
+        internal fun bottomItemScrollProgress(
+            offset: Int,
+            height: Int,
+            containerHeight: Int
+        ): LazyColumnItemScrollProgress =
+            LazyColumnItemScrollProgress(
+                topOffsetFraction = offset.toFloat() / containerHeight.toFloat(),
+                bottomOffsetFraction = (offset + height).toFloat() / containerHeight.toFloat(),
+            )
+
+        internal fun topItemScrollProgress(
+            offset: Int,
+            height: Int,
+            containerHeight: Int
+        ): LazyColumnItemScrollProgress =
+            LazyColumnItemScrollProgress(
+                topOffsetFraction = (offset - height).toFloat() / containerHeight.toFloat(),
+                bottomOffsetFraction = offset / containerHeight.toFloat(),
+            )
+    }
 }
 
 /** Represents an item that is visible in the [LazyColumn] component. */
