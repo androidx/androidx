@@ -21,10 +21,12 @@
         android:id="@+id/action_copy"
         android:icon="?android:attr/actionModeCopyDrawable"
         android:title="@android:string/copy"
-        android:alphabeticShortcut="c" />
+        android:alphabeticShortcut="c"
+        android:contentDescription="@android:string/copy"/>
     <item
         android:id="@+id/action_selectAll"
         android:icon="?android:attr/actionModeSelectAllDrawable"
         android:title="@android:string/selectAll"
-        android:alphabeticShortcut="a" />
+        android:alphabeticShortcut="a"
+        android:contentDescription="@android:string/selectAll"/>
 </menu>
