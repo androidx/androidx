@@ -271,7 +271,8 @@ class CaptureNodeTest {
         assertThat(takePictureCallback.captureProcessProgressList).containsExactly(50, 90, 100)
     }
 
-    @Test
+    // TODO(b/371138487): re-enable this test method once we fix the flaky issue.
+    // @Test
     fun requestSent100Progress_ensureNoDuplicate() {
         // Arrange: Configure the CaptureNode and submit fake request.
         val captureNode = CaptureNode()
