@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableLongList
+import androidx.collection.MutableObjectList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.unpackFloat1
 import kotlin.math.min
@@ -32,13 +34,13 @@ import kotlin.math.sign
  * @see NodeCoordinator.hitTest
  */
 internal class HitTestResult : List<Modifier.Node> {
-    private var values = arrayOfNulls<Any>(16)
+    private var values = MutableObjectList<Any>(16)
     // contains DistanceAndInLayer
-    private var distanceFromEdgeAndFlags = LongArray(16)
+    private var distanceFromEdgeAndFlags = MutableLongList(16)
     private var hitDepth = -1
 
-    override var size: Int = 0
-        private set
+    override val size: Int
+        get() = values.size
 
     /**
      * `true` when there has been a direct hit within touch bounds ([hit] called) or `false`
@@ -55,13 +57,6 @@ internal class HitTestResult : List<Modifier.Node> {
      */
     fun acceptHits() {
         hitDepth = size - 1
-    }
-
-    private fun resizeToHitDepth() {
-        for (i in (hitDepth + 1)..lastIndex) {
-            values[i] = null
-        }
-        size = hitDepth + 1
     }
 
     /**
@@ -116,12 +111,12 @@ internal class HitTestResult : List<Modifier.Node> {
         childHitTest: () -> Unit
     ) {
         val startDepth = hitDepth
+        removeNodesInRange(hitDepth + 1, size)
         hitDepth++
-        ensureContainerSize()
-        values[hitDepth] = node
-        distanceFromEdgeAndFlags[hitDepth] =
+        values.add(node)
+        distanceFromEdgeAndFlags.add(
             DistanceAndFlags(distanceFromEdge, isInLayer, isInExpandedBounds).packedValue
-        resizeToHitDepth()
+        )
         childHitTest()
         hitDepth = startDepth
     }
@@ -153,14 +148,7 @@ internal class HitTestResult : List<Modifier.Node> {
                 val startIndex = previousHitDepth + 1
                 val endIndex = hitDepth + 1
                 removeNodesInRange(startIndex, endIndex)
-                // Discard the remainder of the hits
-                hitDepth = previousHitDepth + size - endIndex
-            } else {
-                // No direct hit, and we only hit the expanded bounds of this node.
-                // Accept the new hit result.
-                hitDepth = lastIndex
             }
-            resizeToHitDepth()
             hitDepth = previousHitDepth
         } else if (previousDistance.distance > 0) {
             // Previous hit is out of expanded bounds, clear the previous hit and record a hit for
@@ -186,12 +174,10 @@ internal class HitTestResult : List<Modifier.Node> {
         if (hitDepth == lastIndex) {
             // Speculation is easy. We don't have to do any array shuffling.
             hitInMinimumTouchTarget(node, distanceFromEdge, isInLayer, childHitTest)
-            if (hitDepth + 1 == lastIndex) {
-                // Discard the hit because there were no child hits.
-                resizeToHitDepth()
-            } else if (findBestHitDistance().isInExpandedBounds) {
+            if (hitDepth + 1 == lastIndex || findBestHitDistance().isInExpandedBounds) {
+                // Discard the hit because there were no child hits or the child is hit in expanded
+                // touch bounds. Removing this node at hitDepth + 1 works for both cases.
                 // A parent can't intercept the event if child is at its expanded touch bounds.
-                // Remove this node at hitDepth + 1 from the hit path.
                 // Note: We don't need to check whether this node intercepts child events,
                 // because speculativeHit() is only called when
                 // node.interceptOutOfBoundsChildEvents() returns true.
@@ -219,11 +205,10 @@ internal class HitTestResult : List<Modifier.Node> {
                     hitDepth + 1
                 }
             removeNodesInRange(startIndex, endIndex)
-
-            // Discard the remainder of the hits
-            hitDepth = previousHitDepth + size - endIndex
+        } else {
+            // Previous hit is better, remove this hit result from the ht path.
+            removeNodesInRange(hitDepth + 1, size)
         }
-        resizeToHitDepth()
         hitDepth = previousHitDepth
     }
 
@@ -232,32 +217,19 @@ internal class HitTestResult : List<Modifier.Node> {
      * size).
      */
     private fun removeNodeAtDepth(depth: Int) {
-        if (depth < lastIndex) {
-            removeNodesInRange(depth, depth + 1)
-        }
-        values[lastIndex] = null
-        size = lastIndex
+        values.removeAt(depth)
+        distanceFromEdgeAndFlags.removeAt(depth)
     }
 
-    /**
-     * Util method to remove nodes at the given depth range. It only updates the [values] and
-     * [distanceFromEdgeAndFlags], the caller must update the [hitDepth] and [size] accordingly.
-     */
+    /** Util method to remove nodes at the given depth range. */
     private fun removeNodesInRange(startDepth: Int, endDepth: Int) {
         if (startDepth >= endDepth) {
             return
         }
-        values.copyInto(
-            destination = values,
-            destinationOffset = startDepth,
-            startIndex = endDepth,
-            endIndex = size
-        )
-        distanceFromEdgeAndFlags.copyInto(
-            destination = distanceFromEdgeAndFlags,
-            destinationOffset = startDepth,
-            startIndex = endDepth,
-            endIndex = size
+        values.removeRange(start = startDepth, end = endDepth)
+        distanceFromEdgeAndFlags.removeRange(
+            start = startDepth,
+            end = endDepth,
         )
     }
 
@@ -269,14 +241,6 @@ internal class HitTestResult : List<Modifier.Node> {
         val depth = hitDepth
         block()
         hitDepth = depth
-    }
-
-    private fun ensureContainerSize() {
-        if (hitDepth >= values.size) {
-            val newSize = values.size + 16
-            values = values.copyOf(newSize)
-            distanceFromEdgeAndFlags = distanceFromEdgeAndFlags.copyOf(newSize)
-        }
     }
 
     override fun contains(element: Modifier.Node): Boolean = indexOf(element) != -1
@@ -301,7 +265,7 @@ internal class HitTestResult : List<Modifier.Node> {
         return -1
     }
 
-    override fun isEmpty(): Boolean = size == 0
+    override fun isEmpty(): Boolean = values.isEmpty()
 
     override fun iterator(): Iterator<Modifier.Node> = HitTestResultIterator()
 
@@ -325,7 +289,8 @@ internal class HitTestResult : List<Modifier.Node> {
     /** Clears all entries to make an empty list. */
     fun clear() {
         hitDepth = -1
-        resizeToHitDepth()
+        values.clear()
+        distanceFromEdgeAndFlags.clear()
     }
 
     private inner class HitTestResultIterator(
