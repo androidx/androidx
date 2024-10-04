@@ -41,6 +41,9 @@
     # For methods returning Nothing
     static java.lang.Void throw*Exception(...);
     static java.lang.Void throw*ExceptionForNullCheck(...);
+    # For functions generating error messages
+    static java.lang.String exceptionMessage*(...);
+    java.lang.String exceptionMessage*(...);
 }
 
 # When pointer input modifier nodes are added dynamically and have the same keys (common when

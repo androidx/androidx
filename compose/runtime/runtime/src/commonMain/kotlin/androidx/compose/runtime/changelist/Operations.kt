@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Applier
@@ -101,8 +103,12 @@ internal class Operations : OperationsDebugStringFormattable() {
 
         // Resize arrays if needed
         if (opCodesSize == opCodes.size) {
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
             val resizeAmount = opCodesSize.coerceAtMost(MaxResizeAmount)
-            opCodes = opCodes.copyOf(opCodesSize + resizeAmount)
+            val newOpCodes = arrayOfNulls<Operation>(opCodesSize + resizeAmount)
+            opCodes.copyInto(newOpCodes, 0, 0, opCodesSize)
+            opCodes = newOpCodes
         }
         ensureIntArgsSizeAtLeast(intArgsSize + operation.ints)
         ensureObjectArgsSizeAtLeast(objectArgsSize + operation.objects)
@@ -121,14 +127,22 @@ internal class Operations : OperationsDebugStringFormattable() {
     private fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
         val currentSize = intArgs.size
         if (requiredSize > currentSize) {
-            intArgs = intArgs.copyOf(determineNewSize(currentSize, requiredSize))
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
+            val newIntArgs = IntArray(determineNewSize(currentSize, requiredSize))
+            intArgs.copyInto(newIntArgs, 0, 0, currentSize)
+            intArgs = newIntArgs
         }
     }
 
     private fun ensureObjectArgsSizeAtLeast(requiredSize: Int) {
         val currentSize = objectArgs.size
         if (requiredSize > currentSize) {
-            objectArgs = objectArgs.copyOf(determineNewSize(currentSize, requiredSize))
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
+            val newObjectArgs = arrayOfNulls<Any>(determineNewSize(currentSize, requiredSize))
+            objectArgs.copyInto(newObjectArgs, 0, 0, currentSize)
+            objectArgs = newObjectArgs
         }
     }
 
@@ -140,12 +154,15 @@ internal class Operations : OperationsDebugStringFormattable() {
      * any arguments.
      */
     fun push(operation: Operation) {
-        requirePrecondition(operation.ints == 0 && operation.objects == 0) {
-            "Cannot push $operation without arguments because it expects " +
-                "${operation.ints} ints and ${operation.objects} objects."
+        requirePrecondition((operation.ints and operation.objects) == 0) {
+            exceptionMessageForOperationPushNoScope(operation)
         }
         @OptIn(InternalComposeApi::class) pushOp(operation)
     }
+
+    private fun exceptionMessageForOperationPushNoScope(operation: Operation) =
+        "Cannot push $operation without arguments because it expects " +
+            "${operation.ints} ints and ${operation.objects} objects."
 
     /**
      * Adds an [operation] to the stack with arguments. To set arguments on the operation, call
@@ -169,32 +186,36 @@ internal class Operations : OperationsDebugStringFormattable() {
             pushedIntMask == createExpectedArgMask(operation.ints) &&
                 pushedObjectMask == createExpectedArgMask(operation.objects)
         ) {
-            var missingIntCount = 0
-            val missingInts = buildString {
-                repeat(operation.ints) { arg ->
-                    if ((0b1 shl arg) and pushedIntMask != 0b0) {
-                        if (missingIntCount > 0) append(", ")
-                        append(operation.intParamName(IntParameter(arg)))
-                        missingIntCount++
-                    }
-                }
-            }
-
-            var missingObjectCount = 0
-            val missingObjects = buildString {
-                repeat(operation.objects) { arg ->
-                    if ((0b1 shl arg) and pushedObjectMask != 0b0) {
-                        if (missingIntCount > 0) append(", ")
-                        append(operation.objectParamName(ObjectParameter<Nothing>(arg)))
-                        missingObjectCount++
-                    }
-                }
-            }
-
-            "Error while pushing $operation. Not all arguments were provided. " +
-                "Missing $missingIntCount int arguments ($missingInts) " +
-                "and $missingObjectCount object arguments ($missingObjects)."
+            exceptionMessageForOperationPushWithScope(operation)
         }
+    }
+
+    private fun exceptionMessageForOperationPushWithScope(operation: Operation): String {
+        var missingIntCount = 0
+        val missingInts = buildString {
+            repeat(operation.ints) { arg ->
+                if ((0b1 shl arg) and pushedIntMask != 0b0) {
+                    if (missingIntCount > 0) append(", ")
+                    append(operation.intParamName(IntParameter(arg)))
+                    missingIntCount++
+                }
+            }
+        }
+
+        var missingObjectCount = 0
+        val missingObjects = buildString {
+            repeat(operation.objects) { arg ->
+                if ((0b1 shl arg) and pushedObjectMask != 0b0) {
+                    if (missingIntCount > 0) append(", ")
+                    append(operation.objectParamName(ObjectParameter<Nothing>(arg)))
+                    missingObjectCount++
+                }
+            }
+        }
+
+        return "Error while pushing $operation. Not all arguments were provided. " +
+            "Missing $missingIntCount int arguments ($missingInts) " +
+            "and $missingObjectCount object arguments ($missingObjects)."
     }
 
     /**
@@ -202,9 +223,10 @@ internal class Operations : OperationsDebugStringFormattable() {
      * bits are 0's. This corresponds to what [pushedIntMask] and [pushedObjectMask] will equal if
      * all [paramCount] arguments are set for the most recently pushed operation.
      */
-    private fun createExpectedArgMask(paramCount: Int): Int {
+    private inline fun createExpectedArgMask(paramCount: Int): Int {
         // Calling ushr(32) no-ops instead of returning 0, so add a special case if paramCount is 0
-        return if (paramCount == 0) 0 else 0b0.inv().ushr(Int.SIZE_BITS - paramCount)
+        // Keep the if/else in the parenthesis so we generate a single csetm on aarch64
+        return (if (paramCount == 0) 0 else 0b0.inv()) ushr (Int.SIZE_BITS - paramCount)
     }
 
     /**
@@ -212,15 +234,16 @@ internal class Operations : OperationsDebugStringFormattable() {
      * references.
      */
     fun pop() {
-        if (isEmpty()) {
-            throw NoSuchElementException("Cannot pop(), because the stack is empty.")
-        }
+        // We could check for isEmpty(), instead we'll just let the array access throw an index out
+        // of bounds exception
         val op = opCodes[--opCodesSize]!!
         opCodes[opCodesSize] = null
 
         repeat(op.objects) { objectArgs[--objectArgsSize] = null }
 
-        repeat(op.ints) { intArgs[--intArgsSize] = 0 }
+        // We can just skip this work and leave the content of the array as is
+        // repeat(op.ints) { intArgs[--intArgsSize] = 0 }
+        intArgsSize -= op.ints
     }
 
     /**
@@ -229,34 +252,40 @@ internal class Operations : OperationsDebugStringFormattable() {
      */
     @OptIn(InternalComposeApi::class)
     fun popInto(other: Operations) {
-        if (isEmpty()) {
-            throw NoSuchElementException("Cannot pop(), because the stack is empty.")
-        }
+        // We could check for isEmpty(), instead we'll just let the array access throw an index out
+        // of bounds exception
+        val opCodes = opCodes
         val op = opCodes[--opCodesSize]!!
         opCodes[opCodesSize] = null
 
         other.pushOp(op)
 
         var thisObjIdx = objectArgsSize
+        val objectArgs = objectArgs
         var otherObjIdx = other.objectArgsSize
+        val otherObjectArs = other.objectArgs
+
+        objectArgsSize -= op.objects
         repeat(op.objects) {
             otherObjIdx--
             thisObjIdx--
-            other.objectArgs[otherObjIdx] = objectArgs[thisObjIdx]
+            otherObjectArs[otherObjIdx] = objectArgs[thisObjIdx]
             objectArgs[thisObjIdx] = null
         }
 
         var thisIntIdx = intArgsSize
+        val intArgs = intArgs
         var otherIntIdx = other.intArgsSize
+        val otherIntArgs = other.intArgs
+
+        intArgsSize -= op.ints
         repeat(op.ints) {
             otherIntIdx--
             thisIntIdx--
-            other.intArgs[otherIntIdx] = intArgs[thisIntIdx]
-            intArgs[thisIntIdx] = 0
+            otherIntArgs[otherIntIdx] = intArgs[thisIntIdx]
+            // We don't need to zero out the ints
+            // intArgs[thisIntIdx] = 0
         }
-
-        objectArgsSize -= op.objects
-        intArgsSize -= op.ints
     }
 
     /**
@@ -405,7 +434,7 @@ internal class Operations : OperationsDebugStringFormattable() {
                 var isFirstParam = true
                 val argLinePrefix = linePrefix.indent()
                 repeat(operation.ints) { offset ->
-                    val param = Operation.IntParameter(offset)
+                    val param = IntParameter(offset)
                     val name = operation.intParamName(param)
                     if (!isFirstParam) append(", ") else isFirstParam = false
                     appendLine()
@@ -415,7 +444,7 @@ internal class Operations : OperationsDebugStringFormattable() {
                     append(getInt(param))
                 }
                 repeat(operation.objects) { offset ->
-                    val param = Operation.ObjectParameter<Any?>(offset)
+                    val param = ObjectParameter<Any?>(offset)
                     val name = operation.objectParamName(param)
                     if (!isFirstParam) append(", ") else isFirstParam = false
                     appendLine()
