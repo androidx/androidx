@@ -72,4 +72,10 @@ public class RegistryManagerJavaTest {
         assertThat(resultCaptor.get()).isInstanceOf(
                 RegisterCredentialsConfigurationException.class);
     }
+
+    @Test
+    public void constant() {
+        assertThat(RegistryManager.ACTION_GET_CREDENTIAL).isEqualTo(
+                "androidx.credentials.registry.provider.action.GET_CREDENTIAL");
+    }
 }
