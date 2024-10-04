@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.tokens
+// VERSION: v0_87
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
+package androidx.wear.compose.material3.tokens
 internal object SwipeToRevealTokens {
     val PrimaryActionContainerColor = ColorSchemeKeyTokens.Error
     val PrimaryActionContentColor = ColorSchemeKeyTokens.OnError

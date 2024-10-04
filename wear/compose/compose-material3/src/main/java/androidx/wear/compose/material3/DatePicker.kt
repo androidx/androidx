@@ -142,15 +142,15 @@ fun DatePicker(
     val isLargeScreen = LocalConfiguration.current.screenWidthDp > 225
     val labelTextStyle =
         if (isLargeScreen) {
-            DatePickerTokens.PickerLabelLargeTypography.value
+            DatePickerTokens.LabelLargeTypography.value
         } else {
-            DatePickerTokens.PickerLabelTypography.value
+            DatePickerTokens.LabelTypography.value
         }
     val optionTextStyle =
         if (isLargeScreen) {
-            DatePickerTokens.PickerContentLargeTypography.value
+            DatePickerTokens.ContentLargeTypography.value
         } else {
-            DatePickerTokens.PickerContentTypography.value
+            DatePickerTokens.ContentTypography.value
         }
     val optionHeight = if (isLargeScreen) 48.dp else 36.dp
 
@@ -528,10 +528,10 @@ object DatePickerDefaults {
             return defaultDatePickerColorsCached
                 ?: DatePickerColors(
                         selectedPickerContentColor =
-                            fromToken(DatePickerTokens.SelectedPickerContentColor),
+                            fromToken(DatePickerTokens.SelectedContentColor),
                         unselectedPickerContentColor =
-                            fromToken(DatePickerTokens.UnselectedPickerContentColor),
-                        pickerLabelColor = fromToken(DatePickerTokens.PickerLabelColor),
+                            fromToken(DatePickerTokens.UnselectedContentColor),
+                        pickerLabelColor = fromToken(DatePickerTokens.LabelColor),
                         nextButtonContentColor = fromToken(DatePickerTokens.NextButtonContentColor),
                         nextButtonContainerColor =
                             fromToken(DatePickerTokens.NextButtonContainerColor),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: v0_87
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -38,7 +38,6 @@ internal object PaletteTokens {
     val Error90 = Color(red = 249, green = 222, blue = 220)
     val Error95 = Color(red = 252, green = 238, blue = 238)
     val Neutral0 = Color(red = 0, green = 0, blue = 0)
-    val Neutral10 = Color(red = 29, green = 26, blue = 38)
     val Neutral100 = Color(red = 255, green = 255, blue = 255)
     val Neutral15 = Color(red = 39, green = 36, blue = 48)
     val Neutral20 = Color(red = 51, green = 46, blue = 60)
@@ -75,17 +74,17 @@ internal object PaletteTokens {
     val Primary90 = Color(red = 233, green = 221, blue = 255)
     val Primary95 = Color(red = 246, green = 237, blue = 255)
     val Secondary0 = Color(red = 0, green = 0, blue = 0)
-    val Secondary10 = Color(red = 30, green = 24, blue = 46)
+    val Secondary10 = Color(red = 12, green = 22, blue = 73)
     val Secondary100 = Color(red = 255, green = 255, blue = 255)
-    val Secondary20 = Color(red = 51, green = 45, blue = 68)
-    val Secondary30 = Color(red = 74, green = 67, blue = 91)
-    val Secondary40 = Color(red = 98, green = 90, blue = 116)
-    val Secondary50 = Color(red = 123, green = 115, blue = 141)
-    val Secondary60 = Color(red = 150, green = 140, blue = 168)
-    val Secondary70 = Color(red = 177, green = 167, blue = 195)
-    val Secondary80 = Color(red = 204, green = 194, blue = 223)
-    val Secondary90 = Color(red = 233, green = 222, blue = 252)
-    val Secondary95 = Color(red = 246, green = 237, blue = 255)
+    val Secondary20 = Color(red = 35, green = 44, blue = 94)
+    val Secondary30 = Color(red = 58, green = 67, blue = 118)
+    val Secondary40 = Color(red = 82, green = 91, blue = 144)
+    val Secondary50 = Color(red = 106, green = 116, blue = 170)
+    val Secondary60 = Color(red = 132, green = 141, blue = 198)
+    val Secondary70 = Color(red = 159, green = 168, blue = 226)
+    val Secondary80 = Color(red = 186, green = 195, blue = 255)
+    val Secondary90 = Color(red = 222, green = 224, blue = 255)
+    val Secondary95 = Color(red = 240, green = 239, blue = 255)
     val Tertiary0 = Color(red = 0, green = 0, blue = 0)
     val Tertiary10 = Color(red = 46, green = 21, blue = 0)
     val Tertiary100 = Color(red = 255, green = 255, blue = 255)
