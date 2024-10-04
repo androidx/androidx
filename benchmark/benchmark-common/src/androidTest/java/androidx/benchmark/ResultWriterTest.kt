@@ -127,6 +127,7 @@ class ResultWriterTest {
                                 "minimum": 100.0,
                                 "maximum": 102.0,
                                 "median": 101.0,
+                                "coefficientOfVariation": 0.009900990099009901,
                                 "runs": [
                                     100.0,
                                     101.0,
@@ -149,6 +150,7 @@ class ResultWriterTest {
                                 "minimum": 100.0,
                                 "maximum": 102.0,
                                 "median": 101.0,
+                                "coefficientOfVariation": 0.009900990099009901,
                                 "runs": [
                                     100.0,
                                     101.0,

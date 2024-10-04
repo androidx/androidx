@@ -225,6 +225,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             val minimum: Double,
             val maximum: Double,
             val median: Double,
+            val coefficientOfVariation: Double,
             val runs: List<Double>
         ) : MetricResult() {
             constructor(
@@ -233,6 +234,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 minimum = metricResult.min,
                 maximum = metricResult.max,
                 median = metricResult.median,
+                coefficientOfVariation = metricResult.coefficientOfVariation,
                 runs = metricResult.data
             )
         }
