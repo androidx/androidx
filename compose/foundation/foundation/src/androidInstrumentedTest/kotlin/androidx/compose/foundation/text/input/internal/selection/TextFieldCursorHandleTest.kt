@@ -30,13 +30,17 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.internal.CodepointTransformation
+import androidx.compose.foundation.text.input.internal.mask
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.selection.assertHandlePositionMatches
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onSizeChanged
@@ -46,6 +50,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasPerformImeAction
 import androidx.compose.ui.test.isDisplayed
@@ -584,6 +589,32 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { swipeRight(endX = 2 * right) }
         rule.waitForIdle()
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+    }
+
+    @Test
+    fun cursorHandle_disappears_whenCodepointTransformationChanges() {
+        state = TextFieldState("hello")
+
+        var codepointTransformation: CodepointTransformation? by mutableStateOf(null)
+
+        rule.setContent {
+            BasicTextField(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier.testTag(TAG),
+                codepointTransformation = codepointTransformation,
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performClick()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+
+        codepointTransformation = CodepointTransformation.mask('c')
+
+        rule.waitForIdle()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsNotDisplayed()
     }
 
     @Test
