@@ -326,6 +326,7 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.LazyColumnState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState state);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.pager.PagerState state, androidx.compose.foundation.gestures.Orientation orientation);
   }
 
   @kotlin.jvm.JvmInline public final value class SwipeDirection {
@@ -596,14 +597,15 @@ package androidx.wear.compose.foundation.lazy {
 package androidx.wear.compose.foundation.pager {
 
   public final class PagerDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.wear.compose.foundation.pager.PagerState state);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional @FloatRange(from=0.0, to=1.0) float snapPositionalThreshold);
+    field public static final int BeyondViewportPageCount = 0; // 0x0
     field public static final androidx.wear.compose.foundation.pager.PagerDefaults INSTANCE;
     field public static final float SwipeToDismissEdgeZoneFraction = 0.15f;
   }
 
   public final class PagerKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void HorizontalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional @FloatRange(from=0.0, to=1.0) float swipeToDismissEdgeZoneFraction, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void VerticalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void HorizontalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional @FloatRange(from=0.0, to=1.0) float swipeToDismissEdgeZoneFraction, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void VerticalPager(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional int beyondViewportPageCount, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> content);
   }
 
   public abstract class PagerState extends androidx.compose.foundation.pager.PagerState {

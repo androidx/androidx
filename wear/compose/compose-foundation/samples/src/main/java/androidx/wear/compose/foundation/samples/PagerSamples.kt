@@ -25,12 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun SimpleHorizontalPagerSample() {
@@ -45,7 +43,6 @@ fun SimpleHorizontalPagerSample() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun SimpleVerticalPagerSample() {

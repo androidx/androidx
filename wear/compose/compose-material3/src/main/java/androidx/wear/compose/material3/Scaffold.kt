@@ -16,18 +16,30 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.fastForEach
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 internal class ScaffoldState(private val appTimeText: (@Composable (() -> Unit))? = null) {
     fun removeScreen(key: Any) {
@@ -94,6 +106,43 @@ internal class ScaffoldState(private val appTimeText: (@Composable (() -> Unit))
     }
 
     private val screenContent = mutableStateListOf<ScreenContent>()
+}
+
+@Composable
+internal fun AnimatedIndicator(
+    isVisible: () -> Boolean,
+    animationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
+    content: @Composable (BoxScope.() -> Unit)? = null
+) {
+    // Skip if no indicator provided
+    content?.let { pageIndicator ->
+        if (animationSpec == null) {
+            // if no animationSpec is provided then indicator will always be visible
+            Box(modifier = Modifier.fillMaxSize(), content = pageIndicator)
+        } else {
+            // if animationSpec is provided this will be used to fade out indicator
+            val alphaValue = remember { mutableFloatStateOf(0f) }
+            LaunchedEffect(isVisible) {
+                launch {
+                    snapshotFlow { if (isVisible()) 1f else 0f }
+                        .distinctUntilChanged()
+                        .collectLatest { targetValue ->
+                            animate(
+                                alphaValue.floatValue,
+                                targetValue,
+                                animationSpec = animationSpec
+                            ) { value, _ ->
+                                alphaValue.floatValue = value
+                            }
+                        }
+                }
+            }
+            Box(
+                modifier = Modifier.fillMaxSize().graphicsLayer { alpha = alphaValue.floatValue },
+                content = pageIndicator
+            )
+        }
+    }
 }
 
 internal val LocalScaffoldState = compositionLocalOf { ScaffoldState() }

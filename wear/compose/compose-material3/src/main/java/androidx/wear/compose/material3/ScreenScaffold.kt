@@ -16,10 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -27,14 +23,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -49,9 +41,6 @@ import androidx.wear.compose.foundation.lazy.LazyColumnState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import kotlin.math.roundToInt
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
 
 /**
  * [ScreenScaffold] is one of the Wear Material3 scaffold components.
@@ -376,47 +365,14 @@ fun ScreenScaffold(
     Box(modifier = modifier.fillMaxSize()) {
         content()
         scrollInfoProvider?.let {
-            AnimatedScrollIndicator(
-                scrollInfoProvider = scrollInfoProvider,
+            AnimatedIndicator(
+                isVisible = {
+                    scaffoldState.screenStage.value != ScreenStage.Idle &&
+                        scrollInfoProvider.isScrollable
+                },
                 content = scrollIndicator,
-                stage = { scaffoldState.screenStage.value }
             )
         } ?: scrollIndicator?.let { it() }
-    }
-}
-
-@Composable
-private fun AnimatedScrollIndicator(
-    scrollInfoProvider: ScrollInfoProvider,
-    stage: () -> ScreenStage,
-    content: @Composable (BoxScope.() -> Unit)? = null
-) {
-    // Skip if no scroll indicator provided
-    content?.let { scrollIndicator ->
-        val alphaValue = remember { mutableFloatStateOf(0f) }
-        val animationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
-        LaunchedEffect(scrollInfoProvider, scrollIndicator) {
-            launch {
-                snapshotFlow {
-                        if (stage() != ScreenStage.Idle && scrollInfoProvider.isScrollable) 1f
-                        else 0f
-                    }
-                    .distinctUntilChanged()
-                    .collectLatest { targetValue ->
-                        animate(
-                            alphaValue.floatValue,
-                            targetValue,
-                            animationSpec = animationSpec
-                        ) { value, _ ->
-                            alphaValue.floatValue = value
-                        }
-                    }
-            }
-        }
-        Box(
-            modifier = Modifier.fillMaxSize().graphicsLayer { alpha = alphaValue.floatValue },
-            content = scrollIndicator
-        )
     }
 }
 
