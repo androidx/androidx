@@ -32,6 +32,7 @@
                     "minimum": 5.52001617001617,
                     "maximum": 5.658262878262878,
                     "median": 5.542584892584893,
+                    "coefficientOfVariation": 0.006590340481,
                     "runs": [
                         5.563728343728344,
                         5.546317856317856,
@@ -89,6 +90,7 @@
                     "minimum": 0.0,
                     "maximum": 0.0,
                     "median": 0.0,
+                    "coefficientOfVariation": 0.0,
                     "runs": [
                         0.0,
                         0.0,
@@ -113,6 +115,7 @@
                     "minimum": 5.52031108031108,
                     "maximum": 5.632142912142912,
                     "median": 5.548982828982829,
+                    "coefficientOfVariation": 0.0,
                     "runs": [
                         5.553719873719873,
                         5.520551320551321,
@@ -170,6 +173,7 @@
                     "minimum": 0.0,
                     "maximum": 0.0,
                     "median": 0.0,
+                    "coefficientOfVariation": 0.0,
                     "runs": [
                         0.0,
                         0.0,
