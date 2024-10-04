@@ -26,6 +26,7 @@ import androidx.datastore.core.CorruptionHandler
  * handler encounters an exception when attempting to replace data, the new exception is added as a
  * suppressed exception to the original exception and the original exception is thrown.
  */
-public expect class ReplaceFileCorruptionHandler<T> : CorruptionHandler<T> {
+public expect class ReplaceFileCorruptionHandler<T>(produceNewData: (CorruptionException) -> T) :
+    CorruptionHandler<T> {
     override suspend fun handleCorruption(ex: CorruptionException): T
 }

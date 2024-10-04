@@ -31,7 +31,7 @@ import androidx.datastore.core.CorruptionHandler
  *   writing the data, this is a good place to log the exception.
  */
 public actual class ReplaceFileCorruptionHandler<T>
-constructor(private val produceNewData: (CorruptionException) -> T) : CorruptionHandler<T> {
+actual constructor(private val produceNewData: (CorruptionException) -> T) : CorruptionHandler<T> {
 
     actual override suspend fun handleCorruption(ex: CorruptionException): T {
         return produceNewData(ex)
