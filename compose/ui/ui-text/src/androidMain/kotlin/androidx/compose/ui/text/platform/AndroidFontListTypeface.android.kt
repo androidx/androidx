@@ -34,6 +34,9 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.font.synthesizeTypeface
+import androidx.compose.ui.text.internal.checkPrecondition
+import androidx.compose.ui.text.internal.checkPreconditionNotNull
+import androidx.compose.ui.text.internal.throwIllegalStateException
 import androidx.compose.ui.util.fastDistinctBy
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFilterNotNull
@@ -69,14 +72,14 @@ internal class AndroidFontListTypeface(
                 ?.fastFilterNotNull()
                 ?.fastDistinctBy { it }
         val targetFonts = matchedFonts ?: blockingFonts
-        check(targetFonts.isNotEmpty()) { "Could not match font" }
+        checkPrecondition(targetFonts.isNotEmpty()) { "Could not match font" }
 
         val typefaces = mutableMapOf<Font, Typeface>()
         targetFonts.fastForEach {
             try {
                 typefaces[it] = AndroidTypefaceCache.getOrCreate(context, it)
             } catch (e: Exception) {
-                throw IllegalStateException("Cannot create Typeface from $it")
+                throwIllegalStateException("Cannot create Typeface from $it")
             }
         }
 
@@ -94,10 +97,10 @@ internal class AndroidFontListTypeface(
             fontMatcher
                 .matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
                 .firstOrNull()
-        checkNotNull(font) { "Could not load font" }
+        checkPreconditionNotNull(font) { "Could not load font" }
 
         val typeface = loadedTypefaces[font]
-        checkNotNull(typeface) { "Could not load typeface" }
+        checkPreconditionNotNull(typeface) { "Could not load typeface" }
 
         return synthesis.synthesizeTypeface(typeface, font, fontWeight, fontStyle) as Typeface
     }

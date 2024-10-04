@@ -16,6 +16,7 @@
 package androidx.compose.ui.text.android.selection
 
 import androidx.compose.ui.text.android.CharSequenceCharacterIterator
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.emoji2.text.EmojiCompat
 import java.text.BreakIterator
 import java.util.Locale
@@ -40,8 +41,12 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
     private val iterator: BreakIterator
 
     init {
-        require(start in 0..charSequence.length) { "input start index is outside the CharSequence" }
-        require(end in 0..charSequence.length) { "input end index is outside the CharSequence" }
+        requirePrecondition(start in 0..charSequence.length) {
+            "input start index is outside the CharSequence"
+        }
+        requirePrecondition(end in 0..charSequence.length) {
+            "input end index is outside the CharSequence"
+        }
         iterator = BreakIterator.getWordInstance(locale)
         this.start = max(0, start - WINDOW_WIDTH)
         this.end = min(charSequence.length, end + WINDOW_WIDTH)
@@ -315,8 +320,8 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
 
     /** Check if the given offset is in the given range. */
     private fun checkOffsetIsValid(offset: Int) {
-        require(offset in start..end) {
-            ("Invalid offset: $offset. Valid range is [$start , $end]")
+        requirePrecondition(offset in start..end) {
+            "Invalid offset: $offset. Valid range is [$start , $end]"
         }
     }
 
