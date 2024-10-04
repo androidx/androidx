@@ -62,7 +62,7 @@ class ListHeaderTest {
     @Test
     fun listSubheader_has_semantic_heading_property() {
         rule.setContentWithTheme {
-            ListSubheader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
+            ListSubHeader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
         }
 
         rule.assertNodeIsHeading(TEST_TAG)
@@ -103,7 +103,7 @@ class ListHeaderTest {
 
         rule
             .setContentWithThemeForSizeAssertions {
-                ListSubheader(modifier = Modifier.testTag(TEST_TAG)) {
+                ListSubHeader(modifier = Modifier.testTag(TEST_TAG)) {
                     Text(
                         "Header with multiple lines of text to exceed" +
                             " the minimum height, should adjust"
@@ -120,7 +120,7 @@ class ListHeaderTest {
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.titleMedium
-            ListSubheader { actualTextStyle = LocalTextStyle.current }
+            ListSubHeader { actualTextStyle = LocalTextStyle.current }
         }
 
         Assert.assertEquals(expectedTextStyle, actualTextStyle)

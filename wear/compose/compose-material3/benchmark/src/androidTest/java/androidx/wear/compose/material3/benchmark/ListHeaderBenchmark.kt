@@ -22,7 +22,7 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.ListSubheader
+import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import org.junit.Rule
@@ -55,7 +55,7 @@ internal class ListHeaderTestCase(private val type: ListHeaderType) : LayeredCom
     override fun MeasuredContent() {
         when (type) {
             ListHeaderType.ListHeader -> ListHeader { Text("Header") }
-            ListHeaderType.ListSubheader -> ListSubheader { Text("Subheader") }
+            ListHeaderType.ListSubheader -> ListSubHeader { Text("SubHeader") }
         }
     }
 

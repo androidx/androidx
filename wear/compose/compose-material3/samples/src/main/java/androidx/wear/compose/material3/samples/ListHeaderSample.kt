@@ -22,7 +22,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.ListSubheader
+import androidx.wear.compose.material3.ListSubHeader
 import androidx.wear.compose.material3.Text
 
 @Sampled
@@ -33,15 +33,15 @@ fun ListHeaderSample() {
 
 @Sampled
 @Composable
-fun ListSubheaderSample() {
-    ListSubheader { Text("Subheader") }
+fun ListSubHeaderSample() {
+    ListSubHeader { Text("SubHeader") }
 }
 
 @Sampled
 @Composable
-fun ListSubheaderWithIconSample() {
-    ListSubheader(
-        label = { Text(text = "Subheader") },
+fun ListSubHeaderWithIconSample() {
+    ListSubHeader(
+        label = { Text(text = "SubHeader") },
         icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
     )
 }
