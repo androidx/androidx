@@ -667,17 +667,12 @@ package androidx.wear.compose.material3 {
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> fastSpatialSpec();
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> slowEffectsSpec();
     method public <T> androidx.compose.animation.core.FiniteAnimationSpec<T> slowSpatialSpec();
+    field public static final androidx.wear.compose.material3.MotionScheme.Companion Companion;
   }
 
-  public final class MotionSchemeKt {
-    method public static androidx.wear.compose.material3.MotionScheme expressiveMotionScheme();
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberDefaultEffectsSpec(androidx.wear.compose.material3.MotionScheme);
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberDefaultSpatialSpec(androidx.wear.compose.material3.MotionScheme);
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberFastEffectsSpec(androidx.wear.compose.material3.MotionScheme);
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberFastSpatialSpec(androidx.wear.compose.material3.MotionScheme);
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberSlowEffectsSpec(androidx.wear.compose.material3.MotionScheme);
-    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.animation.core.FiniteAnimationSpec<T> rememberSlowSpatialSpec(androidx.wear.compose.material3.MotionScheme);
-    method public static androidx.wear.compose.material3.MotionScheme standardMotionScheme();
+  public static final class MotionScheme.Companion {
+    method public androidx.wear.compose.material3.MotionScheme expressive();
+    method public androidx.wear.compose.material3.MotionScheme standard();
   }
 
   public final class OpenOnPhoneDialogColors {
