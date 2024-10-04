@@ -339,6 +339,7 @@ package androidx.camera.core {
     method public void setFlashMode(int);
     method public void setScreenFlash(androidx.camera.core.ImageCapture.ScreenFlash?);
     method public void setTargetRotation(int);
+    method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
@@ -355,6 +356,8 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_SCREEN = 3; // 0x3
     field @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public static final int OUTPUT_FORMAT_JPEG = 0; // 0x0
     field @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public static final int OUTPUT_FORMAT_JPEG_ULTRA_HDR = 1; // 0x1
+    field public static final int OUTPUT_FORMAT_RAW = 2; // 0x2
+    field public static final int OUTPUT_FORMAT_RAW_JPEG = 3; // 0x3
   }
 
   public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture!> {
@@ -414,6 +417,7 @@ package androidx.camera.core {
   }
 
   public static class ImageCapture.OutputFileResults {
+    method public int getImageFormat();
     method public android.net.Uri? getSavedUri();
   }
 
