@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.delay
@@ -173,12 +174,14 @@ class PredictiveBackHandlerTestApi {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 34) // Below API 34 startGestureBack triggers back
     fun testPredictiveBackHandlerDisabledBeforeStart() {
         val result = mutableListOf<String>()
         var count by mutableStateOf(2)
         lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
         lateinit var dispatcher: OnBackPressedDispatcher
         var started = false
+        var cancelled = false
 
         rule.setContent {
             dispatcherOwner =
@@ -188,8 +191,12 @@ class PredictiveBackHandlerTestApi {
                     if (count <= 1) {
                         started = true
                     }
-                    progress.collect()
-                    result += "onBack"
+                    try {
+                        progress.collect()
+                        result += "onBack"
+                    } catch (e: CancellationException) {
+                        cancelled = true
+                    }
                 }
                 dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             }
@@ -200,9 +207,12 @@ class PredictiveBackHandlerTestApi {
         count = 1
         dispatcher.startGestureBack()
 
+        // In a test, we don't get the launched effect fast enough to prevent starting
+        // but since we idle here, we can cancel the callback channel and keep from completing
         rule.runOnIdle { assertThat(started).isTrue() }
         dispatcher.api34Complete()
-        rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
+        rule.runOnIdle { assertThat(result).isEmpty() }
+        rule.runOnIdle { assertThat(cancelled).isTrue() }
     }
 
     fun testPredictiveBackHandlerDisabledAfterStart() {

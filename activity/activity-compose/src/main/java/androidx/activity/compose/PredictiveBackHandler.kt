@@ -76,62 +76,18 @@ public fun PredictiveBackHandler(
     // ensure we don't re-register callbacks when onBack changes
     val currentOnBack by rememberUpdatedState(onBack)
     val onBackScope = rememberCoroutineScope()
-    var onBackInstance: OnBackInstance? = null
 
     val backCallBack = remember {
-        object : OnBackPressedCallback(enabled) {
-
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                super.handleOnBackStarted(backEvent)
-                // in case the previous onBackInstance was started by a normal back gesture
-                // we want to make sure it's still cancelled before we start a predictive
-                // back gesture
-                onBackInstance?.cancel()
-                onBackInstance = OnBackInstance(onBackScope, true, currentOnBack)
-            }
-
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                super.handleOnBackProgressed(backEvent)
-                onBackInstance?.send(backEvent)
-            }
-
-            override fun handleOnBackPressed() {
-                // handleOnBackPressed could be called by regular back to restart
-                // a new back instance. If this is the case (where current back instance
-                // was NOT started by handleOnBackStarted) then we need to reset the previous
-                // regular back.
-                onBackInstance?.apply {
-                    if (!isPredictiveBack) {
-                        cancel()
-                        onBackInstance = null
-                    }
-                }
-                if (onBackInstance == null) {
-                    onBackInstance = OnBackInstance(onBackScope, false, currentOnBack)
-                }
-
-                // finally, we close the channel to ensure no more events can be sent
-                // but let the job complete normally
-                onBackInstance?.close()
-                onBackInstance?.isPredictiveBack = false
-            }
-
-            override fun handleOnBackCancelled() {
-                super.handleOnBackCancelled()
-                // cancel will purge the channel of any sent events that are yet to be received
-                onBackInstance?.cancel()
-                onBackInstance?.isPredictiveBack = false
-            }
-        }
+        PredictiveBackHandlerCallback(enabled, onBackScope, currentOnBack)
     }
 
-    LaunchedEffect(enabled) {
-        backCallBack.isEnabled = enabled
-        if (!enabled) {
-            onBackInstance?.close()
-            onBackInstance = null
-        }
+    // we want to use the same callback, but ensure we adjust the variable on recomposition
+    remember(currentOnBack, onBackScope) {
+        backCallBack.currentOnBack = currentOnBack
+        backCallBack.onBackScope = onBackScope
     }
+
+    LaunchedEffect(enabled) { backCallBack.setIsEnabled(enabled) }
 
     val backDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
@@ -153,13 +109,16 @@ private class OnBackInstance(
     scope: CoroutineScope,
     var isPredictiveBack: Boolean,
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
+    callback: OnBackPressedCallback
 ) {
     val channel = Channel<BackEventCompat>(capacity = BUFFERED, onBufferOverflow = SUSPEND)
     val job =
         scope.launch {
-            var completed = false
-            onBack(channel.consumeAsFlow().onCompletion { completed = true })
-            check(completed) { "You must collect the progress flow" }
+            if (callback.isEnabled) {
+                var completed = false
+                onBack(channel.consumeAsFlow().onCompletion { completed = true })
+                check(completed) { "You must collect the progress flow" }
+            }
         }
 
     fun send(backEvent: BackEventCompat) = channel.trySend(backEvent)
@@ -170,5 +129,65 @@ private class OnBackInstance(
     fun cancel() {
         channel.cancel(CancellationException("onBack cancelled"))
         job.cancel()
+    }
+}
+
+private class PredictiveBackHandlerCallback(
+    enabled: Boolean,
+    var onBackScope: CoroutineScope,
+    var currentOnBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
+) : OnBackPressedCallback(enabled) {
+    private var onBackInstance: OnBackInstance? = null
+
+    fun setIsEnabled(enabled: Boolean) {
+        // We are disabling a callback that was enabled.
+        if (!enabled && isEnabled) {
+            onBackInstance?.cancel()
+        }
+        isEnabled = enabled
+    }
+
+    override fun handleOnBackStarted(backEvent: BackEventCompat) {
+        super.handleOnBackStarted(backEvent)
+        // in case the previous onBackInstance was started by a normal back gesture
+        // we want to make sure it's still cancelled before we start a predictive
+        // back gesture
+        onBackInstance?.cancel()
+        if (isEnabled) {
+            onBackInstance = OnBackInstance(onBackScope, true, currentOnBack, this)
+        }
+    }
+
+    override fun handleOnBackProgressed(backEvent: BackEventCompat) {
+        super.handleOnBackProgressed(backEvent)
+        onBackInstance?.send(backEvent)
+    }
+
+    override fun handleOnBackPressed() {
+        // handleOnBackPressed could be called by regular back to restart
+        // a new back instance. If this is the case (where current back instance
+        // was NOT started by handleOnBackStarted) then we need to reset the previous
+        // regular back.
+        onBackInstance?.apply {
+            if (!isPredictiveBack) {
+                cancel()
+                onBackInstance = null
+            }
+        }
+        if (onBackInstance == null) {
+            onBackInstance = OnBackInstance(onBackScope, false, currentOnBack, this)
+        }
+
+        // finally, we close the channel to ensure no more events can be sent
+        // but let the job complete normally
+        onBackInstance?.close()
+        onBackInstance?.isPredictiveBack = false
+    }
+
+    override fun handleOnBackCancelled() {
+        super.handleOnBackCancelled()
+        // cancel will purge the channel of any sent events that are yet to be received
+        onBackInstance?.cancel()
+        onBackInstance?.isPredictiveBack = false
     }
 }
