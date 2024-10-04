@@ -17,6 +17,7 @@ package androidx.appsearch.platformstorage;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.ext.SdkExtensions;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
@@ -37,6 +38,11 @@ final class FeaturesImpl implements Features {
 
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            // AppSearch platform-storage is not available below Android S.
+            return false;
+        }
+        int tSdkExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.TIRAMISU);
         switch (feature) {
             // Android T Features
             case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
@@ -66,8 +72,14 @@ final class FeaturesImpl implements Features {
             case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
             case Features.VERBATIM_SEARCH:
-                // fall through
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                        || tSdkExtensionVersion >= AppSearchVersionUtil.TExtensionVersions.U_BASE;
+
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // This feature is restricted to Android U+ devices only due to rollback
+                // compatibility issues. It is not allowed in Android T devices.
+                // TODO(b/369703879) Remove this special handling once circular references is
+                // backported to Android T devices.
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
             // Android V Features
@@ -115,7 +127,7 @@ final class FeaturesImpl implements Features {
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
             // Sixty-four properties were enabled in mainline module of the U base version
             return AppSearchVersionUtil.getAppSearchVersionCode(mContext)
-                    >= AppSearchVersionUtil.APPSEARCH_U_BASE_VERSION_CODE ? 64 : 16;
+                    >= AppSearchVersionUtil.MainlineVersions.U_BASE ? 64 : 16;
         } else {
             return 16;
         }
