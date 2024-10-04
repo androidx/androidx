@@ -37,10 +37,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,7 +71,6 @@ import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.DatePickerTokens
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
 
 /**
  * Full screen date picker with day, month, year.
@@ -88,9 +85,9 @@ import java.time.temporal.TemporalAdjusters
  *
  * @sample androidx.wear.compose.material3.samples.DatePickerYearMonthDaySample
  *
- * Example of a [DatePicker] with fromDate and toDate:
+ * Example of a [DatePicker] with minDate and maxDate:
  *
- * @sample androidx.wear.compose.material3.samples.DatePickerFromDateToDateSample
+ * @sample androidx.wear.compose.material3.samples.DatePickerMinDateMaxDateSample
  * @param initialDate The initial value to be displayed in the DatePicker.
  * @param onDatePicked The callback that is called when the user confirms the date selection. It
  *   provides the selected date as [LocalDate]
@@ -160,27 +157,14 @@ fun DatePicker(
     val monthString = getString(DatePickerMonth)
     val dayString = getString(DatePickerDay)
 
-    val prevStartMonth = remember { mutableIntStateOf(datePickerState.monthOptionStartMonth) }
-    LaunchedEffect(datePickerState.yearState.selectedOptionIndex) {
-        adjustOptionSelection(
-            prevStartState = prevStartMonth,
-            currentStartValue = datePickerState.monthOptionStartMonth,
-            currentNumberOfOptions = datePickerState.numberOfMonth,
-            pickerState = datePickerState.monthState,
-        )
+    LaunchedEffect(datePickerState.isMinYearSelected, datePickerState.isMaxYearSelected) {
+        datePickerState.adjustMonthOption()
     }
-
-    val prevStartDay = remember { mutableIntStateOf(datePickerState.dayOptionStartDay) }
     LaunchedEffect(
         datePickerState.yearState.selectedOptionIndex,
         datePickerState.monthState.selectedOptionIndex
     ) {
-        adjustOptionSelection(
-            prevStartState = prevStartDay,
-            currentStartValue = datePickerState.dayOptionStartDay,
-            currentNumberOfOptions = datePickerState.numberOfDay,
-            pickerState = datePickerState.dayState,
-        )
+        datePickerState.adjustDayOption()
     }
 
     val shortMonthNames = remember { getMonthNames("MMM") }
@@ -626,11 +610,11 @@ private fun DatePickerType.toDatePickerOptions() =
 @RequiresApi(Build.VERSION_CODES.O)
 private fun verifyDates(
     date: LocalDate,
-    fromDate: LocalDate,
-    toDate: LocalDate,
+    minDate: LocalDate,
+    maxDate: LocalDate,
 ) {
-    require(toDate >= fromDate) { "toDate should be greater than or equal to fromDate" }
-    require(date in fromDate..toDate) { "date should lie between fromDate and toDate" }
+    require(maxDate >= minDate) { "maxDate should be greater than or equal to minDate" }
+    require(date in minDate..maxDate) { "date should lie between minDate and maxDate" }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -661,113 +645,358 @@ private fun getPickerGroupRowOffset(
 
 @RequiresApi(Build.VERSION_CODES.O)
 private class DatePickerState(
-    date: LocalDate,
-    private val fromDate: LocalDate?,
-    private val toDate: LocalDate?,
+    initialDate: LocalDate,
+    initialDateMinYear: LocalDate?,
+    initialDateMaxYear: LocalDate?,
 ) {
     // Year range 1900 - 2100 was suggested in b/277885199
-    private val startYear = fromDate?.year ?: 1900
+    private val minDate = initialDateMinYear ?: LocalDate.of(1900, 1, 1)
+    private val maxDate = initialDateMaxYear ?: LocalDate.of(2100, 12, 31)
 
-    private val numOfYears =
-        if (toDate != null) {
-            toDate.year - startYear + 1
-        } else {
-            2100 - startYear + 1
+    /** The [PickerState] for the year picker. */
+    val yearState =
+        (maxDate.year - minDate.year + 1).let {
+            PickerState(
+                initialNumberOfOptions = it,
+                initiallySelectedIndex = initialDate.year - minDate.year,
+                shouldRepeatOptions = it > 2,
+            )
         }
 
-    val yearState =
-        PickerState(
-            initialNumberOfOptions = numOfYears,
-            initiallySelectedIndex = date.year - startYear,
-            shouldRepeatOptions = numOfYears > 2
+    /** The [PickerState] for the month picker. */
+    val monthState: PickerState
+        get() = dynamicMonthState.activeState
+
+    /** The [DynamicDayState] instance that manages the state of the day picker. */
+    val dayState
+        get() = dynamicDayState.activeState
+
+    /** The [DynamicMonthState] instance that manages the state of the month picker. */
+    private val dynamicMonthState =
+        DynamicMonthState(
+            date = initialDate,
+            minDate = minDate,
+            maxDate = maxDate,
+            currentYear = ::currentYear,
         )
 
-    val monthState =
-        PickerState(
-            initialNumberOfOptions = numberOfMonth,
-            initiallySelectedIndex = date.monthValue - monthOptionStartMonth,
-            shouldRepeatOptions = numberOfMonth > 2
+    /** The [DynamicDayState] instance that manages the state of the day picker. */
+    private val dynamicDayState =
+        DynamicDayState(
+            date = initialDate,
+            minDate = minDate,
+            maxDate = maxDate,
+            currentYear = ::currentYear,
+            currentMonth = ::currentMonth,
         )
 
-    val dayState =
-        PickerState(
-            initialNumberOfOptions = numberOfDay,
-            initiallySelectedIndex = date.dayOfMonth - dayOptionStartDay,
-            shouldRepeatOptions = numberOfDay > 2
-        )
+    /** Adjusts the month options based on the currently selected year. */
+    suspend fun adjustMonthOption() = dynamicMonthState.adjustMonthOption()
 
-    val numberOfMonth: Int
-        get() = monthOptionEndMonth - monthOptionStartMonth + 1
-
-    val monthOptionStartMonth: Int
-        get() =
-            if (fromDate != null && selectedYearEqualsFromYear) {
-                fromDate.monthValue
-            } else {
-                1
-            }
-
-    val monthOptionEndMonth: Int
-        get() =
-            if (toDate != null && selectedYearEqualsToYear) {
-                toDate.monthValue
-            } else {
-                12
-            }
-
-    val numberOfDay: Int
-        get() = dayOptionEndDay - dayOptionStartDay + 1
-
-    val dayOptionStartDay: Int
-        get() =
-            if (fromDate != null && selectedMonthEqualsFromMonth) {
-                fromDate.dayOfMonth
-            } else {
-                1
-            }
-
-    val dayOptionEndDay: Int
-        get() =
-            if (toDate != null && selectedMonthEqualsToMonth) {
-                toDate.dayOfMonth
-            } else {
-                maxDayInMonth
-            }
+    /** Adjusts the day options based on the currently selected year and month. */
+    suspend fun adjustDayOption() = dynamicDayState.adjustDayOption()
 
     fun currentYear(year: Int = yearState.selectedOptionIndex): Int {
-        return year + startYear
+        return year + minDate.year
     }
 
     fun currentMonth(monthIndex: Int = monthState.selectedOptionIndex): Int {
-        return monthIndex + monthOptionStartMonth
+        return monthIndex + dynamicMonthState.currentMinMonthOption
     }
 
     fun currentDay(day: Int = dayState.selectedOptionIndex): Int {
-        return day + dayOptionStartDay
+        return day + dynamicDayState.currentMinDayOption
     }
 
-    private val selectedYearEqualsFromYear: Boolean
-        get() = fromDate?.year == currentYear()
+    val isMinYearSelected: Boolean
+        get() = minDate?.year == currentYear()
 
-    private val selectedYearEqualsToYear: Boolean
-        get() = toDate?.year == currentYear()
+    val isMaxYearSelected: Boolean
+        get() = maxDate?.year == currentYear()
+}
 
-    private val selectedMonthEqualsFromMonth: Boolean
-        get() = selectedYearEqualsFromYear && fromDate?.monthValue == currentMonth()
+/**
+ * Manages the state of the month picker dynamically, switching between repeating and non-repeating
+ * PickerState instances based on the selected year and the provided minimum and maximum dates.
+ *
+ * @param date The initial date.
+ * @param minDate The minimum selectable date.
+ * @param maxDate The maximum selectable date.
+ * @param currentYear A function that returns the currently selected year.
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+private class DynamicMonthState(
+    date: LocalDate,
+    private val minDate: LocalDate,
+    private val maxDate: LocalDate,
+    private val currentYear: () -> Int,
+) {
+    /** The currently active [PickerState] for the month picker. */
+    val activeState: PickerState
+        get() = getMonthState(currentYear())
 
-    private val selectedMonthEqualsToMonth: Boolean
-        get() = selectedYearEqualsToYear && toDate?.monthValue == currentMonth()
+    /** The minimum month option currently selectable. */
+    val currentMinMonthOption: Int
+        get() = minMonthOption(currentYear())
 
-    private val firstDayOfMonth: LocalDate
-        get() =
-            LocalDate.of(
-                currentYear(),
-                currentMonth(),
-                1,
+    private fun minMonthOption(year: Int) =
+        if (year == minDate.year) {
+            minDate.monthValue
+        } else {
+            1
+        }
+
+    private fun maxMonthOption(year: Int) =
+        if (year == maxDate.year) {
+            maxDate.monthValue
+        } else {
+            12
+        }
+
+    private fun numberOfOptions(year: Int): Int = maxMonthOption(year) - minMonthOption(year) + 1
+
+    private var prevAdjustedYear: Int? = null
+
+    /**
+     * Adjusts the month options and scrolls to the appropriate month when the selected year
+     * changes.
+     */
+    suspend fun adjustMonthOption() {
+        val prevYear = prevAdjustedYear
+        prevAdjustedYear = currentYear()
+        if (prevYear == null) {
+            return
+        }
+
+        val prevSelectedMonth =
+            minMonthOption(prevYear) + getMonthState(prevYear).selectedOptionIndex
+
+        val currentState = activeState
+        val currentNumberOfOptions = numberOfOptions(currentYear())
+        if (
+            currentState.shouldRepeatOptions &&
+                currentState.numberOfOptions != currentNumberOfOptions
+        ) {
+            currentState.numberOfOptions = currentNumberOfOptions
+        }
+
+        val scrollToMonthIndex =
+            (prevSelectedMonth - currentMinMonthOption).coerceIn(
+                0,
+                currentState.numberOfOptions - 1
             )
+        if (currentState.selectedOptionIndex != scrollToMonthIndex) {
+            currentState.scrollToOption(scrollToMonthIndex)
+        }
+    }
 
-    private val maxDayInMonth
-        get() = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
+    private fun getMonthState(year: Int) =
+        when {
+            // If minDate.year == maxDate.year and no repeat, minNoRepeatMonthState will be used.
+            year == minDate.year && minNoRepeatMonthState != null -> minNoRepeatMonthState
+            year == maxDate.year && maxNoRepeatMonthState != null -> maxNoRepeatMonthState
+            else -> repeatMonthState
+        }
+
+    /**
+     * The non-repeating [PickerState] used when the minimum date restricts the month options to
+     * less than 3.
+     */
+    private val minNoRepeatMonthState: PickerState? =
+        createNoRepeatMonthState(year = minDate.year, initialMonth = date.monthValue)
+
+    /**
+     * The non-repeating [PickerState] used when the maximum date restricts the month options to
+     * less than 3.
+     */
+    private val maxNoRepeatMonthState: PickerState? =
+        createNoRepeatMonthState(year = maxDate.year, initialMonth = date.monthValue)
+
+    private fun createNoRepeatMonthState(year: Int, initialMonth: Int): PickerState? {
+        val numberOfOptions = numberOfOptions(year)
+        return if (numberOfOptions < 3) {
+            PickerState(
+                initialNumberOfOptions = numberOfOptions,
+                initiallySelectedIndex =
+                    (initialMonth - minMonthOption(year)).coerceIn(0, numberOfOptions - 1),
+                shouldRepeatOptions = false,
+            )
+        } else {
+            null
+        }
+    }
+
+    /**
+     * The repeating [PickerState] used when there are no minimum/maximum date restrictions on the
+     * month options, or when there are at least 3 month options available.
+     */
+    private val repeatMonthState =
+        PickerState(
+            initialNumberOfOptions = numberOfOptions(currentYear()),
+            initiallySelectedIndex = date.monthValue - currentMinMonthOption,
+            shouldRepeatOptions = true,
+        )
+}
+
+/**
+ * Manages the state of the day picker dynamically, switching between repeating and non-repeating
+ * PickerState instances based on the selected year and month, and the provided minimum and maximum
+ * dates.
+ *
+ * @param date The initial date.
+ * @param minDate The minimum selectable date, or null if there is no minimum.
+ * @param maxDate The maximum selectable date, or null if there is no maximum.
+ * @param currentYear A function that returns the currently selected year.
+ * @param currentMonth A function that returns the currently selected month.
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+private class DynamicDayState(
+    date: LocalDate,
+    private val minDate: LocalDate,
+    private val maxDate: LocalDate,
+    private val currentYear: () -> Int,
+    private val currentMonth: () -> Int,
+) {
+
+    /**
+     * The currently active [PickerState] for the day picker. This is determined dynamically based
+     * on the selected year and month, and whether the minimum/maximum dates restrict the day
+     * options to less than 3.
+     */
+    val activeState
+        get() =
+            when {
+                // If minMonth == maxMonth and no repeat, minNoRepeatDayState will be used.
+                isMinMonth(currentYear(), currentMonth()) && minNoRepeatDayState != null ->
+                    minNoRepeatDayState
+                isMaxMonth(currentYear(), currentMonth()) && maxNoRepeatDayState != null ->
+                    maxNoRepeatDayState
+                else -> repeatDayState
+            }
+
+    /** The minimum day option currently selectable. */
+    val currentMinDayOption: Int
+        get() = minDayOption(currentYear(), currentMonth())
+
+    private fun minDayOption(year: Int, month: Int) =
+        if (isMinMonth(year, month)) {
+            minDate.dayOfMonth
+        } else {
+            1
+        }
+
+    private fun maxDayOption(year: Int, month: Int): Int =
+        if (isMaxMonth(year, month)) {
+            maxDate.dayOfMonth
+        } else {
+            LocalDate.of(year, month, 1).lengthOfMonth()
+        }
+
+    private fun numberOfOptions(year: Int, month: Int): Int =
+        maxDayOption(year, month) - minDayOption(year, month) + 1
+
+    private fun isMinMonth(year: Int, month: Int): Boolean =
+        year == minDate.year && month == minDate.monthValue
+
+    private fun isMaxMonth(year: Int, month: Int): Boolean =
+        year == maxDate.year && month == maxDate.monthValue
+
+    private var prevAdjustedYear: Int? = null
+    private var prevAdjustedMonth: Int? = null
+
+    /**
+     * Adjusts the day options and scrolls to the appropriate day when the selected year or month
+     * changes.
+     */
+    suspend fun adjustDayOption() {
+        val prevSelectedYear = prevAdjustedYear
+        val prevSelectedMonth = prevAdjustedMonth
+        prevAdjustedYear = currentYear()
+        prevAdjustedMonth = currentMonth()
+        if (prevSelectedYear == null || prevSelectedMonth == null) {
+            return
+        }
+
+        val prevUsedState = getDayState(prevSelectedYear, prevSelectedMonth)
+        val prevSelectedDay =
+            if (minDate.year == prevSelectedYear && minDate.monthValue == prevSelectedMonth) {
+                minDate.dayOfMonth + prevUsedState.selectedOptionIndex
+            } else {
+                prevUsedState.selectedOptionIndex + 1
+            }
+
+        val currentDayState = activeState
+        val numberOfDayOptions = numberOfOptions(currentYear(), currentMonth())
+        if (
+            currentDayState.shouldRepeatOptions &&
+                currentDayState.numberOfOptions != numberOfDayOptions
+        ) {
+            currentDayState.numberOfOptions = numberOfDayOptions
+        }
+
+        val scrollToDayIndex =
+            (prevSelectedDay - currentMinDayOption).coerceIn(0, currentDayState.numberOfOptions - 1)
+        if (currentDayState.selectedOptionIndex != scrollToDayIndex) {
+            currentDayState.scrollToOption(scrollToDayIndex)
+        }
+    }
+
+    private fun getDayState(year: Int, month: Int) =
+        when {
+            isMinMonth(year, month) && minNoRepeatDayState != null -> minNoRepeatDayState
+            isMaxMonth(year, month) && maxNoRepeatDayState != null -> maxNoRepeatDayState
+            else -> repeatDayState
+        }
+
+    /**
+     * The non-repeating [PickerState] used when the minimum date restricts the day options to less
+     * than 3.
+     */
+    private val minNoRepeatDayState: PickerState? =
+        createNoRepeatDayState(
+            year = minDate.year,
+            month = minDate.monthValue,
+            initialDay = date.dayOfMonth
+        )
+
+    /**
+     * The non-repeating [PickerState] used when the maximum date restricts the day options to less
+     * t han 3.
+     */
+    private val maxNoRepeatDayState: PickerState? =
+        createNoRepeatDayState(
+            year = maxDate.year,
+            month = maxDate.monthValue,
+            initialDay = date.dayOfMonth
+        )
+
+    private fun createNoRepeatDayState(year: Int, month: Int, initialDay: Int): PickerState? {
+        val initialNumberOfOptions = numberOfOptions(year, month)
+        return if (initialNumberOfOptions < 3) {
+            PickerState(
+                initialNumberOfOptions = initialNumberOfOptions,
+                initiallySelectedIndex =
+                    (initialDay - minDayOption(year, month)).coerceIn(
+                        0,
+                        initialNumberOfOptions - 1
+                    ),
+                shouldRepeatOptions = false,
+            )
+        } else {
+            null
+        }
+    }
+
+    /**
+     * The repeating [PickerState] used when there are no minimum/maximum date restrictions on the
+     * day options, or when there are at least 3 day options available.
+     */
+    private val repeatDayState =
+        PickerState(
+            initialNumberOfOptions = numberOfOptions(currentYear(), currentMonth()),
+            initiallySelectedIndex = date.dayOfMonth - currentMinDayOption,
+            shouldRepeatOptions = true,
+        )
 }
 
 private fun createDescriptionDatePicker(
@@ -775,51 +1004,3 @@ private fun createDescriptionDatePicker(
     selectedValue: Int,
     label: String,
 ): String = if (selectedIndex == null) label else "$label, $selectedValue"
-
-private suspend fun adjustOptionSelection(
-    prevStartState: MutableIntState,
-    currentStartValue: Int,
-    currentNumberOfOptions: Int,
-    pickerState: PickerState
-) {
-    val prevStartValue = prevStartState.intValue
-    val prevSelectedOption = pickerState.selectedOptionIndex
-    val prevSelectedValue = prevSelectedOption + prevStartValue
-    val prevNumberOfOptions: Int = pickerState.numberOfOptions
-    // Update picker's number of options if changed.
-    if (currentNumberOfOptions != prevNumberOfOptions) {
-        pickerState.numberOfOptions = currentNumberOfOptions
-    }
-    when {
-        currentStartValue != prevStartValue && prevStartValue != 1 -> { // Scrolled from `fromDate`
-            val prevSelectedValueIndex = prevSelectedValue - 1
-            // Check if previous value still exists in current options.
-            if (prevSelectedValueIndex < currentNumberOfOptions) {
-                // Scroll to the index which has the same value with the previous value.
-                pickerState.scrollToOption(prevSelectedValueIndex)
-            } else {
-                // Scroll to the closet value to the previous value.
-                pickerState.scrollToOption(currentNumberOfOptions - 1)
-            }
-            prevStartState.intValue = currentStartValue
-        }
-        currentStartValue != 1 -> { // Scrolled to `fromDate`
-            val currentValueIndex =
-                if (prevSelectedValue >= currentStartValue) {
-                    // Scroll to the index which has the same value with the previous value.
-                    prevSelectedValue - currentStartValue
-                } else {
-                    // Scroll to the closet value to the previous value.
-                    0
-                }
-            pickerState.scrollToOption(currentValueIndex)
-            prevStartState.intValue = currentStartValue
-        }
-        currentNumberOfOptions != prevNumberOfOptions -> { // Only number of options changed.
-            if (prevSelectedOption >= currentNumberOfOptions) {
-                // Scroll to the closet value to the previous value.
-                pickerState.animateScrollToOption(currentNumberOfOptions - 1)
-            }
-        }
-    }
-}
