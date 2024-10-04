@@ -22,12 +22,21 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.ast.operators.ComparatorNode;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
 
+@RequiresFlagsEnabled(Flags.FLAG_ENABLE_ABSTRACT_SYNTAX_TREES)
 public class ComparatorNodeCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testConstructor_correctConstruction() {
         List<PropertyPath.PathSegment> pathSegmentList = List.of(
