@@ -54,6 +54,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -120,10 +122,17 @@ fun CheckboxButton(
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit
-) =
+) {
+    val hapticFeedback = LocalHapticFeedback.current
+
     androidx.wear.compose.materialcore.ToggleButton(
         checked = checked,
-        onCheckedChange = onCheckedChange,
+        onCheckedChange = {
+            hapticFeedback.performHapticFeedback(
+                if (it) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff
+            )
+            onCheckedChange(it)
+        },
         label =
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
@@ -184,6 +193,7 @@ fun CheckboxButton(
         iconSpacing = ICON_SPACING,
         ripple = ripple()
     )
+}
 
 /**
  * The Wear Material [SplitCheckboxButton] offers slots and a specific layout for a label and
@@ -318,13 +328,20 @@ fun SplitCheckboxButton(
 
         val splitBackground = if (enabled) containerColor else Color.Black
         val splitBackgroundOverlay = colors.splitContainerColor(enabled, checked).value
+        val hapticFeedback = LocalHapticFeedback.current
         Box(
             contentAlignment = Alignment.Center,
             modifier =
                 Modifier.toggleable(
                         enabled = enabled,
                         value = checked,
-                        onValueChange = onCheckedChange,
+                        onValueChange = {
+                            hapticFeedback.performHapticFeedback(
+                                if (it) HapticFeedbackType.ToggleOn
+                                else HapticFeedbackType.ToggleOff
+                            )
+                            onCheckedChange(it)
+                        },
                         indication = ripple(),
                         interactionSource = toggleInteractionSource
                     )

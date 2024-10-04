@@ -95,6 +95,14 @@ internal fun ProvideAndroidCompositionLocals(
     }
     DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
 
+    val hapticFeedback = remember {
+        if (HapticDefaults.isPremiumVibratorEnabled(context)) {
+            DefaultHapticFeedback(owner.view)
+        } else {
+            NoHapticFeedback()
+        }
+    }
+
     val imageVectorCache = obtainImageVectorCache(context, configuration)
     val resourceIdCache = obtainResourceIdCache(context)
     val scrollCaptureInProgress =
@@ -109,6 +117,7 @@ internal fun ProvideAndroidCompositionLocals(
         LocalImageVectorCache provides imageVectorCache,
         LocalResourceIdCache provides resourceIdCache,
         LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
+        LocalHapticFeedback provides hapticFeedback,
     ) {
         ProvideCommonCompositionLocals(owner = owner, uriHandler = uriHandler, content = content)
     }

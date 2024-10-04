@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.hapticfeedback
+package androidx.compose.ui.platform
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
-/** Android implementation for [HapticFeedback] */
-internal class PlatformHapticFeedback(private val view: View) : HapticFeedback {
-
+/**
+ * Provide a default implementation of HapticFeedback to call through to the view's
+ * [performHapticFeedback] with the associated HapticFeedbackConstant.
+ *
+ * @param view The current view, used for forwarding haptic feedback requests.
+ */
+internal class DefaultHapticFeedback(private val view: View) : HapticFeedback {
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
         when (hapticFeedbackType) {
             HapticFeedbackType.Confirm ->
@@ -51,26 +61,37 @@ internal class PlatformHapticFeedback(private val view: View) : HapticFeedback {
     }
 }
 
-internal actual object PlatformHapticFeedbackType {
-    actual val Confirm: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.CONFIRM)
-    actual val ContextClick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.CONTEXT_CLICK)
-    actual val GestureEnd: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.GESTURE_END)
-    actual val GestureThresholdActivate: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
-    actual val LongPress: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.LONG_PRESS)
-    actual val Reject: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.REJECT)
-    actual val SegmentFrequentTick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
-    actual val SegmentTick: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.SEGMENT_TICK)
-    actual val TextHandleMove: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
-    actual val ToggleOff: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.TOGGLE_OFF)
-    actual val ToggleOn: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.TOGGLE_ON)
-    actual val VirtualKey: HapticFeedbackType =
-        HapticFeedbackType(HapticFeedbackConstants.VIRTUAL_KEY)
+/** Provide a no-op implementation of HapticFeedback */
+internal class NoHapticFeedback : HapticFeedback {
+    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+        // No-op
+    }
+}
+
+/** Contains defaults for haptics functionality */
+internal object HapticDefaults {
+    /**
+     * Returns whether the device supports premium haptic feedback.
+     *
+     * @param context The current context for access to the Vibrator via System Service.
+     */
+    fun isPremiumVibratorEnabled(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibrator = context.getSystemService(Vibrator::class.java)
+
+            // NB whilst the 'areAllPrimitivesSupported' API needs R (API 30), we need S (API
+            // 31) so that PRIMITIVE_THUD is available.
+            if (
+                vibrator.areAllPrimitivesSupported(
+                    VibrationEffect.Composition.PRIMITIVE_CLICK,
+                    VibrationEffect.Composition.PRIMITIVE_TICK,
+                    VibrationEffect.Composition.PRIMITIVE_THUD
+                )
+            ) {
+                return true
+            }
+        }
+
+        return false
+    }
 }

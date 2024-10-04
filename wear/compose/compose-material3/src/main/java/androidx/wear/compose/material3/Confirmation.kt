@@ -49,8 +49,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -114,6 +116,7 @@ fun Confirmation(
 ) {
     ConfirmationImpl(
         show = show,
+        performHapticFeedback = null,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         curvedText = curvedText,
@@ -291,8 +294,12 @@ fun SuccessConfirmation(
     durationMillis: Long = ConfirmationDefaults.ConfirmationDurationMillis,
     content: @Composable BoxScope.() -> Unit = ConfirmationDefaults.SuccessIcon,
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
     ConfirmationImpl(
         show = show,
+        performHapticFeedback = {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.Confirm)
+        },
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         curvedText = curvedText,
@@ -345,8 +352,10 @@ fun FailureConfirmation(
     durationMillis: Long = ConfirmationDefaults.ConfirmationDurationMillis,
     content: @Composable BoxScope.() -> Unit = ConfirmationDefaults.FailureIcon,
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
     ConfirmationImpl(
         show = show,
+        performHapticFeedback = { hapticFeedback.performHapticFeedback(HapticFeedbackType.Reject) },
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         curvedText = curvedText,
@@ -631,6 +640,7 @@ class ConfirmationColors(
 @Composable
 internal fun ConfirmationImpl(
     show: Boolean,
+    performHapticFeedback: (() -> Unit)?,
     onDismissRequest: () -> Unit,
     modifier: Modifier,
     curvedText: (CurvedScope.() -> Unit)?,
@@ -651,6 +661,7 @@ internal fun ConfirmationImpl(
 
     LaunchedEffect(show, a11yDurationMillis) {
         if (show) {
+            performHapticFeedback?.invoke()
             launch {
                 delay(DurationShort3.toLong())
                 alphaAnimatable.animateTo(1f, AlphaAnimationSpec)
