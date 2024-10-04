@@ -1108,9 +1108,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         buildToolsVersion = project.defaultAndroidConfig.buildToolsVersion
 
-        defaultConfig.ndk.abiFilters.addAll(
-            listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64", "riscv64")
-        )
+        // b/366238650
+        defaultConfig.ndk.abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         defaultConfig.minSdk = defaultMinSdk
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
