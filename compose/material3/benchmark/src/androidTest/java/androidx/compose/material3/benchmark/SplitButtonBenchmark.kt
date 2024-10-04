@@ -29,7 +29,9 @@ import androidx.compose.material3.SplitButtonDefaults
 import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
@@ -87,8 +89,11 @@ class SplitButtonBenchmark(private val type: SplitButtonType) {
     }
 }
 
-internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredComposeTestCase() {
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal class SplitButtonTestCase(private val type: SplitButtonType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
+    private var trailingButtonChecked = mutableStateOf(false)
+
     @Composable
     override fun MeasuredContent() {
         when (type) {
@@ -103,7 +108,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
                     },
                     trailingButton = {
                         SplitButtonDefaults.TrailingButton(
-                            checked = false,
+                            checked = trailingButtonChecked.value,
                             onCheckedChange = { /* Do Nothing */ },
                         ) {
                             trailingContent()
@@ -121,7 +126,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
                     },
                     trailingButton = {
                         SplitButtonDefaults.TonalTrailingButton(
-                            checked = false,
+                            checked = trailingButtonChecked.value,
                             onCheckedChange = { /* Do Nothing */ },
                         ) {
                             trailingContent()
@@ -139,7 +144,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
                     },
                     trailingButton = {
                         SplitButtonDefaults.ElevatedTrailingButton(
-                            checked = false,
+                            checked = trailingButtonChecked.value,
                             onCheckedChange = { /* Do Nothing */ },
                         ) {
                             trailingContent()
@@ -157,7 +162,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
                     },
                     trailingButton = {
                         SplitButtonDefaults.OutlinedTrailingButton(
-                            checked = false,
+                            checked = trailingButtonChecked.value,
                             onCheckedChange = { /* Do Nothing */ },
                         ) {
                             trailingContent()
@@ -170,6 +175,10 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         MaterialTheme { content() }
+    }
+
+    override fun toggleState() {
+        trailingButtonChecked.value = !trailingButtonChecked.value
     }
 }
 
