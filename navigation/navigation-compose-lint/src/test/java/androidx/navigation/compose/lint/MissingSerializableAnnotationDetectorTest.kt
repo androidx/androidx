@@ -63,7 +63,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -101,7 +101,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -187,7 +187,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -229,7 +229,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -315,7 +315,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -357,7 +357,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -439,7 +439,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -477,7 +477,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -563,7 +563,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -605,7 +605,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -657,9 +657,14 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
 
     val STUBS =
         arrayOf(
-            *NAVIGATION_STUBS,
-            COMPOSE_NAVIGATOR_DESTINATION_BUILDER,
-            DIALOG_NAVIGATOR_DESTINATION_BUILDER,
-            SERIALIZABLE_ANNOTATION
-        )
+                *NAVIGATION_STUBS,
+                COMPOSE_NAVIGATOR_DESTINATION_BUILDER,
+                DIALOG_NAVIGATOR_DESTINATION_BUILDER,
+                SERIALIZABLE_ANNOTATION
+            )
+            .map { it.toTestBytecodeStub() }
+            .toTypedArray()
+    val SERIALIZABLE_TEST_CLASS =
+        androidx.navigation.lint.common.SERIALIZABLE_TEST_CLASS.toTestKotlinAndBytecodeStub().kotlin
+    val TEST_CLASS = androidx.navigation.lint.common.TEST_CLASS.toTestKotlinAndBytecodeStub().kotlin
 }

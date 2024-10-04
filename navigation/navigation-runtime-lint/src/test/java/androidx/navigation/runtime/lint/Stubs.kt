@@ -16,6 +16,8 @@
 
 package androidx.navigation.runtime.lint
 
+import androidx.navigation.lint.common.NAVIGATION_STUBS
+import androidx.navigation.lint.common.TEST_CLASS
 import androidx.navigation.lint.common.bytecodeStub
 
 internal val ACTIVITY_NAVIGATION_DESTINATION_BUILDER =
@@ -123,3 +125,5 @@ public inline fun <reified T : Any> NavGraphBuilder.activity() {}
                 7MPDFlNs97GDe0MIg/t4METZYMPgoUHTYNeg+hsUN/EQjAIAAA==
                 """
     )
+
+val STUBS = arrayOf(*NAVIGATION_STUBS, TEST_CLASS).map { it.toTestBytecodeStub() }.toTypedArray()

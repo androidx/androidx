@@ -18,10 +18,7 @@ package androidx.navigation.common.lint
 
 import androidx.navigation.lint.common.K_SERIALIZER
 import androidx.navigation.lint.common.NAVIGATION_STUBS
-import androidx.navigation.lint.common.NAV_DEEP_LINK
 import androidx.navigation.lint.common.SERIALIZABLE_ANNOTATION
-import androidx.navigation.lint.common.SERIALIZABLE_TEST_CLASS
-import androidx.navigation.lint.common.TEST_CLASS
 import androidx.navigation.lint.common.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
@@ -68,7 +65,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -105,7 +102,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -186,7 +183,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -223,7 +220,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -308,7 +305,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -349,7 +346,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -433,7 +430,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS.kotlin
+                SERIALIZABLE_TEST_CLASS
             )
             .run()
             .expectClean()
@@ -473,7 +470,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS.kotlin
+                TEST_CLASS
             )
             .run()
             .expect(
@@ -738,10 +735,10 @@ class DeepLink
 
     private val CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS =
         bytecodeStub(
-            "NavGraphBuilderNavigation.kt",
-            "com/test",
-            0x8c23ef1e,
-            """
+                "NavGraphBuilderNavigation.kt",
+                "com/test",
+                0x8c23ef1e,
+                """
 package com.test
 
 import androidx.navigation.NavGraphBuilder
@@ -749,14 +746,14 @@ import androidx.navigation.NavGraphBuilder
 // NavGraphBuilder
 inline fun <reified T : Any> NavGraphBuilder.navigation() { }
         """,
-            """
+                """
                 META-INF/main.kotlin_module:
                 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
                 zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuKS4uJPz
                 c/VSKxJzC3JShbhDUotL3IsSCzKAcupcHCC5EqCQkDRQC1jcqTQzJyW1yA9u
                 lXeJEoMWAwA5gn4YnAAAAA==
                 """,
-            """
+                """
                 com/test/NavGraphBuilderNavigationKt.class:
                 H4sIAAAAAAAA/41RTW/TQBB966SJYwpNU1qSUgoUl6Y94BT11IZIgARYpAGR
                 KJecNrZJNrHXyN5EPfbE/+GGOKCKIz8KMWsqKEVIlbwzb94+z9d+//HlK4AD
@@ -771,7 +768,14 @@ inline fun <reified T : Any> NavGraphBuilder.navigation() { }
                 OJPiMpbJkhwVrJB/mKmLdHYytIU6+UPS3KQiqwPkXKy5uOWiipqLddx2sYE7
                 A7AUm7g7wEKqv3sp7md25Se3iEt3PgMAAA==
                 """
-        )
+            )
+            .toTestBytecodeStub()
 
-    val STUBS = arrayOf(*NAVIGATION_STUBS, SERIALIZABLE_ANNOTATION, K_SERIALIZER)
+    val STUBS =
+        arrayOf(*NAVIGATION_STUBS, SERIALIZABLE_ANNOTATION, K_SERIALIZER)
+            .map { it.toTestBytecodeStub() }
+            .toTypedArray()
+    val SERIALIZABLE_TEST_CLASS =
+        androidx.navigation.lint.common.SERIALIZABLE_TEST_CLASS.toTestKotlinAndBytecodeStub().kotlin
+    val TEST_CLASS = androidx.navigation.lint.common.TEST_CLASS.toTestKotlinAndBytecodeStub().kotlin
 }

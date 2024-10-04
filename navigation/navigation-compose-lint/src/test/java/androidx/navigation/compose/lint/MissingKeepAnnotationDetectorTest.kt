@@ -348,9 +348,11 @@ enum class TestEnum { ONE, TWO }
 
     val STUBS =
         arrayOf(
-            *NAVIGATION_STUBS,
-            COMPOSE_NAVIGATOR_DESTINATION_BUILDER,
-            DIALOG_NAVIGATOR_DESTINATION_BUILDER,
-            KEEP_ANNOTATION
-        )
+                *NAVIGATION_STUBS,
+                COMPOSE_NAVIGATOR_DESTINATION_BUILDER,
+                DIALOG_NAVIGATOR_DESTINATION_BUILDER,
+                KEEP_ANNOTATION
+            )
+            .map { it.toTestBytecodeStub() }
+            .toTypedArray()
 }

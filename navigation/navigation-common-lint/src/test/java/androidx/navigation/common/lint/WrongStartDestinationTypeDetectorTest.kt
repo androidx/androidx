@@ -635,4 +635,5 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
         mutableListOf(WrongStartDestinationTypeDetector.WrongStartDestinationType)
 }
 
-private val STUBS = arrayOf(TEST_CLASS.bytecode, *NAVIGATION_STUBS)
+private val STUBS =
+    arrayOf(TEST_CLASS, *NAVIGATION_STUBS).map { it.toTestBytecodeStub() }.toTypedArray()
