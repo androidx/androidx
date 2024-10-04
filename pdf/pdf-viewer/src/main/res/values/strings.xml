@@ -57,6 +57,9 @@
     <!-- Content description for a page of a paginated document, eg "page 3". [CHAR LIMIT=50] -->
     <string name="desc_page">page <xliff:g example="3" id="page">%1$d</xliff:g></string>
 
+    <!-- Content description for an empty page of a paginated document -->
+    <string name="desc_empty_page">Empty page</string>
+
     <!-- Error message when file format isn't valid PDF. [CHAR LIMIT=60] -->
     <string name="error_file_format_pdf">Cannot display PDF ("<xliff:g example="Treasure Island" id="title">%1$s</xliff:g>" is of invalid format)</string>
 

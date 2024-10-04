@@ -109,10 +109,13 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
 
     @NonNull
     protected String buildContentDescription(@Nullable String pageText, int pageNum) {
-        return (pageText != null)
-                ? pageText
-                : getContext()
-                        .getString(androidx.pdf.R.string.desc_page, (mPageNum + 1));
+        if (pageText != null) {
+            if (pageText.trim().isEmpty()) {
+                return getContext().getString(androidx.pdf.R.string.desc_empty_page);
+            }
+            return pageText;
+        }
+        return getContext().getString(androidx.pdf.R.string.desc_page, (mPageNum + 1));
     }
 
     /** Returns true if we have data about any links on the page. */
