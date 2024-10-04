@@ -265,8 +265,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         activityScenarioRule.withActivity {
             testSession.sessionClient.onResizeRequested(newWidth, newHeight)
         }
-        assertWithMessage("Resized height").that(testSession.resizedWidth).isEqualTo(newWidth)
-        assertWithMessage("Resized width").that(testSession.resizedHeight).isEqualTo(newHeight)
+        assertWithMessage("Resized width").that(testSession.resizedWidth).isEqualTo(newWidth)
+        assertWithMessage("Resized height").that(testSession.resizedHeight).isEqualTo(newHeight)
         testSession.assertResizeOccurred(
             /* expectedWidth=*/ newWidth,
             /* expectedHeight=*/ newHeight
