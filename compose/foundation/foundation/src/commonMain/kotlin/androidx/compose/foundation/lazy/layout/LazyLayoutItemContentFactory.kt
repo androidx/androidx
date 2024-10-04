@@ -20,6 +20,7 @@ import androidx.collection.mutableScatterMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import kotlin.jvm.JvmInline
@@ -93,7 +94,7 @@ internal class LazyLayoutItemContentFactory(
                     if (index != -1) this.index = index
                 }
 
-                if (index != -1) {
+                ReusableContentHost(active = index != -1) {
                     SkippableItem(
                         itemProvider,
                         StableValue(saveableStateHolder),

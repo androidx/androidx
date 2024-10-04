@@ -59,7 +59,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
@@ -120,7 +119,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -2789,36 +2787,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         userScrollEnabled = false
 
         rule.onNodeWithTag(LazyListTag).assertStartPositionInRootIsEqualTo(itemSize)
-    }
-
-    @Test
-    fun reorderingInLookeahead() {
-        var items by mutableStateOf(List(500) { it })
-
-        val itemSizePx = 50f
-        val itemSize = with(rule.density) { itemSizePx.toDp() }
-
-        rule.setContent {
-            LookaheadScope {
-                LazyColumnOrRow(Modifier.mainAxisSize(itemSize * 2)) {
-                    items(items, key = { it }) {
-                        Box(Modifier.animateItem().mainAxisSize(itemSize)) {
-                            Box { BasicText("Item $it") }
-                        }
-                    }
-                }
-            }
-        }
-
-        val random = Random(42)
-        repeat(20) {
-            val newItems = items.shuffled(random)
-            items = newItems
-            rule.runOnUiThread {
-                Snapshot.sendApplyNotifications()
-                rule.mainClock.advanceTimeByFrame()
-            }
-        }
     }
 
     // ********************* END OF TESTS *********************
