@@ -50,11 +50,9 @@ class OffsetInformationTest : ToolingTest() {
                 "Text" to 1680,
                 "Greeting" to 1845,
                 "Text" to 2509,
-                "<get-shapes>" to 1927,
                 "Surface" to 1877,
                 "Button" to 1959,
                 "Text" to 1982,
-                "<get-shapes>" to 2070,
                 "Surface" to 2021,
                 "TextButton" to 2102,
                 "Row" to 2185
@@ -87,11 +85,9 @@ class OffsetInformationTest : ToolingTest() {
                 "Text" to false,
                 "Greeting" to false,
                 "Text" to false,
-                "<get-shapes>" to false,
                 "Surface" to false,
                 "Button" to false,
                 "Text" to false,
-                "<get-shapes>" to false,
                 "Surface" to false,
                 "TextButton" to false,
                 "Row" to true

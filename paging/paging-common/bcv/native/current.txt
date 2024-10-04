@@ -70,6 +70,8 @@ abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSource { /
     final fun unregisterInvalidatedCallback(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingSource.unregisterInvalidatedCallback|unregisterInvalidatedCallback(kotlin.Function0<kotlin.Unit>){}[0]
 
     sealed class <#A1: kotlin/Any, #B1: kotlin/Any> LoadResult { // androidx.paging/PagingSource.LoadResult|null[0]
+        constructor <init>() // androidx.paging/PagingSource.LoadResult.<init>|<init>(){}[0]
+
         final class <#A2: kotlin/Any, #B2: kotlin/Any> Error : androidx.paging/PagingSource.LoadResult<#A2, #B2> { // androidx.paging/PagingSource.LoadResult.Error|null[0]
             constructor <init>(kotlin/Throwable) // androidx.paging/PagingSource.LoadResult.Error.<init>|<init>(kotlin.Throwable){}[0]
 
@@ -123,6 +125,8 @@ abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSource { /
     }
 
     sealed class <#A1: kotlin/Any> LoadParams { // androidx.paging/PagingSource.LoadParams|null[0]
+        constructor <init>(kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.<init>|<init>(kotlin.Int;kotlin.Boolean){}[0]
+
         abstract val key // androidx.paging/PagingSource.LoadParams.key|{}key[0]
             abstract fun <get-key>(): #A1? // androidx.paging/PagingSource.LoadParams.key.<get-key>|<get-key>(){}[0]
         final val loadSize // androidx.paging/PagingSource.LoadParams.loadSize|{}loadSize[0]
@@ -168,6 +172,8 @@ abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/RemoteMediator {
     }
 
     sealed class MediatorResult { // androidx.paging/RemoteMediator.MediatorResult|null[0]
+        constructor <init>() // androidx.paging/RemoteMediator.MediatorResult.<init>|<init>(){}[0]
+
         final class Error : androidx.paging/RemoteMediator.MediatorResult { // androidx.paging/RemoteMediator.MediatorResult.Error|null[0]
             constructor <init>(kotlin/Throwable) // androidx.paging/RemoteMediator.MediatorResult.Error.<init>|<init>(kotlin.Throwable){}[0]
 
@@ -336,6 +342,8 @@ final class androidx.paging/PagingConfig { // androidx.paging/PagingConfig|null[
 }
 
 sealed class <#A: kotlin/Any> androidx.paging/PagingDataEvent { // androidx.paging/PagingDataEvent|null[0]
+    constructor <init>() // androidx.paging/PagingDataEvent.<init>|<init>(){}[0]
+
     final class <#A1: kotlin/Any> Append : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.Append|null[0]
         constructor <init>(kotlin/Int, kotlin.collections/List<#A1>, kotlin/Int, kotlin/Int) // androidx.paging/PagingDataEvent.Append.<init>|<init>(kotlin.Int;kotlin.collections.List<1:0>;kotlin.Int;kotlin.Int){}[0]
 
@@ -415,6 +423,8 @@ sealed class <#A: kotlin/Any> androidx.paging/PagingDataEvent { // androidx.pagi
 }
 
 sealed class androidx.paging/LoadState { // androidx.paging/LoadState|null[0]
+    constructor <init>(kotlin/Boolean) // androidx.paging/LoadState.<init>|<init>(kotlin.Boolean){}[0]
+
     final val endOfPaginationReached // androidx.paging/LoadState.endOfPaginationReached|{}endOfPaginationReached[0]
         final fun <get-endOfPaginationReached>(): kotlin/Boolean // androidx.paging/LoadState.endOfPaginationReached.<get-endOfPaginationReached>|<get-endOfPaginationReached>(){}[0]
 
