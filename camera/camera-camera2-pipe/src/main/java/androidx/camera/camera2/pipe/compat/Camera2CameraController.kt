@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeoutOrNull
+import androidx.camera.camera2.pipe.core.Threading.runBlockingCheckedOrNull
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -320,7 +320,7 @@ constructor(
             // getting blocked for too long.
             //
             // [1] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
-            runBlockingWithTimeoutOrNull(threads.backgroundDispatcher, DISCONNECT_TIMEOUT_MS) {
+            runBlockingCheckedOrNull(threads.backgroundDispatcher, DISCONNECT_TIMEOUT_MS) {
                 deferred.await()
             }
                 ?: run {

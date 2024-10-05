@@ -87,6 +87,7 @@ constructor(
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
     ) {
+        Log.debug { "$this#closeCameraDevice($cameraDevice)" }
         val cameraId = CameraId.fromCamera2Id(cameraDevice.id)
         if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId) && !closeUnderError) {
             Debug.trace("Camera2DeviceCloserImpl#createCaptureSession") {
@@ -95,7 +96,7 @@ constructor(
                 Log.debug { "Empty capture session quirk completed" }
             }
         }
-        Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 5000L) {
+        Threading.runBlockingChecked(threads.backgroundDispatcher, 5000L) {
             cameraDevice.closeWithTrace()
         }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
