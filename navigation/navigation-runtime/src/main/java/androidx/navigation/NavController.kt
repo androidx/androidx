@@ -1539,7 +1539,55 @@ public open class NavController(
             }
             return true
         }
-        if (flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0) {
+        return handleDeepLink(deepLink, args, flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
+    }
+
+    /**
+     * Checks the given NavDeepLinkRequest for a Navigation deep link and navigates to the
+     * destination if present.
+     *
+     * The [navigation graph][graph] should be set before calling this method.
+     *
+     * @param request The request that contains a valid deep link, an action or a mimeType.
+     * @return True if the navigation controller found a valid deep link and navigated to it.
+     * @throws IllegalStateException if deep link cannot be accessed from the current destination
+     * @see NavDestination.addDeepLink
+     */
+    @MainThread
+    public fun handleDeepLink(request: NavDeepLinkRequest): Boolean {
+        val currGraph = backQueue.getTopGraph()
+        val matchingDeepLink =
+            currGraph.matchDeepLinkComprehensive(
+                navDeepLinkRequest = request,
+                searchChildren = true,
+                searchParent = true,
+                lastVisited = currGraph
+            )
+        if (matchingDeepLink != null) {
+            val destination = matchingDeepLink.destination
+            val deepLink = destination.buildDeepLinkIds()
+            val globalArgs = Bundle()
+            val destinationArgs = destination.addInDefaultArgs(matchingDeepLink.matchingArgs)
+            if (destinationArgs != null) {
+                globalArgs.putAll(destinationArgs)
+            }
+            val args = arrayOfNulls<Bundle>(deepLink.size)
+            for (index in args.indices) {
+                val arguments = Bundle()
+                arguments.putAll(globalArgs)
+                args[index] = arguments
+            }
+            return handleDeepLink(deepLink, args, true)
+        }
+        return false
+    }
+
+    private fun handleDeepLink(
+        deepLink: IntArray,
+        args: Array<Bundle?>,
+        newTask: Boolean
+    ): Boolean {
+        if (newTask) {
             // Start with a cleared task starting at our root when we're on our own task
             if (!backQueue.isEmpty()) {
                 popBackStackInternal(_graph!!.id, true)
