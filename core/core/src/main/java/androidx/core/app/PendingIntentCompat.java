@@ -274,7 +274,7 @@ public final class PendingIntentCompat {
         }
     }
 
-    private static int addMutabilityFlags(boolean isMutable, int flags) {
+    static int addMutabilityFlags(boolean isMutable, int flags) {
         if (isMutable) {
             if (VERSION.SDK_INT >= 31) {
                 flags |= FLAG_MUTABLE;

@@ -314,6 +314,22 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     }
 
     /**
+     * Obtains a {@link PendingIntent} with mandatory mutability flag set on supported platform
+     * versions. The caller provides the flag as combination of all the other values except
+     * mutability flag. This method combines mutability flag when necessary. See {@link
+     * TaskStackBuilder#getPendingIntent(int, int)}.
+     */
+    @Nullable
+    public PendingIntent getPendingIntent(
+            int requestCode,
+            int flags,
+            boolean isMutable) {
+        return getPendingIntent(
+                requestCode,
+                PendingIntentCompat.addMutabilityFlags(isMutable, flags));
+    }
+
+    /**
      * Obtain a {@link PendingIntent} for launching the task constructed by this builder so far.
      *
      * @param requestCode Private request code for the sender
@@ -339,6 +355,24 @@ public final class TaskStackBuilder implements Iterable<Intent> {
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 
         return PendingIntent.getActivities(mSourceContext, requestCode, intents, flags, options);
+    }
+
+    /**
+     * Obtains a {@link PendingIntent} with mandatory mutability flag set on supported platform
+     * versions. The caller provides the flag as combination of all the other values except
+     * mutability flag. This method combines mutability flag when necessary. See {@link
+     * TaskStackBuilder#getPendingIntent(int, int, Bundle)}.
+     */
+    @Nullable
+    public PendingIntent getPendingIntent(
+            int requestCode,
+            int flags,
+            @Nullable Bundle options,
+            boolean isMutable) {
+        return getPendingIntent(
+                requestCode,
+                PendingIntentCompat.addMutabilityFlags(isMutable, flags),
+                options);
     }
 
     /**
