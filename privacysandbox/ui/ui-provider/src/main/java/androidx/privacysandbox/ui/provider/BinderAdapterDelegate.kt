@@ -38,6 +38,7 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
+import androidx.privacysandbox.ui.provider.impl.DeferredSessionClient
 import java.util.concurrent.Executor
 
 /**
@@ -87,7 +88,6 @@ private class BinderAdapterDelegate(
 
     override fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory) {}
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun openRemoteSession(
         windowInputToken: IBinder,
         displayId: Int,
@@ -96,60 +96,85 @@ private class BinderAdapterDelegate(
         isZOrderOnTop: Boolean,
         remoteSessionClient: IRemoteSessionClient
     ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            remoteSessionClient.onRemoteSessionError("openRemoteSession() requires API34+")
+            return
+        }
+
         val mHandler = Handler(Looper.getMainLooper())
         mHandler.post {
             try {
-                val mDisplayManager: DisplayManager =
+                val displayManager =
                     sandboxContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-                val windowContext =
-                    sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
-                val surfaceControlViewHost =
-                    CompatImpl.createSurfaceControlViewHost(
-                        windowContext,
-                        mDisplayManager.getDisplay(displayId),
-                        windowInputToken
+                val display = displayManager.getDisplay(displayId)
+                val displayContext = sandboxContext.createDisplayContext(display)
+
+                val deferredClient =
+                    DeferredSessionClient.create(
+                        clientFactory = {
+                            Api34PlusImpl.createSessionClientProxy(
+                                displayContext,
+                                display,
+                                windowInputToken,
+                                isZOrderOnTop,
+                                remoteSessionClient
+                            )
+                        },
+                        clientInit = { it.initialize(initialWidth, initialHeight) },
+                        errorHandler = { remoteSessionClient.onRemoteSessionError(it.message) }
                     )
-                checkNotNull(surfaceControlViewHost) {
-                    "SurfaceControlViewHost must be available when provider is remote"
-                }
-                val sessionClient =
-                    SessionClientProxy(
-                        surfaceControlViewHost,
-                        initialWidth,
-                        initialHeight,
-                        isZOrderOnTop,
-                        remoteSessionClient
-                    )
+
                 openSession(
-                    windowContext,
+                    displayContext,
                     windowInputToken,
                     initialWidth,
                     initialHeight,
                     isZOrderOnTop,
-                    Runnable::run,
-                    sessionClient
+                    MainThreadExecutor(mHandler),
+                    deferredClient
                 )
+
+                deferredClient.preloadClient()
             } catch (exception: Throwable) {
                 remoteSessionClient.onRemoteSessionError(exception.message)
             }
         }
     }
 
+    /** Avoiding all potential concurrency issues by executing callback only on main thread. */
+    private class MainThreadExecutor(private val mainHandler: Handler) : Executor {
+        override fun execute(command: Runnable) {
+            if (Looper.getMainLooper() == Looper.myLooper()) {
+                command.run()
+            } else {
+                mainHandler.post(command)
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private inner class SessionClientProxy(
+    private class SessionClientProxy(
+        private val touchTransferringView: TouchFocusTransferringView,
         private val surfaceControlViewHost: SurfaceControlViewHost,
-        private val initialWidth: Int,
-        private val initialHeight: Int,
         private val isZOrderOnTop: Boolean,
         private val remoteSessionClient: IRemoteSessionClient
     ) : SandboxedUiAdapter.SessionClient {
 
+        /**
+         * Split SurfaceControlViewHost creation and calling setView() into 2 steps to minimize each
+         * step duration and interference with actual openSession() logic (reduce potential delays).
+         */
+        fun initialize(initialWidth: Int, initialHeight: Int) {
+            surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
+        }
+
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val view = session.view
-            val touchTransferringView =
-                TouchFocusTransferringView(sandboxContext, surfaceControlViewHost)
+
+            if (touchTransferringView.childCount > 0) {
+                touchTransferringView.removeAllViews()
+            }
             touchTransferringView.addView(view)
-            surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
 
             // This var is not locked as it will be set to false by the first event that can trigger
             // sending the remote session opened callback.
@@ -294,37 +319,25 @@ private class BinderAdapterDelegate(
         }
     }
 
-    /**
-     * Provides backward compat support for APIs.
-     *
-     * If the API is available, it's called from a version-specific static inner class gated with
-     * version check, otherwise a fallback action is taken depending on the situation.
-     */
-    private object CompatImpl {
-
-        fun createSurfaceControlViewHost(
-            context: Context,
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private object Api34PlusImpl {
+        fun createSessionClientProxy(
+            displayContext: Context,
             display: Display,
-            hostToken: IBinder
-        ): SurfaceControlViewHost? {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                return Api34PlusImpl.createSurfaceControlViewHost(context, display, hostToken)
-            } else {
-                null
-            }
-        }
-
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        private object Api34PlusImpl {
-
-            @JvmStatic
-            fun createSurfaceControlViewHost(
-                context: Context,
-                display: Display,
-                hostToken: IBinder
-            ): SurfaceControlViewHost {
-                return SurfaceControlViewHost(context, display, hostToken)
-            }
+            windowInputToken: IBinder,
+            isZOrderOnTop: Boolean,
+            remoteSessionClient: IRemoteSessionClient
+        ): SessionClientProxy {
+            val surfaceControlViewHost =
+                SurfaceControlViewHost(displayContext, display, windowInputToken)
+            val touchTransferringView =
+                TouchFocusTransferringView(displayContext, surfaceControlViewHost)
+            return SessionClientProxy(
+                touchTransferringView,
+                surfaceControlViewHost,
+                isZOrderOnTop,
+                remoteSessionClient
+            )
         }
     }
 }
