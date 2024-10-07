@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.Listener3A
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.graph.SurfaceGraph
+import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import androidx.camera.camera2.pipe.internal.ImageSourceMap
@@ -91,6 +92,11 @@ internal abstract class SharedCameraGraphModules {
     abstract fun bindCameraGraphContext(@CameraPipeContext cameraPipeContext: Context): Context
 
     @Binds abstract fun bindStreamGraph(streamGraph: StreamGraphImpl): StreamGraph
+
+    @Binds
+    abstract fun bindCameraGraphParameters(
+        parameters: CameraGraphParametersImpl
+    ): CameraGraph.Parameters
 
     companion object {
         @CameraGraphScope

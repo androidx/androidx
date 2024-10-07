@@ -68,11 +68,15 @@ constructor(
     private val frameDistributor: FrameDistributor,
     private val frameCaptureQueue: FrameCaptureQueue,
     private val audioRestrictionController: AudioRestrictionController,
-    override val id: CameraGraphId
+    override val id: CameraGraphId,
+    override val parameters: CameraGraph.Parameters
 ) : CameraGraph {
     private val sessionMutex = Mutex()
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
     private val closed = atomic(false)
+
+    // TODO(amycao): b/354899829 CameraGraph.Session#close() should build and update repeating
+    // request
 
     init {
         // Log out the configuration of the camera graph when it is created.
