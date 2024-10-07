@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -40,6 +41,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+
+import java.util.List;
 
 /**
  * Tests for {@link CustomTabsSession}.
@@ -96,6 +100,27 @@ public class CustomTabsSessionTest {
         ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
         verify(mService.getMock()).setEngagementSignalsCallback(any(ICustomTabsCallback.class),
                 any(IBinder.class), captor.capture());
+        assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Test
+    public void testPrefetch() throws RemoteException {
+        mSession.prefetch(Uri.parse(""), new PrefetchOptions.Builder().build());
+        ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
+        verify(mService.getMock())
+                .prefetch(any(ICustomTabsCallback.class), any(Uri.class), captor.capture());
+        assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Test
+    public void testPrefetchWithMultipleUrls() throws RemoteException {
+        mSession.prefetch(List.of(Uri.parse("")), new PrefetchOptions.Builder().build());
+        ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
+        verify(mService.getMock())
+                .prefetchWithMultipleUrls(
+                        any(ICustomTabsCallback.class),
+                        ArgumentMatchers.<List<Uri>>any(),
+                        captor.capture());
         assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 }
