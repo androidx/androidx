@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> ટકા નાનું-મોટું કરો"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"પેજ <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> પર જાઓ"</string>
     <string name="desc_page" msgid="5684226167093594168">"પેજ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF બતાવી શકાતી નથી (<xliff:g id="TITLE">%1$s</xliff:g>નું ફૉર્મેટ અમાન્ય છે)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"પેજ <xliff:g id="PAGE">%1$d</xliff:g> બતાવી શકાતું નથી (ફાઇલમાં ભૂલ)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"લિંક: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> પર વેબપેજ"</string>
@@ -46,8 +48,7 @@
     <string name="next_button_description" msgid="4702699322249103693">"આગળ"</string>
     <string name="close_button_description" msgid="7379823906921067675">"બંધ કરો"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
-    <!-- no translation found for message_no_match_status (5929387004361286433) -->
-    <skip />
+    <string name="message_no_match_status" msgid="5929387004361286433">"કોઈ મેળ ખાતું પરિણામ નથી"</string>
     <string name="action_edit" msgid="5882082700509010966">"ફાઇલમાં ફેરફાર કરો"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"અનલૉક કરવા માટે પાસવર્ડ દાખલ કરો"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"ફરી પ્રયાસ કરો"</string>

@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> சதவீத அளவை மாற்று"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"பக்கம் <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>க்கு செல்லும்"</string>
     <string name="desc_page" msgid="5684226167093594168">"பக்கம் <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDFஐக் காட்ட முடியவில்லை (<xliff:g id="TITLE">%1$s</xliff:g> தவறான வடிவத்தில் உள்ளது)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"பக்கம் <xliff:g id="PAGE">%1$d</xliff:g>ஐக் காட்ட முடியவில்லை (ஃபைல் பிழை)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"இணைப்பு: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> இல் உள்ள இணையப் பக்கம்"</string>

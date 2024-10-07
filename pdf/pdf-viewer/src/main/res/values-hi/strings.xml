@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> प्रतिशत ज़ूम करें"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> पेज पर जाएं"</string>
     <string name="desc_page" msgid="5684226167093594168">"पेज <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF फ़ाइल नहीं दिखाई जा सकती (<xliff:g id="TITLE">%1$s</xliff:g> अमान्य फ़ॉर्मैट में है)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"<xliff:g id="PAGE">%1$d</xliff:g> पेज नहीं दिखाया जा सकता (फ़ाइल में गड़बड़ी है)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"लिंक: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> पर वेबपेज"</string>

@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"zumiranje <xliff:g id="FIRST">%1$d</xliff:g> posto"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Odlazak na <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>. stranicu"</string>
     <string name="desc_page" msgid="5684226167093594168">"<xliff:g id="PAGE">%1$d</xliff:g>. stranica"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Nije moguće prikazati PDF (fajl <xliff:g id="TITLE">%1$s</xliff:g> ima nevažeći format)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Nije moguće prikazati <xliff:g id="PAGE">%1$d</xliff:g>. stranicu (greška fajla)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Link: web stranica na <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
@@ -46,8 +48,7 @@
     <string name="next_button_description" msgid="4702699322249103693">"Naprijed"</string>
     <string name="close_button_description" msgid="7379823906921067675">"Zatvaranje"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
-    <!-- no translation found for message_no_match_status (5929387004361286433) -->
-    <skip />
+    <string name="message_no_match_status" msgid="5929387004361286433">"Nema podudarnih rezultata"</string>
     <string name="action_edit" msgid="5882082700509010966">"Uredite fajl"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Unesite lozinku da otključate fajl"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Pokušajte ponovo"</string>

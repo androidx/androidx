@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"keisti mastelį <xliff:g id="FIRST">%1$d</xliff:g> proc."</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Eiti į <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> puslapį"</string>
     <string name="desc_page" msgid="5684226167093594168">"<xliff:g id="PAGE">%1$d</xliff:g> psl."</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Negalima pateikti PDF („<xliff:g id="TITLE">%1$s</xliff:g>“ netinkamo formato)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Negalima pateikti <xliff:g id="PAGE">%1$d</xliff:g> puslapio (failo klaida)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Nuoroda: tinklalapis adresu <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

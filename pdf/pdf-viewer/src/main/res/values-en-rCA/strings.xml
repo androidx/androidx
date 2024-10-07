@@ -30,6 +30,7 @@
     <string name="desc_zoom" msgid="7318480946145947242">"zoom <xliff:g id="FIRST">%1$d</xliff:g> percent"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Go to page <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"page <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <string name="desc_empty_page" msgid="5041794048330057239">"Empty page"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Cannot display PDF (<xliff:g id="TITLE">%1$s</xliff:g> is of invalid format)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Cannot display page <xliff:g id="PAGE">%1$d</xliff:g> (file error)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Link: webpage at <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

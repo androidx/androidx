@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"زوم <xliff:g id="FIRST">%1$d</xliff:g> فیصد"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> صفحہ پر جائیں"</string>
     <string name="desc_page" msgid="5684226167093594168">"صفحہ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"‏PDF ڈسپلے نہیں کر سکتا (<xliff:g id="TITLE">%1$s</xliff:g> کا فارمیٹ غلط ہے)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"صفحہ <xliff:g id="PAGE">%1$d</xliff:g> ڈسپلے نہیں کر سکتا (فائل کی خرابی)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"لنک: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> پر ویب صفحہ"</string>
