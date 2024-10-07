@@ -44,6 +44,7 @@ public class SingleTapHandler {
     private final PdfSelectionModel mPdfSelectionModel;
     private final PaginationModel mPaginationModel;
     private final LayoutHandler mLayoutHandler;
+    private final ImmersiveModeRequester mImmersiveModeRequester;
     private boolean mIsAnnotationIntentResolvable;
 
     public SingleTapHandler(@NonNull Context context,
@@ -53,7 +54,8 @@ public class SingleTapHandler {
             @NonNull ZoomView zoomView,
             @NonNull PdfSelectionModel pdfSelectionModel,
             @NonNull PaginationModel paginationModel,
-            @NonNull LayoutHandler layoutHandler) {
+            @NonNull LayoutHandler layoutHandler,
+            @NonNull ImmersiveModeRequester immersiveModeRequester) {
         mContext = context;
         mFloatingActionButton = floatingActionButton;
         mPaginatedView = paginatedView;
@@ -62,6 +64,7 @@ public class SingleTapHandler {
         mPdfSelectionModel = pdfSelectionModel;
         mPaginationModel = paginationModel;
         mLayoutHandler = layoutHandler;
+        mImmersiveModeRequester = immersiveModeRequester;
     }
 
     public void setAnnotationIntentResolvable(boolean annotationIntentResolvable) {
@@ -73,9 +76,9 @@ public class SingleTapHandler {
         if (mIsAnnotationIntentResolvable) {
             if (mFloatingActionButton.getVisibility() == View.GONE
                     && mFindInFileView.getVisibility() == GONE) {
-                mFloatingActionButton.show();
+                mImmersiveModeRequester.requestImmersiveModeChange(false);
             } else {
-                mFloatingActionButton.hide();
+                mImmersiveModeRequester.requestImmersiveModeChange(true);
             }
         }
 

@@ -52,6 +52,7 @@ import androidx.pdf.util.Observables
 import androidx.pdf.util.Observables.ExposedValue
 import androidx.pdf.util.Preconditions
 import androidx.pdf.util.Uris
+import androidx.pdf.viewer.ImmersiveModeRequester
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
 import androidx.pdf.viewer.PageSelectionValueObserver
@@ -165,6 +166,13 @@ public open class PdfViewerFragment : Fragment() {
 
     private var mEventCallback: EventCallback? = null
 
+    private val mImmersiveModeRequester: ImmersiveModeRequester =
+        object : ImmersiveModeRequester {
+            override fun requestImmersiveModeChange(enterImmersive: Boolean) {
+                onRequestImmersiveMode(enterImmersive)
+            }
+        }
+
     /**
      * The URI of the PDF document to display defaulting to `null`.
      *
@@ -224,6 +232,25 @@ public open class PdfViewerFragment : Fragment() {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun setEventCallback(eventCallback: EventCallback) {
         this.mEventCallback = eventCallback
+    }
+
+    /** Indicates whether the toolbox should be visible. */
+    private var isToolboxVisible: Boolean
+        get() = arguments?.getBoolean(KEY_TOOLBOX_VISIBILITY) ?: true
+        set(value) {
+            (arguments ?: Bundle()).apply { putBoolean(KEY_TOOLBOX_VISIBILITY, value) }
+            if (value) annotationButton?.show() else annotationButton?.hide()
+        }
+
+    /**
+     * Called when the PDF view wants to enter or exit immersive mode based on user's interaction
+     * with the content.
+     *
+     * @param enterImmersive true to enter immersive mode, false to exit
+     */
+    private fun onRequestImmersiveMode(enterImmersive: Boolean) {
+        // Update toolbox visibility
+        isToolboxVisible = !enterImmersive
     }
 
     /**
@@ -318,9 +345,9 @@ public open class PdfViewerFragment : Fragment() {
                     if (shouldRedrawOnDocumentLoaded) {
                         shouldRedrawOnDocumentLoaded = false
                     }
-                    annotationButton?.let { button ->
+                    annotationButton?.let {
                         if ((savedInstanceState == null) && isAnnotationIntentResolvable) {
-                            button.show()
+                            onRequestImmersiveMode(false)
                         }
                     }
                 },
@@ -541,7 +568,7 @@ public open class PdfViewerFragment : Fragment() {
                     isAnnotationIntentResolvable &&
                         state.getBoolean(KEY_ANNOTATION_BUTTON_VISIBILITY)
                 ) {
-                    annotationButton?.show()
+                    onRequestImmersiveMode(false)
                 }
             }
         }
@@ -613,7 +640,8 @@ public open class PdfViewerFragment : Fragment() {
                 zoomView!!,
                 selectionModel,
                 paginationModel!!,
-                layoutHandler!!
+                layoutHandler!!,
+                mImmersiveModeRequester
             )
         singleTapHandler!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
 
@@ -655,7 +683,8 @@ public open class PdfViewerFragment : Fragment() {
                 findInFileView!!,
                 isAnnotationIntentResolvable,
                 selectionActionMode!!,
-                viewState
+                viewState,
+                mImmersiveModeRequester
             )
         zoomView?.zoomScroll()?.addObserver(zoomScrollObserver)
 
@@ -669,12 +698,12 @@ public open class PdfViewerFragment : Fragment() {
             )
         findInFileView!!.searchModel.selectedMatch().addObserver(selectedMatchObserver)
 
-        annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
+        annotationButton?.let { findInFileView!!.setAnnotationButton(it, mImmersiveModeRequester) }
 
         fastScrollView?.setOnFastScrollActiveListener {
             annotationButton?.let { button ->
                 if (button.visibility == View.VISIBLE) {
-                    button.hide()
+                    onRequestImmersiveMode(true)
                 }
             }
         }
@@ -709,14 +738,14 @@ public open class PdfViewerFragment : Fragment() {
         }
         setAnnotationIntentResolvability()
         if (!isAnnotationIntentResolvable && annotationButton?.visibility == View.VISIBLE) {
-            annotationButton?.post { annotationButton?.hide() }
+            annotationButton?.post { onRequestImmersiveMode(true) }
         }
         if (
             isAnnotationIntentResolvable &&
                 annotationButton?.visibility != View.VISIBLE &&
                 findInFileView?.visibility != View.VISIBLE
         ) {
-            annotationButton?.post { annotationButton?.show() }
+            annotationButton?.post { onRequestImmersiveMode(false) }
         }
     }
 
@@ -850,7 +879,7 @@ public open class PdfViewerFragment : Fragment() {
             }
         }
         if (localUri != null && localUri != fileUri) {
-            annotationButton?.hide()
+            onRequestImmersiveMode(true)
         }
         localUri = fileUri
     }
@@ -944,5 +973,6 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_DOCUMENT_URI: String = "documentUri"
         private const val KEY_ANNOTATION_BUTTON_VISIBILITY = "isAnnotationVisible"
         private const val KEY_PENDING_DOCUMENT_LOAD = "pendingDocumentLoad"
+        private const val KEY_TOOLBOX_VISIBILITY = "isToolboxVisible"
     }
 }

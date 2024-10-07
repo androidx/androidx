@@ -45,6 +45,7 @@ import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
+import androidx.pdf.viewer.ImmersiveModeRequester;
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.SearchModel;
 import androidx.pdf.viewer.SelectedMatch;
@@ -75,6 +76,7 @@ public class FindInFileView extends LinearLayout {
     private View mCloseButton;
     private FloatingActionButton mAnnotationButton;
     private PaginatedView mPaginatedView;
+    private ImmersiveModeRequester mImmersiveModeRequester;
 
     private FindInFileListener mFindInFileListener;
     private Runnable mOnClosedButtonCallback;
@@ -246,8 +248,10 @@ public class FindInFileView extends LinearLayout {
     }
 
     public void setAnnotationButton(
-            @NonNull FloatingActionButton annotationButton) {
+            @NonNull FloatingActionButton annotationButton,
+            @NonNull ImmersiveModeRequester immersiveModeRequester) {
         mAnnotationButton = annotationButton;
+        mImmersiveModeRequester = immersiveModeRequester;
     }
 
     public void setAnnotationIntentResolvable(
@@ -267,7 +271,7 @@ public class FindInFileView extends LinearLayout {
         if (visibility) {
             this.setVisibility(VISIBLE);
             if (mAnnotationButton != null && mAnnotationButton.getVisibility() == VISIBLE) {
-                mAnnotationButton.hide();
+                mImmersiveModeRequester.requestImmersiveModeChange(true);
             }
             setupFindInFileBtn();
             WindowCompat.getInsetsController(((Activity) getContext()).getWindow(), this)
@@ -306,7 +310,7 @@ public class FindInFileView extends LinearLayout {
         mCloseButton.setOnClickListener(view -> {
             resetFindInFile();
             if (mIsAnnotationIntentResolvable) {
-                mAnnotationButton.show();
+                mImmersiveModeRequester.requestImmersiveModeChange(false);
             }
         });
     }

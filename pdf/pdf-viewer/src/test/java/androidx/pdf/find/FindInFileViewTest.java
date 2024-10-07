@@ -26,6 +26,7 @@ import static org.mockito.Mockito.doNothing;
 
 import android.os.Build;
 
+import androidx.pdf.viewer.ImmersiveModeRequester;
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.test.core.app.ApplicationProvider;
@@ -58,6 +59,8 @@ public class FindInFileViewTest extends TestCase {
     private PaginatedView mPaginatedView;
     @Mock
     private FloatingActionButton mAnnotationButton;
+    @Mock
+    private ImmersiveModeRequester mImmersiveModeRequester;
     private FindInFileView mFindInFileView;
     private AutoCloseable mOpenMocks;
 
@@ -67,7 +70,7 @@ public class FindInFileViewTest extends TestCase {
         mFindInFileView = new FindInFileView(ApplicationProvider.getApplicationContext());
         mFindInFileView.setPdfLoader(mPdfLoader);
         mFindInFileView.setPaginatedView(mPaginatedView);
-        mFindInFileView.setAnnotationButton(mAnnotationButton);
+        mFindInFileView.setAnnotationButton(mAnnotationButton, mImmersiveModeRequester);
     }
 
     @After

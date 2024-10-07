@@ -43,6 +43,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private boolean mIsAnnotationIntentResolvable;
     private final SelectionActionMode mSelectionActionMode;
     private final ObservableValue<ViewState> mViewState;
+    private final ImmersiveModeRequester mImmersiveModeRequester;
 
     private boolean mIsPageScrollingUp;
 
@@ -51,7 +52,8 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             @NonNull LayoutHandler layoutHandler, @NonNull FloatingActionButton annotationButton,
             @NonNull FindInFileView findInFileView, boolean isAnnotationIntentResolvable,
             @NonNull SelectionActionMode selectionActionMode,
-            @NonNull ObservableValue<ViewState> viewState) {
+            @NonNull ObservableValue<ViewState> viewState,
+            @NonNull ImmersiveModeRequester immersiveModeRequester) {
         mZoomView = zoomView;
         mPaginatedView = paginatedView;
         mLayoutHandler = layoutHandler;
@@ -62,6 +64,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         mViewState = viewState;
         mAnnotationButtonHandler = new Handler(Looper.getMainLooper());
         mIsPageScrollingUp = false;
+        mImmersiveModeRequester = immersiveModeRequester;
     }
 
     @Override
@@ -93,18 +96,15 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
 
             if (!isAnnotationButtonVisible() && position.scrollY == 0
                     && mFindInFileView.getVisibility() == View.GONE) {
-                mAnnotationButton.show();
+                mImmersiveModeRequester.requestImmersiveModeChange(false);
             } else if (isAnnotationButtonVisible() && mIsPageScrollingUp) {
                 clearAnnotationHandler();
                 return;
             }
             if (position.scrollY == oldPosition.scrollY) {
-                mAnnotationButtonHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (position.scrollY != 0) {
-                            mAnnotationButton.hide();
-                        }
+                mAnnotationButtonHandler.post(() -> {
+                    if (position.scrollY != 0) {
+                        mImmersiveModeRequester.requestImmersiveModeChange(true);
                     }
                 });
             }
