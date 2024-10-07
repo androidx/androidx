@@ -119,7 +119,9 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             cachedBucket.clear()
         }
 
-        checkPrecondition(currentLine <= lineIndex) { "currentLine > lineIndex" }
+        checkPrecondition(currentLine <= lineIndex) {
+            "currentLine ($currentLine) > lineIndex ($lineIndex)"
+        }
 
         while (currentLine < lineIndex && currentItemIndex < totalSize) {
             if (cacheThisBucket) {
