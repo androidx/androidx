@@ -16,7 +16,6 @@
 
 package androidx.pdf.viewer.fragment
 
-import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
@@ -28,8 +27,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.core.os.BundleCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -65,6 +63,7 @@ import androidx.pdf.viewer.SelectedMatch
 import androidx.pdf.viewer.SelectedMatchValueObserver
 import androidx.pdf.viewer.SingleTapHandler
 import androidx.pdf.viewer.ZoomScrollValueObserver
+import androidx.pdf.viewer.fragment.insets.TranslateInsetsAnimationCallback
 import androidx.pdf.viewer.loader.PdfLoader
 import androidx.pdf.viewer.loader.PdfLoaderCallbacksImpl
 import androidx.pdf.viewmodel.PdfLoaderViewModel
@@ -154,7 +153,6 @@ public open class PdfViewerFragment : Fragment() {
     private var shouldRedrawOnDocumentLoaded = false
     private var isAnnotationIntentResolvable = false
     private var documentLoaded = false
-    private var isSearchMenuAdjusted = false
 
     /**
      * Specify whether [documentUri] is updated before fragment went in STARTED state.
@@ -333,24 +331,6 @@ public open class PdfViewerFragment : Fragment() {
             paginatedView?.isConfigurationChanged = true
         }
 
-        /**
-         * Need to adjust the view only after the layout phase is completed for the views to
-         * accurately calculate the height of the view. The condition for visibility and
-         * [isSearchMenuAdjusted] guarantees that the listener is only invoked once after layout
-         * change.
-         */
-        findInFileView?.let { view ->
-            view.viewTreeObserver?.addOnGlobalLayoutListener {
-                if (view.visibility == View.VISIBLE) {
-                    if (!isSearchMenuAdjusted) {
-                        activity?.let { adjustInsetsForSearchMenu(view, it) }
-                    } else {
-                        isSearchMenuAdjusted = false
-                    }
-                }
-            }
-        }
-
         if (!hasContents && delayedContentsAvailable == null) {
             if (savedInstanceState != null) {
                 restoreContents(savedInstanceState)
@@ -371,6 +351,16 @@ public open class PdfViewerFragment : Fragment() {
                     setContents(savedInstanceState)
                 }
             }
+        }
+        // Add listener to adjust bottom margin for [FindInFile] view
+        findInFileView?.let {
+            val windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val screenHeight = windowManager.currentWindowMetrics.bounds.height()
+
+            ViewCompat.setWindowInsetsAnimationCallback(
+                it,
+                TranslateInsetsAnimationCallback(it, screenHeight, container)
+            )
         }
 
         loadPendingDocumentIfRequired()
@@ -407,30 +397,6 @@ public open class PdfViewerFragment : Fragment() {
         }
         started = false
         super.onStop()
-    }
-
-    /** Adjusts the [FindInFileView] to be displayed on top of the keyboard. */
-    private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView, activity: Activity) {
-        val containerLocation = IntArray(2)
-        container!!.getLocationInWindow(containerLocation)
-
-        val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val screenHeight = windowManager.currentWindowMetrics.bounds.height()
-
-        val imeInsets =
-            activity.window.decorView.rootWindowInsets.getInsets(WindowInsetsCompat.Type.ime())
-
-        val keyboardTop = screenHeight - imeInsets.bottom
-        val absoluteContainerBottom = container!!.height + containerLocation[1]
-
-        var menuMargin = 0
-        if (absoluteContainerBottom >= keyboardTop) {
-            menuMargin = absoluteContainerBottom - keyboardTop
-        }
-        findInFileView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            bottomMargin = menuMargin
-        }
-        isSearchMenuAdjusted = true
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
