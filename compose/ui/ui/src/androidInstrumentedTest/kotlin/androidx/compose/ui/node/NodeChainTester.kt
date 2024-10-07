@@ -18,6 +18,8 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.IntObjectMap
+import androidx.collection.intObjectMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,6 +50,8 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.invertTo
+import androidx.compose.ui.semantics.EmptySemanticsModifier
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -385,6 +389,9 @@ private class MockOwner(
     override val density: Density
         get() = Density(1f)
 
+    override val layoutNodes: IntObjectMap<LayoutNode>
+        get() = TODO("Not yet implemented")
+
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
 
@@ -420,6 +427,9 @@ private class MockOwner(
 
     override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
+
+    override val semanticsOwner: SemanticsOwner =
+        SemanticsOwner(root, EmptySemanticsModifier(), intObjectMapOf())
 
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")

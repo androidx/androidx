@@ -45,7 +45,7 @@ internal fun SemanticsNode(layoutNode: LayoutNode, mergingEnabled: Boolean) =
         layoutNode.nodes.head(Nodes.Semantics)!!.node,
         mergingEnabled,
         layoutNode,
-        layoutNode.collapsedSemantics!!
+        layoutNode.semanticsConfiguration!!
     )
 
 internal fun SemanticsNode(
@@ -70,7 +70,7 @@ internal fun SemanticsNode(
         outerSemanticsNode.node,
         mergingEnabled,
         layoutNode,
-        layoutNode.collapsedSemantics ?: SemanticsConfiguration()
+        layoutNode.semanticsConfiguration ?: SemanticsConfiguration()
     )
 
 /**
@@ -99,7 +99,7 @@ internal constructor(
             !isFake &&
                 replacedChildren.isEmpty() &&
                 layoutNode.findClosestParentNode {
-                    it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
+                    it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
                 } == null
 
     /** The [LayoutInfo] that this is associated with. */
@@ -345,7 +345,7 @@ internal constructor(
             if (mergingEnabled) {
                 node =
                     this.layoutNode.findClosestParentNode {
-                        it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
+                        it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
                     }
             }
 
@@ -474,7 +474,9 @@ internal val LayoutNode.outerMergingSemantics: SemanticsModifierNode?
  * Executes [selector] on every parent of this [LayoutNode] and returns the closest [LayoutNode] to
  * return `true` from [selector] or null if [selector] returns false for all ancestors.
  */
-internal fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutNode? {
+internal inline fun LayoutNode.findClosestParentNode(
+    selector: (LayoutNode) -> Boolean
+): LayoutNode? {
     var currentParent = this.parent
     while (currentParent != null) {
         if (selector(currentParent)) {

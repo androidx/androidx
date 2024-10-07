@@ -87,7 +87,14 @@ interface SemanticsModifierNode : DelegatableNode {
     fun SemanticsPropertyReceiver.applySemantics()
 }
 
-fun SemanticsModifierNode.invalidateSemantics() = requireLayoutNode().invalidateSemantics()
+/**
+ * Invalidate semantics associated with this node. This will reset the [SemanticsConfiguration]
+ * associated with the layout node backing this modifier node, and will re-calculate it the next
+ * time the [SemanticsConfiguration] is read.
+ */
+fun SemanticsModifierNode.invalidateSemantics() {
+    requireLayoutNode().invalidateSemantics()
+}
 
 internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
     get() = getOrNull(SemanticsActions.OnClick) != null

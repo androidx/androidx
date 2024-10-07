@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.semantics
 
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableObjectList
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.util.fastForEach
 
@@ -23,7 +25,8 @@ import androidx.compose.ui.util.fastForEach
 class SemanticsOwner
 internal constructor(
     private val rootNode: LayoutNode,
-    private val outerSemanticsNode: EmptySemanticsModifier
+    private val outerSemanticsNode: EmptySemanticsModifier,
+    private val nodes: IntObjectMap<LayoutNode>
 ) {
     /**
      * The root node of the semantics tree. Does not contain any unmerged data. May contain merged
@@ -47,6 +50,22 @@ internal constructor(
                 unmergedConfig = SemanticsConfiguration()
             )
         }
+
+    internal val listeners = MutableObjectList<SemanticsListener>(2)
+
+    internal val rootInfo: SemanticsInfo
+        get() = rootNode
+
+    internal operator fun get(semanticsId: Int): SemanticsInfo? {
+        return nodes[semanticsId]
+    }
+
+    internal fun notifySemanticsChange(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?
+    ) {
+        listeners.forEach { it.onSemanticsChanged(semanticsInfo, previousSemanticsConfiguration) }
+    }
 }
 
 /**
@@ -70,6 +89,7 @@ fun SemanticsOwner.getAllSemanticsNodes(
         .toList()
 }
 
+@Suppress("unused")
 @Deprecated(message = "Use a new overload instead", level = DeprecationLevel.HIDDEN)
 fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean) =
     getAllSemanticsNodes(mergingEnabled, true)

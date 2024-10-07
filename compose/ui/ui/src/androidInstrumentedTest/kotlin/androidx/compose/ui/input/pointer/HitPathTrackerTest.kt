@@ -20,6 +20,7 @@ package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
+import androidx.collection.IntObjectMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -3417,6 +3419,9 @@ private class MockOwner(
     override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
 
+    override val semanticsOwner: SemanticsOwner
+        get() = TODO("Not yet implemented")
+
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
 
@@ -3562,7 +3567,11 @@ private class MockOwner(
     }
 
     override var measureIteration: Long = 0
+
     override val viewConfiguration: ViewConfiguration
+        get() = TODO("Not yet implemented")
+
+    override val layoutNodes: IntObjectMap<LayoutNode>
         get() = TODO("Not yet implemented")
 
     override val sharedDrawScope = LayoutNodeDrawScope()
