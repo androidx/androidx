@@ -48,7 +48,6 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -264,17 +263,11 @@ private fun Modifier.scroll(
     composed(
         factory = {
             val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
-            val reverseDirection =
-                ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseScrolling
-                )
             Modifier.scrollingContainer(
                     state = state,
                     orientation = orientation,
                     enabled = isScrollable,
-                    reverseDirection = reverseDirection,
+                    reverseScrolling = reverseScrolling,
                     flingBehavior = flingBehavior,
                     interactionSource = state.internalInteractionSource,
                     overscrollEffect = ScrollableDefaults.overscrollEffect()

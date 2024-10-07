@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalGraphicsContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -77,13 +76,6 @@ internal fun LazyStaggeredGrid(
         )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
-    val reverseDirection =
-        ScrollableDefaults.reverseDirection(
-            LocalLayoutDirection.current,
-            orientation,
-            reverseLayout
-        )
-
     val beyondBoundsModifier =
         if (userScrollEnabled) {
             Modifier.lazyLayoutBeyondBoundsModifier(
@@ -114,7 +106,7 @@ internal fun LazyStaggeredGrid(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
-                    reverseDirection = reverseDirection,
+                    reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.mutableInteractionSource,
                     overscrollEffect = ScrollableDefaults.overscrollEffect()
