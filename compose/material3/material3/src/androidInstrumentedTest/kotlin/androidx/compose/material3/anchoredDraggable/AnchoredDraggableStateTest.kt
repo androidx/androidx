@@ -698,7 +698,6 @@ class AnchoredDraggableStateTest {
         dragJob.cancel()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun anchoredDraggable_updateAnchors_anchoredDrag_invokedWithLatestTarget() = runTest {
         val anchoredDraggableState =
@@ -729,6 +728,7 @@ class AnchoredDraggableStateTest {
 
         val firstTarget = targetUpdates.receive()
         assertThat(firstTarget).isEqualTo(firstExpectedTarget)
+        assertThat(anchoredDraggableState.isAnimationRunning).isTrue()
 
         // When the anchors and target change
         val newTarget = A
@@ -737,11 +737,13 @@ class AnchoredDraggableStateTest {
             B at 200f
         }
         Snapshot.withMutableSnapshot { anchoredDraggableState.updateAnchors(newAnchors, newTarget) }
+        assertThat(anchoredDraggableState.isAnimationRunning).isTrue()
 
         // Then the block should be invoked with the new anchors
         val secondTarget = targetUpdates.receive()
         assertThat(secondTarget).isEqualTo(newTarget)
         dragJob.cancel()
+        assertThat(anchoredDraggableState.isAnimationRunning).isFalse()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
