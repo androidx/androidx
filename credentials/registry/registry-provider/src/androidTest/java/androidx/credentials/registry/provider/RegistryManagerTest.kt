@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -46,4 +47,10 @@ class RegistryManagerTest {
                 )
             }
         }
+
+    @Test
+    fun constant() {
+        assertThat(RegistryManager.ACTION_GET_CREDENTIAL)
+            .isEqualTo("androidx.credentials.registry.provider.action.GET_CREDENTIAL")
+    }
 }

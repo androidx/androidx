@@ -18,7 +18,6 @@ package androidx.credentials.registry.provider
 
 import android.content.Context
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
@@ -41,10 +40,17 @@ public abstract class RegistryManager internal constructor() {
         public fun create(context: Context): RegistryManager = RegistryManagerImpl(context)
 
         /**
-         * The intent action name used to find and invoke your activity when the user selects a
-         * credential that is part of your registry.
+         * The intent action name that the Credential Manager used to find and invoke your activity
+         * when the user selects a credential that belongs to your application. Your activity will
+         * be launched and you should use the
+         * [androidx.credentials.provider.PendingIntentHandler.retrieveProviderGetCredentialRequest]
+         * API to retrieve information about the user selection and the verifier request contained
+         * in [androidx.credentials.provider.ProviderGetCredentialRequest]. Next, perform the
+         * necessary steps (e.g. consent collection, credential lookup) to generate a response for
+         * the given request. Pass the result back using one of the
+         * [androidx.credentials.provider.PendingIntentHandler.setGetCredentialResponse] and
+         * [androidx.credentials.provider.PendingIntentHandler.setGetCredentialException] APIs.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public const val ACTION_GET_CREDENTIAL: String =
             "androidx.credentials.registry.provider.action.GET_CREDENTIAL"
     }
