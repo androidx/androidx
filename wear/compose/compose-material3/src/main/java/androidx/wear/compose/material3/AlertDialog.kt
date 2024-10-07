@@ -377,7 +377,7 @@ private fun AlertDialogImpl(
                         item { ConfirmDismissButtons(alertButtonsParams) }
                     is AlertButtonsParams.BottomButton ->
                         if (content == null) {
-                            item { Spacer(Modifier.height(AlertBottomSpacing)) }
+                            item { Spacer(Modifier.height(BottomButtonSpacing)) }
                         }
                     is AlertButtonsParams.NoButtons -> Unit
                 }
@@ -415,7 +415,7 @@ private fun Title(content: @Composable () -> Unit) {
 @Composable
 private fun ConfirmDismissButtons(alertButtonsParams: AlertButtonsParams.ConfirmDismissButtons) {
     Column {
-        Spacer(modifier = Modifier.height(AlertBottomSpacing))
+        Spacer(modifier = Modifier.height(ConfirmDismissButtonsTopSpacing))
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -463,9 +463,10 @@ private sealed interface AlertButtonsParams {
 
 internal val AlertIconBottomSpacing = 4.dp
 internal val AlertTextMessageTopSpacing = 8.dp
-internal val AlertBottomSpacing = 8.dp
+internal val ConfirmDismissButtonsTopSpacing = 12.dp
 internal const val AlertTitleMaxLines = 3
 
 private val ContentTopSpacing = 8.dp
+private val BottomButtonSpacing = 8.dp
 private const val TextPaddingFraction = 0.0416f
 private const val TitlePaddingFraction = 0.12f

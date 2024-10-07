@@ -94,8 +94,24 @@ enum class ScreenShape(val isRound: Boolean) {
     SQUARE_DEVICE(false)
 }
 
+/**
+ * Provides a composable function that allows you to place your content in different screen
+ * configurations within your UI tests. This is useful for testing how your composables behave on
+ * different screen sizes and form factors (e.g. round or square screens).
+ *
+ * @param screenSizeDp The desired screen size in dp. The composable will be placed into a square
+ *   box with this side length.
+ * @param isRound An optional boolean value to specify if the simulated screen should be round. If
+ *   `true`, the screen is considered round. If `false`, it is considered rectangular. If `null`,
+ *   the original device's roundness setting is used.
+ * @param content The composable content to be tested within the modified screen configuration.
+ */
 @Composable
-fun ScreenConfiguration(screenSizeDp: Int, content: @Composable () -> Unit) {
+fun ScreenConfiguration(
+    screenSizeDp: Int,
+    isRound: Boolean? = null,
+    content: @Composable () -> Unit
+) {
     val originalConfiguration = LocalConfiguration.current
     val originalContext = LocalContext.current
 
@@ -104,6 +120,11 @@ fun ScreenConfiguration(screenSizeDp: Int, content: @Composable () -> Unit) {
             Configuration(originalConfiguration).apply {
                 screenWidthDp = screenSizeDp
                 screenHeightDp = screenSizeDp
+                if (isRound != null) {
+                    screenLayout =
+                        if (isRound) Configuration.SCREENLAYOUT_ROUND_YES
+                        else Configuration.SCREENLAYOUT_ROUND_NO
+                }
             }
         }
     originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)

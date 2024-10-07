@@ -233,7 +233,7 @@ class AlertDialogScreenshotTest {
         titleText: String = "Mobile network is not currently available"
     ) {
         setContentWithTheme {
-            ScreenConfiguration(screenSize.size) {
+            ScreenConfiguration(screenSize.size, isRound = true) {
                 AlertDialogHelper(
                     modifier = Modifier.size(screenSize.size.dp).testTag(TEST_TAG),
                     title = { Text(titleText) },
