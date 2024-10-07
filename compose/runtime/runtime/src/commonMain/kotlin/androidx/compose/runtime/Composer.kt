@@ -4532,6 +4532,21 @@ internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> String) {
     }
 }
 
+// R8 rules cause this to be inlined as `false`
+private val enableDebugRuntimeChecks = true
+
+/**
+ * A variation of [composeRuntimeError] that gets stripped from R8-minified builds. Use this for
+ * more expensive checks or assertions along a hotpath that, if failed, would still lead to an
+ * application crash that could be traced back to this assertion if removed from the final program
+ * binary.
+ */
+internal inline fun debugRuntimeCheck(value: Boolean, lazyMessage: () -> String) {
+    if (enableDebugRuntimeChecks && !value) {
+        composeImmediateRuntimeError(lazyMessage())
+    }
+}
+
 internal fun runtimeCheck(value: Boolean) = runtimeCheck(value) { "Check failed" }
 
 internal fun composeRuntimeError(message: String): Nothing {
