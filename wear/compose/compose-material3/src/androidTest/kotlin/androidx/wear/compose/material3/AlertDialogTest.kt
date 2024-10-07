@@ -463,7 +463,7 @@ class AlertDialogTest {
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
         val confirmButtonTop =
             rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot().top
-        confirmButtonTop.assertIsEqualTo(titleBottom + AlertBottomSpacing)
+        confirmButtonTop.assertIsEqualTo(titleBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     @Test
@@ -531,7 +531,7 @@ class AlertDialogTest {
             rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot().top
 
         titleTop.assertIsEqualTo(iconBottom + AlertIconBottomSpacing)
-        confirmButtonTop.assertIsEqualTo(titleBottom + AlertBottomSpacing)
+        confirmButtonTop.assertIsEqualTo(titleBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     @Test
@@ -567,7 +567,7 @@ class AlertDialogTest {
 
         titleTop.assertIsEqualTo(iconBottom + AlertIconBottomSpacing)
         textTop.assertIsEqualTo(titleBottom + AlertTextMessageTopSpacing)
-        confirmButtonTop.assertIsEqualTo(textBottom + AlertBottomSpacing)
+        confirmButtonTop.assertIsEqualTo(textBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     @Test
@@ -608,7 +608,7 @@ class AlertDialogTest {
         titleTop.assertIsEqualTo(iconBottom + AlertIconBottomSpacing)
         textTop.assertIsEqualTo(titleBottom + AlertTextMessageTopSpacing)
         contentTop.assertIsEqualTo(textBottom + AlertTextMessageTopSpacing)
-        confirmButtonTop.assertIsEqualTo(contentBottom + AlertBottomSpacing)
+        confirmButtonTop.assertIsEqualTo(contentBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     @Test
@@ -645,7 +645,7 @@ class AlertDialogTest {
 
         titleTop.assertIsEqualTo(iconBottom + AlertIconBottomSpacing)
         contentTop.assertIsEqualTo(titleBottom + AlertTextMessageTopSpacing)
-        confirmButtonTop.assertIsEqualTo(contentBottom + AlertBottomSpacing)
+        confirmButtonTop.assertIsEqualTo(contentBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     // TODO: add more positioning tests for EdgeButton.
