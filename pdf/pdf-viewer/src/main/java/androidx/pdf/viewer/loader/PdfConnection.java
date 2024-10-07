@@ -74,11 +74,6 @@ public class PdfConnection implements ServiceConnection {
         this.mOnConnectFailure = onConnectFailure;
     }
 
-    /** Checks if Connection to PdfDocumentService is established */
-    public boolean isConnected() {
-        return mConnected;
-    }
-
     /**
      * Returns a {@link PdfDocumentRemote} if the service is bound. It could be still initializing
      * (see {@link #setDocumentLoaded}).
