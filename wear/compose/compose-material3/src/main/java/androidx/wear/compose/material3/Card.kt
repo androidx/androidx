@@ -770,14 +770,23 @@ class CardColors(
     val titleColor: Color,
     val subtitleColor: Color
 ) {
-
-    internal fun copy(
-        containerColor: Color,
-        contentColor: Color,
-        appNameColor: Color,
-        timeColor: Color,
-        titleColor: Color,
-        subtitleColor: Color
+    /**
+     * Returns a copy of this CardColors, optionally overriding some of the values.
+     *
+     * @param containerColor The container color of this [Card].
+     * @param contentColor The content color of this [Card].
+     * @param appNameColor The color used for appName, only applies to [AppCard].
+     * @param timeColor The color used for time, applies to [AppCard] and [TitleCard].
+     * @param titleColor The color used for title, applies to [AppCard] and [TitleCard].
+     * @param subtitleColor The color used for subtitle, applies to [TitleCard].
+     */
+    fun copy(
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        appNameColor: Color = Color.Unspecified,
+        timeColor: Color = Color.Unspecified,
+        titleColor: Color = Color.Unspecified,
+        subtitleColor: Color = Color.Unspecified
     ) =
         CardColors(
             containerPainter =

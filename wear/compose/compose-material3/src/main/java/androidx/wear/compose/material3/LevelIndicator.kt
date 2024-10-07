@@ -19,6 +19,7 @@ package androidx.wear.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -191,17 +192,28 @@ class LevelIndicatorColors(
     val disabledIndicatorColor: Color,
     val disabledTrackColor: Color
 ) {
-    internal fun copy(
-        indicatorColor: Color? = null,
-        trackColor: Color? = null,
-        disabledIndicatorColor: Color? = null,
-        disabledTrackColor: Color? = null,
+    /**
+     * Returns a copy of this LevelIndicatorColors optionally overriding some of the values.
+     *
+     * @param indicatorColor Color used to draw the indicator of [LevelIndicator].
+     * @param trackColor Color used to draw the track of [LevelIndicator].
+     * @param disabledIndicatorColor Color used to draw the indicator of [LevelIndicator] when it is
+     *   not enabled.
+     * @param disabledTrackColor Color used to draw the track of [LevelIndicator] when it is not
+     *   enabled.
+     */
+    fun copy(
+        indicatorColor: Color = this.indicatorColor,
+        trackColor: Color = this.trackColor,
+        disabledIndicatorColor: Color = this.disabledIndicatorColor,
+        disabledTrackColor: Color = this.disabledTrackColor,
     ) =
         LevelIndicatorColors(
-            indicatorColor = indicatorColor ?: this.indicatorColor,
-            trackColor = trackColor ?: this.trackColor,
-            disabledIndicatorColor = disabledIndicatorColor ?: this.disabledIndicatorColor,
-            disabledTrackColor = disabledTrackColor ?: this.disabledTrackColor,
+            indicatorColor = indicatorColor.takeOrElse { this.indicatorColor },
+            trackColor = trackColor.takeOrElse { this.trackColor },
+            disabledIndicatorColor =
+                disabledIndicatorColor.takeOrElse { this.disabledIndicatorColor },
+            disabledTrackColor = disabledTrackColor.takeOrElse { this.disabledTrackColor },
         )
 
     /**

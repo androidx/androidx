@@ -805,27 +805,68 @@ class RadioButtonColors(
     val disabledUnselectedIconColor: Color,
     val disabledUnselectedControlColor: Color,
 ) {
-    internal fun copy(
-        selectedContainerColor: Color,
-        selectedContentColor: Color,
-        selectedSecondaryContentColor: Color,
-        selectedIconColor: Color,
-        selectedControlColor: Color,
-        unselectedContainerColor: Color,
-        unselectedContentColor: Color,
-        unselectedSecondaryContentColor: Color,
-        unselectedIconColor: Color,
-        unselectedControlColor: Color,
-        disabledSelectedContainerColor: Color,
-        disabledSelectedContentColor: Color,
-        disabledSelectedSecondaryContentColor: Color,
-        disabledSelectedIconColor: Color,
-        disabledSelectedControlColor: Color,
-        disabledUnselectedContainerColor: Color,
-        disabledUnselectedContentColor: Color,
-        disabledUnselectedSecondaryContentColor: Color,
-        disabledUnselectedIconColor: Color,
-        disabledUnselectedControlColor: Color,
+    /**
+     * Returns a copy of this RadioButtonColors optionally overriding some of the values.
+     *
+     * @param selectedContainerColor Container or background color when the radio button is selected
+     * @param selectedContentColor Color of the content (e.g. label) when the radio button is
+     *   selected
+     * @param selectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
+     *   when the radio button is selected
+     * @param selectedIconColor Color of the icon when the radio button is selected
+     * @param selectedControlColor Color of the radio selection control when the radio button is
+     *   selected
+     * @param unselectedContainerColor Container or background color when the radio button is
+     *   unselected
+     * @param unselectedContentColor Color of the content (e.g. label) when the radio button is
+     *   unselected
+     * @param unselectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
+     *   when the radio button is unselected
+     * @param unselectedIconColor Color of the icon when the radio button is unselected
+     * @param unselectedControlColor Color of the radio selection control when the radio button is
+     *   unselected
+     * @param disabledSelectedContainerColor Container or background color when the radio button is
+     *   disabled and selected
+     * @param disabledSelectedContentColor Color of content (e.g. label) when the radio button is
+     *   disabled and selected
+     * @param disabledSelectedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the radio button is disabled and selected
+     * @param disabledSelectedIconColor Icon color when the radio button is disabled and selected
+     * @param disabledSelectedControlColor Radio selection control color when the radio button is
+     *   disabled and selected
+     * @param disabledUnselectedContainerColor Container or background color when the radio button
+     *   is disabled and unselected
+     * @param disabledUnselectedContentColor Color of the content (e.g. label) when the radio button
+     *   is disabled and unselected
+     * @param disabledUnselectedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the radio button is disabled and unselected
+     * @param disabledUnselectedIconColor Icon color when the radio button is disabled and
+     *   unselected
+     * @param disabledUnselectedControlColor Radio selection control color when the radio button is
+     *   disabled and unselected
+     */
+    fun copy(
+        selectedContainerColor: Color = this.selectedContainerColor,
+        selectedContentColor: Color = this.selectedContentColor,
+        selectedSecondaryContentColor: Color = this.selectedSecondaryContentColor,
+        selectedIconColor: Color = this.selectedIconColor,
+        selectedControlColor: Color = this.selectedControlColor,
+        unselectedContainerColor: Color = this.unselectedContainerColor,
+        unselectedContentColor: Color = this.unselectedContentColor,
+        unselectedSecondaryContentColor: Color = this.unselectedSecondaryContentColor,
+        unselectedIconColor: Color = this.unselectedIconColor,
+        unselectedControlColor: Color = this.unselectedControlColor,
+        disabledSelectedContainerColor: Color = this.disabledSelectedContainerColor,
+        disabledSelectedContentColor: Color = this.disabledSelectedContentColor,
+        disabledSelectedSecondaryContentColor: Color = this.disabledSelectedSecondaryContentColor,
+        disabledSelectedIconColor: Color = this.disabledSelectedIconColor,
+        disabledSelectedControlColor: Color = this.disabledSelectedControlColor,
+        disabledUnselectedContainerColor: Color = this.disabledUnselectedContainerColor,
+        disabledUnselectedContentColor: Color = this.disabledUnselectedContentColor,
+        disabledUnselectedSecondaryContentColor: Color =
+            this.disabledUnselectedSecondaryContentColor,
+        disabledUnselectedIconColor: Color = this.disabledUnselectedIconColor,
+        disabledUnselectedControlColor: Color = this.disabledUnselectedControlColor,
     ): RadioButtonColors =
         RadioButtonColors(
             selectedContainerColor =
@@ -1089,28 +1130,71 @@ constructor(
     val disabledUnselectedSplitContainerColor: Color,
     val disabledUnselectedControlColor: Color,
 ) {
-
-    internal fun copy(
-        selectedContainerColor: Color,
-        selectedContentColor: Color,
-        selectedSecondaryContentColor: Color,
-        selectedSplitContainerColor: Color,
-        selectedControlColor: Color,
-        unselectedContainerColor: Color,
-        unselectedContentColor: Color,
-        unselectedSecondaryContentColor: Color,
-        unselectedSplitContainerColor: Color,
-        unselectedControlColor: Color,
-        disabledSelectedContainerColor: Color,
-        disabledSelectedContentColor: Color,
-        disabledSelectedSecondaryContentColor: Color,
-        disabledSelectedSplitContainerColor: Color,
-        disabledSelectedControlColor: Color,
-        disabledUnselectedContainerColor: Color,
-        disabledUnselectedContentColor: Color,
-        disabledUnselectedSecondaryContentColor: Color,
-        disabledUnselectedSplitContainerColor: Color,
-        disabledUnselectedControlColor: Color,
+    /**
+     * Returns a copy of this SplitRadioButtonColors optionally overriding some of the values.
+     *
+     * @param selectedContainerColor Container or background color when the [SplitRadioButton] is
+     *   selected
+     * @param selectedContentColor Color of the content (e.g. label) when the [SplitRadioButton] is
+     *   selected
+     * @param selectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
+     *   when the [SplitRadioButton] is selected
+     * @param selectedSplitContainerColor Split container color when the [SplitRadioButton] is
+     *   selected
+     * @param selectedControlColor Selection control color when the [SplitRadioButton] is selected
+     * @param unselectedContainerColor Container or background color when the [SplitRadioButton] is
+     *   unselected
+     * @param unselectedContentColor Color of the content (e.g. label) when the [SplitRadioButton]
+     *   is unselected
+     * @param unselectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
+     *   when the [SplitRadioButton] is unselected
+     * @param unselectedSplitContainerColor Split container color when the [SplitRadioButton] is
+     *   unselected
+     * @param unselectedControlColor Selection control color when the [SplitRadioButton] is
+     *   unselected
+     * @param disabledSelectedContainerColor Container color when the [SplitRadioButton] is disabled
+     *   and selected
+     * @param disabledSelectedContentColor Color of the content (e.g. label) when the
+     *   [SplitRadioButton] is disabled and selected
+     * @param disabledSelectedSecondaryContentColor Color of the secondary content (e.g. secondary
+     *   label) when the [SplitRadioButton] is disabled and selected
+     * @param disabledSelectedSplitContainerColor Split container color when the [SplitRadioButton]
+     *   is disabled and selected
+     * @param disabledSelectedControlColor Selection control color when the [SplitRadioButton] is
+     *   disabled and selected
+     * @param disabledUnselectedContainerColor Container color when the [SplitRadioButton] is
+     *   unselected and disabled
+     * @param disabledUnselectedContentColor Color of the content (e.g. label) when the split radio
+     *   button is unselected and disabled
+     * @param disabledUnselectedSecondaryContentColor Color of the secondary content (e.g. secondary
+     *   label) when the [SplitRadioButton] is unselected and disabled
+     * @param disabledUnselectedSplitContainerColor Split container color when the
+     *   [SplitRadioButton] is unselected and disabled
+     * @param disabledUnselectedControlColor Selection control color when the [SplitRadioButton] is
+     *   unselected and disabled
+     */
+    fun copy(
+        selectedContainerColor: Color = this.selectedContainerColor,
+        selectedContentColor: Color = this.selectedContentColor,
+        selectedSecondaryContentColor: Color = this.selectedSecondaryContentColor,
+        selectedSplitContainerColor: Color = this.selectedSplitContainerColor,
+        selectedControlColor: Color = this.selectedControlColor,
+        unselectedContainerColor: Color = this.unselectedContainerColor,
+        unselectedContentColor: Color = this.unselectedContentColor,
+        unselectedSecondaryContentColor: Color = this.unselectedSecondaryContentColor,
+        unselectedSplitContainerColor: Color = this.unselectedSplitContainerColor,
+        unselectedControlColor: Color = this.unselectedControlColor,
+        disabledSelectedContainerColor: Color = this.disabledSelectedContainerColor,
+        disabledSelectedContentColor: Color = this.disabledSelectedContentColor,
+        disabledSelectedSecondaryContentColor: Color = this.disabledSelectedSecondaryContentColor,
+        disabledSelectedSplitContainerColor: Color = this.disabledSelectedSplitContainerColor,
+        disabledSelectedControlColor: Color = this.disabledSelectedControlColor,
+        disabledUnselectedContainerColor: Color = this.disabledUnselectedContainerColor,
+        disabledUnselectedContentColor: Color = this.disabledUnselectedContentColor,
+        disabledUnselectedSecondaryContentColor: Color =
+            this.disabledUnselectedSecondaryContentColor,
+        disabledUnselectedSplitContainerColor: Color = this.disabledUnselectedSplitContainerColor,
+        disabledUnselectedControlColor: Color = this.disabledUnselectedControlColor,
     ): SplitRadioButtonColors =
         SplitRadioButtonColors(
             selectedContainerColor =

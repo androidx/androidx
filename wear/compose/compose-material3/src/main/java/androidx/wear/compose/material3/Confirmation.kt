@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -517,15 +518,22 @@ class ConfirmationColors(
     val iconContainerColor: Color,
     val textColor: Color,
 ) {
-    internal fun copy(
-        iconColor: Color? = null,
-        iconContainerColor: Color? = null,
-        textColor: Color? = null
+    /**
+     * Returns a copy of this ConfirmationColors, optionally overriding some of the values.
+     *
+     * @param iconColor Color used to tint the icon.
+     * @param iconContainerColor The color of the container behind the icon.
+     * @param textColor Color used to tint the text.
+     */
+    fun copy(
+        iconColor: Color = this.iconColor,
+        iconContainerColor: Color = this.iconContainerColor,
+        textColor: Color = this.textColor
     ) =
         ConfirmationColors(
-            iconColor = iconColor ?: this.iconColor,
-            iconContainerColor = iconContainerColor ?: this.iconContainerColor,
-            textColor = textColor ?: this.textColor,
+            iconColor = iconColor.takeOrElse { this.iconColor },
+            iconContainerColor = iconContainerColor.takeOrElse { this.iconContainerColor },
+            textColor = textColor.takeOrElse { this.textColor },
         )
 
     override fun equals(other: Any?): Boolean {

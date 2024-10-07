@@ -1686,15 +1686,27 @@ constructor(
         disabledIconColor,
     )
 
-    internal fun copy(
-        containerColor: Color,
-        contentColor: Color,
-        secondaryContentColor: Color,
-        iconColor: Color,
-        disabledContainerColor: Color,
-        disabledContentColor: Color,
-        disabledSecondaryContentColor: Color,
-        disabledIconColor: Color,
+    /**
+     * Returns a copy of this [ButtonColors], optionally overriding some of the values.
+     *
+     * @param containerColor The background color of this [Button] when enabled
+     * @param contentColor The content color of this [Button] when enabled
+     * @param secondaryContentColor The content color of this [Button] when enabled
+     * @param iconColor The content color of this [Button] when enabled
+     * @param disabledContainerColor The background color of this [Button] when not enabled
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The content color of this [Button] when not enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
+     */
+    fun copy(
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        secondaryContentColor: Color = Color.Unspecified,
+        iconColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+        disabledSecondaryContentColor: Color = Color.Unspecified,
+        disabledIconColor: Color = Color.Unspecified,
     ) =
         ButtonColors(
             if (containerColor != Color.Unspecified) ColorPainter(containerColor)

@@ -833,29 +833,30 @@ constructor(
     val disabledUncheckedIconColor: Color,
     val disabledUncheckedBoxColor: Color,
 ) {
-    internal fun copy(
-        checkedContainerColor: Color,
-        checkedContentColor: Color,
-        checkedSecondaryContentColor: Color,
-        checkedIconColor: Color,
-        checkedBoxColor: Color,
-        checkedCheckmarkColor: Color,
-        uncheckedContainerColor: Color,
-        uncheckedContentColor: Color,
-        uncheckedSecondaryContentColor: Color,
-        uncheckedIconColor: Color,
-        uncheckedBoxColor: Color,
-        disabledCheckedContainerColor: Color,
-        disabledCheckedContentColor: Color,
-        disabledCheckedSecondaryContentColor: Color,
-        disabledCheckedIconColor: Color,
-        disabledCheckedBoxColor: Color,
-        disabledCheckedCheckmarkColor: Color,
-        disabledUncheckedContainerColor: Color,
-        disabledUncheckedContentColor: Color,
-        disabledUncheckedSecondaryContentColor: Color,
-        disabledUncheckedIconColor: Color,
-        disabledUncheckedBoxColor: Color,
+    /** Returns a copy of this CheckboxButtonColors, optionally overriding some of the values. */
+    fun copy(
+        checkedContainerColor: Color = this.checkedContainerColor,
+        checkedContentColor: Color = this.checkedContentColor,
+        checkedSecondaryContentColor: Color = this.checkedSecondaryContentColor,
+        checkedIconColor: Color = this.checkedIconColor,
+        checkedBoxColor: Color = this.checkedBoxColor,
+        checkedCheckmarkColor: Color = this.checkedCheckmarkColor,
+        uncheckedContainerColor: Color = this.uncheckedContainerColor,
+        uncheckedContentColor: Color = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: Color = this.uncheckedSecondaryContentColor,
+        uncheckedIconColor: Color = this.uncheckedIconColor,
+        uncheckedBoxColor: Color = this.uncheckedBoxColor,
+        disabledCheckedContainerColor: Color = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: Color = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: Color = this.disabledCheckedSecondaryContentColor,
+        disabledCheckedIconColor: Color = this.disabledCheckedIconColor,
+        disabledCheckedBoxColor: Color = this.disabledCheckedBoxColor,
+        disabledCheckedCheckmarkColor: Color = this.disabledCheckedCheckmarkColor,
+        disabledUncheckedContainerColor: Color = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: Color = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: Color = this.disabledUncheckedSecondaryContentColor,
+        disabledUncheckedIconColor: Color = this.disabledUncheckedIconColor,
+        disabledUncheckedBoxColor: Color = this.disabledUncheckedBoxColor,
     ): CheckboxButtonColors =
         CheckboxButtonColors(
             checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },
@@ -1143,29 +1144,74 @@ constructor(
     val disabledUncheckedBoxColor: Color,
 ) {
 
-    internal fun copy(
-        checkedContainerColor: Color,
-        checkedContentColor: Color,
-        checkedSecondaryContentColor: Color,
-        checkedSplitContainerColor: Color,
-        checkedBoxColor: Color,
-        checkedCheckmarkColor: Color,
-        uncheckedContainerColor: Color,
-        uncheckedContentColor: Color,
-        uncheckedSecondaryContentColor: Color,
-        uncheckedSplitContainerColor: Color,
-        uncheckedBoxColor: Color,
-        disabledCheckedContainerColor: Color,
-        disabledCheckedContentColor: Color,
-        disabledCheckedSecondaryContentColor: Color,
-        disabledCheckedSplitContainerColor: Color,
-        disabledCheckedBoxColor: Color,
-        disabledCheckedCheckmarkColor: Color,
-        disabledUncheckedContainerColor: Color,
-        disabledUncheckedContentColor: Color,
-        disabledUncheckedSecondaryContentColor: Color,
-        disabledUncheckedSplitContainerColor: Color,
-        disabledUncheckedBoxColor: Color,
+    /**
+     * Returns a copy of this SplitCheckboxButtonColors optionally overriding some of the values.
+     *
+     * @param checkedContainerColor Container or background color when the [SplitCheckboxButton] is
+     *   checked
+     * @param checkedContentColor Color of the content like label when the [SplitCheckboxButton] is
+     *   checked
+     * @param checkedSecondaryContentColor Color of the secondary content like secondary label when
+     *   the [SplitCheckboxButton] is checked
+     * @param checkedSplitContainerColor Split container color when the [SplitCheckboxButton] is
+     *   checked
+     * @param checkedBoxColor Box color when [SplitCheckboxButton] is checked
+     * @param checkedCheckmarkColor Checkmark color when [SplitCheckboxButton] is checked
+     * @param uncheckedContainerColor Container or background color when the [SplitCheckboxButton]
+     *   is unchecked
+     * @param uncheckedContentColor Color of the content like label when the [SplitCheckboxButton]
+     *   is unchecked
+     * @param uncheckedSecondaryContentColor Color of the secondary content like secondary label
+     *   when the [SplitCheckboxButton] is unchecked
+     * @param uncheckedSplitContainerColor Split container color when the [SplitCheckboxButton] is
+     *   unchecked
+     * @param uncheckedBoxColor Box color when the [SplitCheckboxButton] is unchecked
+     * @param disabledCheckedContainerColor Container color when the [SplitCheckboxButton] is
+     *   disabled and checked
+     * @param disabledCheckedContentColor Color of the content like label when the
+     *   [SplitCheckboxButton] is disabled and checked
+     * @param disabledCheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the [SplitCheckboxButton] is disabled and checked
+     * @param disabledCheckedSplitContainerColor Split container color when the
+     *   [SplitCheckboxButton] is disabled and checked
+     * @param disabledCheckedBoxColor Box color when the [SplitCheckboxButton] is disabled and
+     *   checked
+     * @param disabledCheckedCheckmarkColor Checkmark color when the [SplitCheckboxButton] is
+     *   disabled and checked
+     * @param disabledUncheckedContainerColor Container color when the [SplitCheckboxButton] is
+     *   unchecked and disabled
+     * @param disabledUncheckedContentColor Color of the content like label when the
+     *   [SplitCheckboxButton] is unchecked and disabled
+     * @param disabledUncheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the [SplitCheckboxButton] is unchecked and disabled
+     * @param disabledUncheckedSplitContainerColor Split container color when the
+     *   [SplitCheckboxButton] is unchecked and disabled
+     * @param disabledUncheckedBoxColor Box color when the [SplitCheckboxButton] is disabled and
+     *   unchecked
+     */
+    fun copy(
+        checkedContainerColor: Color = this.checkedContainerColor,
+        checkedContentColor: Color = this.checkedContentColor,
+        checkedSecondaryContentColor: Color = this.checkedSecondaryContentColor,
+        checkedSplitContainerColor: Color = this.checkedSplitContainerColor,
+        checkedBoxColor: Color = this.checkedBoxColor,
+        checkedCheckmarkColor: Color = this.checkedCheckmarkColor,
+        uncheckedContainerColor: Color = this.uncheckedContainerColor,
+        uncheckedContentColor: Color = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: Color = this.uncheckedSecondaryContentColor,
+        uncheckedSplitContainerColor: Color = this.uncheckedSplitContainerColor,
+        uncheckedBoxColor: Color = this.uncheckedBoxColor,
+        disabledCheckedContainerColor: Color = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: Color = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: Color = this.disabledCheckedSecondaryContentColor,
+        disabledCheckedSplitContainerColor: Color = this.disabledCheckedSplitContainerColor,
+        disabledCheckedBoxColor: Color = this.disabledCheckedBoxColor,
+        disabledCheckedCheckmarkColor: Color = this.disabledCheckedCheckmarkColor,
+        disabledUncheckedContainerColor: Color = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: Color = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: Color = this.disabledUncheckedSecondaryContentColor,
+        disabledUncheckedSplitContainerColor: Color = this.disabledUncheckedSplitContainerColor,
+        disabledUncheckedBoxColor: Color = this.disabledUncheckedBoxColor,
     ): SplitCheckboxButtonColors =
         SplitCheckboxButtonColors(
             checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },
