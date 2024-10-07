@@ -52,12 +52,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PdfViewerFragmentTestSuite {
 
-    private lateinit var scenario: FragmentScenario<MockPdfViewerFragment>
+    private lateinit var scenario: FragmentScenario<TestPdfViewerFragment>
 
     @Before
     fun setup() {
         scenario =
-            launchFragmentInContainer<MockPdfViewerFragment>(
+            launchFragmentInContainer<TestPdfViewerFragment>(
                 themeResId =
                     com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
                 initialState = Lifecycle.State.INITIALIZED
@@ -83,7 +83,7 @@ class PdfViewerFragmentTestSuite {
         filename: String,
         nextState: Lifecycle.State,
         orientation: Int
-    ): FragmentScenario<MockPdfViewerFragment> {
+    ): FragmentScenario<TestPdfViewerFragment> {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
 
@@ -176,6 +176,62 @@ class PdfViewerFragmentTestSuite {
         onView(withId(R.id.find_query_box)).perform(click())
         onView(withId(R.id.close_btn)).perform(click())
         onView(withId(R.id.find_query_box))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+    }
+
+    /**
+     * This test verifies the behavior of the Pdf viewer in immersive mode, specifically the
+     * visibility of the toolbox and the host app's search button.
+     */
+    @Test
+    fun testPdfViewerFragment_immersiveMode_toggleMenu() {
+        // Load a PDF document into the fragment
+        val scenario =
+            scenarioLoadDocument(
+                TEST_DOCUMENT_FILE,
+                Lifecycle.State.STARTED,
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            )
+
+        // Check that the document is loaded successfully
+        onView(withId(R.id.loadingView))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        scenario.onFragment {
+            Preconditions.checkArgument(
+                it.documentLoaded,
+                "Unable to load document due to ${it.documentError?.message}"
+            )
+        }
+
+        // Show the toolbox and check visibility of buttons
+        scenario.onFragment { it.isToolboxVisible = true }
+        onView(withId(R.id.edit_fab)).check(matches(isDisplayed()))
+        onView(withId(androidx.pdf.testapp.R.id.host_Search)).check(matches(isDisplayed()))
+
+        // Hide the toolbox and check visibility of buttons
+        scenario.onFragment { it.isToolboxVisible = false }
+        onView(withId(R.id.edit_fab))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        onView(withId(androidx.pdf.testapp.R.id.host_Search)).check(matches(isDisplayed()))
+
+        // Enter immersive mode and check visibility of buttons
+        scenario.onFragment { it.onRequestImmersiveMode(true) }
+        onView(withId(R.id.edit_fab))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        onView(withId(androidx.pdf.testapp.R.id.host_Search))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+
+        // Exit immersive mode and check visibility of buttons
+        scenario.onFragment { it.onRequestImmersiveMode(false) }
+        onView(withId(R.id.edit_fab)).check(matches(isDisplayed()))
+        onView(withId(androidx.pdf.testapp.R.id.host_Search)).check(matches(isDisplayed()))
+
+        // Click the host app search button and check visibility of elements
+        onView(withId(androidx.pdf.testapp.R.id.host_Search)).perform(click())
+        onView(withId(R.id.search_container)).check(matches(isDisplayed()))
+        onView(withId(R.id.edit_fab))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        onView(withId(androidx.pdf.testapp.R.id.host_Search))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
     }
 
