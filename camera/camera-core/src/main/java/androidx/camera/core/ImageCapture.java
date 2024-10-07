@@ -2219,6 +2219,11 @@ public final class ImageCapture extends UseCase {
         private final int mImageFormat;
 
         @RestrictTo(Scope.LIBRARY_GROUP)
+        public OutputFileResults(@Nullable Uri savedUri) {
+            this(savedUri, JPEG);
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
         public OutputFileResults(@Nullable Uri savedUri, int imageFormat) {
             mSavedUri = savedUri;
             mImageFormat = imageFormat;
