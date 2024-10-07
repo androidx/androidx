@@ -27,29 +27,42 @@ class ThresholdHandlerTest {
     @Test
     fun testMinVelocityThreshold() {
         val itemHeight = 100f
-        val thresholdHandler = ThresholdHandler(2.0f, averageItemSize = { itemHeight })
+        val minThresholdDivider = 1f
+        val maxThresholdDivider = 2f
+        val thresholdHandler =
+            ThresholdHandler(
+                minThresholdDivider = minThresholdDivider,
+                maxThresholdDivider = maxThresholdDivider,
+                averageItemSize = { itemHeight },
+            )
 
         thresholdHandler.startThresholdTracking(0L)
         // Simulate very slow scroll
         thresholdHandler.updateTracking(100L, 1f)
         val result = thresholdHandler.calculateSnapThreshold()
 
-        // Threshold should be equal to the height of an item
-        assertEquals(itemHeight, result, 0.01f)
+        // Threshold should be equal to the height of an item divided by minThresholdDivider
+        assertEquals(itemHeight / minThresholdDivider, result, 0.01f)
     }
 
     @Test
     fun testMaxVelocityThreshold() {
         val itemHeight = 100f
-        val thresholdDivider = 2.0f
-        val thresholdHandler = ThresholdHandler(thresholdDivider, averageItemSize = { itemHeight })
+        val minThresholdDivider = 1f
+        val maxThresholdDivider = 2f
+        val thresholdHandler =
+            ThresholdHandler(
+                minThresholdDivider = minThresholdDivider,
+                maxThresholdDivider = maxThresholdDivider,
+                averageItemSize = { itemHeight },
+            )
 
         thresholdHandler.startThresholdTracking(0L)
         // Simulate very fast scroll
         thresholdHandler.updateTracking(1L, 100f)
         val result = thresholdHandler.calculateSnapThreshold()
 
-        // Threshold should be equal to the height of an item divided by threshold
-        assertEquals(itemHeight / thresholdDivider, result, 0.01f)
+        // Threshold should be equal to the height of an item divided by maxThresholdDivider
+        assertEquals(itemHeight / maxThresholdDivider, result, 0.01f)
     }
 }
