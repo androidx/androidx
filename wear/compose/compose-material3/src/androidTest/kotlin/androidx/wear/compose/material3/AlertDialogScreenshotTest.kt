@@ -307,7 +307,7 @@ private fun AlertDialogHelper(
             title = title,
             icon = icon,
             text = text,
-            bottomButton = { AlertDialogDefaults.BottomButton({}) },
+            edgeButton = { AlertDialogDefaults.EdgeButton({}) },
             content = content
         )
     }

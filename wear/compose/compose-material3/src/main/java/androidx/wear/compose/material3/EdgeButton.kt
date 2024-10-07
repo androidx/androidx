@@ -107,12 +107,7 @@ import kotlin.math.sqrt
  * @param modifier Modifier to be applied to the button. When animating the button to appear/
  *   disappear from the screen, a Modifier.height can be used to change the height of the component,
  *   but that won't change the space available for the content (though it may be scaled)
- * @param preferredHeight Defines the base size of the button, see the 4 standard sizes specified in
- *   [ButtonDefaults]. This is used to determine the size constraints passed on to the content, and
- *   the size of the edge button if no height Modifier is specified. Note that if a height Modifier
- *   is specified for the EdgeButton, that will determine the size of the container, and the content
- *   may be scaled and or have alpha applied to fit. The default is
- *   [ButtonDefaults.EdgeButtonHeightSmall]
+ * @param buttonSize Defines the size of the button. See [EdgeButtonSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
@@ -130,7 +125,7 @@ import kotlin.math.sqrt
 fun EdgeButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    preferredHeight: Dp = ButtonDefaults.EdgeButtonHeightSmall,
+    buttonSize: EdgeButtonSize = EdgeButtonSize.Small,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
@@ -141,6 +136,8 @@ fun EdgeButton(
 
     val density = LocalDensity.current
     val screenWidthDp = screenWidthDp().dp
+
+    val preferredHeight = buttonSize.maximumHeight
 
     val contentShapeHelper =
         remember(preferredHeight) {
@@ -269,6 +266,29 @@ fun EdgeButton(
     )
 }
 
+/**
+ * Size of the [EdgeButton]. This in turns determines the full shape of the edge button, including
+ * width, height, rounding radius for the top corners, the ellipsis size for the bottom part of the
+ * shape and the space available for the content.
+ */
+class EdgeButtonSize internal constructor(internal val maximumHeight: Dp) {
+    internal fun maximumHeightPlusPadding() = maximumHeight + VERTICAL_PADDING * 2
+
+    companion object {
+        /** The Size to be applied for an extra small [EdgeButton]. */
+        val ExtraSmall = EdgeButtonSize(46.dp)
+
+        /** The Size to be applied for an small [EdgeButton]. */
+        val Small = EdgeButtonSize(56.dp)
+
+        /** The Size to be applied for an medium [EdgeButton]. */
+        val Medium = EdgeButtonSize(70.dp)
+
+        /** The Size to be applied for an large [EdgeButton]. */
+        val Large = EdgeButtonSize(96.dp)
+    }
+}
+
 private fun Modifier.sizeAndOffset(rectFn: (Constraints) -> Rect) =
     layout { measurable, constraints ->
         val rect = rectFn(constraints)
@@ -294,7 +314,7 @@ private fun Modifier.sizeAndOffset(rectFn: (Constraints) -> Rect) =
 
 internal class ShapeHelper(private val density: Density) {
     private val extraSmallHeightPx =
-        with(density) { ButtonDefaults.EdgeButtonHeightExtraSmall.toPx() }
+        with(density) { EdgeButtonSize.ExtraSmall.maximumHeight.toPx() }
     private val bottomPaddingPx = with(density) { VERTICAL_PADDING.toPx() }
     private val extraSmallEllipsisHeightPx = with(density) { EXTRA_SMALL_ELLIPSIS_HEIGHT.toPx() }
     private val targetSidePadding = with(density) { TARGET_SIDE_PADDING.toPx() }

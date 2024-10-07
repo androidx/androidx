@@ -64,50 +64,39 @@ class EdgeButtonScreenshotTest {
 
     @Test
     fun edge_button_xsmall() = verifyScreenshot {
-        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall)
+        BasicEdgeButton(buttonSize = EdgeButtonSize.ExtraSmall)
     }
 
     @Test
     fun edge_button_small() =
-        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightSmall) }
+        verifyScreenshot() { BasicEdgeButton(buttonSize = EdgeButtonSize.Small) }
 
     @Test
     fun edge_button_medium() =
-        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightMedium) }
+        verifyScreenshot() { BasicEdgeButton(buttonSize = EdgeButtonSize.Medium) }
 
     @Test
     fun edge_button_large() =
-        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge) }
+        verifyScreenshot() { BasicEdgeButton(buttonSize = EdgeButtonSize.Large) }
 
     @Test
     fun edge_button_disabled() =
-        verifyScreenshot() {
-            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightMedium, enabled = false)
-        }
+        verifyScreenshot() { BasicEdgeButton(buttonSize = EdgeButtonSize.Medium, enabled = false) }
 
     @Test
     fun edge_button_small_space_very_limited() =
         verifyScreenshot() {
-            BasicEdgeButton(
-                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
-                constrainedHeight = 10.dp
-            )
+            BasicEdgeButton(buttonSize = EdgeButtonSize.Small, constrainedHeight = 10.dp)
         }
 
     @Test
     fun edge_button_small_space_limited() = verifyScreenshot {
-        BasicEdgeButton(
-            buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
-            constrainedHeight = 30.dp
-        )
+        BasicEdgeButton(buttonSize = EdgeButtonSize.Small, constrainedHeight = 30.dp)
     }
 
     @Test
     fun edge_button_small_slightly_limited() = verifyScreenshot {
-        BasicEdgeButton(
-            buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
-            constrainedHeight = 40.dp
-        )
+        BasicEdgeButton(buttonSize = EdgeButtonSize.Small, constrainedHeight = 40.dp)
     }
 
     private val LONG_TEXT =
@@ -116,17 +105,17 @@ class EdgeButtonScreenshotTest {
 
     @Test
     fun edge_button_xsmall_long_text() = verifyScreenshot {
-        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall, text = LONG_TEXT)
+        BasicEdgeButton(buttonSize = EdgeButtonSize.ExtraSmall, text = LONG_TEXT)
     }
 
     @Test
     fun edge_button_large_long_text() = verifyScreenshot {
-        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge, text = LONG_TEXT)
+        BasicEdgeButton(buttonSize = EdgeButtonSize.Large, text = LONG_TEXT)
     }
 
     @Composable
     private fun BasicEdgeButton(
-        buttonHeight: Dp,
+        buttonSize: EdgeButtonSize,
         constrainedHeight: Dp? = null,
         enabled: Boolean = true,
         text: String = "Text"
@@ -135,7 +124,7 @@ class EdgeButtonScreenshotTest {
             EdgeButton(
                 onClick = { /* Do something */ },
                 enabled = enabled,
-                preferredHeight = buttonHeight,
+                buttonSize = buttonSize,
                 modifier =
                     Modifier.align(Alignment.BottomEnd)
                         .testTag(TEST_TAG)

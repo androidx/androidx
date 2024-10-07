@@ -46,6 +46,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material3.AlertDialogDefaults.edgeButtonExtraTopPadding
 import androidx.wear.compose.material3.PaddingDefaults.horizontalContentPadding
 import androidx.wear.compose.material3.PaddingDefaults.verticalContentPadding
 import androidx.wear.compose.materialcore.isSmallScreen
@@ -124,23 +125,9 @@ fun AlertDialog(
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
  * exceeds the viewport height.
  *
- * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog. It should
- * be used when the user will be presented with either a single acknowledgement, or a stack of
- * options.
- *
- * Example of an [AlertDialog] with an icon, title, text and bottom [EdgeButton]:
- *
- * @sample androidx.wear.compose.material3.samples.AlertDialogWithBottomButtonSample
- *
- * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
- *
- * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
  * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.
- * @param bottomButton Optional slot for a [EdgeButton] indicating positive sentiment. Clicking the
- *   button must remove the dialog from the composition hierarchy e.g. by setting [show] to false.
- *   It's recommended to use [AlertDialogDefaults.BottomButton] in this slot with onClick callback.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
  *   dialog's purpose or content and should not exceed 3 lines of text.
  * @param modifier Modifier to be applied to the dialog content.
@@ -159,13 +146,12 @@ fun AlertDialog(
 fun AlertDialog(
     show: Boolean,
     onDismissRequest: () -> Unit,
-    bottomButton: (@Composable BoxScope.() -> Unit)?,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     text: @Composable (() -> Unit)? = null,
     verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
-    contentPadding: PaddingValues = AlertDialogDefaults.contentPadding(bottomButton != null),
+    contentPadding: PaddingValues = AlertDialogDefaults.contentPadding(),
     properties: DialogProperties = DialogProperties(),
     content: (ScalingLazyListScope.() -> Unit)? = null
 ) {
@@ -179,29 +165,100 @@ fun AlertDialog(
         title = title,
         icon = icon,
         text = text,
-        alertButtonsParams =
-            if (bottomButton != null) AlertButtonsParams.BottomButton(bottomButton)
-            else AlertButtonsParams.NoButtons,
+        alertButtonsParams = AlertButtonsParams.NoButtons,
+        content = content
+    )
+}
+
+/**
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task. The dialog is scrollable by default if the content
+ * exceeds the viewport height.
+ *
+ * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog. It should
+ * be used when the user will be presented with a single acknowledgement.
+ *
+ * Example of an [AlertDialog] with an icon, title, text and bottom [EdgeButton]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonSample
+ *
+ * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
+ * @param show A boolean indicating whether the dialog should be displayed.
+ * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
+ *   the right or by other dismiss action.
+ * @param edgeButton Slot for a [EdgeButton] indicating positive sentiment. Clicking the button must
+ *   remove the dialog from the composition hierarchy e.g. by setting [show] to false. It's
+ *   recommended to use [AlertDialogDefaults.EdgeButton] in this slot with onClick callback. Note
+ *   that when using a [EdgeButton] which is not Medium size, the contentPadding parameters should
+ *   be specified.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. Ensure there is
+ *   enough space for the [EdgeButton], for example, using
+ *   [AlertDialogDefaults.contentPaddingWithEdgeButton]
+ * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ * @param content A slot for additional content, displayed within a scrollable [ScalingLazyColumn].
+ */
+@Composable
+fun AlertDialog(
+    show: Boolean,
+    onDismissRequest: () -> Unit,
+    edgeButton: (@Composable BoxScope.() -> Unit),
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues = AlertDialogDefaults.contentPaddingWithEdgeButton(),
+    properties: DialogProperties = DialogProperties(),
+    content: (ScalingLazyListScope.() -> Unit)? = null
+) {
+    AlertDialogImpl(
+        show = show,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        properties = properties,
+        verticalArrangement = verticalArrangement,
+        contentPadding = contentPadding,
+        title = title,
+        icon = icon,
+        text = text,
+        alertButtonsParams = AlertButtonsParams.EdgeButton(edgeButton),
         content = content
     )
 }
 
 /** Contains the default values used by [AlertDialog] */
 object AlertDialogDefaults {
-
     /**
-     * Default composable for the bottom button in an [AlertDialog]. Should be used with
-     * [AlertDialog] overload which contains a single bottomButton slot.
+     * Default composable for the edge button in an [AlertDialog]. This is a medium sized
+     * [EdgeButton]. Should be used with [AlertDialog] overload which contains a single edgeButton
+     * slot.
      *
      * @param onClick The callback to be invoked when the button is clicked.
+     * @param modifier The [Modifier] to be applied to the button.
      * @param content The composable content of the button. Defaults to [ConfirmIcon].
      */
     @Composable
-    fun BottomButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit = ConfirmIcon) {
+    fun EdgeButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        content: @Composable RowScope.() -> Unit = ConfirmIcon
+    ) {
         EdgeButton(
-            modifier = Modifier.padding(top = edgeButtonExtraTopPadding),
+            modifier = modifier,
             onClick = onClick,
-            preferredHeight = ButtonDefaults.EdgeButtonHeightMedium,
+            buttonSize = EdgeButtonSize.Medium,
             content = content
         )
     }
@@ -267,19 +324,36 @@ object AlertDialogDefaults {
     }
 
     /**
-     * The padding to apply around the content for the [AlertDialog] variation with a stack of
-     * options and optional bottom button.
+     * The padding to apply around the content for the [AlertDialog] variation with a bottom button.
+     * If you need to configure custom paddings, consider using
+     * [ScreenScaffoldDefaults.contentPaddingWithEdgeButton]
      */
     @Composable
-    fun contentPadding(hasBottomButton: Boolean): PaddingValues {
+    fun contentPaddingWithEdgeButton(
+        edgeButtonSize: EdgeButtonSize = EdgeButtonSize.Medium
+    ): PaddingValues {
         val topPadding = verticalContentPadding()
         val horizontalPadding = horizontalContentPadding()
-        val bottomPadding =
-            if (hasBottomButton) edgeButtonHeightWithPadding
-            else screenHeightDp().dp * noEdgeButtonBottomPaddingFraction
+        return ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
+            edgeButtonSize,
+            top = topPadding,
+            start = horizontalPadding,
+            end = horizontalPadding,
+            extraBottom = edgeButtonExtraTopPadding
+        )
+    }
+
+    /**
+     * The padding to apply around the content for the [AlertDialog] variation with a stack of
+     * options and no buttons at the end.
+     */
+    @Composable
+    fun contentPadding(): PaddingValues {
+        val topPadding = verticalContentPadding()
+        val horizontalPadding = horizontalContentPadding()
         return PaddingValues(
             top = topPadding,
-            bottom = bottomPadding,
+            bottom = screenHeightDp().dp * noEdgeButtonBottomPaddingFraction,
             start = horizontalPadding,
             end = horizontalPadding,
         )
@@ -317,8 +391,7 @@ object AlertDialogDefaults {
     }
 
     /** The extra top padding to apply to the edge button. */
-    private val edgeButtonExtraTopPadding = 1.dp
-    private val edgeButtonHeightWithPadding = ButtonDefaults.EdgeButtonHeightMedium + 7.dp
+    internal val edgeButtonExtraTopPadding = 1.dp
     internal val noEdgeButtonBottomPaddingFraction = 0.3646f
     internal val cancelButtonPadding = 1.dp
 }
@@ -348,9 +421,14 @@ private fun AlertDialogImpl(
             scrollState = state,
             modifier = modifier,
             bottomButton =
-                if (alertButtonsParams is AlertButtonsParams.BottomButton)
-                    alertButtonsParams.bottomButton
-                else null
+                if (alertButtonsParams is AlertButtonsParams.EdgeButton) {
+                    {
+                        Box(
+                            Modifier.padding(top = edgeButtonExtraTopPadding),
+                            content = alertButtonsParams.edgeButton
+                        )
+                    }
+                } else null
         ) {
             ScalingLazyColumn(
                 state = state,
@@ -375,7 +453,7 @@ private fun AlertDialogImpl(
                 when (alertButtonsParams) {
                     is AlertButtonsParams.ConfirmDismissButtons ->
                         item { ConfirmDismissButtons(alertButtonsParams) }
-                    is AlertButtonsParams.BottomButton ->
+                    is AlertButtonsParams.EdgeButton ->
                         if (content == null) {
                             item { Spacer(Modifier.height(AlertBottomSpacing)) }
                         }
@@ -451,8 +529,8 @@ private fun TextMessage(content: @Composable () -> Unit) {
 private sealed interface AlertButtonsParams {
     object NoButtons : AlertButtonsParams
 
-    class BottomButton(
-        val bottomButton: @Composable BoxScope.() -> Unit,
+    class EdgeButton(
+        val edgeButton: @Composable BoxScope.() -> Unit,
     ) : AlertButtonsParams
 
     class ConfirmDismissButtons(

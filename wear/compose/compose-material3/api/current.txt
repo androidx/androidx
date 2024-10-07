@@ -2,12 +2,13 @@
 package androidx.wear.compose.material3 {
 
   public final class AlertDialogDefaults {
-    method @androidx.compose.runtime.Composable public void BottomButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void ConfirmButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void DismissButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void GroupSeparator();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues confirmDismissContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasBottomButton);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(optional androidx.wear.compose.material3.EdgeButtonSize edgeButtonSize);
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getConfirmIcon();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getDismissIcon();
     method public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
@@ -18,7 +19,8 @@ package androidx.wear.compose.material3 {
   }
 
   public final class AlertDialogKt {
-    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? bottomButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> edgeButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
     method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
   }
 
@@ -83,10 +85,6 @@ package androidx.wear.compose.material3 {
     method public androidx.compose.foundation.layout.PaddingValues getCompactButtonTapTargetPadding();
     method public float getCompactButtonVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method public float getEdgeButtonHeightExtraSmall();
-    method public float getEdgeButtonHeightLarge();
-    method public float getEdgeButtonHeightMedium();
-    method public float getEdgeButtonHeightSmall();
     method public float getExtraLargeIconSize();
     method public float getHeight();
     method public float getIconSize();
@@ -109,10 +107,6 @@ package androidx.wear.compose.material3 {
     property public final androidx.compose.foundation.layout.PaddingValues CompactButtonTapTargetPadding;
     property public final float CompactButtonVerticalPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final float EdgeButtonHeightExtraSmall;
-    property public final float EdgeButtonHeightLarge;
-    property public final float EdgeButtonHeightMedium;
-    property public final float EdgeButtonHeightSmall;
     property public final float ExtraLargeIconSize;
     property public final float Height;
     property public final float IconSize;
@@ -457,7 +451,22 @@ package androidx.wear.compose.material3 {
   }
 
   public final class EdgeButtonKt {
-    method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional float preferredHeight, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.EdgeButtonSize buttonSize, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public final class EdgeButtonSize {
+    field public static final androidx.wear.compose.material3.EdgeButtonSize.Companion Companion;
+  }
+
+  public static final class EdgeButtonSize.Companion {
+    method public androidx.wear.compose.material3.EdgeButtonSize getExtraSmall();
+    method public androidx.wear.compose.material3.EdgeButtonSize getLarge();
+    method public androidx.wear.compose.material3.EdgeButtonSize getMedium();
+    method public androidx.wear.compose.material3.EdgeButtonSize getSmall();
+    property public final androidx.wear.compose.material3.EdgeButtonSize ExtraSmall;
+    property public final androidx.wear.compose.material3.EdgeButtonSize Large;
+    property public final androidx.wear.compose.material3.EdgeButtonSize Medium;
+    property public final androidx.wear.compose.material3.EdgeButtonSize Small;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material3 API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterial3Api {
@@ -899,6 +908,11 @@ package androidx.wear.compose.material3 {
   public final class RippleKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional float radius, optional long color);
+  }
+
+  public final class ScreenScaffoldDefaults {
+    method public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(androidx.wear.compose.material3.EdgeButtonSize edgeButtonSize, optional float start, optional float top, optional float end, optional float extraBottom);
+    field public static final androidx.wear.compose.material3.ScreenScaffoldDefaults INSTANCE;
   }
 
   public final class ScreenScaffoldKt {

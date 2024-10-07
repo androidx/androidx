@@ -19,6 +19,7 @@ package androidx.wear.compose.material3
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -34,7 +35,9 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ActiveFocusListener
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.LazyColumnState
@@ -116,6 +119,10 @@ fun ScreenScaffold(
  * Example of using AppScaffold and ScreenScaffold:
  *
  * @sample androidx.wear.compose.material3.samples.ScaffoldSample
+ *
+ * Example of using ScreenScaffold with a [EdgeButton]:
+ *
+ * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
  * @param scrollState The scroll state for [androidx.wear.compose.foundation.lazy.LazyColumn], used
  *   to drive screen transitions such as [TimeText] scroll away and showing/hiding
  *   [ScrollIndicator].
@@ -374,6 +381,28 @@ fun ScreenScaffold(
             )
         } ?: scrollIndicator?.let { it() }
     }
+}
+
+/** Contains the default values used by [ScreenScaffold] */
+object ScreenScaffoldDefaults {
+    /**
+     * Creates padding values with extra bottom padding for an EdgeButton.
+     *
+     * @param edgeButtonSize The size of the EdgeButton.
+     * @param start The padding on the start side of the content.
+     * @param top The padding on the top side of the content.
+     * @param end The padding on the end side of the content.
+     * @param extraBottom Additional padding to be added to the bottom padding calculated from the
+     *   edge button size.
+     * @return A [PaddingValues] object with the calculated padding.
+     */
+    fun contentPaddingWithEdgeButton(
+        edgeButtonSize: EdgeButtonSize,
+        start: Dp = 0.dp,
+        top: Dp = 0.dp,
+        end: Dp = 0.dp,
+        extraBottom: Dp = 0.dp,
+    ) = PaddingValues(start, top, end, extraBottom + edgeButtonSize.maximumHeightPlusPadding())
 }
 
 // Sets the height that will be used down the line, using a state as parameter, to avoid

@@ -36,6 +36,7 @@ import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
@@ -47,7 +48,7 @@ fun EdgeButtonSample() {
         Text("Confirm", Modifier.align(Alignment.Center))
         EdgeButton(
             onClick = { /* Do something */ },
-            preferredHeight = ButtonDefaults.EdgeButtonHeightMedium,
+            buttonSize = EdgeButtonSize.Medium,
             modifier = Modifier.align(Alignment.BottomEnd)
         ) {
             Icon(
@@ -68,7 +69,7 @@ fun EdgeButtonListSample() {
         bottomButton = {
             EdgeButton(
                 onClick = {},
-                preferredHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                buttonSize = EdgeButtonSize.Large,
                 colors = buttonColors(containerColor = Color.DarkGray)
             ) {
                 Text("Ok", textAlign = TextAlign.Center)
