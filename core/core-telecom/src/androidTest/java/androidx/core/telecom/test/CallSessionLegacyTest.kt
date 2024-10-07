@@ -23,8 +23,8 @@ import android.telecom.CallEndpoint
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
+import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.CallSessionLegacy
-import androidx.core.telecom.internal.PreCallEndpoints
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
@@ -34,8 +34,8 @@ import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,9 +44,12 @@ import org.junit.runner.RunWith
 @RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallSessionLegacyTest : BaseTelecomTest() {
-    val mEarpieceEndpoint = CallEndpointCompat("EARPIECE", CallEndpoint.TYPE_EARPIECE)
-    val mSpeakerEndpoint = CallEndpointCompat("SPEAKER", CallEndpoint.TYPE_SPEAKER)
-    val mEarAndSpeakerEndpoints = listOf(mEarpieceEndpoint, mSpeakerEndpoint)
+    val mSessionId: Int = 444
+
+    @After
+    fun tearDown() {
+        CallEndpointUuidTracker.endSession(mSessionId)
+    }
 
     /**
      * Verify the [CallEndpoint]s echoed from the platform are re-mapped to the existing
@@ -62,13 +65,13 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 initCallSessionLegacy(
                     coroutineContext,
                     null,
-                    PreCallEndpoints(mEarAndSpeakerEndpoints.toMutableList(), Channel())
                 )
             val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER
 
             val platformEndpoints =
                 EndpointUtils.toCallEndpointsCompat(
-                    CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask)
+                    CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask),
+                    mSessionId
                 )
 
             val platformEarpiece = platformEndpoints[0]
@@ -90,7 +93,6 @@ class CallSessionLegacyTest : BaseTelecomTest() {
     private fun initCallSessionLegacy(
         coroutineContext: CoroutineContext,
         preferredStartingEndpoint: CallEndpointCompat?,
-        preCallEndpoints: PreCallEndpoints
     ): CallSessionLegacy {
         return CallSessionLegacy(
             getRandomParcelUuid(),
@@ -103,7 +105,6 @@ class CallSessionLegacyTest : BaseTelecomTest() {
             TestUtils.mOnSetInActiveLambda,
             { _, _ -> },
             preferredStartingEndpoint,
-            preCallEndpoints,
             CompletableDeferred(Unit),
         )
     }

@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
-import androidx.core.telecom.internal.PreCallEndpoints
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -33,7 +32,6 @@ import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -53,9 +51,6 @@ import org.junit.runner.RunWith
 @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RunWith(AndroidJUnit4::class)
 class CallSessionTest : BaseTelecomTest() {
-    private val mEarpieceEndpoint = CallEndpointCompat("EARPIECE", CallEndpoint.TYPE_EARPIECE)
-    private val mSpeakerEndpoint = CallEndpointCompat("SPEAKER", CallEndpoint.TYPE_SPEAKER)
-    private val mBluetoothEndpoint = CallEndpointCompat("BLUETOOTH", CallEndpoint.TYPE_BLUETOOTH)
     private val mEarAndSpeakerEndpoints = listOf(mEarpieceEndpoint, mSpeakerEndpoint)
     private val mEarAndSpeakerAndBtEndpoints =
         listOf(mEarpieceEndpoint, mSpeakerEndpoint, mBluetoothEndpoint)
@@ -170,7 +165,6 @@ class CallSessionTest : BaseTelecomTest() {
                 initCallSession(
                     coroutineContext,
                     CallChannels(),
-                    PreCallEndpoints(mEarAndSpeakerAndBtEndpoints.toMutableList(), Channel())
                 )
 
             val platformEarpiece =
@@ -219,7 +213,6 @@ class CallSessionTest : BaseTelecomTest() {
     private fun initCallSession(
         coroutineContext: CoroutineContext,
         callChannels: CallChannels,
-        preCallEndpoints: PreCallEndpoints? = null,
     ): CallSession {
         return CallSession(
             coroutineContext,
@@ -228,7 +221,6 @@ class CallSessionTest : BaseTelecomTest() {
             TestUtils.mOnDisconnectLambda,
             TestUtils.mOnSetActiveLambda,
             TestUtils.mOnSetInActiveLambda,
-            preCallEndpoints,
             callChannels,
             { _, _ -> },
             CompletableDeferred(Unit)

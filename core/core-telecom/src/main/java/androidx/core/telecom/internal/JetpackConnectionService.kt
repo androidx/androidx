@@ -63,7 +63,6 @@ internal class JetpackConnectionService : ConnectionService() {
         val onSetInactive: suspend () -> Unit,
         val onEvent: suspend (event: String, extras: Bundle) -> Unit,
         val preferredStartingCallEndpoint: CallEndpointCompat? = null,
-        val preCallEndpointMapping: PreCallEndpoints? = null,
         val execution: CompletableDeferred<Unit>
     )
 
@@ -226,7 +225,6 @@ internal class JetpackConnectionService : ConnectionService() {
                 targetRequest.onSetInactive,
                 targetRequest.onEvent,
                 targetRequest.preferredStartingCallEndpoint,
-                targetRequest.preCallEndpointMapping,
                 targetRequest.execution
             )
 
