@@ -60,7 +60,7 @@ class AndroidMatrixTest {
         assertThat(point[0]).isWithin(delta).of(0f)
         assertThat(point[1]).isWithin(delta).of(0f)
         p.mapPoints(point, floatArrayOf(100f, 0f))
-        assertThat(point[0]).isWithin(delta).of(86.48648f)
+        assertThat(point[0]).isWithin(delta).of(86.60254f)
         assertThat(point[1]).isWithin(delta).of(50f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
