@@ -291,3 +291,6 @@ public class EdgeButtonColors(
     /** The color or icon tint color to be used for all content within a button. */
     public val content: ColorProp
 )
+
+internal fun LayoutElement.isSlotEdgeButton(): Boolean =
+    this is Box && METADATA_TAG == this.modifiers?.metadata?.toTagName()
