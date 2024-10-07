@@ -24,6 +24,10 @@
     static java.lang.Void throw*Exception(...);
     static java.lang.Void throw*ExceptionForNullCheck(...);
 
+    # For functions generating error messages
+    static java.lang.String exceptionMessage*(...);
+    java.lang.String exceptionMessage*(...);
+
     static void compose*RuntimeError(...);
     static java.lang.Void compose*RuntimeError(...);
 }

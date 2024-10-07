@@ -279,19 +279,8 @@ internal class LayoutNode(
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
     internal fun insertAt(index: Int, instance: LayoutNode) {
-        checkPrecondition(instance._foldedParent == null) {
-            "Cannot insert $instance because it already has a parent." +
-                " This tree: " +
-                debugTreeToString() +
-                " Other tree: " +
-                instance._foldedParent?.debugTreeToString()
-        }
-        checkPrecondition(instance.owner == null) {
-            "Cannot insert $instance because it already has an owner." +
-                " This tree: " +
-                debugTreeToString() +
-                " Other tree: " +
-                instance.debugTreeToString()
+        checkPrecondition(instance._foldedParent == null || instance.owner == null) {
+            exceptionMessageForParentingOrOwnership(instance)
         }
 
         if (DebugChanges) {
@@ -316,6 +305,13 @@ internal class LayoutNode(
             layoutDelegate.childrenAccessingCoordinatesDuringPlacement++
         }
     }
+
+    private fun exceptionMessageForParentingOrOwnership(instance: LayoutNode) =
+        "Cannot insert $instance because it already has a parent or an owner." +
+            " This tree: " +
+            debugTreeToString() +
+            " Other tree: " +
+            instance._foldedParent?.debugTreeToString()
 
     internal fun onZSortedChildrenInvalidated() {
         if (isVirtual) {

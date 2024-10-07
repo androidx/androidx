@@ -293,7 +293,7 @@ class OperationsTest {
         }
     }
 
-    @Test(expected = NoSuchElementException::class)
+    @Test(expected = IndexOutOfBoundsException::class)
     fun testPop_throwsIfStackIsEmpty() {
         stack.pop()
     }
@@ -336,7 +336,7 @@ class OperationsTest {
         )
     }
 
-    @Test(expected = NoSuchElementException::class)
+    @Test(expected = IndexOutOfBoundsException::class)
     fun testPopInto_throwsIfStackIsEmpty() {
         stack.pop()
     }
