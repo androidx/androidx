@@ -163,7 +163,7 @@ constructor(
             disconnectSessionAndCamera(session, camera)
         }
 
-    override fun tryRestart(cameraStatus: CameraStatus): Unit =
+    override fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
         synchronized(lock) {
             var shouldRestart = false
             when (controllerState) {
@@ -184,7 +184,8 @@ constructor(
             }
             if (!shouldRestart) {
                 Log.debug {
-                    "Ignoring tryRestart(): state = $controllerState, cameraStatus = $cameraStatus"
+                    "Camera status changed but not restarting: " +
+                        "Controller state = $controllerState, camera status = $cameraStatus."
                 }
                 return
             }
@@ -285,8 +286,11 @@ constructor(
                         Build.VERSION.SDK_INT in
                             (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2) && _isForeground
                     ) {
-                        Log.debug { "Quirk for multi-resume: Internal tryRestart()" }
-                        tryRestart(CameraStatus.CameraPrioritiesChanged)
+                        Log.debug {
+                            "Quirk for multi-resume activated: " +
+                                "Emulating camera priorities changed to kickoff potential restart."
+                        }
+                        onCameraStatusChanged(CameraStatus.CameraPrioritiesChanged)
                     }
                 } else {
                     controllerState = ControllerState.ERROR

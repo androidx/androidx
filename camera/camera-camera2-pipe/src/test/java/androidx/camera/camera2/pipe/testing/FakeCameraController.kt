@@ -41,7 +41,7 @@ internal class FakeCameraController(override val cameraGraphId: CameraGraphId) :
         started = false
     }
 
-    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+    override fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus) {
         stop()
         start()
     }

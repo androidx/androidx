@@ -86,12 +86,18 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
                 cameraBackend.cameraStatus.collect { cameraStatus ->
                     when (cameraStatus) {
                         is CameraStatus.CameraPrioritiesChanged ->
-                            tryRestartCameraController(cameraBackend, cameraStatus)
+                            onCameraStatusChanged(cameraBackend, cameraStatus)
                         is CameraStatus.CameraAvailable ->
-                            tryRestartCameraController(
+                            onCameraStatusChanged(
                                 cameraBackend,
                                 cameraStatus,
-                                cameraStatus.cameraId
+                                cameraStatus.cameraId,
+                            )
+                        is CameraStatus.CameraUnavailable ->
+                            onCameraStatusChanged(
+                                cameraBackend,
+                                cameraStatus,
+                                cameraStatus.cameraId,
                             )
                     }
                 }
@@ -111,7 +117,7 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
         }
     }
 
-    private fun tryRestartCameraController(
+    private fun onCameraStatusChanged(
         cameraBackend: CameraBackend,
         cameraStatus: CameraStatus,
         cameraId: CameraId? = null,
@@ -128,6 +134,6 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
                         true
                     }
                 }
-                ?.tryRestart(cameraStatus)
+                ?.onCameraStatusChanged(cameraStatus)
         }
 }

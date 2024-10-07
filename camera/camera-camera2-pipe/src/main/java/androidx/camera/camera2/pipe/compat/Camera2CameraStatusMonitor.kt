@@ -25,11 +25,13 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
 
+@Singleton
 internal class Camera2CameraStatusMonitor
 @Inject
 constructor(cameraManager: Provider<CameraManager>, threads: Threads) : CameraStatusMonitor {
@@ -48,6 +50,14 @@ constructor(cameraManager: Provider<CameraManager>, threads: Threads) : CameraSt
                     Log.debug { "Camera $cameraId has become available" }
                     trySendBlocking(CameraStatus.CameraAvailable(CameraId.fromCamera2Id(cameraId)))
                         .onFailure { Log.warn { "Failed to emit CameraAvailable($cameraId)" } }
+                }
+
+                override fun onCameraUnavailable(cameraId: String) {
+                    Log.debug { "Camera $cameraId has become unavailable" }
+                    trySendBlocking(
+                            CameraStatus.CameraUnavailable(CameraId.fromCamera2Id(cameraId))
+                        )
+                        .onFailure { Log.warn { "Failed to emit CameraUnavailable($cameraId)" } }
                 }
             }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

@@ -68,7 +68,7 @@ public interface CameraController {
      * implementation should handle its internal states correctly, and only restart under the right
      * [CameraStatusMonitor.CameraStatus] and [ControllerState].
      */
-    public fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus)
+    public fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus)
 
     /**
      * Close this instance. [start] and [stop] should not be invoked, and any additional calls will
