@@ -161,8 +161,13 @@ object Release {
         }
         val version = project.version
 
-        val projectZipTask = getProjectZipTask(project)
-        val zipTasks = listOf(projectZipTask, getGlobalFullZipTask(project))
+        val projectZipTask =
+            getProjectZipTask(project, androidXExtension.isIsolatedProjectsEnabled())
+        val zipTasks =
+            listOfNotNull(
+                projectZipTask,
+                getGlobalFullZipTask(project, androidXExtension.isIsolatedProjectsEnabled())
+            )
 
         val artifacts = androidXExtension.publishedArtifacts
         val publishTask = project.tasks.named("publish")
@@ -260,7 +265,11 @@ object Release {
     /**
      * Creates and returns the task that includes all projects regardless of their release status.
      */
-    private fun getGlobalFullZipTask(project: Project): TaskProvider<GMavenZipTask> {
+    private fun getGlobalFullZipTask(
+        project: Project,
+        projectIsolationEnabled: Boolean
+    ): TaskProvider<GMavenZipTask>? {
+        if (projectIsolationEnabled) return null
         return project.rootProject.maybeRegister(
             name = FULL_ARCHIVE_TASK_NAME,
             onConfigure = {
@@ -280,7 +289,10 @@ object Release {
         )
     }
 
-    private fun getProjectZipTask(project: Project): TaskProvider<GMavenZipTask> {
+    private fun getProjectZipTask(
+        project: Project,
+        projectIsolationEnabled: Boolean
+    ): TaskProvider<GMavenZipTask> {
         val taskProvider =
             project.tasks.register(PROJECT_ARCHIVE_ZIP_TASK_NAME, GMavenZipTask::class.java) {
                 task: GMavenZipTask ->
@@ -295,7 +307,7 @@ object Release {
                     )
                     .execute(task)
             }
-        project.addToAnchorTask(taskProvider)
+        if (!projectIsolationEnabled) project.addToAnchorTask(taskProvider)
         return taskProvider
     }
 

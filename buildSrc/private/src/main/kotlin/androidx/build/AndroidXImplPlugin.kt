@@ -90,6 +90,7 @@ import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.component.SoftwareComponentFactory
+import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -137,6 +138,7 @@ abstract class AndroidXImplPlugin
 @Inject
 constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Project> {
     @get:Inject abstract val registry: BuildEventsListenerRegistry
+    @Suppress("UnstableApiUsage") @get:Inject abstract val buildFeatures: BuildFeatures
 
     override fun apply(project: Project) {
         if (project.isRoot)
@@ -342,7 +344,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         val xmlReportDestDir = project.getHostTestResultDirectory()
         val testName = "${project.path}:${task.name}"
-        project.addToModuleInfo(testName)
+        project.addToModuleInfo(testName, buildFeatures.isIsolatedProjectsEnabled())
         androidXExtension.testModuleNames.add(testName)
         val archiveName = "$testName.zip"
         if (project.isDisplayTestOutput()) {
@@ -663,7 +665,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 // Sign all the builds (including release) with debug key
                 buildType.signingConfig = debugSigningConfig
             }
-            project.configureTestConfigGeneration(this)
+            project.configureTestConfigGeneration(
+                this,
+                androidXExtension.isIsolatedProjectsEnabled()
+            )
             project.addAppApkToTestConfigGeneration(androidXExtension)
             excludeVersionFiles(packaging.resources)
         }
@@ -889,7 +894,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 buildType.signingConfig = debugSigningConfig
             }
             testBuildType = buildTypeForTests
-            project.configureTestConfigGeneration(this)
+            project.configureTestConfigGeneration(
+                this,
+                androidXExtension.isIsolatedProjectsEnabled()
+            )
             project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
@@ -1213,7 +1221,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project.enforceBanOnVersionRanges()
         }
 
-        project.configureTestConfigGeneration(this, componentsExtension)
+        project.configureTestConfigGeneration(
+            this,
+            componentsExtension,
+            buildFeatures.isIsolatedProjectsEnabled()
+        )
         project.configureFtlRunner(componentsExtension)
     }
 
@@ -1307,7 +1319,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             versionName = "1.0"
         }
 
-        project.configureTestConfigGeneration(this)
+        project.configureTestConfigGeneration(this, androidXExtension.isIsolatedProjectsEnabled())
         project.addAppApkToTestConfigGeneration(androidXExtension)
         project.addAppApkToFtlRunner()
     }

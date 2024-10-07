@@ -323,7 +323,8 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                         buildTarget = buildTarget,
                         kmpChildren =
                             androidXKmpExtension.supportedPlatforms.mapToSetOrEmpty { it.id },
-                        testModuleNames = androidXExtension.testModuleNames
+                        testModuleNames = androidXExtension.testModuleNames,
+                        isolatedProjectEnabled = androidXExtension.isIsolatedProjectsEnabled(),
                     )
                 }
             }
@@ -341,6 +342,7 @@ private fun Project.createTaskForComponent(
     buildTarget: String,
     kmpChildren: Set<String>,
     testModuleNames: Provider<Set<String>>,
+    isolatedProjectEnabled: Boolean,
 ) {
     val task =
         createBuildInfoTask(
@@ -355,7 +357,9 @@ private fun Project.createTaskForComponent(
             testModuleNames = testModuleNames,
         )
     anchorTask.dependsOn(task)
-    addTaskToAggregateBuildInfoFileTask(task)
+    if (!isolatedProjectEnabled) {
+        addTaskToAggregateBuildInfoFileTask(task)
+    }
 }
 
 private fun Project.createBuildInfoTask(
