@@ -446,6 +446,26 @@ class DateRangePickerTest {
     }
 
     @Test
+    fun state_changeDisplayedMonth() {
+        var futureMonthInUtcMillis = 0L
+        lateinit var state: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2020, month = 1, dayOfMonth = 1)
+            futureMonthInUtcMillis = dayInUtcMilliseconds(year = 2020, month = 7, dayOfMonth = 1)
+            state = rememberDateRangePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
+            DateRangePicker(state = state)
+        }
+
+        rule.onNodeWithText("January 2020").assertExists()
+
+        // Update the displayed month to be ~6 months in the future.
+        state.displayedMonthMillis = futureMonthInUtcMillis
+
+        rule.waitForIdle()
+        rule.onNodeWithText("July 2020").assertExists()
+    }
+
+    @Test
     fun selectableDates_updatedSelection() {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {

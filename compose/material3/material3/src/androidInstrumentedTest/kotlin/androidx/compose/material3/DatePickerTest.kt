@@ -554,6 +554,40 @@ class DatePickerTest {
         }
     }
 
+    @Test
+    fun state_changeDisplayedMonth() {
+        var futureMonthInUtcMillis = 0L
+        lateinit var state: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2020, month = 1, dayOfMonth = 1)
+            futureMonthInUtcMillis = dayInUtcMilliseconds(year = 2020, month = 7, dayOfMonth = 1)
+            state = rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
+            DatePicker(state = state)
+        }
+
+        rule.onNodeWithText("January 2020").assertExists()
+
+        // Update the displayed month to be ~6 months in the future.
+        state.displayedMonthMillis = futureMonthInUtcMillis
+
+        rule.waitForIdle()
+        rule.onNodeWithText("July 2020").assertExists()
+
+        // Check that clicking "next" and "previous" traverses the month range correctly.
+        rule
+            .onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+            .performClick()
+        rule.waitForIdle()
+        rule.onNodeWithText("August 2020").assertExists()
+        rule
+            .onNodeWithContentDescription(label = "previous", substring = true, ignoreCase = true)
+            .performClick()
+        rule.waitForIdle()
+
+        // Check that we are back to the original month
+        rule.onNodeWithText("July 2020").assertExists()
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun setSelection_outOfYearsBound() {
         lateinit var datePickerState: DatePickerState
