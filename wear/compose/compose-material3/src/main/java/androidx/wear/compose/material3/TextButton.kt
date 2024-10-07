@@ -90,9 +90,8 @@ import androidx.wear.compose.material3.tokens.TextButtonTokens
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the text button, expected to be text or image.
- *
- * TODO(b/261838497) Add Material3 UX guidance links
  */
+// TODO(b/261838497) Add Material3 UX guidance links
 @Composable
 fun TextButton(
     onClick: () -> Unit,

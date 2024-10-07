@@ -88,9 +88,8 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
- *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
  */
+// TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
 fun IconButton(
     onClick: () -> Unit,
@@ -156,9 +155,8 @@ fun IconButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
- *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
  */
+// TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
 fun FilledIconButton(
     onClick: () -> Unit,
@@ -225,9 +223,8 @@ fun FilledIconButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
- *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
  */
+// TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
 fun FilledTonalIconButton(
     onClick: () -> Unit,
@@ -298,9 +295,8 @@ fun FilledTonalIconButton(
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
- *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
  */
+// TODO(b/261838497) Add Material3 samples and UX guidance links
 @Composable
 fun OutlinedIconButton(
     onClick: () -> Unit,
