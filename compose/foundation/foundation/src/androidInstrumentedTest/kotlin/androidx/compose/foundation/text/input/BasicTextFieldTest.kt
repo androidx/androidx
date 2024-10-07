@@ -18,6 +18,8 @@ package androidx.compose.foundation.text.input
 
 import android.os.Build
 import android.text.InputType
+import android.text.SpannableStringBuilder
+import android.text.style.BackgroundColorSpan
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -77,6 +79,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasPerformImeAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -107,10 +110,12 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.toSpanned
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.drop
 import org.junit.Rule
@@ -1558,6 +1563,40 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.assertNoSessionActive()
         // InputMethodManager should not have received a showSoftInput() call
         rule.runOnIdle { imm.expectNoMoreCalls() }
+    }
+
+    @Test
+    fun outputTransformation_doesNotLoseComposingAnnotations() {
+        val textFieldState = TextFieldState()
+        var textLayoutProvider: (() -> TextLayoutResult?)? = null
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                textFieldState,
+                onTextLayout = { textLayoutProvider = it },
+                outputTransformation = { append(" world") }
+            )
+        }
+
+        rule.onNode(hasPerformImeAction()).requestFocus()
+
+        val spanned =
+            SpannableStringBuilder()
+                .append("Hello", BackgroundColorSpan(android.graphics.Color.RED), 0)
+                .toSpanned()
+
+        inputMethodInterceptor.withInputConnection { setComposingText(spanned, 1) }
+
+        rule.runOnIdle {
+            val textLayoutResult = textLayoutProvider?.invoke()
+            assertNotNull(textLayoutResult)
+            val annotatedString = textLayoutResult.layoutInput.text
+            val spanStyles = annotatedString.spanStyles
+            assertThat(annotatedString.toString()).isEqualTo("Hello world")
+            assertThat(spanStyles.size).isEqualTo(1)
+            assertThat(spanStyles.first().start).isEqualTo(0)
+            assertThat(spanStyles.first().end).isEqualTo(5)
+            assertThat(spanStyles.first().item.background).isEqualTo(Color.Red)
+        }
     }
 
     private fun requestFocus(tag: String) = rule.onNodeWithTag(tag).requestFocus()

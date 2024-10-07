@@ -446,9 +446,15 @@ internal constructor(
      */
     internal fun toTextFieldCharSequence(
         selection: TextRange = this.selection,
-        composition: TextRange? = this.composition
+        composition: TextRange? = this.composition,
+        composingAnnotations: List<PlacedAnnotation>? = this.composingAnnotations?.asMutableList(),
     ): TextFieldCharSequence =
-        TextFieldCharSequence(buffer.toString(), selection = selection, composition = composition)
+        TextFieldCharSequence(
+            text = buffer.toString(),
+            selection = selection,
+            composition = composition,
+            composingAnnotations = composingAnnotations
+        )
 
     private fun requireValidIndex(index: Int, startExclusive: Boolean, endExclusive: Boolean) {
         val start = if (startExclusive) 0 else -1

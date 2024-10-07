@@ -17,9 +17,13 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -42,6 +46,24 @@ class TransformedTextFieldStateTest {
         assertThat(transformedState.untransformedText.toString()).isEqualTo("hello")
         assertThat(transformedState.outputText.toString()).isEqualTo("helloworld")
         assertThat(transformedState.visualText.toString()).isEqualTo("helloworld")
+    }
+
+    @Test
+    fun outputTransformationDoesNotRemoveComposingAnnotations() {
+        val state = TextFieldState()
+        val annotations: List<PlacedAnnotation> =
+            listOf(AnnotatedString.Range(SpanStyle(background = Color.Blue), 0, 5))
+        state.editAsUser(inputTransformation = null) {
+            setComposingText(text = "hello", newCursorPosition = 1, annotations = annotations)
+        }
+        val outputTransformation = OutputTransformation { append(" world") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        assertThat(transformedState.visualText.composingAnnotations).isEqualTo(annotations)
     }
 
     @Test
