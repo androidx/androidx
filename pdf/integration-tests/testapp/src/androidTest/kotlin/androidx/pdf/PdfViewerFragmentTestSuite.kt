@@ -190,7 +190,6 @@ class PdfViewerFragmentTestSuite {
         // Delay required for password dialog to come up
         // TODO: Implement callback based delay and remove Thread.sleep
         Thread.sleep(DELAY_TIME_MS)
-        onView(withId(R.id.password_dialog)).check(matches(isDisplayed()))
         onView(withId(R.id.password)).perform(typeText(PROTECTED_DOCUMENT_PASSWORD))
         onView(withId(R.id.password)).perform(pressKey(KeyEvent.KEYCODE_ENTER))
 

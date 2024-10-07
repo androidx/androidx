@@ -16,12 +16,11 @@
 
 package androidx.pdf.viewer.password;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -41,9 +40,13 @@ import android.widget.TextView.OnEditorActionListener;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.pdf.R;
 import androidx.pdf.util.Accessibility;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * Dialog for querying password for a protected file. The dialog has 2 buttons:
@@ -59,12 +62,6 @@ import androidx.pdf.util.Accessibility;
 @SuppressWarnings("deprecation")
 public abstract class PasswordDialog extends DialogFragment {
 
-    private int mTextDefaultColor;
-    private int mBlueColor;
-    private int mTextErrorColor;
-    private AlertDialog mPasswordDialog;
-    private static final String PASSWORD_INPUT = "password_input";
-
     private boolean mIncorrect;
     private boolean mFinishOnCancel;
 
@@ -79,8 +76,9 @@ public abstract class PasswordDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        Activity activity = requireActivity();
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        LayoutInflater inflater = activity.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_password, null);
         builder.setTitle(R.string.title_dialog_password)
                 .setView(view)
@@ -90,13 +88,8 @@ public abstract class PasswordDialog extends DialogFragment {
 
         dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
-        final EditText passwordField = (EditText) view.findViewById(R.id.password);
+        final EditText passwordField = view.findViewById(R.id.password);
         setupPasswordField(passwordField);
-
-        if (savedInstanceState != null) {
-            String savedPassword = savedInstanceState.getString(PASSWORD_INPUT, "");
-            passwordField.setText(savedPassword);
-        }
 
         // Hijack the positive button to NOT dismiss the dialog immediately.
         dialog.setOnShowListener(
@@ -147,20 +140,7 @@ public abstract class PasswordDialog extends DialogFragment {
                                 });
                     }
                 });
-
-        mPasswordDialog = dialog;
         return dialog;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // Find the EditText by its ID
-        EditText editTextPassword = (EditText) mPasswordDialog.findViewById(R.id.password);
-        // Get the text from the EditText and store it in passwordInput
-        String passwordInput = editTextPassword.getText().toString();
-        // Save the input to the outState bundle
-        outState.putString(PASSWORD_INPUT, passwordInput);
     }
 
     private void setupPasswordField(final EditText passwordField) {
@@ -201,16 +181,7 @@ public abstract class PasswordDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        mTextDefaultColor = getResources().getColor(R.color.pdf_viewer_color_on_surface);
-        mTextErrorColor = getResources().getColor(R.color.pdf_viewer_color_error);
-        mBlueColor = getResources().getColor(R.color.pdf_viewer_color_primary);
-
         EditText textField = (EditText) getDialog().findViewById(R.id.password);
-        textField.getBackground().setColorFilter(mBlueColor, PorterDuff.Mode.SRC_ATOP);
-
-        mPasswordDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(mBlueColor);
-        mPasswordDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(mBlueColor);
-
         showSoftKeyboard(textField);
     }
 
@@ -245,38 +216,18 @@ public abstract class PasswordDialog extends DialogFragment {
         EditText textField = (EditText) getDialog().findViewById(R.id.password);
         textField.selectAll();
 
-        swapBackground(textField, false);
-        textField.getBackground().setColorFilter(mTextErrorColor, PorterDuff.Mode.SRC_ATOP);
-
-        TextView label = (TextView) getDialog().findViewById(R.id.label);
-        label.setText(R.string.label_password_incorrect);
-        label.setTextColor(mTextErrorColor);
-
         Accessibility.get().announce(getActivity(), getDialog().getCurrentFocus(),
                 R.string.desc_password_incorrect_message);
 
-        getDialog().findViewById(R.id.password_alert).setVisibility(View.VISIBLE);
+        TextInputLayout passwordLayout = (TextInputLayout) getDialog().findViewById(
+                R.id.pdf_password_layout);
+        passwordLayout.setError(getString(R.string.label_password_incorrect));
     }
 
     private void clearIncorrect() {
         mIncorrect = false;
-        TextView label = (TextView) getDialog().findViewById(R.id.label);
-        label.setText(R.string.label_password_first);
-        label.setTextColor(mTextDefaultColor);
-
-        EditText textField = (EditText) getDialog().findViewById(R.id.password);
-        swapBackground(textField, true);
-
-        getDialog().findViewById(R.id.password_alert).setVisibility(View.GONE);
-    }
-
-    private void swapBackground(EditText textField, boolean reverse) {
-        if (!reverse) {
-            textField.setBackground(
-                    getResources().getDrawable(R.drawable.drag_indicator));
-        } else {
-            EditText sample = new EditText(getActivity());
-            textField.setBackground(sample.getBackground());
-        }
+        TextInputLayout passwordLayout = (TextInputLayout) getDialog().findViewById(
+                R.id.pdf_password_layout);
+        passwordLayout.setError(null);
     }
 }
