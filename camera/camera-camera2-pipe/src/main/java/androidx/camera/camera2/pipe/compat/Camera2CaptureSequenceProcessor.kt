@@ -104,6 +104,9 @@ internal class Camera2CaptureSequenceProcessor(
 
     @GuardedBy("lock") private var closed = false
 
+    // TODO: Review if there's a better option than having a closed and disconnected state
+    @GuardedBy("lock") private var disconnected = false
+
     @GuardedBy("lock")
     private var lastSingleRepeatingRequestSequence: Camera2CaptureSequence? = null
 
@@ -160,6 +163,14 @@ internal class Camera2CaptureSequenceProcessor(
                     "Failed to create ImageWriter for capture session: $session"
                 }
                 val image = request.inputRequest.image
+                synchronized(lock) {
+                    if (closed || disconnected) {
+                        Log.warn {
+                            "$this closed or disconnected. $image can't be queued to $imageWriter"
+                        }
+                        return null
+                    }
+                }
                 Log.debug { "Queuing image $image for reprocessing to ImageWriter $imageWriter" }
                 // TODO(b/321603591): Queue image closer to when capture request is submitted
                 if (!imageWriter.queueInputImage(image)) {
@@ -338,11 +349,18 @@ internal class Camera2CaptureSequenceProcessor(
             awaitRepeatingRequestStarted(captureSequence)
         }
 
+        disconnect()
+    }
+
+    internal fun disconnect() {
         // Shutdown is responsible for releasing resources that are no longer in use.
-        Debug.trace("$this#close") {
+        Debug.trace("$this#disconnect") {
             synchronized(lock) {
-                imageWriter?.close()
-                session.inputSurface?.release()
+                if (!disconnected) {
+                    disconnected = true
+                    imageWriter?.close()
+                    session.inputSurface?.release()
+                }
             }
         }
     }
