@@ -92,14 +92,13 @@ fun Modifier.scrollTransform(
             remember(backgroundColor, shape) {
                 ScalingMorphingBackgroundPainter(spec, shape, backgroundColor) { scrollProgress }
             }
-
         this@scrollTransform then
-            TargetMorphingHeightConsumerModifierElement { minMorphingHeight = it?.toFloat() } then
-            this@scrollTransform.paint(painter) then
-            this@scrollTransform.transformedHeight { height, scrollProgress ->
-                with(spec) { scrollProgress.placementHeight(height.toFloat()).fastRoundToInt() }
-            } then
-            this@scrollTransform.graphicsLayer { contentTransformation(spec) { scrollProgress } }
+            TargetMorphingHeightConsumerModifierElement { minMorphingHeight = it?.toFloat() }
+                .paint(painter)
+                .transformedHeight { height, scrollProgress ->
+                    with(spec) { scrollProgress.placementHeight(height.toFloat()).fastRoundToInt() }
+                }
+                .graphicsLayer { contentTransformation(spec) { scrollProgress } }
     }
 
 /**
@@ -121,11 +120,11 @@ fun Modifier.scrollTransform(
         val spec = remember { LazyColumnScrollTransformBehavior { minMorphingHeight } }
 
         this@scrollTransform then
-            TargetMorphingHeightConsumerModifierElement { minMorphingHeight = it?.toFloat() } then
-            this@scrollTransform.transformedHeight { height, scrollProgress ->
-                with(spec) { scrollProgress.placementHeight(height.toFloat()).fastRoundToInt() }
-            } then
-            this@scrollTransform.graphicsLayer { contentTransformation(spec) { scrollProgress } }
+            TargetMorphingHeightConsumerModifierElement { minMorphingHeight = it?.toFloat() }
+                .transformedHeight { height, scrollProgress ->
+                    with(spec) { scrollProgress.placementHeight(height.toFloat()).fastRoundToInt() }
+                }
+                .graphicsLayer { contentTransformation(spec) { scrollProgress } }
     }
 
 private fun GraphicsLayerScope.contentTransformation(
