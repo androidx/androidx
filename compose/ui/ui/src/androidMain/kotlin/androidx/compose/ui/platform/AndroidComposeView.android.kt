@@ -296,7 +296,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override val dragAndDropManager = AndroidDragAndDropManager(::startDrag)
 
-    private val _windowInfo: WindowInfoImpl = WindowInfoImpl()
+    private val _windowInfo: LazyWindowInfo = LazyWindowInfo()
     override val windowInfo: WindowInfo
         get() = _windowInfo
 
@@ -1750,6 +1750,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         _windowInfo.isWindowFocused = hasWindowFocus()
+        _windowInfo.setOnInitializeContainerSize { calculateWindowSize(this) }
+        updateWindowMetrics()
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
@@ -1816,6 +1818,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         snapshotObserver.stopObserving()
+        _windowInfo.setOnInitializeContainerSize(null)
         val lifecycle =
             checkPreconditionNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
                 "No lifecycle owner exists"
@@ -2269,6 +2272,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
+    private fun updateWindowMetrics() {
+        _windowInfo.updateContainerSizeIfObserved { calculateWindowSize(this) }
+    }
+
     override fun onCheckIsTextEditor(): Boolean {
         val parentSession =
             textInputSessionMutex.currentSession
@@ -2301,6 +2308,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         density = Density(context)
+        updateWindowMetrics()
         if (newConfig.fontWeightAdjustmentCompat != currentFontWeightAdjustment) {
             currentFontWeightAdjustment = newConfig.fontWeightAdjustmentCompat
             fontFamilyResolver = createFontFamilyResolver(context)

@@ -19,11 +19,14 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.unit.IntSize
 
 /** Provides information about the Window that is hosting this compose hierarchy. */
 @Stable
@@ -41,6 +44,10 @@ interface WindowInfo {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     val keyboardModifiers: PointerKeyboardModifiers
         get() = WindowInfoImpl.GlobalKeyboardModifiers.value
+
+    /** Size of the window's content container in pixels. */
+    val containerSize: IntSize
+        get() = IntSize.Zero
 }
 
 @Composable
@@ -53,19 +60,20 @@ internal fun WindowFocusObserver(onWindowFocusChanged: (isWindowFocused: Boolean
 }
 
 internal class WindowInfoImpl : WindowInfo {
-    private val _isWindowFocused = mutableStateOf(false)
+    private val _containerSize = mutableStateOf(IntSize.Zero)
 
-    override var isWindowFocused: Boolean
-        set(value) {
-            _isWindowFocused.value = value
-        }
-        get() = _isWindowFocused.value
+    override var isWindowFocused: Boolean by mutableStateOf(false)
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     override var keyboardModifiers: PointerKeyboardModifiers
         get() = GlobalKeyboardModifiers.value
         set(value) {
             GlobalKeyboardModifiers.value = value
+        }
+
+    override var containerSize: IntSize
+        get() = _containerSize.value
+        set(value) {
+            _containerSize.value = value
         }
 
     companion object {
