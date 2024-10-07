@@ -298,6 +298,11 @@ public open class PdfViewerFragment : Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         this.container = container
+        if (!hasContents && delayedContentsAvailable == null) {
+            if (savedInstanceState != null) {
+                restoreContents(savedInstanceState)
+            }
+        }
 
         pdfViewer = inflater.inflate(R.layout.pdf_viewer_container, container, false) as FrameLayout
         pdfViewer?.isScrollContainer = true
@@ -344,9 +349,7 @@ public open class PdfViewerFragment : Fragment() {
                         // and no means to load it. The best way is to just kill the service which
                         // will restart on the next onStart.
                         pdfLoader?.disconnect()
-                        return@PdfLoaderCallbacksImpl true
                     }
-                    return@PdfLoaderCallbacksImpl false
                 },
                 onDocumentLoaded = {
                     documentLoaded = true
@@ -384,12 +387,6 @@ public open class PdfViewerFragment : Fragment() {
                         isSearchMenuAdjusted = false
                     }
                 }
-            }
-        }
-
-        if (!hasContents && delayedContentsAvailable == null) {
-            if (savedInstanceState != null) {
-                restoreContents(savedInstanceState)
             }
         }
 
@@ -441,6 +438,7 @@ public open class PdfViewerFragment : Fragment() {
         if (onScreen) {
             onExit()
         }
+        onScreen = false
         started = false
         super.onStop()
     }
@@ -728,7 +726,6 @@ public open class PdfViewerFragment : Fragment() {
                 fileData?.let {
                     localUri = it.uri
                     postContentsAvailable(it)
-                    postEnter()
                 }
             } catch (e: Exception) {
                 // This can happen if the data is an instance of StreamOpenable, and the client
@@ -776,7 +773,6 @@ public open class PdfViewerFragment : Fragment() {
 
         pdfLoaderCallbacks?.searchModel = null
 
-        pdfLoader?.disconnect()
         pdfLoader = null
         documentLoaded = false
     }
