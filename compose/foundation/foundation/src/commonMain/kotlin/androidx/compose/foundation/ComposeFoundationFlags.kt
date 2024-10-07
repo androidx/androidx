@@ -59,7 +59,9 @@ object ComposeFoundationFlags {
      * Selecting flag to enable the change in Fling Propagation behavior in nested Scrollables. When
      * this is true, an ongoing fling that causes the scrollable container to hit the bounds will be
      * cancelled so the next scrollable in the chain can take over and fling with velocity left. We
-     * are doing a flagged roll out of this behavior change.
+     * are doing a flagged roll out of this behavior change. A node that is detached during a fling
+     * will be treated as a node that hit its bounds, that is, it will cancel its fling and
+     * propagate the remaining velocity through onPostFling.
      */
     @Suppress("MutableBareField") @JvmField var NewNestedFlingPropagationEnabled = true
 

@@ -26,6 +26,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -102,6 +103,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Constraints
@@ -2818,6 +2820,133 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 Snapshot.sendApplyNotifications()
                 rule.mainClock.advanceTimeByFrame()
             }
+        }
+    }
+
+    @Test // b/371168883
+    fun whenInnerListIsReused_makeSureFlingUsesCorrectStateForCancellation() {
+        val state = LazyListState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LazyColumnOrRow(state = state, modifier = Modifier.size(50.dp)) {
+                items(20) { main ->
+                    LazyColumnOrRow(modifier = Modifier.testTag("main=$main"), isCrossAxis = true) {
+                        items(100) { item ->
+                            Box(Modifier.size(10.dp).testTag("main=$main item=$item")) {
+                                BasicText("main=$main item=$item")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope.launch {
+                state.animateScrollToItem(3) // make sure item 0 is out of view
+            }
+        }
+
+        rule.runOnIdle { assertThat(state.firstVisibleItemIndex).isEqualTo(3) }
+
+        // trying to fling the last 3 items
+        (5..7).forEach {
+            rule.onNodeWithTag("main=$it").performTouchInput {
+                if (vertical) {
+                    swipeLeft()
+                } else {
+                    swipeUp()
+                }
+            }
+
+            rule.onNodeWithTag("main=$it item=0").assertIsNotDisplayed()
+            // we should go back
+            rule.onNodeWithTag("main=$it").performTouchInput {
+                if (vertical) {
+                    swipeRight()
+                } else {
+                    swipeDown()
+                }
+            }
+            // make sure we came back to the start so the fling happened correctly
+            rule.onNodeWithTag("main=$it item=0").assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun nestedLists_flingOnInnerListIsCancelled_doesNotStopOuterListFling() {
+        val state = LazyListState()
+        var onPreFlingReceived = false
+        var onListRemoved = false
+        rule.setContent {
+            LazyColumnOrRow(
+                state = state,
+                modifier =
+                    Modifier.size(100.dp)
+                        .testTag(LazyListTag)
+                        .nestedScroll(
+                            connection =
+                                object : NestedScrollConnection {
+                                    override suspend fun onPreFling(available: Velocity): Velocity {
+                                        onPreFlingReceived = true
+                                        return super.onPreFling(available)
+                                    }
+                                }
+                        )
+            ) {
+                items(100) { main ->
+                    if (main == 4) {
+                        DisposableEffect(Unit) { onDispose { onListRemoved = true } }
+                    }
+                    LazyColumnOrRow(
+                        isCrossAxis = true,
+                        modifier = Modifier.testTag(main.toString())
+                    ) {
+                        items(100) { item ->
+                            Box(
+                                Modifier.size(20.dp).testTag("$main $item").border(1.dp, Color.Red)
+                            ) {
+                                BasicText("$main $item")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = false
+
+        // swipe right/up on inner list
+        rule.onNodeWithTag("4").performTouchInput {
+            if (vertical) {
+                swipeLeft()
+            } else {
+                swipeUp()
+            }
+        }
+
+        // advance time until inner fling is about to begin and let fling play a bit
+        rule.mainClock.advanceTimeUntil { onPreFlingReceived }
+        rule.mainClock.advanceTimeBy(100L)
+
+        // swipe outer list
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            if (vertical) {
+                swipeWithVelocity(center, topCenter, 5000f)
+            } else {
+                swipeWithVelocity(center, centerLeft, 5000f)
+            }
+        }
+
+        rule.mainClock.advanceTimeUntil { onListRemoved } // move time more so inner list disappears
+        rule.onNodeWithTag("4").assertDoesNotExist() // check if inner list was removed
+
+        rule.mainClock.autoAdvance = true
+        val firstVisibleItemOnOuterList = state.firstVisibleItemIndex
+        // outer list continued flinging
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex)
+                .isNotIn(firstVisibleItemOnOuterList - 1..firstVisibleItemOnOuterList + 1)
         }
     }
 

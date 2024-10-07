@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.input.nestedscroll
 
+import androidx.compose.ui.ComposeUiFlags.NewNestedScrollFlingDispatchingEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
@@ -106,6 +108,9 @@ class NestedScrollDispatcher {
 
     internal var nestedScrollNode: NestedScrollNode? = null
 
+    // caches last known parent for fling clean up use.
+    internal var lastKnownParentNode: NestedScrollNode? = null
+
     // lambda to calculate the most outer nested scroll scope for this dispatcher on demand
     internal var calculateNestedScrollScope: () -> CoroutineScope? = { scope }
 
@@ -142,7 +147,9 @@ class NestedScrollDispatcher {
 
     /**
      * Parent to be set when attached to nested scrolling chain. `null` is valid and means there no
-     * nested scrolling parent above
+     * nested scrolling parent above. The last known attached parent might be used in case this
+     * dispatcher is not attached to any node, that is [nestedScrollNode?.parentNestedScrollNode] is
+     * null.
      */
     internal val parent: NestedScrollConnection?
         get() = nestedScrollNode?.parentNestedScrollNode
@@ -203,8 +210,20 @@ class NestedScrollDispatcher {
      * @param available velocity that is left for ancestors to consume
      * @return velocity that has been consumed by all the ancestors
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     suspend fun dispatchPostFling(consumed: Velocity, available: Velocity): Velocity {
-        return parent?.onPostFling(consumed, available) ?: Velocity.Zero
+        // lastKnownParentNode can be used to send clean up signals.
+        // If this dispatcher's regular parent is not present it means either it never attached or
+        // it was detached. If it was detached we have information about its last known parent so
+        // we use it to send the post fling signal. We don't need to do the same for the other
+        // methods because the problem with parity in this API comes from a node that detaches
+        // during a fling. By the time a node detaches it already sent the onPreFling event and
+        // consumers of Nested Scroll might expect an onPostFling event to close the cycle.
+        return if (parent == null && NewNestedScrollFlingDispatchingEnabled) {
+            lastKnownParentNode?.onPostFling(consumed, available) ?: Velocity.Zero
+        } else {
+            parent?.onPostFling(consumed, available) ?: Velocity.Zero
+        }
     }
 }
 
