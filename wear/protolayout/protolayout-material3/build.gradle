@@ -64,7 +64,6 @@ android {
 androidx {
     name = "androidx.wear.protolayout:protolayout-material3"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.WEAR_PROTOLAYOUT_MATERIAL3
     inceptionYear = "2024"
     description = "Material3 components library for ProtoLayout."
     samples(project(":wear:protolayout:protolayout-material3-samples"))
