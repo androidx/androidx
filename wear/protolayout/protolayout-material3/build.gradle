@@ -32,11 +32,13 @@ plugins {
 dependencies {
     annotationProcessor(libs.nullaway)
     api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
     api(libs.kotlinStdlib)
     implementation(project(":wear:protolayout:protolayout-material-core"))
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     lintPublish(project(":wear:protolayout:protolayout-lint"))
     compileOnly(project(":annotation:annotation-sampled"))
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

@@ -156,7 +156,7 @@ internal class TextElementStyle(
     val color: ColorProp = fromToken(ColorTokens.PRIMARY),
     val italic: Boolean = false,
     val underline: Boolean = false,
-    val scalable: Boolean = true,
+    val scalable: Boolean = TypographyFontSelection.getFontScalability(typography),
     val maxLines: Int = 1,
     @TextAlignment val multilineAlignment: Int = TEXT_ALIGN_CENTER,
     @TextOverflow val overflow: Int = TEXT_OVERFLOW_ELLIPSIZE,

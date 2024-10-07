@@ -66,8 +66,9 @@ class MaterialScopeTest {
             val fontStyle1: LayoutElementBuilders.FontStyle =
                 DEFAULT_MATERIAL_THEME.getFontStyleBuilder(i).build()
             val fontStyle2 = scopeWithDefaultTheme.theme.getFontStyleBuilder(i).build()
-            assertThat(fontStyle1.preferredFontFamilies[0])
-                .isEqualTo(fontStyle1.preferredFontFamilies[0])
+            assertThat(fontStyle1.preferredFontFamilies).isEmpty()
+            assertThat(fontStyle1.variant!!.toProto())
+                .isEqualTo(TypographyFontSelection.getFontVariant(i).toProto())
             assertThat(fontStyle1.size!!.value).isEqualTo(fontStyle2.size!!.value)
         }
     }
