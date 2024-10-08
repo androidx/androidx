@@ -80,7 +80,7 @@ class TraceMetricTest {
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
             val metric = ActivityResumeMetric()
-            metric.configure(packageName = Packages.TEST)
+            metric.configure(captureInfo)
 
             val result =
                 PerfettoTraceProcessor.runSingleSessionServer(tracePath) {

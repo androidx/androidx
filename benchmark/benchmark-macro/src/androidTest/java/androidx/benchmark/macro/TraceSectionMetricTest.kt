@@ -138,22 +138,21 @@ class TraceSectionMetricTest {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
             val metric = TraceSectionMetric(sectionName, mode, "testLabel", targetPackageOnly)
-            metric.configure(packageName = packageName)
+
+            // note that most args are incorrect here, but currently
+            // only targetPackageName matters in this context
+            val captureInfo =
+                Metric.CaptureInfo(
+                    targetPackageName = packageName,
+                    testPackageName = Packages.TEST,
+                    startupMode = StartupMode.COLD,
+                    apiLevel = 24
+                )
+            metric.configure(captureInfo)
 
             val result =
                 PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                    metric.getMeasurements(
-                        // note that most args are incorrect here, but currently
-                        // only targetPackageName matters in this context
-                        captureInfo =
-                            Metric.CaptureInfo(
-                                targetPackageName = packageName,
-                                testPackageName = Packages.TEST,
-                                startupMode = StartupMode.COLD,
-                                apiLevel = 24
-                            ),
-                        traceSession = this
-                    )
+                    metric.getMeasurements(captureInfo = captureInfo, traceSession = this)
                 }
 
             var measurements =

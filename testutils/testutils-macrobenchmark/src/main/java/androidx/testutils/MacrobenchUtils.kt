@@ -18,6 +18,7 @@ package androidx.testutils
 
 import android.content.Intent
 import android.os.Build
+import androidx.benchmark.macro.ArtMetric
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
@@ -62,8 +63,9 @@ val STARTUP_MODES =
 /** Temporary, while transitioning to new metrics */
 @OptIn(ExperimentalMetricApi::class)
 fun getStartupMetrics() =
-    listOf(
+    listOfNotNull(
         StartupTimingMetric(),
+        if (Build.VERSION.SDK_INT >= 24) ArtMetric() else null,
         TraceSectionMetric("StartupTracingInitializer", TraceSectionMetric.Mode.First),
         MemoryUsageMetric(MemoryUsageMetric.Mode.Last)
     )

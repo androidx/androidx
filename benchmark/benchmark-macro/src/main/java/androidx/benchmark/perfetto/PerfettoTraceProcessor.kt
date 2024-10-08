@@ -405,6 +405,7 @@ class PerfettoTraceProcessor {
                         dur = row.long("dur")
                     )
                 }
+                .filter { it.dur != -1L } // filter out non-terminating slices
                 .toList()
         }
     }
