@@ -919,30 +919,6 @@ internal fun AnnotatedString.normalizedParagraphStyles(
 }
 
 /**
- * Helper function used to find the [SpanStyle]s in the given paragraph range and also convert the
- * range of those [SpanStyle]s to paragraph local range.
- *
- * @param start The start index of the paragraph range, inclusive
- * @param end The end index of the paragraph range, exclusive
- * @return The list of converted [SpanStyle]s in the given paragraph range
- */
-private fun AnnotatedString.getLocalSpanStyles(start: Int, end: Int): List<Range<SpanStyle>>? {
-    if (start == end) return null
-    val spanStyles = spanStylesOrNull ?: return null
-    // If the given range covers the whole AnnotatedString, return SpanStyles without conversion.
-    if (start == 0 && end >= this.text.length) {
-        return spanStyles
-    }
-    return spanStyles.fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
-        Range(
-            it.item,
-            it.start.fastCoerceIn(start, end) - start,
-            it.end.fastCoerceIn(start, end) - start
-        )
-    }
-}
-
-/**
  * Helper function used to find the [ParagraphStyle]s in the given range and also convert the range
  * of those styles to the local range.
  *
@@ -969,23 +945,28 @@ private fun AnnotatedString.getLocalParagraphStyles(
 }
 
 /**
- * Helper function used to find the annotations in the given range and also convert the range of
- * those annotations to the local range.
- *
- * @param start The start index of the range, inclusive
- * @param end The end index of the range, exclusive
+ * Helper function used to find the annotations in the given range that match the [predicate], and
+ * also convert the range of those annotations to the local range. Null [predicate] means is similar
+ * to passing true.
  */
 private fun AnnotatedString.getLocalAnnotations(
     start: Int,
-    end: Int
-): List<Range<out Annotation>>? {
+    end: Int,
+    predicate: ((Annotation) -> Boolean)? = null
+): List<Range<out AnnotatedString.Annotation>>? {
     if (start == end) return null
     val annotations = annotations ?: return null
     // If the given range covers the whole AnnotatedString, return it without conversion.
     if (start == 0 && end >= this.text.length) {
-        return annotations
+        return if (predicate == null) {
+            annotations
+        } else {
+            annotations.fastFilter { predicate(it.item) }
+        }
     }
-    return annotations.fastFilteredMap({ intersect(start, end, it.start, it.end) }) {
+    return annotations.fastFilteredMap({
+        (predicate?.invoke(it.item) ?: true) && intersect(start, end, it.start, it.end)
+    }) {
         Range(
             tag = it.tag,
             item = it.item,
@@ -1007,7 +988,7 @@ private fun AnnotatedString.getLocalAnnotations(
 private fun AnnotatedString.substringWithoutParagraphStyles(start: Int, end: Int): AnnotatedString {
     return AnnotatedString(
         text = if (start != end) text.substring(start, end) else "",
-        annotations = getLocalSpanStyles(start, end) ?: listOf()
+        annotations = getLocalAnnotations(start, end) { it !is ParagraphStyle } ?: listOf()
     )
 }
 
@@ -1313,6 +1294,18 @@ fun AnnotatedString(text: String, paragraphStyle: ParagraphStyle): AnnotatedStri
  */
 inline fun buildAnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
     Builder().apply(builder).toAnnotatedString()
+
+/**
+ * Helper function that checks if the range [baseStart, baseEnd) contains the range [targetStart,
+ * targetEnd).
+ *
+ * @return true if
+ *   [baseStart, baseEnd) contains [targetStart, targetEnd), vice versa. When [baseStart]==[baseEnd]
+ *   it return true iff [targetStart]==[targetEnd]==[baseStart].
+ */
+internal fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd: Int) =
+    (baseStart <= targetStart && targetEnd <= baseEnd) &&
+        (baseEnd != targetEnd || (targetStart == targetEnd) == (baseStart == baseEnd))
 
 /**
  * Helper function that checks if the range [lStart, lEnd) intersects with the range [rStart, rEnd).

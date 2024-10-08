@@ -19,7 +19,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -40,7 +39,7 @@ import androidx.compose.ui.unit.Density
 internal expect fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
     ellipsis: Boolean,
@@ -52,7 +51,7 @@ internal expect fun ActualParagraph(
 internal expect fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
     overflow: TextOverflow,
@@ -73,7 +72,7 @@ internal expect fun ActualParagraph(
 internal expect fun ActualParagraphIntrinsics(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver

@@ -122,9 +122,11 @@ class NonLinearFontScalingBenchmark(
 
         return ParagraphIntrinsics(
             text = text,
-            density = density,
             style = style,
-            fontFamilyResolver = createFontFamilyResolver(instrumentationContext)
+            annotations = listOf(),
+            density = density,
+            fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+            placeholders = listOf()
         )
     }
 

@@ -4600,9 +4600,10 @@ class ParagraphIntegrationTest {
                 ParagraphIntrinsics(
                     text = text,
                     style = TextStyle(fontSize = fontSize, fontFamily = fontFamilyMeasureFont),
-                    spanStyles = listOf(),
+                    annotations = listOf(),
                     density = defaultDensity,
-                    fontFamilyResolver = UncachedFontFamilyResolver(context)
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    placeholders = listOf()
                 )
 
             val paragraph =

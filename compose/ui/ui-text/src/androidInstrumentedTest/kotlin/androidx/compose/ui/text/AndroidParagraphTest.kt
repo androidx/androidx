@@ -1954,7 +1954,7 @@ class AndroidParagraphTest {
         AndroidParagraph(
             text = "",
             style = TextStyle(),
-            spanStyles = listOf(),
+            annotations = listOf(),
             placeholders = listOf(),
             maxLines = Int.MAX_VALUE,
             overflow = TextOverflow.Ellipsis,
@@ -1970,7 +1970,7 @@ class AndroidParagraphTest {
         AndroidParagraph(
             text = "",
             style = TextStyle(),
-            spanStyles = listOf(),
+            annotations = listOf(),
             placeholders = listOf(),
             maxLines = Int.MAX_VALUE,
             overflow = TextOverflow.Ellipsis,
@@ -2092,7 +2092,7 @@ class AndroidParagraphTest {
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
-            spanStyles = spanStyles,
+            annotations = spanStyles,
             placeholders = listOf(),
             style = TextStyle(textAlign = textAlign, textIndent = textIndent).merge(style),
             maxLines = maxLines,

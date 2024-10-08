@@ -51,7 +51,6 @@ import androidx.compose.ui.text.android.style.ShadowSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
 import androidx.compose.ui.text.android.style.TextDecorationSpan
 import androidx.compose.ui.text.android.style.TypefaceSpan
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
@@ -71,7 +70,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.ceil
@@ -182,23 +181,24 @@ private fun isNonLinearFontScalingActive(density: Density) = density.fontScale >
 
 internal fun Spannable.setSpanStyles(
     contextTextStyle: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     density: Density,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
 ) {
 
-    setFontAttributes(contextTextStyle, spanStyles, resolveTypeface)
+    setFontAttributes(contextTextStyle, annotations, resolveTypeface)
     var hasLetterSpacing = false
-    for (i in spanStyles.indices) {
-        val spanStyleRange = spanStyles[i]
-        val start = spanStyleRange.start
-        val end = spanStyleRange.end
+    for (i in annotations.indices) {
+        val annotationRange = annotations[i]
+        if (annotationRange.item !is SpanStyle) continue
+        val start = annotationRange.start
+        val end = annotationRange.end
 
         if (start < 0 || start >= length || end <= start || end > length) continue
 
-        setSpanStyle(spanStyleRange, density)
+        setSpanStyle(annotationRange.item, start, end, density)
 
-        if (spanStyleRange.item.needsLetterSpacingSpan) {
+        if (annotationRange.item.needsLetterSpacingSpan) {
             hasLetterSpacing = true
         }
     }
@@ -209,12 +209,12 @@ internal fun Spannable.setSpanStyles(
         // letterSpacing relies on the fontSize on [Paint] to compute Px/Sp from Em. So it must be
         // applied after all spans that changes the fontSize.
 
-        for (i in spanStyles.indices) {
-            val spanStyleRange = spanStyles[i]
+        for (i in annotations.indices) {
+            val spanStyleRange = annotations[i]
+            val style = spanStyleRange.item
+            if (style !is SpanStyle) continue
             val start = spanStyleRange.start
             val end = spanStyleRange.end
-            val style = spanStyleRange.item
-
             if (start < 0 || start >= length || end <= start || end > length) continue
 
             createLetterSpacingSpan(style.letterSpacing, density)?.let { setSpan(it, start, end) }
@@ -222,14 +222,7 @@ internal fun Spannable.setSpanStyles(
     }
 }
 
-private fun Spannable.setSpanStyle(
-    spanStyleRange: AnnotatedString.Range<SpanStyle>,
-    density: Density
-) {
-    val start = spanStyleRange.start
-    val end = spanStyleRange.end
-    val style = spanStyleRange.item
-
+private fun Spannable.setSpanStyle(style: SpanStyle, start: Int, end: Int, density: Density) {
     // Be aware that SuperscriptSpan needs to be applied before all other spans which
     // affect FontMetrics
     setBaselineShift(style.baselineShift, start, end)
@@ -269,19 +262,23 @@ private fun Spannable.setSpanStyle(
  * [0, 8). The resolved TypefaceSpan should be TypefaceSpan("Sans-serif", "bold") in range [0, 8). As demonstrated above, the fontFamily information is from [contextTextStyle].
  *
  * @param contextTextStyle the global [TextStyle] for the entire string.
- * @param spanStyles the [spanStyles] to be applied, this function will first filter out the font
+ * @param annotations the [annotations] to be applied, this function will first filter out the font
  *   related [SpanStyle]s and then apply them to this [Spannable].
- * @param fontFamilyResolver the [Font.ResourceLoader] used to resolve font.
+ * @param resolveTypeface the lambda used to resolve font.
  * @see flattenFontStylesAndApply
  */
-@OptIn(InternalPlatformTextApi::class)
 private fun Spannable.setFontAttributes(
     contextTextStyle: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
 ) {
+    @Suppress("UNCHECKED_CAST")
     val fontRelatedSpanStyles =
-        spanStyles.fastFilter { it.item.hasFontAttributes() || it.item.fontSynthesis != null }
+        annotations.fastFilteredMap({
+            it.item is SpanStyle && (it.item.hasFontAttributes() || it.item.fontSynthesis != null)
+        }) {
+            it as AnnotatedString.Range<SpanStyle>
+        }
 
     // Create a SpanStyle if contextTextStyle has font related attributes, otherwise use
     // null to avoid unnecessary object creation.

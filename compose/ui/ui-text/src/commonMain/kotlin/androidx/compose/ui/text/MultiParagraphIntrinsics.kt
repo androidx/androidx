@@ -106,7 +106,7 @@ class MultiParagraphIntrinsics(
                         ParagraphIntrinsics(
                             text = annotatedString.text,
                             style = style.merge(currentParagraphStyle),
-                            spanStyles = annotatedString.spanStyles,
+                            annotations = annotatedString.annotations ?: emptyList(),
                             placeholders =
                                 placeholders.getLocalPlaceholders(
                                     paragraphStyleItem.start,

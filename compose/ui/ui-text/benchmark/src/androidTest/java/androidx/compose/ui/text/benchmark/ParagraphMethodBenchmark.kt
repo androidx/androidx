@@ -69,10 +69,11 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
             }
         return ParagraphIntrinsics(
             text = text,
-            density = Density(density = 1f),
             style = TextStyle(fontSize = 12.sp),
+            annotations = spanStyles,
+            density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
-            spanStyles = spanStyles
+            placeholders = listOf()
         )
     }
 

@@ -23,7 +23,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.ceilToInt
 import androidx.compose.ui.text.font.Font
@@ -45,7 +44,7 @@ import androidx.compose.ui.unit.Density
 internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
     ellipsis: Boolean,
@@ -58,7 +57,7 @@ internal actual fun ActualParagraph(
             text = text,
             style = style,
             placeholders = placeholders,
-            spanStyles = spanStyles,
+            annotations = annotations,
             fontFamilyResolver = createFontFamilyResolver(resourceLoader),
             density = density
         ),
@@ -70,7 +69,7 @@ internal actual fun ActualParagraph(
 internal actual fun ActualParagraph(
     text: String,
     style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
+    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
     overflow: TextOverflow,
@@ -83,7 +82,7 @@ internal actual fun ActualParagraph(
             text = text,
             style = style,
             placeholders = placeholders,
-            spanStyles = spanStyles,
+            annotations = annotations,
             fontFamilyResolver = fontFamilyResolver,
             density = density
         ),

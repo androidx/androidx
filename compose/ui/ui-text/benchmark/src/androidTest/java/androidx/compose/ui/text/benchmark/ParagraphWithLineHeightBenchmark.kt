@@ -112,9 +112,11 @@ class ParagraphWithLineHeightBenchmark(
 
         return ParagraphIntrinsics(
             text = text,
-            density = Density(density = instrumentationContext.resources.displayMetrics.density),
             style = style,
-            fontFamilyResolver = createFontFamilyResolver(instrumentationContext)
+            annotations = listOf(),
+            density = Density(density = instrumentationContext.resources.displayMetrics.density),
+            fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+            placeholders = listOf()
         )
     }
 
