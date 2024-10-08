@@ -22,7 +22,7 @@ package androidx.wear.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object CardTokens {
-    val AppImageSize = 16.0.dp
+    val AppImageSize = 18.0.dp
     val AppNameColor = ColorSchemeKeyTokens.OnSurface
     val AppNameTypography = TypographyKeyTokens.TitleSmall
     val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
@@ -32,7 +32,7 @@ internal object CardTokens {
     val Shape = ShapeKeyTokens.CornerLarge
     val SubtitleColor = ColorSchemeKeyTokens.Tertiary
     val SubtitleTypography = TypographyKeyTokens.LabelMedium
-    val TimeColor = ColorSchemeKeyTokens.OnSurface
+    val TimeColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val TimeTypography = TypographyKeyTokens.BodyMedium
     val TitleColor = ColorSchemeKeyTokens.OnSurface
     val TitleTypography = TypographyKeyTokens.TitleMedium

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -107,6 +108,10 @@ fun AppCardWithIconSample() {
 @Sampled
 @Composable
 fun AppCardWithImageSample() {
+    val configuration = LocalConfiguration.current
+    // Add padding to the end of the image in order to maintain the correct proportions
+    // between the image and the card.
+    val imageEndPaddingDp = (0.15f * configuration.screenWidthDp).dp
     AppCard(
         onClick = { /* Do something */ },
         appName = { Text("App name") },
@@ -122,17 +127,17 @@ fun AppCardWithImageSample() {
         title = { Text("With image") },
         time = { Text("now") },
     ) {
-        Spacer(Modifier.height(4.dp))
-        Image(
-            modifier =
-                Modifier.fillMaxWidth(0.85f)
-                    .align(Alignment.Start)
-                    .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(16.dp)),
-            painter = painterResource(id = R.drawable.card_content_image),
-            contentScale = ContentScale.Crop,
-            contentDescription = null
-        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Image(
+                modifier =
+                    Modifier.weight(1f).aspectRatio(16f / 9f).clip(RoundedCornerShape(16.dp)),
+                painter = painterResource(id = R.drawable.card_content_image),
+                contentScale = ContentScale.Crop,
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(imageEndPaddingDp))
+        }
     }
 }
 
@@ -173,8 +178,8 @@ fun TitleCardWithMultipleImagesSample() {
             Image(
                 modifier =
                     Modifier.weight(2f)
+                        .height(68.dp)
                         .align(Alignment.CenterVertically)
-                        .aspectRatio(4f / 3f)
                         .clip(RoundedCornerShape(16.dp)),
                 painter = painterResource(id = R.drawable.card_content_image),
                 contentScale = ContentScale.Crop,
@@ -184,8 +189,8 @@ fun TitleCardWithMultipleImagesSample() {
             Image(
                 modifier =
                     Modifier.weight(1f)
+                        .height(68.dp)
                         .align(Alignment.CenterVertically)
-                        .aspectRatio(2f / 3f)
                         .clip(RoundedCornerShape(16.dp)),
                 painter = painterResource(id = R.drawable.card_content_image),
                 contentScale = ContentScale.Crop,
