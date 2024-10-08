@@ -46,6 +46,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(project(":collection:collection"))
+                compileOnly(project(":performance:performance-annotation"))
             }
         }
 
@@ -111,6 +112,9 @@ androidXMultiplatform {
 
         nonAndroidMain {
             dependsOn(commonMain)
+            dependencies {
+                implementation(project(":performance:performance-annotation"))
+            }
         }
 
         jvmStubsMain {
