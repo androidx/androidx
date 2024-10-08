@@ -60,10 +60,7 @@ private class FocusTargetPropertiesNode : Modifier.Node(), FocusPropertiesModifi
 }
 
 private class FocusGroupPropertiesNode :
-    Modifier.Node(),
-    FocusPropertiesModifierNode,
-    ViewTreeObserver.OnGlobalFocusChangeListener,
-    View.OnAttachStateChangeListener {
+    Modifier.Node(), FocusPropertiesModifierNode, ViewTreeObserver.OnGlobalFocusChangeListener {
     var focusedChild: View? = null
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
@@ -175,21 +172,13 @@ private class FocusGroupPropertiesNode :
 
     override fun onAttach() {
         super.onAttach()
-        getView().addOnAttachStateChangeListener(this)
+        (requireOwner() as View).viewTreeObserver.addOnGlobalFocusChangeListener(this)
     }
 
     override fun onDetach() {
-        getView().removeOnAttachStateChangeListener(this)
+        (requireOwner() as View).viewTreeObserver.removeOnGlobalFocusChangeListener(this)
         focusedChild = null
         super.onDetach()
-    }
-
-    override fun onViewAttachedToWindow(v: View) {
-        v.viewTreeObserver.addOnGlobalFocusChangeListener(this)
-    }
-
-    override fun onViewDetachedFromWindow(v: View) {
-        v.viewTreeObserver.removeOnGlobalFocusChangeListener(this)
     }
 }
 
