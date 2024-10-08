@@ -16,8 +16,9 @@
 
 package androidx.graphics.shapes
 
-// @TODO: Make class public as soon as all validations are implemented and mention in
-// [RoundedPolygon] constructor
+// TODO: b/372000685 b/372003785 b/372004969
+//  Make class public as soon as all validations
+//  are implemented and mention in [RoundedPolygon] constructor
 
 /**
  * Utility class to fix invalid [RoundedPolygon]s that will otherwise break [Morph]s in one way or
@@ -26,12 +27,14 @@ package androidx.graphics.shapes
  * - Clockwise orientation of points
  * - No self-intersections
  * - No holes
+ * - Single Polygon
  */
 internal class PolygonValidator() {
 
     companion object {
 
-        // @TODO: Update docs when other validations are implemented
+        // TODO: b/372000685 b/372003785 b/372004969
+        // Update docs when other validations are implemented
         /**
          * Validates whether this [RoundedPolygon]'s orientation is clockwise and fixes it if
          * necessary.
