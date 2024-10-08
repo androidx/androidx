@@ -28,12 +28,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import androidx.pdf.testapp.ui.HostFragment
+import androidx.pdf.testapp.ui.OpCancellationHandler
 import com.google.android.material.button.MaterialButton
 
 @SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OpCancellationHandler {
 
     private var pdfViewerFragment: HostFragment? = null
     private var isPdfViewInitialized = false
@@ -73,15 +74,13 @@ class MainActivity : AppCompatActivity() {
 
         // Fragment initialization
         pdfViewerFragment = HostFragment()
-        val transaction: FragmentTransaction = fragmentManager.beginTransaction()
 
         // Replace an existing fragment in a container with an instance of a new fragment
-        transaction.replace(
-            R.id.fragment_container_view,
-            pdfViewerFragment!!,
-            PDF_VIEWER_FRAGMENT_TAG
-        )
-        transaction.commitAllowingStateLoss()
+        fragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container_view, pdfViewerFragment!!, PDF_VIEWER_FRAGMENT_TAG)
+            .commitAllowingStateLoss()
+
         fragmentManager.executePendingTransactions()
     }
 
@@ -108,6 +107,15 @@ class MainActivity : AppCompatActivity() {
 
             WindowInsetsCompat.CONSUMED
         }
+    }
+
+    override fun handleCancelOperation() {
+        // Remove PdfViewerFragment from fragment manager
+        supportFragmentManager.findFragmentByTag(PDF_VIEWER_FRAGMENT_TAG)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commit()
+        }
+        // Mark isPdfViewInitialized to false, so next time it will replace new fragment
+        isPdfViewInitialized = false
     }
 
     companion object {

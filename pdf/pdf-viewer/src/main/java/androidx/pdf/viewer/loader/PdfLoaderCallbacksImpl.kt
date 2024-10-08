@@ -20,10 +20,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Bundle
 import android.view.View
-import android.view.View.VISIBLE
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.core.os.OperationCanceledException
 import androidx.fragment.app.FragmentManager
 import androidx.pdf.R
 import androidx.pdf.ViewState
@@ -47,13 +48,13 @@ import androidx.pdf.viewer.LoadingView
 import androidx.pdf.viewer.PageViewFactory
 import androidx.pdf.viewer.PaginatedView
 import androidx.pdf.viewer.PdfPasswordDialog
+import androidx.pdf.viewer.PdfPasswordDialog.KEY_CANCELABLE
 import androidx.pdf.viewer.PdfSelectionModel
 import androidx.pdf.viewer.SearchModel
 import androidx.pdf.viewer.SelectedMatch
 import androidx.pdf.widget.FastScrollView
 import androidx.pdf.widget.ZoomView
 import androidx.pdf.widget.ZoomView.ZoomScroll
-import com.google.android.material.snackbar.Snackbar
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PdfLoaderCallbacksImpl(
@@ -66,10 +67,9 @@ public class PdfLoaderCallbacksImpl(
     private var findInFileView: FindInFileView,
     private var isTextSearchActive: Boolean,
     private var viewState: ExposedValue<ViewState>,
-    private val fragmentContainerView: View?,
     private val onRequestPassword: (Boolean) -> Boolean,
     private val onDocumentLoaded: () -> Unit,
-    private val onDocumentLoadFailure: (Throwable) -> Unit,
+    private val onDocumentLoadFailure: (error: Throwable, showErrorView: Boolean) -> Unit,
     private var eventCallback: EventCallback?,
 ) : PdfLoaderCallbacks {
     private val pageElevationInPixels: Int = PaginationUtils.getPageElevationInPixels(context)
@@ -106,7 +106,7 @@ public class PdfLoaderCallbacksImpl(
                 else -> RuntimeException(context.resources.getString(R.string.pdf_error))
             }
 
-        onDocumentLoadFailure(thrown)
+        onDocumentLoadFailure(thrown, true)
     }
 
     @UiThread
@@ -153,7 +153,10 @@ public class PdfLoaderCallbacksImpl(
         if (viewState.get() != ViewState.NO_VIEW) {
             var passwordDialog = currentPasswordDialog(fragmentManager)
             if (passwordDialog == null) {
-                passwordDialog = PdfPasswordDialog()
+                passwordDialog =
+                    PdfPasswordDialog().apply {
+                        arguments = Bundle().apply { putBoolean(KEY_CANCELABLE, false) }
+                    }
                 passwordDialog.show(fragmentManager, PASSWORD_DIALOG_TAG)
             }
 
@@ -164,19 +167,10 @@ public class PdfLoaderCallbacksImpl(
                     }
 
                     override fun onDialogCancelled() {
-                        val retryCallback = Runnable { requestPassword(false) }
-                        val snackbar =
-                            fragmentContainerView?.let {
-                                Snackbar.make(
-                                    it,
-                                    R.string.password_not_entered,
-                                    Snackbar.LENGTH_INDEFINITE
-                                )
-                            }
-                        val mResolveClickListener =
-                            View.OnClickListener { _: View? -> retryCallback.run() }
-                        snackbar?.setAction(R.string.retry_button_text, mResolveClickListener)
-                        snackbar?.show()
+                        onDocumentLoadFailure(
+                            OperationCanceledException("Password cancelled. Cannot open PDF."),
+                            false
+                        )
                     }
                 }
             )
