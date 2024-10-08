@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.pdf.testapp
+package androidx.pdf.testapp.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.os.OperationCanceledException
+import androidx.pdf.testapp.R
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -58,5 +60,13 @@ class HostFragment : PdfViewerFragment() {
     override fun onRequestImmersiveMode(enterImmersive: Boolean) {
         super.onRequestImmersiveMode(enterImmersive)
         if (!enterImmersive) search?.show() else search?.hide()
+    }
+
+    override fun onLoadDocumentError(error: Throwable) {
+        super.onLoadDocumentError(error)
+        when (error) {
+            is OperationCanceledException ->
+                (activity as? OpCancellationHandler)?.handleCancelOperation()
+        }
     }
 }

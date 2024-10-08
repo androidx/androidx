@@ -326,16 +326,15 @@ public open class PdfViewerFragment : Fragment() {
 
         pdfLoaderCallbacks =
             PdfLoaderCallbacksImpl(
-                requireContext(),
-                requireActivity().supportFragmentManager,
-                fastScrollView!!,
-                zoomView!!,
-                paginatedView!!,
-                loadingView!!,
-                findInFileView!!,
-                isTextSearchActive,
-                viewState,
-                view,
+                context = requireContext(),
+                fragmentManager = requireActivity().supportFragmentManager,
+                fastScrollView = fastScrollView!!,
+                zoomView = zoomView!!,
+                paginatedView = paginatedView!!,
+                loadingView = loadingView!!,
+                findInFileView = findInFileView!!,
+                isTextSearchActive = isTextSearchActive,
+                viewState = viewState,
                 onRequestPassword = { onScreen ->
                     if (!(isResumed && onScreen)) {
                         // This would happen if the service decides to start while we're in
@@ -360,8 +359,10 @@ public open class PdfViewerFragment : Fragment() {
                         }
                     }
                 },
-                onDocumentLoadFailure = { thrown -> showLoadingErrorView(thrown) },
-                mEventCallback
+                onDocumentLoadFailure = { exception, showErrorView ->
+                    handleError(exception, showErrorView)
+                },
+                eventCallback = mEventCallback
             )
 
         setUpEditFab()
@@ -735,7 +736,7 @@ public open class PdfViewerFragment : Fragment() {
                 // app that owns it has been killed by the system. We will still recover,
                 // but log this.
                 viewState.set(ViewState.ERROR)
-                showLoadingErrorView(e)
+                handleError(e)
             }
         }
     }
@@ -845,11 +846,14 @@ public open class PdfViewerFragment : Fragment() {
         }
     }
 
-    private fun showLoadingErrorView(error: Throwable) {
-        context?.resources?.getString(R.string.error_cannot_open_pdf)?.let {
-            loadingView?.showErrorView(it)
-        }
+    private fun handleError(error: Throwable, showErrorView: Boolean = true) {
+        // Report exception occurred while processing PDF to host
         onLoadDocumentError(error)
+        // Show a generic error message on pdf container, if required
+        if (showErrorView)
+            context?.resources?.getString(R.string.error_cannot_open_pdf)?.let {
+                loadingView?.showErrorView(it)
+            }
     }
 
     private fun loadFile(fileUri: Uri) {
@@ -882,7 +886,7 @@ public open class PdfViewerFragment : Fragment() {
             when (error) {
                 is IOException,
                 is SecurityException,
-                is NullPointerException -> showLoadingErrorView(error)
+                is NullPointerException -> handleError(error)
                 else -> throw error
             }
         }
@@ -910,7 +914,7 @@ public open class PdfViewerFragment : Fragment() {
                 }
 
                 override fun failed(thrown: Throwable) {
-                    showLoadingErrorView(thrown)
+                    handleError(thrown)
                 }
 
                 override fun progress(progress: Float) {}

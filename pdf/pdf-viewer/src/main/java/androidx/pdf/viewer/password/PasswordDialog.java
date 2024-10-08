@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -74,6 +75,19 @@ public abstract class PasswordDialog extends DialogFragment {
      */
     public void setFinishOnCancel(boolean finishOnCancel) {
         this.mFinishOnCancel = finishOnCancel;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        // Make dialog non-cancellable if required
+        if (getArguments() != null) {
+            setCancelable(getArguments().getBoolean(KEY_CANCELABLE, true));
+        }
+
+        return rootView;
     }
 
     @NonNull
@@ -279,4 +293,6 @@ public abstract class PasswordDialog extends DialogFragment {
             textField.setBackground(sample.getBackground());
         }
     }
+
+    public static final String KEY_CANCELABLE = "KeyCancellable";
 }
