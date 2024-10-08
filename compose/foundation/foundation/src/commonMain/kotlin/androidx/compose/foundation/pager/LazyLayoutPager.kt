@@ -58,7 +58,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
@@ -141,13 +140,6 @@ internal fun Pager(
             PagerBringIntoViewSpec(state, defaultBringIntoViewSpec)
         }
 
-    val reverseDirection =
-        ScrollableDefaults.reverseDirection(
-            LocalLayoutDirection.current,
-            orientation,
-            reverseLayout
-        )
-
     val beyondBoundsModifier =
         if (userScrollEnabled) {
             Modifier.lazyLayoutBeyondBoundsModifier(
@@ -187,11 +179,11 @@ internal fun Pager(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
-                    reverseDirection = reverseDirection,
+                    reverseScrolling = reverseLayout,
                     flingBehavior = resolvedFlingBehavior,
                     interactionSource = state.internalInteractionSource,
-                    bringIntoViewSpec = pagerBringIntoViewSpec,
-                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                    overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                    bringIntoViewSpec = pagerBringIntoViewSpec
                 )
                 .dragDirectionDetector(state)
                 .nestedScroll(pageNestedScrollConnection),

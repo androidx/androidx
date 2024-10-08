@@ -261,7 +261,7 @@ private class ScrollableElement(
     }
 }
 
-private class ScrollableNode(
+internal class ScrollableNode(
     state: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior?,
