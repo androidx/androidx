@@ -58,7 +58,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":benchmark:benchmark-macro"))
-    api("androidx.test.uiautomator:uiautomator:2.3.0-rc01")
+    api("androidx.test.uiautomator:uiautomator:2.3.0")
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.test:rules:1.5.0")
     implementation("androidx.test:runner:1.5.2")

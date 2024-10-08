@@ -40,8 +40,9 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinStdlib)
     lintPublish(project(":recyclerview:recyclerview-lint"))
+
     constraints {
-        implementation("androidx.viewpager2:viewpager2:1.1.0-beta02")
+        implementation("androidx.viewpager2:viewpager2:1.1.0")
     }
 }
 

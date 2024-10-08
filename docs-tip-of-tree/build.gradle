@@ -18,7 +18,7 @@ android {
 
 dependencies {
     // If there is not at least one samples dependency, DocsImplPlugin breaks. b/332262321
-    samples("androidx.window:window-samples:1.3.0-alpha03")
+    samples("androidx.window:window-samples:1.3.0")
 
     docsForOptionalProject(":xr:xr")
     docsForOptionalProject(":xr:xr-material3-adaptive")
@@ -92,8 +92,8 @@ dependencies {
     kmpDocs(project(":compose:material3:material3-common"))
     kmpDocs(project(":compose:material3:material3-window-size-class"))
     kmpDocs(project(":compose:material:material"))
-    kmpDocs("androidx.compose.material:material-icons-core:1.7.0-beta01")
-    samples("androidx.compose.material:material-icons-core-samples:1.7.0-beta01")
+    kmpDocs("androidx.compose.material:material-icons-core:1.7.0")
+    samples("androidx.compose.material:material-icons-core-samples:1.7.0")
     kmpDocs(project(":compose:material:material-ripple"))
     docs(project(":compose:material:material-navigation"))
     kmpDocs(project(":compose:runtime:runtime"))
