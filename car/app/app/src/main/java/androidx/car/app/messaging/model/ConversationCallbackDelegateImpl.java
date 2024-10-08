@@ -79,6 +79,7 @@ class ConversationCallbackDelegateImpl implements ConversationCallbackDelegate {
         }
     }
 
+    @CarProtocol
     @KeepFields
     private static class ConversationCallbackStub extends IConversationCallback.Stub {
 

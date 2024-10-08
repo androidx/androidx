@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -37,6 +38,7 @@ import androidx.car.app.utils.RemoteUtils;
  *
  */
 @RestrictTo(LIBRARY)
+@CarProtocol
 @KeepFields
 public class InputCallbackDelegateImpl implements InputCallbackDelegate {
     @Nullable
@@ -79,6 +81,7 @@ public class InputCallbackDelegateImpl implements InputCallbackDelegate {
         mCallback = null;
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnInputCallbackStub extends IInputCallback.Stub {
         private final InputCallback mCallback;

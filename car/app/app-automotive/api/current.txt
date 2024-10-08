@@ -20,7 +20,7 @@ package androidx.car.app.activity {
 
 package androidx.car.app.activity.renderer.surface {
 
-  @SuppressCompatibility public final class LegacySurfacePackage {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class LegacySurfacePackage {
     ctor public LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback);
   }
 
@@ -32,7 +32,7 @@ package androidx.car.app.activity.renderer.surface {
     method public void setSurfaceWrapper(androidx.car.app.activity.renderer.surface.SurfaceWrapper);
   }
 
-  @SuppressCompatibility public final class SurfaceWrapper {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class SurfaceWrapper {
     ctor public SurfaceWrapper(android.os.IBinder?, @Dimension int, @Dimension int, int, int, android.view.Surface);
     method public int getDensityDpi();
     method public int getDisplayId();
@@ -46,7 +46,7 @@ package androidx.car.app.activity.renderer.surface {
 
 package androidx.car.app.hardware {
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class AutomotiveCarHardwareManager implements androidx.car.app.hardware.CarHardwareManager {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public final class AutomotiveCarHardwareManager implements androidx.car.app.hardware.CarHardwareManager {
     ctor public AutomotiveCarHardwareManager(android.content.Context);
   }
 

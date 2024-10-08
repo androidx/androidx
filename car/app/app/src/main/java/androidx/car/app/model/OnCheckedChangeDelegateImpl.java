@@ -70,6 +70,7 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
         return new OnCheckedChangeDelegateImpl(listener);
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnCheckedChangeListenerStub extends
             IOnCheckedChangeListener.Stub {

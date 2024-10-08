@@ -39,6 +39,7 @@ import android.os.RemoteException;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Alert;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Template;
@@ -66,6 +67,7 @@ import org.robolectric.shadows.ShadowApplication;
 @RunWith(RobolectricTestRunner.class)
 @Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
+@CarProtocol
 public final class AppManagerTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
@@ -567,6 +569,7 @@ public final class AppManagerTest {
         }
     }
 
+    @CarProtocol
     private static class TestTemplate implements Template {
     }
 }

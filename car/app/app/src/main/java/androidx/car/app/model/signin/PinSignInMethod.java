@@ -20,9 +20,10 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -31,6 +32,7 @@ import java.util.Objects;
  * use to sign-in.
  */
 @RequiresCarApi(2)
+@CarProtocol
 @KeepFields
 public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     /** Maximum length, in characters, for a PIN. */

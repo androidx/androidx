@@ -18,10 +18,11 @@ package androidx.car.app.hardware.climate;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.Objects;
 @RequiresCarApi(5)
 @MainThread
 @ExperimentalCarApi
+@CarProtocol
 @KeepFields
 public final class CarClimateFeature {
     @ClimateProfileRequest.ClimateProfileFeature

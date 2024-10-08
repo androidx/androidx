@@ -22,14 +22,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Any class annotated with this marker is part of the protocol layer for remote host rendering.
+ * Any class annotated with this marker is part of the protocol layer for remote host rendering and
+ * can be sent between the client and the host through serialization.
  * Changes to these classes must take forward and backward compatibility into account.
  *
  * <p>Newer apps should be able to work with older hosts, if the functionality they use can be
  * emulated using older APIs or if they don't use newer features. The {@link RequiresCarApi}
  * annotation details on required versioning for compatibility for classes and methods.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.PARAMETER})
 public @interface CarProtocol {
 }

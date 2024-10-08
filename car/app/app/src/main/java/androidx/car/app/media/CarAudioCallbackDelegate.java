@@ -68,6 +68,7 @@ public class CarAudioCallbackDelegate {
     }
 
     // We need to keep these stub for Bundler serialization logic.
+    @CarProtocol
     @KeepFields
     private static class CarAudioCallbackStub extends ICarAudioCallback.Stub {
         @Nullable
