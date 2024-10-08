@@ -113,7 +113,11 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
 
     // check that the Type is annotated with @Serializable
     private fun checkMissingSerializableAnnotation(kClazz: PsiClass, context: JavaContext) {
-        if (!kClazz.isInterface && !kClazz.hasAnnotation("kotlinx.serialization.Serializable")) {
+        if (
+            !kClazz.containingFile.fileType.isBinary &&
+                !kClazz.isInterface &&
+                !kClazz.hasAnnotation("kotlinx.serialization.Serializable")
+        ) {
             val uElement = kClazz.toUElement() ?: return
             context.report(
                 getMissingSerializableIssue(),
