@@ -2428,6 +2428,11 @@ package androidx.compose.ui.layout {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onPlaced);
   }
 
+  public final class OnRectChangedModifierKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier onRectChanged(androidx.compose.ui.Modifier, optional int throttleMs, optional int debounceMs, kotlin.jvm.functions.Function1<? super androidx.compose.ui.spatial.RectInfo,kotlin.Unit> callback);
+    method public static kotlinx.coroutines.DisposableHandle registerOnRectChanged(androidx.compose.ui.node.DelegatableNode, int throttleMs, int debounceMs, kotlin.jvm.functions.Function1<? super androidx.compose.ui.spatial.RectInfo,kotlin.Unit> callback);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface OnRemeasuredModifier extends androidx.compose.ui.Modifier.Element {
     method public void onRemeasured(long size);
   }
@@ -3777,6 +3782,29 @@ package androidx.compose.ui.semantics {
 
   public interface SemanticsPropertyReceiver {
     method public operator <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
+}
+
+package androidx.compose.ui.spatial {
+
+  public final class RectInfo {
+    method public int getHeight();
+    method public long getPositionInRoot();
+    method public long getPositionInScreen();
+    method public long getPositionInWindow();
+    method public androidx.compose.ui.unit.IntRect getRootRect();
+    method public androidx.compose.ui.unit.IntRect getScreenRect();
+    method public int getWidth();
+    method public androidx.compose.ui.unit.IntRect getWindowRect();
+    property public final int height;
+    property public final long positionInRoot;
+    property public final long positionInScreen;
+    property public final long positionInWindow;
+    property public final androidx.compose.ui.unit.IntRect rootRect;
+    property public final androidx.compose.ui.unit.IntRect screenRect;
+    property public final int width;
+    property public final androidx.compose.ui.unit.IntRect windowRect;
   }
 
 }

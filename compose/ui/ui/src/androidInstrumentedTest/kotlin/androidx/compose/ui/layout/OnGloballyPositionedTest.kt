@@ -1265,7 +1265,7 @@ fun DelayedMeasure(size: Int, modifier: Modifier = Modifier, content: @Composabl
 }
 
 @Composable
-private fun Offset(sizeModel: State<Int>, content: @Composable () -> Unit) {
+internal fun Offset(sizeModel: State<Int>, content: @Composable () -> Unit) {
     // simple copy of Padding which doesn't recompose when the size changes
     Layout(content) { measurables, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {
