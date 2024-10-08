@@ -47,7 +47,7 @@ dependencies {
     implementation(libs.protobufGradlePlugin) // needed to compile inspection plugin
     implementation(libs.kotlinPoet) // needed to compile glance-layout-generator
 
-    implementation(libs.protobuf) // needed to compile baseline-profile gradle plugins
+    implementation("com.google.protobuf:protobuf-java:3.22.3") // needed to compile baseline-profile gradle plugins
     implementation(libs.agpTestingPlatformCoreProto) // needed to compile baseline-profile gradle plugins
 
     // dependencies that aren't used by buildSrc directly but that we resolve here so that the

@@ -77,6 +77,7 @@ agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-prot
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
 androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+androidGradleSettingsPlugin = { module = "com.android.tools.build:gradle-settings", version.ref = "androidGradlePlugin" }
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
