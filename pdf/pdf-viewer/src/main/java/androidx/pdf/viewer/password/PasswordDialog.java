@@ -63,6 +63,7 @@ public abstract class PasswordDialog extends DialogFragment {
     private int mBlueColor;
     private int mTextErrorColor;
     private AlertDialog mPasswordDialog;
+    private static final String PASSWORD_INPUT = "password_input";
 
     private boolean mIncorrect;
     private boolean mFinishOnCancel;
@@ -91,6 +92,11 @@ public abstract class PasswordDialog extends DialogFragment {
 
         final EditText passwordField = (EditText) view.findViewById(R.id.password);
         setupPasswordField(passwordField);
+
+        if (savedInstanceState != null) {
+            String savedPassword = savedInstanceState.getString(PASSWORD_INPUT, "");
+            passwordField.setText(savedPassword);
+        }
 
         // Hijack the positive button to NOT dismiss the dialog immediately.
         dialog.setOnShowListener(
@@ -144,6 +150,17 @@ public abstract class PasswordDialog extends DialogFragment {
 
         mPasswordDialog = dialog;
         return dialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Find the EditText by its ID
+        EditText editTextPassword = (EditText) mPasswordDialog.findViewById(R.id.password);
+        // Get the text from the EditText and store it in passwordInput
+        String passwordInput = editTextPassword.getText().toString();
+        // Save the input to the outState bundle
+        outState.putString(PASSWORD_INPUT, passwordInput);
     }
 
     private void setupPasswordField(final EditText passwordField) {
