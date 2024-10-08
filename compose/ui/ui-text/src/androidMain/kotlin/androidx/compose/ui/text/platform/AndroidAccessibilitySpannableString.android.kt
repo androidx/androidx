@@ -83,21 +83,23 @@ fun AnnotatedString.toAccessibilitySpannableString(
     }
 
     getLinkAnnotations(0, length).fastForEach { linkRange ->
-        val link = linkRange.item
-        if (link is LinkAnnotation.Url && link.linkInteractionListener == null) {
-            spannableString.setSpan(
-                urlSpanCache.toURLSpan(linkRange.toUrlLink()),
-                linkRange.start,
-                linkRange.end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        } else {
-            spannableString.setSpan(
-                urlSpanCache.toClickableSpan(linkRange),
-                linkRange.start,
-                linkRange.end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        if (linkRange.start != linkRange.end) {
+            val link = linkRange.item
+            if (link is LinkAnnotation.Url && link.linkInteractionListener == null) {
+                spannableString.setSpan(
+                    urlSpanCache.toURLSpan(linkRange.toUrlLink()),
+                    linkRange.start,
+                    linkRange.end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            } else {
+                spannableString.setSpan(
+                    urlSpanCache.toClickableSpan(linkRange),
+                    linkRange.start,
+                    linkRange.end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
     }
     return spannableString

@@ -926,6 +926,19 @@ class BasicTextLinkTest {
         }
     }
 
+    @Test
+    fun link_withZeroLengthAnnotation_doesNotCrash() {
+        rule.setContent {
+            BasicText(
+                text =
+                    buildAnnotatedString {
+                        append("a")
+                        addLink(url = Url("url"), start = 0, end = 0)
+                    }
+            )
+        }
+    }
+
     @Composable
     private fun TextWithLinks() =
         with(rule.density) {

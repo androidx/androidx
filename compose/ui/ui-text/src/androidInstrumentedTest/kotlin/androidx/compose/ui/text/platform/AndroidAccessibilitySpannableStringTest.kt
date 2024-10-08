@@ -341,6 +341,26 @@ class AndroidAccessibilitySpannableStringTest {
     }
 
     @Test
+    fun toAccessibilitySpannableString_zeroLength_linkAnnotation_ignored() {
+        val annotatedString = buildAnnotatedString {
+            append("hello")
+            addLink(LinkAnnotation.Url("url"), 0, 0)
+            addLink(LinkAnnotation.Clickable("tag") {}, 3, 3)
+        }
+
+        val spannableString =
+            annotatedString.toAccessibilitySpannableString(
+                density,
+                fontFamilyResolver,
+                urlSpanCache
+            )
+
+        assertThat(spannableString).isInstanceOf(SpannableString::class.java)
+        assertThat(spannableString).doesNotHaveSpan(URLSpan::class)
+        assertThat(spannableString).doesNotHaveSpan(ClickableSpan::class)
+    }
+
+    @Test
     fun fontsInSpanStyles_areIgnored() {
         // b/232238615
         val loader = AsyncTestTypefaceLoader()
