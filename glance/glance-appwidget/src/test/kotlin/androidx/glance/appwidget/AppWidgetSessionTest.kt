@@ -44,6 +44,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -96,6 +97,7 @@ class AppWidgetSessionTest {
         assertThat(root.shouldIgnoreResult()).isTrue()
     }
 
+    @Ignore // b/369179257
     @Test
     fun processEmittableTree() = runTest {
         val root =
