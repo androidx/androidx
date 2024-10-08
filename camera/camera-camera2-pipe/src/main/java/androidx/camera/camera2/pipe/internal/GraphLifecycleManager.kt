@@ -54,6 +54,10 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
     private val backendControllerMap =
         mutableMapOf<CameraBackendId, LinkedHashSet<CameraController>>()
 
+    @GuardedBy("lock")
+    private val backendCameraStatusMap =
+        mutableMapOf<CameraBackendId, MutableMap<CameraId, CameraStatus>>()
+
     @GuardedBy("lock") private val backendStatusCollectJobMap = mutableMapOf<CameraBackendId, Job>()
 
     internal fun monitorAndStart(cameraBackend: CameraBackend, cameraController: CameraController) =
@@ -76,6 +80,11 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
 
     @GuardedBy("lock")
     private fun startMonitoring(cameraBackend: CameraBackend, cameraController: CameraController) {
+        // Update this camera controller with the latest camera status, if exist.
+        backendCameraStatusMap[cameraBackend.id]?.get(cameraController.cameraId)?.let { status ->
+            cameraController.onCameraStatusChanged(status)
+        }
+
         if (backendControllerMap.containsKey(cameraBackend.id)) {
             backendControllerMap[cameraBackend.id]?.add(cameraController)
             return
@@ -123,6 +132,11 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
         cameraId: CameraId? = null,
     ) =
         synchronized(lock) {
+            if (cameraId != null) {
+                val cameraStatusMap =
+                    backendCameraStatusMap.getOrPut(cameraBackend.id) { mutableMapOf() }
+                cameraStatusMap[cameraId] = cameraStatus
+            }
             // Restart the last CameraController being tracked in each backend. The last
             // CameraController would be the latest one being tracked, and should thus take priority
             // over previous CameraControllers.

@@ -79,6 +79,9 @@ constructor(
 
     @GuardedBy("lock") private var controllerState: ControllerState = ControllerState.STOPPED
 
+    @GuardedBy("lock")
+    private var cameraStatus: CameraStatus = CameraStatus.CameraUnavailable(cameraId)
+
     @GuardedBy("lock") private var lastCameraError: CameraError? = null
 
     private var currentCamera: VirtualCamera? = null
@@ -165,6 +168,14 @@ constructor(
 
     override fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
         synchronized(lock) {
+            Log.debug { "$this ($cameraId) camera status changed to $cameraStatus" }
+            if (
+                cameraStatus is CameraStatus.CameraAvailable ||
+                    cameraStatus is CameraStatus.CameraUnavailable
+            ) {
+                this@Camera2CameraController.cameraStatus = cameraStatus
+            }
+
             var shouldRestart = false
             when (controllerState) {
                 ControllerState.DISCONNECTED ->
@@ -295,8 +306,19 @@ constructor(
                 } else {
                     controllerState = ControllerState.ERROR
                     Log.debug {
-                        "Camera2CameraController encountered an " +
-                            "unrecoverable error: ${cameraState.cameraErrorCode}"
+                        "Camera2CameraController encountered error: ${cameraState.cameraErrorCode}"
+                    }
+
+                    // When camera is closed under error, it is possible for the camera availability
+                    // callback to indicate camera as available, before we finish processing
+                    // (receiving) the camera error. Therefore, if we have an error, but we think
+                    // the camera is available, we should attempt a retry.
+                    // Please refer to b/362902859 for details.
+                    if (
+                        cameraStatus is CameraStatus.CameraAvailable &&
+                            cameraState.cameraErrorCode != CameraError.ERROR_GRAPH_CONFIG
+                    ) {
+                        onCameraStatusChanged(cameraStatus)
                     }
                 }
                 lastCameraError = cameraState.cameraErrorCode
