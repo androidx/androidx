@@ -1350,6 +1350,9 @@ package androidx.health.connect.client.records {
     field public static final int MEASUREMENT_LOCATION_TOE = 2; // 0x2
     field public static final int MEASUREMENT_LOCATION_UNKNOWN = 0; // 0x0
     field public static final int MEASUREMENT_LOCATION_WRIST = 3; // 0x3
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.TemperatureDelta> TEMPERATURE_DELTA_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.TemperatureDelta> TEMPERATURE_DELTA_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.TemperatureDelta> TEMPERATURE_DELTA_MIN;
   }
 
   public static final class SkinTemperatureRecord.Companion {

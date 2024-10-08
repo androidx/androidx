@@ -19,12 +19,15 @@
 
 package androidx.health.connect.client.impl.platform.response
 
+import android.annotation.SuppressLint
 import android.health.connect.AggregateRecordsGroupedByDurationResponse
 import android.health.connect.AggregateRecordsGroupedByPeriodResponse
 import android.health.connect.AggregateRecordsResponse
 import android.health.connect.datatypes.AggregationType
 import android.health.connect.datatypes.units.Energy as PlatformEnergy
 import android.health.connect.datatypes.units.Volume as PlatformVolume
+import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -41,6 +44,7 @@ import androidx.health.connect.client.impl.platform.aggregate.LENGTH_AGGREGATION
 import androidx.health.connect.client.impl.platform.aggregate.LONG_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.POWER_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.PRESSURE_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.TEMPERATURE_DELTA_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.VELOCITY_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.VOLUME_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.records.PlatformDataOrigin
@@ -48,6 +52,7 @@ import androidx.health.connect.client.impl.platform.records.PlatformLength
 import androidx.health.connect.client.impl.platform.records.PlatformMass
 import androidx.health.connect.client.impl.platform.records.PlatformPower
 import androidx.health.connect.client.impl.platform.records.PlatformPressure
+import androidx.health.connect.client.impl.platform.records.PlatformTemperatureDelta
 import androidx.health.connect.client.impl.platform.records.PlatformVelocity
 import androidx.health.connect.client.impl.platform.records.toSdkDataOrigin
 import androidx.health.connect.client.impl.platform.request.toAggregationType
@@ -126,6 +131,7 @@ internal fun getLongMetricValues(
     }
 }
 
+@SuppressLint("NewApi") // Api 35 covered by sdk extension check
 @VisibleForTesting
 internal fun getDoubleMetricValues(
     metricValueMap: Map<AggregateMetric<Any>, Any>
@@ -154,6 +160,13 @@ internal fun getDoubleMetricValues(
                 }
                 in POWER_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformPower).inWatts
+                }
+                in TEMPERATURE_DELTA_METRIC_TYPE_MAP -> {
+                    require(
+                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
+                            13
+                    )
+                    this[key.metricKey] = (value as PlatformTemperatureDelta).inCelsius
                 }
                 in VELOCITY_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformVelocity).inMetersPerSecond
