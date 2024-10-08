@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"ಶೇಕಡಾ <xliff:g id="FIRST">%1$d</xliff:g> ರಷ್ಟು ಝೂಮ್ ಮಾಡಿ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"ಪುಟ <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> ಕ್ಕೆ ತೆರಳಿ"</string>
     <string name="desc_page" msgid="5684226167093594168">"ಪುಟ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF ಅನ್ನು ಪ್ರದರ್ಶಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ (<xliff:g id="TITLE">%1$s</xliff:g> ಅಮಾನ್ಯವಾದ ಫಾರ್ಮ್ಯಾಟ್ ಆಗಿದೆ)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"<xliff:g id="PAGE">%1$d</xliff:g> ಪುಟವನ್ನು ಪ್ರದರ್ಶಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ (ಫೈಲ್ ದೋಷ)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"ಲಿಂಕ್: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> ನಲ್ಲಿರುವ ವೆಬ್‌ಪುಟ"</string>
@@ -46,8 +48,7 @@
     <string name="next_button_description" msgid="4702699322249103693">"ಮುಂದಿನದು"</string>
     <string name="close_button_description" msgid="7379823906921067675">"ಮುಚ್ಚಿರಿ"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
-    <!-- no translation found for message_no_match_status (5929387004361286433) -->
-    <skip />
+    <string name="message_no_match_status" msgid="5929387004361286433">"ಯಾವುದೇ ಹೊಂದಾಣಿಕೆಯ ಫಲಿತಾಂಶಗಳಿಲ್ಲ"</string>
     <string name="action_edit" msgid="5882082700509010966">"ಫೈಲ್ ಎಡಿಟ್‌ ಮಾಡಿ"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ಅನ್‌ಲಾಕ್‌ ಮಾಡಲು ಪಾಸವರ್ಡ್‌ ಅನ್ನು ನಮೂದಿಸಿ"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"</string>

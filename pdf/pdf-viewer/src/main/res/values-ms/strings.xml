@@ -30,6 +30,7 @@
     <string name="desc_zoom" msgid="7318480946145947242">"zum <xliff:g id="FIRST">%1$d</xliff:g> peratus"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Akses halaman <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"halaman <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <string name="desc_empty_page" msgid="5041794048330057239">"Halaman kosong"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Tidak dapat memaparkan PDF (format untuk <xliff:g id="TITLE">%1$s</xliff:g> tidak sah)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Tidak dapat memaparkan halaman <xliff:g id="PAGE">%1$d</xliff:g> (ralat fail)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Pautan: halaman web pada <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

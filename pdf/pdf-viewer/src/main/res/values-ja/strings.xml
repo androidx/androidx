@@ -30,6 +30,7 @@
     <string name="desc_zoom" msgid="7318480946145947242">"ズーム <xliff:g id="FIRST">%1$d</xliff:g> %%"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> ページに移動します"</string>
     <string name="desc_page" msgid="5684226167093594168">"<xliff:g id="PAGE">%1$d</xliff:g> ページ"</string>
+    <string name="desc_empty_page" msgid="5041794048330057239">"空白のページ"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF を表示できません（<xliff:g id="TITLE">%1$s</xliff:g> の形式が無効です）"</string>
     <string name="error_on_page" msgid="1592475819957182385">"<xliff:g id="PAGE">%1$d</xliff:g> ページを表示できません（ファイルエラー）"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"リンク: ウェブページ（<xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>）"</string>

@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"i-zoom nang <xliff:g id="FIRST">%1$d</xliff:g> porsyento"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Pumunta sa page <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"page <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Hindi maipakita ang PDF (invalid ang format ng <xliff:g id="TITLE">%1$s</xliff:g>)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Hindi maipakita ang page <xliff:g id="PAGE">%1$d</xliff:g> (error sa file)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Link: webpage sa <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

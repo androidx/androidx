@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"ពង្រីកបង្រួម <xliff:g id="FIRST">%1$d</xliff:g> ភាគរយ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"ទៅទំព័រទី <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"ទំព័រទី <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"មិនអាច​បង្ហាញ PDF បានទេ (<xliff:g id="TITLE">%1$s</xliff:g> មានទម្រង់មិន​ត្រឹមត្រូវ)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"មិនអាចបង្ហាញទំព័រទី <xliff:g id="PAGE">%1$d</xliff:g> បានទេ (បញ្ហាឯកសារ)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"តំណ៖ ទំព័របណ្ដាញនៅ <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

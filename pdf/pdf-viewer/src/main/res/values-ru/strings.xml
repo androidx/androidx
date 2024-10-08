@@ -30,6 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"масштаб: <xliff:g id="FIRST">%1$d</xliff:g> %%"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Перейти на страницу <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"страница <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for desc_empty_page (5041794048330057239) -->
+    <skip />
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Недопустимый формат файла \"<xliff:g id="TITLE">%1$s</xliff:g>\"."</string>
     <string name="error_on_page" msgid="1592475819957182385">"Невозможно показать страницу <xliff:g id="PAGE">%1$d</xliff:g> (ошибка файла)."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Ссылка: страница на сайте <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
@@ -46,8 +48,7 @@
     <string name="next_button_description" msgid="4702699322249103693">"Далее"</string>
     <string name="close_button_description" msgid="7379823906921067675">"Закрыть"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> из <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
-    <!-- no translation found for message_no_match_status (5929387004361286433) -->
-    <skip />
+    <string name="message_no_match_status" msgid="5929387004361286433">"Ничего не найдено."</string>
     <string name="action_edit" msgid="5882082700509010966">"Редактировать файл"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Введите пароль для разблокировки."</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Повторить попытку"</string>
