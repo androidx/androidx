@@ -43,7 +43,7 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.9.0")
-    implementation("androidx.compose.runtime:runtime-tracing:1.0.0-beta01")
+    implementation("androidx.compose.runtime:runtime-tracing:1.7.3")
 
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))

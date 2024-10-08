@@ -75,7 +75,7 @@ dependencies {
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.activity:activity-ktx:1.2.0")
-    implementation("androidx.viewpager2:viewpager2:1.1.0-beta02")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(project(":window:window"))
     implementation(project(":window:window-java"))

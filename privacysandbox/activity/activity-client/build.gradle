@@ -35,7 +35,7 @@ dependencies {
 
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.lifecycle:lifecycle-common:2.6.2")
-    implementation("androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha08")
+    implementation("androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha14")
     implementation(project(":privacysandbox:activity:activity-core"))
 
     androidTestImplementation(project(":internal-testutils-runtime"))
