@@ -90,7 +90,6 @@ package androidx.wear.protolayout.material3 {
     method public static androidx.wear.protolayout.ModifiersBuilders.Corner getCorner(androidx.wear.protolayout.material3.MaterialScope, int shapeToken);
     method public static boolean isDynamicThemeEnabled(android.content.Context context);
     method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement materialScope(android.content.Context context, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration, optional boolean allowDynamicTheme, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> layout);
-    method public static androidx.wear.protolayout.LayoutElementBuilders.LayoutElement materialScope(android.content.Context context, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters deviceConfiguration, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement> layout);
   }
 
   @kotlin.DslMarker public @interface MaterialScopeMarker {

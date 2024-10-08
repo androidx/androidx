@@ -131,7 +131,6 @@ public fun isDynamicThemeEnabled(context: Context): Boolean {
 // TODO: b/369350414 - Allow for overriding colors theme.
 // TODO: b/370976767 - Specify in docs that MaterialTileService should be used instead of using this
 // directly.
-@JvmOverloads
 public fun materialScope(
     context: Context,
     deviceConfiguration: DeviceParameters,
