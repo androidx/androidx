@@ -185,6 +185,55 @@ class EagerConfigurationIssueTest :
     }
 
     @Test
+    fun `Test usage of TaskContainer with kotlin extension functions`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.Action
+                import org.gradle.api.Project
+                import org.gradle.api.Task
+
+                fun configure(project: Project, action: Action<Task>) {
+                    project.tasks.any()
+                    project.tasks.any { it.enabled }
+                    project.tasks.map { it.name }
+                    project.tasks.mapNotNull { it.name }
+                    project.tasks.groupBy { it.group }
+                    project.tasks.forEach { it.enabled = true }
+                }
+            """
+                    .trimIndent()
+            )
+
+        val expected =
+            """
+            src/test.kt:6: Error: Avoid using method any [EagerGradleConfiguration]
+                project.tasks.any()
+                              ~~~
+            src/test.kt:7: Error: Avoid using method any [EagerGradleConfiguration]
+                project.tasks.any { it.enabled }
+                              ~~~
+            src/test.kt:8: Error: Avoid using method map [EagerGradleConfiguration]
+                project.tasks.map { it.name }
+                              ~~~
+            src/test.kt:9: Error: Avoid using method mapNotNull [EagerGradleConfiguration]
+                project.tasks.mapNotNull { it.name }
+                              ~~~~~~~~~~
+            src/test.kt:10: Error: Avoid using method groupBy [EagerGradleConfiguration]
+                project.tasks.groupBy { it.group }
+                              ~~~~~~~
+            src/test.kt:11: Error: Avoid using method forEach [EagerGradleConfiguration]
+                project.tasks.forEach { it.enabled = true }
+                              ~~~~~~~
+            6 errors, 0 warnings
+        """
+                .trimIndent()
+        val expectedFixDiffs = ""
+
+        check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
+    }
+
+    @Test
     fun `Test usage of DomainObjectCollection#whenObjectAdded`() {
         val input =
             kotlin(
