@@ -24,6 +24,7 @@ import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.AnchoredDraggableMinFlingVelocity
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateTo
@@ -71,7 +72,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-class AnchoredDraggableGestureTest(testNewBehavior: Boolean) :
+class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
     AnchoredDraggableBackwardsCompatibleTest(testNewBehavior) {
 
     private val AnchoredDraggableTestTag = "dragbox"
@@ -744,6 +745,82 @@ class AnchoredDraggableGestureTest(testNewBehavior: Boolean) :
             )
         }
         assertThat(state.offset).isEqualTo(state.anchors.positionOf(C))
+    }
+
+    @Test
+    fun anchoredDraggable_onDensityChanges_swipeWithVelocityHigherThanThreshold() {
+        if (!testNewBehavior) return
+        val (state, modifier) =
+            createStateAndModifier(
+                initialValue = A,
+                orientation = Orientation.Horizontal,
+                shouldCreateFling = false
+            )
+
+        var density by mutableStateOf(rule.density)
+        val originalThreshold = AnchoredDraggableMinFlingVelocityPx * 1.1f
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                CompositionLocalProvider(LocalDensity provides density) {
+                    Box(
+                        Modifier.requiredSize(400.dp)
+                            .testTag(AnchoredDraggableTestTag)
+                            .then(modifier)
+                            .onSizeChanged { layoutSize ->
+                                val anchors = DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
+                                state.updateAnchors(anchors)
+                            }
+                            .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        var offsetDisplaced = 0.0f
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            offsetDisplaced = right / 2
+            swipeWithVelocity(
+                start = Offset(left, 0f),
+                end = Offset(offsetDisplaced, 0f),
+                endVelocity = originalThreshold
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(B)
+
+        rule.runOnIdle {
+            density = Density(density = density.density * 2f) // now threshold is higher
+        }
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipeWithVelocity(
+                start = Offset(left, 0f),
+                end = Offset(offsetDisplaced, 0f),
+                endVelocity = originalThreshold
+            )
+        }
+
+        // will not advance, threshold grew because of density change
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(B)
+
+        // now use the new threshold
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipeWithVelocity(
+                start = Offset(left, 0f),
+                end = Offset(offsetDisplaced, 0f),
+                endVelocity = with(density) { AnchoredDraggableMinFlingVelocity.toPx() } * 1.1f
+            )
+        }
+
+        // will advance correctly
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(C)
     }
 
     private val DefaultSnapAnimationSpec = tween<Float>()

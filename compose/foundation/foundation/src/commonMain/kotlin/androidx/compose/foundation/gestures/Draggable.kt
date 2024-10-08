@@ -39,13 +39,10 @@ import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
@@ -362,7 +359,7 @@ internal abstract class DragGestureNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var orientationLock: Orientation?
-) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
+) : DelegatingNode(), PointerInputModifierNode {
 
     protected var canDrag = canDrag
         private set
@@ -490,7 +487,7 @@ internal abstract class DragGestureNode(
 
             val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
                 velocityTracker.addPointerInputChange(upEvent)
-                val maximumVelocity = currentValueOf(LocalViewConfiguration).maximumFlingVelocity
+                val maximumVelocity = viewConfiguration.maximumFlingVelocity
                 val velocity =
                     velocityTracker.calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
                 velocityTracker.resetTracking()

@@ -53,9 +53,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
@@ -363,11 +361,10 @@ private class AnchoredDraggableNode<T>(
         enabled = enabled,
         interactionSource = interactionSource,
         orientationLock = orientation
-    ),
-    ObserverModifierNode {
+    ) {
 
     lateinit var resolvedFlingBehavior: FlingBehavior
-    lateinit var density: Density
+    private var density: Density? = null
 
     private val isReverseDirection: Boolean
         get() =
@@ -382,9 +379,14 @@ private class AnchoredDraggableNode<T>(
         updateFlingBehavior(flingBehavior)
     }
 
-    override fun onObservedReadsChanged() {
-        val newDensity = currentValueOf(LocalDensity)
-        if (density != newDensity) {
+    override fun onDensityChange() {
+        onCancelPointerInput()
+        if (isAttached) updateDensity()
+    }
+
+    private fun updateDensity() {
+        val newDensity = requireDensity()
+        if (density == null || density != newDensity) {
             density = newDensity
             updateFlingBehavior(flingBehavior)
         }
@@ -393,16 +395,13 @@ private class AnchoredDraggableNode<T>(
     private fun updateFlingBehavior(newFlingBehavior: FlingBehavior?) {
         // Fall back to default fling behavior if the new fling behavior is null
         this.resolvedFlingBehavior =
-            if (newFlingBehavior == null) {
-                // Only register for LocalDensity snapshot updates if we are creating a decay
-                observeReads { density = currentValueOf(LocalDensity) }
-                anchoredDraggableFlingBehavior(
+            newFlingBehavior
+                ?: anchoredDraggableFlingBehavior(
                     snapAnimationSpec = AnchoredDraggableDefaults.SnapAnimationSpec,
                     positionalThreshold = AnchoredDraggableDefaults.PositionalThreshold,
-                    density = density,
+                    density = requireDensity().also { density = it },
                     state = state
                 )
-            } else newFlingBehavior
     }
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
