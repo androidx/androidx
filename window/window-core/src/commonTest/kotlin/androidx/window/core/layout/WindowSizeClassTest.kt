@@ -153,7 +153,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertFalse(sizeClass.containsWidthDp(width + 1))
+        assertFalse(sizeClass.isWidthAtLeastBreakpoint(width + 1))
     }
 
     @Test
@@ -162,7 +162,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsWidthDp(width))
+        assertTrue(sizeClass.isWidthAtLeastBreakpoint(width))
     }
 
     @Test
@@ -171,7 +171,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsWidthDp(width - 1))
+        assertTrue(sizeClass.isWidthAtLeastBreakpoint(width - 1))
     }
 
     /**
@@ -207,26 +207,26 @@ class WindowSizeClassTest {
         // expandedBreakpoint
         assertTrue(
             WindowSizeClass(WIDTH_DP_EXPANDED_LOWER_BOUND, 0)
-                .containsWidthDp(WIDTH_DP_EXPANDED_LOWER_BOUND)
+                .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
         )
         assertTrue(
             WindowSizeClass(WIDTH_DP_EXPANDED_LOWER_BOUND, 0)
-                .containsWidthDp(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                .isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
         )
 
         // equalMediumBreakpoint
         assertFalse(
             WindowSizeClass(WIDTH_DP_MEDIUM_LOWER_BOUND, 0)
-                .containsWidthDp(WIDTH_DP_EXPANDED_LOWER_BOUND)
+                .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)
         )
         assertTrue(
             WindowSizeClass(WIDTH_DP_MEDIUM_LOWER_BOUND, 0)
-                .containsWidthDp(WIDTH_DP_MEDIUM_LOWER_BOUND)
+                .isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
         )
 
         // belowBreakpoint
-        assertFalse(WindowSizeClass(0, 0).containsWidthDp(WIDTH_DP_EXPANDED_LOWER_BOUND))
-        assertFalse(WindowSizeClass(0, 0).containsWidthDp(WIDTH_DP_MEDIUM_LOWER_BOUND))
+        assertFalse(WindowSizeClass(0, 0).isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND))
+        assertFalse(WindowSizeClass(0, 0).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND))
     }
 
     /**
@@ -262,26 +262,26 @@ class WindowSizeClassTest {
         // expandedBreakpoint
         assertTrue(
             WindowSizeClass(0, HEIGHT_DP_EXPANDED_LOWER_BOUND)
-                .containsHeightDp(HEIGHT_DP_EXPANDED_LOWER_BOUND)
+                .isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
         )
         assertTrue(
             WindowSizeClass(0, HEIGHT_DP_EXPANDED_LOWER_BOUND)
-                .containsHeightDp(HEIGHT_DP_MEDIUM_LOWER_BOUND)
+                .isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
         )
 
         // equalMediumBreakpoint
         assertFalse(
             WindowSizeClass(0, HEIGHT_DP_MEDIUM_LOWER_BOUND)
-                .containsHeightDp(HEIGHT_DP_EXPANDED_LOWER_BOUND)
+                .isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND)
         )
         assertTrue(
             WindowSizeClass(0, HEIGHT_DP_MEDIUM_LOWER_BOUND)
-                .containsHeightDp(HEIGHT_DP_MEDIUM_LOWER_BOUND)
+                .isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND)
         )
 
         // belowBreakpoint
-        assertFalse(WindowSizeClass(0, 0).containsHeightDp(HEIGHT_DP_EXPANDED_LOWER_BOUND))
-        assertFalse(WindowSizeClass(0, 0).containsHeightDp(HEIGHT_DP_MEDIUM_LOWER_BOUND))
+        assertFalse(WindowSizeClass(0, 0).isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND))
+        assertFalse(WindowSizeClass(0, 0).isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND))
     }
 
     /**
@@ -319,26 +319,26 @@ class WindowSizeClassTest {
         // expandedBreakpoint
         assertTrue(
             WindowSizeClass(diagonalExpanded, diagonalExpanded)
-                .containsWindowSizeDp(diagonalExpanded, diagonalExpanded)
+                .isAtLeastBreakpoint(diagonalExpanded, diagonalExpanded)
         )
         assertTrue(
             WindowSizeClass(diagonalExpanded, diagonalExpanded)
-                .containsWindowSizeDp(diagonalMedium, diagonalMedium)
+                .isAtLeastBreakpoint(diagonalMedium, diagonalMedium)
         )
 
         // equalMediumBreakpoint
         assertFalse(
             WindowSizeClass(diagonalMedium, diagonalMedium)
-                .containsWindowSizeDp(diagonalExpanded, diagonalExpanded)
+                .isAtLeastBreakpoint(diagonalExpanded, diagonalExpanded)
         )
         assertTrue(
             WindowSizeClass(diagonalMedium, diagonalMedium)
-                .containsWindowSizeDp(diagonalMedium, diagonalMedium)
+                .isAtLeastBreakpoint(diagonalMedium, diagonalMedium)
         )
 
         // belowBreakpoint
-        assertFalse(WindowSizeClass(0, 0).containsWindowSizeDp(diagonalExpanded, diagonalExpanded))
-        assertFalse(WindowSizeClass(0, 0).containsWindowSizeDp(diagonalMedium, diagonalMedium))
+        assertFalse(WindowSizeClass(0, 0).isAtLeastBreakpoint(diagonalExpanded, diagonalExpanded))
+        assertFalse(WindowSizeClass(0, 0).isAtLeastBreakpoint(diagonalMedium, diagonalMedium))
     }
 
     @Test
@@ -347,7 +347,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertFalse(sizeClass.containsHeightDp(height + 1))
+        assertFalse(sizeClass.isHeightAtLeastBreakpoint(height + 1))
     }
 
     @Test
@@ -356,7 +356,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsHeightDp(height))
+        assertTrue(sizeClass.isHeightAtLeastBreakpoint(height))
     }
 
     @Test
@@ -365,7 +365,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsHeightDp(height - 1))
+        assertTrue(sizeClass.isHeightAtLeastBreakpoint(height - 1))
     }
 
     @Test
@@ -374,8 +374,8 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertFalse(sizeClass.containsWindowSizeDp(width, height + 1))
-        assertFalse(sizeClass.containsWindowSizeDp(width + 1, height))
+        assertFalse(sizeClass.isAtLeastBreakpoint(width, height + 1))
+        assertFalse(sizeClass.isAtLeastBreakpoint(width + 1, height))
     }
 
     @Test
@@ -384,7 +384,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsWindowSizeDp(width, height))
+        assertTrue(sizeClass.isAtLeastBreakpoint(width, height))
     }
 
     @Test
@@ -393,7 +393,7 @@ class WindowSizeClassTest {
         val height = 100
         val sizeClass = WindowSizeClass(width, height)
 
-        assertTrue(sizeClass.containsWindowSizeDp(width, height - 1))
-        assertTrue(sizeClass.containsWindowSizeDp(width - 1, height))
+        assertTrue(sizeClass.isAtLeastBreakpoint(width, height - 1))
+        assertTrue(sizeClass.isAtLeastBreakpoint(width - 1, height))
     }
 }
