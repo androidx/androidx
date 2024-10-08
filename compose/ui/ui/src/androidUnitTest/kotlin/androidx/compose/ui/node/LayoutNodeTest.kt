@@ -2563,12 +2563,14 @@ internal fun LayoutNode(
     x2: Int,
     y2: Int,
     modifier: Modifier = Modifier,
-    minimumTouchTargetSize: DpSize = DpSize.Zero
+    minimumTouchTargetSize: DpSize = DpSize.Zero,
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr
 ) =
     LayoutNode().apply {
         this.viewConfiguration =
             TestViewConfiguration(minimumTouchTargetSize = minimumTouchTargetSize)
         this.modifier = modifier
+        this.layoutDirection = layoutDirection
         measurePolicy =
             object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
                 override fun MeasureScope.measure(

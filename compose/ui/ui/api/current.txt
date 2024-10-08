@@ -2765,12 +2765,18 @@ package androidx.compose.ui.node {
   }
 
   public interface PointerInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
+    method public default long getTouchBoundsExpansion();
     method public default boolean interceptOutOfBoundsChildEvents();
     method public void onCancelPointerInput();
     method public default void onDensityChange();
     method public void onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
     method public default void onViewConfigurationChange();
     method public default boolean sharePointerInputWithSiblings();
+    property public default long touchBoundsExpansion;
+  }
+
+  public final class PointerInputModifierNodeKt {
+    method public static long TouchBoundsExpansion(optional int start, optional int top, optional int end, optional int bottom);
   }
 
   public final class Ref<T> {
@@ -2803,6 +2809,26 @@ package androidx.compose.ui.node {
 
   public final class SemanticsModifierNodeKt {
     method public static void invalidateSemantics(androidx.compose.ui.node.SemanticsModifierNode);
+  }
+
+  @kotlin.jvm.JvmInline public final value class TouchBoundsExpansion {
+    method public int getBottom();
+    method public int getEnd();
+    method public int getStart();
+    method public int getTop();
+    method public boolean isLayoutDirectionAware();
+    property public final int bottom;
+    property public final int end;
+    property public final boolean isLayoutDirectionAware;
+    property public final int start;
+    property public final int top;
+    field public static final androidx.compose.ui.node.TouchBoundsExpansion.Companion Companion;
+  }
+
+  public static final class TouchBoundsExpansion.Companion {
+    method public long Absolute(optional int left, optional int top, optional int right, optional int bottom);
+    method public long getNone();
+    property public final long None;
   }
 
   public interface TraversableNode extends androidx.compose.ui.node.DelegatableNode {
