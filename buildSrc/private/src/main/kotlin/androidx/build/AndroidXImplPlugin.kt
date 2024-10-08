@@ -47,6 +47,7 @@ import androidx.build.transform.configureAarAsJarForConfiguration
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
@@ -89,6 +90,8 @@ import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.Usage
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.file.DuplicatesStrategy
@@ -112,6 +115,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withModule
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
@@ -716,6 +720,23 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.afterEvaluate {
             project.addToBuildOnServer("assembleAndroidMain")
             project.addToBuildOnServer("lint")
+            project.configurations.create("androidIntermediates") {
+                it.isVisible = false
+                it.isCanBeResolved = false
+                it.attributes.attribute(
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named(Usage.JAVA_RUNTIME)
+                )
+                it.attributes.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named<Category>(Category.LIBRARY)
+                )
+                it.attributes.attribute(
+                    BuildTypeAttr.ATTRIBUTE,
+                    project.objects.named<BuildTypeAttr>("release")
+                )
+                it.outgoing.artifact(project.tasks.named("createFullJarAndroidMain"))
+            }
         }
         project.setUpCheckDocsTask(androidXExtension)
         project.writeBlankPublicTxtToAar(kotlinMultiplatformAndroidComponentsExtension)
