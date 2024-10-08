@@ -938,6 +938,7 @@ public open class PdfViewerFragment : Fragment() {
     private fun performEdit() {
         val intent = AnnotationUtils.getAnnotationIntent(localUri!!)
         intent.setData(localUri)
+        intent.putExtra(EXTRA_PDF_FILE_NAME, getFileName(localUri!!))
         startActivity(intent)
     }
 
@@ -952,5 +953,6 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_ANNOTATION_BUTTON_VISIBILITY = "isAnnotationVisible"
         private const val KEY_PENDING_DOCUMENT_LOAD = "pendingDocumentLoad"
         private const val KEY_TOOLBOX_VISIBILITY = "isToolboxVisible"
+        private const val EXTRA_PDF_FILE_NAME = "androidx.pdf.viewer.fragment.extra.PDF_FILE_NAME"
     }
 }
