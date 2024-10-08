@@ -199,7 +199,7 @@ class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionContext(
         PendingWork
     }
 
-    private val stateLock = SynchronizedObject()
+    private val stateLock = makeSynchronizedObject()
 
     // Begin properties guarded by stateLock
     private var runnerJob: Job? = null
