@@ -23,7 +23,7 @@
     <string name="label_password_first">Password</string>
 
     <!-- Label of the password field when incorrect (retrying) [CHAR LIMIT=40] -->
-    <string name="label_password_incorrect">Password incorrect</string>
+    <string name="label_password_incorrect">Wrong password. Try again.</string>
 
     <!-- Button for the password dialog: Exit (exits the app). [CHAR LIMIT=16] -->
     <string name="button_cancel">Cancel</string>
@@ -38,7 +38,7 @@
     <string name="desc_password_incorrect">password incorrect</string>
 
     <!-- Content description for message announced to accessibility services when the password entered was incorrect [CHAR LIMIT=50] -->
-    <string name="desc_password_incorrect_message">password incorrect</string>
+    <string name="desc_password_incorrect_message">Wrong password. Try again.</string>
 
     <!-- Label for displaying the current page, e.g. "1 / 500 [CHAR LIMIT=20] -->
     <string name="label_page_single"><xliff:g example="1" id="page">%1$d</xliff:g> / <xliff:g example="500" id="total">%2$d</xliff:g></string>

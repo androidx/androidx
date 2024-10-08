@@ -15,9 +15,6 @@
   -->
 
 <resources>
-    <color name="pdf_viewer_color_primary">@color/m3_sys_color_light_primary</color>
-    <color name="pdf_viewer_color_on_surface">@color/m3_sys_color_light_on_surface</color>
-    <color name="pdf_viewer_color_error">@color/m3_sys_color_light_error</color>
     <!-- m3_sys_color_primary_fixed_dim doesn't have a day/night version, therefore defined only once -->
     <color name="pdf_viewer_selection_handles">@color/m3_sys_color_primary_fixed_dim</color>
 </resources>
