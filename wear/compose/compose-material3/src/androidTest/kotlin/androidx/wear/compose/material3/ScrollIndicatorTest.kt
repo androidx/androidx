@@ -215,8 +215,8 @@ class ScrollIndicatorTest {
     }
 
     @Test
-    fun wearLazyColumnStateAdapter_veryLongContent() {
-        verifyWearLazyColumnPositionAndSize(
+    fun transformingLazyColumnStateAdapter_veryLongContent() {
+        verifyTransformingLazyColumnPositionAndSize(
             expectedIndicatorPosition = 0f,
             expectedIndicatorSize = 0.2f,
             itemsCount = 40
@@ -224,8 +224,8 @@ class ScrollIndicatorTest {
     }
 
     @Test
-    fun wearLazyColumnStateAdapter_longContent() {
-        verifyWearLazyColumnPositionAndSize(
+    fun transformingLazyColumnStateAdapter_longContent() {
+        verifyTransformingLazyColumnPositionAndSize(
             expectedIndicatorPosition = 0f,
             expectedIndicatorSize = 0.2f,
             itemsCount = 15
@@ -233,8 +233,8 @@ class ScrollIndicatorTest {
     }
 
     @Test
-    fun wearLazyColumnStateAdapter_mediumContent() {
-        verifyWearLazyColumnPositionAndSize(
+    fun transformingLazyColumnStateAdapter_mediumContent() {
+        verifyTransformingLazyColumnPositionAndSize(
             expectedIndicatorPosition = 0f,
             expectedIndicatorSize = 0.5f,
             itemsCount = 6
@@ -467,7 +467,7 @@ class ScrollIndicatorTest {
         }
     }
 
-    private fun verifyWearLazyColumnPositionAndSize(
+    private fun verifyTransformingLazyColumnPositionAndSize(
         expectedIndicatorPosition: Float,
         expectedIndicatorSize: Float,
         verticalArrangement: Arrangement.Vertical =

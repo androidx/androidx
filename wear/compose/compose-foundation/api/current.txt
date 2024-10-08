@@ -324,8 +324,8 @@ package androidx.wear.compose.foundation {
   public final class ScrollInfoProviderKt {
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.lazy.LazyListState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state);
-    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.LazyColumnState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState state);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.pager.PagerState state, androidx.compose.foundation.gestures.Orientation orientation);
   }
 
@@ -385,78 +385,6 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
     ctor public AutoCenteringParams();
     ctor public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
-  }
-
-  public final class LazyColumnDslKt {
-    method public static inline <T> void items(androidx.wear.compose.foundation.lazy.LazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.LazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-  }
-
-  @androidx.wear.compose.foundation.lazy.LazyColumnScopeMarker public sealed interface LazyColumnItemScope {
-    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.drawscope.DrawScope);
-    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.GraphicsLayerScope);
-    method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
-  }
-
-  @kotlin.jvm.JvmInline public final value class LazyColumnItemScrollProgress {
-    ctor public LazyColumnItemScrollProgress(float topOffsetFraction, float bottomOffsetFraction);
-    method public float getBottomOffsetFraction();
-    method public float getTopOffsetFraction();
-    property public final float bottomOffsetFraction;
-    property public final float topOffsetFraction;
-  }
-
-  public final class LazyColumnKt {
-    method @androidx.compose.runtime.Composable public static void LazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.LazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.LazyColumnScope,kotlin.Unit> content);
-  }
-
-  public sealed interface LazyColumnLayoutInfo {
-    method public int getTotalItemsCount();
-    method public long getViewportSize();
-    method public java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> getVisibleItems();
-    property public abstract int totalItemsCount;
-    property public abstract long viewportSize;
-    property public abstract java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> visibleItems;
-  }
-
-  @androidx.wear.compose.foundation.lazy.LazyColumnScopeMarker public sealed interface LazyColumnScope {
-    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,kotlin.Unit> content);
-    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super java.lang.Integer,kotlin.Unit> content);
-  }
-
-  @kotlin.DslMarker public @interface LazyColumnScopeMarker {
-  }
-
-  public final class LazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public LazyColumnState();
-    method public float dispatchRawDelta(float delta);
-    method public androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo getLayoutInfo();
-    method public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public boolean canScrollBackward;
-    property public boolean canScrollForward;
-    property public boolean isScrollInProgress;
-    property public final androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo layoutInfo;
-  }
-
-  public final class LazyColumnStateKt {
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.LazyColumnState rememberLazyColumnState();
-  }
-
-  public sealed interface LazyColumnVisibleItemInfo {
-    method public Object? getContentType();
-    method public int getHeight();
-    method public int getIndex();
-    method public Object getKey();
-    method public int getOffset();
-    method public long getScrollProgress();
-    property public abstract Object? contentType;
-    property public abstract int height;
-    property public abstract int index;
-    property public abstract Object key;
-    property public abstract int offset;
-    property public abstract long scrollProgress;
   }
 
   public final class ScalingLazyColumnDefaults {
@@ -590,6 +518,84 @@ package androidx.wear.compose.foundation.lazy {
     property @FloatRange(from=0.0, to=1.0) public abstract float minElementHeight;
     property @FloatRange(from=0.0, to=1.0) public abstract float minTransitionArea;
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
+  }
+
+  public final class TransformingLazyColumnDslKt {
+    method public static inline <T> void items(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+  }
+
+  @androidx.wear.compose.foundation.lazy.TransformingLazyColumnScopeMarker public sealed interface TransformingLazyColumnItemScope {
+    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.drawscope.DrawScope);
+    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.GraphicsLayerScope);
+    method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
+  }
+
+  @kotlin.jvm.JvmInline public final value class TransformingLazyColumnItemScrollProgress {
+    ctor public TransformingLazyColumnItemScrollProgress(float topOffsetFraction, float bottomOffsetFraction);
+    method public float getBottomOffsetFraction();
+    method public float getTopOffsetFraction();
+    property public final float bottomOffsetFraction;
+    property public final float topOffsetFraction;
+  }
+
+  public final class TransformingLazyColumnKt {
+    method @Deprecated @androidx.compose.runtime.Composable public static void LazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void TransformingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope,kotlin.Unit> content);
+  }
+
+  public sealed interface TransformingLazyColumnLayoutInfo {
+    method public int getTotalItemsCount();
+    method public long getViewportSize();
+    method public java.util.List<androidx.wear.compose.foundation.lazy.TransformingLazyColumnVisibleItemInfo> getVisibleItems();
+    property public abstract int totalItemsCount;
+    property public abstract long viewportSize;
+    property public abstract java.util.List<androidx.wear.compose.foundation.lazy.TransformingLazyColumnVisibleItemInfo> visibleItems;
+  }
+
+  @androidx.wear.compose.foundation.lazy.TransformingLazyColumnScopeMarker public sealed interface TransformingLazyColumnScope {
+    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,kotlin.Unit> content);
+    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  @kotlin.DslMarker public @interface TransformingLazyColumnScopeMarker {
+  }
+
+  public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor public TransformingLazyColumnState();
+    method public float dispatchRawDelta(float delta);
+    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
+    method public boolean isScrollInProgress();
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
+    property public boolean isScrollInProgress;
+    property public final androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo layoutInfo;
+  }
+
+  public final class TransformingLazyColumnStateKt {
+    method @Deprecated @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnState rememberLazyColumnState();
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnState rememberTransformingLazyColumnState();
+  }
+
+  public sealed interface TransformingLazyColumnVisibleItemInfo {
+    method public Object? getContentType();
+    method @Deprecated public default int getHeight();
+    method public int getIndex();
+    method public Object getKey();
+    method public int getMeasuredHeight();
+    method public int getOffset();
+    method public long getScrollProgress();
+    method public int getTransformedHeight();
+    property public abstract Object? contentType;
+    property @Deprecated public default int height;
+    property public abstract int index;
+    property public abstract Object key;
+    property public abstract int measuredHeight;
+    property public abstract int offset;
+    property public abstract long scrollProgress;
+    property public abstract int transformedHeight;
   }
 
 }

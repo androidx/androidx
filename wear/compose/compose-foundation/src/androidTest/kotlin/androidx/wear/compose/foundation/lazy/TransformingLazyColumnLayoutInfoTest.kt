@@ -42,7 +42,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class LazyColumnLayoutInfoTest {
+class TransformingLazyColumnLayoutInfoTest {
     @get:Rule val rule = createComposeRule()
 
     private var itemSizePx: Int = 50
@@ -55,11 +55,11 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrect() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
 
         rule.setContent {
-            LazyColumn(
-                state = rememberLazyColumnState().also { state = it },
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
                 // Viewport take 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
@@ -79,11 +79,11 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectWithSpacing() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
 
         rule.setContent {
-            LazyColumn(
-                state = rememberLazyColumnState().also { state = it },
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
                 // Viewport take 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
@@ -106,17 +106,20 @@ class LazyColumnLayoutInfoTest {
     }
 
     @Composable
-    fun ObservingFun(state: LazyColumnState, currentInfo: StableRef<LazyColumnLayoutInfo?>) {
+    fun ObservingFun(
+        state: TransformingLazyColumnState,
+        currentInfo: StableRef<TransformingLazyColumnLayoutInfo?>
+    ) {
         currentInfo.value = state.layoutInfo
     }
 
     @Test
     fun visibleItemsAreObservableWhenWeScroll() {
-        lateinit var state: LazyColumnState
-        val currentInfo = StableRef<LazyColumnLayoutInfo?>(null)
+        lateinit var state: TransformingLazyColumnState
+        val currentInfo = StableRef<TransformingLazyColumnLayoutInfo?>(null)
         rule.setContent {
-            LazyColumn(
-                state = rememberLazyColumnState().also { state = it },
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
                 verticalArrangement = Arrangement.spacedBy(0.dp),
                 modifier = Modifier.requiredSize(itemSizeDp * 3f)
             ) {
@@ -139,16 +142,16 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreObservableWhenResize() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         var size by mutableStateOf(itemSizeDp * 2)
-        var currentInfo: LazyColumnLayoutInfo? = null
+        var currentInfo: TransformingLazyColumnLayoutInfo? = null
         @Composable
         fun observingFun() {
             currentInfo = state.layoutInfo
         }
         rule.setContent {
-            LazyColumn(
-                state = rememberLazyColumnState().also { state = it },
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 4f)
             ) {
                 item { Box(Modifier.requiredSize(size)) }
@@ -180,9 +183,11 @@ class LazyColumnLayoutInfoTest {
     @Test
     fun totalCountIsCorrect() {
         var count by mutableStateOf(10)
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContent {
-            LazyColumn(state = rememberLazyColumnState().also { state = it }) {
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it }
+            ) {
                 items((0 until count).toList()) { Box(Modifier.requiredSize(10.dp)) }
             }
         }
@@ -199,11 +204,11 @@ class LazyColumnLayoutInfoTest {
     fun viewportOffsetsAndSizeAreCorrect() {
         val sizePx = 45
         val sizeDp = with(rule.density) { sizePx.toDp() }
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContent {
-            LazyColumn(
+            TransformingLazyColumn(
                 Modifier.height(sizeDp).width(sizeDp * 2),
-                state = rememberLazyColumnState().also { state = it }
+                state = rememberTransformingLazyColumnState().also { state = it }
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -216,11 +221,11 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun contentTypeIsCorrect() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContent {
-            LazyColumn(
+            TransformingLazyColumn(
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
-                state = rememberLazyColumnState().also { state = it },
+                state = rememberTransformingLazyColumnState().also { state = it },
             ) {
                 items(2, contentType = { it }) { Box(Modifier.requiredSize(itemSizeDp)) }
                 item { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -236,11 +241,11 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun keyIsCorrect() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContent {
-            LazyColumn(
+            TransformingLazyColumn(
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
-                state = rememberLazyColumnState().also { state = it },
+                state = rememberTransformingLazyColumnState().also { state = it },
             ) {
                 items(2, key = { it }) { Box(Modifier.requiredSize(itemSizeDp)) }
                 item { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -256,10 +261,10 @@ class LazyColumnLayoutInfoTest {
 
     @Test
     fun visibleItemsAreCorrectAfterScroll() {
-        lateinit var state: LazyColumnState
+        lateinit var state: TransformingLazyColumnState
         rule.setContent {
-            LazyColumn(
-                state = rememberLazyColumnState().also { state = it },
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3f),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
@@ -273,7 +278,7 @@ class LazyColumnLayoutInfoTest {
         }
     }
 
-    private fun LazyColumnLayoutInfo.assertVisibleItems(
+    private fun TransformingLazyColumnLayoutInfo.assertVisibleItems(
         count: Int,
         startIndex: Int = 0,
         startOffset: Int = 0,
@@ -288,9 +293,9 @@ class LazyColumnLayoutInfoTest {
             assertWithMessage("Offset of item $currentIndex")
                 .that(it.offset)
                 .isEqualTo(currentOffset)
-            assertThat(it.height).isEqualTo(expectedSize)
+            assertThat(it.transformedHeight).isEqualTo(expectedSize)
             currentIndex++
-            currentOffset += it.height + spacing
+            currentOffset += it.transformedHeight + spacing
         }
     }
 }

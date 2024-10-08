@@ -20,10 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.topItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
 
-/** Represents a placeable item in the [LazyColumn] layout. */
-internal data class LazyColumnMeasuredItem(
+/** Represents a placeable item in the [TransformingLazyColumn] layout. */
+internal data class TransformingLazyColumnMeasuredItem(
     /** The index of the item in the list. */
     override val index: Int,
     /** The [Placeable] representing the content of the item. */
@@ -33,35 +33,37 @@ internal data class LazyColumnMeasuredItem(
     /** The vertical offset of the item from the top of the list after transformations applied. */
     override var offset: Int,
     /** Scroll progress of the item used to calculate transformations applied. */
-    override var scrollProgress: LazyColumnItemScrollProgress,
+    override var scrollProgress: TransformingLazyColumnItemScrollProgress,
     /** The horizontal alignment to apply during placement. */
     val horizontalAlignment: Alignment.Horizontal,
     /** The [LayoutDirection] of the `Layout`. */
     private val layoutDirection: LayoutDirection,
     override val key: Any,
     override val contentType: Any?,
-) : LazyColumnVisibleItemInfo {
-    private var lastMeasuredHeight = Int.MIN_VALUE
-    private var lastMeasuredOffset = Int.MIN_VALUE
-    private var lastMeasuredScrollProgress = LazyColumnItemScrollProgress.Zero
+) : TransformingLazyColumnVisibleItemInfo {
+    private var lastTransformedHeight = Int.MIN_VALUE
+    private var lastOffset = Int.MIN_VALUE
+    private var lastScrollProgress = TransformingLazyColumnItemScrollProgress.Zero
 
     /** The height of the item after transformations applied. */
-    override val height: Int
+    override val transformedHeight: Int
         get() {
             if (
-                lastMeasuredHeight == Int.MIN_VALUE ||
-                    lastMeasuredOffset != offset ||
-                    lastMeasuredScrollProgress != scrollProgress
+                lastTransformedHeight == Int.MIN_VALUE ||
+                    lastOffset != offset ||
+                    lastScrollProgress != scrollProgress
             ) {
-                lastMeasuredHeight =
+                lastTransformedHeight =
                     (placeable.parentData as? HeightProviderParentData)?.let {
                         it.heightProvider(placeable.height, scrollProgress)
                     } ?: placeable.height
-                lastMeasuredOffset = offset
-                lastMeasuredScrollProgress = scrollProgress
+                lastOffset = offset
+                lastScrollProgress = scrollProgress
             }
-            return lastMeasuredHeight
+            return lastTransformedHeight
         }
+
+    override val measuredHeight = placeable.height
 
     fun place(scope: Placeable.PlacementScope) =
         with(scope) {
@@ -78,10 +80,10 @@ internal data class LazyColumnMeasuredItem(
     fun pinToCenter() {
         scrollProgress =
             topItemScrollProgress(
-                containerConstraints.maxHeight / 2 - height / 2,
+                containerConstraints.maxHeight / 2 - transformedHeight / 2,
                 placeable.height,
                 containerConstraints.maxHeight
             )
-        offset = containerConstraints.maxHeight / 2 - height / 2
+        offset = containerConstraints.maxHeight / 2 - transformedHeight / 2
     }
 }

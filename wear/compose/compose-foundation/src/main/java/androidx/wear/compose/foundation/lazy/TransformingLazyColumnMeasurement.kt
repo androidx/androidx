@@ -29,27 +29,27 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress.Companion.topItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private interface MeasuredItemProvider {
     /**
-     * Creates a [LazyColumnMeasuredItem] with the given index and offset with the position
-     * calculated from top to bottom.
+     * Creates a [TransformingLazyColumnMeasuredItem] with the given index and offset with the
+     * position calculated from top to bottom.
      */
-    fun downwardMeasuredItem(index: Int, offset: Int): LazyColumnMeasuredItem
+    fun downwardMeasuredItem(index: Int, offset: Int): TransformingLazyColumnMeasuredItem
 
     /**
-     * Creates a [LazyColumnMeasuredItem] with the given index and offset with the position
-     * calculated bottom up.
+     * Creates a [TransformingLazyColumnMeasuredItem] with the given index and offset with the
+     * position calculated bottom up.
      */
-    fun upwardMeasuredItem(index: Int, offset: Int): LazyColumnMeasuredItem
+    fun upwardMeasuredItem(index: Int, offset: Int): TransformingLazyColumnMeasuredItem
 }
 
 /**
- * Measures the visible items for a [LazyColumn].
+ * Measures the visible items for a [TransformingLazyColumn].
  *
  * @param itemsCount The total number of items in the list.
  * @param measuredItemProvider A provider that returns the measured items.
@@ -63,7 +63,7 @@ private interface MeasuredItemProvider {
  * @param layout A function that lays out the items.
  */
 // TODO(artemiy): Add support for overscroll and scroll margins.
-private fun measureLazyColumn(
+private fun measureTransformingLazyColumn(
     itemsCount: Int,
     measuredItemProvider: MeasuredItemProvider,
     itemSpacing: Int,
@@ -73,9 +73,9 @@ private fun measureLazyColumn(
     lastMeasuredItemHeight: Int,
     scrollToBeConsumed: Float,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
-): LazyColumnMeasureResult {
+): TransformingLazyColumnMeasureResult {
     if (itemsCount == 0) {
-        return LazyColumnMeasureResult(
+        return TransformingLazyColumnMeasureResult(
             anchorItemIndex = 0,
             anchorItemScrollOffset = 0,
             visibleItems = emptyList(),
@@ -86,7 +86,7 @@ private fun measureLazyColumn(
             measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
         )
     }
-    val visibleItems = ArrayDeque<LazyColumnMeasuredItem>()
+    val visibleItems = ArrayDeque<TransformingLazyColumnMeasuredItem>()
     var canScrollForward = true
     var canScrollBackward = true
 
@@ -104,20 +104,22 @@ private fun measureLazyColumn(
                     anchorItemIndex,
                     anchorItemScrollOffset + containerConstraints.maxHeight / 2
                 )
-                .also { it.offset += it.height / 2 }
+                .also { it.offset += it.transformedHeight / 2 }
         }
     centerItem.offset += scrollToBeConsumed.roundToInt()
 
     if (
         centerItem.index == 0 &&
-            centerItem.offset + centerItem.height / 2 >= containerConstraints.maxHeight / 2
+            centerItem.offset + centerItem.transformedHeight / 2 >=
+                containerConstraints.maxHeight / 2
     ) {
         canScrollBackward = false
         centerItem.pinToCenter()
     }
     if (
         centerItem.index == itemsCount - 1 &&
-            centerItem.offset + centerItem.height / 2 <= containerConstraints.maxHeight / 2
+            centerItem.offset + centerItem.transformedHeight / 2 <=
+                containerConstraints.maxHeight / 2
     ) {
         canScrollForward = false
         centerItem.pinToCenter()
@@ -125,12 +127,12 @@ private fun measureLazyColumn(
 
     visibleItems.add(centerItem)
 
-    var bottomOffset = centerItem.offset + centerItem.height + itemSpacing
+    var bottomOffset = centerItem.offset + centerItem.transformedHeight + itemSpacing
     var bottomPassIndex = anchorItemIndex + 1
 
     while (bottomOffset < containerConstraints.maxHeight && bottomPassIndex < itemsCount) {
         val item = measuredItemProvider.downwardMeasuredItem(bottomPassIndex, bottomOffset)
-        bottomOffset += item.height + itemSpacing
+        bottomOffset += item.transformedHeight + itemSpacing
         visibleItems.add(item)
         bottomPassIndex += 1
     }
@@ -141,12 +143,12 @@ private fun measureLazyColumn(
     while (topOffset >= 0 && topPassIndex >= 0) {
         val additionalItem = measuredItemProvider.upwardMeasuredItem(topPassIndex, topOffset)
         visibleItems.addFirst(additionalItem)
-        topOffset -= additionalItem.height + itemSpacing
+        topOffset -= additionalItem.transformedHeight + itemSpacing
         topPassIndex -= 1
     }
 
     if (visibleItems.isEmpty()) {
-        return LazyColumnMeasureResult(
+        return TransformingLazyColumnMeasureResult(
             anchorItemIndex = 0,
             anchorItemScrollOffset = 0,
             visibleItems = emptyList(),
@@ -160,16 +162,18 @@ private fun measureLazyColumn(
 
     val anchorItem =
         visibleItems.minByOrNull {
-            abs(it.offset + it.height / 2 - containerConstraints.maxHeight / 2)
+            abs(it.offset + it.transformedHeight / 2 - containerConstraints.maxHeight / 2)
         } ?: centerItem
 
-    return LazyColumnMeasureResult(
+    return TransformingLazyColumnMeasureResult(
         anchorItemIndex = anchorItem.index,
         anchorItemScrollOffset =
-            anchorItem.let { it.offset + it.height / 2 - containerConstraints.maxHeight / 2 },
+            anchorItem.let {
+                it.offset + it.transformedHeight / 2 - containerConstraints.maxHeight / 2
+            },
         visibleItems = visibleItems,
         totalItemsCount = itemsCount,
-        lastMeasuredItemHeight = anchorItem.height,
+        lastMeasuredItemHeight = anchorItem.transformedHeight,
         canScrollForward = canScrollForward,
         canScrollBackward = canScrollBackward,
         measureResult =
@@ -181,9 +185,9 @@ private fun measureLazyColumn(
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
-internal fun rememberLazyColumnMeasurePolicy(
-    itemProviderLambda: () -> LazyColumnItemProvider,
-    state: LazyColumnState,
+internal fun rememberTransformingLazyColumnMeasurePolicy(
+    itemProviderLambda: () -> TransformingLazyColumnItemProvider,
+    state: TransformingLazyColumnState,
     horizontalAlignment: Alignment.Horizontal,
     verticalArrangement: Arrangement.Vertical,
 ): LazyLayoutMeasureScope.(Constraints) -> MeasureResult =
@@ -194,7 +198,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                     override fun downwardMeasuredItem(
                         index: Int,
                         offset: Int
-                    ): LazyColumnMeasuredItem {
+                    ): TransformingLazyColumnMeasuredItem {
                         val itemProvider = itemProviderLambda()
                         val childConstraints =
                             Constraints(
@@ -210,7 +214,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                                 height = content.height,
                                 containerHeight = containerConstraints.maxHeight
                             )
-                        return LazyColumnMeasuredItem(
+                        return TransformingLazyColumnMeasuredItem(
                             index = index,
                             placeable = content,
                             offset = offset,
@@ -226,7 +230,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                     override fun upwardMeasuredItem(
                         index: Int,
                         offset: Int
-                    ): LazyColumnMeasuredItem {
+                    ): TransformingLazyColumnMeasuredItem {
                         val itemProvider = itemProviderLambda()
                         val childConstraints =
                             Constraints(
@@ -243,7 +247,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                                 containerHeight = containerConstraints.maxHeight
                             )
                         val item =
-                            LazyColumnMeasuredItem(
+                            TransformingLazyColumnMeasuredItem(
                                 index = index,
                                 placeable = content,
                                 offset = offset,
@@ -254,7 +258,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                                 key = itemProvider.getKey(index),
                                 contentType = itemProvider.getContentType(index),
                             )
-                        item.offset -= item.height
+                        item.offset -= item.transformedHeight
                         return item
                     }
                 }
@@ -273,7 +277,7 @@ internal fun rememberLazyColumnMeasurePolicy(
             }
 
             Snapshot.withMutableSnapshot {
-                    measureLazyColumn(
+                    measureTransformingLazyColumn(
                         itemsCount = itemsCount,
                         measuredItemProvider = measuredItemProvider,
                         itemSpacing = verticalArrangement.spacing.roundToPx(),

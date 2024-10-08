@@ -24,11 +24,14 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class LazyColumnScrollProgressTest {
+class TransformingLazyColumnScrollProgressTest {
     @Test
     fun negativeValuesPackedCorrectly() {
         val progress =
-            LazyColumnItemScrollProgress(topOffsetFraction = -0.5f, bottomOffsetFraction = 0.2f)
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = -0.5f,
+                bottomOffsetFraction = 0.2f
+            )
         assertEquals(progress.topOffsetFraction, -0.5f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0.2f, 1e-2f)
     }
@@ -36,7 +39,10 @@ class LazyColumnScrollProgressTest {
     @Test
     fun zeroValuesPackedCorrectly() {
         val progress =
-            LazyColumnItemScrollProgress(topOffsetFraction = 0f, bottomOffsetFraction = 0f)
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0f,
+                bottomOffsetFraction = 0f
+            )
         assertEquals(progress.topOffsetFraction, 0f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0f, 1e-2f)
     }
@@ -44,7 +50,10 @@ class LazyColumnScrollProgressTest {
     @Test
     fun normalValuesPackedCorrectly() {
         val progress =
-            LazyColumnItemScrollProgress(topOffsetFraction = 0.3f, bottomOffsetFraction = 0.7f)
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0.3f,
+                bottomOffsetFraction = 0.7f
+            )
         assertEquals(progress.topOffsetFraction, 0.3f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0.7f, 1e-2f)
     }
@@ -52,7 +61,7 @@ class LazyColumnScrollProgressTest {
     @Test
     fun nanValuesPackedCorrectly() {
         val progress =
-            LazyColumnItemScrollProgress(
+            TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = Float.NaN,
                 bottomOffsetFraction = Float.NaN
             )
@@ -63,7 +72,7 @@ class LazyColumnScrollProgressTest {
     @Test
     fun infValuesPackedCorrectly() {
         val progress =
-            LazyColumnItemScrollProgress(
+            TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = Float.NEGATIVE_INFINITY,
                 bottomOffsetFraction = Float.POSITIVE_INFINITY
             )

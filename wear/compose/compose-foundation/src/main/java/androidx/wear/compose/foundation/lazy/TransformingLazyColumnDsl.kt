@@ -27,41 +27,52 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFirstOrNull
 
-/** Receiver scope being used by the item content parameter of [LazyColumn]. */
-@LazyColumnScopeMarker
-sealed interface LazyColumnItemScope {
+@Deprecated(
+    "Use TransformingLazyColumnItemScope instead",
+    ReplaceWith("TransformingLazyColumnItemScope")
+)
+typealias LazyColumnItemScope = TransformingLazyColumnItemScope
+
+/** Receiver scope being used by the item content parameter of [TransformingLazyColumn]. */
+@TransformingLazyColumnScopeMarker
+sealed interface TransformingLazyColumnItemScope {
     /**
      * Scroll progress of the item before height transformation is applied using
      * [Modifier.transformedHeight]. Is null for the item that is off screen.
      */
-    val DrawScope.scrollProgress: LazyColumnItemScrollProgress?
+    val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
 
     /**
      * Scroll progress of the item before height transformation is applied using
      * [Modifier.transformedHeight]. Is null for the item that is off screen.
      */
-    val GraphicsLayerScope.scrollProgress: LazyColumnItemScrollProgress?
+    val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
 
     /**
-     * Applies the new height of the item depending on its scroll progress and original height.
+     * Applies the new height of the item depending on its scroll progress and measured height.
      *
-     * @param heightProvider The transformation to be applied. The first parameter is the original
-     *   height of the item. The second parameter is the scroll progress of the item.
+     * @param heightProvider The transformation to be applied. The first parameter is the height of
+     *   the item returned during measurement. The second parameter is the scroll progress of the
+     *   item. This lambda should not read from any state values.
      */
     fun Modifier.transformedHeight(
-        heightProvider: (originalHeight: Int, scrollProgress: LazyColumnItemScrollProgress) -> Int
+        heightProvider:
+            (measuredHeight: Int, scrollProgress: TransformingLazyColumnItemScrollProgress) -> Int
     ): Modifier
 }
 
-/** Receiver scope which is used by [LazyColumn]. */
-@LazyColumnScopeMarker
-sealed interface LazyColumnScope {
+@Deprecated("Use TransformingLazyColumnScope instead", ReplaceWith("TransformingLazyColumnScope"))
+typealias LazyColumnScope = TransformingLazyColumnScope
+
+/** Receiver scope which is used by [TransformingLazyColumn]. */
+@TransformingLazyColumnScopeMarker
+sealed interface TransformingLazyColumnScope {
     /**
      * Adds [count] items.
      *
-     * @param count The number of items to add to the [LazyColumn].
+     * @param count The number of items to add to the [TransformingLazyColumn].
      * @param key A factory of stable and unique keys representing the item. Using the same key for
-     *   multiple items in the [LazyColumn] is not allowed.
+     *   multiple items in the [TransformingLazyColumn] is not allowed.
      * @param contentType A factory of the content types for the item. The item compositions of the
      *   same type could be reused more efficiently. Note that null is a valid type and items of
      *   such type will be considered compatible.
@@ -71,18 +82,18 @@ sealed interface LazyColumnScope {
         count: Int,
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
-        content: @Composable LazyColumnItemScope.(index: Int) -> Unit
+        content: @Composable TransformingLazyColumnItemScope.(index: Int) -> Unit
     )
 
     /**
      * Adds a single item.
      *
      * @param key A stable and unique key representing the item. Using the same key for multiple
-     *   items in the [LazyColumn] is not allowed. Type of the key should be saveable via Bundle on
-     *   Android. If null is passed the position in the [LazyColumn] will represent the key. When
-     *   you specify the key the scroll position will be maintained based on the key, which means if
-     *   you add/remove items before the current visible item the item with the given key will be
-     *   kept as the first visible one.
+     *   items in the [TransformingLazyColumn] is not allowed. Type of the key should be saveable
+     *   via Bundle on Android. If null is passed the position in the [TransformingLazyColumn] will
+     *   represent the key. When you specify the key the scroll position will be maintained based on
+     *   the key, which means if you add/remove items before the current visible item the item with
+     *   the given key will be kept as the first visible one.
      * @param contentType The type of the content of this item. The item compositions of the same
      *   type could be reused more efficiently. Note that null is a valid type and items of such
      *   type will be considered compatible.
@@ -91,7 +102,7 @@ sealed interface LazyColumnScope {
     fun item(
         key: Any? = null,
         contentType: Any? = null,
-        content: @Composable LazyColumnItemScope.() -> Unit
+        content: @Composable TransformingLazyColumnItemScope.() -> Unit
     )
 }
 
@@ -100,21 +111,21 @@ sealed interface LazyColumnScope {
  *
  * @param items the data list
  * @param key a factory of stable and unique keys representing the item. Using the same key for
- *   multiple items in the [LazyColumn] is not allowed. Type of the key should be saveable via
- *   Bundle on Android. If null is passed the position in the [LazyColumn] will represent the key.
- *   When you specify the key the scroll position will be maintained based on the key, which means
- *   if you add/remove items before the current visible item the item with the given key will be
- *   kept as the first visible one.
+ *   multiple items in the [TransformingLazyColumn] is not allowed. Type of the key should be
+ *   saveable via Bundle on Android. If null is passed the position in the [TransformingLazyColumn]
+ *   will represent the key. When you specify the key the scroll position will be maintained based
+ *   on the key, which means if you add/remove items before the current visible item the item with
+ *   the given key will be kept as the first visible one.
  * @param contentType a factory of the content types for the item. The item compositions of the same
  *   type could be reused more efficiently. Note that null is a valid type and items of such type
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item.
  */
-inline fun <T> LazyColumnScope.items(
+inline fun <T> TransformingLazyColumnScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline itemContent: @Composable LazyColumnItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable TransformingLazyColumnItemScope.(item: T) -> Unit
 ) =
     items(
         count = items.size,
@@ -129,21 +140,23 @@ inline fun <T> LazyColumnScope.items(
  *
  * @param items the data list
  * @param key a factory of stable and unique keys representing the item. Using the same key for
- *   multiple items in the [LazyColumn] is not allowed. Type of the key should be saveable via
- *   Bundle on Android. If null is passed the position in the list will represent the key. When you
- *   specify the key the scroll position will be maintained based on the key, which means if you
- *   add/remove items before the current visible item the item with the given key will be kept as
- *   the first visible one.
+ *   multiple items in the [TransformingLazyColumn] is not allowed. Type of the key should be
+ *   saveable via Bundle on Android. If null is passed the position in the list will represent the
+ *   key. When you specify the key the scroll position will be maintained based on the key, which
+ *   means if you add/remove items before the current visible item the item with the given key will
+ *   be kept as the first visible one.
  * @param contentType a factory of the content types for the item. The item compositions of the same
  *   type could be reused more efficiently. Note that null is a valid type and items of such type
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyColumnScope.itemsIndexed(
+inline fun <T> TransformingLazyColumnScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
-    crossinline itemContent: @Composable LazyColumnItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent:
+        @Composable
+        TransformingLazyColumnItemScope.(index: Int, item: T) -> Unit
 ) =
     items(
         count = items.size,
@@ -153,19 +166,21 @@ inline fun <T> LazyColumnScope.itemsIndexed(
         itemContent(it, items[it])
     }
 
-internal class LazyColumnItemScopeImpl(val index: Int, val state: LazyColumnState) :
-    LazyColumnItemScope {
-    private val _scrollProgress: LazyColumnItemScrollProgress?
+internal class TransformingLazyColumnItemScopeImpl(
+    val index: Int,
+    val state: TransformingLazyColumnState
+) : TransformingLazyColumnItemScope {
+    private val _scrollProgress: TransformingLazyColumnItemScrollProgress?
         get() = state.layoutInfo.visibleItems.fastFirstOrNull { it.index == index }?.scrollProgress
 
-    override val DrawScope.scrollProgress: LazyColumnItemScrollProgress?
+    override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
         get() = _scrollProgress
 
-    override val GraphicsLayerScope.scrollProgress: LazyColumnItemScrollProgress?
+    override val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
         get() = _scrollProgress
 
     override fun Modifier.transformedHeight(
-        heightProvider: (Int, LazyColumnItemScrollProgress) -> Int
+        heightProvider: (Int, TransformingLazyColumnItemScrollProgress) -> Int
     ): Modifier =
         this then
             object : ParentDataModifier {
@@ -175,13 +190,15 @@ internal class LazyColumnItemScopeImpl(val index: Int, val state: LazyColumnStat
 }
 
 internal data class HeightProviderParentData(
-    val heightProvider: (Int, LazyColumnItemScrollProgress) -> Int
+    val heightProvider: (Int, TransformingLazyColumnItemScrollProgress) -> Int
 )
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyColumnScopeImpl(val content: LazyColumnScope.() -> Unit) :
-    LazyLayoutIntervalContent<LazyColumnInterval>(), LazyColumnScope {
-    override val intervals: MutableIntervalList<LazyColumnInterval> = MutableIntervalList()
+internal class TransformingLazyColumnScopeImpl(
+    val content: TransformingLazyColumnScope.() -> Unit
+) : LazyLayoutIntervalContent<TransformingLazyColumnInterval>(), TransformingLazyColumnScope {
+    override val intervals: MutableIntervalList<TransformingLazyColumnInterval> =
+        MutableIntervalList()
 
     init {
         apply(content)
@@ -191,11 +208,11 @@ internal class LazyColumnScopeImpl(val content: LazyColumnScope.() -> Unit) :
         count: Int,
         key: ((index: Int) -> Any)?,
         contentType: (index: Int) -> Any?,
-        content: @Composable LazyColumnItemScope.(Int) -> Unit
+        content: @Composable TransformingLazyColumnItemScope.(Int) -> Unit
     ) {
         intervals.addInterval(
             count,
-            LazyColumnInterval(
+            TransformingLazyColumnInterval(
                 key,
                 type = contentType,
                 item = content,
@@ -206,11 +223,11 @@ internal class LazyColumnScopeImpl(val content: LazyColumnScope.() -> Unit) :
     override fun item(
         key: Any?,
         contentType: Any?,
-        content: @Composable LazyColumnItemScope.() -> Unit
+        content: @Composable TransformingLazyColumnItemScope.() -> Unit
     ) {
         intervals.addInterval(
             1,
-            LazyColumnInterval(
+            TransformingLazyColumnInterval(
                 key = if (key != null) { _: Int -> key } else null,
                 type = { contentType },
                 item = { content() },
@@ -220,8 +237,8 @@ internal class LazyColumnScopeImpl(val content: LazyColumnScope.() -> Unit) :
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyColumnInterval(
+internal class TransformingLazyColumnInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),
-    val item: @Composable LazyColumnItemScope.(index: Int) -> Unit,
+    val item: @Composable TransformingLazyColumnItemScope.(index: Int) -> Unit,
 ) : LazyLayoutIntervalContent.Interval

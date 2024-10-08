@@ -18,13 +18,13 @@ package androidx.wear.compose.material3.lazy
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.ui.util.lerp
-import androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 
 /**
  * The set of parameters implementing motion transformation behavior for Material3.
  *
  * New morphing effect allows to change the shape and the size of the visual element and its extent
- * depends on the [LazyColumnItemScrollProgress].
+ * depends on the [TransformingLazyColumnItemScrollProgress].
  *
  * @property morphingMinHeight The minimum height each element morphs to before the whole element
  *   scales down. Providing null value means no morphing effect will be applied.
@@ -79,7 +79,7 @@ internal class LazyColumnScrollTransformBehavior(private val morphingMinHeight: 
         get() = bottomScaleEasing
 
     /** Height of an item before scaling is applied. */
-    fun LazyColumnItemScrollProgress.morphedHeight(contentHeight: Float): Float =
+    fun TransformingLazyColumnItemScrollProgress.morphedHeight(contentHeight: Float): Float =
         morphingMinHeight()?.let {
             val driftingBottomFraction =
                 stickyBottomFlippedOffsetPercentage + (flippedBottomOffsetFraction * driftFactor)
@@ -94,16 +94,16 @@ internal class LazyColumnScrollTransformBehavior(private val morphingMinHeight: 
         } ?: contentHeight
 
     /** Height of an item after all effects are applied. */
-    fun LazyColumnItemScrollProgress.placementHeight(contentHeight: Float): Float =
+    fun TransformingLazyColumnItemScrollProgress.placementHeight(contentHeight: Float): Float =
         morphedHeight(contentHeight) * scale
 
-    private val LazyColumnItemScrollProgress.flippedTopOffsetFraction: Float
+    private val TransformingLazyColumnItemScrollProgress.flippedTopOffsetFraction: Float
         get() = 1f - topOffsetFraction
 
-    private val LazyColumnItemScrollProgress.flippedBottomOffsetFraction: Float
+    private val TransformingLazyColumnItemScrollProgress.flippedBottomOffsetFraction: Float
         get() = 1f - bottomOffsetFraction
 
-    val LazyColumnItemScrollProgress.scale: Float
+    val TransformingLazyColumnItemScrollProgress.scale: Float
         get() =
             when {
                 flippedTopOffsetFraction < 0.5f ->
@@ -125,7 +125,7 @@ internal class LazyColumnScrollTransformBehavior(private val morphingMinHeight: 
                 else -> 1f
             }
 
-    val LazyColumnItemScrollProgress.backgroundXOffsetFraction: Float
+    val TransformingLazyColumnItemScrollProgress.backgroundXOffsetFraction: Float
         get() =
             when {
                 flippedTopOffsetFraction < 0.3f ->
@@ -137,10 +137,10 @@ internal class LazyColumnScrollTransformBehavior(private val morphingMinHeight: 
                 else -> 0f
             }
 
-    val LazyColumnItemScrollProgress.contentXOffsetFraction: Float
+    val TransformingLazyColumnItemScrollProgress.contentXOffsetFraction: Float
         get() = if (backgroundXOffsetFraction > 0f) 1f - backgroundXOffsetFraction else 0f
 
-    val LazyColumnItemScrollProgress.contentAlpha: Float
+    val TransformingLazyColumnItemScrollProgress.contentAlpha: Float
         get() =
             when {
                 flippedTopOffsetFraction < 0.03f -> 0f
@@ -161,7 +161,7 @@ internal class LazyColumnScrollTransformBehavior(private val morphingMinHeight: 
                 else -> 1f
             }
 
-    val LazyColumnItemScrollProgress.backgroundAlpha: Float
+    val TransformingLazyColumnItemScrollProgress.backgroundAlpha: Float
         get() =
             when {
                 flippedTopOffsetFraction < 0.3f ->

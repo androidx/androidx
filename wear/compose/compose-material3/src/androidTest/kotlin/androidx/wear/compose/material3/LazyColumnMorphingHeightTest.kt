@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.LazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.material3.lazy.minMorphingHeightConsumer
 import androidx.wear.compose.material3.lazy.targetMorphingHeight
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +41,7 @@ class LazyColumnMorphingHeightTest {
         var actualMorphingHeight: Int? = null
 
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 item {
                     Box(
                         modifier =
@@ -71,7 +71,7 @@ class LazyColumnMorphingHeightTest {
         var initialReportedMorphingHeight: Int? = 11
 
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 item {
                     Box(
                         modifier =
@@ -96,7 +96,7 @@ class LazyColumnMorphingHeightTest {
         var reportedMorphingHeight: Int? = null
 
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 item {
                     Box(
                         modifier =
@@ -118,7 +118,7 @@ class LazyColumnMorphingHeightTest {
         var reportedMorphingHeight: Int? = null
 
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 item {
                     Box(
                         modifier =
@@ -143,7 +143,7 @@ class LazyColumnMorphingHeightTest {
         val expectedMorphingHeight = 10
 
         rule.setContent {
-            LazyColumn {
+            TransformingLazyColumn {
                 item {
                     Box(
                         modifier =

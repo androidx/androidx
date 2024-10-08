@@ -44,10 +44,10 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
-import androidx.wear.compose.foundation.lazy.LazyColumn as WearLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberLazyColumnState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import org.junit.Rule
@@ -383,7 +383,7 @@ class ScaffoldTest {
         bottomButton: @Composable BoxScope.() -> Unit = {}
     ) {
         AppScaffold {
-            val scrollState = rememberLazyColumnState()
+            val scrollState = rememberTransformingLazyColumnState()
             ScreenScaffold(
                 modifier = Modifier.testTag(TEST_TAG),
                 scrollState = scrollState,
@@ -398,7 +398,7 @@ class ScaffoldTest {
                 timeText = { Box(Modifier.size(20.dp).background(timeTextColor)) },
                 bottomButton = bottomButton
             ) {
-                WearLazyColumn(
+                TransformingLazyColumn(
                     state = scrollState,
                     modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG)
                 ) {

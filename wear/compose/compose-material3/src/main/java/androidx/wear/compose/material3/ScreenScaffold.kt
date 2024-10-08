@@ -40,9 +40,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ActiveFocusListener
 import androidx.wear.compose.foundation.ScrollInfoProvider
-import androidx.wear.compose.foundation.lazy.LazyColumnState
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import kotlin.math.roundToInt
 
 /**
@@ -123,9 +124,8 @@ fun ScreenScaffold(
  * Example of using ScreenScaffold with a [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
- * @param scrollState The scroll state for [androidx.wear.compose.foundation.lazy.LazyColumn], used
- *   to drive screen transitions such as [TimeText] scroll away and showing/hiding
- *   [ScrollIndicator].
+ * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
+ *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
@@ -140,7 +140,7 @@ fun ScreenScaffold(
  */
 @Composable
 fun ScreenScaffold(
-    scrollState: LazyColumnState,
+    scrollState: TransformingLazyColumnState,
     modifier: Modifier = Modifier,
     timeText: (@Composable () -> Unit)? = null,
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
