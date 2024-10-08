@@ -63,7 +63,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      * @param spanStyles a list of [Range]s that specifies [SpanStyle]s on certain portion of the
      *   text. These styles will be applied in the order of the list. And the [SpanStyle]s applied
      *   later can override the former styles. Notice that [SpanStyle] attributes which are null or
-     *   unspecified won't change the current ones.
+     *   [Unspecified] won't change the current ones.
      * @param paragraphStyles a list of [Range]s that specifies [ParagraphStyle]s on certain portion
      *   of the text. Each [ParagraphStyle] with a [Range] defines a paragraph of text. It's
      *   required that [Range]s of paragraphs don't overlap with each other. If there are gaps
@@ -91,9 +91,12 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      *   attributes of the last applied [SpanStyle] will override similar attributes of the
      *   previously applied [SpanStyle]s.
      * - [SpanStyle] attributes which are null or Unspecified won't change the styling.
-     * - It's required that [Range]s of [ParagraphStyle]s don't overlap with each other. If there
-     *   are gaps between specified paragraph [Range]s, a default paragraph will be created in
-     *   between.
+     * - If there are gaps between specified paragraph [Range]s, a default paragraph will be created
+     *   in between.
+     * - The paragraph [Range]s can't partially overlap. They must either not overlap at all, be
+     *   nested (when inner paragraph's range is fully within the range of the outer paragraph) or
+     *   fully overlap (when ranges of two paragraph are the same). For more details check the
+     *   [AnnotatedString.Builder.addStyle] documentation.
      *
      * @throws IllegalArgumentException if [ParagraphStyle]s contains any two overlapping [Range]s.
      * @sample androidx.compose.ui.text.samples.AnnotatedStringMainConstructorSample
@@ -124,20 +127,28 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         spanStylesOrNull = spanStyles
         paragraphStylesOrNull = paragraphStyles
 
-        var lastStyleEnd = -1
-        @Suppress("ListIterator")
-        paragraphStylesOrNull
-            ?.sortedBy { it.start }
-            ?.fastForEach { paragraphStyle ->
-                requirePrecondition(paragraphStyle.start >= lastStyleEnd) {
-                    "ParagraphStyle should not overlap"
+        @Suppress("ListIterator") val sorted = paragraphStylesOrNull?.sortedBy { it.start }
+        if (!sorted.isNullOrEmpty()) {
+            var start = sorted.first().start
+            var end = sorted.first().end
+            var maxEnd = end
+            sorted.fastForEach {
+                require(it.start <= end || it.start >= maxEnd) {
+                    "Paragraph overlap not allowed, start ${it.start} is within unallowed range ($end, $maxEnd)"
                 }
-                requirePrecondition(paragraphStyle.end <= text.length) {
-                    "ParagraphStyle range [${paragraphStyle.start}, ${paragraphStyle.end})" +
-                        " is out of boundary"
+                if (it.start in start until end) {
+                    require(it.end <= end) {
+                        "Paragraph overlap not allowed, end ${it.end} should be less than or equal to $end"
+                    }
+                    start = it.start
+                    end = it.end
+                } else {
+                    start = it.start
+                    end = it.end
+                    maxEnd = end
                 }
-                lastStyleEnd = paragraphStyle.end
             }
+        }
     }
 
     override val length: Int
@@ -334,7 +345,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
     }
 
     /**
-     * Returns a new [AnnotatedString] where a list of annotations contains all elementes yielded
+     * Returns a new [AnnotatedString] where a list of annotations contains all elements yielded
      * from results [transform] function being invoked on each element of original annotations list.
      *
      * @see mapAnnotations
@@ -561,6 +572,37 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * Set a [ParagraphStyle] for the given range defined by [start] and [end]. When a
          * [ParagraphStyle] is applied to the [AnnotatedString], it will be rendered as a separate
          * paragraph.
+         *
+         * **Paragraphs arrangement**
+         *
+         * AnnotatedString only supports a few ways that arrangements can be arranged.
+         *
+         * The () and {} below represent different [ParagraphStyle]s passed in that particular order
+         * to the AnnotatedString.
+         * * **Non-overlapping:** paragraphs don't affect each other. Example: (abc){def} or
+         *   abc(def)ghi{jkl}.
+         * * **Nested:** one paragraph is completely inside the other. Example: (abc{def}ghi) or
+         *   ({abc}def) or (abd{def}). Note that because () is passed before {} to the
+         *   AnnotatedString, these are considered nested.
+         * * **Fully overlapping:** two paragraphs cover the exact same range of text. Example:
+         *   ({abc}).
+         * * **Overlapping:** one paragraph partially overlaps the other. Note that this is invalid!
+         *   Example: (abc{de)f}.
+         *
+         * The order in which you apply `ParagraphStyle` can affect how the paragraphs are arranged.
+         * For example, when you first add () at range 0..4 and then {} at range 0..2, this
+         * paragraphs arrangement is considered nested. But if you first add a () paragraph at range
+         * 0..2 and then {} at range 0..4, this arrangement is considered overlapping and is
+         * invalid.
+         *
+         * **Styling**
+         *
+         * If you don't pass a paragraph style for any part of the text, a paragraph will be created
+         * anyway with a default style. In case of nested paragraphs, the outer paragraph will be
+         * split on the bounds of inner paragraph when the paragraphs are passed to be measured and
+         * rendered. For example, (abc{def}ghi) will be split into (abc)({def})(ghi). The inner
+         * paragraph, similarly to fully overlapping paragraphs, will have a style that is a
+         * combination of two created using a [ParagraphStyle.merge] method.
          *
          * @param style [ParagraphStyle] to be applied
          * @param start the inclusive starting offset of the range
@@ -824,8 +866,8 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
             transform: (Range<out Annotation>) -> List<Range<out Annotation>>
         ) {
             val replacedAnnotations =
-                annotations.fastFlatMap {
-                    transform(it.toRange()).fastMap { MutableRange.fromRange(it) }
+                annotations.fastFlatMap { annotation ->
+                    transform(annotation.toRange()).fastMap { MutableRange.fromRange(it) }
                 }
             annotations.clear()
             annotations.addAll(replacedAnnotations)
@@ -885,8 +927,21 @@ private fun constructAnnotationsFromSpansAndParagraphs(
  * It reads paragraph information from [AnnotatedString.paragraphStyles] where only some parts of
  * text has [ParagraphStyle] specified, and unspecified parts(gaps between specified paragraphs) are
  * considered as default paragraph with default [ParagraphStyle]. For example, the following string
- * with a specified paragraph denoted by "[]" "Hello WorldHi!" [ ] The result paragraphs are "Hello
+ * "(Hello World)Hi!" with a specified paragraph denoted by () will result in paragraphs "Hello
  * World" and "Hi!".
+ *
+ * **Algorithm implementation**
+ * * Keep a stack of paragraphs that to be *fully* processed yet and a pointer to the end of last
+ *   paragraph already added to the result.
+ * * Iterate through each paragraph.
+ * * Check if there's a gap between last added paragraph and start of current paragraph. If yes, we
+ *   need to add text covered by it to the result, making sure to check the existing state of the
+ *   stack to merge the styles correctly.
+ * * Add a paragraph to the stack. Depending on its range, we might need to merge its style with the
+ *   latest one in the stack.
+ * * Along the way handle special cases like fully overlapped or zero-length paragraphs.
+ * * After the last iteration, clear the stack by adding additional paragraphs to the result. Also
+ *   move the pointer to the end of the text.
  *
  * @param defaultParagraphStyle The default [ParagraphStyle]. It's used for both unspecified default
  *   paragraphs and specified paragraph. When a specified paragraph's [ParagraphStyle] has a null
@@ -895,21 +950,76 @@ private fun constructAnnotationsFromSpansAndParagraphs(
 internal fun AnnotatedString.normalizedParagraphStyles(
     defaultParagraphStyle: ParagraphStyle
 ): List<Range<ParagraphStyle>> {
-    val length = text.length
-    val paragraphStyles = paragraphStylesOrNull ?: listOf()
-
-    var lastOffset = 0
+    @Suppress("ListIterator")
+    val sortedParagraphs = paragraphStylesOrNull?.sortedBy { it.start } ?: listOf()
     val result = mutableListOf<Range<ParagraphStyle>>()
-    paragraphStyles.fastForEach { (style, start, end) ->
-        if (start != lastOffset) {
-            result.add(Range(defaultParagraphStyle, lastOffset, start))
+
+    // a pointer to the last character added to the result list, takes values from 0 to text.length
+    var lastAdded = 0
+    val stack = ArrayDeque<Range<ParagraphStyle>>()
+
+    sortedParagraphs.fastForEach {
+        val current = it.copy(defaultParagraphStyle.merge(it.item))
+        while (lastAdded < current.start && stack.isNotEmpty()) {
+            val lastInStack = stack.last()
+            if (current.start < lastInStack.end) {
+                result.add(Range(lastInStack.item, lastAdded, current.start))
+                lastAdded = current.start
+            } else {
+                if (lastAdded != lastInStack.end) {
+                    result.add(Range(lastInStack.item, lastAdded, lastInStack.end))
+                }
+                lastAdded = lastInStack.end
+                stack.removeLast()
+            }
         }
-        result.add(Range(defaultParagraphStyle.merge(style), start, end))
-        lastOffset = end
+
+        if (lastAdded < current.start) {
+            result.add(Range(defaultParagraphStyle, lastAdded, current.start))
+            lastAdded = current.start
+        }
+
+        val lastInStack = stack.lastOrNull()
+        if (lastInStack != null) {
+            if (lastInStack.start == current.start && lastInStack.end == current.end) {
+                // fully overlapped, we'll merge current with the previous one and remove the
+                // previous one from the stack
+                stack.removeLast()
+                stack.add(Range(lastInStack.item.merge(current.item), current.start, current.end))
+            } else if (lastInStack.start == lastInStack.end) {
+                // this is a zero-length paragraph
+                result.add(Range(lastInStack.item, lastInStack.start, lastInStack.end))
+                stack.removeLast()
+                stack.add(Range(current.item, current.start, current.end))
+            } else if (lastInStack.end < current.end) {
+                // This is already handled in the init require checks
+                throw IllegalArgumentException()
+            } else {
+                stack.add(Range(lastInStack.item.merge(current.item), current.start, current.end))
+            }
+        } else {
+            stack.add(Range(current.item, current.start, current.end))
+        }
     }
-    if (lastOffset != length) {
-        result.add(Range(defaultParagraphStyle, lastOffset, length))
+
+    // The paragraph styles finished so we need to empty the stack to add the remaining to the
+    // result
+    while (lastAdded <= text.length && stack.isNotEmpty()) {
+        val lastInStack = stack.last()
+        result.add(Range(lastInStack.item, lastAdded, lastInStack.end))
+        lastAdded = lastInStack.end
+        // We now need to remove it from the stack but also make sure that we remove other stack
+        // entrances that have the same ends as the lastAdded
+        while (stack.isNotEmpty() && lastAdded == stack.last().end) {
+            stack.removeLast()
+        }
     }
+
+    // There might be a text left at the end that isn't covered with a paragraph so using a default
+    if (lastAdded < text.length) {
+        result.add(Range(defaultParagraphStyle, lastAdded, text.length))
+    }
+
     // This is a corner case where annotatedString is an empty string without any ParagraphStyle.
     // In this case, an empty ParagraphStyle is created.
     if (result.isEmpty()) {
