@@ -206,7 +206,7 @@ internal class HitTestResult : List<Modifier.Node> {
                 }
             removeNodesInRange(startIndex, endIndex)
         } else {
-            // Previous hit is better, remove this hit result from the ht path.
+            // Previous hit is better, remove this hit result from the hit path.
             removeNodesInRange(hitDepth + 1, size)
         }
         hitDepth = previousHitDepth
