@@ -16,7 +16,9 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.DatePickerDefaults.defaultDatePickerColors
 import androidx.compose.material3.internal.MillisecondsIn24Hours
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
@@ -25,12 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
@@ -41,8 +47,11 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
@@ -525,6 +534,78 @@ class DateRangePickerTest {
         }
 
         rule.onNodeWithText("January ${currentYear + 1}").assertIsDisplayed()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun customColorsSupersedeTypographyColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 1)
+            val startSelectionMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 6)
+            val endSelectionMillis = dayInUtcMilliseconds(year = 2021, month = 3, dayOfMonth = 10)
+
+            // Wrap in a MaterialTheme that has a typography that was set with custom colors.
+            // The date picker is using BodyLarge for days. See
+            // DatePickerModalTokens.DateLabelTextFont.
+            MaterialTheme(
+                typography =
+                    MaterialTheme.typography.copy(
+                        // Set the body-large with a yellow color. We would like to test that no
+                        // yellow appears on any day.
+                        bodyLarge = TextStyle(fontSize = 30.sp, color = Color.Yellow),
+                        headlineLarge = TextStyle(fontSize = 30.sp, color = Color.Green),
+                    )
+            ) {
+                DateRangePicker(
+                    state =
+                        rememberDateRangePickerState(
+                            initialDisplayedMonthMillis = monthInUtcMillis,
+                            initialSelectedStartDateMillis = startSelectionMillis,
+                            initialSelectedEndDateMillis = endSelectionMillis
+                        ),
+                    colors =
+                        MaterialTheme.colorScheme.defaultDatePickerColors.copy(
+                            dayContentColor = Color.Blue,
+                            selectedDayContentColor = Color.Red,
+                            headlineContentColor = Color.Yellow,
+                            dayInSelectionRangeContentColor = Color.Green
+                        )
+                )
+            }
+        }
+
+        // Check that the 6th day of the displayed month is selected and is with a red content
+        // color.
+        rule
+            .onAllNodes(hasText("6", substring = true) and hasClickAction())
+            .onFirst()
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Yellow)
+            .assertContainsColor(Color.Red)
+
+        // Check that the 11th day of the displayed month is selected and is with a red content
+        // color.
+        rule
+            .onAllNodes(hasText("10", substring = true) and hasClickAction())
+            .onFirst()
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Yellow)
+            .assertContainsColor(Color.Red)
+
+        // A day in the selection range should have a green content color.
+        rule
+            .onAllNodes(hasText("7", substring = true) and hasClickAction())
+            .onFirst()
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Yellow)
+            .assertContainsColor(Color.Green)
+
+        // The headline color should the yellow, as we override the typography green color for
+        // "headlineLarge".
+        rule
+            .onNodeWithText("Mar 6, 2021", useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's

@@ -80,12 +80,12 @@ import kotlinx.coroutines.launch
  * @param state state of the date range picker. See [rememberDateRangePickerState].
  * @param modifier the [Modifier] to be applied to this date range picker
  * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display
+ * @param colors [DatePickerColors] that will be used to resolve the colors used for this date range
+ *   picker in different states. See [DatePickerDefaults.colors].
  * @param title the title to be displayed in the date range picker
  * @param headline the headline to be displayed in the date range picker
  * @param showModeToggle indicates if this DateRangePicker should show a mode toggle action that
  *   transforms it into a date range input
- * @param colors [DatePickerColors] that will be used to resolve the colors used for this date range
- *   picker in different states. See [DatePickerDefaults.colors].
  */
 @ExperimentalMaterial3Api
 @Composable
@@ -93,10 +93,12 @@ fun DateRangePicker(
     state: DateRangePickerState,
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() },
+    colors: DatePickerColors = DatePickerDefaults.colors(),
     title: (@Composable () -> Unit)? = {
         DateRangePickerDefaults.DateRangePickerTitle(
             displayMode = state.displayMode,
-            modifier = Modifier.padding(DateRangePickerTitlePadding)
+            modifier = Modifier.padding(DateRangePickerTitlePadding),
+            contentColor = colors.titleContentColor
         )
     },
     headline: (@Composable () -> Unit)? = {
@@ -105,11 +107,11 @@ fun DateRangePicker(
             selectedEndDateMillis = state.selectedEndDateMillis,
             displayMode = state.displayMode,
             dateFormatter,
-            modifier = Modifier.padding(DateRangePickerHeadlinePadding)
+            modifier = Modifier.padding(DateRangePickerHeadlinePadding),
+            contentColor = colors.headlineContentColor
         )
     },
-    showModeToggle: Boolean = true,
-    colors: DatePickerColors = DatePickerDefaults.colors()
+    showModeToggle: Boolean = true
 ) {
     val defaultLocale = defaultLocale()
     val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
@@ -124,6 +126,7 @@ fun DateRangePicker(
                         modifier = Modifier.padding(DatePickerModeTogglePadding),
                         displayMode = state.displayMode,
                         onDisplayModeChange = { displayMode -> state.displayMode = displayMode },
+                        colors = colors,
                     )
                 }
             } else {
@@ -161,6 +164,59 @@ fun DateRangePicker(
         )
     }
 }
+
+/**
+ * <a href="https://m3.material.io/components/date-pickers/overview" class="external"
+ * target="_blank">Material Design date range picker</a>.
+ *
+ * Date range pickers let people select a range of dates and can be embedded into Dialogs.
+ *
+ * ![Date range picker
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/range-picker.png)
+ *
+ * A simple DateRangePicker looks like:
+ *
+ * @sample androidx.compose.material3.samples.DateRangePickerSample
+ * @param state state of the date range picker. See [rememberDateRangePickerState].
+ * @param modifier the [Modifier] to be applied to this date range picker
+ * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display
+ * @param title the title to be displayed in the date range picker
+ * @param headline the headline to be displayed in the date range picker
+ * @param showModeToggle indicates if this DateRangePicker should show a mode toggle action that
+ *   transforms it into a date range input
+ * @param colors [DatePickerColors] that will be used to resolve the colors used for this date range
+ *   picker in different states. See [DatePickerDefaults.colors].
+ */
+@Deprecated(
+    message =
+        "Maintained for binary compatibility. Use the DateRangePicker with the different" +
+            " order of parameters.",
+    level = DeprecationLevel.HIDDEN
+)
+@ExperimentalMaterial3Api
+@Composable
+fun DateRangePicker(
+    state: DateRangePickerState,
+    modifier: Modifier = Modifier,
+    dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() },
+    title: (@Composable () -> Unit)? = {
+        DateRangePickerDefaults.DateRangePickerTitle(
+            displayMode = state.displayMode,
+            modifier = Modifier.padding(DateRangePickerTitlePadding)
+        )
+    },
+    headline: (@Composable () -> Unit)? = {
+        DateRangePickerDefaults.DateRangePickerHeadline(
+            selectedStartDateMillis = state.selectedStartDateMillis,
+            selectedEndDateMillis = state.selectedEndDateMillis,
+            displayMode = state.displayMode,
+            dateFormatter,
+            modifier = Modifier.padding(DateRangePickerHeadlinePadding)
+        )
+    },
+    showModeToggle: Boolean = true,
+    colors: DatePickerColors = DatePickerDefaults.colors()
+) = DateRangePicker(state, modifier, dateFormatter, colors, title, headline, showModeToggle)
 
 /**
  * A state object that can be hoisted to observe the date range picker state. See
@@ -333,15 +389,86 @@ object DateRangePickerDefaults {
      *
      * @param displayMode the current [DisplayMode]
      * @param modifier a [Modifier] to be applied for the title
+     * @param contentColor the content color of this title
      */
     @Composable
-    fun DateRangePickerTitle(displayMode: DisplayMode, modifier: Modifier = Modifier) {
+    fun DateRangePickerTitle(
+        displayMode: DisplayMode,
+        modifier: Modifier = Modifier,
+        contentColor: Color = DatePickerDefaults.colors().titleContentColor
+    ) {
         when (displayMode) {
             DisplayMode.Picker ->
-                Text(getString(string = Strings.DateRangePickerTitle), modifier = modifier)
+                Text(
+                    getString(string = Strings.DateRangePickerTitle),
+                    modifier = modifier,
+                    color = contentColor
+                )
             DisplayMode.Input ->
-                Text(getString(string = Strings.DateRangeInputTitle), modifier = modifier)
+                Text(
+                    getString(string = Strings.DateRangeInputTitle),
+                    modifier = modifier,
+                    color = contentColor
+                )
         }
+    }
+
+    /**
+     * A default date range picker title composable.
+     *
+     * @param displayMode the current [DisplayMode]
+     * @param modifier a [Modifier] to be applied for the title
+     */
+    @Deprecated(
+        message =
+            "Maintained for binary compatibility. Use the DateRangePickerTitle with contentColor.",
+        level = DeprecationLevel.HIDDEN
+    )
+    @Composable
+    fun DateRangePickerTitle(displayMode: DisplayMode, modifier: Modifier = Modifier) =
+        DateRangePickerTitle(
+            displayMode = displayMode,
+            modifier = modifier,
+            contentColor = DatePickerDefaults.colors().titleContentColor
+        )
+
+    /**
+     * A default date picker headline composable lambda that displays a default headline text when
+     * there is no date selection, and an actual date string when there is.
+     *
+     * @param selectedStartDateMillis a timestamp that represents the selected start date _start_ of
+     *   the day in _UTC_ milliseconds from the epoch
+     * @param selectedEndDateMillis a timestamp that represents the selected end date _start_ of the
+     *   day in _UTC_ milliseconds from the epoch
+     * @param displayMode the current [DisplayMode]
+     * @param dateFormatter a [DatePickerFormatter]
+     * @param modifier a [Modifier] to be applied for the headline
+     * @param contentColor the content color of this headline
+     */
+    @Composable
+    fun DateRangePickerHeadline(
+        @Suppress("AutoBoxing") selectedStartDateMillis: Long?,
+        @Suppress("AutoBoxing") selectedEndDateMillis: Long?,
+        displayMode: DisplayMode,
+        dateFormatter: DatePickerFormatter,
+        modifier: Modifier = Modifier,
+        contentColor: Color = DatePickerDefaults.colors().headlineContentColor
+    ) {
+        val startDateText = getString(Strings.DateRangePickerStartHeadline)
+        val endDateText = getString(Strings.DateRangePickerEndHeadline)
+        DateRangePickerHeadline(
+            selectedStartDateMillis = selectedStartDateMillis,
+            selectedEndDateMillis = selectedEndDateMillis,
+            displayMode = displayMode,
+            dateFormatter = dateFormatter,
+            modifier = modifier,
+            contentColor = contentColor,
+            startDateText = startDateText,
+            endDateText = endDateText,
+            startDatePlaceholder = { Text(text = startDateText, color = contentColor) },
+            endDatePlaceholder = { Text(text = endDateText, color = contentColor) },
+            datesDelimiter = { Text(text = "-", color = contentColor) },
+        )
     }
 
     /**
@@ -356,29 +483,28 @@ object DateRangePickerDefaults {
      * @param dateFormatter a [DatePickerFormatter]
      * @param modifier a [Modifier] to be applied for the headline
      */
+    @Deprecated(
+        message =
+            "Maintained for binary compatibility. Use the DateRangePickerHeadline with " +
+                "contentColor.",
+        level = DeprecationLevel.HIDDEN
+    )
     @Composable
     fun DateRangePickerHeadline(
         @Suppress("AutoBoxing") selectedStartDateMillis: Long?,
         @Suppress("AutoBoxing") selectedEndDateMillis: Long?,
         displayMode: DisplayMode,
         dateFormatter: DatePickerFormatter,
-        modifier: Modifier = Modifier
-    ) {
-        val startDateText = getString(Strings.DateRangePickerStartHeadline)
-        val endDateText = getString(Strings.DateRangePickerEndHeadline)
+        modifier: Modifier = Modifier,
+    ) =
         DateRangePickerHeadline(
             selectedStartDateMillis = selectedStartDateMillis,
             selectedEndDateMillis = selectedEndDateMillis,
             displayMode = displayMode,
             dateFormatter = dateFormatter,
             modifier = modifier,
-            startDateText = startDateText,
-            endDateText = endDateText,
-            startDatePlaceholder = { Text(text = startDateText) },
-            endDatePlaceholder = { Text(text = endDateText) },
-            datesDelimiter = { Text(text = "-") },
+            contentColor = DatePickerDefaults.colors().headlineContentColor
         )
-    }
 
     /**
      * A date picker headline composable lambda that displays a default headline text when there is
@@ -411,6 +537,7 @@ object DateRangePickerDefaults {
         displayMode: DisplayMode,
         dateFormatter: DatePickerFormatter,
         modifier: Modifier,
+        contentColor: Color,
         startDateText: String,
         endDateText: String,
         startDatePlaceholder: @Composable () -> Unit,
@@ -461,13 +588,13 @@ object DateRangePickerDefaults {
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             if (formatterStartDate != null) {
-                Text(text = formatterStartDate)
+                Text(text = formatterStartDate, color = contentColor)
             } else {
                 startDatePlaceholder()
             }
             datesDelimiter()
             if (formatterEndDate != null) {
-                Text(text = formatterEndDate)
+                Text(text = formatterEndDate, color = contentColor)
             } else {
                 endDatePlaceholder()
             }

@@ -16,7 +16,9 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.DatePickerDefaults.defaultDatePickerColors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.formatWithSkeleton
@@ -25,7 +27,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -38,6 +43,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -49,8 +55,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
@@ -665,6 +674,61 @@ class DatePickerTest {
             .assertContentDescriptionEquals(
                 expectedHeadlineStringFormat.format(fullDateDescription)
             )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun customColorsSupersedeTypographyColors() {
+        lateinit var datePickerState: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 1)
+            datePickerState =
+                rememberDatePickerState(
+                    initialSelectedDateMillis = initialDateMillis,
+                    initialDisplayedMonthMillis = monthInUtcMillis
+                )
+            // Wrap in a MaterialTheme that has a typography that was set with custom colors.
+            // The date picker is using BodyLarge for days. See
+            // DatePickerModalTokens.DateLabelTextFont.
+            MaterialTheme(
+                typography =
+                    MaterialTheme.typography.copy(
+                        // Set the body-large with a yellow color. We would like to test that no
+                        // yellow appears on any day.
+                        bodyLarge = TextStyle(fontSize = 30.sp, color = Color.Yellow),
+                        headlineLarge = TextStyle(fontSize = 30.sp, color = Color.Green),
+                    )
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    colors =
+                        MaterialTheme.colorScheme.defaultDatePickerColors.copy(
+                            dayContentColor = Color.Blue,
+                            selectedDayContentColor = Color.Red,
+                            headlineContentColor = Color.Yellow
+                        )
+                )
+            }
+        }
+
+        // Select the 11th day of the displayed month is selected and is with a red content color.
+        rule
+            .onNode(hasText("11", substring = true) and hasClickAction())
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Yellow)
+            .assertContainsColor(Color.Red)
+
+        // Any other day should have a blue content color.
+        rule
+            .onNode(hasText("12", substring = true) and hasClickAction())
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Yellow)
+            .assertContainsColor(Color.Blue)
+
+        // The headline color should the yellow, as we override the typography green color for
+        // "headlineLarge".
+        rule.onNodeWithText("May 11, 2010").captureToImage().assertContainsColor(Color.Yellow)
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's
