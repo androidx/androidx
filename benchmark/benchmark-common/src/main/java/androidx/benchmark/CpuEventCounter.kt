@@ -41,6 +41,9 @@ class CpuEventCounter : Closeable {
     internal var currentEventFlags = 0
         private set
 
+    /** updated in sync with currentEventFlags, tracks those that should never be zero */
+    private var validateFlags = 0
+
     fun resetEvents(events: List<Event>) {
         resetEvents(events.getFlags())
     }
@@ -50,6 +53,7 @@ class CpuEventCounter : Closeable {
             // set up the flags
             CpuCounterJni.resetEvents(profilerPtr, eventFlags)
             currentEventFlags = eventFlags
+            validateFlags = currentEventFlags.and(Event.CpuCycles.flag.or(Event.Instructions.flag))
         } else {
             // fast path when re-using same flags
             reset()
@@ -74,6 +78,20 @@ class CpuEventCounter : Closeable {
         check(profilerPtr != 0L) { "Error: attempted to read counters after close" }
         check(hasReset) { "Error: attempted to read counters without reset" }
         CpuCounterJni.read(profilerPtr, outValues.longArray)
+        if (validateFlags != 0) {
+            val hasInstructionError =
+                validateFlags.and(Event.Instructions.flag) != 0 &&
+                    outValues.getValue(Event.Instructions) == 0L
+            val hasCpuCyclesError =
+                validateFlags.and(Event.CpuCycles.flag) != 0 &&
+                    outValues.getValue(Event.CpuCycles) == 0L
+            check(!hasInstructionError && !hasCpuCyclesError) {
+                val events = Event.entries.filter { it.flag.and(currentEventFlags) != 0 }
+                "Observed 0 for instructions/cpuCycles, capture appeared to fail, values=[" +
+                    events.joinToString(",") { it.outputName + "=" + outValues.getValue(it) } +
+                    "]"
+            }
+        }
     }
 
     enum class Event(val id: Int) {
