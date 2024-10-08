@@ -212,7 +212,7 @@ private class SizeAnimationModifierNode(
                     space = IntSize(width, height),
                     layoutDirection = this@measure.layoutDirection
                 )
-            placeable.placeRelative(offset)
+            placeable.place(offset)
         }
     }
 
