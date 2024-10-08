@@ -2539,6 +2539,15 @@ class SubcomposeLayoutTest {
         rule.runOnIdle { assertThat(disposeOrder).isExactly("inner 2", "outer", "inner 1") }
     }
 
+    @SdkSuppress(
+        excludedSdks =
+            [
+                // API 28 is using ViewLayer which invalidates when layer is created
+                Build.VERSION_CODES.P,
+                // waitForIdle doesn't wait for draw on API 26 (b/372068529)
+                Build.VERSION_CODES.O
+            ]
+    )
     @Test
     fun precomposeAndPremeasureAreNotCausingViewInvalidations() {
         val state = SubcomposeLayoutState()
