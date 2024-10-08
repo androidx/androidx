@@ -22,8 +22,7 @@ android {
     namespace 'androidx.privacysandbox.sdkruntime.integration.testapp'
     defaultConfig {
         applicationId 'androidx.privacysandbox.sdkruntime.integration.testapp'
-        compileSdk 34
-        compileSdkExtension 10
+        compileSdk 35
     }
     privacySandbox {
         enable = true

@@ -24,8 +24,7 @@ android {
     namespace 'androidx.privacysandbox.sdkruntime.integration.testsdk'
 
     defaultConfig {
-        compileSdk 34
-        compileSdkExtension 10
+        compileSdk 35
     }
 }
 
