@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    api(project(":benchmark:benchmark-common"))
+    api(projectOrArtifact(":benchmark:benchmark-common"))
 
     api(libs.junit)
     api(libs.kotlinStdlib)
