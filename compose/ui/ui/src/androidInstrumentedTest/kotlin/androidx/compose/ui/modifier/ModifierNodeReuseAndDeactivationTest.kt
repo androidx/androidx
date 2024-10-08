@@ -649,11 +649,11 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.runOnIdle {
-            assertThat(invalidations).isEqualTo(1)
+            assertThat(invalidations).isEqualTo(2)
             counter++
         }
 
-        rule.runOnIdle { assertThat(invalidations).isEqualTo(2) }
+        rule.runOnIdle { assertThat(invalidations).isEqualTo(3) }
     }
 
     @Test

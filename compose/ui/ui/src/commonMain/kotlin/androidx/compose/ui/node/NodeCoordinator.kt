@@ -611,6 +611,27 @@ internal abstract class NodeCoordinator(
     val minimumTouchTargetSize: Size
         get() = with(layerDensity) { layoutNode.viewConfiguration.minimumTouchTargetSize.toSize() }
 
+    fun onAttach() {
+        if (layer == null && layerBlock != null) {
+            // This has been detached and is now being reattached. It previously had a layer, so
+            // reconstitute one.
+            layer =
+                layoutNode
+                    .requireOwner()
+                    .createLayer(drawBlock, invalidateParentLayer, explicitLayer)
+                    .apply {
+                        resize(measuredSize)
+                        move(position)
+                        invalidate()
+                    }
+        }
+    }
+
+    fun onDetach() {
+        layer?.destroy()
+        layer = null
+    }
+
     /**
      * Executes a hit test for this [NodeCoordinator].
      *

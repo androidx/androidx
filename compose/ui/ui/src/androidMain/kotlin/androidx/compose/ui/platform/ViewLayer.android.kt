@@ -396,6 +396,7 @@ internal class ViewLayer(
         mTransformOrigin = TransformOrigin.Center
         this.drawBlock = drawBlock
         this.invalidateParentLayer = invalidateParentLayer
+        isInvalidated = false
     }
 
     override fun transform(matrix: Matrix) {
