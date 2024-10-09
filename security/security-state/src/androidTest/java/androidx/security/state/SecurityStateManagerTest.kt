@@ -18,10 +18,12 @@ package androidx.security.state
 
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -29,7 +31,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
 class SecurityStateManagerTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -40,37 +41,90 @@ class SecurityStateManagerTest {
         securityStateManager = SecurityStateManager(context)
     }
 
-    @Test
-    fun testGetGlobalSecurityState() {
-        val bundle = securityStateManager.getGlobalSecurityState()
-
-        // Check if dates are in the format YYYY-MM-DD
+    /** Returns `true` if [date] is in the format "YYYY-MM-DD". */
+    private fun matchesDateFormat(date: String): Boolean {
         val dateRegex = "^\\d{4}-\\d{2}-\\d{2}$"
-        assertTrue(bundle.getString("system_spl")!!.matches(dateRegex.toRegex()))
-        assertTrue(bundle.getString("vendor_spl")!!.matches(dateRegex.toRegex()))
+        return date.matches(dateRegex.toRegex())
+    }
 
-        // Check if kernel version is in the format X.X.XX
+    /** Returns `true` if [kernel] is in the format "X.X.XX". */
+    private fun matchesKernelFormat(kernel: String): Boolean {
         val versionRegex = "^\\d+\\.\\d+\\.\\d+$"
-        assertTrue(bundle.getString("kernel_version")!!.matches(versionRegex.toRegex()))
+        return kernel.matches(versionRegex.toRegex())
+    }
 
-        // Webview keys are expected to have specific naming and version formats
+    /** Returns `true` if a key for a WebView package exists in [bundle]. */
+    private fun containsWebViewPackage(bundle: Bundle): Boolean {
         var foundWebView = false
-        val nameRegex = "^com\\.[a-zA-Z0-9_.]+\\.webview$"
+        // https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/webview-providers.md#package-name
+        val nameRegex =
+            "^(?:com\\.google\\.android\\.apps\\.chrome|com\\.google\\.android\\.webview|com\\.android\\.(?:chrome|webview)|com\\.chrome)(?:\\.(?:beta|dev|canary|debug))?\$"
         val versionRegexWebView = "^\\d+\\.\\d+\\.\\d+\\.\\d+$"
         for (key in bundle.keySet()) {
-            if (key.contains("webview")) {
+            if (key.matches(nameRegex.toRegex())) {
                 foundWebView = true
-                val nameMatch = key.matches(nameRegex.toRegex())
-                val versionMatch = bundle.getString(key)!!.matches(versionRegexWebView.toRegex())
-
-                assertTrue("Webview name format incorrect: $key", nameMatch)
-                assertTrue(
-                    "Webview version format incorrect for $key: ${bundle.getString(key)}",
-                    versionMatch
-                )
-                break
+                val value = bundle.getString(key)
+                if (value!!.isNotEmpty()) {
+                    assertTrue(
+                        "WebView version format incorrect for $key: $value",
+                        value.matches(versionRegexWebView.toRegex())
+                    )
+                    break
+                }
             }
         }
-        assertTrue("No webview key found in bundle", foundWebView)
+        return foundWebView
+    }
+
+    /** Returns `true` if a key for the module metadata package name exists in [bundle]. */
+    private fun containsModuleMetadataPackage(bundle: Bundle): Boolean {
+        return bundle.keySet().any { it.contains("modulemetadata") }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testGetGlobalSecurityState_sdkAbove29() {
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
+        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
+        assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
+        assertTrue(containsModuleMetadataPackage(bundle))
+        assertTrue(containsWebViewPackage(bundle))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.P)
+    @Test
+    fun testGetGlobalSecurityState_sdkAbove25Below29_doesNotContainModuleMetadata() {
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
+        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
+        assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
+        assertTrue(containsWebViewPackage(bundle))
+        assertFalse(containsModuleMetadataPackage(bundle))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M, maxSdkVersion = Build.VERSION_CODES.N_MR1)
+    @Test
+    fun testGetGlobalSecurityState_sdkAbove22Below26_doesNotContainModuleMetadataOrWebView() {
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
+        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
+        assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
+        assertFalse(containsModuleMetadataPackage(bundle))
+        assertFalse(containsWebViewPackage(bundle))
+    }
+
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.LOLLIPOP,
+        maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1
+    )
+    @Test
+    fun testGetGlobalSecurityState_sdkBelow23_containsOnlyKernel() {
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
+        assertFalse(bundle.containsKey("system_spl"))
+        assertFalse(bundle.containsKey("vendor_spl"))
+        assertFalse(containsModuleMetadataPackage(bundle))
+        assertFalse(containsWebViewPackage(bundle))
     }
 }
