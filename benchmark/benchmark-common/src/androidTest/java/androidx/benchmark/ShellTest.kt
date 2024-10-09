@@ -24,6 +24,7 @@ import androidx.test.filters.SmallTest
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -43,11 +44,7 @@ class ShellTest {
     fun setup() {
         if (Build.VERSION.SDK_INT >= 23) {
             // ensure we don't leak background processes
-            Shell.terminateProcessesAndWait(
-                KILL_WAIT_POLL_PERIOD_MS,
-                KILL_WAIT_POLL_MAX_COUNT,
-                BACKGROUND_SPINNING_PROCESS_NAME
-            )
+            Shell.killProcessesAndWait(BACKGROUND_SPINNING_PROCESS_NAME)
         }
     }
 
@@ -280,42 +277,44 @@ class ShellTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun killTermProcessesAndWait() {
+    fun killProcessesAndWait() {
         // validate that killTermProcessesAndWait kills bg process
         val backgroundProcess = getBackgroundSpinningProcess()
         assertTrue(backgroundProcess.isAlive())
-        Shell.terminateProcessesAndWait(
-            KILL_WAIT_POLL_PERIOD_MS,
-            KILL_WAIT_POLL_MAX_COUNT,
-            backgroundProcess
-        )
+        Shell.killProcessesAndWait(listOf(backgroundProcess))
         assertFalse(backgroundProcess.isAlive())
     }
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun killTermProcessesAndWait_allowBackground() {
+    fun killProcessesAndWait_failure() {
+        // validate that killTermProcessesAndWait kills bg process
+        val backgroundProcess = getBackgroundSpinningProcess()
+        assertTrue(backgroundProcess.isAlive())
+        assertFailsWith<IllegalStateException> {
+            Shell.killProcessesAndWait(listOf(backgroundProcess)) {
+                // noop, process not killed!
+            }
+        }
+        assertTrue(backgroundProcess.isAlive())
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun killProcessesAndWait_allowBackground() {
         val backgroundProcess1 = getBackgroundSpinningProcess()
         val backgroundProcess2 = getBackgroundSpinningProcess()
 
         assertTrue(backgroundProcess1.isAlive())
         assertTrue(backgroundProcess2.isAlive())
 
-        Shell.terminateProcessesAndWait(
-            KILL_WAIT_POLL_PERIOD_MS,
-            KILL_WAIT_POLL_MAX_COUNT,
-            backgroundProcess1
-        )
+        Shell.killProcessesAndWait(listOf(backgroundProcess1))
 
         // Only process 1 should be killed
         assertFalse(backgroundProcess1.isAlive())
         assertTrue(backgroundProcess2.isAlive())
 
-        Shell.terminateProcessesAndWait(
-            KILL_WAIT_POLL_PERIOD_MS,
-            KILL_WAIT_POLL_MAX_COUNT,
-            backgroundProcess2
-        )
+        Shell.killProcessesAndWait(listOf(backgroundProcess2))
 
         // Now both are killed
         assertFalse(backgroundProcess1.isAlive())
@@ -324,19 +323,14 @@ class ShellTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun killTermProcessesAndWait_multi() {
+    fun killProcessesAndWait_multi() {
         val backgroundProcess1 = getBackgroundSpinningProcess()
         val backgroundProcess2 = getBackgroundSpinningProcess()
 
         assertTrue(backgroundProcess1.isAlive())
         assertTrue(backgroundProcess2.isAlive())
 
-        Shell.terminateProcessesAndWait(
-            KILL_WAIT_POLL_PERIOD_MS,
-            KILL_WAIT_POLL_MAX_COUNT,
-            backgroundProcess1,
-            backgroundProcess2
-        )
+        Shell.killProcessesAndWait(listOf(backgroundProcess1, backgroundProcess2))
 
         // both processes should be killed
         assertFalse(backgroundProcess1.isAlive())
@@ -345,18 +339,14 @@ class ShellTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun killTermAllAndWait() {
+    fun killProcessesAndWait_processName() {
         val backgroundProcess1 = getBackgroundSpinningProcess()
         val backgroundProcess2 = getBackgroundSpinningProcess()
 
         assertTrue(backgroundProcess1.isAlive())
         assertTrue(backgroundProcess2.isAlive())
 
-        Shell.terminateProcessesAndWait(
-            KILL_WAIT_POLL_PERIOD_MS,
-            KILL_WAIT_POLL_MAX_COUNT,
-            BACKGROUND_SPINNING_PROCESS_NAME
-        )
+        Shell.killProcessesAndWait(BACKGROUND_SPINNING_PROCESS_NAME)
 
         assertFalse(backgroundProcess1.isAlive())
         assertFalse(backgroundProcess2.isAlive())
@@ -445,8 +435,6 @@ class ShellTest {
     }
 
     companion object {
-        const val KILL_WAIT_POLL_PERIOD_MS = 50L
-        const val KILL_WAIT_POLL_MAX_COUNT = 50
 
         /**
          * Run the shell command "yes" as a background process to enable testing process killing /

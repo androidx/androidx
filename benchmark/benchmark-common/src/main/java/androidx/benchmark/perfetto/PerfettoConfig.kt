@@ -372,6 +372,10 @@ private fun stackSamplingSource(
     return sources
 }
 
+// reduce timeout to reduce trace capture overhead when devices have data source issues
+// See b/323601788 and b/307649002.
+internal const val PERFETTO_DATA_SOURCE_STOP_TIMEOUT_MS = 2500
+
 private fun configOf(dataSources: List<TraceConfig.DataSource>) =
     TraceConfig(
         buffers =
@@ -387,10 +391,7 @@ private fun configOf(dataSources: List<TraceConfig.DataSource>) =
 
         // multiple of file_write_period_ms, enables trace processor to work in batches
         flush_period_ms = 5000,
-
-        // reduce timeout to reduce trace capture overhead when devices have data source issues
-        // See b/323601788 and b/307649002.
-        data_source_stop_timeout_ms = 2500,
+        data_source_stop_timeout_ms = PERFETTO_DATA_SOURCE_STOP_TIMEOUT_MS,
     )
 
 /**
