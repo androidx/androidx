@@ -16,6 +16,7 @@
 
 package androidx.activity.compose
 
+import android.annotation.SuppressLint
 import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
@@ -66,6 +67,7 @@ import kotlinx.coroutines.launch
  * @param enabled if this BackHandler should be enabled, true by default
  * @param onBack the action invoked by back gesture
  */
+@SuppressLint("RememberReturnType") // TODO: b/372566999
 @Composable
 public fun PredictiveBackHandler(
     enabled: Boolean = true,

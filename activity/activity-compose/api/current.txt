@@ -13,6 +13,11 @@ package androidx.activity.compose {
     method public static void setContent(androidx.activity.ComponentActivity, optional androidx.compose.runtime.CompositionContext? parent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class LocalActivityKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.activity.ComponentActivity?> getLocalActivity();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.activity.ComponentActivity?> LocalActivity;
+  }
+
   public final class LocalActivityResultRegistryOwner {
     method @androidx.compose.runtime.Composable public androidx.activity.result.ActivityResultRegistryOwner? getCurrent();
     method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.result.ActivityResultRegistryOwner?> provides(androidx.activity.result.ActivityResultRegistryOwner registryOwner);
