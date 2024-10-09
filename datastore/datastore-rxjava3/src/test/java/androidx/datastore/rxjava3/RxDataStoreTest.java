@@ -20,6 +20,9 @@ import static androidx.testutils.AssertionsKt.assertThrows;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.subscribers.TestSubscriber;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -28,9 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
-
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.subscribers.TestSubscriber;
 
 public class RxDataStoreTest {
     @Rule
