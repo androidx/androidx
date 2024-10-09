@@ -21,9 +21,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Callbacks to a {@link Fragment}'s container.
@@ -33,8 +33,7 @@ public abstract class FragmentContainer {
      * Return the view with the given resource ID. May return {@code null} if the
      * view is not a child of this container.
      */
-    @Nullable
-    public abstract View onFindViewById(@IdRes int id);
+    public abstract @Nullable View onFindViewById(@IdRes int id);
 
     /**
      * Return {@code true} if the container holds any view.
@@ -51,8 +50,7 @@ public abstract class FragmentContainer {
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    @NonNull
-    public Fragment instantiate(@NonNull Context context, @NonNull String className,
+    public @NonNull Fragment instantiate(@NonNull Context context, @NonNull String className,
             @Nullable Bundle arguments) {
         return Fragment.instantiate(context, className, arguments);
     }

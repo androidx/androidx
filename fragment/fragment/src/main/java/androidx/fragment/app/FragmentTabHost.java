@@ -28,8 +28,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -103,9 +103,8 @@ public class FragmentTabHost extends android.widget.TabHost
             out.writeString(curTab);
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "FragmentTabHost.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
                     + " curTab=" + curTab + "}";
@@ -265,7 +264,7 @@ public class FragmentTabHost extends android.widget.TabHost
      *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
-    public void addTab(@NonNull android.widget.TabHost.TabSpec tabSpec, @NonNull Class<?> clss,
+    public void addTab(android.widget.TabHost.@NonNull TabSpec tabSpec, @NonNull Class<?> clss,
             @Nullable Bundle args) {
         tabSpec.setContent(new DummyTabFactory(mContext));
 
@@ -352,8 +351,7 @@ public class FragmentTabHost extends android.widget.TabHost
      */
     @Deprecated
     @Override
-    @NonNull
-    protected Parcelable onSaveInstanceState() {
+    protected @NonNull Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.curTab = getCurrentTabTag();
@@ -396,8 +394,7 @@ public class FragmentTabHost extends android.widget.TabHost
         }
     }
 
-    @Nullable
-    private FragmentTransaction doTabChanged(@Nullable String tag,
+    private @Nullable FragmentTransaction doTabChanged(@Nullable String tag,
             @Nullable FragmentTransaction ft) {
         final TabInfo newTab = getTabInfoForTag(tag);
         if (mLastTab != newTab) {
@@ -428,8 +425,7 @@ public class FragmentTabHost extends android.widget.TabHost
         return ft;
     }
 
-    @Nullable
-    private TabInfo getTabInfoForTag(String tabId) {
+    private @Nullable TabInfo getTabInfoForTag(String tabId) {
         for (int i = 0, count = mTabs.size(); i < count; i++) {
             final TabInfo tab = mTabs.get(i);
             if (tab.tag.equals(tabId)) {

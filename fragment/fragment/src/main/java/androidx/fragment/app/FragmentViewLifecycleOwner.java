@@ -22,8 +22,6 @@ import android.content.ContextWrapper;
 import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
@@ -37,6 +35,9 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner, ViewModelStoreOwner {
@@ -59,9 +60,8 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         mRestoreViewSavedStateRunnable = restoreViewSavedStateRunnable;
     }
 
-    @NonNull
     @Override
-    public ViewModelStore getViewModelStore() {
+    public @NonNull ViewModelStore getViewModelStore() {
         initialize();
         return mViewModelStore;
     }
@@ -85,18 +85,17 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         return mLifecycleRegistry != null;
     }
 
-    @NonNull
     @Override
-    public Lifecycle getLifecycle() {
+    public @NonNull Lifecycle getLifecycle() {
         initialize();
         return mLifecycleRegistry;
     }
 
-    void setCurrentState(@NonNull Lifecycle.State state) {
+    void setCurrentState(Lifecycle.@NonNull State state) {
         mLifecycleRegistry.setCurrentState(state);
     }
 
-    void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
+    void handleLifecycleEvent(Lifecycle.@NonNull Event event) {
         mLifecycleRegistry.handleLifecycleEvent(event);
     }
 
@@ -107,9 +106,8 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
      * be used as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a
      * view model created using this factory.</p>
      */
-    @NonNull
     @Override
-    public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+    public ViewModelProvider.@NonNull Factory getDefaultViewModelProviderFactory() {
         ViewModelProvider.Factory currentFactory =
                 mFragment.getDefaultViewModelProviderFactory();
 
@@ -138,10 +136,9 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         return mDefaultFactory;
     }
 
-    @NonNull
     @Override
     @CallSuper
-    public CreationExtras getDefaultViewModelCreationExtras() {
+    public @NonNull CreationExtras getDefaultViewModelCreationExtras() {
         Application application = null;
         Context appContext = mFragment.requireContext().getApplicationContext();
         while (appContext instanceof ContextWrapper) {
@@ -163,9 +160,8 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         return extras;
     }
 
-    @NonNull
     @Override
-    public SavedStateRegistry getSavedStateRegistry() {
+    public @NonNull SavedStateRegistry getSavedStateRegistry() {
         initialize();
         return mSavedStateRegistryController.getSavedStateRegistry();
     }

@@ -29,12 +29,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.view.MenuHost;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -53,8 +54,8 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentController}.
      */
-    @NonNull
-    public static FragmentController createController(@NonNull FragmentHostCallback<?> callbacks) {
+    public static @NonNull FragmentController createController(
+            @NonNull FragmentHostCallback<?> callbacks) {
         return new FragmentController(checkNotNull(callbacks, "callbacks == null"));
     }
 
@@ -65,8 +66,7 @@ public class FragmentController {
     /**
      * Returns a {@link FragmentManager} for this controller.
      */
-    @NonNull
-    public FragmentManager getSupportFragmentManager() {
+    public @NonNull FragmentManager getSupportFragmentManager() {
         return mHost.getFragmentManager();
     }
 
@@ -88,8 +88,7 @@ public class FragmentController {
     /**
      * Returns a fragment with the given identifier.
      */
-    @Nullable
-    public Fragment findFragmentByWho(@NonNull String who) {
+    public @Nullable Fragment findFragmentByWho(@NonNull String who) {
         return mHost.getFragmentManager().findFragmentByWho(who);
     }
 
@@ -103,8 +102,7 @@ public class FragmentController {
     /**
      * Returns the list of active fragments.
      */
-    @NonNull
-    public List<Fragment> getActiveFragments(@SuppressLint("UnknownNullness")
+    public @NonNull List<Fragment> getActiveFragments(@SuppressLint("UnknownNullness")
             List<Fragment> actives) {
         return mHost.getFragmentManager().getActiveFragments();
     }
@@ -129,9 +127,8 @@ public class FragmentController {
      *
      * @return view the newly created view
      */
-    @Nullable
-    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
-            @NonNull AttributeSet attrs) {
+    public @Nullable View onCreateView(@Nullable View parent, @NonNull String name,
+            @NonNull Context context, @NonNull AttributeSet attrs) {
         return mHost.getFragmentManager().getLayoutInflaterFactory()
                 .onCreateView(parent, name, context, attrs);
     }
@@ -154,8 +151,7 @@ public class FragmentController {
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    @Nullable
-    public Parcelable saveAllState() {
+    public @Nullable Parcelable saveAllState() {
         return mHost.getFragmentManager().saveAllState();
     }
 
@@ -219,8 +215,7 @@ public class FragmentController {
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    @Nullable
-    public List<Fragment> retainNonConfig() {
+    public @Nullable List<Fragment> retainNonConfig() {
         FragmentManagerNonConfig nonconf = mHost.getFragmentManager().retainNonConfig();
         return nonconf != null && nonconf.getFragments() != null
                 ? new ArrayList<>(nonconf.getFragments())
@@ -236,8 +231,7 @@ public class FragmentController {
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    @Nullable
-    public FragmentManagerNonConfig retainNestedNonConfig() {
+    public @Nullable FragmentManagerNonConfig retainNestedNonConfig() {
         return mHost.getFragmentManager().retainNonConfig();
     }
 
@@ -552,8 +546,7 @@ public class FragmentController {
      * @deprecated Loaders are managed separately from FragmentController
      */
     @Deprecated
-    @Nullable
-    public SimpleArrayMap<String, LoaderManager> retainLoaderNonConfig() {
+    public @Nullable SimpleArrayMap<String, LoaderManager> retainLoaderNonConfig() {
         return null;
     }
 
@@ -577,6 +570,6 @@ public class FragmentController {
      */
     @Deprecated
     public void dumpLoaders(@NonNull String prefix, @Nullable FileDescriptor fd,
-            @NonNull PrintWriter writer, @Nullable String[] args) {
+            @NonNull PrintWriter writer, String @Nullable [] args) {
     }
 }

@@ -18,8 +18,9 @@ package androidx.fragment.app;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Listener for handling fragment results.

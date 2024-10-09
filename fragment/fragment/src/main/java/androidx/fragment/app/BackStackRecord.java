@@ -18,9 +18,10 @@ package androidx.fragment.app;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -172,8 +173,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     @SuppressWarnings("deprecation")
     @Override
-    @Nullable
-    public CharSequence getBreadCrumbTitle() {
+    public @Nullable CharSequence getBreadCrumbTitle() {
         if (mBreadCrumbTitleRes != 0) {
             return mManager.getHost().getContext().getText(mBreadCrumbTitleRes);
         }
@@ -182,8 +182,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     @SuppressWarnings("deprecation")
     @Override
-    @Nullable
-    public CharSequence getBreadCrumbShortTitle() {
+    public @Nullable CharSequence getBreadCrumbShortTitle() {
         if (mBreadCrumbShortTitleRes != 0) {
             return mManager.getHost().getContext().getText(mBreadCrumbShortTitleRes);
         }
@@ -196,9 +195,8 @@ final class BackStackRecord extends FragmentTransaction implements
         fragment.mFragmentManager = mManager;
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction remove(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction remove(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
             throw new IllegalStateException("Cannot remove Fragment attached to "
                     + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
@@ -207,9 +205,8 @@ final class BackStackRecord extends FragmentTransaction implements
         return super.remove(fragment);
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction hide(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction hide(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
             throw new IllegalStateException("Cannot hide Fragment attached to "
                     + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
@@ -218,9 +215,8 @@ final class BackStackRecord extends FragmentTransaction implements
         return super.hide(fragment);
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction show(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction show(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
             throw new IllegalStateException("Cannot show Fragment attached to "
                     + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
@@ -229,9 +225,8 @@ final class BackStackRecord extends FragmentTransaction implements
         return super.show(fragment);
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction detach(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction detach(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
             throw new IllegalStateException("Cannot detach Fragment attached to "
                     + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
@@ -240,9 +235,8 @@ final class BackStackRecord extends FragmentTransaction implements
         return super.detach(fragment);
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
+    public @NonNull FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
         if (fragment != null
                 && fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
             throw new IllegalStateException("Cannot setPrimaryNavigation for Fragment attached to "
@@ -252,10 +246,9 @@ final class BackStackRecord extends FragmentTransaction implements
         return super.setPrimaryNavigationFragment(fragment);
     }
 
-    @NonNull
     @Override
-    public FragmentTransaction setMaxLifecycle(@NonNull Fragment fragment,
-            @NonNull Lifecycle.State state) {
+    public @NonNull FragmentTransaction setMaxLifecycle(@NonNull Fragment fragment,
+            Lifecycle.@NonNull State state) {
         if (fragment.mFragmentManager != mManager) {
             throw new IllegalArgumentException("Cannot setMaxLifecycle for Fragment not attached to"
                     + " FragmentManager " + mManager);
@@ -651,8 +644,7 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return mName;
     }
 

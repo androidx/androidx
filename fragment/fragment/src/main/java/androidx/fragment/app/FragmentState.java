@@ -20,8 +20,9 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
+
+import org.jspecify.annotations.NonNull;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
@@ -80,9 +81,8 @@ final class FragmentState implements Parcelable {
     /**
      * Instantiates the Fragment from this state.
      */
-    @NonNull
     @SuppressWarnings("deprecation")
-    Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
+    @NonNull Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
             @NonNull ClassLoader classLoader) {
         Fragment fragment = fragmentFactory.instantiate(classLoader, mClassName);
         fragment.mWho = mWho;
@@ -103,9 +103,8 @@ final class FragmentState implements Parcelable {
         return fragment;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         StringBuilder sb = new StringBuilder(128);
         sb.append("FragmentState{");
         sb.append(mClassName);

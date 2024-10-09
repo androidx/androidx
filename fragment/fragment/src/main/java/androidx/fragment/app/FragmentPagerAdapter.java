@@ -22,10 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager.widget.PagerAdapter;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -143,8 +144,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     /**
      * Return the Fragment associated with a specified position.
      */
-    @NonNull
-    public abstract Fragment getItem(int position);
+    public abstract @NonNull Fragment getItem(int position);
 
     @Override
     public void startUpdate(@NonNull ViewGroup container) {
@@ -155,9 +155,8 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @SuppressWarnings({"ReferenceEquality", "deprecation"})
-    @NonNull
     @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public @NonNull Object instantiateItem(@NonNull ViewGroup container, int position) {
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
@@ -261,8 +260,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    @Nullable
-    public Parcelable saveState() {
+    public @Nullable Parcelable saveState() {
         return null;
     }
 

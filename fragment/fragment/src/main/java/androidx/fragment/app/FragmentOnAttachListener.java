@@ -20,7 +20,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Listener for receiving a callback immediately following {@link Fragment#onAttach(Context)}.

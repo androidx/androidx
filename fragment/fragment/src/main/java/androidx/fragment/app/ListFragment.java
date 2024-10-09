@@ -32,8 +32,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static library support version of the framework's {@link android.app.ListFragment}.
@@ -92,9 +92,8 @@ public class ListFragment extends Fragment {
      * way to have the built-in indeterminant progress state be shown.
      */
     @Override
-    @Nullable
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
+    public @Nullable View onCreateView(@NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final Context context = requireContext();
 
         FrameLayout root = new FrameLayout(context);
@@ -225,8 +224,7 @@ public class ListFragment extends Fragment {
     /**
      * Get the fragment's list view widget.
      */
-    @NonNull
-    public ListView getListView() {
+    public @NonNull ListView getListView() {
         ensureList();
         return mList;
     }
@@ -325,8 +323,7 @@ public class ListFragment extends Fragment {
      *
      * @see #requireListAdapter()
      */
-    @Nullable
-    public ListAdapter getListAdapter() {
+    public @Nullable ListAdapter getListAdapter() {
         return mAdapter;
     }
 
@@ -336,8 +333,7 @@ public class ListFragment extends Fragment {
      * @throws IllegalStateException if no ListAdapter has been set.
      * @see #getListAdapter()
      */
-    @NonNull
-    public final ListAdapter requireListAdapter() {
+    public final @NonNull ListAdapter requireListAdapter() {
         ListAdapter listAdapter = getListAdapter();
         if (listAdapter == null) {
             throw new IllegalStateException("ListFragment " + this

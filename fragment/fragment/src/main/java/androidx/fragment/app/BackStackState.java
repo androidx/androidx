@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,9 +44,8 @@ class BackStackState implements Parcelable {
         mTransactions = in.createTypedArrayList(BackStackRecordState.CREATOR);
     }
 
-    @NonNull
     @SuppressWarnings("deprecation")
-    List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
+    @NonNull List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
             Map<String, Fragment> pendingSavedFragments) {
         // First instantiate the saved Fragments from state.
         // These will populate the transactions we instantiate.

@@ -25,9 +25,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,8 +145,8 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
 
     @Override
     public void scheduleHideFragmentView(@NonNull Object exitTransitionObj,
-            @NonNull final View fragmentView,
-            @NonNull final ArrayList<View> exitingViews) {
+            final @NonNull View fragmentView,
+            final @NonNull ArrayList<View> exitingViews) {
         Transition exitTransition = (Transition) exitTransitionObj;
         exitTransition.addListener(new Transition.TransitionListener() {
             @Override
@@ -242,11 +243,11 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
     }
 
     @Override
-    public void scheduleRemoveTargets(@NonNull final Object overallTransitionObj,
-            @Nullable final Object enterTransition, @Nullable final ArrayList<View> enteringViews,
-            @Nullable final Object exitTransition, @Nullable final ArrayList<View> exitingViews,
-            @Nullable final Object sharedElementTransition,
-            @Nullable final ArrayList<View> sharedElementsIn) {
+    public void scheduleRemoveTargets(final @NonNull Object overallTransitionObj,
+            final @Nullable Object enterTransition, final @Nullable ArrayList<View> enteringViews,
+            final @Nullable Object exitTransition, final @Nullable ArrayList<View> exitingViews,
+            final @Nullable Object sharedElementTransition,
+            final @Nullable ArrayList<View> sharedElementsIn) {
         final Transition overallTransition = (Transition) overallTransitionObj;
         overallTransition.addListener(new Transition.TransitionListener() {
             @Override
@@ -292,9 +293,9 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull final androidx.core.os.CancellationSignal signal,
-            @NonNull final Runnable transitionCompleteRunnable) {
+    public void setListenerForTransitionEnd(final @NonNull Fragment outFragment,
+            @NonNull Object transition, final androidx.core.os.@NonNull CancellationSignal signal,
+            final @NonNull Runnable transitionCompleteRunnable) {
         ((Transition) transition).addListener(new Transition.TransitionListener() {
             @Override
             public void onTransitionStart(Transition transition) { }
@@ -372,7 +373,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
     }
 
     @Override
-    public void setEpicenter(@NonNull Object transitionObj, @NonNull final Rect epicenter) {
+    public void setEpicenter(@NonNull Object transitionObj, final @NonNull Rect epicenter) {
         if (transitionObj != null) {
             Transition transition = (Transition) transitionObj;
             transition.setEpicenterCallback(new Transition.EpicenterCallback() {

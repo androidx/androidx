@@ -23,10 +23,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager.widget.PagerAdapter;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -150,8 +151,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     /**
      * Return the Fragment associated with a specified position.
      */
-    @NonNull
-    public abstract Fragment getItem(int position);
+    public abstract @NonNull Fragment getItem(int position);
 
     @Override
     public void startUpdate(@NonNull ViewGroup container) {
@@ -162,9 +162,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @SuppressWarnings("deprecation")
-    @NonNull
     @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    public @NonNull Object instantiateItem(@NonNull ViewGroup container, int position) {
         // If we already have this item instantiated, there is nothing
         // to do.  This can happen when we are restoring the entire pager
         // from its saved state, where the fragment manager has already
@@ -286,8 +285,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    @Nullable
-    public Parcelable saveState() {
+    public @Nullable Parcelable saveState() {
         Bundle state = null;
         if (mSavedState.size() > 0) {
             state = new Bundle();

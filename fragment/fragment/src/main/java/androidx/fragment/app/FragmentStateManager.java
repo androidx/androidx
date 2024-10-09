@@ -28,12 +28,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.ViewModelStoreOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
@@ -48,8 +49,7 @@ class FragmentStateManager {
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
     private final FragmentStore mFragmentStore;
-    @NonNull
-    private final Fragment mFragment;
+    private final @NonNull Fragment mFragment;
 
     private boolean mMovingToState = false;
     private int mFragmentManagerState = Fragment.INITIALIZING;
@@ -133,8 +133,7 @@ class FragmentStateManager {
         mFragment.mArguments = state.getBundle(ARGUMENTS_KEY);
     }
 
-    @NonNull
-    Fragment getFragment() {
+    @NonNull Fragment getFragment() {
         return mFragment;
     }
 
@@ -701,8 +700,7 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentStopped(mFragment, false);
     }
 
-    @NonNull
-    Bundle saveState() {
+    @NonNull Bundle saveState() {
         Bundle stateBundle = new Bundle();
         if (mFragment.mState == Fragment.INITIALIZING) {
             // We never even got to ATTACHED, but we could still have some state
@@ -754,8 +752,7 @@ class FragmentStateManager {
         return stateBundle;
     }
 
-    @Nullable
-    Fragment.SavedState saveInstanceState() {
+    Fragment.@Nullable SavedState saveInstanceState() {
         if (mFragment.mState > Fragment.INITIALIZING) {
             return new Fragment.SavedState(saveState());
         }

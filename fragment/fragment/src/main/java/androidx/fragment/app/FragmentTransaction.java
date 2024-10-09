@@ -27,14 +27,15 @@ import androidx.annotation.AnimatorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -190,8 +191,7 @@ public abstract class FragmentTransaction {
         op.mPopExitAnim = mPopExitAnim;
     }
 
-    @NonNull
-    private Fragment createFragment(@NonNull Class<? extends Fragment> fragmentClass,
+    private @NonNull Fragment createFragment(@NonNull Class<? extends Fragment> fragmentClass,
             @Nullable Bundle args) {
         if (mFragmentFactory == null) {
             throw new IllegalStateException("Creating a Fragment requires that this "
@@ -211,8 +211,7 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Class, Bundle, String)} with a 0 containerViewId.
      */
-    @NonNull
-    public final FragmentTransaction add(@NonNull Class<? extends Fragment> fragmentClass,
+    public final @NonNull FragmentTransaction add(@NonNull Class<? extends Fragment> fragmentClass,
             @Nullable Bundle args, @Nullable String tag)  {
         return add(createFragment(fragmentClass, args), tag);
     }
@@ -220,8 +219,7 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Fragment, String)} with a 0 containerViewId.
      */
-    @NonNull
-    public FragmentTransaction add(@NonNull Fragment fragment, @Nullable String tag)  {
+    public @NonNull FragmentTransaction add(@NonNull Fragment fragment, @Nullable String tag)  {
         doAddOp(0, fragment, tag, OP_ADD);
         return this;
     }
@@ -229,8 +227,7 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Class, Bundle, String)} with a null tag.
      */
-    @NonNull
-    public final FragmentTransaction add(@IdRes int containerViewId,
+    public final @NonNull FragmentTransaction add(@IdRes int containerViewId,
             @NonNull Class<? extends Fragment> fragmentClass, @Nullable Bundle args)  {
         return add(containerViewId, createFragment(fragmentClass, args));
     }
@@ -238,8 +235,8 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #add(int, Fragment, String)} with a null tag.
      */
-    @NonNull
-    public FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction add(@IdRes int containerViewId,
+            @NonNull Fragment fragment) {
         doAddOp(containerViewId, fragment, null, OP_ADD);
         return this;
     }
@@ -260,8 +257,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public final FragmentTransaction add(@IdRes int containerViewId,
+    public final @NonNull FragmentTransaction add(@IdRes int containerViewId,
             @NonNull Class<? extends Fragment> fragmentClass,
             @Nullable Bundle args, @Nullable String tag) {
         return add(containerViewId, createFragment(fragmentClass, args), tag);
@@ -282,8 +278,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment,
+    public @NonNull FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment,
             @Nullable String tag) {
         doAddOp(containerViewId, fragment, tag, OP_ADD);
         return this;
@@ -304,9 +299,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public final FragmentTransaction add(@NonNull ViewGroup container, @NonNull Fragment fragment,
-            @Nullable String tag) {
+    public final @NonNull FragmentTransaction add(@NonNull ViewGroup container,
+            @NonNull Fragment fragment, @Nullable String tag) {
         fragment.mContainer = container;
         fragment.mInDynamicContainer = true;
         return add(container.getId(), fragment, tag);
@@ -353,8 +347,7 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #replace(int, Class, Bundle, String)} with a null tag.
      */
-    @NonNull
-    public final FragmentTransaction replace(@IdRes int containerViewId,
+    public final @NonNull FragmentTransaction replace(@IdRes int containerViewId,
             @NonNull Class<? extends Fragment> fragmentClass, @Nullable Bundle args) {
         return replace(containerViewId, fragmentClass, args, null);
     }
@@ -362,8 +355,8 @@ public abstract class FragmentTransaction {
     /**
      * Calls {@link #replace(int, Fragment, String)} with a null tag.
      */
-    @NonNull
-    public FragmentTransaction replace(@IdRes int containerViewId, @NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Fragment fragment) {
         return replace(containerViewId, fragment, null);
     }
 
@@ -385,8 +378,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public final FragmentTransaction replace(@IdRes int containerViewId,
+    public final @NonNull FragmentTransaction replace(@IdRes int containerViewId,
             @NonNull Class<? extends Fragment> fragmentClass,
             @Nullable Bundle args, @Nullable String tag) {
         return replace(containerViewId, createFragment(fragmentClass, args), tag);
@@ -408,9 +400,8 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction replace(@IdRes int containerViewId, @NonNull Fragment fragment,
-            @Nullable String tag)  {
+    public @NonNull FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Fragment fragment, @Nullable String tag)  {
         if (containerViewId == 0) {
             throw new IllegalArgumentException("Must use non-zero containerViewId");
         }
@@ -426,8 +417,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction remove(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction remove(@NonNull Fragment fragment) {
         addOp(new Op(OP_REMOVE, fragment));
 
         return this;
@@ -442,8 +432,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction hide(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction hide(@NonNull Fragment fragment) {
         addOp(new Op(OP_HIDE, fragment));
 
         return this;
@@ -458,8 +447,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction show(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction show(@NonNull Fragment fragment) {
         addOp(new Op(OP_SHOW, fragment));
 
         return this;
@@ -476,8 +464,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction detach(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction detach(@NonNull Fragment fragment) {
         addOp(new Op(OP_DETACH, fragment));
 
         return this;
@@ -493,8 +480,7 @@ public abstract class FragmentTransaction {
      *
      * @return Returns the same FragmentTransaction instance.
      */
-    @NonNull
-    public FragmentTransaction attach(@NonNull Fragment fragment) {
+    public @NonNull FragmentTransaction attach(@NonNull Fragment fragment) {
         addOp(new Op(OP_ATTACH, fragment));
 
         return this;
@@ -516,8 +502,7 @@ public abstract class FragmentTransaction {
      * @param fragment the fragment to set as the primary navigation fragment
      * @return the same FragmentTransaction instance
      */
-    @NonNull
-    public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
+    public @NonNull FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
         addOp(new Op(OP_SET_PRIMARY_NAV, fragment));
 
         return this;
@@ -540,9 +525,8 @@ public abstract class FragmentTransaction {
      * @param state the ceiling state for the fragment.
      * @return the same FragmentTransaction instance
      */
-    @NonNull
-    public FragmentTransaction setMaxLifecycle(@NonNull Fragment fragment,
-            @NonNull Lifecycle.State state) {
+    public @NonNull FragmentTransaction setMaxLifecycle(@NonNull Fragment fragment,
+            Lifecycle.@NonNull State state) {
         addOp(new Op(OP_SET_MAX_LIFECYCLE, fragment, state));
         return this;
     }
@@ -622,8 +606,7 @@ public abstract class FragmentTransaction {
      * @param exit An animation or animator resource ID used for the exit animation on the
      *             view of the fragment being removed or detached.
      */
-    @NonNull
-    public FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+    public @NonNull FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
             @AnimatorRes @AnimRes int exit) {
         return setCustomAnimations(enter, exit, 0, 0);
     }
@@ -658,8 +641,7 @@ public abstract class FragmentTransaction {
      *                view of the fragment being removed or detached caused by
      *                {@link FragmentManager#popBackStack()} or similar methods.
      */
-    @NonNull
-    public FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+    public @NonNull FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
             @AnimatorRes @AnimRes int exit, @AnimatorRes @AnimRes int popEnter,
             @AnimatorRes @AnimRes int popExit) {
         mEnterAnim = enter;
@@ -681,8 +663,8 @@ public abstract class FragmentTransaction {
      * @see Fragment#setSharedElementReturnTransition(Object)
      * @see Fragment#setSharedElementEnterTransition(Object)
      */
-    @NonNull
-    public FragmentTransaction addSharedElement(@NonNull View sharedElement, @NonNull String name) {
+    public @NonNull FragmentTransaction addSharedElement(@NonNull View sharedElement,
+            @NonNull String name) {
         if (FragmentTransition.supportsTransition()) {
             String transitionName = ViewCompat.getTransitionName(sharedElement);
             if (transitionName == null) {
@@ -711,8 +693,7 @@ public abstract class FragmentTransaction {
      * one of {@link #TRANSIT_NONE}, {@link #TRANSIT_FRAGMENT_OPEN},
      * {@link #TRANSIT_FRAGMENT_CLOSE}, or {@link #TRANSIT_FRAGMENT_FADE}.
      */
-    @NonNull
-    public FragmentTransaction setTransition(@Transit int transition) {
+    public @NonNull FragmentTransaction setTransition(@Transit int transition) {
         mTransition = transition;
         return this;
     }
@@ -724,8 +705,7 @@ public abstract class FragmentTransaction {
      * @deprecated The desired functionality never worked correctly. This should not be used.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setTransitionStyle(@StyleRes int styleRes) {
+    public @NonNull FragmentTransaction setTransitionStyle(@StyleRes int styleRes) {
         return this;
     }
 
@@ -740,8 +720,7 @@ public abstract class FragmentTransaction {
      *
      * @param name An optional name for this back stack state, or null.
      */
-    @NonNull
-    public FragmentTransaction addToBackStack(@Nullable String name) {
+    public @NonNull FragmentTransaction addToBackStack(@Nullable String name) {
         if (!mAllowAddToBackStack) {
             throw new IllegalStateException(
                     "This FragmentTransaction is not allowed to be added to the back stack.");
@@ -767,8 +746,7 @@ public abstract class FragmentTransaction {
      * addToBackStack will throw {@link IllegalStateException}. If addToBackStack
      * has already been called, this method will throw IllegalStateException.
      */
-    @NonNull
-    public FragmentTransaction disallowAddToBackStack() {
+    public @NonNull FragmentTransaction disallowAddToBackStack() {
         if (mAddToBackStack) {
             throw new IllegalStateException(
                     "This transaction is already being added to the back stack");
@@ -786,8 +764,7 @@ public abstract class FragmentTransaction {
      * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setBreadCrumbTitle(@StringRes int res) {
+    public @NonNull FragmentTransaction setBreadCrumbTitle(@StringRes int res) {
         mBreadCrumbTitleRes = res;
         mBreadCrumbTitleText = null;
         return this;
@@ -801,8 +778,7 @@ public abstract class FragmentTransaction {
      * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text) {
+    public @NonNull FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text) {
         mBreadCrumbTitleRes = 0;
         mBreadCrumbTitleText = text;
         return this;
@@ -817,8 +793,7 @@ public abstract class FragmentTransaction {
      * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setBreadCrumbShortTitle(@StringRes int res) {
+    public @NonNull FragmentTransaction setBreadCrumbShortTitle(@StringRes int res) {
         mBreadCrumbShortTitleRes = res;
         mBreadCrumbShortTitleText = null;
         return this;
@@ -832,8 +807,7 @@ public abstract class FragmentTransaction {
      * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text) {
+    public @NonNull FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text) {
         mBreadCrumbShortTitleRes = 0;
         mBreadCrumbShortTitleText = text;
         return this;
@@ -867,8 +841,7 @@ public abstract class FragmentTransaction {
      *                          or {@code false} to disable optimizing out redundant
      *                          operations on this transaction.
      */
-    @NonNull
-    public FragmentTransaction setReorderingAllowed(boolean reorderingAllowed) {
+    public @NonNull FragmentTransaction setReorderingAllowed(boolean reorderingAllowed) {
         mReorderingAllowed = reorderingAllowed;
         return this;
     }
@@ -877,8 +850,7 @@ public abstract class FragmentTransaction {
      * @deprecated This has been renamed {@link #setReorderingAllowed(boolean)}.
      */
     @Deprecated
-    @NonNull
-    public FragmentTransaction setAllowOptimization(boolean allowOptimization) {
+    public @NonNull FragmentTransaction setAllowOptimization(boolean allowOptimization) {
         return setReorderingAllowed(allowOptimization);
     }
 
@@ -903,13 +875,11 @@ public abstract class FragmentTransaction {
      * @return this FragmentTransaction
      * @throws IllegalStateException if {@link #addToBackStack(String)} has been called
      */
-    @NonNull
-    public FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
+    public @NonNull FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
         return runOnCommitInternal(false, runnable);
     }
 
-    @NonNull
-    FragmentTransaction runOnCommitInternal(
+    @NonNull FragmentTransaction runOnCommitInternal(
             boolean allowAddToBackStack,
             @NonNull Runnable runnable
     ) {

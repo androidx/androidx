@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core-ktx:1.8.0")
     api("androidx.collection:collection:1.4.2")

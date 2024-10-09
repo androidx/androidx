@@ -24,10 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.R;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
     private static final String TAG = FragmentManager.TAG;
@@ -38,16 +39,14 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
         mFragmentManager = fragmentManager;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull String name, @NonNull Context context,
+    public @Nullable View onCreateView(@NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
         return onCreateView(null, name, context, attrs);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@Nullable final View parent, @NonNull String name,
+    public @Nullable View onCreateView(final @Nullable View parent, @NonNull String name,
             @NonNull Context context, @NonNull AttributeSet attrs) {
         if (FragmentContainerView.class.getName().equals(name)) {
             return new FragmentContainerView(context, attrs, mFragmentManager);
