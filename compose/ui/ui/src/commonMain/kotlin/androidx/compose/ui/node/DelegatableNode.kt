@@ -41,6 +41,28 @@ interface DelegatableNode {
      * actually part of the node tree. Otherwise, this will point to itself.
      */
     val node: Modifier.Node
+
+    /**
+     * Invoked when the density changes for this node. This affects Dp to pixel conversions, and can
+     * cause coordinates / other values to change.
+     *
+     * Changes to density will automatically invalidate layout / draw modifiers, as layout,
+     * measurement, and draw depend on density. This callback can be used to update any other node
+     * state that depends on density, outside of these phases. Density can be retrieved inside a
+     * node by using [androidx.compose.ui.node.requireDensity].
+     */
+    fun onDensityChange() {}
+
+    /**
+     * Invoked when the layout direction changes for this node. This can affect the layout and
+     * drawing of nodes.
+     *
+     * Changes to layout direction will automatically invalidate layout / draw modifiers, as layout,
+     * measurement, and draw depend on layout direction. This callback can be used to update any
+     * other node state that depends on layout direction, outside of these phases. Layout direction
+     * can be retrieved inside a node by using [androidx.compose.ui.node.requireLayoutDirection].
+     */
+    fun onLayoutDirectionChange() {}
 }
 
 internal val DelegatableNode.isDelegationRoot: Boolean

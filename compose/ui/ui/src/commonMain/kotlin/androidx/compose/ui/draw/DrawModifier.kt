@@ -266,6 +266,14 @@ private class CacheDrawModifierNodeImpl(
         invalidateDraw()
     }
 
+    override fun onDensityChange() {
+        invalidateDrawCache()
+    }
+
+    override fun onLayoutDirectionChange() {
+        invalidateDrawCache()
+    }
+
     private fun getOrBuildCachedDrawBlock(contentDrawScope: ContentDrawScope): DrawResult {
         if (!isCacheValid) {
             cacheDrawScope.apply {

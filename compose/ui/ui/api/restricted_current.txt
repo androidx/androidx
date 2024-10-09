@@ -2725,6 +2725,8 @@ package androidx.compose.ui.node {
 
   public interface DelegatableNode {
     method public androidx.compose.ui.Modifier.Node getNode();
+    method public default void onDensityChange();
+    method public default void onLayoutDirectionChange();
     property public abstract androidx.compose.ui.Modifier.Node node;
   }
 
@@ -2821,7 +2823,6 @@ package androidx.compose.ui.node {
     method public default long getTouchBoundsExpansion();
     method public default boolean interceptOutOfBoundsChildEvents();
     method public void onCancelPointerInput();
-    method public default void onDensityChange();
     method public void onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
     method public default void onViewConfigurationChange();
     method public default boolean sharePointerInputWithSiblings();

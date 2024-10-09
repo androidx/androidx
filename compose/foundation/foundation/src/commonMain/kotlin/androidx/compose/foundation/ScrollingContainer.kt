@@ -195,32 +195,26 @@ private class ScrollingContainerNode(
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
+        // Note: this is functionally the same as Modifier.clip, but inlined to reduce nodes.
         return layout(placeable.width, placeable.height) {
-            // If layout direction changes, layout will be re-invoked: update reverse direction if
-            // needed
-            val reverseDirection = shouldReverseDirection()
-            if (shouldReverseDirection != reverseDirection) {
-                shouldReverseDirection = reverseDirection
-                update(
-                    state,
-                    orientation,
-                    overscrollEffect,
-                    enabled,
-                    reverseScrolling,
-                    flingBehavior,
-                    interactionSource,
-                    bringIntoViewSpec
-                )
-            }
-            // This could be done separately with Modifier.clip / graphicsLayer, but since
-            // we need to implement layout / draw so we can be notified when layoutDirection
-            // changes, we might as well just implement the clipping at the same time and save an
-            // extra modifier node. We need to handle the layoutDirection update inside one of
-            // these blocks as it cannot be observed using
-            // observeReads { currentValueOf(LocalLayoutDirection) } since it is a
-            // staticCompositionLocal - changes will force a recomposition without notifying
-            // observeReads.
             placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
+        }
+    }
+
+    override fun onLayoutDirectionChange() {
+        val reverseDirection = shouldReverseDirection()
+        if (shouldReverseDirection != reverseDirection) {
+            shouldReverseDirection = reverseDirection
+            update(
+                state,
+                orientation,
+                overscrollEffect,
+                enabled,
+                reverseScrolling,
+                flingBehavior,
+                interactionSource,
+                bringIntoViewSpec
+            )
         }
     }
 
