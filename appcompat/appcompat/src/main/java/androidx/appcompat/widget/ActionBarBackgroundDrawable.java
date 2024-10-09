@@ -22,8 +22,9 @@ import android.graphics.Outline;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 class ActionBarBackgroundDrawable extends Drawable {
 

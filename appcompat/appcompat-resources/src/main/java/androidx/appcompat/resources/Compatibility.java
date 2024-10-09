@@ -21,11 +21,11 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -49,7 +49,7 @@ public final class Compatibility {
 
         public static void inflate(@NonNull Drawable drawable, @NonNull Resources r,
                 @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
-                @Nullable Resources.Theme theme) throws IOException, XmlPullParserException {
+                Resources.@Nullable Theme theme) throws IOException, XmlPullParserException {
             drawable.inflate(r, parser, attrs, theme);
         }
 
@@ -57,10 +57,9 @@ public final class Compatibility {
             return typedArray.getChangingConfigurations();
         }
 
-        @NonNull
-        public static Drawable createFromXmlInner(@NonNull Resources r,
+        public static @NonNull Drawable createFromXmlInner(@NonNull Resources r,
                 @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
-                @Nullable Resources.Theme theme) throws IOException, XmlPullParserException {
+                Resources.@Nullable Theme theme) throws IOException, XmlPullParserException {
             return Drawable.createFromXmlInner(r, parser, attrs, theme);
         }
     }

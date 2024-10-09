@@ -25,8 +25,8 @@ import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.testutils.lifecycle.LifecycleOwnerUtils.waitUntilState;
 import static androidx.testutils.PollingCheck.waitFor;
+import static androidx.testutils.lifecycle.LifecycleOwnerUtils.waitUntilState;
 
 import static org.junit.Assert.assertNull;
 
@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.AppCompatTintableViewActions;
 import androidx.appcompat.testutils.BaseTestActivity;
@@ -51,6 +50,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

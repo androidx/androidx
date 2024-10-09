@@ -22,10 +22,11 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.ResourceManagerInternal;
 import androidx.core.content.ContextCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Class for accessing an application's resources through AppCompat, and thus any backward
@@ -59,8 +60,7 @@ public final class AppCompatResources {
      * @return Drawable An object that can be used to draw this resource.
      * @see ContextCompat#getDrawable(Context, int)
      */
-    @Nullable
-    public static Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
+    public static @Nullable Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
         return ResourceManagerInternal.get().getDrawable(context, resId);
     }
 }

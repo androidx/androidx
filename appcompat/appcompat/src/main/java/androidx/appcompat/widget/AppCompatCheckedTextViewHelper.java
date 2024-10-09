@@ -25,8 +25,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -34,10 +32,12 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.CheckedTextViewCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 @RestrictTo(LIBRARY)
 class AppCompatCheckedTextViewHelper {
-    @NonNull
-    private final CheckedTextView mView;
+    private final @NonNull CheckedTextView mView;
 
     private ColorStateList mCheckMarkTintList = null;
     private PorterDuff.Mode mCheckMarkTintMode = null;
@@ -107,7 +107,7 @@ class AppCompatCheckedTextViewHelper {
         return mCheckMarkTintList;
     }
 
-    void setSupportCheckMarkTintMode(@Nullable PorterDuff.Mode tintMode) {
+    void setSupportCheckMarkTintMode(PorterDuff.@Nullable Mode tintMode) {
         mCheckMarkTintMode = tintMode;
         mHasCheckMarkTintMode = true;
 

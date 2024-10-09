@@ -19,9 +19,10 @@ package androidx.appcompat.app.inflater;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatViewInflater;
 import androidx.appcompat.widget.AppCompatButton;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Custom view inflater that declares that it takes over the view inflation but
@@ -29,9 +30,8 @@ import androidx.appcompat.widget.AppCompatButton;
  * {@link #createButton(Context, AttributeSet)} method.
  */
 public class MisbehavingViewInflater extends AppCompatViewInflater {
-    @NonNull
     @Override
-    protected AppCompatButton createButton(Context context, AttributeSet attrs) {
+    protected @NonNull AppCompatButton createButton(Context context, AttributeSet attrs) {
         return null;
     }
 }

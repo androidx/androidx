@@ -32,8 +32,6 @@ import android.widget.SpinnerAdapter;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.appcompat.R;
@@ -41,6 +39,9 @@ import androidx.appcompat.view.ActionMode;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -549,8 +550,7 @@ public abstract class ActionBar {
      *
      * @return The current ActionBar title or null.
      */
-    @Nullable
-    public abstract CharSequence getTitle();
+    public abstract @Nullable CharSequence getTitle();
 
     /**
      * Returns the current ActionBar subtitle in standard mode.
@@ -559,8 +559,7 @@ public abstract class ActionBar {
      *
      * @return The current ActionBar subtitle or null.
      */
-    @Nullable
-    public abstract CharSequence getSubtitle();
+    public abstract @Nullable CharSequence getSubtitle();
 
     /**
      * Returns the current navigation mode. The result will be one of:
@@ -745,8 +744,7 @@ public abstract class ActionBar {
      * navigation patterns</a> instead.
      */
     @Deprecated
-    @Nullable
-    public abstract Tab getSelectedTab();
+    public abstract @Nullable Tab getSelectedTab();
 
     /**
      * Returns the tab at the specified index.

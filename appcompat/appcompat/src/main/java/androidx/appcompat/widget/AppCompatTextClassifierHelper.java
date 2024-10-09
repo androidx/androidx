@@ -20,10 +20,11 @@ import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * To workaround a bug in O, by backporting a fix in P.
@@ -34,10 +35,8 @@ import androidx.core.util.Preconditions;
  * effect to this TextView.
  */
 final class AppCompatTextClassifierHelper {
-    @NonNull
-    private TextView mTextView;
-    @Nullable
-    private TextClassifier mTextClassifier;
+    private @NonNull TextView mTextView;
+    private @Nullable TextClassifier mTextClassifier;
 
     AppCompatTextClassifierHelper(@NonNull TextView textView) {
         mTextView = Preconditions.checkNotNull(textView);
@@ -57,8 +56,7 @@ final class AppCompatTextClassifierHelper {
      * {@link android.view.textclassifier.TextClassificationManager}.
      */
     @RequiresApi(api = 26)
-    @NonNull
-    public TextClassifier getTextClassifier() {
+    public @NonNull TextClassifier getTextClassifier() {
         if (mTextClassifier == null) {
             return Api26Impl.getTextClassifier(mTextView);
         }
@@ -71,8 +69,7 @@ final class AppCompatTextClassifierHelper {
             // This class is not instantiable.
         }
 
-        @NonNull
-        static TextClassifier getTextClassifier(@NonNull TextView textView) {
+        static @NonNull TextClassifier getTextClassifier(@NonNull TextView textView) {
             final TextClassificationManager tcm =
                     textView.getContext().getSystemService(TextClassificationManager.class);
             if (tcm != null) {

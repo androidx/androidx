@@ -79,8 +79,6 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -126,6 +124,8 @@ import androidx.core.widget.PopupWindowCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.List;
@@ -376,10 +376,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
     }
 
-    @NonNull
     @Override
     @CallSuper
-    public Context attachBaseContext2(@NonNull final Context baseContext) {
+    public @NonNull Context attachBaseContext2(final @NonNull Context baseContext) {
         mBaseContextAttached = true;
 
         // This is a tricky method. Here are some things to avoid:
@@ -660,9 +659,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
-    @Nullable
     @Override
-    public <T extends View> T findViewById(@IdRes int id) {
+    public <T extends View> @Nullable T findViewById(@IdRes int id) {
         ensureSubDecor();
         return (T) mWindow.findViewById(id);
     }
@@ -1243,7 +1241,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public ActionMode startSupportActionMode(@NonNull final ActionMode.Callback callback) {
+    public ActionMode startSupportActionMode(final ActionMode.@NonNull Callback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("ActionMode callback can not be null.");
         }
@@ -1280,7 +1278,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         invalidatePanelMenu(FEATURE_OPTIONS_PANEL);
     }
 
-    ActionMode startSupportActionModeFromWindow(@NonNull ActionMode.Callback callback) {
+    ActionMode startSupportActionModeFromWindow(ActionMode.@NonNull Callback callback) {
         endOnGoingFadeAnimation();
         if (mActionMode != null) {
             mActionMode.finish();
@@ -1713,8 +1711,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return onCreateView(null, name, context, attrs);
     }
 
-    @Nullable
-    private AppCompatActivity tryUnwrapContext() {
+    private @Nullable AppCompatActivity tryUnwrapContext() {
         Context context = mContext;
         while (context != null) {
             if (context instanceof AppCompatActivity) {
@@ -2297,8 +2294,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * @param rectInsets the current system window insets if {@code insets} is not available
      * @return the new top system window inset
      */
-    final int updateStatusGuard(@Nullable final WindowInsetsCompat insets,
-            @Nullable final Rect rectInsets) {
+    final int updateStatusGuard(final @Nullable WindowInsetsCompat insets,
+            final @Nullable Rect rectInsets) {
         int systemWindowInsetTop = 0;
         if (insets != null) {
             systemWindowInsetTop = insets.getSystemWindowInsetTop();
@@ -2557,8 +2554,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * checks for requested app-specific locales and returns them after an overlay
      * with the system locales. If requested app-specific do not exist, it returns a null.
      */
-    @Nullable
-    LocaleListCompat calculateApplicationLocales(@NonNull Context context) {
+    @Nullable LocaleListCompat calculateApplicationLocales(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 33) {
             return null;
         }
@@ -2686,8 +2682,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
     }
 
-    @NonNull
-    private Configuration createOverrideAppConfiguration(@NonNull Context context,
+    private @NonNull Configuration createOverrideAppConfiguration(@NonNull Context context,
             @ApplyableNightMode int mode, @Nullable LocaleListCompat locales,
             @Nullable Configuration configOverlay, boolean ignoreFollowSystem) {
         int newNightMode;
@@ -2858,7 +2853,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private void updateResourcesConfiguration(int uiModeNightModeValue,
-            @Nullable final LocaleListCompat locales, final boolean callOnConfigChange,
+            final @Nullable LocaleListCompat locales, final boolean callOnConfigChange,
             @Nullable Configuration configOverlay) {
         // If the Activity is not set to handle config changes we will
         // update the Resources with a new Configuration with  updated nightMode and locales.
@@ -2918,10 +2913,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     /**
      */
-    @NonNull
     @RestrictTo(LIBRARY)
     @VisibleForTesting
-    final AutoNightModeManager getAutoTimeNightModeManager() {
+    final @NonNull AutoNightModeManager getAutoTimeNightModeManager() {
         return getAutoTimeNightModeManager(mContext);
     }
 
@@ -3368,8 +3362,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     interface ActionBarMenuCallback {
         boolean onPreparePanel(int featureId);
 
-        @Nullable
-        View onCreatePanelView(int featureId);
+        @Nullable View onCreatePanelView(int featureId);
     }
 
     class AppCompatWindowCallback extends WindowCallbackWrapper {
@@ -3636,8 +3629,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mContext.registerReceiver(mReceiver, filter);
         }
 
-        @Nullable
-        abstract IntentFilter createIntentFilterForBroadcastReceiver();
+        abstract @Nullable IntentFilter createIntentFilterForBroadcastReceiver();
 
         void cleanup() {
             if (mReceiver != null) {
@@ -3778,8 +3770,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * <p>
      * This is fine for device configurations as no member is ever undefined.
      */
-    @NonNull
-    private static Configuration generateConfigDelta(@NonNull Configuration base,
+    private static @NonNull Configuration generateConfigDelta(@NonNull Configuration base,
             @Nullable Configuration change) {
         final Configuration delta = new Configuration();
         delta.fontScale = 0;

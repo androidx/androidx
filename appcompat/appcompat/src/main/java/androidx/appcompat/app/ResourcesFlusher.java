@@ -21,8 +21,9 @@ import android.os.Build;
 import android.util.Log;
 import android.util.LongSparseArray;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -42,7 +43,7 @@ class ResourcesFlusher {
     private static Field sResourcesImplField;
     private static boolean sResourcesImplFieldFetched;
 
-    static void flush(@NonNull final Resources resources) {
+    static void flush(final @NonNull Resources resources) {
         if (Build.VERSION.SDK_INT >= 28) {
             // no-op on P and above
             return;
@@ -56,7 +57,7 @@ class ResourcesFlusher {
     }
 
     @RequiresApi(21)
-    private static void flushLollipops(@NonNull final Resources resources) {
+    private static void flushLollipops(final @NonNull Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
                 sDrawableCacheField = Resources.class.getDeclaredField("mDrawableCache");
@@ -80,7 +81,7 @@ class ResourcesFlusher {
     }
 
     @RequiresApi(23)
-    private static void flushMarshmallows(@NonNull final Resources resources) {
+    private static void flushMarshmallows(final @NonNull Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {
                 sDrawableCacheField = Resources.class.getDeclaredField("mDrawableCache");
@@ -109,7 +110,7 @@ class ResourcesFlusher {
     }
 
     @RequiresApi(24)
-    private static void flushNougats(@NonNull final Resources resources) {
+    private static void flushNougats(final @NonNull Resources resources) {
         if (!sResourcesImplFieldFetched) {
             try {
                 sResourcesImplField = Resources.class.getDeclaredField("mResourcesImpl");
@@ -161,7 +162,7 @@ class ResourcesFlusher {
         }
     }
 
-    private static void flushThemedResourcesCache(@NonNull final Object cache) {
+    private static void flushThemedResourcesCache(final @NonNull Object cache) {
         if (!sThemedResourceCacheClazzFetched) {
             try {
                 sThemedResourceCacheClazz = Class.forName("android.content.res.ThemedResourceCache");

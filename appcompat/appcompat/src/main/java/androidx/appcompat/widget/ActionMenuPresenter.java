@@ -30,8 +30,6 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionBarPolicy;
 import androidx.appcompat.view.menu.ActionMenuItemView;
@@ -45,6 +43,9 @@ import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ActionProvider;
 import androidx.core.view.GravityCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 

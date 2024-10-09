@@ -20,10 +20,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -42,13 +42,11 @@ final class MyExecutors {
                 }
             };
 
-    @NonNull
-    public static ListeningScheduledExecutorService bg() {
+    public static @NonNull ListeningScheduledExecutorService bg() {
         return BG;
     }
 
-    @NonNull
-    public static Executor main() {
+    public static @NonNull Executor main() {
         return MAIN_EXECUTOR;
     }
 }

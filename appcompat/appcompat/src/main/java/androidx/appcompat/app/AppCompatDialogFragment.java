@@ -25,10 +25,11 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A special version of {@link DialogFragment} which uses an {@link AppCompatDialog} in place of a
@@ -48,9 +49,8 @@ public class AppCompatDialogFragment extends DialogFragment {
         super(contentLayoutId);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public @NonNull Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new AppCompatDialog(getContext(), getTheme());
     }
 

@@ -25,6 +25,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     implementation(project(":appcompat:appcompat"))
     implementation(libs.constraintLayout)
