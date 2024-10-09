@@ -16,8 +16,6 @@
 
 package androidx.navigation.runtime.lint
 
-import androidx.navigation.lint.common.NAVIGATION_STUBS
-import androidx.navigation.lint.common.TEST_CLASS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
@@ -54,8 +52,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -94,8 +91,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expectClean()
@@ -128,8 +124,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expectClean()
@@ -167,8 +162,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expect(
@@ -288,8 +282,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expectClean()
@@ -323,8 +316,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expectClean()
@@ -361,8 +353,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *NAVIGATION_STUBS,
-                TEST_CLASS.bytecode
+                *STUBS
             )
             .run()
             .expect(

@@ -151,5 +151,8 @@ enum class TestEnum { ONE, TWO }
             )
     }
 
-    val STUBS = arrayOf(*NAVIGATION_STUBS, ACTIVITY_NAVIGATION_DESTINATION_BUILDER, KEEP_ANNOTATION)
+    val STUBS =
+        arrayOf(*NAVIGATION_STUBS, ACTIVITY_NAVIGATION_DESTINATION_BUILDER, KEEP_ANNOTATION)
+            .map { it.toTestBytecodeStub() }
+            .toTypedArray()
 }
