@@ -292,7 +292,10 @@ object Arguments {
         cpuEventCounterMask =
             if (cpuEventCounterEnable) {
                 arguments
-                    .getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
+                    .getBenchmarkArgument(
+                        "cpuEventCounter.events",
+                        "Instructions,CpuCycles,BranchMisses"
+                    )
                     .split(",")
                     .map { eventName -> CpuEventCounter.Event.valueOf(eventName) }
                     .getFlags()

@@ -36,6 +36,13 @@ internal fun HasDeviceTests.enableMicrobenchmarkInternalDefaults(project: Projec
                 "true"
             )
 
+            // Set default events to aid in CI investigations of run to run noise
+            // Avoid using more than three, or capture may fail reporting all zeros, see b/291826415
+            deviceTest.instrumentationRunnerArguments.put(
+                "androidx.benchmark.cpuEventCounter.events",
+                "Instructions,L1DMisses,BranchMisses"
+            )
+
             // Force AndroidX devs to disable JIT on rooted devices
             deviceTest.instrumentationRunnerArguments.put(
                 "androidx.benchmark.requireJitDisabledIfRooted",
