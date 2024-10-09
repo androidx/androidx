@@ -41,27 +41,14 @@ internal data class TransformingLazyColumnMeasuredItem(
     override val key: Any,
     override val contentType: Any?,
 ) : TransformingLazyColumnVisibleItemInfo {
-    private var lastTransformedHeight = Int.MIN_VALUE
-    private var lastOffset = Int.MIN_VALUE
-    private var lastScrollProgress = TransformingLazyColumnItemScrollProgress.Zero
 
     /** The height of the item after transformations applied. */
     override val transformedHeight: Int
-        get() {
-            if (
-                lastTransformedHeight == Int.MIN_VALUE ||
-                    lastOffset != offset ||
-                    lastScrollProgress != scrollProgress
-            ) {
-                lastTransformedHeight =
-                    (placeable.parentData as? HeightProviderParentData)?.let {
-                        it.heightProvider(placeable.height, scrollProgress)
-                    } ?: placeable.height
-                lastOffset = offset
-                lastScrollProgress = scrollProgress
-            }
-            return lastTransformedHeight
-        }
+        get() =
+            // TODO: b/372233263 - Add caching of transformed height.
+            (placeable.parentData as? HeightProviderParentData)?.let {
+                it.heightProvider(placeable.height, scrollProgress)
+            } ?: placeable.height
 
     override val measuredHeight = placeable.height
 
