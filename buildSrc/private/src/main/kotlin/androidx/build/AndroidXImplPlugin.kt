@@ -837,7 +837,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+    @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
     private fun HasDeviceTests.configureTests() {
         deviceTests.forEach { (_, deviceTest) ->
             deviceTest.packaging.resources.apply {

@@ -86,7 +86,7 @@ fun setupTestApkCopy(project: Project) {
                     }
                 project.addToBuildOnServer(apkCopy)
             }
-            @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+            @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
             when {
                 variant is HasDeviceTests -> {
                     variant.deviceTests.forEach { (_, deviceTest) ->

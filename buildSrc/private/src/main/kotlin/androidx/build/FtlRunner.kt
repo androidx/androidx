@@ -269,7 +269,7 @@ fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExte
 
 fun Project.configureFtlRunner(componentsExtension: KotlinMultiplatformAndroidComponentsExtension) {
     componentsExtension.onVariant { variant ->
-        @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+        @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
         variant.deviceTests.forEach { (_, deviceTest) ->
             registerRunner(deviceTest.name, deviceTest.artifacts, deviceTest.namespace)
         }

@@ -101,7 +101,7 @@ class NativeLibraryBundler(private val project: Project) {
                 )
             }
 
-            @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+            @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
             if (forTest) {
                 check(variant is HasDeviceTests) { "Variant $variant does not have a test target" }
                 variant.deviceTests.forEach { (_, deviceTest) ->
