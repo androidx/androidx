@@ -165,10 +165,6 @@ constructor(
 
     override fun tryRestart(cameraStatus: CameraStatus): Unit =
         synchronized(lock) {
-            if (!_isForeground) {
-                Log.debug { "Ignoring tryRestart(): App not in foreground" }
-                return
-            }
             var shouldRestart = false
             when (controllerState) {
                 ControllerState.DISCONNECTED ->
