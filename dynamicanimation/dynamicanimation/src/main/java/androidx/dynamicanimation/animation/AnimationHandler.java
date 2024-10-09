@@ -22,12 +22,13 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Choreographer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -93,10 +94,9 @@ public class AnimationHandler {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
     public float mDurationScale = 1.0f;
-    @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
-    public DurationScaleChangeListener mDurationScaleChangeListener;
+    public @Nullable DurationScaleChangeListener mDurationScaleChangeListener;
 
     static AnimationHandler getInstance() {
         if (sAnimatorHandler.get() == null) {
@@ -217,8 +217,7 @@ public class AnimationHandler {
      *
      * @return The FrameCallbackScheduler in this handler
      */
-    @NonNull
-    FrameCallbackScheduler getScheduler() {
+    @NonNull FrameCallbackScheduler getScheduler() {
         return mScheduler;
     }
 
