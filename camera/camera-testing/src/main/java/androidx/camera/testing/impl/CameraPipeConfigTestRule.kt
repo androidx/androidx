@@ -160,6 +160,25 @@ public class CameraPipeConfigTestRule(
                 "VideoRecordingEffectTest",
                 "VideoRecordingFrameDropTest",
                 "ZoomControlDeviceTest",
+                // Camera-View
+                "CameraControllerDeviceTest",
+                "PreviewViewBitmapTest",
+                "PreviewViewDeviceTest",
+                "PreviewViewStreamStateTest",
+                // Camera-Video
+                "AudioEncoderConfigAudioProfileResolverTest",
+                "AudioSettingsAudioProfileResolverTest",
+                "VideoEncoderConfigVideoProfileResolverTest",
+                "VideoEncoderTest",
+                "BackupHdrProfileEncoderProfilesProviderTest",
+                "AudioVideoSyncTest",
+                "RecorderTest",
+                "RecorderVideoCapabilitiesTest",
+                "SupportedQualitiesVerificationTest",
+                "VideoCaptureDeviceTest",
+
+                // TODO(b/122975195): Re-enable test after camera-pipe implement is fixed
+                // "VideoRecordingTest",
             )
 
         fun log(message: String, throwable: Throwable? = null) {
