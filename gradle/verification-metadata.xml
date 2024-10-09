@@ -85,8 +85,8 @@
             <trusting group="org.codehaus.plexus"/>
          </trusted-key>
          <trusted-key id="077E8893A6DCC33DD4A4D5B256E73BA9A0B592D0">
-            <trusting group="org.apache.logging.log4j"/>
             <trusting group="org.apache.logging"/>
+            <trusting group="org.apache.logging.log4j"/>
          </trusted-key>
          <trusted-key id="0785B3EFF60B1B1BEA94E0BB7C25280EAE63EBE5" group="org.apache.httpcomponents"/>
          <trusted-key id="08F0AAB4D0C1A4BDDE340765B341DDB020FCB6AB" group="org.bouncycastle"/>

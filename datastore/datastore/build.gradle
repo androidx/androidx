@@ -21,6 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -113,4 +114,5 @@ androidx {
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
