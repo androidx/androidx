@@ -514,6 +514,7 @@
             <trusting group="com.squareup.moshi"/>
             <trusting group="com.squareup.okhttp3"/>
             <trusting group="com.squareup.okio"/>
+            <trusting group="com.squareup.retrofit2"/>
             <trusting group="com.squareup.wire"/>
          </trusted-key>
          <trusted-key id="DCBA03381EF6C89096ACD985AC5EC74981F9CDA6">
