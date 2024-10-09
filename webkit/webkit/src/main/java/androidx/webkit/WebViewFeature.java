@@ -107,6 +107,7 @@ public class WebViewFeature {
             ATTRIBUTION_REGISTRATION_BEHAVIOR,
             WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
             MUTE_AUDIO,
+            PROFILE_URL_PREFETCH,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -612,6 +613,15 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
      */
     public static final String BACK_FORWARD_CACHE = "BACK_FORWARD_CACHE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.Profile#prefetchUrlAsync(String, PrefetchParameters)}
+     * {@link androidx.webkit.Profile#clearPrefetchAsync(String)}
+     */
+    @Profile.ExperimentalUrlPrefetch
+    public static final String PROFILE_URL_PREFETCH = "PROFILE_URL_PREFETCH";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

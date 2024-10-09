@@ -20,6 +20,39 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
 
+  @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class NoVarySearchData {
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchData alwaysVaryData();
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchData neverVaryData();
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchData neverVaryExcept(boolean, java.util.List<java.lang.String!>);
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchData varyExcept(boolean, java.util.List<java.lang.String!>);
+    field public final java.util.List<java.lang.String!> consideredQueryParameters;
+    field public final boolean ignoreDifferencesInParameters;
+    field public final java.util.List<java.lang.String!> ignoredQueryParameters;
+    field public final boolean varyOnKeyOrder;
+  }
+
+  @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public final class PrefetchException extends java.lang.RuntimeException {
+    ctor public PrefetchException();
+    ctor public PrefetchException(String);
+  }
+
+  @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public interface PrefetchOperationCallback<T> {
+    method public void onError(Throwable?);
+    method public void onSuccess(T!);
+  }
+
+  @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.PROFILE_URL_PREFETCH, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.Profile.ExperimentalUrlPrefetch public final class PrefetchParameters {
+    method public java.util.Map<java.lang.String!,java.lang.String!> getAdditionalHeaders();
+    method public androidx.webkit.NoVarySearchData? getExpectedNoVarySearchData();
+  }
+
+  public static final class PrefetchParameters.Builder {
+    ctor public PrefetchParameters.Builder();
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder addAdditionalHeader(String, String);
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.PROFILE_URL_PREFETCH, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters build();
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public androidx.webkit.PrefetchParameters.Builder setExpectedNoVarySearchData(androidx.webkit.NoVarySearchData);
+  }
+
   public class ProcessGlobalConfig {
     ctor public ProcessGlobalConfig();
     method public static void apply(androidx.webkit.ProcessGlobalConfig);
@@ -28,12 +61,18 @@ package androidx.webkit {
   }
 
   public interface Profile {
+    method @SuppressCompatibility @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.PROFILE_URL_PREFETCH, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.Profile.ExperimentalUrlPrefetch public void clearPrefetchAsync(String, androidx.webkit.PrefetchOperationCallback<java.lang.Void!>);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.CookieManager getCookieManager();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.GeolocationPermissions getGeolocationPermissions();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public String getName();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.ServiceWorkerController getServiceWorkerController();
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.WebStorage getWebStorage();
+    method @SuppressCompatibility @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.PROFILE_URL_PREFETCH, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.Profile.ExperimentalUrlPrefetch public void prefetchUrlAsync(String, androidx.core.os.CancellationSignal?, androidx.webkit.PrefetchOperationCallback<java.lang.Void!>);
+    method @SuppressCompatibility @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.PROFILE_URL_PREFETCH, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.Profile.ExperimentalUrlPrefetch public void prefetchUrlAsync(String, androidx.core.os.CancellationSignal?, androidx.webkit.PrefetchOperationCallback<java.lang.Void!>, androidx.webkit.PrefetchParameters);
     field public static final String DEFAULT_PROFILE_NAME = "Default";
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface Profile.ExperimentalUrlPrefetch {
   }
 
   @UiThread public interface ProfileStore {
@@ -374,6 +413,7 @@ package androidx.webkit {
     field public static final String MUTE_AUDIO = "MUTE_AUDIO";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
+    field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static final String PROFILE_URL_PREFETCH = "PROFILE_URL_PREFETCH";
     field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
     field public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
     field public static final String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";

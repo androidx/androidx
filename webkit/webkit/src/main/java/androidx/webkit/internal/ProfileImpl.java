@@ -16,15 +16,26 @@
 
 package androidx.webkit.internal;
 
+import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.os.CancellationSignal;
+import androidx.webkit.PrefetchException;
+import androidx.webkit.PrefetchOperationCallback;
+import androidx.webkit.PrefetchParameters;
 import androidx.webkit.Profile;
 
+import org.chromium.support_lib_boundary.PrefetchOperationResultBoundaryInterface;
+import org.chromium.support_lib_boundary.PrefetchStatusCodeBoundaryInterface;
 import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+
+import java.lang.reflect.InvocationHandler;
 
 /**
  * Internal implementation of Profile.
@@ -33,7 +44,7 @@ public class ProfileImpl implements Profile {
 
     private final ProfileBoundaryInterface mProfileImpl;
 
-    ProfileImpl(ProfileBoundaryInterface profileImpl) {
+    ProfileImpl(@NonNull ProfileBoundaryInterface profileImpl) {
         mProfileImpl = profileImpl;
     }
 
@@ -94,6 +105,74 @@ public class ProfileImpl implements Profile {
             return mProfileImpl.getServiceWorkerController();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void prefetchUrlAsync(@NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull PrefetchOperationCallback<Void> operationCallback,
+            @Nullable PrefetchParameters params) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_URL_PREFETCH;
+        if (feature.isSupportedByWebView()) {
+            try {
+                InvocationHandler paramsBoundaryInterface =
+                        BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                                new PrefetchParametersAdapter(params));
+
+                mProfileImpl.prefetchUrl(url, paramsBoundaryInterface,
+                        value -> mapOperationResult(value, operationCallback));
+
+            } catch (Exception e) {
+                operationCallback.onError(e);
+            }
+            if (cancellationSignal != null) {
+                cancellationSignal.setOnCancelListener(() -> mProfileImpl.cancelPrefetch(url,
+                        value -> mapOperationResult(value, operationCallback)));
+            }
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void prefetchUrlAsync(@NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull PrefetchOperationCallback<Void> operationCallback) {
+        prefetchUrlAsync(url, cancellationSignal, operationCallback, null);
+    }
+
+    @Override
+    public void clearPrefetchAsync(@NonNull String url,
+            @NonNull PrefetchOperationCallback<Void> operationCallback) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_URL_PREFETCH;
+        if (feature.isSupportedByWebView()) {
+            try {
+                mProfileImpl.clearPrefetch(url,
+                        value -> mapOperationResult(value, operationCallback));
+            } catch (Exception e) {
+                operationCallback.onError(e);
+            }
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    private void mapOperationResult(InvocationHandler resultInvocation,
+            PrefetchOperationCallback<Void> operationCallback) {
+        PrefetchOperationResultBoundaryInterface result =
+                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                        PrefetchOperationResultBoundaryInterface.class, resultInvocation);
+        assert result != null;
+        switch (result.getStatusCode()) {
+            case PrefetchStatusCodeBoundaryInterface.SUCCESS:
+                operationCallback.onSuccess(null);
+                break;
+            case PrefetchStatusCodeBoundaryInterface.FAILURE:
+                operationCallback.onError(new PrefetchException("An unexpected error occurred."));
+                break;
+            default:
+                Log.e("Prefetch", "Unsupported status code received");
         }
     }
 
