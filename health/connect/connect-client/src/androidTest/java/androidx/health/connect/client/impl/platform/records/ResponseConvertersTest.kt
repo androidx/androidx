@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.impl.platform.records
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.health.connect.datatypes.units.Energy as PlatformEnergy
 import android.health.connect.datatypes.units.Length as PlatformLength
@@ -37,6 +38,7 @@ import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -204,6 +206,21 @@ class ResponseConvertersTest {
         assertThat(metricValues).containsExactly(BloodPressureRecord.SYSTOLIC_MAX.metricKey, 120.0)
     }
 
+    @SuppressLint("NewApi") // Api 35 is covered by sdk extension check
+    @Test
+    fun getDoubleMetricValues_convertsTemperatureDeltaToCelsius() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13)
+        val metricValues =
+            getDoubleMetricValues(
+                mapOf(
+                    SkinTemperatureRecord.TEMPERATURE_DELTA_AVG as AggregateMetric<Any> to
+                        PlatformTemperatureDelta.fromCelsius(25.0)
+                )
+            )
+        assertThat(metricValues)
+            .containsExactly(SkinTemperatureRecord.TEMPERATURE_DELTA_AVG.metricKey, 25.0)
+    }
+
     @Test
     fun getDoubleMetricValues_convertsVelocityToMetersPerSecond() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
@@ -290,6 +307,7 @@ class ResponseConvertersTest {
                         PlatformEnergy.fromCalories(836_800.0),
                 )
             )
+
         assertThat(metricValues)
             .comparingValuesUsing(tolerance)
             .containsExactly(

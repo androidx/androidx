@@ -19,6 +19,7 @@
 
 package androidx.health.connect.client.impl.platform.aggregate
 
+import android.annotation.SuppressLint
 import android.health.connect.datatypes.ActiveCaloriesBurnedRecord as PlatformActiveCaloriesBurnedRecord
 import android.health.connect.datatypes.AggregationType as PlatformAggregateMetric
 import android.health.connect.datatypes.BasalMetabolicRateRecord as PlatformBasalMetabolicRateRecord
@@ -49,6 +50,7 @@ import androidx.health.connect.client.impl.platform.records.PlatformCyclingPedal
 import androidx.health.connect.client.impl.platform.records.PlatformExerciseSessionRecord
 import androidx.health.connect.client.impl.platform.records.PlatformPressure
 import androidx.health.connect.client.impl.platform.records.PlatformRestingHeartRateRecord
+import androidx.health.connect.client.impl.platform.records.PlatformSkinTemperatureRecord
 import androidx.health.connect.client.impl.platform.records.PlatformSleepSessionRecord
 import androidx.health.connect.client.impl.platform.records.PlatformSpeedRecord
 import androidx.health.connect.client.impl.platform.records.PlatformStepsCadenceRecord
@@ -67,6 +69,7 @@ import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
@@ -79,6 +82,7 @@ import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Pressure
+import androidx.health.connect.client.units.TemperatureDelta
 import androidx.health.connect.client.units.Velocity
 import androidx.health.connect.client.units.Volume
 import java.time.Duration
@@ -229,6 +233,23 @@ internal val PRESSURE_AGGREGATION_METRIC_TYPE_MAP:
                 BloodPressureRecord.SYSTOLIC_AVG to PlatformBloodPressureRecord.SYSTOLIC_AVG,
                 BloodPressureRecord.SYSTOLIC_MAX to PlatformBloodPressureRecord.SYSTOLIC_MAX,
                 BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN
+            )
+        } else {
+            emptyArray()
+        }
+        .toMap()
+
+@SuppressLint("NewApi") // API 35 is covered by sdk extension check
+internal val TEMPERATURE_DELTA_METRIC_TYPE_MAP:
+    Map<AggregateMetric<TemperatureDelta>, PlatformAggregateMetric<*>> =
+    if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13) {
+            arrayOf(
+                SkinTemperatureRecord.TEMPERATURE_DELTA_AVG to
+                    PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_AVG,
+                SkinTemperatureRecord.TEMPERATURE_DELTA_MAX to
+                    PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_MAX,
+                SkinTemperatureRecord.TEMPERATURE_DELTA_MIN to
+                    PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_MIN
             )
         } else {
             emptyArray()

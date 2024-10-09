@@ -18,6 +18,11 @@ package androidx.health.connect.client.records
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectFeatures
+import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.AVERAGE
+import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MAXIMUM
+import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MINIMUM
+import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
@@ -118,8 +123,56 @@ class SkinTemperatureRecord(
     }
 
     companion object {
+
+        private const val SKIN_TEMPERATURE_TYPE_NAME = "SkinTemperature"
+        private const val TEMPERATURE_DELTA_FIELD_NAME = "temperatureDelta"
         private val MIN_TEMPERATURE = 0.celsius
         private val MAX_TEMPERATURE = 100.celsius
+
+        /**
+         * Metric identifier for retrieving the average skin temperature delta from
+         * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
+         * available, use [HealthConnectFeatures.getFeatureStatus] with
+         * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
+         */
+        @JvmField
+        val TEMPERATURE_DELTA_AVG: AggregateMetric<TemperatureDelta> =
+            doubleMetric(
+                SKIN_TEMPERATURE_TYPE_NAME,
+                AVERAGE,
+                TEMPERATURE_DELTA_FIELD_NAME,
+                TemperatureDelta::celsius
+            )
+
+        /**
+         * Metric identifier for retrieving the minimum skin temperature delta from
+         * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
+         * available, use [HealthConnectFeatures.getFeatureStatus] with
+         * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
+         */
+        @JvmField
+        val TEMPERATURE_DELTA_MIN: AggregateMetric<TemperatureDelta> =
+            doubleMetric(
+                SKIN_TEMPERATURE_TYPE_NAME,
+                MINIMUM,
+                TEMPERATURE_DELTA_FIELD_NAME,
+                TemperatureDelta::celsius
+            )
+
+        /**
+         * Metric identifier for retrieving the maximum skin temperature delta from
+         * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
+         * available, use [HealthConnectFeatures.getFeatureStatus] with
+         * [HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE] as the argument.
+         */
+        @JvmField
+        val TEMPERATURE_DELTA_MAX: AggregateMetric<TemperatureDelta> =
+            doubleMetric(
+                SKIN_TEMPERATURE_TYPE_NAME,
+                MAXIMUM,
+                TEMPERATURE_DELTA_FIELD_NAME,
+                TemperatureDelta::celsius
+            )
 
         /** Use this if the location is unknown. */
         const val MEASUREMENT_LOCATION_UNKNOWN: Int = 0
