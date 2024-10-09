@@ -38,8 +38,7 @@ class MaterialScopeTest {
     fun testDynamicThemeEnabled_returnsTrue() {
         enableDynamicTheme()
 
-        assertThat((ApplicationProvider.getApplicationContext() as Context).isDynamicThemeEnabled())
-            .isTrue()
+        assertThat(isDynamicThemeEnabled(ApplicationProvider.getApplicationContext())).isTrue()
     }
 
     @Test
@@ -51,7 +50,7 @@ class MaterialScopeTest {
 
         assertThat(scopeWithDefaultTheme.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
         assertThat(scopeWithDefaultTheme.allowDynamicTheme).isTrue()
-        assertThat(scopeWithDefaultTheme.context.isDynamicThemeEnabled()).isTrue()
+        assertThat(isDynamicThemeEnabled(scopeWithDefaultTheme.context)).isTrue()
 
         for (i in 0 until ColorTokens.TOKEN_COUNT) {
             assertThat(scopeWithDefaultTheme.getColorProp(i).argb)
@@ -130,7 +129,7 @@ class MaterialScopeTest {
                     )
             )
 
-        assertThat(materialScope.context.isDynamicThemeEnabled()).isFalse()
+        assertThat(isDynamicThemeEnabled(materialScope.context)).isFalse()
         assertThat(materialScope.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
         assertThat(materialScope.allowDynamicTheme).isTrue()
 

@@ -99,20 +99,21 @@ public fun MaterialScope.getCorner(@ShapeToken shapeToken: Int): Corner =
  *   [ColorTokens]
  */
 public fun MaterialScope.getColorProp(@ColorToken colorToken: Int): ColorProp =
-    if (context.isDynamicThemeEnabled() && allowDynamicTheme) {
+    if (isDynamicThemeEnabled(context) && allowDynamicTheme) {
         DynamicMaterialTheme.getColorProp(context, colorToken) ?: theme.getColor(colorToken)
     } else {
         theme.getColor(colorToken)
     }
 
 /**
- * Returns whether the dynamic colors theme (colors following the system theme) is enabled. If
- * enabled, and [MaterialScope] is opted in to using dynamic theme, colors will change whenever
- * system theme changes.
+ * Returns whether the dynamic colors theme (colors following the system theme) is enabled.
+ *
+ * If enabled, and elements or [MaterialScope] are opted in to using dynamic theme, colors will
+ * change whenever system theme changes.
  */
-public fun Context.isDynamicThemeEnabled(): Boolean {
+public fun isDynamicThemeEnabled(context: Context): Boolean {
     val overlaySetting: String? =
-        Settings.Secure.getString(contentResolver, THEME_CUSTOMIZATION_OVERLAY_PACKAGES)
+        Settings.Secure.getString(context.contentResolver, THEME_CUSTOMIZATION_OVERLAY_PACKAGES)
     return (!overlaySetting.isNullOrEmpty() && overlaySetting != "{}")
 }
 
