@@ -25,6 +25,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
+    api(libs.jspecify)
     bundleInside(project(":noto-emoji-compat-flatbuffers"))
 
     api("androidx.core:core:1.3.0")

@@ -32,11 +32,12 @@ import android.view.inputmethod.InputConnection;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.PaintCompat;
 import androidx.emoji.widget.SpannableBuilder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -101,11 +102,11 @@ final class EmojiProcessor {
     private final int[] mEmojiAsDefaultStyleExceptions;
 
     EmojiProcessor(
-            @NonNull final MetadataRepo metadataRepo,
-            @NonNull final EmojiCompat.SpanFactory spanFactory,
-            @NonNull final EmojiCompat.GlyphChecker glyphChecker,
+            final @NonNull MetadataRepo metadataRepo,
+            final EmojiCompat.@NonNull SpanFactory spanFactory,
+            final EmojiCompat.@NonNull GlyphChecker glyphChecker,
             final boolean useEmojiAsDefaultStyle,
-            @Nullable final int[] emojiAsDefaultStyleExceptions
+            final int @Nullable [] emojiAsDefaultStyleExceptions
     ) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
@@ -114,7 +115,7 @@ final class EmojiProcessor {
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
     }
 
-    EmojiMetadata getEmojiMetadata(@NonNull final CharSequence charSequence) {
+    EmojiMetadata getEmojiMetadata(final @NonNull CharSequence charSequence) {
         final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
                 mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
         final int end = charSequence.length();
@@ -157,7 +158,7 @@ final class EmojiProcessor {
      *                      than or equal to {@code 0}
      * @param replaceAll whether to replace all emoji with {@link EmojiSpan}s
      */
-    CharSequence process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
+    CharSequence process(final @NonNull CharSequence charSequence, @IntRange(from = 0) int start,
             @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount,
             final boolean replaceAll) {
         final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
@@ -294,7 +295,7 @@ final class EmojiProcessor {
      *
      * @return {@code true} if an {@link EmojiSpan} is deleted
      */
-    static boolean handleOnKeyDown(@NonNull final Editable editable, final int keyCode,
+    static boolean handleOnKeyDown(final @NonNull Editable editable, final int keyCode,
             final KeyEvent event) {
         final boolean handled;
         switch (keyCode) {
@@ -364,8 +365,8 @@ final class EmojiProcessor {
      *
      * @return {@code true} if an {@link EmojiSpan} is deleted
      */
-    static boolean handleDeleteSurroundingText(@NonNull final InputConnection inputConnection,
-            @NonNull final Editable editable, @IntRange(from = 0) final int beforeLength,
+    static boolean handleDeleteSurroundingText(final @NonNull InputConnection inputConnection,
+            final @NonNull Editable editable, @IntRange(from = 0) final int beforeLength,
             @IntRange(from = 0) final int afterLength, final boolean inCodePoints) {
         //noinspection ConstantConditions
         if (editable == null || inputConnection == null) {
@@ -432,7 +433,7 @@ final class EmojiProcessor {
         return !KeyEvent.metaStateHasNoModifiers(event.getMetaState());
     }
 
-    private void addEmoji(@NonNull final Spannable spannable, final EmojiMetadata metadata,
+    private void addEmoji(final @NonNull Spannable spannable, final EmojiMetadata metadata,
             final int start, final int end) {
         final EmojiSpan span = mSpanFactory.createSpan(metadata);
         spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

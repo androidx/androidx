@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(project(":emoji:emoji"))
 }
 

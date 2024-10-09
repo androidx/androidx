@@ -23,9 +23,10 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Helper class to parse EmojiCompat EditText attributes.

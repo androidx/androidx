@@ -24,10 +24,11 @@ import android.graphics.Typeface;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.text.emoji.flatbuffer.MetadataItem;
 import androidx.text.emoji.flatbuffer.MetadataList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -83,7 +84,7 @@ public class EmojiMetadata {
     @HasGlyph
     private volatile int mHasGlyph = HAS_GLYPH_UNKNOWN;
 
-    EmojiMetadata(@NonNull final MetadataRepo metadataRepo, @IntRange(from = 0) final int index) {
+    EmojiMetadata(final @NonNull MetadataRepo metadataRepo, @IntRange(from = 0) final int index) {
         mMetadataRepo = metadataRepo;
         mIndex = index;
     }
@@ -97,8 +98,8 @@ public class EmojiMetadata {
      * @param y y-coordinate of the baseline of the emoji being drawn
      * @param paint Paint used for the text (e.g. color, size, style)
      */
-    public void draw(@NonNull final Canvas canvas, final float x, final float y,
-            @NonNull final Paint paint) {
+    public void draw(final @NonNull Canvas canvas, final float x, final float y,
+            final @NonNull Paint paint) {
         final Typeface typeface = mMetadataRepo.getTypeface();
         final Typeface oldTypeface = paint.getTypeface();
         paint.setTypeface(typeface);

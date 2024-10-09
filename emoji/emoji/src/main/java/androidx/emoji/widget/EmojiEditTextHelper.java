@@ -24,12 +24,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiSpan;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class to enhance custom EditText widgets with {@link EmojiCompat}.
@@ -78,7 +79,7 @@ public final class EmojiEditTextHelper {
      *
      * @param editText EditText instance
      */
-    public EmojiEditTextHelper(@NonNull final EditText editText) {
+    public EmojiEditTextHelper(final @NonNull EditText editText) {
         Preconditions.checkNotNull(editText, "editText cannot be null");
         mEditText = editText;
         mTextWatcher = new EmojiTextWatcher(mEditText);
@@ -124,8 +125,7 @@ public final class EmojiEditTextHelper {
      *
      * @return a new KeyListener instance that wraps {@code keyListener}.
      */
-    @NonNull
-    public KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
+    public @NonNull KeyListener getKeyListener(final @NonNull KeyListener keyListener) {
         Preconditions.checkNotNull(keyListener, "keyListener cannot be null");
         if (keyListener instanceof EmojiKeyListener) {
             return keyListener;
@@ -145,9 +145,8 @@ public final class EmojiEditTextHelper {
      *
      * @return a new InputConnection instance that wraps {@code inputConnection}
      */
-    @Nullable
-    public InputConnection onCreateInputConnection(@Nullable final InputConnection inputConnection,
-            @NonNull final EditorInfo outAttrs) {
+    public @Nullable InputConnection onCreateInputConnection(
+            final @Nullable InputConnection inputConnection, final @NonNull EditorInfo outAttrs) {
         if (inputConnection == null) return null;
         if (inputConnection instanceof EmojiInputConnection) {
             return inputConnection;

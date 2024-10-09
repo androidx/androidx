@@ -29,12 +29,13 @@ import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiSpan;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * ExtractEditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.
