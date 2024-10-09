@@ -514,7 +514,9 @@ public open class PdfViewerFragment : Fragment() {
             requireActivity().applicationContext,
             contents,
             pdfLoaderCallbacks!!
-        )
+        ) {
+            zoomView?.setDocumentLoaded(/* documentLoaded= */ false)
+        }
         setAnnotationIntentResolvability()
     }
 
