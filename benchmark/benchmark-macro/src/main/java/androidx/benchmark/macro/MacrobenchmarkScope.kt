@@ -406,10 +406,7 @@ public class MacrobenchmarkScope(
         } else {
             if (Shell.isSessionRooted()) {
                 // fallback on `killall -s SIGUSR1`, if available with root
-                Log.d(
-                    TAG,
-                    "Unable to saveProfile with profileinstaller ($saveResult.error), trying kill"
-                )
+                Log.d(TAG, "Unable to saveProfile with profileinstaller ($saveResult), trying kill")
                 val response =
                     Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
                 check(response.isBlank()) {
@@ -424,17 +421,19 @@ public class MacrobenchmarkScope(
 
     /** Force-stop the process being measured. */
     private fun killProcessImpl() {
-        val isRooted = Shell.isSessionRooted()
-        Log.d(TAG, "Killing process $packageName")
-        if (isRooted && isSystemApp) {
-            device.executeShellCommand("killall $packageName")
-        } else {
-            // We want to use `am force-stop` for apps that are not system apps
-            // to make sure app components are not automatically restarted by system_server.
-            device.executeShellCommand("am force-stop $packageName")
+        Shell.killProcessesAndWait(packageName) {
+            val isRooted = Shell.isSessionRooted()
+            Log.d(TAG, "Killing process $packageName")
+            if (isRooted && isSystemApp) {
+                device.executeShellCommand("killall $packageName")
+            } else {
+                // We want to use `am force-stop` for apps that are not system apps
+                // to make sure app components are not automatically restarted by system_server.
+                device.executeShellCommand("am force-stop $packageName")
+            }
+            // System Apps need an additional Thread.sleep() to ensure that the process is killed.
+            @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
         }
-        // System Apps need an additional Thread.sleep() to ensure that the process is killed.
-        @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
     }
 
     /**

@@ -575,35 +575,44 @@ object Shell {
         fun isAlive() = isProcessAlive(pid, processName)
     }
 
-    fun terminateProcessesAndWait(
-        waitPollPeriodMs: Long,
-        waitPollMaxCount: Int,
-        processName: String
-    ) {
-        val processes =
-            getPidsForProcess(processName).map { pid ->
-                ProcessPid(pid = pid, processName = processName)
-            }
-        terminateProcessesAndWait(
-            waitPollPeriodMs = waitPollPeriodMs,
-            waitPollMaxCount = waitPollMaxCount,
-            *processes.toTypedArray()
-        )
-    }
-
-    fun terminateProcessesAndWait(
-        waitPollPeriodMs: Long,
-        waitPollMaxCount: Int,
-        vararg processes: ProcessPid
-    ) {
+    fun killTerm(processes: List<ProcessPid>) {
         processes.forEach {
             // NOTE: we don't fail on stdout/stderr, since killing processes can be racy, and
             // killing one can kill others. Instead, validation of process death happens below.
             val stopOutput = executeScriptCaptureStdoutStderr("kill -TERM ${it.pid}")
             Log.d(BenchmarkState.TAG, "kill -TERM command output - $stopOutput")
         }
+    }
 
+    private const val DEFAULT_KILL_POLL_PERIOD_MS = 50L
+    private const val DEFAULT_KILL_POLL_MAX_COUNT = 100
+
+    fun killProcessesAndWait(
+        processName: String,
+        waitPollPeriodMs: Long = DEFAULT_KILL_POLL_PERIOD_MS,
+        waitPollMaxCount: Int = DEFAULT_KILL_POLL_MAX_COUNT,
+        processKiller: (List<ProcessPid>) -> Unit = ::killTerm
+    ) {
+        val processes =
+            getPidsForProcess(processName).map { pid ->
+                ProcessPid(pid = pid, processName = processName)
+            }
+        killProcessesAndWait(
+            processes,
+            waitPollPeriodMs = waitPollPeriodMs,
+            waitPollMaxCount = waitPollMaxCount,
+            processKiller
+        )
+    }
+
+    fun killProcessesAndWait(
+        processes: List<ProcessPid>,
+        waitPollPeriodMs: Long = DEFAULT_KILL_POLL_PERIOD_MS,
+        waitPollMaxCount: Int = DEFAULT_KILL_POLL_MAX_COUNT,
+        processKiller: (List<ProcessPid>) -> Unit = { killTerm(it) }
+    ) {
         var runningProcesses = processes.toList()
+        processKiller(runningProcesses)
         repeat(waitPollMaxCount) {
             runningProcesses = runningProcesses.filter { isProcessAlive(it.pid, it.processName) }
             if (runningProcesses.isEmpty()) {

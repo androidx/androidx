@@ -263,10 +263,10 @@ public class PerfettoHelper(
         trace("Perfetto - preparing to stop") {}
 
         require(pid != null)
-        Shell.terminateProcessesAndWait(
+        Shell.killProcessesAndWait(
+            listOf(Shell.ProcessPid(pid = pid, processName = perfettoProcessName)),
             waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
-            waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
-            Shell.ProcessPid(pid = pid, processName = perfettoProcessName)
+            waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT
         )
         perfettoPid = null
     }
@@ -388,6 +388,15 @@ public class PerfettoHelper(
         // Check if perfetto is stopped every 100 millis.
         private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
+        init {
+            check(
+                PERFETTO_KILL_WAIT_COUNT * PERFETTO_KILL_WAIT_TIME_MS >=
+                    PERFETTO_DATA_SOURCE_STOP_TIMEOUT_MS * 2
+            ) {
+                "Perfetto kill time must be significantly larger than data source stop timeout"
+            }
+        }
+
         // Path where unbundled tracebox is copied to
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
 
@@ -467,10 +476,10 @@ public class PerfettoHelper(
 
         public fun stopAllPerfettoProcesses() {
             listOf("perfetto", "tracebox").forEach { processName ->
-                Shell.terminateProcessesAndWait(
+                Shell.killProcessesAndWait(
+                    processName,
                     waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
                     waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
-                    processName
                 )
             }
 
