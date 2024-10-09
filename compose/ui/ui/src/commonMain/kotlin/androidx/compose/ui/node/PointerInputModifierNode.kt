@@ -90,13 +90,15 @@ interface PointerInputModifierNode : DelegatableNode {
      * Developers will need to restart the gesture detection handling pointer input in order for the
      * event locations to remain accurate.
      *
-     * The default implementation will do that by calling [onCancelPointerInput].
+     * The default implementation will do that by calling [onCancelPointerInput]. If you override
+     * this function, make sure to call super.onDensityChange or implement your own restarting
+     * logic.
      *
      * [SuspendingPointerInputModifierNode] offers a more specific interface to allow only
      * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl] for a
      * concrete example.
      */
-    fun onDensityChange() {
+    override fun onDensityChange() {
         onCancelPointerInput()
     }
 

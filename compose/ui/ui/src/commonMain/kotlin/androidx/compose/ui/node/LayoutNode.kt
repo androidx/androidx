@@ -21,7 +21,6 @@ import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -667,16 +666,7 @@ internal class LayoutNode(
                 field = value
                 onDensityOrLayoutDirectionChanged()
 
-                nodes.headToTail {
-                    if (it.isKind(PointerInput)) {
-                        (it as PointerInputModifierNode).onDensityChange()
-                    } else if (it is CacheDrawModifierNode) {
-                        // b/340662451 Replace both usages of DelegatableNode#onDensityChanged and
-                        // DelegatableNode#onLayoutDirectionChanged when API changes can be
-                        // made again
-                        it.invalidateDrawCache()
-                    }
-                }
+                nodes.headToTail { it.onDensityChange() }
             }
         }
 
@@ -687,11 +677,7 @@ internal class LayoutNode(
                 field = value
                 onDensityOrLayoutDirectionChanged()
 
-                nodes.headToTail(Draw) {
-                    if (it is CacheDrawModifierNode) {
-                        it.invalidateDrawCache()
-                    }
-                }
+                nodes.headToTail { it.onLayoutDirectionChange() }
             }
         }
 
