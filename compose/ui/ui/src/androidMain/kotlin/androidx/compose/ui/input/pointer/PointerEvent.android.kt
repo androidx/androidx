@@ -59,7 +59,10 @@ internal actual constructor(
     internal val motionEvent: MotionEvent?
         get() = internalPointerEvent?.motionEvent
 
-    /** Returns `MotionEvent`'s classification. */
+    /**
+     * Returns
+     * [`MotionEvent`'s classification](https://developer.android.com/reference/android/view/MotionEvent#getClassification()).
+     */
     @get:MotionEventClassification
     val classification: Int
         get() =
