@@ -857,46 +857,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    /**
-     * Enable internal defaults for microbenchmark which can be used to set defaults we aren't ready
-     * to apply publicly, or which require root to function.
-     *
-     * See [androidx.build.testConfiguration.INST_ARG_BLOCKLIST], which can be used to suppress some
-     * of these args in CI.
-     */
-    @Suppress("UnstableApiUsage") // usage of HasDeviceTests
-    private fun HasDeviceTests.enableMicrobenchmarkInternalDefaults(project: Project) {
-        if (project.hasBenchmarkPlugin()) {
-            deviceTestsForEachCompat { deviceTest ->
-                // Enables CPU perf event counters both locally, and in CI
-                deviceTest.instrumentationRunnerArguments.put(
-                    "androidx.benchmark.cpuEventCounter.enable",
-                    "true"
-                )
-
-                // Force AndroidX devs to disable JIT on rooted devices
-                deviceTest.instrumentationRunnerArguments.put(
-                    "androidx.benchmark.requireJitDisabledIfRooted",
-                    "true"
-                )
-
-                // Check that speed compilation always used when benchmark invoked
-                deviceTest.instrumentationRunnerArguments.put(
-                    "androidx.benchmark.requireAot",
-                    "true"
-                )
-
-                // Enables long-running method tracing on the UI thread, even if that risks ANR for
-                // profiling convenience.
-                // NOTE, this *must* be suppressed in CI!!
-                deviceTest.instrumentationRunnerArguments.put(
-                    "androidx.benchmark.profiling.skipWhenDurationRisksAnr",
-                    "false"
-                )
-            }
-        }
-    }
-
     @Suppress("UnstableApiUsage") // usage of experimentalProperties
     private fun Variant.configureLocalAsbSigning(keyStore: File) {
         experimentalProperties.put(ASB_SIGNING_CONFIG_PROPERTY_NAME, keyStore.absolutePath)
