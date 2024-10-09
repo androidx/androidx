@@ -61,9 +61,8 @@ internal fun DateInputContent(
     colors: DatePickerColors
 ) {
     // Obtain the DateInputFormat for the default Locale.
-    val defaultLocale = defaultLocale()
     val dateInputFormat =
-        remember(defaultLocale) { calendarModel.getDateInputFormat(defaultLocale) }
+        remember(calendarModel.locale) { calendarModel.getDateInputFormat(calendarModel.locale) }
     val errorDatePattern = getString(Strings.DateInputInvalidForPattern)
     val errorDateOutOfYearRange = getString(Strings.DateInputInvalidYearRange)
     val errorInvalidNotAllowed = getString(Strings.DateInputInvalidNotAllowed)
@@ -101,7 +100,7 @@ internal fun DateInputContent(
                 currentStartDateMillis = selectedDateMillis
             },
         dateInputFormat = dateInputFormat,
-        locale = defaultLocale,
+        locale = calendarModel.locale,
         colors = colors
     )
 }

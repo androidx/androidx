@@ -179,8 +179,14 @@ fun DatePicker(
     },
     showModeToggle: Boolean = true,
 ) {
-    val defaultLocale = defaultLocale()
-    val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
+    val calendarModel =
+        remember(state.locale) {
+            if (state is BaseDatePickerStateImpl) {
+                state.calendarModel
+            } else {
+                createCalendarModel(state.locale)
+            }
+        }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -322,6 +328,12 @@ interface DatePickerState {
      * In case a date is not allowed to be selected, it will appear disabled in the UI.
      */
     val selectableDates: SelectableDates
+
+    /**
+     * A locale that will be used when formatting dates, determining the input format, week-days,
+     * and more.
+     */
+    val locale: CalendarLocale
 }
 
 /** An interface that controls the selectable dates and years in the date pickers UI. */
@@ -352,7 +364,6 @@ interface DatePickerFormatter {
      *
      * @param monthMillis timestamp in _UTC_ milliseconds from the epoch that represents the month
      * @param locale a [CalendarLocale] to use when formatting the month and year
-     * @see defaultLocale
      */
     fun formatMonthYear(@Suppress("AutoBoxing") monthMillis: Long?, locale: CalendarLocale): String?
 
@@ -364,7 +375,6 @@ interface DatePickerFormatter {
      * @param forContentDescription indicates that the requested formatting is for content
      *   description. In these cases, the output may include a more descriptive wording that will be
      *   passed to a screen readers.
-     * @see defaultLocale
      */
     fun formatDate(
         @Suppress("AutoBoxing") dateMillis: Long?,
@@ -441,11 +451,19 @@ fun rememberDatePickerState(
 /**
  * Creates a [DatePickerState].
  *
- * Note that in most cases, you are advised to use the [rememberDatePickerState] when in a
- * composition.
+ * For most cases, you are advised to use the [rememberDatePickerState] when in a composition.
  *
- * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
- *   and more
+ * Note that in case you provide a [locale] that is different than the default platform locale, you
+ * may need to ensure that the picker's title and headline localized correctly. The following sample
+ * shows one possible way of doing so by applying a local composition of a `LocalContext` and
+ * `LocaleConfiguration`.
+ *
+ * @sample androidx.compose.material3.samples.DatePickerCustomLocaleSample
+ * @param locale the [CalendarLocale] that will be used when formatting dates, determining the input
+ *   format, displaying the week-day, determining the first day of the week, and more. Note that in
+ *   case the provided [CalendarLocale] differs from the platform's default Locale, you may need to
+ *   ensure that the picker's title and headline localized correctly, and in some cases, you may
+ *   need to apply an RTL layout.
  * @param initialSelectedDateMillis timestamp in _UTC_ milliseconds from the epoch that represents
  *   an initial selection of a date. Provide a `null` to indicate no selection. Note that the
  *   state's [DatePickerState.selectedDateMillis] will provide a timestamp that represents the
@@ -744,13 +762,13 @@ object DatePickerDefaults {
         modifier: Modifier = Modifier,
         contentColor: Color = colors().headlineContentColor
     ) {
-        val defaultLocale = defaultLocale()
+        val locale = defaultLocale()
         val formattedDate =
-            dateFormatter.formatDate(dateMillis = selectedDateMillis, locale = defaultLocale)
+            dateFormatter.formatDate(dateMillis = selectedDateMillis, locale = locale)
         val verboseDateDescription =
             dateFormatter.formatDate(
                 dateMillis = selectedDateMillis,
-                locale = defaultLocale,
+                locale = locale,
                 forContentDescription = true
             )
                 ?: when (displayMode) {
@@ -1208,6 +1226,8 @@ constructor(
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
  *   case a date is not allowed to be selected, it will appear disabled in the UI.
+ * @param locale a locale that will be used when formatting dates, determining the input format,
+ *   week-days, and more.
  * @throws [IllegalArgumentException] if the initial selected date or displayed month represent a
  *   year that is out of the year range.
  * @see rememberDatePickerState
@@ -1218,14 +1238,14 @@ internal abstract class BaseDatePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     val yearRange: IntRange,
     selectableDates: SelectableDates,
-    locale: CalendarLocale
+    val locale: CalendarLocale
 ) {
 
     val calendarModel = createCalendarModel(locale)
 
     var selectableDates by mutableStateOf(selectableDates)
 
-    private var _displayedMonth =
+    private val _displayedMonth =
         mutableStateOf(
             if (initialDisplayedMonthMillis != null) {
                 val month = calendarModel.getMonth(initialDisplayedMonthMillis)
@@ -1656,7 +1676,6 @@ private fun DatePickerContent(
 
     val coroutineScope = rememberCoroutineScope()
     var yearPickerVisible by rememberSaveable { mutableStateOf(false) }
-    val defaultLocale = defaultLocale()
     Column {
         MonthsNavigation(
             modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding),
@@ -1666,7 +1685,7 @@ private fun DatePickerContent(
             yearPickerText =
                 dateFormatter.formatMonthYear(
                     monthMillis = displayedMonthMillis,
-                    locale = defaultLocale
+                    locale = calendarModel.locale
                 ) ?: "-",
             onNextClicked = {
                 coroutineScope.launch {
@@ -1845,7 +1864,8 @@ private fun HorizontalMonthsList(
                         rangeSelectionInfo = null,
                         dateFormatter = dateFormatter,
                         selectableDates = selectableDates,
-                        colors = colors
+                        colors = colors,
+                        locale = calendarModel.locale
                     )
                 }
             }
@@ -1945,7 +1965,8 @@ internal fun Month(
     rangeSelectionInfo: SelectedRangeInfo?,
     dateFormatter: DatePickerFormatter,
     selectableDates: SelectableDates,
-    colors: DatePickerColors
+    colors: DatePickerColors,
+    locale: CalendarLocale
 ) {
     val rangeSelectionDrawModifier =
         if (rangeSelectionInfo != null) {
@@ -1957,7 +1978,6 @@ internal fun Month(
             Modifier
         }
 
-    val defaultLocale = defaultLocale()
     var cellIndex = 0
     Column(
         modifier =
@@ -2024,7 +2044,7 @@ internal fun Month(
                         val formattedDateDescription =
                             dateFormatter.formatDate(
                                 dateInMillis,
-                                defaultLocale,
+                                locale,
                                 forContentDescription = true
                             ) ?: ""
                         Day(

@@ -611,6 +611,7 @@ package androidx.compose.material3 {
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface DatePickerState {
     method public int getDisplayMode();
     method public long getDisplayedMonthMillis();
+    method public java.util.Locale getLocale();
     method public androidx.compose.material3.SelectableDates getSelectableDates();
     method public Long? getSelectedDateMillis();
     method public kotlin.ranges.IntRange getYearRange();
@@ -619,6 +620,7 @@ package androidx.compose.material3 {
     method public void setSelectedDateMillis(Long?);
     property public abstract int displayMode;
     property public abstract long displayedMonthMillis;
+    property public abstract java.util.Locale locale;
     property public abstract androidx.compose.material3.SelectableDates selectableDates;
     property public abstract Long? selectedDateMillis;
     property public abstract kotlin.ranges.IntRange yearRange;
@@ -642,6 +644,7 @@ package androidx.compose.material3 {
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface DateRangePickerState {
     method public int getDisplayMode();
     method public long getDisplayedMonthMillis();
+    method public java.util.Locale getLocale();
     method public androidx.compose.material3.SelectableDates getSelectableDates();
     method public Long? getSelectedEndDateMillis();
     method public Long? getSelectedStartDateMillis();
@@ -651,6 +654,7 @@ package androidx.compose.material3 {
     method public void setSelection(Long? startDateMillis, Long? endDateMillis);
     property public abstract int displayMode;
     property public abstract long displayedMonthMillis;
+    property public abstract java.util.Locale locale;
     property public abstract androidx.compose.material3.SelectableDates selectableDates;
     property public abstract Long? selectedEndDateMillis;
     property public abstract Long? selectedStartDateMillis;

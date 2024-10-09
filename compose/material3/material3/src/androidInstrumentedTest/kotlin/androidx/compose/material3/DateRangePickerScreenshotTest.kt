@@ -16,13 +16,17 @@
 
 package androidx.compose.material3
 
+import android.content.res.Configuration
 import android.os.Build
+import android.os.LocaleList
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -184,6 +188,31 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
         assertAgainstGolden("dateRangePicker_withModeToggle_${scheme.name}")
+    }
+
+    @Test
+    fun dateRangePicker_customLocale() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val preferredLocales = LocaleList.forLanguageTags("HE")
+            val config = Configuration()
+            config.setLocales(preferredLocales)
+            val newContext = LocalContext.current.createConfigurationContext(config)
+            CompositionLocalProvider(
+                LocalContext provides newContext,
+                LocalConfiguration provides config,
+                LocalLayoutDirection provides LayoutDirection.Rtl
+            ) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    val monthInUtcMillis =
+                        dayInUtcMilliseconds(year = 2021, month = 1, dayOfMonth = 1)
+                    val state =
+                        rememberDateRangePickerState(initialDisplayedMonthMillis = monthInUtcMillis)
+                    DateRangePicker(state = state, showModeToggle = false)
+                }
+            }
+        }
+        // Expecting the content of the DateRangePicker to be in Hebrew.
+        assertAgainstGolden("dateRangePicker_customLocale_${scheme.name}")
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's
