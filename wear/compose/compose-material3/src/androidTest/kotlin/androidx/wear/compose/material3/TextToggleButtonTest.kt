@@ -285,7 +285,7 @@ class TextToggleButtonTest {
             TextToggleButton(
                 enabled = true,
                 checked = true,
-                shape = RectangleShape,
+                shapes = TextToggleButtonDefaults.shapes(RectangleShape),
                 onCheckedChange = {},
                 content = {},
                 modifier = Modifier.testTag(TEST_TAG)

@@ -326,7 +326,11 @@ class IconButtonTest {
 
         rule.isShape(expectedShape = shape, colors = { IconButtonDefaults.iconButtonColors() }) {
             modifier ->
-            IconButton(onClick = {}, modifier = modifier, shape = shape) {
+            IconButton(
+                onClick = {},
+                modifier = modifier,
+                shapes = IconButtonDefaults.shapes(shape)
+            ) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }

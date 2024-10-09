@@ -17,10 +17,8 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Text
@@ -105,11 +103,9 @@ fun TextButtonWithOnLongClickSample(onLongClick: () -> Unit) {
 @Composable
 @Sampled
 fun TextButtonWithCornerAnimationSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     TextButton(
         onClick = { /* Do something */ },
-        shape = TextButtonDefaults.animatedShape(interactionSource),
-        interactionSource = interactionSource
+        shapes = TextButtonDefaults.animatedShapes(),
     ) {
         Text(text = "ABC")
     }

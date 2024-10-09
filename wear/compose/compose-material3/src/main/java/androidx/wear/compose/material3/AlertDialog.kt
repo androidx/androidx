@@ -280,7 +280,7 @@ object AlertDialogDefaults {
         FilledIconButton(
             onClick = onClick,
             modifier = Modifier.rotate(-45f).size(confirmWidth, confirmHeight),
-            shape = confirmShape
+            shapes = IconButtonDefaults.shapes(confirmShape)
         ) {
             Row(
                 modifier = Modifier.align(Alignment.Center).graphicsLayer { rotationZ = 45f },
@@ -305,7 +305,7 @@ object AlertDialogDefaults {
             FilledTonalIconButton(
                 onClick = onClick,
                 modifier = Modifier.size(dismissSize).align(Alignment.BottomEnd),
-                shape = dismissShape,
+                shapes = IconButtonDefaults.shapes(dismissShape)
             ) {
                 Row(content = content)
             }

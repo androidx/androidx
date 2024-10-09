@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -39,13 +37,13 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
+import androidx.wear.compose.material3.TextButtonShapes
 import androidx.wear.compose.material3.setContentWithTheme
 import org.junit.Rule
 import org.junit.Test
@@ -100,24 +98,19 @@ class TextButtonScreenshotTest {
 
     @Test
     fun text_button_with_corner_animation() = verifyScreenshot {
-        val interactionSource = remember { MutableInteractionSource() }
         sampleTextButton(
-            shape = IconButtonDefaults.animatedShape(interactionSource),
-            interactionSource = interactionSource
+            shapes = TextButtonDefaults.animatedShapes(),
         )
     }
 
     @Test
     fun text_button_with_morph_animation() = verifyScreenshot {
-        val interactionSource = remember { MutableInteractionSource() }
         sampleTextButton(
-            shape =
-                IconButtonDefaults.animatedShape(
-                    interactionSource,
+            shapes =
+                TextButtonDefaults.animatedShapes(
                     shape = CutCornerShape(15.dp),
                     pressedShape = RoundedCornerShape(15.dp)
                 ),
-            interactionSource = interactionSource,
         )
     }
 
@@ -161,14 +154,14 @@ class TextButtonScreenshotTest {
     @Composable
     private fun sampleTextButton(
         enabled: Boolean = true,
-        shape: Shape = TextButtonDefaults.shape,
+        shapes: TextButtonShapes = TextButtonDefaults.shapes(),
         modifier: Modifier = Modifier,
         interactionSource: MutableInteractionSource? = null
     ) {
         TextButton(
             onClick = {},
             enabled = enabled,
-            shape = shape,
+            shapes = shapes,
             modifier = modifier.testTag(TEST_TAG),
             interactionSource = interactionSource
         ) {

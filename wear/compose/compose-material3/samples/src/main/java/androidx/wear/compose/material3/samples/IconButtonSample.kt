@@ -18,14 +18,11 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.wear.compose.material3.FilledIconButton
@@ -33,6 +30,7 @@ import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
+import androidx.wear.compose.material3.IconButtonShapes
 import androidx.wear.compose.material3.OutlinedIconButton
 
 @Composable
@@ -93,11 +91,9 @@ fun IconButtonWithOnLongClickSample(onLongClick: () -> Unit) {
 @Composable
 @Sampled
 fun IconButtonWithCornerAnimationSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     FilledIconButton(
         onClick = { /* Do something */ },
-        shape = IconButtonDefaults.animatedShape(interactionSource),
-        interactionSource = interactionSource
+        shapes = IconButtonDefaults.animatedShapes(),
     ) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
@@ -108,13 +104,11 @@ fun IconButtonWithCornerAnimationSample() {
 fun IconButtonWithImageSample(
     painter: Painter,
     enabled: Boolean,
-    interactionSource: MutableInteractionSource? = null,
-    shape: Shape = IconButtonDefaults.shape
+    shapes: IconButtonShapes = IconButtonDefaults.shapes()
 ) {
     IconButton(
         onClick = { /* Do something */ },
-        interactionSource = interactionSource,
-        shape = shape,
+        shapes = shapes,
     ) {
         Image(
             painter = painter,
