@@ -23,10 +23,11 @@ import android.view.View;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 
@@ -751,9 +752,8 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      *
      * @return the {@link AnimationHandler} for this animator.
      */
-    @NonNull
     @VisibleForTesting
-    public AnimationHandler getAnimationHandler() {
+    public @NonNull AnimationHandler getAnimationHandler() {
         return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
     }
 
@@ -767,8 +767,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      *
      * @return the {@link FrameCallbackScheduler} for this animator.
      */
-    @NonNull
-    public FrameCallbackScheduler getScheduler() {
+    public @NonNull FrameCallbackScheduler getScheduler() {
         return mAnimationHandler != null ? mAnimationHandler.getScheduler()
                 : AnimationHandler.getInstance().getScheduler();
     }

@@ -17,7 +17,7 @@
 package androidx.dynamicanimation.animation;
 
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A scheduler that runs the given Runnable on the next frame.

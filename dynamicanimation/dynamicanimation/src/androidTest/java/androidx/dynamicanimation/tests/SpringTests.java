@@ -40,7 +40,6 @@ import android.os.SystemClock;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.dynamicanimation.animation.AnimationHandler;
@@ -58,6 +57,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
