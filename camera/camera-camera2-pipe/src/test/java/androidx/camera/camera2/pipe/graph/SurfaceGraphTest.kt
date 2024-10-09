@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.graph
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.testing.FakeCameraController
@@ -50,8 +51,15 @@ class SurfaceGraphTest {
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
     private val cameraSurfaceManager =
         CameraSurfaceManager().also { it.addListener(fakeSurfaceListener) }
+    private val cameraGraphFlags = CameraGraph.Flags()
     private val surfaceGraph =
-        SurfaceGraph(streamMap, fakeCameraController, cameraSurfaceManager, emptyMap())
+        SurfaceGraph(
+            streamMap,
+            fakeCameraController,
+            cameraSurfaceManager,
+            emptyMap(),
+            cameraGraphFlags,
+        )
 
     private val stream1 = streamMap[config.streamConfig1]!!
     private val stream2 = streamMap[config.streamConfig2]!!
@@ -144,6 +152,45 @@ class SurfaceGraphTest {
     }
 
     @Test
+    fun outputSurfacesArePassedToListenerWhenAvailableWithGraphTrackingOff() {
+        val surfaceGraph2 =
+            SurfaceGraph(
+                streamMap,
+                fakeCameraController,
+                cameraSurfaceManager,
+                emptyMap(),
+                cameraGraphFlags.copy(disableGraphLevelSurfaceTracking = true),
+            )
+
+        assertThat(fakeCameraController.surfaceMap).isNull()
+
+        surfaceGraph2[stream1.id] = fakeSurface1
+        surfaceGraph2[stream2.id] = fakeSurface2
+        surfaceGraph2[stream3.id] = fakeSurface3
+        surfaceGraph2[stream4.id] = fakeSurface4
+        surfaceGraph2[stream5.id] = fakeSurface5
+        surfaceGraph2[stream6.id] = fakeSurface6
+        surfaceGraph2[stream7.id] = fakeSurface7
+        surfaceGraph2[stream8.id] = fakeSurface8
+        assertThat(fakeCameraController.surfaceMap).isNull()
+
+        surfaceGraph2[stream9.id] = fakeSurface9
+        surfaceGraph2[stream10.id] = fakeSurface10
+
+        assertThat(fakeCameraController.surfaceMap).isNotNull()
+        assertThat(fakeCameraController.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
+        assertThat(fakeCameraController.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface2)
+        assertThat(fakeCameraController.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
+        assertThat(fakeCameraController.surfaceMap?.get(stream4.id)).isEqualTo(fakeSurface4)
+        assertThat(fakeCameraController.surfaceMap?.get(stream5.id)).isEqualTo(fakeSurface5)
+        assertThat(fakeCameraController.surfaceMap?.get(stream6.id)).isEqualTo(fakeSurface6)
+        assertThat(fakeCameraController.surfaceMap?.get(stream7.id)).isEqualTo(fakeSurface7)
+        assertThat(fakeCameraController.surfaceMap?.get(stream8.id)).isEqualTo(fakeSurface8)
+        assertThat(fakeCameraController.surfaceMap?.get(stream9.id)).isEqualTo(fakeSurface9)
+        assertThat(fakeCameraController.surfaceMap?.get(stream10.id)).isEqualTo(fakeSurface10)
+    }
+
+    @Test
     fun onlyMostRecentSurfacesArePassedToSession() {
         val fakeSurface1A = Surface(SurfaceTexture(7))
         val fakeSurface1B = Surface(SurfaceTexture(8))
@@ -183,6 +230,26 @@ class SurfaceGraphTest {
         surfaceGraph[stream1.id] = fakeSurface1
 
         verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface1))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface2))
+        verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface3))
+    }
+
+    @Test
+    fun newSurfacesDoesNotAcquireTokensWithGraphTrackingOff() {
+        val surfaceGraph2 =
+            SurfaceGraph(
+                streamMap,
+                fakeCameraController,
+                cameraSurfaceManager,
+                emptyMap(),
+                cameraGraphFlags.copy(disableGraphLevelSurfaceTracking = true),
+            )
+        surfaceGraph2[stream1.id] = fakeSurface1
+
+        verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface1))
         verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface2))
         verify(fakeSurfaceListener, never()).onSurfaceActive(eq(fakeSurface3))
         verify(fakeSurfaceListener, never()).onSurfaceInactive(eq(fakeSurface1))

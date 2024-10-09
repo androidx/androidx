@@ -51,10 +51,13 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuck
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOnCameraGraphCloseQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.DisableAbortCapturesOnStopWithSessionProcessorQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.PreviewOrientationIncorrectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.TextureViewIsClosedQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -1117,6 +1120,13 @@ constructor(
                     0u
                 }
 
+            val shouldDisableGraphLevelSurfaceTracking =
+                cameraQuirks.quirks.let {
+                    it.contains(ConfigureSurfaceToSecondarySessionFailQuirk::class.java) ||
+                        it.contains(PreviewOrientationIncorrectQuirk::class.java) ||
+                        it.contains(TextureViewIsClosedQuirk::class.java)
+                }
+
             return CameraGraph.Flags(
                 abortCapturesOnStop = shouldAbortCapturesOnStop,
                 awaitRepeatingRequestBeforeCapture =
@@ -1131,6 +1141,7 @@ constructor(
                 closeCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
                 closeCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
                 finalizeSessionOnCloseBehavior = shouldFinalizeSessionOnCloseBehavior,
+                disableGraphLevelSurfaceTracking = shouldDisableGraphLevelSurfaceTracking,
             )
         }
     }
