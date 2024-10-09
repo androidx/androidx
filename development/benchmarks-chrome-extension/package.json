@@ -16,7 +16,7 @@
     "@rollup/plugin-typescript": "^11.1.5",
     "@sveltejs/vite-plugin-svelte" :"3.0.1",
     "@tsconfig/svelte": "^5.0.2",
-    "rollup": "^4.9.2",
+    "rollup": "^4.24.0",
     "svelte": "^4.2.8",
     "svelte-check": "^3.6.2",
     "tslib": "^2.6.2",
