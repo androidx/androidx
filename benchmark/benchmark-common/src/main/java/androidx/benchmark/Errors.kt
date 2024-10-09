@@ -115,7 +115,7 @@ object Errors {
                     .trimMarginWrapNewlines()
         }
 
-        if (DeviceInfo.isRooted && !CpuInfo.locked) {
+        if (!DeviceInfo.isEmulator && DeviceInfo.isRooted && !CpuInfo.locked) {
             warningPrefix += "UNLOCKED_"
             warningString +=
                 """
