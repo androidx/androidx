@@ -67,7 +67,6 @@ class LifecycleEventFlowTest {
 
             owner.currentState = Lifecycle.State.CREATED
             owner.currentState = Lifecycle.State.DESTROYED
-            owner.currentState = Lifecycle.State.RESUMED
 
             assertThat(job.isCompleted).isTrue()
             assertThat(collectedEvents)
