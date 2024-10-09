@@ -16,7 +16,7 @@
 
 package androidx.benchmark.vmtrace;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Locale;
 
@@ -46,24 +46,21 @@ class MethodInfo {
         this.srcLineNumber = srcLineNumber;
     }
 
-    @NonNull
-    public String getFullName() {
+    public @NonNull String getFullName() {
         if (mFullName == null) {
             mFullName = String.format(Locale.US, "%s.%s: %s", className, methodName, signature);
         }
         return mFullName;
     }
 
-    @NonNull
-    public String getShortName() {
+    public @NonNull String getShortName() {
         if (mShortName == null) {
             mShortName = String.format(Locale.US, "%s.%s", getUnqualifiedClassName(), methodName);
         }
         return mShortName;
     }
 
-    @NonNull
-    private String getUnqualifiedClassName() {
+    private @NonNull String getUnqualifiedClassName() {
         String cn = className;
         int i = cn.lastIndexOf('/');
         if (i > 0) {
