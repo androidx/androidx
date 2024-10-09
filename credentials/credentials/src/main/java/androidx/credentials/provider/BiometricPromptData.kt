@@ -205,7 +205,7 @@ internal constructor(
          * @param cryptoObject the [CryptoObject] to be associated with this biometric
          *   authentication flow
          */
-        fun setCryptoObject(cryptoObject: CryptoObject): Builder {
+        fun setCryptoObject(cryptoObject: CryptoObject?): Builder {
             this.cryptoObject = cryptoObject
             return this
         }

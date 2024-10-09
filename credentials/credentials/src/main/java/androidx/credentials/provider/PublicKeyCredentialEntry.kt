@@ -808,7 +808,7 @@ internal constructor(
          * biometric prompt flow.
          */
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-        fun setBiometricPromptData(biometricPromptData: BiometricPromptData): Builder {
+        fun setBiometricPromptData(biometricPromptData: BiometricPromptData?): Builder {
             this.biometricPromptData = biometricPromptData
             return this
         }
