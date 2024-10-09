@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.isLayerManagerInitialized
 import androidx.compose.ui.graphics.isLayerPersistenceEnabled
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.supportsV23RenderNode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
@@ -1869,6 +1870,15 @@ class AndroidGraphicsLayerTest {
                 }
             }
         )
+    }
+
+    @Test
+    fun testGraphicsLayerV23Supported() {
+        assertTrue(supportsV23RenderNode("Samsung"))
+        assertTrue(supportsV23RenderNode("Pixel"))
+        assertFalse(supportsV23RenderNode("vivo"))
+        assertFalse(supportsV23RenderNode("VIVO"))
+        assertFalse(supportsV23RenderNode("viVO"))
     }
 
     private class GraphicsContextHostDrawable(
