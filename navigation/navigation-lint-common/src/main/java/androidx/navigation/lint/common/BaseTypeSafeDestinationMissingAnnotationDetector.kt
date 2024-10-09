@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassOwner
+import com.intellij.psi.PsiCompiledElement
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.kotlin.psi.KtClassLiteralExpression
@@ -114,7 +115,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
     // check that the Type is annotated with @Serializable
     private fun checkMissingSerializableAnnotation(kClazz: PsiClass, context: JavaContext) {
         if (
-            !kClazz.containingFile.fileType.isBinary &&
+            kClazz !is PsiCompiledElement &&
                 !kClazz.isInterface &&
                 !kClazz.hasAnnotation("kotlinx.serialization.Serializable")
         ) {
