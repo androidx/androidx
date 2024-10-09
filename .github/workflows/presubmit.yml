@@ -7,7 +7,7 @@ env:
   # Allow precise monitoring of the save/restore of Gradle User Home by `gradle-build-action`
   # See https://github.com/marketplace/actions/gradle-build-action?version=v2.1.1#cache-debugging-and-analysis
   GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: true
-  GRADLE_BUILD_ACTION_CACHE_KEY_PREFIX: "2022.07.23"
+  GRADLE_BUILD_ACTION_CACHE_KEY_PREFIX: "2024.10.09"
 jobs:
   setup:
     runs-on: ubuntu-latest
