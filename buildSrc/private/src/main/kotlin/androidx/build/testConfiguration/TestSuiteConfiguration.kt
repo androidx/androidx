@@ -21,7 +21,6 @@ import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_AP
 import androidx.build.androidXExtension
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
-import androidx.build.deviceTestsForEachCompat
 import androidx.build.getFileInTestConfigDirectory
 import androidx.build.getPrivacySandboxFilesDirectory
 import androidx.build.hasBenchmarkPlugin
@@ -516,7 +515,7 @@ fun Project.configureTestConfigGeneration(
         onVariants { variant ->
             when {
                 variant is HasDeviceTests -> {
-                    variant.deviceTestsForEachCompat { deviceTest ->
+                    variant.deviceTests.forEach { (_, deviceTest) ->
                         when {
                             path.contains("media:version-compat-tests:") -> {
                                 createOrUpdateMediaTestConfigurationGenerationTask(
@@ -569,7 +568,7 @@ fun Project.configureTestConfigGeneration(
     projectIsolationEnabled: Boolean,
 ) {
     componentsExtension.onVariant { variant ->
-        variant.deviceTestsForEachCompat { deviceTest ->
+        variant.deviceTests.forEach { (_, deviceTest) ->
             createTestConfigurationGenerationTask(
                 deviceTest.name,
                 deviceTest.artifacts,
@@ -586,7 +585,6 @@ fun Project.configureTestConfigGeneration(
 
 private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCollection> {
     val testSourceFileCollections = mutableListOf<FileCollection>()
-    @Suppress("DEPRECATION") // usage of HasAndroidTest
     when (variant) {
         is TestVariant -> {
             // com.android.test modules keep test code in main sourceset
