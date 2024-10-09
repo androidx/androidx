@@ -26,7 +26,7 @@ import org.gradle.api.Project
  * See [androidx.build.testConfiguration.INST_ARG_BLOCKLIST], which can be used to suppress some of
  * these args in CI.
  */
-@Suppress("UnstableApiUsage") // usage of HasDeviceTests
+@Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
 internal fun HasDeviceTests.enableMicrobenchmarkInternalDefaults(project: Project) {
     if (project.hasBenchmarkPlugin()) {
         deviceTests.forEach { (_, deviceTest) ->
