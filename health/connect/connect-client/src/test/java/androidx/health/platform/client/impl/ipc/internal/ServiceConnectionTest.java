@@ -31,11 +31,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.util.concurrent.SettableFuture;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

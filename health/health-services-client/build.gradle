@@ -31,6 +31,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")

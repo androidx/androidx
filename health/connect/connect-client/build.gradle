@@ -32,6 +32,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
