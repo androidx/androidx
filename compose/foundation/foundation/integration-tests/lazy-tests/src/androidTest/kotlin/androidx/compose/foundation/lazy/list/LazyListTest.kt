@@ -113,6 +113,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.collect.Range
@@ -2947,6 +2949,45 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex)
                 .isNotIn(firstVisibleItemOnOuterList - 1..firstVisibleItemOnOuterList + 1)
+        }
+    }
+
+    @Test
+    fun customOverscroll() {
+        val overscroll = TestOverscrollEffect()
+        val items = (1..4).map { it.toString() }
+
+        rule.setContentWithTestViewConfiguration {
+            Box(Modifier.mainAxisSize(200.dp)) {
+                LazyColumnOrRow(Modifier.testTag(LazyListTag), overscrollEffect = overscroll) {
+                    items(items) {
+                        Spacer(
+                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                        )
+                    }
+                }
+            }
+        }
+
+        // The overscroll modifier should be added / drawn
+        rule.runOnIdle { assertThat(overscroll.drawCalled).isTrue() }
+
+        // Swipe backwards to trigger overscroll
+        rule.onNodeWithTag(LazyListTag).performTouchInput {
+            if (vertical) swipeDown() else swipeRight()
+        }
+
+        rule.runOnIdle {
+            // The swipe will result in multiple scroll deltas
+            assertThat(overscroll.applyToScrollCalledCount).isGreaterThan(1)
+            assertThat(overscroll.applyToFlingCalledCount).isEqualTo(1)
+            if (vertical) {
+                assertThat(overscroll.scrollOverscrollDelta.y).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.y).isGreaterThan(0)
+            } else {
+                assertThat(overscroll.scrollOverscrollDelta.x).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.x).isGreaterThan(0)
+            }
         }
     }
 

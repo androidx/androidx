@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -57,6 +58,8 @@ import androidx.compose.ui.unit.dp
  * @param userScrollEnabled whether scroll with gestures or accessibility actions are allowed. It is
  *   still possible to scroll programmatically through state when [userScrollEnabled] is set to
  *   false
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. Note that the [OverscrollEffect.effectModifier] will be applied internally as well.
  * @param content a lambda describing the staggered grid content. Inside this block you can use
  *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *   single one.
@@ -72,6 +75,7 @@ fun LazyVerticalStaggeredGrid(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit
 ) {
     LazyStaggeredGrid(
@@ -84,7 +88,37 @@ fun LazyVerticalStaggeredGrid(
         crossAxisSpacing = horizontalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
+        overscrollEffect = overscrollEffect,
         slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
+        content = content
+    )
+}
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+@Composable
+fun LazyVerticalStaggeredGrid(
+    columns: StaggeredGridCells,
+    modifier: Modifier = Modifier,
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalItemSpacing: Dp = 0.dp,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    content: LazyStaggeredGridScope.() -> Unit
+) {
+    LazyVerticalStaggeredGrid(
+        columns = columns,
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalItemSpacing = verticalItemSpacing,
+        horizontalArrangement = horizontalArrangement,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        overscrollEffect = ScrollableDefaults.overscrollEffect(),
         content = content
     )
 }
@@ -148,6 +182,8 @@ private fun rememberColumnSlots(
  * @param userScrollEnabled whether scroll with gestures or accessibility actions are allowed. It is
  *   still possible to scroll programmatically through state when [userScrollEnabled] is set to
  *   false
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. Note that the [OverscrollEffect.effectModifier] will be applied internally as well.
  * @param content a lambda describing the staggered grid content. Inside this block you can use
  *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *   single one.
@@ -163,6 +199,7 @@ fun LazyHorizontalStaggeredGrid(
     horizontalItemSpacing: Dp = 0.dp,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit
 ) {
     LazyStaggeredGrid(
@@ -175,7 +212,37 @@ fun LazyHorizontalStaggeredGrid(
         crossAxisSpacing = verticalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
+        overscrollEffect = overscrollEffect,
         slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
+        content = content
+    )
+}
+
+@Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
+@Composable
+fun LazyHorizontalStaggeredGrid(
+    rows: StaggeredGridCells,
+    modifier: Modifier = Modifier,
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(0.dp),
+    horizontalItemSpacing: Dp = 0.dp,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    content: LazyStaggeredGridScope.() -> Unit
+) {
+    LazyHorizontalStaggeredGrid(
+        rows = rows,
+        modifier = modifier,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        verticalArrangement = verticalArrangement,
+        horizontalItemSpacing = horizontalItemSpacing,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        overscrollEffect = ScrollableDefaults.overscrollEffect(),
         content = content
     )
 }

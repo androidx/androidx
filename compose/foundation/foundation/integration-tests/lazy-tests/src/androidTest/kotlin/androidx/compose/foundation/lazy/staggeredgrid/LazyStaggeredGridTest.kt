@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
 import androidx.compose.foundation.lazy.list.assertIsPlaced
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
@@ -48,6 +49,9 @@ import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -2024,5 +2028,44 @@ class LazyStaggeredGridTest(private val orientation: Orientation) :
         rule.onNodeWithTag("1").assertDoesNotExist()
         rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
         assertThat(state.layoutInfo.visibleItemsInfo.map { it.index }).containsExactly(2)
+    }
+
+    @Test
+    fun customOverscroll() {
+        val overscroll = TestOverscrollEffect()
+
+        rule.setContent {
+            val state = rememberLazyStaggeredGridState()
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier =
+                    Modifier.mainAxisSize(itemSizeDp * 1.5f)
+                        .crossAxisSize(itemSizeDp * 2)
+                        .testTag("grid"),
+                overscrollEffect = overscroll
+            ) {
+                items(100) { Spacer(Modifier.mainAxisSize(itemSizeDp)) }
+            }
+        }
+
+        // The overscroll modifier should be added / drawn
+        rule.runOnIdle { assertThat(overscroll.drawCalled).isTrue() }
+
+        // Swipe backwards to trigger overscroll
+        rule.onNodeWithTag("grid").performTouchInput { if (vertical) swipeDown() else swipeRight() }
+
+        rule.runOnIdle {
+            // The swipe will result in multiple scroll deltas
+            assertThat(overscroll.applyToScrollCalledCount).isGreaterThan(1)
+            assertThat(overscroll.applyToFlingCalledCount).isEqualTo(1)
+            if (vertical) {
+                assertThat(overscroll.scrollOverscrollDelta.y).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.y).isGreaterThan(0)
+            } else {
+                assertThat(overscroll.scrollOverscrollDelta.x).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.x).isGreaterThan(0)
+            }
+        }
     }
 }

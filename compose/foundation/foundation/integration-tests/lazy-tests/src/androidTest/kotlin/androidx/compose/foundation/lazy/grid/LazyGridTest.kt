@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.list.TestTouchSlop
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
@@ -65,6 +66,7 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -1360,6 +1362,43 @@ class LazyGridTest(private val orientation: Orientation) :
             .onNodeWithTag("1")
             .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
             .assertCrossAxisSizeIsEqualTo(itemSizeDp)
+    }
+
+    @Test
+    fun customOverscroll() {
+        val overscroll = TestOverscrollEffect()
+
+        val items = (1..4).map { it.toString() }
+        rule.setContent {
+            val state = rememberLazyGridState()
+            LazyGrid(
+                cells = 1,
+                state = state,
+                modifier = Modifier.size(200.dp).testTag("grid"),
+                overscrollEffect = overscroll
+            ) {
+                items(items) { Spacer(Modifier.size(101.dp)) }
+            }
+        }
+
+        // The overscroll modifier should be added / drawn
+        rule.runOnIdle { assertThat(overscroll.drawCalled).isTrue() }
+
+        // Swipe backwards to trigger overscroll
+        rule.onNodeWithTag("grid").performTouchInput { if (vertical) swipeDown() else swipeRight() }
+
+        rule.runOnIdle {
+            // The swipe will result in multiple scroll deltas
+            assertThat(overscroll.applyToScrollCalledCount).isGreaterThan(1)
+            assertThat(overscroll.applyToFlingCalledCount).isEqualTo(1)
+            if (vertical) {
+                assertThat(overscroll.scrollOverscrollDelta.y).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.y).isGreaterThan(0)
+            } else {
+                assertThat(overscroll.scrollOverscrollDelta.x).isGreaterThan(0)
+                assertThat(overscroll.flingOverscrollVelocity.x).isGreaterThan(0)
+            }
+        }
     }
 }
 
