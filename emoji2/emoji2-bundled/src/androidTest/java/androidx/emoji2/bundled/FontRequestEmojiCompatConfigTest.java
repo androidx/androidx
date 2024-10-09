@@ -47,8 +47,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
@@ -59,6 +57,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -583,7 +583,7 @@ public class FontRequestEmojiCompatConfigTest {
         TestFontRequestEmojiCompatConfig(
                 @NonNull Context context,
                 @NonNull FontRequest request,
-                @NonNull FontRequestEmojiCompatConfig.FontProviderHelper fontProviderHelper) {
+                FontRequestEmojiCompatConfig.@NonNull FontProviderHelper fontProviderHelper) {
             super(context, request, fontProviderHelper);
         }
 

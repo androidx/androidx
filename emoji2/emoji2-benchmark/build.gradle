@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(project(":emoji2:emoji2-bundled"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))

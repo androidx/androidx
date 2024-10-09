@@ -23,13 +23,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiDefaults;
 import androidx.emoji2.text.EmojiSpan;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class to enhance custom EditText widgets with {@link EmojiCompat}.
@@ -78,7 +79,7 @@ public final class EmojiEditTextHelper {
      *
      * @param editText EditText instance
      */
-    public EmojiEditTextHelper(@NonNull final EditText editText) {
+    public EmojiEditTextHelper(final @NonNull EditText editText) {
         this(editText, /* expectInitializedEmojiCompat */true);
     }
 
@@ -148,8 +149,7 @@ public final class EmojiEditTextHelper {
      * @return a new KeyListener instance that wraps {@code keyListener}, or null if passed null.
      */
     @SuppressWarnings("ExecutorRegistration")
-    @Nullable
-    public KeyListener getKeyListener(@Nullable final KeyListener keyListener) {
+    public @Nullable KeyListener getKeyListener(final @Nullable KeyListener keyListener) {
         if (keyListener instanceof EmojiKeyListener) {
             return keyListener;
         }
@@ -180,9 +180,8 @@ public final class EmojiEditTextHelper {
      *
      * @return a new InputConnection instance that wraps {@code inputConnection}
      */
-    @Nullable
-    public InputConnection onCreateInputConnection(@Nullable final InputConnection inputConnection,
-            @NonNull final EditorInfo outAttrs) {
+    public @Nullable InputConnection onCreateInputConnection(
+            final @Nullable InputConnection inputConnection, final @NonNull EditorInfo outAttrs) {
         if (inputConnection == null) return null;
         if (inputConnection instanceof EmojiInputConnection) {
             return inputConnection;

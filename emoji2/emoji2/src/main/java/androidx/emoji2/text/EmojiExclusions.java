@@ -19,8 +19,9 @@ package androidx.emoji2.text;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -29,8 +30,7 @@ import java.util.Set;
 class EmojiExclusions {
     private EmojiExclusions() { /* cannot instantiate */ }
 
-    @NonNull
-    static Set<int[]> getEmojiExclusions() {
+    static @NonNull Set<int[]> getEmojiExclusions() {
         if (Build.VERSION.SDK_INT >= 34) {
             return EmojiExclusions_Api34.getExclusions();
         } else {
@@ -42,8 +42,7 @@ class EmojiExclusions {
     private static class EmojiExclusions_Api34 {
         private EmojiExclusions_Api34() { /* cannot instantiate */ }
 
-        @NonNull
-        static Set<int[]> getExclusions() {
+        static @NonNull Set<int[]> getExclusions() {
             // TODO: Call directly when API34 is published
             return EmojiExclusions_Reflections.getExclusions();
         }
@@ -60,8 +59,7 @@ class EmojiExclusions {
         @SuppressWarnings("unchecked")
         // will be checked after platform API for 34 published
         @SuppressLint({ "BanUncheckedReflection" })
-        @NonNull
-        static Set<int[]> getExclusions() {
+        static @NonNull Set<int[]> getExclusions() {
             try {
                 Class<?> clazz = Class.forName("android.text.EmojiConsistency");
                 Method method = clazz.getMethod("getEmojiConsistencySet");

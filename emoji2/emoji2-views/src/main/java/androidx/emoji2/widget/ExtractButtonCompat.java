@@ -21,10 +21,11 @@ import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Support library implementation for ExtractButton. Used by {@link EmojiExtractViewHelper} while
@@ -60,7 +61,7 @@ public class ExtractButtonCompat extends Button {
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            @NonNull ActionMode.Callback actionModeCallback
+            ActionMode.@NonNull Callback actionModeCallback
     ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));

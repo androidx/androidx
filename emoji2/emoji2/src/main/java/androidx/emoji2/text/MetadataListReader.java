@@ -19,9 +19,10 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.flatbuffer.MetadataList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -232,7 +233,7 @@ class MetadataListReader {
      */
     private static class InputStreamOpenTypeReader implements OpenTypeReader {
 
-        private final @NonNull byte[] mByteArray;
+        private final byte @NonNull [] mByteArray;
         private final @NonNull ByteBuffer mByteBuffer;
         private final @NonNull InputStream mInputStream;
         private long mPosition = 0;
@@ -243,7 +244,7 @@ class MetadataListReader {
          *
          * @param inputStream InputStream to read from
          */
-        InputStreamOpenTypeReader(@NonNull final InputStream inputStream) {
+        InputStreamOpenTypeReader(final @NonNull InputStream inputStream) {
             mInputStream = inputStream;
             mByteArray = new byte[UINT32_BYTE_COUNT];
             mByteBuffer = ByteBuffer.wrap(mByteArray);
@@ -309,7 +310,7 @@ class MetadataListReader {
          *
          * @param byteBuffer ByteBuffer to read from
          */
-        ByteBufferReader(@NonNull final ByteBuffer byteBuffer) {
+        ByteBufferReader(final @NonNull ByteBuffer byteBuffer) {
             mByteBuffer = byteBuffer;
             mByteBuffer.order(ByteOrder.BIG_ENDIAN);
         }

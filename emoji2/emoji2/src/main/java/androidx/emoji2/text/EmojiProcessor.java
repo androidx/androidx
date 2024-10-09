@@ -31,9 +31,10 @@ import android.view.inputmethod.InputConnection;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -96,20 +97,17 @@ final class EmojiProcessor {
     /**
      * Factory used to create EmojiSpans.
      */
-    @NonNull
-    private final EmojiCompat.SpanFactory mSpanFactory;
+    private final EmojiCompat.@NonNull SpanFactory mSpanFactory;
 
     /**
      * Emoji metadata repository.
      */
-    @NonNull
-    private final MetadataRepo mMetadataRepo;
+    private final @NonNull MetadataRepo mMetadataRepo;
 
     /**
      * Utility class that checks if the system can render a given glyph.
      */
-    @NonNull
-    private EmojiCompat.GlyphChecker mGlyphChecker;
+    private EmojiCompat.@NonNull GlyphChecker mGlyphChecker;
 
     /**
      * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean)
@@ -119,15 +117,14 @@ final class EmojiProcessor {
     /**
      * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean, List)
      */
-    @Nullable
-    private final int[] mEmojiAsDefaultStyleExceptions;
+    private final int @Nullable [] mEmojiAsDefaultStyleExceptions;
 
     EmojiProcessor(
-            @NonNull final MetadataRepo metadataRepo,
-            @NonNull final EmojiCompat.SpanFactory spanFactory,
-            @NonNull final EmojiCompat.GlyphChecker glyphChecker,
+            final @NonNull MetadataRepo metadataRepo,
+            final EmojiCompat.@NonNull SpanFactory spanFactory,
+            final EmojiCompat.@NonNull GlyphChecker glyphChecker,
             final boolean useEmojiAsDefaultStyle,
-            @Nullable final int[] emojiAsDefaultStyleExceptions,
+            final int @Nullable [] emojiAsDefaultStyleExceptions,
             @NonNull Set<int[]> emojiExclusions) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
@@ -149,12 +146,12 @@ final class EmojiProcessor {
     }
 
     @EmojiCompat.CodepointSequenceMatchResult
-    int getEmojiMatch(@NonNull final CharSequence charSequence) {
+    int getEmojiMatch(final @NonNull CharSequence charSequence) {
         return getEmojiMatch(charSequence, mMetadataRepo.getMetadataVersion());
     }
 
     @EmojiCompat.CodepointSequenceMatchResult
-    int getEmojiMatch(@NonNull final CharSequence charSequence,
+    int getEmojiMatch(final @NonNull CharSequence charSequence,
             final int metadataVersion) {
         final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
                 mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
@@ -218,7 +215,7 @@ final class EmojiProcessor {
     /**
      * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
      */
-    int getEmojiStart(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+    int getEmojiStart(final @NonNull CharSequence charSequence, @IntRange(from = 0) int offset) {
         if (offset < 0 || offset >= charSequence.length()) {
             return -1;
         }
@@ -241,7 +238,7 @@ final class EmojiProcessor {
     /**
      * see {@link EmojiCompat#getEmojiStart(CharSequence, int)}.
      */
-    int getEmojiEnd(@NonNull final CharSequence charSequence, @IntRange(from = 0) int offset) {
+    int getEmojiEnd(final @NonNull CharSequence charSequence, @IntRange(from = 0) int offset) {
         if (offset < 0 || offset >= charSequence.length()) {
             return -1;
         }
@@ -282,7 +279,7 @@ final class EmojiProcessor {
      *                      than or equal to {@code 0}
      * @param replaceAll whether to replace all emoji with {@link EmojiSpan}s
      */
-    CharSequence process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
+    CharSequence process(final @NonNull CharSequence charSequence, @IntRange(from = 0) int start,
             @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount,
             final boolean replaceAll) {
         final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
@@ -357,7 +354,7 @@ final class EmojiProcessor {
         }
     }
 
-    private <T> T process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
+    private <T> T process(final @NonNull CharSequence charSequence, @IntRange(from = 0) int start,
             @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount,
             final boolean processAll, final EmojiProcessCallback<T> emojiProcessCallback) {
         int addedCount = 0;
@@ -431,8 +428,8 @@ final class EmojiProcessor {
      *
      * @return {@code true} if an {@link EmojiSpan} is deleted
      */
-    static boolean handleOnKeyDown(@NonNull final Editable editable, final int keyCode,
-            @NonNull final KeyEvent event) {
+    static boolean handleOnKeyDown(final @NonNull Editable editable, final int keyCode,
+            final @NonNull KeyEvent event) {
         final boolean handled;
         switch (keyCode) {
             case KeyEvent.KEYCODE_DEL:
@@ -454,7 +451,7 @@ final class EmojiProcessor {
         return false;
     }
 
-    private static boolean delete(@NonNull final Editable content, @NonNull final KeyEvent event,
+    private static boolean delete(final @NonNull Editable content, final @NonNull KeyEvent event,
             final boolean forwardDelete) {
         if (hasModifiers(event)) {
             return false;
@@ -501,8 +498,8 @@ final class EmojiProcessor {
      *
      * @return {@code true} if an {@link EmojiSpan} is deleted
      */
-    static boolean handleDeleteSurroundingText(@NonNull final InputConnection inputConnection,
-            @NonNull final Editable editable, @IntRange(from = 0) final int beforeLength,
+    static boolean handleDeleteSurroundingText(final @NonNull InputConnection inputConnection,
+            final @NonNull Editable editable, @IntRange(from = 0) final int beforeLength,
             @IntRange(from = 0) final int afterLength, final boolean inCodePoints) {
         //noinspection ConstantConditions
         if (editable == null || inputConnection == null) {
@@ -902,8 +899,7 @@ final class EmojiProcessor {
 
     private static class EmojiProcessAddSpanCallback
             implements EmojiProcessCallback<UnprecomputeTextOnModificationSpannable> {
-        @Nullable
-        public UnprecomputeTextOnModificationSpannable spannable;
+        public @Nullable UnprecomputeTextOnModificationSpannable spannable;
         private final EmojiCompat.SpanFactory mSpanFactory;
 
         EmojiProcessAddSpanCallback(@Nullable UnprecomputeTextOnModificationSpannable spannable,

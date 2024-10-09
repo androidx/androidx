@@ -22,11 +22,12 @@ import android.text.Editable;
 import android.text.Selection;
 import android.widget.EditText;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiCompat.InitCallback;
 import androidx.emoji2.text.EmojiDefaults;
+
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

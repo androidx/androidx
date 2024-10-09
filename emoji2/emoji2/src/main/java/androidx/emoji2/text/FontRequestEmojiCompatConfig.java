@@ -25,8 +25,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.core.graphics.TypefaceCompatUtil;
@@ -35,6 +33,9 @@ import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
@@ -141,8 +142,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      *
      * @param executor background executor for performing font load
      */
-    @NonNull
-    public FontRequestEmojiCompatConfig setLoadingExecutor(@NonNull Executor executor) {
+    public @NonNull FontRequestEmojiCompatConfig setLoadingExecutor(@NonNull Executor executor) {
         ((FontRequestMetadataLoader) getMetadataRepoLoader()).setExecutor(executor);
         return this;
     }
@@ -164,9 +164,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      *                do nothing
      */
     @Deprecated
-    @NonNull
     @SuppressWarnings("deprecation")
-    public FontRequestEmojiCompatConfig setHandler(@Nullable Handler handler) {
+    public @NonNull FontRequestEmojiCompatConfig setHandler(@Nullable Handler handler) {
         if (handler == null) {
             // this is a breaking behavior change from androidx.emoji, we no longer support
             // clearing executors
@@ -184,8 +183,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      *              file. Can be {@code null}. In case of {@code null}, the metadata loader never
      *              retries.
      */
-    @NonNull
-    public FontRequestEmojiCompatConfig setRetryPolicy(@Nullable RetryPolicy policy) {
+    public @NonNull FontRequestEmojiCompatConfig setRetryPolicy(@Nullable RetryPolicy policy) {
         ((FontRequestMetadataLoader) getMetadataRepoLoader()).setRetryPolicy(policy);
         return this;
     }
@@ -197,37 +195,26 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataRepoLoader {
         private static final String S_TRACE_BUILD_TYPEFACE =
                 "EmojiCompat.FontRequestEmojiCompatConfig.buildTypeface";
-        @NonNull
-        private final Context mContext;
-        @NonNull
-        private final FontRequest mRequest;
-        @NonNull
-        private final FontProviderHelper mFontProviderHelper;
-        @NonNull
-        private final Object mLock = new Object();
+        private final @NonNull Context mContext;
+        private final @NonNull FontRequest mRequest;
+        private final @NonNull FontProviderHelper mFontProviderHelper;
+        private final @NonNull Object mLock = new Object();
 
         @GuardedBy("mLock")
-        @Nullable
-        private Handler mMainHandler;
+        private @Nullable Handler mMainHandler;
         @GuardedBy("mLock")
-        @Nullable
-        private Executor mExecutor;
+        private @Nullable Executor mExecutor;
         @GuardedBy("mLock")
-        @Nullable
-        private ThreadPoolExecutor mMyThreadPoolExecutor;
+        private @Nullable ThreadPoolExecutor mMyThreadPoolExecutor;
         @GuardedBy("mLock")
-        @Nullable
-        private RetryPolicy mRetryPolicy;
+        private @Nullable RetryPolicy mRetryPolicy;
 
         @GuardedBy("mLock")
-        @Nullable
-        EmojiCompat.MetadataRepoLoaderCallback mCallback;
+        EmojiCompat.@Nullable MetadataRepoLoaderCallback mCallback;
         @GuardedBy("mLock")
-        @Nullable
-        private ContentObserver mObserver;
+        private @Nullable ContentObserver mObserver;
         @GuardedBy("mLock")
-        @Nullable
-        private Runnable mMainHandlerLoadCallback;
+        private @Nullable Runnable mMainHandlerLoadCallback;
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request,
                 @NonNull FontProviderHelper fontProviderHelper) {
@@ -251,7 +238,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
-        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(final EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
                 mCallback = loaderCallback;
@@ -404,16 +391,14 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class FontProviderHelper {
         /** Calls FontsContractCompat.fetchFonts. */
-        @NonNull
-        public FontFamilyResult fetchFonts(@NonNull Context context,
+        public @NonNull FontFamilyResult fetchFonts(@NonNull Context context,
                 @NonNull FontRequest request) throws NameNotFoundException {
             return FontsContractCompat.fetchFonts(context, null /* cancellation signal */, request);
         }
 
         /** Calls FontsContractCompat.buildTypeface. */
-        @Nullable
-        public Typeface buildTypeface(@NonNull Context context,
-                @NonNull FontsContractCompat.FontInfo font) throws NameNotFoundException {
+        public @Nullable Typeface buildTypeface(@NonNull Context context,
+                FontsContractCompat.@NonNull FontInfo font) throws NameNotFoundException {
             return FontsContractCompat.buildTypeface(context, null /* cancellation signal */,
                 new FontsContractCompat.FontInfo[] { font });
         }

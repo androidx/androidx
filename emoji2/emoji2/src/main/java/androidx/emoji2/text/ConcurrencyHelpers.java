@@ -21,8 +21,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -92,8 +93,7 @@ class ConcurrencyHelpers {
      * @param handler a background thread handler
      * @return an executor that posts all work to that handler
      */
-    @NonNull
-    static Executor convertHandlerToExecutor(@NonNull Handler handler) {
+    static @NonNull Executor convertHandlerToExecutor(@NonNull Handler handler) {
         return handler::post;
     }
 

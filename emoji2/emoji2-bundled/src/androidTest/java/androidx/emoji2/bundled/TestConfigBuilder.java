@@ -23,10 +23,11 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
 import androidx.test.core.app.ApplicationProvider;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -53,7 +54,7 @@ public class TestConfigBuilder {
             super(new TestEmojiDataLoader());
         }
 
-        TestConfig(@NonNull final EmojiCompat.MetadataRepoLoader metadataLoader) {
+        TestConfig(final EmojiCompat.@NonNull MetadataRepoLoader metadataLoader) {
             super(metadataLoader);
         }
     }
@@ -82,7 +83,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(final EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -113,7 +114,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             if (sMetadataRepo == null) {
                 synchronized (S_METADATA_REPO_LOCK) {
                     if (sMetadataRepo == null) {
@@ -140,7 +141,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             if (mMetadataRepo == null) {
                 try {
                     final Context context = ApplicationProvider.getApplicationContext();
