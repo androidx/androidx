@@ -18,9 +18,10 @@ package androidx.appcompat.app.g3;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.test.R;
+
+import org.jspecify.annotations.Nullable;
 
 public class OldTranslateActivity extends AppCompatActivity {
     @Override

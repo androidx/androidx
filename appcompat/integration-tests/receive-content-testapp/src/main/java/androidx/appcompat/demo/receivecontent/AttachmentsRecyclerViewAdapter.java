@@ -20,9 +20,10 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,9 +59,8 @@ final class AttachmentsRecyclerViewAdapter extends
         return mAttachments.size();
     }
 
-    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public @NonNull MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         AppCompatImageView view = (AppCompatImageView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.attachment, parent, false);
         return new MyViewHolder(view);

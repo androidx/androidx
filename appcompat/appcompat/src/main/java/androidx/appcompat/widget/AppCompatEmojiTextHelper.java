@@ -23,20 +23,19 @@ import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.emoji2.viewsintegration.EmojiTextViewHelper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Helper for using EmojiCompat from TextView in appcompat.
  */
 class AppCompatEmojiTextHelper {
 
-    @NonNull
-    private final TextView mView;
-    @NonNull
-    private final EmojiTextViewHelper mEmojiTextViewHelper;
+    private final @NonNull TextView mView;
+    private final @NonNull EmojiTextViewHelper mEmojiTextViewHelper;
 
     AppCompatEmojiTextHelper(@NonNull TextView view) {
         mView = view;
@@ -94,8 +93,8 @@ class AppCompatEmojiTextHelper {
      * availability
      */
     @SuppressWarnings("ArrayReturn")
-    @NonNull
-    InputFilter[] getFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+    InputFilter @NonNull [] getFilters(
+            @SuppressWarnings("ArrayReturn") InputFilter @NonNull [] filters) {
         return mEmojiTextViewHelper.getFilters(filters);
     }
 
@@ -116,8 +115,7 @@ class AppCompatEmojiTextHelper {
      *                             transform
      * @return the correct transformation based on isEnabled, may be null
      */
-    @Nullable
-    public TransformationMethod wrapTransformationMethod(
+    public @Nullable TransformationMethod wrapTransformationMethod(
             @Nullable TransformationMethod transformationMethod) {
         return mEmojiTextViewHelper.wrapTransformationMethod(transformationMethod);
     }

@@ -12,6 +12,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":core:core"))
     api(libs.kotlinStdlib)

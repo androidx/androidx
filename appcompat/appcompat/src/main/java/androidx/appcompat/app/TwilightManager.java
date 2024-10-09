@@ -27,10 +27,11 @@ import android.location.LocationManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.PermissionChecker;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Calendar;
 

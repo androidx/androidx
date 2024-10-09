@@ -36,8 +36,6 @@ import android.util.StateSet;
 import android.util.Xml;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
@@ -48,6 +46,8 @@ import androidx.core.util.ObjectsCompat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -129,11 +129,10 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
      * @param theme the theme to apply, may be null.
      * @return a new AnimatedStateListDrawableCompat or null if parsing error is found.
      */
-    @Nullable
-    public static AnimatedStateListDrawableCompat create(
+    public static @Nullable AnimatedStateListDrawableCompat create(
             @NonNull Context context,
             @DrawableRes int resId,
-            @Nullable Resources.Theme theme) {
+            Resources.@Nullable Theme theme) {
         try {
             final Resources res = context.getResources();
             @SuppressLint("ResourceType")
@@ -162,13 +161,12 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
      * {@link Resources.Theme}. Called on a parser positioned at a tag in an XML
      * document, tries to create an AnimatedStateListDrawableCompat from that tag.
      */
-    @NonNull
-    public static AnimatedStateListDrawableCompat createFromXmlInner(
+    public static @NonNull AnimatedStateListDrawableCompat createFromXmlInner(
             @NonNull Context context,
             @NonNull Resources resources,
             @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs,
-            @Nullable Resources.Theme theme)
+            Resources.@Nullable Theme theme)
             throws IOException, XmlPullParserException {
         final String name = parser.getName();
         if (!name.equals("animated-selector")) {
@@ -198,7 +196,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             @NonNull Resources resources,
             @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs,
-            @Nullable Resources.Theme theme)
+            Resources.@Nullable Theme theme)
             throws XmlPullParserException, IOException {
         final TypedArray a = obtainAttributes(
                 resources, theme, attrs, R.styleable.AnimatedStateListDrawableCompat);
@@ -232,7 +230,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
      * @param drawable The drawable to show when in the specified state, may not be null
      * @param id       The unique identifier for the keyframe
      */
-    public void addState(@NonNull int[] stateSet, @NonNull Drawable drawable, int id) {
+    public void addState(int @NonNull [] stateSet, @NonNull Drawable drawable, int id) {
         ObjectsCompat.requireNonNull(drawable);
         mState.addStateSet(stateSet, drawable, id);
         onStateChange(getState());
@@ -270,7 +268,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
     }
 
     @Override
-    protected boolean onStateChange(@NonNull int[] stateSet) {
+    protected boolean onStateChange(int @NonNull [] stateSet) {
         // If we're not already at the target index, either attempt to find a
         // valid transition to it or jump directly there.
         final int targetIndex = mState.indexOfKeyframe(stateSet);
@@ -473,7 +471,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             @NonNull Resources resources,
             @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs,
-            @Nullable Resources.Theme theme)
+            Resources.@Nullable Theme theme)
             throws XmlPullParserException, IOException {
         int type;
         final int innerDepth = parser.getDepth() + 1;
@@ -500,7 +498,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             @NonNull Resources resources,
             @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs,
-            @Nullable Resources.Theme theme)
+            Resources.@Nullable Theme theme)
             throws XmlPullParserException, IOException {
 
         final TypedArray a = obtainAttributes(resources, theme, attrs,
@@ -556,7 +554,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             @NonNull Resources resources,
             @NonNull XmlPullParser parser,
             @NonNull AttributeSet attrs,
-            @Nullable Resources.Theme theme)
+            Resources.@Nullable Theme theme)
             throws XmlPullParserException, IOException {
         final TypedArray a = obtainAttributes(resources, theme, attrs,
                 R.styleable.AnimatedStateListDrawableItem);
@@ -598,9 +596,8 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
         return mState.addStateSet(states, dr, keyframeId);
     }
 
-    @NonNull
     @Override
-    public Drawable mutate() {
+    public @NonNull Drawable mutate() {
         if (!mMutated && super.mutate() == this) {
             mState.mutate();
             mMutated = true;
@@ -662,13 +659,13 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             return pos;
         }
 
-        int addStateSet(@NonNull int[] stateSet, @NonNull Drawable drawable, int id) {
+        int addStateSet(int @NonNull [] stateSet, @NonNull Drawable drawable, int id) {
             final int index = super.addStateSet(stateSet, drawable);
             mStateIds.put(index, id);
             return index;
         }
 
-        int indexOfKeyframe(@NonNull int[] stateSet) {
+        int indexOfKeyframe(int @NonNull [] stateSet) {
             final int index = super.indexOfStateSet(stateSet);
             if (index >= 0) {
                 return index;
@@ -695,15 +692,13 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             return (mTransitions.get(keyFromTo, -1L) & REVERSIBLE_FLAG_BIT) != 0L;
         }
 
-        @NonNull
         @Override
-        public Drawable newDrawable() {
+        public @NonNull Drawable newDrawable() {
             return new AnimatedStateListDrawableCompat(this, null);
         }
 
-        @NonNull
         @Override
-        public Drawable newDrawable(Resources res) {
+        public @NonNull Drawable newDrawable(Resources res) {
             return new AnimatedStateListDrawableCompat(this, res);
         }
 

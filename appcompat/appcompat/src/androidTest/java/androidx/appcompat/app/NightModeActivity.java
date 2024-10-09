@@ -19,10 +19,11 @@ package androidx.appcompat.app;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -81,8 +82,7 @@ public class NightModeActivity extends BaseTestActivity {
         mOnDestroySemaphore.release();
     }
 
-    @Nullable
-    Configuration getLastConfigurationChangeAndClear() {
+    @Nullable Configuration getLastConfigurationChangeAndClear() {
         final Configuration config = mLastConfigurationChange;
         mLastConfigurationChange = null;
         return config;
@@ -92,8 +92,7 @@ public class NightModeActivity extends BaseTestActivity {
      * @return a copy of the {@link Configuration} from the most recent call to {@link #onCreate} or
      *         {@link #onConfigurationChanged}, or {@code null} if neither has been called yet
      */
-    @Nullable
-    Configuration getEffectiveConfiguration() {
+    @Nullable Configuration getEffectiveConfiguration() {
         return mEffectiveConfiguration;
     }
 

@@ -29,13 +29,14 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  */
@@ -180,9 +181,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return this;
     }
 
-    @NonNull
     @Override
-    public MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
+    public @NonNull MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
         mShortcutAlphabeticChar = Character.toLowerCase(alphaChar);
         mShortcutAlphabeticModifiers = KeyEvent.normalizeMetaState(alphaModifiers);
         return this;
@@ -239,9 +239,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return this;
     }
 
-    @NonNull
     @Override
-    public MenuItem setNumericShortcut(char numericChar, int numericModifiers) {
+    public @NonNull MenuItem setNumericShortcut(char numericChar, int numericModifiers) {
         mShortcutNumericChar = numericChar;
         mShortcutNumericModifiers = KeyEvent.normalizeMetaState(numericModifiers);
         return this;
@@ -260,9 +259,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return this;
     }
 
-    @NonNull
     @Override
-    public MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
+    public @NonNull MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
             int alphaModifiers) {
         mShortcutNumericChar = numericChar;
         mShortcutNumericModifiers = KeyEvent.normalizeMetaState(numericModifiers);
@@ -323,9 +321,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return false;
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setActionView(View actionView) {
+    public @NonNull SupportMenuItem setActionView(View actionView) {
         throw new UnsupportedOperationException();
     }
 
@@ -344,9 +341,8 @@ public class ActionMenuItem implements SupportMenuItem {
         throw new UnsupportedOperationException();
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setActionView(int resId) {
+    public @NonNull SupportMenuItem setActionView(int resId) {
         throw new UnsupportedOperationException();
     }
 
@@ -355,15 +351,13 @@ public class ActionMenuItem implements SupportMenuItem {
         return null;
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
+    public @NonNull SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
         throw new UnsupportedOperationException();
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setShowAsActionFlags(int actionEnum) {
+    public @NonNull SupportMenuItem setShowAsActionFlags(int actionEnum) {
         setShowAsAction(actionEnum);
         return this;
     }
@@ -388,9 +382,8 @@ public class ActionMenuItem implements SupportMenuItem {
         throw new UnsupportedOperationException();
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setContentDescription(CharSequence contentDescription) {
+    public @NonNull SupportMenuItem setContentDescription(CharSequence contentDescription) {
         mContentDescription = contentDescription;
         return this;
     }
@@ -400,9 +393,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return mContentDescription;
     }
 
-    @NonNull
     @Override
-    public SupportMenuItem setTooltipText(CharSequence tooltipText) {
+    public @NonNull SupportMenuItem setTooltipText(CharSequence tooltipText) {
         mTooltipText = tooltipText;
         return this;
     }
@@ -412,9 +404,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return mTooltipText;
     }
 
-    @NonNull
     @Override
-    public MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
+    public @NonNull MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
         mIconTintList = iconTintList;
         mHasIconTint = true;
 
@@ -428,9 +419,8 @@ public class ActionMenuItem implements SupportMenuItem {
         return mIconTintList;
     }
 
-    @NonNull
     @Override
-    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
+    public @NonNull MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
         mIconTintMode = iconTintMode;
         mHasIconTintMode = true;
 

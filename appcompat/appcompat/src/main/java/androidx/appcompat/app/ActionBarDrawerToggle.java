@@ -25,13 +25,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class provides a handy way to tie together the functionality of
@@ -74,8 +75,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
          * @return Delegate to use for ActionBarDrawableToggles, or null if the Activity
          * does not wish to override the default behavior.
          */
-        @Nullable
-        Delegate getDrawerToggleDelegate();
+        @Nullable Delegate getDrawerToggleDelegate();
     }
 
     public interface Delegate {
@@ -365,8 +365,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     /**
      * @return DrawerArrowDrawable that is currently shown by the ActionBarDrawerToggle.
      */
-    @NonNull
-    public DrawerArrowDrawable getDrawerArrowDrawable() {
+    public @NonNull DrawerArrowDrawable getDrawerArrowDrawable() {
         return mSlider;
     }
 

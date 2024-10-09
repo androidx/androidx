@@ -28,12 +28,13 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.ResourcesCompat;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class that wraps a {@link TypedArray} and provides the same public API
@@ -112,9 +113,8 @@ public class TintTypedArray {
      * @throws UnsupportedOperationException if the attribute is defined but is
      *         not a font resource.
      */
-    @Nullable
-    public Typeface getFont(@StyleableRes int index, int style,
-            @Nullable ResourcesCompat.FontCallback fontCallback) {
+    public @Nullable Typeface getFont(@StyleableRes int index, int style,
+            ResourcesCompat.@Nullable FontCallback fontCallback) {
         final int resourceId = mWrapped.getResourceId(index, 0);
         if (resourceId == 0) {
             return null;

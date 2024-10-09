@@ -20,11 +20,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.fragment.app.Fragment;
 
+import org.jspecify.annotations.Nullable;
 
 public class FragmentContentIdActivity extends BaseTestActivity {
 
@@ -60,9 +60,8 @@ public class FragmentContentIdActivity extends BaseTestActivity {
     }
 
     public static class FragmentB extends Fragment {
-        @Nullable
         @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+        public @Nullable View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
             View view = new View(getContext());
             view.setId(R.id.fragment_b);

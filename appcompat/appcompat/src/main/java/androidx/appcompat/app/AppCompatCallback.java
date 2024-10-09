@@ -16,8 +16,9 @@
 
 package androidx.appcompat.app;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.view.ActionMode;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implemented this in order for AppCompat to be able to callback in certain situations.
@@ -50,6 +51,5 @@ public interface AppCompatCallback {
      * @param callback Callback to control the lifecycle of this action mode
      * @return The ActionMode that was started, or null if the system should present it
      */
-    @Nullable
-    ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);
+    @Nullable ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);
 }

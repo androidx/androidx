@@ -24,8 +24,9 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class TintContextWrapper extends ContextWrapper {
     private static final Object CACHE_LOCK = new Object();
     private static ArrayList<WeakReference<TintContextWrapper>> sCache;
 
-    public static Context wrap(@NonNull final Context context) {
+    public static Context wrap(final @NonNull Context context) {
         if (shouldWrap(context)) {
             synchronized (CACHE_LOCK) {
                 if (sCache == null) {
@@ -73,7 +74,7 @@ public class TintContextWrapper extends ContextWrapper {
         return context;
     }
 
-    private static boolean shouldWrap(@NonNull final Context context) {
+    private static boolean shouldWrap(final @NonNull Context context) {
         if (context instanceof TintContextWrapper
                 || context.getResources() instanceof TintResources
                 || context.getResources() instanceof VectorEnabledTintResources) {
@@ -87,7 +88,7 @@ public class TintContextWrapper extends ContextWrapper {
     private final Resources mResources;
     private final Resources.Theme mTheme;
 
-    private TintContextWrapper(@NonNull final Context base) {
+    private TintContextWrapper(final @NonNull Context base) {
         super(base);
 
         if (VectorEnabledTintResources.shouldBeUsed()) {

@@ -22,11 +22,12 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,8 +58,7 @@ final class AttachmentsRepo {
      * Reads the content at the given URI and writes it to private storage. Then returns a content
      * URI referencing the newly written file.
      */
-    @NonNull
-    public Uri write(@NonNull Uri uri) {
+    public @NonNull Uri write(@NonNull Uri uri) {
         ContentResolver contentResolver = mContext.getContentResolver();
         String mimeType = contentResolver.getType(uri);
         String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
@@ -91,8 +91,7 @@ final class AttachmentsRepo {
         }
     }
 
-    @NonNull
-    public ImmutableList<Uri> getAllUris() {
+    public @NonNull ImmutableList<Uri> getAllUris() {
         File[] files = mAttachmentsDir.listFiles();
         if (files == null || files.length == 0) {
             return ImmutableList.of();
@@ -104,8 +103,7 @@ final class AttachmentsRepo {
         return uris.build();
     }
 
-    @NonNull
-    private Uri getUriForFile(@NonNull File file) {
+    private @NonNull Uri getUriForFile(@NonNull File file) {
         return FileProvider.getUriForFile(mContext, FILE_PROVIDER_AUTHORITY, file);
     }
 }

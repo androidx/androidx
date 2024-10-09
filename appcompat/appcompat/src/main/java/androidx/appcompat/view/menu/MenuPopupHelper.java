@@ -31,12 +31,13 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 
 import androidx.annotation.AttrRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.core.view.GravityCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Presents a menu as a small, simple popup anchored to another view.
@@ -153,8 +154,7 @@ public class MenuPopupHelper implements MenuHelper {
     /**
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public MenuPopup getPopup() {
+    public @NonNull MenuPopup getPopup() {
         if (mPopup == null) {
             mPopup = createPopup();
         }
@@ -221,9 +221,8 @@ public class MenuPopupHelper implements MenuHelper {
      *
      * @return an initialized popup
      */
-    @NonNull
     @SuppressWarnings("deprecation") /* getDefaultDisplay */
-    private MenuPopup createPopup() {
+    private @NonNull MenuPopup createPopup() {
         final WindowManager windowManager = (WindowManager) mContext.getSystemService(
                 Context.WINDOW_SERVICE);
         final Display display = windowManager.getDefaultDisplay();
@@ -320,7 +319,7 @@ public class MenuPopupHelper implements MenuHelper {
     }
 
     @Override
-    public void setPresenterCallback(@Nullable MenuPresenter.Callback cb) {
+    public void setPresenterCallback(MenuPresenter.@Nullable Callback cb) {
         mPresenterCallback = cb;
         if (mPopup != null) {
             mPopup.setCallback(cb);

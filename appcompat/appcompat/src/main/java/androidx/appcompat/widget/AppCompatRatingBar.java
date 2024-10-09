@@ -22,9 +22,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RatingBar;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link RatingBar} which supports compatible features on older versions of the platform.

@@ -42,12 +42,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.view.ActionBarPolicy;
 import androidx.core.view.GravityCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * This widget implements the dynamic action bar tab behavior that can change across different

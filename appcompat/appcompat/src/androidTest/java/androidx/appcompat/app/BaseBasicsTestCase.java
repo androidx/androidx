@@ -40,7 +40,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.custom.FitWindowsContentLayout;
 import androidx.appcompat.test.R;
@@ -56,6 +55,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -386,7 +386,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
         verify(apCallback).onSupportActionModeFinished(any(ActionMode.class));
     }
 
-    private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
+    private WindowInsetsCompat waitForWindowInsets(final @NonNull View view) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();
         // Set a listener to catch WindowInsets

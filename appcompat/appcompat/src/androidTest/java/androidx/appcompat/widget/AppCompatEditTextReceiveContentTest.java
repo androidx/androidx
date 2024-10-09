@@ -47,8 +47,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputContentInfo;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.test.R;
 import androidx.core.util.ObjectsCompat;
@@ -64,6 +62,8 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -598,14 +598,11 @@ public class AppCompatEditTextReceiveContentTest {
     private static class PayloadArgumentMatcher implements ArgumentMatcher<ContentInfoCompat> {
         public static final String EXTRA_KEY = "testExtra";
 
-        @NonNull
-        private final ClipData mClip;
+        private final @NonNull ClipData mClip;
         private final int mSource;
         private final int mFlags;
-        @Nullable
-        private final Uri mLinkUri;
-        @Nullable
-        private final String mExtraValue;
+        private final @Nullable Uri mLinkUri;
+        private final @Nullable String mExtraValue;
 
         private PayloadArgumentMatcher(@NonNull ClipData clip, int source, int flags,
                 @Nullable Uri linkUri, @Nullable String extraValue) {
@@ -616,9 +613,8 @@ public class AppCompatEditTextReceiveContentTest {
             mExtraValue = extraValue;
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "[" + "clip=" + mClip + ", source=" + mSource + ", flags=" + mFlags
                     + ", linkUri=" + mLinkUri + ", extraValue=" + mExtraValue + "]";
         }

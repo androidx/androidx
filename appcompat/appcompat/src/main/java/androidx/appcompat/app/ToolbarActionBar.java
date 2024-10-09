@@ -30,8 +30,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.SpinnerAdapter;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPresenter;
 import androidx.appcompat.widget.DecorToolbar;
@@ -39,6 +37,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.ToolbarWidgetWrapper;
 import androidx.core.util.Preconditions;
 import androidx.core.view.ViewCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -68,7 +69,7 @@ class ToolbarActionBar extends ActionBar {
             };
 
     ToolbarActionBar(@NonNull Toolbar toolbar, @Nullable CharSequence title,
-            @NonNull Window.Callback windowCallback) {
+            Window.@NonNull Callback windowCallback) {
         Preconditions.checkNotNull(toolbar);
         mDecorToolbar = new ToolbarWidgetWrapper(toolbar, false);
 

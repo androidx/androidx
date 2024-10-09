@@ -39,10 +39,11 @@ import android.util.Log;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.graphics.drawable.DrawableCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  */
@@ -148,7 +149,7 @@ public final class AppCompatDrawableManager {
                             getThemeAttrColor(context, R.attr.colorAccent));
                 }
 
-                private ColorStateList createButtonColorStateList(@NonNull final Context context,
+                private ColorStateList createButtonColorStateList(final @NonNull Context context,
                         @ColorInt final int baseColor) {
                     final int[][] states = new int[4][];
                     final int[] colors = new int[4];

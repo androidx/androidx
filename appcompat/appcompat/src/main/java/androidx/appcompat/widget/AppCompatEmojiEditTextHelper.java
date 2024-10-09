@@ -26,20 +26,19 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Helper for using EmojiCompat from TextView in appcompat.
  */
 class AppCompatEmojiEditTextHelper {
 
-    @NonNull
-    private final EditText mView;
-    @NonNull
-    private final EmojiEditTextHelper mEmojiEditTextHelper;
+    private final @NonNull EditText mView;
+    private final @NonNull EmojiEditTextHelper mEmojiEditTextHelper;
 
     /**
      * Helper for integrating EmojiCompat into an EditText subclass.
@@ -116,8 +115,7 @@ class AppCompatEmojiEditTextHelper {
      *
      * @return a new KeyListener instance that wraps {@code keyListener}, or null if passed null.
      */
-    @Nullable
-    KeyListener getKeyListener(@Nullable KeyListener keyListener) {
+    @Nullable KeyListener getKeyListener(@Nullable KeyListener keyListener) {
         // add a guard for NumberkeyListener both here and in emoji2 to avoid release dependency.
         // this allows appcompat 1.4.1 to ship without a dependency on emoji2 1.1.
         if (isEmojiCapableKeyListener(keyListener)) {
@@ -142,8 +140,7 @@ class AppCompatEmojiEditTextHelper {
      *
      * @return a new InputConnection instance that wraps {@code inputConnection}
      */
-    @Nullable
-    InputConnection onCreateInputConnection(@Nullable InputConnection inputConnection,
+    @Nullable InputConnection onCreateInputConnection(@Nullable InputConnection inputConnection,
             @NonNull EditorInfo outAttrs) {
         return mEmojiEditTextHelper.onCreateInputConnection(inputConnection, outAttrs);
     }

@@ -21,9 +21,10 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link SeekBar} which supports compatible features on older versions of the platform.

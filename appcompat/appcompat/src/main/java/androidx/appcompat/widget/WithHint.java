@@ -18,8 +18,9 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  */
@@ -30,6 +31,5 @@ public interface WithHint {
      *
      * @return the hint, or null if there isn't one set, or the hint is not enabled.
      */
-    @Nullable
-    CharSequence getHint();
+    @Nullable CharSequence getHint();
 }

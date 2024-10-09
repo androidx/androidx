@@ -23,15 +23,15 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 class AppCompatBackgroundHelper {
 
-    @NonNull
-    private final View mView;
+    private final @NonNull View mView;
     private final AppCompatDrawableManager mDrawableManager;
 
     private int mBackgroundResId = -1;

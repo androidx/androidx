@@ -33,13 +33,14 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.ListMenuItemView;
 import androidx.appcompat.view.menu.MenuAdapter;
 import androidx.appcompat.view.menu.MenuBuilder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -74,9 +75,8 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    @NonNull
     @Override
-    DropDownListView createDropDownListView(Context context, boolean hijackFocus) {
+    @NonNull DropDownListView createDropDownListView(Context context, boolean hijackFocus) {
         MenuDropDownListView view = new MenuDropDownListView(context, hijackFocus);
         view.setHoverListener(this);
         return view;

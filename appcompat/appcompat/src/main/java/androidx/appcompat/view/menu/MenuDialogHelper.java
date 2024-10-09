@@ -24,9 +24,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.R;
 import androidx.appcompat.app.AlertDialog;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Helper for menus that appear as Dialogs (context and submenus).

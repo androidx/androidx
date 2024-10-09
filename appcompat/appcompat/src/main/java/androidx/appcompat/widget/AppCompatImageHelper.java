@@ -25,19 +25,19 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.ImageViewCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AppCompatImageHelper {
-    @NonNull
-    private final ImageView mView;
+    private final @NonNull ImageView mView;
 
     private TintInfo mInternalImageTint;
     private TintInfo mImageTint;

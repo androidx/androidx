@@ -38,8 +38,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
@@ -55,6 +53,9 @@ import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TextViewOnReceiveContentListener;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link EditText} which supports compatible features on older versions of the platform,
@@ -83,10 +84,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
-    @NonNull
-    private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
-    @Nullable
-    private SuperCaller mSuperCaller;
+    private final @NonNull AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
+    private @Nullable SuperCaller mSuperCaller;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -162,7 +161,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * will return null.
      */
     @Override
-    @Nullable public Editable getText() {
+    public @Nullable Editable getText() {
         if (Build.VERSION.SDK_INT >= 28) {
             return super.getText();
         }
@@ -207,8 +206,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    @Nullable
-    public ColorStateList getSupportBackgroundTintList() {
+    public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
@@ -220,7 +218,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
+    public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -233,8 +231,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    @Nullable
-    public PorterDuff.Mode getSupportBackgroundTintMode() {
+    public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
@@ -264,9 +261,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
+    public @Nullable InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         InputConnection ic = super.onCreateInputConnection(outAttrs);
         mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
@@ -290,14 +286,13 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            @Nullable ActionMode.Callback actionModeCallback) {
+            ActionMode.@Nullable Callback actionModeCallback) {
         super.setCustomSelectionActionModeCallback(
                 TextViewCompat.wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 
     @Override
-    @Nullable
-    public ActionMode.Callback getCustomSelectionActionModeCallback() {
+    public ActionMode.@Nullable Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
     }
@@ -317,9 +312,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     }
 
     @UiThread
-    @NonNull
     @RequiresApi(26)
-    private SuperCaller getSuperCaller() {
+    private @NonNull SuperCaller getSuperCaller() {
         if (mSuperCaller == null) {
             mSuperCaller = new SuperCaller();
         }
@@ -345,9 +339,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link android.view.textclassifier.TextClassificationManager}.
      */
     @Override
-    @NonNull
     @RequiresApi(api = 26)
-    public TextClassifier getTextClassifier() {
+    public @NonNull TextClassifier getTextClassifier() {
         // The null check is necessary because getTextClassifier is called when we are invoking
         // the super class's constructor.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P || mTextClassifierHelper == null) {
@@ -394,9 +387,8 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @return The portion of the passed-in content that was not handled (may be all, some, or none
      * of the passed-in content).
      */
-    @Nullable
     @Override
-    public ContentInfoCompat onReceiveContent(@NonNull ContentInfoCompat payload) {
+    public @Nullable ContentInfoCompat onReceiveContent(@NonNull ContentInfoCompat payload) {
         return mDefaultOnReceiveContentListener.onReceiveContent(this, payload);
     }
 
@@ -448,10 +440,9 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
      */
-    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public ColorStateList getSupportCompoundDrawablesTintList() {
+    public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
 
@@ -489,10 +480,9 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
      */
-    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
+    public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
 
@@ -511,7 +501,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
+    public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
     }
@@ -519,8 +509,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     @RequiresApi(api = 26)
     class SuperCaller {
 
-        @Nullable
-        public TextClassifier getTextClassifier() {
+        public @Nullable TextClassifier getTextClassifier() {
             return AppCompatEditText.super.getTextClassifier();
         }
 

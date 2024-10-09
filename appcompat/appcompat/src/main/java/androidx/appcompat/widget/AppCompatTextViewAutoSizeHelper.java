@@ -36,14 +36,15 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -96,8 +97,7 @@ class AppCompatTextViewAutoSizeHelper {
     private boolean mHasPresetAutoSizeValues = false;
     private TextPaint mTempTextPaint;
 
-    @NonNull
-    private final TextView mTextView;
+    private final @NonNull TextView mTextView;
     private final Context mContext;
 
     private final Impl mImpl;
@@ -357,7 +357,7 @@ class AppCompatTextViewAutoSizeHelper {
      *
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
+    void setAutoSizeTextTypeUniformWithPresetSizes(int @NonNull [] presetSizes, int unit)
             throws IllegalArgumentException {
         if (supportsAutoSizeText()) {
             final int presetSizesLength = presetSizes.length;
@@ -711,10 +711,9 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     @VisibleForTesting
-    @NonNull
-    StaticLayout createLayout(
+    @NonNull StaticLayout createLayout(
             @NonNull CharSequence text,
-            @NonNull Layout.Alignment alignment,
+            Layout.@NonNull Alignment alignment,
             int availableWidth,
             int maxLines
     ) {
@@ -773,7 +772,7 @@ class AppCompatTextViewAutoSizeHelper {
     // This is marked package-protected so that it doesn't require a synthetic accessor
     // when being used from the Impl inner classes
     static <T> T invokeAndReturnWithDefault(@NonNull Object object,
-            @NonNull final String methodName, @NonNull final T defaultValue) {
+            final @NonNull String methodName, final @NonNull T defaultValue) {
         T result = null;
         boolean exceptionThrown = false;
 
@@ -793,8 +792,7 @@ class AppCompatTextViewAutoSizeHelper {
         return result;
     }
 
-    @Nullable
-    private static Method getTextViewMethod(@NonNull final String methodName) {
+    private static @Nullable Method getTextViewMethod(final @NonNull String methodName) {
         try {
             Method method = sTextViewMethodByNameCache.get(methodName);
             if (method == null) {
@@ -838,10 +836,9 @@ class AppCompatTextViewAutoSizeHelper {
             // This class is not instantiable.
         }
 
-        @NonNull
-        static StaticLayout createStaticLayoutForMeasuring(
+        static @NonNull StaticLayout createStaticLayoutForMeasuring(
                 @NonNull CharSequence text,
-                @NonNull Layout.Alignment alignment,
+                Layout.@NonNull Alignment alignment,
                 int availableWidth,
                 int maxLines,
                 @NonNull TextView textView,
