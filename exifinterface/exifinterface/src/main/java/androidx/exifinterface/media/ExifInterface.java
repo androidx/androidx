@@ -39,12 +39,13 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api21Impl;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api23Impl;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -3168,8 +3169,7 @@ public class ExifInterface {
          * Creates a new {@code Rational} which approximates the provided {@code double} value by
          * using <a href="https://en.wikipedia.org/wiki/Continued_fraction">continued fractions</a>.
          */
-        @NonNull
-        public static Rational createFromDouble(double value) {
+        public static @NonNull Rational createFromDouble(double value) {
             if (value >= Long.MAX_VALUE || value <= Long.MIN_VALUE) {
                 // value is too large to represent as a long, so just return the max/min value.
                 return new Rational(
@@ -3201,9 +3201,8 @@ public class ExifInterface {
             return new Rational(value < 0 ? -numerator : numerator, denominator);
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return numerator + "/" + denominator;
         }
 
@@ -3323,9 +3322,8 @@ public class ExifInterface {
             return new ExifAttribute(IFD_FORMAT_DOUBLE, values.length, buffer.array());
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "(" + IFD_FORMAT_NAMES[format] + ", data length:" + bytes.length + ")";
         }
 
@@ -4208,8 +4206,7 @@ public class ExifInterface {
      * @param tag the name of the tag.
      */
     @SuppressWarnings("deprecation")
-    @Nullable
-    private ExifAttribute getExifAttribute(@NonNull String tag) {
+    private @Nullable ExifAttribute getExifAttribute(@NonNull String tag) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
@@ -4238,8 +4235,7 @@ public class ExifInterface {
      *
      * @param tag the name of the tag.
      */
-    @Nullable
-    public String getAttribute(@NonNull String tag) {
+    public @Nullable String getAttribute(@NonNull String tag) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
@@ -4937,8 +4933,7 @@ public class ExifInterface {
      * The returned data can be decoded using
      * {@link BitmapFactory#decodeByteArray(byte[],int,int)}
      */
-    @Nullable
-    public byte[] getThumbnail() {
+    public byte @Nullable [] getThumbnail() {
         if (mThumbnailCompression == DATA_JPEG || mThumbnailCompression == DATA_JPEG_COMPRESSED) {
             return getThumbnailBytes();
         }
@@ -4949,8 +4944,7 @@ public class ExifInterface {
      * Returns the thumbnail bytes inside the image file, regardless of the compression type of the
      * thumbnail image.
      */
-    @Nullable
-    public byte[] getThumbnailBytes() {
+    public byte @Nullable [] getThumbnailBytes() {
         if (!mHasThumbnail) {
             return null;
         }
@@ -5009,8 +5003,7 @@ public class ExifInterface {
      * Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
      * thumbnail compression value, or {@code null} if the compression type is unsupported.
      */
-    @Nullable
-    public Bitmap getThumbnailBitmap() {
+    public @Nullable Bitmap getThumbnailBitmap() {
         if (!mHasThumbnail) {
             return null;
         } else if (mThumbnailBytes == null) {
@@ -5067,8 +5060,7 @@ public class ExifInterface {
      *             called since the underlying file was initially parsed, since
      *             that means offsets may have changed.
      */
-    @Nullable
-    public long[] getThumbnailRange() {
+    public long @Nullable [] getThumbnailRange() {
         if (mModified) {
             throw new IllegalStateException(
                     "The underlying file has been modified since being parsed");
@@ -5093,8 +5085,7 @@ public class ExifInterface {
      *             called since the underlying file was initially parsed, since
      *             that means offsets may have changed.
      */
-    @Nullable
-    public long[] getAttributeRange(@NonNull String tag) {
+    public long @Nullable [] getAttributeRange(@NonNull String tag) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
@@ -5118,8 +5109,7 @@ public class ExifInterface {
      * @return raw bytes for the value of the requested tag, or {@code null} if
      *         no tag was found.
      */
-    @Nullable
-    public byte[] getAttributeBytes(@NonNull String tag) {
+    public byte @Nullable [] getAttributeBytes(@NonNull String tag) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
@@ -5156,8 +5146,7 @@ public class ExifInterface {
      * array where the first element is the latitude and the second element is the longitude.
      * Otherwise, it returns null.
      */
-    @Nullable
-    public double[] getLatLong() {
+    public double @Nullable [] getLatLong() {
         String latValue = getAttribute(TAG_GPS_LATITUDE);
         String latRef = getAttribute(TAG_GPS_LATITUDE_REF);
         String lngValue = getAttribute(TAG_GPS_LONGITUDE);
@@ -5288,8 +5277,7 @@ public class ExifInterface {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    public Long getDateTime() {
+    public @Nullable Long getDateTime() {
         return parseDateTime(getAttribute(TAG_DATETIME),
                 getAttribute(TAG_SUBSEC_TIME),
                 getAttribute(TAG_OFFSET_TIME));
@@ -5306,8 +5294,7 @@ public class ExifInterface {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    public Long getDateTimeDigitized() {
+    public @Nullable Long getDateTimeDigitized() {
         return parseDateTime(getAttribute(TAG_DATETIME_DIGITIZED),
                 getAttribute(TAG_SUBSEC_TIME_DIGITIZED),
                 getAttribute(TAG_OFFSET_TIME_DIGITIZED));
@@ -5324,8 +5311,7 @@ public class ExifInterface {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    public Long getDateTimeOriginal() {
+    public @Nullable Long getDateTimeOriginal() {
         return parseDateTime(getAttribute(TAG_DATETIME_ORIGINAL),
                 getAttribute(TAG_SUBSEC_TIME_ORIGINAL),
                 getAttribute(TAG_OFFSET_TIME_ORIGINAL));
@@ -5375,8 +5361,7 @@ public class ExifInterface {
      * @return null if the date time information is not available.
      */
     @SuppressLint("AutoBoxing") /* Not a performance-critical call, thus not a big concern. */
-    @Nullable
-    public Long getGpsDateTime() {
+    public @Nullable Long getGpsDateTime() {
         String date = getAttribute(TAG_GPS_DATESTAMP);
         String time = getAttribute(TAG_GPS_TIMESTAMP);
         if (date == null || time == null
@@ -6507,7 +6492,7 @@ public class ExifInterface {
                     }
                     // If the length is long enough, we read enough bytes for the XMP identifier,
                     // because it's longer than the EXIF one.
-                    @Nullable byte[] identifier;
+                    byte[] identifier;
                     if (length >= IDENTIFIER_XMP_APP1.length) {
                         identifier = new byte[IDENTIFIER_XMP_APP1.length];
                     } else if (length >= IDENTIFIER_EXIF_APP1.length) {

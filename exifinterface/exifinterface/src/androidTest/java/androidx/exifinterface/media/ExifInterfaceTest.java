@@ -35,7 +35,6 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,6 +49,7 @@ import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
 import com.google.common.truth.Expect;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
