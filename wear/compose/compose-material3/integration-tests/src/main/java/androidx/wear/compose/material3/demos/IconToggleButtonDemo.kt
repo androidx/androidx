@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -257,13 +256,12 @@ private fun AnimatedIconToggleButtonsDemo(
     size: Dp = IconToggleButtonDefaults.DefaultButtonSize
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
-    val interactionSource = remember { MutableInteractionSource() }
     IconToggleButton(
         checked = checked.value,
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
         onCheckedChange = { checked.value = !checked.value },
-        shape = IconToggleButtonDefaults.animatedShape(interactionSource),
+        shapes = IconToggleButtonDefaults.animatedShapes(),
     ) {
         if (checked.value) {
             WifiOnIcon(Modifier.size(IconToggleButtonDefaults.iconSizeFor(size)))
@@ -280,17 +278,12 @@ private fun VariantAnimatedIconToggleButtonsDemo(
     size: Dp = IconToggleButtonDefaults.DefaultButtonSize
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
-    val interactionSource = remember { MutableInteractionSource() }
     IconToggleButton(
         checked = checked.value,
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
         onCheckedChange = { checked.value = !checked.value },
-        shape =
-            IconToggleButtonDefaults.variantAnimatedShape(
-                interactionSource,
-                checked = checked.value
-            ),
+        shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
     ) {
         if (checked.value) {
             WifiOnIcon(Modifier.size(IconToggleButtonDefaults.iconSizeFor(size)))

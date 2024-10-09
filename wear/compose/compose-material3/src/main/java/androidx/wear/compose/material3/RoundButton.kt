@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,13 +95,12 @@ internal fun RoundButton(
  * or dp, and cannot be correctly scaled as either a RoundedPolygon or a Morph.
  */
 @Composable
-internal fun animatedPressedButtonShape(
+internal fun rememberAnimatedPressedButtonShape(
     interactionSource: InteractionSource,
     shape: CornerBasedShape,
     pressedShape: CornerBasedShape,
-    onPressAnimationSpec: FiniteAnimationSpec<Float> = MaterialTheme.motionScheme.fastEffectsSpec(),
-    onReleaseAnimationSpec: FiniteAnimationSpec<Float> =
-        MaterialTheme.motionScheme.defaultSpatialSpec(),
+    onPressAnimationSpec: FiniteAnimationSpec<Float>,
+    onReleaseAnimationSpec: FiniteAnimationSpec<Float>,
 ): Shape {
     val pressed = interactionSource.collectIsPressedAsState()
 
@@ -120,7 +120,91 @@ internal fun animatedPressedButtonShape(
 
     return when {
         shape is RoundedCornerShape && pressedShape is RoundedCornerShape ->
-            rememberAnimatedRoundedCornerShape(shape, pressedShape, progress)
-        else -> rememberAnimatedCornerBasedShape(shape, pressedShape, progress)
+            rememberAnimatedRoundedCornerShape(
+                shape = shape,
+                pressedShape = pressedShape,
+                progress = progress
+            )
+        else ->
+            rememberAnimatedCornerBasedShape(
+                shape = shape,
+                pressedShape = pressedShape,
+                progress = progress
+            )
+    }
+}
+
+@Composable
+internal fun animateButtonShape(
+    defaultShape: Shape,
+    pressedShape: Shape?,
+    onPressAnimationSpec: FiniteAnimationSpec<Float>,
+    onReleaseAnimationSpec: FiniteAnimationSpec<Float>,
+    interactionSource: MutableInteractionSource?
+) =
+    if (defaultShape is CornerBasedShape && pressedShape is CornerBasedShape) {
+        val finalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+        val finalShape =
+            rememberAnimatedPressedButtonShape(
+                interactionSource = finalInteractionSource,
+                shape = defaultShape,
+                pressedShape = pressedShape,
+                onPressAnimationSpec = onPressAnimationSpec,
+                onReleaseAnimationSpec = onReleaseAnimationSpec
+            )
+
+        Pair(finalShape, finalInteractionSource)
+    } else {
+        // Fallback to static uncheckedShape if no other shapes, or not animatable
+        Pair(defaultShape, interactionSource)
+    }
+
+@Composable
+internal fun animateToggleButtonShape(
+    uncheckedShape: Shape,
+    checkedShape: Shape?,
+    pressedShape: Shape?,
+    onPressAnimationSpec: FiniteAnimationSpec<Float>,
+    onReleaseAnimationSpec: FiniteAnimationSpec<Float>,
+    checked: Boolean,
+    interactionSource: MutableInteractionSource?
+): Pair<Shape, MutableInteractionSource?> {
+    return if (checkedShape == null) {
+        // Reuse presssed animation
+
+        return animateButtonShape(
+            defaultShape = uncheckedShape,
+            pressedShape = pressedShape,
+            onPressAnimationSpec = onPressAnimationSpec,
+            onReleaseAnimationSpec = onReleaseAnimationSpec,
+            interactionSource = interactionSource
+        )
+    } else if (
+        uncheckedShape is RoundedCornerShape &&
+            pressedShape is RoundedCornerShape &&
+            checkedShape is RoundedCornerShape
+    ) {
+        // Animate between the corner radius
+
+        val finalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+        val pressed = finalInteractionSource.collectIsPressedAsState()
+
+        val finalShape =
+            rememberAnimatedToggleRoundedCornerShape(
+                uncheckedCornerSize = uncheckedShape.topEnd,
+                checkedCornerSize = checkedShape.topEnd,
+                pressedCornerSize = pressedShape.topEnd,
+                pressed = pressed.value,
+                checked = checked,
+                onPressAnimationSpec = onPressAnimationSpec,
+                onReleaseAnimationSpec = onReleaseAnimationSpec,
+            )
+
+        Pair(finalShape, finalInteractionSource)
+    } else {
+        // Fallback to static uncheckedShape if no other shapes, or not animatable
+        Pair(uncheckedShape, interactionSource)
     }
 }

@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -28,12 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.TextToggleButton
 import androidx.wear.compose.material3.TextToggleButtonDefaults
 
@@ -45,16 +42,10 @@ fun AnimatedShapeToggleButtonDemo() {
             Row {
                 val checked = remember { mutableStateOf(false) }
 
-                val interactionSource1 = remember { MutableInteractionSource() }
-
                 TextToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
-                    shape =
-                        TextButtonDefaults.animatedShape(
-                            interactionSource1,
-                        ),
+                    shapes = TextToggleButtonDefaults.animatedShapes(),
                     checked = checked.value,
-                    interactionSource = interactionSource1,
                 ) {
                     Text(text = "ABC")
                 }
@@ -63,12 +54,8 @@ fun AnimatedShapeToggleButtonDemo() {
 
                 IconToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
-                    shape =
-                        IconButtonDefaults.animatedShape(
-                            interactionSource1,
-                        ),
+                    shapes = IconToggleButtonDefaults.animatedShapes(),
                     checked = checked.value,
-                    interactionSource = interactionSource1,
                 ) {
                     Icon(imageVector = Icons.Rounded.Home, contentDescription = null)
                 }
@@ -79,16 +66,10 @@ fun AnimatedShapeToggleButtonDemo() {
             Row {
                 val checked = remember { mutableStateOf(false) }
 
-                val interactionSource1 = remember { MutableInteractionSource() }
                 TextToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
-                    shape =
-                        TextToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource1,
-                            checked = checked.value,
-                        ),
+                    shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
                     checked = checked.value,
-                    interactionSource = interactionSource1,
                 ) {
                     Text(text = "ABC")
                 }
@@ -97,13 +78,8 @@ fun AnimatedShapeToggleButtonDemo() {
 
                 IconToggleButton(
                     onCheckedChange = { checked.value = !checked.value },
-                    shape =
-                        IconToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource1,
-                            checked = checked.value,
-                        ),
+                    shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                     checked = checked.value,
-                    interactionSource = interactionSource1,
                 ) {
                     Icon(imageVector = Icons.Rounded.Home, contentDescription = null)
                 }

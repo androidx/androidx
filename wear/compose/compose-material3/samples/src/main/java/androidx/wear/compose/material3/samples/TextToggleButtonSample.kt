@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,16 +32,11 @@ import androidx.wear.compose.material3.touchTargetAwareSize
 @Sampled
 @Composable
 fun TextToggleButtonSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(true) }
     TextToggleButton(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        interactionSource = interactionSource,
-        shape =
-            TextButtonDefaults.animatedShape(
-                interactionSource = interactionSource,
-            ),
+        shapes = TextToggleButtonDefaults.animatedShapes(),
     ) {
         Text(text = if (checked) "On" else "Off")
     }
@@ -51,17 +45,11 @@ fun TextToggleButtonSample() {
 @Sampled
 @Composable
 fun TextToggleButtonVariantSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(true) }
     TextToggleButton(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        interactionSource = interactionSource,
-        shape =
-            TextToggleButtonDefaults.variantAnimatedShape(
-                interactionSource = interactionSource,
-                checked = checked
-            )
+        shapes = TextToggleButtonDefaults.variantAnimatedShapes()
     ) {
         Text(text = if (checked) "On" else "Off")
     }

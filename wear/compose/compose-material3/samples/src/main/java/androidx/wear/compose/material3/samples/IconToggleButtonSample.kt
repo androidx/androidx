@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
@@ -26,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.samples.icons.WifiOffIcon
@@ -35,16 +33,11 @@ import androidx.wear.compose.material3.samples.icons.WifiOnIcon
 @Sampled
 @Composable
 fun IconToggleButtonSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(true) }
     IconToggleButton(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        interactionSource = interactionSource,
-        shape =
-            IconButtonDefaults.animatedShape(
-                interactionSource = interactionSource,
-            ),
+        shapes = IconToggleButtonDefaults.animatedShapes(),
     ) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
@@ -53,17 +46,11 @@ fun IconToggleButtonSample() {
 @Sampled
 @Composable
 fun IconToggleButtonVariantSample() {
-    val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(true) }
     IconToggleButton(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        interactionSource = interactionSource,
-        shape =
-            IconToggleButtonDefaults.variantAnimatedShape(
-                interactionSource = interactionSource,
-                checked = checked
-            ),
+        shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
     ) {
         if (checked) {
             WifiOnIcon()

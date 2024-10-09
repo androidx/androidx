@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -102,11 +101,7 @@ class TextToggleButtonScreenshotTest {
                 }
                 sampleTextToggleButton(
                     checked = false,
-                    shape =
-                        TextToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource = interactionSource,
-                            checked = false
-                        ),
+                    shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
                     interactionSource = interactionSource
                 )
             }
@@ -118,15 +113,9 @@ class TextToggleButtonScreenshotTest {
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
             content = {
-                val interactionSource = remember { MutableInteractionSource() }
                 sampleTextToggleButton(
                     checked = true,
-                    shape =
-                        TextToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource = interactionSource,
-                            checked = true
-                        ),
-                    interactionSource = interactionSource
+                    shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
                 )
             }
         )
@@ -137,15 +126,9 @@ class TextToggleButtonScreenshotTest {
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
             content = {
-                val interactionSource = remember { MutableInteractionSource() }
                 sampleTextToggleButton(
                     checked = false,
-                    shape =
-                        TextToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource = interactionSource,
-                            checked = false
-                        ),
-                    interactionSource = interactionSource
+                    shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
                 )
             }
         )
@@ -155,7 +138,7 @@ class TextToggleButtonScreenshotTest {
         enabled: Boolean = true,
         checked: Boolean = true,
         modifier: Modifier = Modifier,
-        shape: Shape = TextButtonDefaults.shape,
+        shapes: TextToggleButtonShapes = TextToggleButtonDefaults.shapes(),
         interactionSource: MutableInteractionSource? = null
     ) {
         TextToggleButton(
@@ -163,7 +146,7 @@ class TextToggleButtonScreenshotTest {
             onCheckedChange = {},
             enabled = enabled,
             modifier = modifier.testTag(TEST_TAG),
-            shape = shape,
+            shapes = shapes,
             interactionSource = interactionSource
         ) {
             Text(text = if (checked) "ON" else "OFF")

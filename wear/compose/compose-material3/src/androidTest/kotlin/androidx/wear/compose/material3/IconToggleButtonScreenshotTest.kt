@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -115,11 +114,7 @@ class IconToggleButtonScreenshotTest {
                     }
                     sampleIconToggleButton(
                         checked = false,
-                        shape =
-                            IconToggleButtonDefaults.variantAnimatedShape(
-                                interactionSource = interactionSource,
-                                checked = false
-                            ),
+                        shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                         interactionSource = interactionSource
                     )
                 }
@@ -141,15 +136,9 @@ class IconToggleButtonScreenshotTest {
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
             content = {
-                val interactionSource = remember { MutableInteractionSource() }
                 sampleIconToggleButton(
                     checked = true,
-                    shape =
-                        IconToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource = interactionSource,
-                            checked = true
-                        ),
-                    interactionSource = interactionSource
+                    shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
             }
         )
@@ -160,15 +149,9 @@ class IconToggleButtonScreenshotTest {
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
             content = {
-                val interactionSource = remember { MutableInteractionSource() }
                 sampleIconToggleButton(
                     checked = false,
-                    shape =
-                        IconToggleButtonDefaults.variantAnimatedShape(
-                            interactionSource = interactionSource,
-                            checked = false
-                        ),
-                    interactionSource = interactionSource
+                    shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
             }
         )
@@ -178,7 +161,7 @@ class IconToggleButtonScreenshotTest {
         enabled: Boolean = true,
         checked: Boolean = true,
         modifier: Modifier = Modifier,
-        shape: Shape = TextButtonDefaults.shape,
+        shapes: IconToggleButtonShapes = IconToggleButtonDefaults.shapes(),
         interactionSource: MutableInteractionSource? = null
     ) {
         IconToggleButton(
@@ -186,7 +169,7 @@ class IconToggleButtonScreenshotTest {
             onCheckedChange = {},
             enabled = enabled,
             modifier = modifier.testTag(TEST_TAG),
-            shape = shape,
+            shapes = shapes,
             interactionSource = interactionSource
         ) {
             Icon(imageVector = Icons.Outlined.Star, contentDescription = "Favourite")

@@ -225,14 +225,12 @@ private fun AnimatedTextToggleButtonsDemo(
     textStyle: TextStyle = TextToggleButtonDefaults.defaultButtonTextStyle
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
-    val interactionSource = remember { MutableInteractionSource() }
     TextToggleButton(
         checked = checked.value,
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
         onCheckedChange = { checked.value = !checked.value },
-        shape = TextToggleButtonDefaults.animatedShape(interactionSource),
-        interactionSource = interactionSource,
+        shapes = TextToggleButtonDefaults.animatedShapes(),
     ) {
         Text(text = if (checked.value) "On" else "Off", style = textStyle)
     }
@@ -252,11 +250,7 @@ private fun VariantAnimatedTextToggleButtonsDemo(
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
         onCheckedChange = { checked.value = !checked.value },
-        shape =
-            TextToggleButtonDefaults.variantAnimatedShape(
-                interactionSource,
-                checked = checked.value
-            ),
+        shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
         interactionSource = interactionSource,
     ) {
         Text(text = if (checked.value) "On" else "Off", style = textStyle)

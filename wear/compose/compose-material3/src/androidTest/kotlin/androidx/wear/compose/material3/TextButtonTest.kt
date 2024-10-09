@@ -329,7 +329,11 @@ class TextButtonTest {
 
         rule.isShape(expectedShape = shape, colors = { TextButtonDefaults.textButtonColors() }) {
             modifier ->
-            TextButton(onClick = {}, modifier = modifier, shape = shape) {
+            TextButton(
+                onClick = {},
+                modifier = modifier,
+                shapes = TextButtonDefaults.shapes(shape)
+            ) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }

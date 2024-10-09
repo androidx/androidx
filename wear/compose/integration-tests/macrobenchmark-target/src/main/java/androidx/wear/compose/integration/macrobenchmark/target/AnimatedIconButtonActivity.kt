@@ -19,12 +19,10 @@ package androidx.wear.compose.integration.macrobenchmark.target
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -47,15 +45,13 @@ class AnimatedIconButtonActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     repeat(4) {
-                        val interactionSource = remember { MutableInteractionSource() }
                         IconButton(
                             modifier =
                                 Modifier.semantics {
                                     contentDescription = numberedContentDescription(it)
                                 },
                             colors = IconButtonDefaults.filledIconButtonColors(),
-                            interactionSource = interactionSource,
-                            shape = IconButtonDefaults.animatedShape(interactionSource),
+                            shapes = IconButtonDefaults.animatedShapes(),
                             onClick = {}
                         ) {
                             Icon(

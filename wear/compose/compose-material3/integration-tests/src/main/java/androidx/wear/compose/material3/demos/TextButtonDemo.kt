@@ -16,14 +16,12 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -118,22 +116,18 @@ fun TextButtonDemo() {
         item { ListHeader { Text("Corner Animation") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val interactionSource1 = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {},
                     colors = TextButtonDefaults.filledTextButtonColors(),
-                    shape = TextButtonDefaults.animatedShape(interactionSource1),
-                    interactionSource = interactionSource1
+                    shapes = TextButtonDefaults.animatedShapes(),
                 ) {
                     Text(text = "ABC")
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                val interactionSource2 = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {},
                     colors = TextButtonDefaults.filledVariantTextButtonColors(),
-                    shape = TextButtonDefaults.animatedShape(interactionSource2),
-                    interactionSource = interactionSource2
+                    shapes = TextButtonDefaults.animatedShapes(),
                 ) {
                     Text(text = "ABC")
                 }
@@ -142,32 +136,26 @@ fun TextButtonDemo() {
         item { ListHeader { Text("Morphed Animation") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val interactionSource1 = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {},
                     colors = TextButtonDefaults.filledTextButtonColors(),
-                    shape =
-                        TextButtonDefaults.animatedShape(
-                            interactionSource1,
+                    shapes =
+                        TextButtonDefaults.animatedShapes(
                             shape = CutCornerShape(5.dp),
                             pressedShape = RoundedCornerShape(5.dp)
                         ),
-                    interactionSource = interactionSource1
                 ) {
                     Text(text = "ABC")
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                val interactionSource2 = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {},
                     colors = TextButtonDefaults.filledVariantTextButtonColors(),
-                    shape =
-                        TextButtonDefaults.animatedShape(
-                            interactionSource2,
+                    shapes =
+                        TextButtonDefaults.animatedShapes(
                             shape = CutCornerShape(5.dp),
                             pressedShape = RoundedCornerShape(5.dp)
                         ),
-                    interactionSource = interactionSource2
                 ) {
                     Text(text = "ABC")
                 }
