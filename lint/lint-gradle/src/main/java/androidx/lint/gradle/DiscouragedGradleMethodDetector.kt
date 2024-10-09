@@ -151,6 +151,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                         "configureEach",
                         EAGER_CONFIGURATION_ISSUE
                     ),
+                "any" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "create" to Replacement(TASK_CONTAINER, "register", EAGER_CONFIGURATION_ISSUE),
                 "findAll" to
                     Replacement(NAMED_DOMAIN_OBJECT_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
@@ -159,6 +160,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "findProject" to Replacement(PROJECT, null, PROJECT_ISOLATION_ISSUE),
                 "findProperty" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "forEach" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "hasProperty" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "property" to
@@ -172,7 +174,10 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "getProperties" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "getRootProject" to Replacement(PROJECT, null, PROJECT_ISOLATION_ISSUE),
+                "groupBy" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
+                "map" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "mapNotNull" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "toString" to Replacement(PROVIDER, "get", TO_STRING_ON_PROVIDER_ISSUE),
