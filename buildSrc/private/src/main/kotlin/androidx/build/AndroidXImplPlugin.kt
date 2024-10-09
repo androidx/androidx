@@ -86,6 +86,7 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
@@ -1056,7 +1057,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.configureDependencyVerification(androidXExtension) { taskProvider ->
             taskProvider.configure { task ->
-                task.dependsOn(project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME))
+                try {
+                    task.dependsOn(project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME))
+                } catch (e: UnknownTaskException) {
+                    // Java compile task doesn't exist; do nothing
+                }
             }
         }
 

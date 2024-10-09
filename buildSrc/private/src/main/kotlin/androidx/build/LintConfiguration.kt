@@ -32,7 +32,6 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
@@ -95,12 +94,6 @@ private fun Project.configureAndroidMultiplatformProjectForLint(
 
 /** Android Lint configuration entry point for non-Android projects. */
 private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
-    // The lint plugin expects certain configurations and source sets which are only added by
-    // the Java and Android plugins. If this is a multiplatform project targeting JVM, we'll
-    // need to manually create these configurations and source sets based on their multiplatform
-    // JVM equivalents.
-    addSourceSetsForMultiplatformAfterEvaluate()
-
     // For Android projects, the Android Gradle Plugin is responsible for applying the lint plugin;
     // however, we need to apply it ourselves for non-Android projects.
     apply(mapOf("plugin" to "com.android.lint"))
@@ -113,48 +106,6 @@ private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
     // For Android projects, we can run lint configuration last using `DslLifecycle.finalizeDsl`;
     // however, we need to run it using `Project.afterEvaluate` for non-Android projects.
     configureLint(project.extensions.getByType(), isLibrary = true)
-}
-
-/**
- * If the project is using multiplatform, adds configurations and source sets expected by the lint
- * plugin, which allows it to configure itself when running against a non-Android multiplatform
- * project.
- *
- * The version of lint that we're using does not directly support Kotlin multiplatform, but we can
- * synthesize the necessary configurations and source sets from existing `jvm` configurations and
- * `kotlinSourceSets`, respectively.
- *
- * This method *must* run after evaluation.
- */
-private fun Project.addSourceSetsForMultiplatformAfterEvaluate() {
-    val kmpTargets = project.multiplatformExtension?.targets ?: return
-
-    // Synthesize target configurations based on multiplatform configurations.
-    val kmpApiElements = kmpTargets.map { it.apiElementsConfigurationName }
-    val kmpRuntimeElements = kmpTargets.map { it.runtimeElementsConfigurationName }
-    listOf(kmpRuntimeElements to "runtimeElements", kmpApiElements to "apiElements").forEach {
-        (kmpConfigNames, targetConfigName) ->
-        project.configurations.maybeCreate(targetConfigName).apply {
-            kmpConfigNames
-                .mapNotNull { configName -> project.configurations.findByName(configName) }
-                .forEach { config -> extendsFrom(config) }
-        }
-    }
-
-    // Synthesize source sets based on multiplatform source sets.
-    val javaExtension =
-        project.extensions.findByType(JavaPluginExtension::class.java)
-            ?: throw GradleException("Failed to find extension of type 'JavaPluginExtension'")
-    listOf("main" to "main", "test" to "test").forEach { (kmpCompilationName, targetSourceSetName)
-        ->
-        javaExtension.sourceSets.maybeCreate(targetSourceSetName).apply {
-            kmpTargets
-                .mapNotNull { target -> target.compilations.findByName(kmpCompilationName) }
-                .flatMap { compilation -> compilation.kotlinSourceSets }
-                .flatMap { sourceSet -> sourceSet.kotlin.srcDirs }
-                .forEach { srcDirs -> java.srcDirs += srcDirs }
-        }
-    }
 }
 
 /**
