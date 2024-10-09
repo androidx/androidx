@@ -2293,10 +2293,8 @@ class BaselineProfileConsumerPluginTestWithFtl(agpVersion: TestAgpVersion) {
         projectSetup.producer.setup(
             variantProfiles =
                 VariantProfile.release(
-                    ftlFileLines =
-                        listOf(
-                            Fixtures.CLASS_2_METHOD_1,
-                        ),
+                    ftlFileLines = listOf(Fixtures.CLASS_2_METHOD_1),
+                    useGsSchema = false,
                 )
         )
 
@@ -2313,5 +2311,34 @@ class BaselineProfileConsumerPluginTestWithFtl(agpVersion: TestAgpVersion) {
 
         assertThat(projectSetup.readBaselineProfileFileContent("release"))
             .containsExactly(Fixtures.CLASS_2_METHOD_1)
+    }
+
+    @Test
+    fun testGenerateBaselineProfileWithFtlArtifactInGoogleStorageShouldNotCrash() {
+        projectSetup.consumer.setup(androidPlugin = ANDROID_APPLICATION_PLUGIN)
+
+        // The difference with FTL is that artifacts are added as global artifacts instead of
+        // per test result. This different setup can be specified in the `VariantProfile`.
+        projectSetup.producer.setup(
+            variantProfiles =
+                VariantProfile.release(
+                    ftlFileLines = listOf(Fixtures.CLASS_2_METHOD_1),
+                    useGsSchema = true,
+                )
+        )
+
+        projectSetup.consumer.gradleRunner.build("generateBaselineProfile", "--info") {
+            println(it)
+            val notFound =
+                it.lines()
+                    .requireInOrder(
+                        "No baseline profile rules were generated for the variant `release`",
+                        "No startup profile rules were generated for the variant `release`"
+                    )
+            assertThat(notFound).isEmpty()
+        }
+
+        assertThat(projectSetup.baselineProfileFile("release").exists()).isFalse()
+        assertThat(projectSetup.startupProfileFile("release").exists()).isFalse()
     }
 }
