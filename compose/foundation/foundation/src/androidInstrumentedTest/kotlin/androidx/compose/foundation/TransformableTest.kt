@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.SCROLL_FACTOR
 import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.gestures.animateBy
 import androidx.compose.foundation.gestures.animatePanBy
@@ -37,15 +38,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performMultiModalInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pinch
+import androidx.compose.ui.test.withKeysDown
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -789,9 +797,158 @@ class TransformableTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun transformable_ctrlAndMouseScrollUp_doesZoomIn() {
+        var cumulativeScale = 1.0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse { scroll(scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 2x")
+                .that(cumulativeScale)
+                .isAtLeast(2f)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun transformable_ctrlAndMouseScrollDown_doesZoomOut() {
+        var cumulativeScale = 1.0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse { scroll(-scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun transformableInsideScroll_ctrlAndMouseScroll_doesZoomNoScroll() {
+        var cumulativeScale = 1.0f
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    mouse { scroll(-scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_mouseScrollOnly_doesScrollNoZoom() {
+        var cumulativeScale = 1.0f
+        val scrollState = ScrollState(0)
+        val scrolledDelta = 1f
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMouseInput {
+            scroll(scrolledDelta, scrollWheel = ScrollWheel.Vertical)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isEqualTo(1f)
+
+            assertWithMessage("Should have scrolled").that(scrollState.value).isGreaterThan(0)
+        }
+    }
+
+    @Test
+    fun transformable_mouseScrollOnly_noZoom() {
+        var cumulativeScale = 1.0f
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMouseInput {
+            scroll(scrollDeltaFor2xZoom, scrollWheel = ScrollWheel.Vertical)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 2x")
+                .that(cumulativeScale)
+                .isEqualTo(1f)
+        }
+    }
+
     private fun setTransformableContent(getModifier: @Composable () -> Modifier) {
         rule.setContentAndGetScope {
             Box(Modifier.size(600.dp).testTag(TEST_TAG).then(getModifier()))
         }
     }
+
+    // The scrollDelta equal to 1f is converted to -64.dp of scroll distance.
+    // This is defined inAndroidScrollable.android.kt
+    // And zoom factor is computed by 2^(scrolled pixels / SCROLL_FACTOR).
+    private val Density.scrollDeltaFor2xZoom: Float
+        get() = SCROLL_FACTOR / -64.dp.toPx()
 }
