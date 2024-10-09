@@ -839,7 +839,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     @Suppress("UnstableApiUsage") // usage of HasDeviceTests
     private fun HasDeviceTests.configureTests() {
-        deviceTestsForEachCompat { deviceTest ->
+        deviceTests.forEach { (_, deviceTest) ->
             deviceTest.packaging.resources.apply {
                 excludeVersionFiles(this)
 

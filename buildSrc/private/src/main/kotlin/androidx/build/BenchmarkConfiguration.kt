@@ -29,7 +29,7 @@ import org.gradle.api.Project
 @Suppress("UnstableApiUsage") // usage of HasDeviceTests
 internal fun HasDeviceTests.enableMicrobenchmarkInternalDefaults(project: Project) {
     if (project.hasBenchmarkPlugin()) {
-        deviceTestsForEachCompat { deviceTest ->
+        deviceTests.forEach { (_, deviceTest) ->
             // Enables CPU perf event counters both locally, and in CI
             deviceTest.instrumentationRunnerArguments.put(
                 "androidx.benchmark.cpuEventCounter.enable",

@@ -255,7 +255,7 @@ fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExte
             @Suppress("UnstableApiUsage") // usage of HasDeviceTests
             when {
                 variant is HasDeviceTests -> {
-                    variant.deviceTestsForEachCompat { deviceTest ->
+                    variant.deviceTests.forEach { (_, deviceTest) ->
                         registerRunner(deviceTest.name, deviceTest.artifacts, deviceTest.namespace)
                     }
                 }
@@ -270,7 +270,7 @@ fun Project.configureFtlRunner(androidComponentsExtension: AndroidComponentsExte
 fun Project.configureFtlRunner(componentsExtension: KotlinMultiplatformAndroidComponentsExtension) {
     componentsExtension.onVariant { variant ->
         @Suppress("UnstableApiUsage") // usage of HasDeviceTests
-        variant.deviceTestsForEachCompat { deviceTest ->
+        variant.deviceTests.forEach { (_, deviceTest) ->
             registerRunner(deviceTest.name, deviceTest.artifacts, deviceTest.namespace)
         }
     }
