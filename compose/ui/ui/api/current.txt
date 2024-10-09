@@ -2259,6 +2259,7 @@ package androidx.compose.ui.layout {
     method public long localToWindow(long relativeToLocal);
     method public default long screenToLocal(long relativeToScreen);
     method public default void transformFrom(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, float[] matrix);
+    method public default void transformToScreen(float[] matrix);
     method public long windowToLocal(long relativeToWindow);
     property public default boolean introducesMotionFrameOfReference;
     property public abstract boolean isAttached;
@@ -2277,7 +2278,6 @@ package androidx.compose.ui.layout {
     method public static long positionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
     method public static long positionInWindow(androidx.compose.ui.layout.LayoutCoordinates);
     method public static long positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates);
-    method public static void transformToScreen(androidx.compose.ui.layout.LayoutCoordinates, float[] matrix);
   }
 
   public final class LayoutIdKt {

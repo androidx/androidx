@@ -178,6 +178,10 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
         coordinator.transformFrom(sourceCoordinates, matrix)
     }
 
+    override fun transformToScreen(matrix: Matrix) {
+        coordinator.transformToScreen(matrix)
+    }
+
     override fun get(alignmentLine: AlignmentLine): Int = lookaheadDelegate.get(alignmentLine)
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isFinite
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.DefaultCameraDistance
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
@@ -45,6 +47,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -991,7 +994,24 @@ internal abstract class NodeCoordinator(
         transformFromAncestor(commonAncestor, matrix)
     }
 
-    fun transformToAncestor(ancestor: NodeCoordinator, matrix: Matrix) {
+    override fun transformToScreen(matrix: Matrix) {
+        val owner = layoutNode.requireOwner()
+        val rootCoordinator = findRootCoordinates().toCoordinator()
+        transformToAncestor(rootCoordinator, matrix)
+        if (owner is MatrixPositionCalculator) {
+            // Only Android owner supports direct matrix manipulations,
+            // This API had to be Android-only in the first place.
+            owner.localToScreen(matrix)
+        } else {
+            // Fallback: try to extract just position
+            val screenPosition = rootCoordinator.positionOnScreen()
+            if (screenPosition.isSpecified) {
+                matrix.translate(screenPosition.x, screenPosition.y, 0f)
+            }
+        }
+    }
+
+    private fun transformToAncestor(ancestor: NodeCoordinator, matrix: Matrix) {
         var wrapper = this
         while (wrapper != ancestor) {
             wrapper.layer?.transform(matrix)
