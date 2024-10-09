@@ -4,7 +4,6 @@ pluginManagement {
 }
 plugins {
     id "playground"
-    id "com.android.settings" version "8.7.0-alpha02"
 }
 
 apply from: "../../buildSrc/ndk.gradle"
