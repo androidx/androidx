@@ -26,6 +26,7 @@ dependencies {
     implementation("supportBuildSrc:private")
     implementation("supportBuildSrc:public")
     implementation("supportBuildSrc:plugins")
+    implementation(libs.androidGradleSettingsPlugin)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }
