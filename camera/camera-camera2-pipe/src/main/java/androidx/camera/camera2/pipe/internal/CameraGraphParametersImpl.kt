@@ -22,10 +22,13 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log.warn
+import androidx.camera.camera2.pipe.graph.SessionLock
 import javax.inject.Inject
 
 @CameraGraphScope
-public class CameraGraphParametersImpl @Inject constructor() : CameraGraph.Parameters {
+public class CameraGraphParametersImpl
+@Inject
+internal constructor(private val sessionLock: SessionLock) : CameraGraph.Parameters {
     private val lock = Any()
 
     @GuardedBy("lock") private val parameters = mutableMapOf<Any, Any?>()

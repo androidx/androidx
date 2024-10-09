@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -50,7 +49,8 @@ class FakeCameraGraph(
     override var isForeground = true
     private var audioRestrictionMode = AUDIO_RESTRICTION_NONE
 
-    override var parameters = CameraGraphParametersImpl()
+    override val parameters: CameraGraph.Parameters
+        get() = throw NotImplementedError("Not used in testing")
 
     override suspend fun acquireSession(): CameraGraph.Session {
         if (isClosed) {

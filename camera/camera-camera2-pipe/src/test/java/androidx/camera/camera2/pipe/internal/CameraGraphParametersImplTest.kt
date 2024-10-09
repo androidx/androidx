@@ -16,6 +16,7 @@
 package androidx.camera.camera2.pipe.internal
 
 import android.hardware.camera2.CaptureRequest
+import androidx.camera.camera2.pipe.graph.SessionLock
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +33,7 @@ class CameraGraphParametersImplTest {
 
     @Before
     fun setUp() {
-        parameters = CameraGraphParametersImpl()
+        parameters = CameraGraphParametersImpl(SessionLock())
         parameters.setListener(this::increment)
         counter = 0
     }
