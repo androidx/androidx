@@ -124,6 +124,14 @@ class SheetState(
         get() = anchoredDraggableState.currentValue != Hidden
 
     /**
+     * Whether an expanding or collapsing sheet animation is currently in progress.
+     *
+     * See [expand], [partialExpand], [show] or [hide] for more information.
+     */
+    val isAnimationRunning: Boolean
+        get() = anchoredDraggableState.isAnimationRunning
+
+    /**
      * Require the current offset (in pixels) of the bottom sheet.
      *
      * The offset will be initialized during the first measurement phase of the provided sheet

@@ -1927,6 +1927,7 @@ package androidx.compose.material3 {
     method public boolean getHasPartiallyExpandedState();
     method public androidx.compose.material3.SheetValue getTargetValue();
     method public suspend Object? hide(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public boolean isAnimationRunning();
     method public boolean isVisible();
     method public suspend Object? partialExpand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float requireOffset();
@@ -1934,6 +1935,7 @@ package androidx.compose.material3 {
     property public final androidx.compose.material3.SheetValue currentValue;
     property public final boolean hasExpandedState;
     property public final boolean hasPartiallyExpandedState;
+    property public final boolean isAnimationRunning;
     property public final boolean isVisible;
     property public final androidx.compose.material3.SheetValue targetValue;
     field public static final androidx.compose.material3.SheetState.Companion Companion;
