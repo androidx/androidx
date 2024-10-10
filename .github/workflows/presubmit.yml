@@ -120,7 +120,7 @@ jobs:
         os: [ubuntu-latest]
         # If you would like to remove some projects temporarily, use .github/ci-control/ci-config.json instead.
         # Keep these in alphabetical order.
-        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "sqlite", "work"]
+        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "lint", "navigation", "paging", "room", "sqlite", "work"]
         include:
           - project: "compose-runtime"
             project-root: "compose/runtime"
