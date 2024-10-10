@@ -153,6 +153,8 @@ import kotlinx.coroutines.launch
  * @param headline the headline to be displayed in the date picker
  * @param showModeToggle indicates if this DatePicker should show a mode toggle action that
  *   transforms it into a date input
+ * @param requestFocus have a focus request be sent to the text field when the date picker is in an
+ *   input mode
  */
 @ExperimentalMaterial3Api
 @Composable
@@ -178,6 +180,7 @@ fun DatePicker(
         )
     },
     showModeToggle: Boolean = true,
+    requestFocus: Boolean = true
 ) {
     val calendarModel =
         remember(state.locale) {
@@ -220,7 +223,8 @@ fun DatePicker(
             yearRange = state.yearRange,
             dateFormatter = dateFormatter,
             selectableDates = state.selectableDates,
-            colors = colors
+            colors = colors,
+            requestFocus = requestFocus
         )
     }
 }
@@ -1561,7 +1565,8 @@ private fun SwitchableDateEntryContent(
     yearRange: IntRange,
     dateFormatter: DatePickerFormatter,
     selectableDates: SelectableDates,
-    colors: DatePickerColors
+    colors: DatePickerColors,
+    requestFocus: Boolean
 ) {
     // Parallax effect offset that will slightly scroll in and out the navigation part of the picker
     // when the display mode changes.
@@ -1638,7 +1643,8 @@ private fun SwitchableDateEntryContent(
                     yearRange = yearRange,
                     dateFormatter = dateFormatter,
                     selectableDates = selectableDates,
-                    colors = colors
+                    colors = colors,
+                    requestFocus = requestFocus
                 )
         }
     }

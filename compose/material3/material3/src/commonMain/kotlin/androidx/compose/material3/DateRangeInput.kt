@@ -40,7 +40,8 @@ internal fun DateRangeInputContent(
     yearRange: IntRange,
     dateFormatter: DatePickerFormatter,
     selectableDates: SelectableDates,
-    colors: DatePickerColors
+    colors: DatePickerColors,
+    requestFocus: Boolean
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val dateInputFormat =
@@ -93,7 +94,8 @@ internal fun DateRangeInputContent(
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,
             locale = calendarModel.locale,
-            colors = colors
+            colors = colors,
+            requestFocus = requestFocus
         )
         val endRangeText = getString(string = Strings.DateRangePickerEndHeadline)
         DateInputTextField(
@@ -115,7 +117,10 @@ internal fun DateRangeInputContent(
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,
             locale = calendarModel.locale,
-            colors = colors
+            colors = colors,
+            // Setting false to the second field, as only one input field should request focus by
+            // default and true was passed to the first field.
+            requestFocus = false
         )
     }
 }

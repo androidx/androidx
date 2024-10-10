@@ -20,6 +20,10 @@ import android.os.Build
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -29,6 +33,8 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -44,6 +50,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,19 +95,67 @@ class DateInputTest {
 
     @Test
     fun dateInputWithInitialDate() {
-        lateinit var state: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
-            state =
-                rememberDatePickerState(
-                    initialSelectedDateMillis = initialDateMillis,
-                    initialDisplayMode = DisplayMode.Input
-                )
-            DatePicker(state = state)
+            DatePicker(
+                state =
+                    rememberDatePickerState(
+                        initialSelectedDateMillis = initialDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    )
+            )
         }
 
         rule.onNodeWithText("05/11/2010").assertExists()
         rule.onNodeWithText("May 11, 2010").assertExists()
+    }
+
+    @Test
+    fun dateInput_initialFocusOnInputField() {
+        var delayCompleted by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            DatePicker(
+                state =
+                    rememberDatePickerState(
+                        initialSelectedDateMillis = initialDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    )
+            )
+            // Update the delayCompleted till after the focus is acquired. Note that we request the
+            // focus about 400ms after the picker is shown.
+            LaunchedEffect(Unit) {
+                delay(500)
+                delayCompleted = true
+            }
+        }
+        rule.waitUntil("Waiting for focus", 1_000L) { delayCompleted }
+        rule.onNodeWithText("05/11/2010").assertIsFocused()
+    }
+
+    @Test
+    fun dateInput_noInitialFocusOnInputField() {
+        var delayCompleted by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            DatePicker(
+                state =
+                    rememberDatePickerState(
+                        initialSelectedDateMillis = initialDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    ),
+                // Prevent the focus from being requested.
+                requestFocus = false
+            )
+            // Although a focus request is not made, apply a delay to ensure that the test checks
+            // for focus after that delay.
+            LaunchedEffect(Unit) {
+                delay(500)
+                delayCompleted = true
+            }
+        }
+        rule.waitUntil("Waiting for delay completion", 1_000L) { delayCompleted }
+        rule.onNodeWithText("05/11/2010").assertIsNotFocused()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

@@ -20,12 +20,18 @@ import android.os.Build
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -39,6 +45,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,6 +121,64 @@ class DateRangeInputTest {
         rule.onNodeWithText("10/20/2020").assertExists()
         rule.onNodeWithText("May 11, 2010", useUnmergedTree = true).assertExists()
         rule.onNodeWithText("Oct 20, 2020", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun dateRangeInput_initialFocusOnInputField() {
+        var delayCompleted by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialStartDateMillis =
+                dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            val initialEndDateMillis =
+                dayInUtcMilliseconds(year = 2020, month = 10, dayOfMonth = 20)
+            DateRangePicker(
+                state =
+                    rememberDateRangePickerState(
+                        initialSelectedStartDateMillis = initialStartDateMillis,
+                        initialSelectedEndDateMillis = initialEndDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    )
+            )
+            // Update the delayCompleted till after the focus is acquired. Note that we request the
+            // focus about 400ms after the picker is shown.
+            LaunchedEffect(Unit) {
+                delay(500)
+                delayCompleted = true
+            }
+        }
+        rule.waitUntil("Waiting for focus", 1_000L) { delayCompleted }
+        rule.onNodeWithText("05/11/2010").assertIsFocused()
+        rule.onNodeWithText("10/20/2020").assertIsNotFocused()
+    }
+
+    @Test
+    fun dateRangeInput_noInitialFocusOnInputField() {
+        var delayCompleted by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialStartDateMillis =
+                dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
+            val initialEndDateMillis =
+                dayInUtcMilliseconds(year = 2020, month = 10, dayOfMonth = 20)
+            DateRangePicker(
+                state =
+                    rememberDateRangePickerState(
+                        initialSelectedStartDateMillis = initialStartDateMillis,
+                        initialSelectedEndDateMillis = initialEndDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    ),
+                // Prevent the focus from being requested.
+                requestFocus = false
+            )
+            // Although a focus request is not made, apply a delay to ensure that the test checks
+            // for focus after that delay.
+            LaunchedEffect(Unit) {
+                delay(500)
+                delayCompleted = true
+            }
+        }
+        rule.waitUntil("Waiting for delay completion", 1_000L) { delayCompleted }
+        rule.onNodeWithText("05/11/2010").assertIsNotFocused()
+        rule.onNodeWithText("10/20/2020").assertIsNotFocused()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

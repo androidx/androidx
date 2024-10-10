@@ -86,6 +86,8 @@ import kotlinx.coroutines.launch
  * @param headline the headline to be displayed in the date range picker
  * @param showModeToggle indicates if this DateRangePicker should show a mode toggle action that
  *   transforms it into a date range input
+ * @param requestFocus have a focus request be sent to the text field when the date picker is in an
+ *   input mode
  */
 @ExperimentalMaterial3Api
 @Composable
@@ -111,7 +113,8 @@ fun DateRangePicker(
             contentColor = colors.headlineContentColor
         )
     },
-    showModeToggle: Boolean = true
+    showModeToggle: Boolean = true,
+    requestFocus: Boolean = true
 ) {
     val calendarModel =
         remember(state.locale) {
@@ -166,7 +169,8 @@ fun DateRangePicker(
             yearRange = state.yearRange,
             dateFormatter = dateFormatter,
             selectableDates = state.selectableDates,
-            colors = colors
+            colors = colors,
+            requestFocus = requestFocus
         )
     }
 }
@@ -811,7 +815,8 @@ private fun SwitchableDateEntryContent(
     yearRange: IntRange,
     dateFormatter: DatePickerFormatter,
     selectableDates: SelectableDates,
-    colors: DatePickerColors
+    colors: DatePickerColors,
+    requestFocus: Boolean
 ) {
     // TODO(b/266480386): Apply the motion spec for this once we have it. Consider replacing this
     //  with AnimatedContent when it's out of experimental.
@@ -848,7 +853,8 @@ private fun SwitchableDateEntryContent(
                     yearRange = yearRange,
                     dateFormatter = dateFormatter,
                     selectableDates = selectableDates,
-                    colors = colors
+                    colors = colors,
+                    requestFocus = requestFocus
                 )
         }
     }
