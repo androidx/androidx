@@ -38,6 +38,7 @@ import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetCredentialOption;
 import androidx.credentials.provider.BeginGetCustomCredentialOption;
+import androidx.credentials.provider.BiometricPromptData;
 import androidx.credentials.provider.CustomCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -80,7 +81,15 @@ public class CustomCredentialEntryJavaTest {
     }
     @Test
     public void build_allParameters_success() {
-        CustomCredentialEntry entry = constructEntryWithAllParams();
+        CustomCredentialEntry entry =
+                constructEntryWithAllParams(/*nullBiometricPromptData=*/ false);
+        assertNotNull(entry);
+        assertEntryWithAllParams(entry);
+    }
+    @Test
+    public void build_allParamsForcedBiometricPromptDataNull_success() {
+        CustomCredentialEntry entry =
+                constructEntryWithAllParams(/*nullBiometricPromptData=*/ true);
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
     }
@@ -197,7 +206,8 @@ public class CustomCredentialEntryJavaTest {
     @SdkSuppress(minSdkVersion = 28)
     @SuppressWarnings("deprecation")
     public void fromSlice_allParams_success() {
-        CustomCredentialEntry originalEntry = constructEntryWithAllParams();
+        CustomCredentialEntry originalEntry =
+                constructEntryWithAllParams(/*nullBiometricPromptData=*/ false);
         android.app.slice.Slice slice = CustomCredentialEntry
                 .toSlice(originalEntry);
         CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(slice);
@@ -208,7 +218,8 @@ public class CustomCredentialEntryJavaTest {
     @SdkSuppress(minSdkVersion = 34)
     @SuppressWarnings("deprecation")
     public void fromCredentialEntry_allParams_success() {
-        CustomCredentialEntry originalEntry = constructEntryWithAllParams();
+        CustomCredentialEntry originalEntry =
+                constructEntryWithAllParams(/*nullBiometricPromptData=*/ false);
         android.app.slice.Slice slice = CustomCredentialEntry.toSlice(originalEntry);
         assertNotNull(slice);
         CustomCredentialEntry entry = CustomCredentialEntry.fromCredentialEntry(
@@ -300,7 +311,7 @@ public class CustomCredentialEntryJavaTest {
                 mBeginCredentialOption
         ).build();
     }
-    private CustomCredentialEntry constructEntryWithAllParams() {
+    private CustomCredentialEntry constructEntryWithAllParams(boolean nullBiometricPromptData) {
         CustomCredentialEntry.Builder testBuilder = new CustomCredentialEntry.Builder(
                 mContext,
                 TYPE,
@@ -315,7 +326,11 @@ public class CustomCredentialEntryJavaTest {
                 .setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT);
 
         if (BuildCompat.isAtLeastV()) {
-            testBuilder.setBiometricPromptData(testBiometricPromptData());
+            BiometricPromptData biometricPromptData = null;
+            if (!nullBiometricPromptData) {
+                biometricPromptData = testBiometricPromptData();
+            }
+            testBuilder.setBiometricPromptData(biometricPromptData);
         }
         return testBuilder.build();
     }
