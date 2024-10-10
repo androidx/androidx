@@ -412,8 +412,6 @@ fun RoundedPolygon(
     // from above, along with new cubics representing the edges between those corners.
     val tempFeatures = mutableListOf<Feature>()
     for (i in 0 until n) {
-        // Determine whether corner at this vertex is concave or convex, based on the
-        // relationship of the prev->curr/curr->next vectors
         // Note that these indices are for pairs of values (points), they need to be
         // doubled to access the xy values in the vertices float array
         val prevVtxIndex = (i + n - 1) % n
@@ -421,7 +419,7 @@ fun RoundedPolygon(
         val currVertex = Point(vertices[i * 2], vertices[i * 2 + 1])
         val prevVertex = Point(vertices[prevVtxIndex * 2], vertices[prevVtxIndex * 2 + 1])
         val nextVertex = Point(vertices[nextVtxIndex * 2], vertices[nextVtxIndex * 2 + 1])
-        val convex = (currVertex - prevVertex).clockwise(nextVertex - currVertex)
+        val convex = convex(prevVertex, currVertex, nextVertex)
         tempFeatures.add(Feature.Corner(corners[i], convex))
         tempFeatures.add(
             Feature.Edge(
@@ -456,7 +454,7 @@ fun RoundedPolygon(
  * transforms that occur before the center is calculated will be taken into account automatically
  * since the center calculation is an average of the current location of all cubic anchor points.
  */
-private fun calculateCenter(vertices: FloatArray): Point {
+internal fun calculateCenter(vertices: FloatArray): Point {
     var cumulativeX = 0f
     var cumulativeY = 0f
     var index = 0

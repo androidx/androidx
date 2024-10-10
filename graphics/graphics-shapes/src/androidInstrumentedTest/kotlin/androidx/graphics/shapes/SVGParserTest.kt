@@ -314,7 +314,7 @@ class SVGParserTest {
                 |l -58 52
                 |Z"""
                 .trimMargin()
-        val result = SVGPathParser.parse(path)
+        val result = SVGPathParser.parseCubics(path)
 
         assertEquals(result.size, 19)
     }
@@ -345,20 +345,20 @@ class SVGParserTest {
                 |Z"""
                 .trimMargin()
 
-        val result = SVGPathParser.parse(path)
+        val result = SVGPathParser.parseCubics(path)
 
         assertEquals(result.size, 19)
     }
 
     private fun parsingIsEqualish(pathA: String, pathB: String) {
-        val pathAResult = SVGPathParser.parse(pathA)
-        val pathBResult = SVGPathParser.parse(pathB)
+        val pathAResult = SVGPathParser.parseCubics(pathA)
+        val pathBResult = SVGPathParser.parseCubics(pathB)
 
         assertCubicListsEqualish(pathAResult, pathBResult)
     }
 
     private fun parsingMatches(path: String, expected: List<Cubic>) {
-        val actual = SVGPathParser.parse(path)
+        val actual = SVGPathParser.parseCubics(path)
 
         assertCubicListsEqualish(expected, actual)
     }

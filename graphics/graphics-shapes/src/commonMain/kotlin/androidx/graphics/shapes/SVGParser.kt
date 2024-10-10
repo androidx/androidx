@@ -25,9 +25,11 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
+// TODO: b/372000685 Make SVGParser and parse public once API is decided. Add integration tests
+
 /**
  * Converts each command (beside move to) of a svg path to a list of [Cubic]s by calling
- * [SVGPathParser.parse]. Any svg complying to the specification found at
+ * [SVGPathParser.parseCubics]. Any svg complying to the specification found at
  * https://www.w3.org/TR/SVG/paths.html is supported. Parameters can either be split by whitespace
  * or by commas. There is very little error handling, so use with valid paths and consult the debug
  * logs for unexpected cubics.
@@ -43,7 +45,7 @@ internal class SVGPathParser private constructor(startPosition: Point) {
          * Converts the path elements of svgPath to their cubic counterparts. svgPath corresponds to
          * the data found in the path's "d" property.
          */
-        internal fun parse(svgPath: String): List<Cubic> {
+        internal fun parseCubics(svgPath: String): List<Cubic> {
             val paths = svgPath.split(Regex("(?=[mM])")).filter { it.isNotBlank() }
             var current = Point(0f, 0f)
 
@@ -71,6 +73,39 @@ internal class SVGPathParser private constructor(startPosition: Point) {
                     addAll(parser.cubics)
                 }
             }
+        }
+
+        /**
+         * Convert a svg path to a [RoundedPolygon]. The polygon described in the path should
+         * correspond to the criteria mentioned in [PolygonValidator], as an error is thrown
+         * otherwise. Minor violations listed in [PolygonValidator.fix] are fixed if necessary. Note
+         * that only the first polygon of the given path is converted. Subsequent polygons in one
+         * path are ignored. This includes polygons with holes, whereas the holes will be ignored.
+         *
+         * @param svgPath the path as given by the "d" attribute of an svg file
+         * @return A fixed, non-normalized [RoundedPolygon]
+         */
+        internal fun parsePolygon(svgPath: String): RoundedPolygon {
+            val parsedCubics = parseCubics(svgPath)
+
+            val continuous = { it: Pair<Cubic, Cubic> ->
+                abs(it.second.anchor0X - it.first.anchor1X) < DistanceEpsilon &&
+                    abs(it.second.anchor0Y - it.first.anchor1Y) < DistanceEpsilon
+            }
+
+            val continuousCubicsCount =
+                parsedCubics
+                    .zipWithNext()
+                    .indexOfFirst { !continuous(it) }
+                    .let { index -> if (index < 0) parsedCubics.size else index }
+            val firstShape = parsedCubics.take(continuousCubicsCount)
+
+            val vertices = firstShape.flatMap { listOf(it.anchor0X, it.anchor0Y) }.toFloatArray()
+            val (centerY, centerX) = calculateCenter(vertices)
+
+            val parsedPolygon = RoundedPolygon(detectFeatures(firstShape), centerY, centerX)
+            val fixedPolygon = PolygonValidator.fix(parsedPolygon)
+            return fixedPolygon
         }
     }
 

@@ -108,6 +108,13 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
     internal fun zeroLength() =
         abs(anchor0X - anchor1X) < DistanceEpsilon && abs(anchor0Y - anchor1Y) < DistanceEpsilon
 
+    internal fun convexTo(next: Cubic): Boolean {
+        val prevVertex = Point(anchor0X, anchor0Y)
+        val currVertex = Point(anchor1X, anchor1Y)
+        val nextVertex = Point(next.anchor1X, next.anchor1Y)
+        return convex(prevVertex, currVertex, nextVertex)
+    }
+
     private fun zeroIsh(value: Float) = abs(value) < DistanceEpsilon
 
     /**
@@ -357,6 +364,10 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
                 y1
             )
         }
+
+        /** Generates an empty Cubic defined at (x0, y0) */
+        @JvmStatic
+        internal fun empty(x0: Float, y0: Float): Cubic = Cubic(x0, y0, x0, y0, x0, y0, x0, y0)
     }
 }
 

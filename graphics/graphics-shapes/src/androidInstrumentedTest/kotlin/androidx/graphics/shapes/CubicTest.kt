@@ -205,4 +205,9 @@ class CubicTest {
             Point(transformedCubic.anchor1X, transformedCubic.anchor1Y)
         )
     }
+
+    @Test
+    fun emptyCubicHasZeroLength() {
+        assertTrue(Cubic.empty(10f, 10f).zeroLength())
+    }
 }
