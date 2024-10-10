@@ -31,8 +31,8 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun ThreePaneScaffoldPredictiveBackHandler(
-    navigator: ThreePaneScaffoldNavigator<Any>,
+internal fun <T> ThreePaneScaffoldPredictiveBackHandler(
+    navigator: ThreePaneScaffoldNavigator<T>,
     backBehavior: BackNavigationBehavior,
     scale: Animatable<Float, AnimationVector1D>,
 ) {
