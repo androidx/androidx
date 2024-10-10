@@ -18,6 +18,7 @@ You can start contributing to any of the following library groups from GitHub:
   - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
+  - [Lint](https://developer.android.com/jetpack/androidx/releases/lint)
   - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
@@ -78,6 +79,7 @@ androidx
   -- datastore
   -- fragment
   -- lifecycle
+  -- lint
   -- navigation
   -- paging
   -- room

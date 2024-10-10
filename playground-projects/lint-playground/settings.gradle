@@ -1,0 +1,20 @@
+// see ../playground-common/README.md for details on how this works
+pluginManagement {
+    apply from: "../../playground-common/configure-plugin-management.gradle", to: it
+}
+plugins {
+    id "playground"
+}
+
+apply from: "../../buildSrc/ndk.gradle"
+
+rootProject.name = "lint-playground"
+
+playground {
+    setupPlayground("../..")
+    selectProjectsFromAndroidX({ name ->
+        if (name.startsWith(":lint:")) return true
+        if (name.startsWith(":benchmark:benchmark-gradle-plugin")) return true
+        return false
+    })
+}
