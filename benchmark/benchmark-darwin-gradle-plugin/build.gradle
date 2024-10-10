@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     api(gradleApi())
-    implementation(libs.kotlinGradlePluginz)
+    implementation(libs.kotlinGradlePlugin)
     implementation(libs.gson)
     implementation(libs.apacheCommonsMath)
     testImplementation(gradleTestKit())

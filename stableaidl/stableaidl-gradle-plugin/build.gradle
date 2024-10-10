@@ -54,9 +54,9 @@ dependencies {
     implementation(libs.apacheAnt)
     implementation(libs.kotlinStdlib)
 
-    testPlugin(libs.androidGradlePluginz)
+    testPlugin(libs.androidGradlePlugin)
 
-    testImplementation(libs.androidGradlePluginz)
+    testImplementation(libs.androidGradlePlugin)
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)

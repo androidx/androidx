@@ -36,7 +36,7 @@ apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginz)
+    implementation(libs.androidGradlePlugin)
     implementation(libs.kotlinStdlib)
     implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)

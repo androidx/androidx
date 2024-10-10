@@ -13,9 +13,9 @@ dependencies {
     api(libs.androidGradlePluginApi)
 
     // Plugins we use and configure
-    api(libs.kotlinGradlePluginz)
+    api(libs.kotlinGradlePlugin)
     api(libs.kotlinCompilerEmbeddable) // for clang compiler
-    implementation(libs.androidGradlePluginz)
+    implementation(libs.androidGradlePlugin)
     implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
     implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.binaryCompatibilityValidator)
 
     // For Room Gradle Plugin
-    implementation(libs.kspGradlePluginz)
+    implementation(libs.kspGradlePlugin)
 
     // Force jsoup upgrade on spdx (b/309773103)
     implementation(libs.jsoup)
@@ -52,8 +52,8 @@ dependencies {
 
     // dependencies that aren't used by buildSrc directly but that we resolve here so that the
     // root project doesn't need to re-resolve them and their dependencies on every build
-    runtimeOnly(libs.hiltAndroidGradlePluginz)
-    runtimeOnly(libs.javapoet) // for hiltAndroidGradlePluginz to workaround https://github.com/google/dagger/issues/3068
+    runtimeOnly(libs.hiltAndroidGradlePlugin)
+    runtimeOnly(libs.javapoet) // for hiltAndroidGradlePlugin to workaround https://github.com/google/dagger/issues/3068
     runtimeOnly(libs.wireGradlePluginz)
 
     // Plugin for analyzing dependencies

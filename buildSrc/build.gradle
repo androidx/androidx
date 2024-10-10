@@ -4,7 +4,7 @@ buildscript {
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath(libs.kotlinGradlePluginz)
+        classpath(libs.kotlinGradlePlugin)
     }
 
     configurations.classpath.resolutionStrategy {

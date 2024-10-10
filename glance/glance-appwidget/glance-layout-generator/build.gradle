@@ -33,8 +33,8 @@ plugins {
 dependencies {
     implementation(gradleApi())
 
-    implementation(libs.androidGradlePluginz)
-    implementation(libs.kotlinGradlePluginz)
+    implementation(libs.androidGradlePlugin)
+    implementation(libs.kotlinGradlePlugin)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinPoet)
 }
