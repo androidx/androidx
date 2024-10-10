@@ -14,8 +14,8 @@ package androidx.activity.compose {
   }
 
   public final class LocalActivityKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.activity.ComponentActivity?> getLocalActivity();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.activity.ComponentActivity?> LocalActivity;
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<android.app.Activity?> getLocalActivity();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.app.Activity?> LocalActivity;
   }
 
   public final class LocalActivityResultRegistryOwner {
