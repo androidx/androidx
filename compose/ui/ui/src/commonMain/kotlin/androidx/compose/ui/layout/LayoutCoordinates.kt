@@ -195,7 +195,7 @@ fun LayoutCoordinates.boundsInWindow(): Rect {
     val rootWidth = root.size.width.toFloat()
     val rootHeight = root.size.height.toFloat()
 
-    val bounds = boundsInRoot()
+    val bounds = root.localBoundingBoxOf(this)
     val boundsLeft = bounds.left.fastCoerceIn(0f, rootWidth)
     val boundsTop = bounds.top.fastCoerceIn(0f, rootHeight)
     val boundsRight = bounds.right.fastCoerceIn(0f, rootWidth)
