@@ -18,12 +18,13 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,8 +41,7 @@ public final class Pane {
     private final List<Action> mActionList;
     private final List<Row> mRows;
     private final boolean mIsLoading;
-    @Nullable
-    private final CarIcon mImage;
+    private final @Nullable CarIcon mImage;
 
     /**
      * Returns whether the pane is in a loading state.
@@ -55,16 +55,14 @@ public final class Pane {
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActionList);
     }
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
      */
-    @NonNull
-    public List<Row> getRows() {
+    public @NonNull List<Row> getRows() {
         return CollectionUtils.emptyIfNull(mRows);
     }
 
@@ -72,14 +70,12 @@ public final class Pane {
      * Returns the optional image to display in this pane.
      */
     @RequiresCarApi(4)
-    @Nullable
-    public CarIcon getImage() {
+    public @Nullable CarIcon getImage() {
         return mImage;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ rows: "
                 + (mRows != null ? mRows.toString() : null)
                 + ", action list: "
@@ -128,8 +124,7 @@ public final class Pane {
         final List<Row> mRows = new ArrayList<>();
         List<Action> mActionList = new ArrayList<>();
         boolean mIsLoading;
-        @Nullable
-        CarIcon mImage;
+        @Nullable CarIcon mImage;
 
         /**
          * Sets whether the {@link Pane} is in a loading state.
@@ -142,8 +137,7 @@ public final class Pane {
          *
          * @see #build
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -153,8 +147,7 @@ public final class Pane {
          *
          * @throws NullPointerException if {@code row} is {@code null}
          */
-        @NonNull
-        public Builder addRow(@NonNull Row row) {
+        public @NonNull Builder addRow(@NonNull Row row) {
             mRows.add(requireNonNull(row));
             return this;
         }
@@ -166,8 +159,7 @@ public final class Pane {
          *
          * @throws NullPointerException if {@code action} is {@code null}
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             requireNonNull(action);
             mActionList.add(action);
             return this;
@@ -186,8 +178,7 @@ public final class Pane {
          * @throws NullPointerException if {@code image} is {@code null}
          */
         @RequiresCarApi(4)
-        @NonNull
-        public Builder setImage(@NonNull CarIcon image) {
+        public @NonNull Builder setImage(@NonNull CarIcon image) {
             mImage = requireNonNull(image);
             return this;
         }
@@ -198,8 +189,7 @@ public final class Pane {
          * @throws IllegalStateException if the pane is in loading state and also contains rows, or
          *                               vice versa
          */
-        @NonNull
-        public Pane build() {
+        public @NonNull Pane build() {
             int size = size();
             if (size > 0 == mIsLoading) {
                 throw new IllegalStateException(

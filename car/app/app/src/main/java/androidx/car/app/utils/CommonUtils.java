@@ -24,8 +24,9 @@ import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Assorted common utilities.

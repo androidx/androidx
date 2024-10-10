@@ -22,22 +22,20 @@ import android.app.Activity;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.lifecycle.Lifecycle.Event;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An activity lifecycle listener which dispatches the lifecycle events to a {@link
  * IRendererCallback}.
  */
 final class ActivityLifecycleDelegate implements ActivityLifecycleCallbacks {
-    @NonNull
-    private ServiceDispatcher mServiceDispatcher;
-    @Nullable
-    private IRendererCallback mRendererCallback;
-    @NonNull
-    private Event mLastObservedEvent = Event.ON_ANY;
+    private @NonNull ServiceDispatcher mServiceDispatcher;
+    private @Nullable IRendererCallback mRendererCallback;
+    private @NonNull Event mLastObservedEvent = Event.ON_ANY;
 
     ActivityLifecycleDelegate(@NonNull ServiceDispatcher serviceDispatcher) {
         mServiceDispatcher = serviceDispatcher;

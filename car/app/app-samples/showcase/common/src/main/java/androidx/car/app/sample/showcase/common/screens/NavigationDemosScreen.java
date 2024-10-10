@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.screens;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
@@ -30,6 +29,8 @@ import androidx.car.app.sample.showcase.common.screens.navigationdemos.Navigatio
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.paging.PagedListTemplate;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +43,12 @@ public final class NavigationDemosScreen extends PagedListTemplate.RowList {
     }
 
     /** Creates a screen with navigation demos */
-    @NonNull
-    public static Screen createScreen(@NonNull CarContext carContext) {
+    public static @NonNull Screen createScreen(@NonNull CarContext carContext) {
         return new PagedListTemplate(new NavigationDemosScreen(carContext), carContext);
     }
 
-    @NonNull
     @Override
-    protected List<Row> getRows(@NonNull ScreenManager screenManager) {
+    protected @NonNull List<Row> getRows(@NonNull ScreenManager screenManager) {
         List<Row> screenList = new ArrayList<>();
 
         screenList.add(createRow(
@@ -90,9 +89,8 @@ public final class NavigationDemosScreen extends PagedListTemplate.RowList {
         return screenList;
     }
 
-    @NonNull
     @Override
-    protected String getTemplateTitle() {
+    protected @NonNull String getTemplateTitle() {
         return mCarContext.getString(R.string.nav_demos_title);
     }
 

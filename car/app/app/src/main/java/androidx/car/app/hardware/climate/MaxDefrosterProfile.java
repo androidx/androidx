@@ -16,9 +16,10 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -31,14 +32,12 @@ import java.util.Set;
 @ExperimentalCarApi
 public final class MaxDefrosterProfile {
 
-    @NonNull
-    private final List<Set<CarZone>> mSupportedCarZoneSets;
+    private final @NonNull List<Set<CarZone>> mSupportedCarZoneSets;
 
     /**
      * Returns a list of supported zones in a car for the feature.
      */
-    @NonNull
-    public List<Set<CarZone>> getSupportedCarZoneSets() {
+    public @NonNull List<Set<CarZone>> getSupportedCarZoneSets() {
         return mSupportedCarZoneSets;
     }
 
@@ -61,8 +60,7 @@ public final class MaxDefrosterProfile {
         }
 
         /** Create a MaxDefrosterProfile. */
-        @NonNull
-        public MaxDefrosterProfile build() {
+        public @NonNull MaxDefrosterProfile build() {
             return new MaxDefrosterProfile(this);
         }
     }

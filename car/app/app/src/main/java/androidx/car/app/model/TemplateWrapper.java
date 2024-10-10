@@ -20,12 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +45,8 @@ import java.util.UUID;
 @CarProtocol
 @KeepFields
 public final class TemplateWrapper {
-    @Nullable
-    private Template mTemplate;
-    @Nullable
-    private String mId;
+    private @Nullable Template mTemplate;
+    private @Nullable String mId;
     private List<TemplateInfo> mTemplateInfoForScreenStack = new ArrayList<>();
 
     /** The current step in a task that the template is in. */
@@ -63,8 +62,7 @@ public final class TemplateWrapper {
      * its internal logic that the {@link Template} is a refresh of the existing view, in which case
      * the task step will remain the same.
      */
-    @NonNull
-    public static TemplateWrapper wrap(@NonNull Template template) {
+    public static @NonNull TemplateWrapper wrap(@NonNull Template template) {
         // Assign a random ID to the template. This should be unique so that the host knows the
         // template is a new step. We are not using hashCode() here as we might override
         // template's hash codes in the future.
@@ -88,22 +86,19 @@ public final class TemplateWrapper {
      * assigning the ID of template A to template C, the client library informs the host that it
      * is a back operation and the task step should be set to 1 again.
      */
-    @NonNull
-    public static TemplateWrapper wrap(@NonNull Template template, @NonNull String id) {
+    public static @NonNull TemplateWrapper wrap(@NonNull Template template, @NonNull String id) {
         return new TemplateWrapper(requireNonNull(template), requireNonNull(id));
     }
 
     /** Returns the wrapped {@link Template}. */
-    @NonNull
-    public Template getTemplate() {
+    public @NonNull Template getTemplate() {
         // Intentionally kept as non-null because the library creates these classes internally after
         // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplate);
     }
 
     /** Returns the ID associated with the wrapped {@link Template}. */
-    @NonNull
-    public String getId() {
+    public @NonNull String getId() {
         // Intentionally kept as non-null because the library creates these classes internally after
         // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mId);
@@ -128,8 +123,7 @@ public final class TemplateWrapper {
      * <p>The return values are in order, where position 0 is the top of the stack, and position
      * n is the bottom of the stack given n screens on the stack.
      */
-    @NonNull
-    public List<TemplateInfo> getTemplateInfosForScreenStack() {
+    public @NonNull List<TemplateInfo> getTemplateInfosForScreenStack() {
         return CollectionUtils.emptyIfNull(mTemplateInfoForScreenStack);
     }
 
@@ -164,8 +158,7 @@ public final class TemplateWrapper {
     }
 
     /** Creates a copy of the given {@link TemplateWrapper}. */
-    @NonNull
-    public static TemplateWrapper copyOf(@NonNull TemplateWrapper source) {
+    public static @NonNull TemplateWrapper copyOf(@NonNull TemplateWrapper source) {
         TemplateWrapper destination = TemplateWrapper.wrap(source.getTemplate(), source.getId());
         destination.setRefresh(source.isRefresh());
         destination.setCurrentTaskStep(source.getCurrentTaskStep());
@@ -176,9 +169,8 @@ public final class TemplateWrapper {
         return destination;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "[template: " + mTemplate + ", ID: " + mId + "]";
     }
 

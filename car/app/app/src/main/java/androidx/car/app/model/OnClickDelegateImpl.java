@@ -23,14 +23,15 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link OnClickDelegate} to allow IPC for click-related events.
@@ -41,8 +42,7 @@ import androidx.car.app.utils.RemoteUtils;
 @KeepFields
 public class OnClickDelegateImpl implements OnClickDelegate {
     private final boolean mIsParkedOnly;
-    @Nullable
-    private final IOnClickListener mListener;
+    private final @Nullable IOnClickListener mListener;
 
     /**
      * Whether the click listener is for parked-only scenarios.
@@ -61,10 +61,9 @@ public class OnClickDelegateImpl implements OnClickDelegate {
         }
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnClickDelegate create(@NonNull OnClickListener listener) {
+    public static @NonNull OnClickDelegate create(@NonNull OnClickListener listener) {
         return new OnClickDelegateImpl(
                 listener,
                 listener instanceof ParkedOnlyOnClickListener);

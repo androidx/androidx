@@ -20,13 +20,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.app.PendingIntent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -42,24 +43,18 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class Suggestion {
-    @NonNull
-    private final String mIdentifier;
-    @NonNull
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mSubtitle;
-    @Nullable
-    private final CarIcon mIcon;
-    @Nullable
-    private final PendingIntent mAction;
+    private final @NonNull String mIdentifier;
+    private final @NonNull CarText mTitle;
+    private final @Nullable CarText mSubtitle;
+    private final @Nullable CarIcon mIcon;
+    private final @Nullable PendingIntent mAction;
 
     /**
      * Returns the identifier of the suggestion.
      *
      * @see Builder#setIdentifier(String)
      */
-    @NonNull
-    public String getIdentifier() {
+    public @NonNull String getIdentifier() {
         return mIdentifier;
     }
 
@@ -68,8 +63,7 @@ public final class Suggestion {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @NonNull
-    public CarText getTitle() {
+    public @NonNull CarText getTitle() {
         return mTitle;
     }
 
@@ -78,8 +72,7 @@ public final class Suggestion {
      *
      * @see Builder#setSubtitle(CharSequence)
      */
-    @Nullable
-    public CarText getSubtitle() {
+    public @Nullable CarText getSubtitle() {
         return mSubtitle;
     }
 
@@ -88,8 +81,7 @@ public final class Suggestion {
      *
      * @see Builder#setIcon(CarIcon)
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
@@ -98,14 +90,12 @@ public final class Suggestion {
      *
      * @see Builder#setAction(PendingIntent)
      */
-    @Nullable
-    public PendingIntent getAction() {
+    public @Nullable PendingIntent getAction() {
         return mAction;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[id: " + mIdentifier
                 + ", title: "
                 + CarText.toShortString(mTitle)
@@ -160,24 +150,18 @@ public final class Suggestion {
 
     /** A builder of {@link Suggestion}. */
     public static final class Builder {
-        @Nullable
-        String mId;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        CarText mSubtitle;
-        @Nullable
-        CarIcon mIcon;
-        @Nullable
-        PendingIntent mAction;
+        @Nullable String mId;
+        @Nullable CarText mTitle;
+        @Nullable CarText mSubtitle;
+        @Nullable CarIcon mIcon;
+        @Nullable PendingIntent mAction;
 
         /**
          * Sets the suggestion identifier.
          *
          * @throws NullPointerException if {@code identifier} is {@code null}
          */
-        @NonNull
-        public Builder setIdentifier(@NonNull String identifier) {
+        public @NonNull Builder setIdentifier(@NonNull String identifier) {
             mId = requireNonNull(identifier);
             return this;
         }
@@ -190,8 +174,7 @@ public final class Suggestion {
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             return this;
         }
@@ -204,8 +187,7 @@ public final class Suggestion {
          * @throws NullPointerException if {@code subtitle} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setSubtitle(@NonNull CharSequence subtitle) {
+        public @NonNull Builder setSubtitle(@NonNull CharSequence subtitle) {
             mSubtitle = CarText.create(requireNonNull(subtitle));
             return this;
         }
@@ -215,8 +197,7 @@ public final class Suggestion {
          *
          * @throws NullPointerException if {@code pendingIntent} is {@code null}
          */
-        @NonNull
-        public Builder setAction(@NonNull PendingIntent action) {
+        public @NonNull Builder setAction(@NonNull PendingIntent action) {
             mAction = requireNonNull(action);
             return this;
         }
@@ -238,8 +219,7 @@ public final class Suggestion {
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             return this;
@@ -251,8 +231,7 @@ public final class Suggestion {
          * @throws IllegalStateException if any of the files are {@code null} or if  the title
          *                               and the subtitle are empty.
          */
-        @NonNull
-        public Suggestion build() {
+        public @NonNull Suggestion build() {
             if (mId == null) {
                 throw new IllegalStateException("Identifier is a required field");
             }

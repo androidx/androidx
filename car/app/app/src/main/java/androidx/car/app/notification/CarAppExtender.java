@@ -27,14 +27,15 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.serialization.Bundler;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,24 +145,16 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     private static final String EXTRA_COLOR = "color";
     private static final String EXTRA_CHANNEL_ID = "channel_id";
 
-    @Nullable
-    private CharSequence mContentTitle;
-    @Nullable
-    private CharSequence mContentText;
+    private @Nullable CharSequence mContentTitle;
+    private @Nullable CharSequence mContentText;
     private int mSmallIconResId;
-    @Nullable
-    private Bitmap mLargeIconBitmap;
-    @Nullable
-    private PendingIntent mContentIntent;
-    @Nullable
-    private PendingIntent mDeleteIntent;
-    @Nullable
-    private ArrayList<Action> mActions;
+    private @Nullable Bitmap mLargeIconBitmap;
+    private @Nullable PendingIntent mContentIntent;
+    private @Nullable PendingIntent mDeleteIntent;
+    private @Nullable ArrayList<Action> mActions;
     private int mImportance;
-    @Nullable
-    private CarColor mColor;
-    @Nullable
-    private String mChannelId;
+    private @Nullable CarColor mColor;
+    private @Nullable String mChannelId;
 
     /**
      * Creates a {@link CarAppExtender} from the {@link CarAppExtender} of an existing notification.
@@ -224,9 +217,8 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @throws NullPointerException if {@code builder} is {@code null}
      */
-    @NonNull
     @Override
-    public NotificationCompat.Builder extend(@NonNull NotificationCompat.Builder builder) {
+    public NotificationCompat.@NonNull Builder extend(NotificationCompat.@NonNull Builder builder) {
         requireNonNull(builder);
         Bundle carExtensions = createExtrasBundle();
         builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
@@ -243,8 +235,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @throws NullPointerException if {@code builder} is {@code null}
      */
-    @NonNull
-    public Notification.Builder extend(@NonNull Notification.Builder builder) {
+    public Notification.@NonNull Builder extend(Notification.@NonNull Builder builder) {
         requireNonNull(builder);
         Bundle carExtensions = createExtrasBundle();
         builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
@@ -320,8 +311,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setContentTitle
      */
-    @Nullable
-    public CharSequence getContentTitle() {
+    public @Nullable CharSequence getContentTitle() {
         return mContentTitle;
     }
 
@@ -330,8 +320,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setContentText
      */
-    @Nullable
-    public CharSequence getContentText() {
+    public @Nullable CharSequence getContentText() {
         return mContentText;
     }
 
@@ -350,8 +339,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setLargeIcon(Bitmap)
      */
-    @Nullable
-    public Bitmap getLargeIcon() {
+    public @Nullable Bitmap getLargeIcon() {
         return mLargeIconBitmap;
     }
 
@@ -361,8 +349,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setContentIntent(PendingIntent)
      */
-    @Nullable
-    public PendingIntent getContentIntent() {
+    public @Nullable PendingIntent getContentIntent() {
         return mContentIntent;
     }
 
@@ -372,8 +359,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setDeleteIntent(PendingIntent)
      */
-    @Nullable
-    public PendingIntent getDeleteIntent() {
+    public @Nullable PendingIntent getDeleteIntent() {
         return mDeleteIntent;
     }
 
@@ -382,8 +368,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#addAction(int, CharSequence, PendingIntent)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActions);
     }
 
@@ -402,8 +387,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setColor(CarColor)
      */
-    @Nullable
-    public CarColor getColor() {
+    public @Nullable CarColor getColor() {
         return mColor;
     }
 
@@ -412,30 +396,22 @@ public final class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setChannelId(String)
      */
-    @Nullable
-    public String getChannelId() {
+    public @Nullable String getChannelId() {
         return mChannelId;
     }
 
     /** A builder of {@link CarAppExtender}. */
     public static final class Builder {
-        @Nullable
-        CharSequence mContentTitle;
-        @Nullable
-        CharSequence mContentText;
+        @Nullable CharSequence mContentTitle;
+        @Nullable CharSequence mContentText;
         int mSmallIconResId;
-        @Nullable
-        Bitmap mLargeIconBitmap;
-        @Nullable
-        PendingIntent mContentIntent;
-        @Nullable
-        PendingIntent mDeleteIntent;
+        @Nullable Bitmap mLargeIconBitmap;
+        @Nullable PendingIntent mContentIntent;
+        @Nullable PendingIntent mDeleteIntent;
         final ArrayList<Action> mActions = new ArrayList<>();
         int mImportance = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
-        @Nullable
-        CarColor mColor;
-        @Nullable
-        String mChannelId;
+        @Nullable CarColor mColor;
+        @Nullable String mChannelId;
 
         /**
          * Sets the title of the notification in the car screen.
@@ -450,8 +426,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @throws NullPointerException if {@code contentTitle} is {@code null}
          */
-        @NonNull
-        public Builder setContentTitle(@NonNull CharSequence contentTitle) {
+        public @NonNull Builder setContentTitle(@NonNull CharSequence contentTitle) {
             mContentTitle = requireNonNull(contentTitle);
             return this;
         }
@@ -468,8 +443,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *                    string, it will be treated as if there is no context text
          * @throws NullPointerException if {@code contentText} is {@code null}
          */
-        @NonNull
-        public Builder setContentText(@NonNull CharSequence contentText) {
+        public @NonNull Builder setContentText(@NonNull CharSequence contentText) {
             mContentText = requireNonNull(contentText);
             return this;
         }
@@ -482,8 +456,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to {@link NotificationCompat.Builder#setSmallIcon(int)} for
          * the car screen.
          */
-        @NonNull
-        public Builder setSmallIcon(int iconResId) {
+        public @NonNull Builder setSmallIcon(int iconResId) {
             mSmallIconResId = iconResId;
             return this;
         }
@@ -502,8 +475,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @throws NullPointerException if {@code bitmap} is {@code null}
          */
-        @NonNull
-        public Builder setLargeIcon(@NonNull Bitmap bitmap) {
+        public @NonNull Builder setLargeIcon(@NonNull Bitmap bitmap) {
             mLargeIconBitmap = requireNonNull(bitmap);
             return this;
         }
@@ -522,8 +494,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * @param contentIntent override for the notification's content intent.
          * @throws NullPointerException if {@code contentIntent} is {@code null}
          */
-        @NonNull
-        public Builder setContentIntent(@NonNull PendingIntent contentIntent) {
+        public @NonNull Builder setContentIntent(@NonNull PendingIntent contentIntent) {
             mContentIntent = requireNonNull(contentIntent);
             return this;
         }
@@ -541,8 +512,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * @param deleteIntent override for the notification's delete intent
          * @throws NullPointerException if {@code deleteIntent} is {@code null}
          */
-        @NonNull
-        public Builder setDeleteIntent(@NonNull PendingIntent deleteIntent) {
+        public @NonNull Builder setDeleteIntent(@NonNull PendingIntent deleteIntent) {
             mDeleteIntent = requireNonNull(deleteIntent);
             return this;
         }
@@ -575,8 +545,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * @throws NullPointerException if {@code title} or {@code intent} are {@code null}
          */
         @SuppressWarnings("deprecation")
-        @NonNull
-        public Builder addAction(
+        public @NonNull Builder addAction(
                 @DrawableRes int icon, @NonNull CharSequence title, @NonNull PendingIntent intent) {
             mActions.add(new Action(icon, requireNonNull(title), requireNonNull(intent)));
             return this;
@@ -595,8 +564,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @see #setChannelId(String)
          */
-        @NonNull
-        public Builder setImportance(int importance) {
+        public @NonNull Builder setImportance(int importance) {
             mImportance = importance;
             return this;
         }
@@ -612,8 +580,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @throws NullPointerException if {@code color} is {@code null}
          */
-        @NonNull
-        public Builder setColor(@NonNull CarColor color) {
+        public @NonNull Builder setColor(@NonNull CarColor color) {
             mColor = requireNonNull(color);
             return this;
         }
@@ -630,8 +597,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          *
          * @see #setImportance(int)
          */
-        @NonNull
-        public Builder setChannelId(@NonNull String channelId) {
+        public @NonNull Builder setChannelId(@NonNull String channelId) {
             mChannelId = channelId;
             return this;
         }
@@ -639,8 +605,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         /**
          * Constructs the {@link CarAppExtender} defined by this builder.
          */
-        @NonNull
-        public CarAppExtender build() {
+        public @NonNull CarAppExtender build() {
             return new CarAppExtender(this);
         }
 

@@ -33,7 +33,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -42,6 +41,8 @@ import androidx.car.app.hardware.info.EnergyProfile;
 import androidx.car.app.utils.LogTags;
 
 import com.google.common.collect.ImmutableBiMap;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -336,9 +337,8 @@ public final class PropertyUtils {
      * Creates a response from {@link CarPropertyValue}.
      */
     @SuppressWarnings({"unchecked", "deprecation"})
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
+    public static @NonNull CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
             @NonNull CarPropertyValue<?> carPropertyValue) {
         CarPropertyResponse.Builder<Object> carPropertyResponseBuilder =
                 CarPropertyResponse.builder().setPropertyId(
@@ -463,8 +463,7 @@ public final class PropertyUtils {
      *
      * <p> The method is a utility to convert Pair<?, ?> to Pair<Integer, Integer>.
      */
-    @NonNull
-    public static Map<Set<CarZone>, Pair<Integer, Integer>> getMinMaxProfileIntegerMap(
+    public static @NonNull Map<Set<CarZone>, Pair<Integer, Integer>> getMinMaxProfileIntegerMap(
             @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
         Map<Set<CarZone>, Pair<Integer, Integer>>
                 carZoneSetsToIntegerValues = new HashMap<>();
@@ -481,8 +480,7 @@ public final class PropertyUtils {
      *
      * <p> The method is a utility to convert Pair<?, ?> to Pair<Float, Float>.
      */
-    @NonNull
-    public static Map<Set<CarZone>, Pair<Float, Float>> getMinMaxProfileFloatMap(
+    public static @NonNull Map<Set<CarZone>, Pair<Float, Float>> getMinMaxProfileFloatMap(
             @NonNull Map<Set<CarZone>, ? extends Pair<?, ?>> minMaxRange) {
         Map<Set<CarZone>, Pair<Float, Float>>
                 carZoneSetsToFloatValues = new HashMap<>();

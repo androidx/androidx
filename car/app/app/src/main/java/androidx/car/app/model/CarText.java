@@ -23,14 +23,15 @@ import static java.util.Objects.requireNonNull;
 import android.text.SpannableString;
 import android.text.Spanned;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.car.app.utils.StringUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,8 +107,7 @@ public final class CarText {
      *
      * @throws NullPointerException if the text is {@code null}
      */
-    @NonNull
-    public static CarText create(@NonNull CharSequence text) {
+    public static @NonNull CarText create(@NonNull CharSequence text) {
         return new CarText(requireNonNull(text));
     }
 
@@ -125,9 +125,8 @@ public final class CarText {
      *
      * <p>Only the first variant is returned.
      */
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return mText;
     }
 
@@ -139,8 +138,7 @@ public final class CarText {
      *
      * @see CarText#create(CharSequence)
      */
-    @NonNull
-    public CharSequence toCharSequence() {
+    public @NonNull CharSequence toCharSequence() {
         return getCharSequence(mText, mSpans);
     }
 
@@ -155,8 +153,7 @@ public final class CarText {
      *
      * @see Builder#addVariant(CharSequence)
      */
-    @NonNull
-    public List<CharSequence> getVariants() {
+    public @NonNull List<CharSequence> getVariants() {
         if (mTextVariants.isEmpty()) {
             return Collections.emptyList();
         }
@@ -170,17 +167,15 @@ public final class CarText {
 
     /**
      */
-    @NonNull
     @RestrictTo(LIBRARY)
-    public List<SpanWrapper> getSpans() {
+    public @NonNull List<SpanWrapper> getSpans() {
         return mSpans;
     }
 
     /**
      */
-    @NonNull
     @RestrictTo(LIBRARY)
-    public List<List<SpanWrapper>> getSpansForVariants() {
+    public @NonNull List<List<SpanWrapper>> getSpansForVariants() {
         return mSpansForVariants;
     }
 
@@ -189,8 +184,7 @@ public final class CarText {
      *
      */
     @RestrictTo(LIBRARY)
-    @Nullable
-    public static String toShortString(@Nullable CarText text) {
+    public static @Nullable String toShortString(@Nullable CarText text) {
         return text == null ? null : StringUtils.shortenString(text.toString());
     }
 
@@ -281,8 +275,7 @@ public final class CarText {
         private final int mStart;
         private final int mEnd;
         private final int mFlags;
-        @NonNull
-        private final CarSpan mCarSpan;
+        private final @NonNull CarSpan mCarSpan;
 
         SpanWrapper(@NonNull Spanned spanned, @NonNull CarSpan carSpan) {
             mStart = spanned.getSpanStart(carSpan);
@@ -310,8 +303,7 @@ public final class CarText {
             return mFlags;
         }
 
-        @NonNull
-        public CarSpan getCarSpan() {
+        public @NonNull CarSpan getCarSpan() {
             return mCarSpan;
         }
 
@@ -335,9 +327,8 @@ public final class CarText {
             return Objects.hash(mStart, mEnd, mFlags, mCarSpan);
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return "[" + mCarSpan + ": " + mStart + ", " + mEnd + ", flags: " + mFlags + "]";
         }
     }
@@ -384,8 +375,7 @@ public final class CarText {
          * @throws NullPointerException if the text is {@code null}
          */
         @RequiresCarApi(2)
-        @NonNull
-        public Builder addVariant(@NonNull CharSequence text) {
+        public @NonNull Builder addVariant(@NonNull CharSequence text) {
             mTextVariants.add(requireNonNull(text));
             return this;
         }
@@ -393,8 +383,7 @@ public final class CarText {
         /**
          * Constructs the {@link CarText} defined by this builder.
          */
-        @NonNull
-        public CarText build() {
+        public @NonNull CarText build() {
             return new CarText(this);
         }
     }

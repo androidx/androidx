@@ -16,8 +16,9 @@
 
 package androidx.car.app.managers;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A class capable of producing a new instance of a given {@link Manager}
@@ -32,6 +33,5 @@ public interface ManagerFactory<T extends Manager> {
      *
      * @throws IllegalStateException if the given manager can not be instantiated
      */
-    @NonNull
-    T create();
+    @NonNull T create();
 }

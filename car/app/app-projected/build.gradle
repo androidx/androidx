@@ -30,6 +30,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     implementation(project(":car:app:app"))
     annotationProcessor(libs.nullaway)
 

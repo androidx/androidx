@@ -21,9 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,7 +60,7 @@ public final class CarFeatures {
      * @return  Whether the system enables a given CarFeature.
      */
     public static boolean isFeatureEnabled(@NonNull Context context,
-            @NonNull @CarFeature String feature) {
+            @CarFeature @NonNull String feature) {
         PackageManager packageManager = context.getPackageManager();
 
         return packageManager.hasSystemFeature(feature);

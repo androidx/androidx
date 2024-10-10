@@ -31,8 +31,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.HandshakeInfo;
@@ -41,6 +39,9 @@ import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.versioning.CarAppApiLevels;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -63,15 +64,11 @@ public class ServiceConnectionManager {
     private final Context mContext;
     private final ServiceDispatcher mServiceDispatcher;
     private int mDisplayId;
-    @Nullable
-    private Intent mIntent;
-    @Nullable
-    private ICarAppActivity mICarAppActivity;
-    @Nullable
-    private HandshakeInfo mHandshakeInfo;
+    private @Nullable Intent mIntent;
+    private @Nullable ICarAppActivity mICarAppActivity;
+    private @Nullable HandshakeInfo mHandshakeInfo;
 
-    @Nullable
-    IRendererService mRendererService;
+    @Nullable IRendererService mRendererService;
 
     /** A listener receive connection status updates */
     public interface ServiceConnectionListener extends ErrorHandler {
@@ -94,8 +91,7 @@ public class ServiceConnectionManager {
      * Returns a {@link ServiceDispatcher} that can be used to communicate with the renderer
      * service.
      */
-    @NonNull
-    ServiceDispatcher getServiceDispatcher() {
+    @NonNull ServiceDispatcher getServiceDispatcher() {
         return mServiceDispatcher;
     }
 
@@ -122,8 +118,7 @@ public class ServiceConnectionManager {
     /**
      * Returns the {@link HandshakeInfo} that has been agreed with the host.
      */
-    @Nullable
-    public HandshakeInfo getHandshakeInfo() {
+    public @Nullable HandshakeInfo getHandshakeInfo() {
         return mHandshakeInfo;
     }
 

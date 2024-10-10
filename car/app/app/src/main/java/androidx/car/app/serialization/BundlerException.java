@@ -16,8 +16,8 @@
 
 package androidx.car.app.serialization;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link Exception} that notates a failure in serializing or deserialized to or from a bundle.

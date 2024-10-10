@@ -24,8 +24,9 @@ import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEventsUt
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /** Describes a view entry or exit event. */
 public class ViewChangeEvent extends AnalyticsEvent {
@@ -51,8 +52,7 @@ public class ViewChangeEvent extends AnalyticsEvent {
 
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder sb = new StringBuilder("ViewChangeEvent{");
         sb.append("mViewComponent=").append(viewComponentToString(mViewComponent));
         sb.append(", mViewAction=").append(viewActionToString(mViewAction)).append('\'');

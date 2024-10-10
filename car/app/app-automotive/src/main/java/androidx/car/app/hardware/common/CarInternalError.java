@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.car.hardware.CarPropertyValue;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Container class for information about the error detected in the car.
@@ -41,8 +42,7 @@ abstract class CarInternalError {
      * @param areaId        the same value used in {@link CarPropertyValue#getAreaId()}
      * @param errorCode     one of the values in {@link CarValue.StatusCode}
      */
-    @NonNull
-    static CarInternalError create(int propertyId, int areaId,
+    static @NonNull CarInternalError create(int propertyId, int areaId,
             @CarValue.StatusCode int errorCode) {
         return new AutoValue_CarInternalError(propertyId, areaId, errorCode);
     }
@@ -51,8 +51,7 @@ abstract class CarInternalError {
      * @param propertyId    one of the values in {@link android.car.VehiclePropertyIds}
      * @param errorCode     one of the values in {@link CarValue.StatusCode}
      */
-    @NonNull
-    static CarInternalError create(int propertyId, @CarValue.StatusCode int errorCode) {
+    static @NonNull CarInternalError create(int propertyId, @CarValue.StatusCode int errorCode) {
         return new AutoValue_CarInternalError(propertyId, /*areaId=*/0, errorCode);
     }
 

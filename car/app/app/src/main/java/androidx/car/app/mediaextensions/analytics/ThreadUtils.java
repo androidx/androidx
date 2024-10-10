@@ -21,8 +21,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -30,8 +31,7 @@ import java.util.concurrent.Executor;
 public class ThreadUtils {
     private ThreadUtils() {}
 
-    @NonNull
-    public static Executor getMainThreadExecutor() {
+    public static @NonNull Executor getMainThreadExecutor() {
         return new Executor() {
             private final Handler mHandler = new Handler(Looper.getMainLooper());
             @Override

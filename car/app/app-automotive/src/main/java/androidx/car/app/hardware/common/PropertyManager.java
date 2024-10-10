@@ -24,12 +24,13 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.utils.LogTags;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -184,8 +185,7 @@ public class PropertyManager {
      * @throws SecurityException if the application did not grant permissions for getting
      *                           property
      */
-    @NonNull
-    public ListenableFuture<List<CarPropertyResponse<?>>> submitGetPropertyRequest(
+    public @NonNull ListenableFuture<List<CarPropertyResponse<?>>> submitGetPropertyRequest(
             @NonNull List<GetPropertyRequest> rawRequests,
             @NonNull Executor executor) {
         List<Integer> propertyIds = new ArrayList<>();
@@ -218,8 +218,7 @@ public class PropertyManager {
      * @throws SecurityException if the application did not grant permissions for getting
      *                           property
      */
-    @NonNull
-    public ListenableFuture<List<CarPropertyProfile<?>>> fetchSupportedZonesResponse(
+    public @NonNull ListenableFuture<List<CarPropertyProfile<?>>> fetchSupportedZonesResponse(
             @NonNull List<Integer> propertyIds, @NonNull Executor executor) {
         checkPermissions(propertyIds);
         return CallbackToFutureAdapter.getFuture(completer -> {

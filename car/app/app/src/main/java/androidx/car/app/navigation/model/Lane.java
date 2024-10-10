@@ -18,11 +18,12 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +46,12 @@ public final class Lane {
      *
      * @see Builder#addDirection(LaneDirection)
      */
-    @NonNull
-    public List<LaneDirection> getDirections() {
+    public @NonNull List<LaneDirection> getDirections() {
         return CollectionUtils.emptyIfNull(mDirections);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[direction count: " + (mDirections != null ? mDirections.size() : 0) + "]";
     }
 
@@ -92,15 +91,13 @@ public final class Lane {
          *
          * @throws NullPointerException if {@code direction} is {@code null}
          */
-        @NonNull
-        public Builder addDirection(@NonNull LaneDirection direction) {
+        public @NonNull Builder addDirection(@NonNull LaneDirection direction) {
             mDirections.add(requireNonNull(direction));
             return this;
         }
 
         /** Constructs the {@link Lane} defined by this builder. */
-        @NonNull
-        public Lane build() {
+        public @NonNull Lane build() {
             return new Lane(mDirections);
         }
 

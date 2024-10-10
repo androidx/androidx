@@ -24,10 +24,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppService;
 import androidx.car.app.SessionInfo;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * The class representing a car app activity in the main display.

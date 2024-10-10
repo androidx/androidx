@@ -18,7 +18,7 @@ package androidx.car.app;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Container class for information about the host the app is connected to.
@@ -34,8 +34,7 @@ import androidx.annotation.NonNull;
  * for the specific host version the app is connected to.
  */
 public final class HostInfo {
-    @NonNull
-    private final String mPackageName;
+    private final @NonNull String mPackageName;
     private final int mUid;
 
     /**
@@ -47,8 +46,7 @@ public final class HostInfo {
     }
 
     /** Returns the package name of the host. */
-    @NonNull
-    public String getPackageName() {
+    public @NonNull String getPackageName() {
         return mPackageName;
     }
 
@@ -57,9 +55,8 @@ public final class HostInfo {
         return mUid;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return mPackageName + ", uid: " + mUid;
     }
 }

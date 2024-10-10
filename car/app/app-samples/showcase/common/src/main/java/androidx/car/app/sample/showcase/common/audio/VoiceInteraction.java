@@ -38,13 +38,14 @@ import android.media.AudioTrack;
 import android.os.Build.VERSION_CODES;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.media.CarAudioRecord;
 import androidx.car.app.utils.LogTags;
+
+import org.jspecify.annotations.NonNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,11 +91,10 @@ public class VoiceInteraction {
     /**
      * Create thread which executes the record and the playback functions
      */
-    @NonNull
     @RequiresApi(api = VERSION_CODES.O)
     @RequiresPermission(RECORD_AUDIO)
     @SuppressLint("ClassVerificationFailure") // runtime check for < API 26
-    public Thread createRecordingThread() {
+    public @NonNull Thread createRecordingThread() {
         Thread recordingThread = new Thread(
                 () -> {
                     // Request audio focus

@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens;
 
 import static androidx.car.app.model.Action.BACK;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
@@ -38,6 +37,8 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.SignInTem
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.TabTemplateLayoutsDemoScreen;
 import androidx.car.app.versioning.CarAppApiLevels;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +53,8 @@ public final class TemplateLayoutsDemoScreen extends Screen {
         mPage = 0;
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         List<Row> screenList = new ArrayList<>();
         screenList.add(buildRowForTemplate(new ListTemplateDemoScreen(getCarContext()),
                 R.string.list_template_demo_title));

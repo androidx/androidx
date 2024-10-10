@@ -18,13 +18,14 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabContentsConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -43,8 +44,7 @@ public class TabContents implements Content {
      */
     public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
 
-    @Nullable
-    private final Template mTemplate;
+    private final @Nullable Template mTemplate;
 
     /**
      * Returns the static content ID associated with TabContents.
@@ -52,21 +52,18 @@ public class TabContents implements Content {
      * @see TabContents#CONTENT_ID
      */
 
-    @NonNull
     @Override
-    public String getContentId() {
+    public @NonNull String getContentId() {
         return CONTENT_ID;
     }
 
     /** Returns the wrapped {@link Template} to display as the contents. */
-    @NonNull
-    public Template getTemplate() {
+    public @NonNull Template getTemplate() {
         return requireNonNull(mTemplate);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "[template: " + mTemplate + "]";
     }
 
@@ -99,14 +96,12 @@ public class TabContents implements Content {
 
     /** A builder of {@link TabContents}. */
     public static final class Builder {
-        @NonNull
-        Template mTemplate;
+        @NonNull Template mTemplate;
 
         /**
          * Constructs the {@link TabContents} defined by this builder.
          */
-        @NonNull
-        public TabContents build() {
+        public @NonNull TabContents build() {
             return new TabContents(this);
         }
 

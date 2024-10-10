@@ -25,8 +25,6 @@ import android.net.Uri;
 import android.text.SpannableStringBuilder;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -52,6 +50,9 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import kotlin.Unit;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /** A screen that demonstrates the sign-in template. */
 public class SignInTemplateDemoScreen extends Screen {
     private static final String EMAIL_REGEXP = "^(.+)@(.+)$";
@@ -63,13 +64,10 @@ public class SignInTemplateDemoScreen extends Screen {
     private final Action mQRCodeSignInAction;
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
-    @Nullable
-    String mLastErrorMessage; // last displayed error message
-    @Nullable
-    String mErrorMessage;
+    @Nullable String mLastErrorMessage; // last displayed error message
+    @Nullable String mErrorMessage;
 
-    @Nullable
-    String mUsername;
+    @Nullable String mUsername;
 
     public SignInTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -129,9 +127,8 @@ public class SignInTemplateDemoScreen extends Screen {
                 .build();
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.sign_in_template_not_supported_text))

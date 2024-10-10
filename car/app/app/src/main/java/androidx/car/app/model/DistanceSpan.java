@@ -18,10 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -61,26 +62,22 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class DistanceSpan extends CarSpan {
-    @Nullable
-    private final Distance mDistance;
+    private final @Nullable Distance mDistance;
 
     /** Creates a {@link DistanceSpan} from a {@link CarIcon}. */
-    @NonNull
-    public static DistanceSpan create(@NonNull Distance distance) {
+    public static @NonNull DistanceSpan create(@NonNull Distance distance) {
         return new DistanceSpan(requireNonNull(distance));
     }
 
     /**
      * Returns the {@link Distance} instance associated with this span.
      */
-    @NonNull
-    public Distance getDistance() {
+    public @NonNull Distance getDistance() {
         return requireNonNull(mDistance);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "[distance: " + mDistance + "]";
     }
 

@@ -17,12 +17,13 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -33,36 +34,29 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class Model {
-    @NonNull
-    private final CarValue<String> mName;
+    private final @NonNull CarValue<String> mName;
 
-    @NonNull
-    private final CarValue<Integer> mYear;
+    private final @NonNull CarValue<Integer> mYear;
 
-    @NonNull
-    private final CarValue<String> mManufacturer;
+    private final @NonNull CarValue<String> mManufacturer;
 
     /** Returns the car model name. */
-    @NonNull
-    public CarValue<String> getName() {
+    public @NonNull CarValue<String> getName() {
         return requireNonNull(mName);
     }
 
     /** Returns the car model year. */
-    @NonNull
-    public CarValue<Integer> getYear() {
+    public @NonNull CarValue<Integer> getYear() {
         return requireNonNull(mYear);
     }
 
     /** Returns the car manufacturer. */
-    @NonNull
-    public CarValue<String> getManufacturer() {
+    public @NonNull CarValue<String> getManufacturer() {
         return requireNonNull(mManufacturer);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ name: " + mName + ", year: " + mYear + ", manufacturer: " + mManufacturer + "]";
     }
 
@@ -110,8 +104,7 @@ public final class Model {
          *
          * @throws NullPointerException if {@code name} is {@code null}
          */
-        @NonNull
-        public Builder setName(@NonNull CarValue<String> name) {
+        public @NonNull Builder setName(@NonNull CarValue<String> name) {
             mName = requireNonNull(name);
             return this;
         }
@@ -121,8 +114,7 @@ public final class Model {
          *
          * @throws NullPointerException if {@code year} is {@code null}
          */
-        @NonNull
-        public Builder setYear(@NonNull CarValue<Integer> year) {
+        public @NonNull Builder setYear(@NonNull CarValue<Integer> year) {
             mYear = requireNonNull(year);
             return this;
         }
@@ -132,8 +124,7 @@ public final class Model {
          *
          * @throws NullPointerException if {@code manufacturer} is {@code null}
          */
-        @NonNull
-        public Builder setManufacturer(@NonNull CarValue<String> manufacturer) {
+        public @NonNull Builder setManufacturer(@NonNull CarValue<String> manufacturer) {
             mManufacturer = requireNonNull(manufacturer);
             return this;
         }
@@ -141,8 +132,7 @@ public final class Model {
         /**
          * Constructs the {@link Model} defined by this builder.
          */
-        @NonNull
-        public Model build() {
+        public @NonNull Model build() {
             return new Model(this);
         }
 

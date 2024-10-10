@@ -19,13 +19,14 @@ import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,15 +35,12 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class Mileage {
-    @Nullable
-    private final CarValue<Float> mOdometerMeters;
+    private final @Nullable CarValue<Float> mOdometerMeters;
 
-    @NonNull
-    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
+    private final @NonNull CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
     /** Returns the value of the odometer from the car hardware in meters. */
-    @NonNull
-    public CarValue<Float> getOdometerMeters() {
+    public @NonNull CarValue<Float> getOdometerMeters() {
         return requireNonNull(mOdometerMeters);
     }
 
@@ -51,14 +49,12 @@ public final class Mileage {
      *
      * <p>See {@link CarUnit} for possible distance values.
      */
-    @NonNull
-    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
+    public @NonNull CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ odometer: "
                 + getOdometerMeters()
                 + ", distance display unit: "
@@ -107,8 +103,7 @@ public final class Mileage {
          *
          * @throws NullPointerException if {@code odometer} is {@code null}
          */
-        @NonNull
-        public Builder setOdometerMeters(@NonNull CarValue<Float> odometerMeters) {
+        public @NonNull Builder setOdometerMeters(@NonNull CarValue<Float> odometerMeters) {
             mOdometerMeters = requireNonNull(odometerMeters);
             return this;
         }
@@ -120,8 +115,7 @@ public final class Mileage {
          *
          * @throws NullPointerException if {@code mileageDisplayUnit} is {@code null}
          */
-        @NonNull
-        public Builder setDistanceDisplayUnit(
+        public @NonNull Builder setDistanceDisplayUnit(
                 @NonNull CarValue<@CarDistanceUnit Integer> mileageDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(mileageDisplayUnit);
             return this;
@@ -130,8 +124,7 @@ public final class Mileage {
         /**
          * Constructs the {@link Mileage} defined by this builder.
          */
-        @NonNull
-        public Mileage build() {
+        public @NonNull Mileage build() {
             return new Mileage(this);
         }
 

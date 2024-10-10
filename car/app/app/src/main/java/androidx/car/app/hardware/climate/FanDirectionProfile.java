@@ -16,9 +16,10 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,8 +33,7 @@ import java.util.Set;
 @ExperimentalCarApi
 public final class FanDirectionProfile {
 
-    @NonNull
-    private final Map<Set<CarZone>, Set<Integer>> mCarZoneSetsToFanDirectionValues;
+    private final @NonNull Map<Set<CarZone>, Set<Integer>> mCarZoneSetsToFanDirectionValues;
 
     /**
      * Returns a set of supported values for the feature mapped to the set of car
@@ -41,8 +41,7 @@ public final class FanDirectionProfile {
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
-    @NonNull
-    public Map<Set<CarZone>, Set<Integer>> getCarZoneSetsToFanDirectionValues() {
+    public @NonNull Map<Set<CarZone>, Set<Integer>> getCarZoneSetsToFanDirectionValues() {
         return mCarZoneSetsToFanDirectionValues;
     }
 
@@ -72,8 +71,7 @@ public final class FanDirectionProfile {
         }
 
         /** Create a FanDirectionProfile. */
-        @NonNull
-        public FanDirectionProfile build() {
+        public @NonNull FanDirectionProfile build() {
             return new FanDirectionProfile(this);
         }
     }

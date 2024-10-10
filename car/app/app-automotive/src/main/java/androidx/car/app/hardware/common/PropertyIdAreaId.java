@@ -18,12 +18,13 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.auto.value.AutoValue;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Container class for information about property Ids and area Ids.
@@ -41,9 +42,8 @@ public abstract class PropertyIdAreaId {
     public abstract int getAreaId();
 
     /** Get a builder class for {@link PropertyIdAreaId}*/
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static PropertyIdAreaId.Builder builder() {
+    public static PropertyIdAreaId.@NonNull Builder builder() {
         return new AutoValue_PropertyIdAreaId.Builder().setAreaId(0);
     }
 
@@ -53,16 +53,13 @@ public abstract class PropertyIdAreaId {
     @AutoValue.Builder
     public abstract static class Builder {
         /** Sets a property ID for the {@link PropertyIdAreaId}. */
-        @NonNull
-        public abstract PropertyIdAreaId.Builder setPropertyId(int propertyId);
+        public abstract PropertyIdAreaId.@NonNull Builder setPropertyId(int propertyId);
 
         /** Sets an area Id for the {@link PropertyIdAreaId}. */
-        @NonNull
-        public abstract PropertyIdAreaId.Builder setAreaId(int areaId);
+        public abstract PropertyIdAreaId.@NonNull Builder setAreaId(int areaId);
 
         /** Create an instance of {@link PropertyIdAreaId}. */
-        @NonNull
-        public abstract PropertyIdAreaId build();
+        public abstract @NonNull PropertyIdAreaId build();
     }
 
 }

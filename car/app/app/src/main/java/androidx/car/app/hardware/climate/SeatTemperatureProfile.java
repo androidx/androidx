@@ -18,9 +18,10 @@ package androidx.car.app.hardware.climate;
 
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,8 +35,8 @@ import java.util.Set;
 @ExperimentalCarApi
 public final class SeatTemperatureProfile {
 
-    @NonNull
-    private final Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSeatTemperatureValues;
+    private final @NonNull Map<Set<CarZone>, Pair<Integer, Integer>>
+            mCarZoneSetsToSeatTemperatureValues;
 
     /**
      * Returns a list of supported min/max range values for the feature mapped to the set of car
@@ -43,8 +44,8 @@ public final class SeatTemperatureProfile {
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
-    @NonNull
-    public Map<Set<CarZone>, Pair<Integer, Integer>> getCarZoneSetsToSeatTemperatureValues() {
+    public @NonNull Map<Set<CarZone>, Pair<Integer, Integer>>
+            getCarZoneSetsToSeatTemperatureValues() {
         return mCarZoneSetsToSeatTemperatureValues;
     }
 
@@ -78,8 +79,7 @@ public final class SeatTemperatureProfile {
         }
 
         /** Create a SeatTemperatureProfile. */
-        @NonNull
-        public SeatTemperatureProfile build() {
+        public @NonNull SeatTemperatureProfile build() {
             return new SeatTemperatureProfile(this);
         }
     }

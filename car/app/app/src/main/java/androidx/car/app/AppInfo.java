@@ -24,8 +24,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
@@ -33,6 +31,9 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Container class for information about the app the host is connected to.
@@ -70,8 +71,7 @@ public final class AppInfo {
      */
     public static final String MIN_API_LEVEL_METADATA_KEY = "androidx.car.app.minCarApiLevel";
 
-    @Nullable
-    private final String mLibraryVersion;
+    private final @Nullable String mLibraryVersion;
     @CarAppApiLevel
     private final int mMinCarAppApiLevel;
     @CarAppApiLevel
@@ -82,8 +82,7 @@ public final class AppInfo {
      *
      */
     @RestrictTo(Scope.LIBRARY)
-    @NonNull
-    public static AppInfo create(@NonNull Context context) {
+    public static @NonNull AppInfo create(@NonNull Context context) {
         @CarAppApiLevel
         int minApiLevel = retrieveMinCarAppApiLevel(context);
         if (minApiLevel < CarAppApiLevels.getOldest()
@@ -149,8 +148,7 @@ public final class AppInfo {
      * String representation of library version. This version string is opaque and not meant to
      * be parsed.
      */
-    @NonNull
-    public String getLibraryDisplayVersion() {
+    public @NonNull String getLibraryDisplayVersion() {
         return requireNonNull(mLibraryVersion);
     }
 

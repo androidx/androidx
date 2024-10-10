@@ -21,11 +21,12 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -53,8 +54,7 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class ClickableSpan extends CarSpan {
-    @Nullable
-    private final OnClickDelegate mOnClickDelegate;
+    private final @Nullable OnClickDelegate mOnClickDelegate;
 
     /**
      * Creates a {@link ClickableSpan} from a {@link OnClickListener}.
@@ -64,21 +64,18 @@ public final class ClickableSpan extends CarSpan {
      *
      * @throws NullPointerException if {@code onClickListener} is {@code null}
      */
-    @NonNull
     @SuppressLint("ExecutorRegistration")
-    public static ClickableSpan create(@NonNull OnClickListener onClickListener) {
+    public static @NonNull ClickableSpan create(@NonNull OnClickListener onClickListener) {
         return new ClickableSpan(requireNonNull(onClickListener));
     }
 
     /** Returns the {@link OnClickDelegate} associated with this span. */
-    @NonNull
-    public OnClickDelegate getOnClickDelegate() {
+    public @NonNull OnClickDelegate getOnClickDelegate() {
         return requireNonNull(mOnClickDelegate);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[clickable]";
     }
 

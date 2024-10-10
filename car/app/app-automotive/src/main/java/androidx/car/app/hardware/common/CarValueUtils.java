@@ -18,11 +18,12 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -37,9 +38,8 @@ public final class CarValueUtils {
      * Gets a {@link androidx.car.app.hardware.common.CarValue} object from
      * {@link androidx.car.app.hardware.common.CarPropertyResponse}
      */
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static <T> CarValue<T> getCarValue(@NonNull CarPropertyResponse<?> response,
+    public static <T> @NonNull CarValue<T> getCarValue(@NonNull CarPropertyResponse<?> response,
             @Nullable T value) {
         long timestampMillis = response.getTimestampMillis();
         int status = response.getStatus();
@@ -50,10 +50,9 @@ public final class CarValueUtils {
     /**
      * Builds {@link CarValue} from an existing {@link CarPropertyResponse}.
      */
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
     @SuppressWarnings("unchecked")
-    public static <T> CarValue<T> getCarValue(@NonNull CarPropertyResponse<?> response) {
+    public static <T> @NonNull CarValue<T> getCarValue(@NonNull CarPropertyResponse<?> response) {
         return new CarValue<>((T) response.getValue(), response.getTimestampMillis(),
                 response.getStatus());
     }

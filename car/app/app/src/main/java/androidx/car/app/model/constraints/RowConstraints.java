@@ -18,10 +18,11 @@ package androidx.car.app.model.constraints;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Row;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Encapsulates the constraints to apply when rendering a {@link Row} in different contexts.
@@ -29,12 +30,11 @@ import androidx.car.app.model.Row;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RowConstraints {
-    @NonNull
-    public static final RowConstraints UNCONSTRAINED = new RowConstraints.Builder().build();
+    public static final @NonNull RowConstraints UNCONSTRAINED =
+            new RowConstraints.Builder().build();
 
     /** Conservative constraints for a row. */
-    @NonNull
-    public static final RowConstraints ROW_CONSTRAINTS_CONSERVATIVE =
+    public static final @NonNull RowConstraints ROW_CONSTRAINTS_CONSERVATIVE =
             new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(false)
@@ -49,8 +49,7 @@ public final class RowConstraints {
      * <p>Note: Toggles are allowed from API >= 6. Old hosts may render bad UI if the
      * toggles are added to hosts that don't support them.
      */
-    @NonNull
-    public static final RowConstraints ROW_CONSTRAINTS_PANE =
+    public static final @NonNull RowConstraints ROW_CONSTRAINTS_PANE =
             new RowConstraints.Builder()
                     .setMaxActionsExclusive(2)
                     .setImageAllowed(true)
@@ -65,8 +64,7 @@ public final class RowConstraints {
      * <p>Note: Toggles are allowed from API >= 6. Old hosts may render bad UI if the
      * toggles are added to hosts that don't support them.
      */
-    @NonNull
-    public static final RowConstraints ROW_CONSTRAINTS_SIMPLE =
+    public static final @NonNull RowConstraints ROW_CONSTRAINTS_SIMPLE =
             new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(true)
@@ -87,8 +85,7 @@ public final class RowConstraints {
      *     <li>Can have a click listener
      * </ul>
      */
-    @NonNull
-    public static final RowConstraints ROW_CONSTRAINTS_FULL_LIST =
+    public static final @NonNull RowConstraints ROW_CONSTRAINTS_FULL_LIST =
             new RowConstraints.Builder(ROW_CONSTRAINTS_SIMPLE).setToggleAllowed(true).build();
 
     private final int mMaxTextLinesPerRow;
@@ -124,8 +121,7 @@ public final class RowConstraints {
     }
 
     /** Returns the {@link CarIconConstraints} enforced for the row images. */
-    @NonNull
-    public CarIconConstraints getCarIconConstraints() {
+    public @NonNull CarIconConstraints getCarIconConstraints() {
         return mCarIconConstraints;
     }
 
@@ -178,43 +174,38 @@ public final class RowConstraints {
         CarIconConstraints mCarIconConstraints = CarIconConstraints.UNCONSTRAINED;
 
         /** Sets whether the row can have a click listener associated with it. */
-        @NonNull
-        public Builder setOnClickListenerAllowed(boolean isOnClickListenerAllowed) {
+        public @NonNull Builder setOnClickListenerAllowed(boolean isOnClickListenerAllowed) {
             mIsOnClickListenerAllowed = isOnClickListenerAllowed;
             return this;
         }
 
         /** Sets the maximum number lines of text, excluding the title, to render in the row. */
-        @NonNull
-        public Builder setMaxTextLinesPerRow(int maxTextLinesPerRow) {
+        public @NonNull Builder setMaxTextLinesPerRow(int maxTextLinesPerRow) {
             mMaxTextLines = maxTextLinesPerRow;
             return this;
         }
 
         /** Sets the maximum number actions to allowed in a row that consists only of actions. */
-        @NonNull
-        public Builder setMaxActionsExclusive(int maxActionsExclusive) {
+        public @NonNull Builder setMaxActionsExclusive(int maxActionsExclusive) {
             mMaxActionsExclusive = maxActionsExclusive;
             return this;
         }
 
         /** Sets whether an image can be added to the row. */
-        @NonNull
-        public Builder setImageAllowed(boolean imageAllowed) {
+        public @NonNull Builder setImageAllowed(boolean imageAllowed) {
             mIsImageAllowed = imageAllowed;
             return this;
         }
 
         /** Sets whether a toggle can be added to the row. */
-        @NonNull
-        public Builder setToggleAllowed(boolean toggleAllowed) {
+        public @NonNull Builder setToggleAllowed(boolean toggleAllowed) {
             mIsToggleAllowed = toggleAllowed;
             return this;
         }
 
         /** Sets the {@link CarIconConstraints} enforced for the row images. */
-        @NonNull
-        public Builder setCarIconConstraints(@NonNull CarIconConstraints carIconConstraints) {
+        public @NonNull Builder setCarIconConstraints(
+                @NonNull CarIconConstraints carIconConstraints) {
             mCarIconConstraints = carIconConstraints;
             return this;
         }
@@ -222,8 +213,7 @@ public final class RowConstraints {
         /**
          * Constructs the {@link RowConstraints} defined by this builder.
          */
-        @NonNull
-        public RowConstraints build() {
+        public @NonNull RowConstraints build() {
             return new RowConstraints(this);
         }
 

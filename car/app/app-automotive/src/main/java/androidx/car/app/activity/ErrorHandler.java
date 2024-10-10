@@ -18,10 +18,11 @@ package androidx.car.app.activity;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.car.app.automotive.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Error handling abstraction

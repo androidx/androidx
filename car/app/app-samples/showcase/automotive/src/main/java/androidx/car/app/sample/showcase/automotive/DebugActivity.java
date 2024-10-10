@@ -22,9 +22,10 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.activity.CarAppActivity;
 import androidx.car.app.sample.showcase.R;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Demo activity, used to showcase the use of

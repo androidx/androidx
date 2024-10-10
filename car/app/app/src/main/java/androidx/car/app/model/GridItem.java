@@ -24,8 +24,6 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
@@ -33,6 +31,9 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -75,18 +76,13 @@ public final class GridItem implements Item {
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     private final boolean mIsLoading;
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mText;
-    @Nullable
-    private final CarIcon mImage;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarText mText;
+    private final @Nullable CarIcon mImage;
     @GridItemImageType
     private final int mImageType;
-    @Nullable
-    private final OnClickDelegate mOnClickDelegate;
-    @Nullable
-    private final Badge mBadge;
+    private final @Nullable OnClickDelegate mOnClickDelegate;
+    private final @Nullable Badge mBadge;
     private final boolean mIndexable;
 
     /**
@@ -103,8 +99,7 @@ public final class GridItem implements Item {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -114,8 +109,7 @@ public final class GridItem implements Item {
      *
      * @see Builder#setText(CharSequence)
      */
-    @Nullable
-    public CarText getText() {
+    public @Nullable CarText getText() {
         return mText;
     }
 
@@ -124,8 +118,7 @@ public final class GridItem implements Item {
      *
      * @see Builder#setImage(CarIcon)
      */
-    @Nullable
-    public CarIcon getImage() {
+    public @Nullable CarIcon getImage() {
         return mImage;
     }
 
@@ -139,8 +132,7 @@ public final class GridItem implements Item {
      * Returns the {@link OnClickDelegate} to be called back when the grid item is clicked or
      * {@code null} if the grid item is non-clickable.
      */
-    @Nullable
-    public OnClickDelegate getOnClickDelegate() {
+    public @Nullable OnClickDelegate getOnClickDelegate() {
         return mOnClickDelegate;
     }
 
@@ -151,8 +143,7 @@ public final class GridItem implements Item {
      * @see Builder#setBadge(Badge)
      */
     @ExperimentalCarApi
-    @Nullable
-    public Badge getBadge() {
+    public @Nullable Badge getBadge() {
         return mBadge;
     }
 
@@ -167,8 +158,7 @@ public final class GridItem implements Item {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[title: "
                 + CarText.toShortString(mTitle)
                 + ", text: "
@@ -240,19 +230,14 @@ public final class GridItem implements Item {
 
     /** A builder of {@link GridItem}. */
     public static final class Builder {
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        CarText mText;
-        @Nullable
-        CarIcon mImage;
+        @Nullable CarText mTitle;
+        @Nullable CarText mText;
+        @Nullable CarIcon mImage;
         @GridItemImageType
         int mImageType = IMAGE_TYPE_LARGE;
-        @Nullable
-        OnClickDelegate mOnClickDelegate;
+        @Nullable OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
-        @Nullable
-        Badge mBadge;
+        @Nullable Badge mBadge;
         boolean mIndexable = true;
 
         /**
@@ -263,8 +248,7 @@ public final class GridItem implements Item {
          * the new template content to the host once the data is ready. If set to {@code false},
          * the UI shows the item  contents.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -277,8 +261,7 @@ public final class GridItem implements Item {
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
-        @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
+        public @NonNull Builder setTitle(@Nullable CharSequence title) {
             if (title == null) {
                 mTitle = null;
                 return this;
@@ -297,8 +280,7 @@ public final class GridItem implements Item {
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
-        @NonNull
-        public Builder setTitle(@Nullable CarText title) {
+        public @NonNull Builder setTitle(@Nullable CarText title) {
             if (title == null) {
                 mTitle = null;
                 return this;
@@ -322,8 +304,7 @@ public final class GridItem implements Item {
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
-        @NonNull
-        public Builder setText(@NonNull CharSequence text) {
+        public @NonNull Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
             CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(mText);
             return this;
@@ -344,8 +325,7 @@ public final class GridItem implements Item {
          * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
-        @NonNull
-        public Builder setText(@NonNull CarText text) {
+        public @NonNull Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
             CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(mText);
             return this;
@@ -357,8 +337,7 @@ public final class GridItem implements Item {
          * @throws NullPointerException if {@code image} is {@code null}
          * @see #setImage(CarIcon, int)
          */
-        @NonNull
-        public Builder setImage(@NonNull CarIcon image) {
+        public @NonNull Builder setImage(@NonNull CarIcon image) {
             return setImage(requireNonNull(image), IMAGE_TYPE_LARGE);
         }
 
@@ -373,9 +352,8 @@ public final class GridItem implements Item {
          * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
          * @see #setImage(CarIcon, int)
          */
-        @NonNull
         @ExperimentalCarApi
-        public Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
+        public @NonNull Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
             requireNonNull(badge);
             mBadge = badge;
             return setImage(requireNonNull(image));
@@ -392,9 +370,8 @@ public final class GridItem implements Item {
          * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
          * @see #setImage(CarIcon, int)
          */
-        @NonNull
         @ExperimentalCarApi
-        public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
+        public @NonNull Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
                 @NonNull Badge badge) {
             requireNonNull(badge);
             mBadge = badge;
@@ -422,8 +399,7 @@ public final class GridItem implements Item {
          * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}
          * @throws NullPointerException if {@code image} is {@code null}
          */
-        @NonNull
-        public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
+        public @NonNull Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
             mImage = image;
             mImageType = imageType;
@@ -439,9 +415,8 @@ public final class GridItem implements Item {
          *
          * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
+        public @NonNull Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
             mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
@@ -468,8 +443,7 @@ public final class GridItem implements Item {
          * .Builder#setAlphabeticalIndexingAllowed(Boolean)}).
          */
         @ExperimentalCarApi
-        @NonNull
-        public Builder setIndexable(boolean indexable) {
+        public @NonNull Builder setIndexable(boolean indexable) {
             mIndexable = indexable;
             return this;
         }
@@ -481,8 +455,7 @@ public final class GridItem implements Item {
          *                               versa, if the grid item is loading but the click listener
          *                               is set, or if a badge is set and an image is not set
          */
-        @NonNull
-        public GridItem build() {
+        public @NonNull GridItem build() {
             if (mIsLoading == (mImage != null)) {
                 throw new IllegalStateException(
                         "When a grid item is loading, the image must not be set and vice versa");

@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.screens.userinteractions;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
@@ -33,6 +32,8 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.MessageTe
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.PaneTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.SearchTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.SignInTemplateDemoScreen;
+
+import org.jspecify.annotations.NonNull;
 
 /** A screen demonstrating Task Overflow for the different templates */
 public class TaskOverflowDemoScreen extends Screen {
@@ -86,9 +87,8 @@ public class TaskOverflowDemoScreen extends Screen {
                 .build();
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         int listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_LIST);
         if (listLimit >= 6) {

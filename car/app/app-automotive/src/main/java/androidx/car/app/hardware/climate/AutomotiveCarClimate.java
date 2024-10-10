@@ -57,7 +57,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -72,6 +71,8 @@ import androidx.car.app.utils.LogTags;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -20,13 +20,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -87,18 +88,15 @@ public final class TollCard {
     @TollCardState
     public static final int TOLLCARD_STATE_NOT_INSERTED = 3;
 
-    @NonNull
-    private final CarValue<@TollCardState Integer> mCardState;
+    private final @NonNull CarValue<@TollCardState Integer> mCardState;
 
     /** Returns the toll card state if available. */
-    @NonNull
-    public CarValue<@TollCardState Integer> getCardState() {
+    public @NonNull CarValue<@TollCardState Integer> getCardState() {
         return requireNonNull(mCardState);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ tollcard state: " + mCardState + "]";
     }
 
@@ -138,8 +136,7 @@ public final class TollCard {
          *
          * @throws NullPointerException if {@code cardState} is {@code null}
          */
-        @NonNull
-        public Builder setCardState(@NonNull CarValue<@TollCardState Integer> cardState) {
+        public @NonNull Builder setCardState(@NonNull CarValue<@TollCardState Integer> cardState) {
             mCardState = requireNonNull(cardState);
             return this;
         }
@@ -147,8 +144,7 @@ public final class TollCard {
         /**
          * Constructs the {@link TollCard} defined by this builder.
          */
-        @NonNull
-        public TollCard build() {
+        public @NonNull TollCard build() {
             return new TollCard(this);
         }
 

@@ -23,10 +23,11 @@ import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_ROW_FIRST;
 import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_ROW_SECOND;
 import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_ROW_THIRD;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.common.collect.ImmutableSet;
+
+import org.jspecify.annotations.NonNull;
 
 /** CarZone to areaId converter for Seat */
 @ExperimentalCarApi
@@ -40,9 +41,8 @@ public class SeatCarZoneAreaIdConverter implements CarZoneAreaIdConverter {
      *
      * @param seatAreaId the area Id that needs to be converted to CarZone
      */
-    @NonNull
     @Override
-    public ImmutableSet<CarZone> convertAreaIdToCarZones(int seatAreaId) {
+    public @NonNull ImmutableSet<CarZone> convertAreaIdToCarZones(int seatAreaId) {
         ImmutableSet.Builder<CarZone> zones = new ImmutableSet.Builder<>();
 
         // first row

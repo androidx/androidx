@@ -26,10 +26,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.fragment.app.FragmentActivity;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * <p> This class handles providing the right launcher activity when running native

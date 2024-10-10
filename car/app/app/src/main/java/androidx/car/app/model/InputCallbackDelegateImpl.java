@@ -23,14 +23,15 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link InputCallbackDelegate} to allow IPC for text-input-related
@@ -41,8 +42,7 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @KeepFields
 public class InputCallbackDelegateImpl implements InputCallbackDelegate {
-    @Nullable
-    private final IInputCallback mCallback;
+    private final @Nullable IInputCallback mCallback;
 
     @Override
     public void sendInputSubmitted(@NonNull String text, @NonNull OnDoneCallback callback) {
@@ -67,8 +67,7 @@ public class InputCallbackDelegateImpl implements InputCallbackDelegate {
     /** Creates an instance of {@link InputCallbackDelegate}. */
     // This mirrors the AIDL class and is not supposed to support an executor as an input.
     @SuppressLint("ExecutorRegistration")
-    @NonNull
-    public static InputCallbackDelegate create(@NonNull InputCallback callback) {
+    public static @NonNull InputCallbackDelegate create(@NonNull InputCallback callback) {
         return new InputCallbackDelegateImpl(requireNonNull(callback));
     }
 

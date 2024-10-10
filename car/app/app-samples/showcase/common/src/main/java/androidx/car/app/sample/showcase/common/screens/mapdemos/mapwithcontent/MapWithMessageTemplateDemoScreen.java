@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent;
 
 import android.content.res.TypedArray;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -37,6 +36,8 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** Simple demo of how to present a map template with a list. */
 public class MapWithMessageTemplateDemoScreen extends Screen {
     TypedArray mTypedArray =
@@ -53,9 +54,8 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
 
     @ExperimentalCarApi
     @RequiresCarApi(7)
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
 
         MessageTemplate messageTemplate = new MessageTemplate.Builder("Continue to Google "
                 + "Kirkland Urban WA 98101?")

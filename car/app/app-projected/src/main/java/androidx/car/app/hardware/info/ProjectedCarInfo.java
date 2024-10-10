@@ -17,7 +17,6 @@ package androidx.car.app.hardware.info;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -25,6 +24,8 @@ import androidx.car.app.hardware.ICarHardwareResultTypes;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.common.CarResultStub;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 

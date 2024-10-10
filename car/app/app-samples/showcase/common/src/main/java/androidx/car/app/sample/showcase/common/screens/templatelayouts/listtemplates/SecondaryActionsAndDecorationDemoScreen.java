@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemp
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -33,6 +32,8 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** A screen demonstrating lists with secondary actions and numeric decorations. */
 @RequiresCarApi(6)
 public class SecondaryActionsAndDecorationDemoScreen extends Screen {
@@ -40,9 +41,8 @@ public class SecondaryActionsAndDecorationDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         Action action = new Action.Builder()
                 .setIcon(buildCarIconWithResources(R.drawable.baseline_question_mark_24))
                 .setOnClickListener(() -> CarToast.makeText(getCarContext(),

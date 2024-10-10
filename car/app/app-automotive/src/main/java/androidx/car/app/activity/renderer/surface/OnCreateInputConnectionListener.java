@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.inputmethod.EditorInfo;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Proxies the {@link android.view.View#onCreateInputConnection} method invocation events from
@@ -39,6 +40,5 @@ public interface OnCreateInputConnectionListener {
      * @return an {@link IProxyInputConnection} through which communication to the
      * remote {@code InputConnection} should occur
      */
-    @Nullable
-    IProxyInputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo);
+    @Nullable IProxyInputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo);
 }

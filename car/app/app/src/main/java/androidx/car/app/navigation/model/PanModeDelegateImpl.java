@@ -23,14 +23,15 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link PanModeDelegate}.
@@ -40,8 +41,7 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @KeepFields
 public class PanModeDelegateImpl implements PanModeDelegate {
-    @Nullable
-    private final IPanModeListener mStub;
+    private final @Nullable IPanModeListener mStub;
 
     @Override
     public void sendPanModeChanged(boolean isInPanMode, @NonNull OnDoneCallback callback) {
@@ -62,10 +62,9 @@ public class PanModeDelegateImpl implements PanModeDelegate {
         mStub = null;
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static PanModeDelegate create(@NonNull PanModeListener listener) {
+    public static @NonNull PanModeDelegate create(@NonNull PanModeListener listener) {
         return new PanModeDelegateImpl(listener);
     }
 

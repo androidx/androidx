@@ -18,8 +18,9 @@ package androidx.car.app.sample.showcase.common.common;
 
 import android.location.Location;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.model.PlaceMarker;
+
+import org.jspecify.annotations.NonNull;
 
 /** Simple data model representing a place. */
 public class PlaceInfo {

@@ -18,10 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -29,10 +30,8 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class Place {
-    @Nullable
-    private final CarLocation mLocation;
-    @Nullable
-    private final PlaceMarker mMarker;
+    private final @Nullable CarLocation mLocation;
+    private final @Nullable PlaceMarker mMarker;
 
     /**
      * Returns the {@link PlaceMarker} object associated with this place or {@code null} if one
@@ -40,8 +39,7 @@ public final class Place {
      *
      * @see Builder#setMarker(PlaceMarker)
      */
-    @Nullable
-    public PlaceMarker getMarker() {
+    public @Nullable PlaceMarker getMarker() {
         return mMarker;
     }
 
@@ -50,14 +48,12 @@ public final class Place {
      *
      * @see Builder#Builder(CarLocation)
      */
-    @NonNull
-    public CarLocation getLocation() {
+    public @NonNull CarLocation getLocation() {
         return requireNonNull(mLocation);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ location: " + mLocation + ", marker: " + mMarker + "]";
     }
 
@@ -94,8 +90,7 @@ public final class Place {
     /** A builder of {@link Place}. */
     public static final class Builder {
         CarLocation mLocation;
-        @Nullable
-        PlaceMarker mMarker;
+        @Nullable PlaceMarker mMarker;
 
         /**
          * Returns a builder instance for a {@link CarLocation}.
@@ -115,8 +110,7 @@ public final class Place {
          *
          * @throws NullPointerException if {@code marker} is {@code null}
          */
-        @NonNull
-        public Builder setMarker(@NonNull PlaceMarker marker) {
+        public @NonNull Builder setMarker(@NonNull PlaceMarker marker) {
             mMarker = requireNonNull(marker);
             return this;
         }
@@ -132,8 +126,7 @@ public final class Place {
         }
 
         /** Constructs the {@link Place} defined by this builder. */
-        @NonNull
-        public Place build() {
+        public @NonNull Place build() {
             return new Place(this);
         }
     }

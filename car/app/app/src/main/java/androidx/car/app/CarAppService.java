@@ -27,12 +27,13 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.validation.HostValidator;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -158,14 +159,11 @@ public abstract class CarAppService extends Service {
 
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
-    @NonNull
-    private final Map<SessionInfo, CarAppBinder> mBinders = new HashMap<>();
+    private final @NonNull Map<SessionInfo, CarAppBinder> mBinders = new HashMap<>();
 
-    @Nullable
-    private AppInfo mAppInfo;
+    private @Nullable AppInfo mAppInfo;
 
-    @Nullable
-    private HostInfo mHostInfo;
+    private @Nullable HostInfo mHostInfo;
 
     @Override
     @CallSuper
@@ -188,8 +186,7 @@ public abstract class CarAppService extends Service {
      */
     @Override
     @CallSuper
-    @NonNull
-    public final IBinder onBind(@NonNull Intent intent) {
+    public final @NonNull IBinder onBind(@NonNull Intent intent) {
         SessionInfo sessionInfo = SessionInfoIntentEncoder.containsSessionInfo(intent)
                 ? SessionInfoIntentEncoder.decode(intent)
                 : SessionInfo.DEFAULT_SESSION_INFO;
@@ -269,8 +266,7 @@ public abstract class CarAppService extends Service {
      * }
      * </pre>
      */
-    @NonNull
-    public abstract HostValidator createHostValidator();
+    public abstract @NonNull HostValidator createHostValidator();
 
     /**
      * Creates a new {@link Session} for the application.
@@ -286,8 +282,7 @@ public abstract class CarAppService extends Service {
      *
      * @see CarContext#startCarApp(Intent)
      */
-    @NonNull
-    public Session onCreateSession() {
+    public @NonNull Session onCreateSession() {
         throw new RuntimeException(
                 "Please override and implement CarAppService#onCreateSession(SessionInfo).");
     }
@@ -306,17 +301,16 @@ public abstract class CarAppService extends Service {
      *
      * @see CarContext#startCarApp(Intent)
      */
-    @NonNull
     @SuppressWarnings("deprecation")
     @RequiresCarApi(6)
-    public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
+    public @NonNull Session onCreateSession(@NonNull SessionInfo sessionInfo) {
         return onCreateSession();
     }
 
     @Override
     @CallSuper
     public final void dump(@NonNull FileDescriptor fd, @NonNull PrintWriter writer,
-            @Nullable String[] args) {
+            String @Nullable [] args) {
         super.dump(fd, writer, args);
         if (args == null) return;
         for (String arg : args) {
@@ -342,8 +336,7 @@ public abstract class CarAppService extends Service {
      *
      * @see HostInfo
      */
-    @Nullable
-    public final HostInfo getHostInfo() {
+    public final @Nullable HostInfo getHostInfo() {
         return mHostInfo;
     }
 
@@ -357,9 +350,8 @@ public abstract class CarAppService extends Service {
      *
      * @deprecated use {@link #getSession(SessionInfo)}
      */
-    @Nullable
     @Deprecated
-    public final Session getCurrentSession() {
+    public final @Nullable Session getCurrentSession() {
         synchronized (mBinders) {
             for (Map.Entry<SessionInfo, CarAppBinder> entry : mBinders.entrySet()) {
                 if (entry.getKey().getDisplayType() == SessionInfo.DISPLAY_TYPE_MAIN) {
@@ -375,8 +367,7 @@ public abstract class CarAppService extends Service {
      * Returns the {@link Session} associated to the given {@link SessionInfo}, or {@code null}
      * if one doesn't exist.
      */
-    @Nullable
-    public final Session getSession(@NonNull SessionInfo sessionInfo) {
+    public final @Nullable Session getSession(@NonNull SessionInfo sessionInfo) {
         synchronized (mBinders) {
             CarAppBinder binder = mBinders.get(sessionInfo);
             if (binder == null) {
@@ -388,8 +379,7 @@ public abstract class CarAppService extends Service {
 
 
     // Strictly to avoid synthetic accessor.
-    @NonNull
-    AppInfo getAppInfo() {
+    @NonNull AppInfo getAppInfo() {
         if (mAppInfo == null) {
             // Lazy-initialized as the package manager is not available if this is created inlined.
             mAppInfo = AppInfo.create(this);

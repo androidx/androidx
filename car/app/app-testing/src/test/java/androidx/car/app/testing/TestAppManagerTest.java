@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.Rect;
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -31,6 +30,7 @@ import androidx.car.app.SurfaceContainer;
 import androidx.car.app.model.Template;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,9 +54,8 @@ public class TestAppManagerTest {
 
         mTestScreen =
                 new Screen(mCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return mTemplate;
                     }
                 };
@@ -111,9 +110,8 @@ public class TestAppManagerTest {
 
         Screen screen2 =
                 new Screen(mCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return mTemplate;
                     }
                 };
@@ -142,9 +140,8 @@ public class TestAppManagerTest {
 
         Screen screen2 =
                 new Screen(mCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return mTemplate;
                     }
                 };

@@ -30,6 +30,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(project(":car:app:app"))
 
     implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"

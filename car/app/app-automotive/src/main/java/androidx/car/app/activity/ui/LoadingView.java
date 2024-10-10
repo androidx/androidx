@@ -27,11 +27,12 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.CarAppActivity;
 import androidx.car.app.automotive.R;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A view to be displayed while the app is trying to connect to the host
@@ -66,8 +67,7 @@ public class LoadingView extends FrameLayout {
     }
 
     @SuppressWarnings("deprecation")
-    @Nullable
-    private Drawable getActivityIcon() {
+    private @Nullable Drawable getActivityIcon() {
         PackageManager packageManager = getContext().getPackageManager();
 
         Intent intent = new Intent(getContext(), CarAppActivity.class);

@@ -20,12 +20,13 @@ import static androidx.car.app.hardware.common.CarZone.CAR_ZONE_GLOBAL;
 
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
 
 import com.google.common.collect.ImmutableMap;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -86,8 +87,7 @@ public final class CabinTemperatureProfile {
     /**
      * Returns a pair of min and max range for the values of the property in Celsius.
      */
-    @NonNull
-    public Pair<Float, Float> getSupportedMinMaxCelsiusRange() {
+    public @NonNull Pair<Float, Float> getSupportedMinMaxCelsiusRange() {
         if (hasSupportedMinMaxCelsiusRange()) {
             return mSupportedMinMaxCelsiusRange;
         }
@@ -97,8 +97,7 @@ public final class CabinTemperatureProfile {
     /**
      * Returns a pair of min and max range for the values of the property in Fahrenheit.
      */
-    @NonNull
-    public Pair<Float, Float> getSupportedMinMaxFahrenheitRange() {
+    public @NonNull Pair<Float, Float> getSupportedMinMaxFahrenheitRange() {
         if (hasSupportedMinMaxFahrenheitRange()) {
             return mSupportedMinMaxFahrenheitRange;
         }
@@ -111,8 +110,8 @@ public final class CabinTemperatureProfile {
      *
      * <p>The values that can be regulated together for a set of car zones are combined together.
      */
-    @NonNull
-    public Map<Set<CarZone>, Pair<Float, Float>> getCarZoneSetsToCabinCelsiusTemperatureRanges() {
+    public @NonNull Map<Set<CarZone>, Pair<Float, Float>>
+            getCarZoneSetsToCabinCelsiusTemperatureRanges() {
         if (hasCarZoneSetsToCabinCelsiusTemperatureRanges()) {
             return mCarZoneSetsToCabinCelsiusTemperatureRanges;
         }
@@ -209,8 +208,7 @@ public final class CabinTemperatureProfile {
         public Builder() {};
 
         /** Create a CabinTemperatureProfile. */
-        @NonNull
-        public CabinTemperatureProfile build() {
+        public @NonNull CabinTemperatureProfile build() {
             return new CabinTemperatureProfile(this);
         }
 

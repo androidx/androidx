@@ -29,8 +29,6 @@ import android.text.TextUtils;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
@@ -40,6 +38,9 @@ import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -165,18 +166,16 @@ public final class Action {
      *
      * <p>This action is non-interactive.
      */
-    @NonNull
-    public static final Action APP_ICON = new Action(TYPE_APP_ICON);
+    public static final @NonNull Action APP_ICON = new Action(TYPE_APP_ICON);
 
     /**
      * A standard action to show the message compose button
      *
      * <p>This action is interactive.
      */
-    @NonNull
     @ExperimentalCarApi
     @RequiresCarApi(7)
-    public static final Action COMPOSE_MESSAGE = new Action(TYPE_COMPOSE_MESSAGE);
+    public static final @NonNull Action COMPOSE_MESSAGE = new Action(TYPE_COMPOSE_MESSAGE);
 
     /**
      * A standard action to navigate back in the user interface.
@@ -188,8 +187,7 @@ public final class Action {
      * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}, which
      * you can retrieve from {@link CarContext#getOnBackPressedDispatcher()}.
      */
-    @NonNull
-    public static final Action BACK = new Action(TYPE_BACK);
+    public static final @NonNull Action BACK = new Action(TYPE_BACK);
 
     /**
      * A standard action to toggle the pan mode in a map-based template.
@@ -202,17 +200,13 @@ public final class Action {
      * Action panAction = new Action.Builder(Action.PAN).setIcon(customIcon).build();
      * }</pre>
      */
-    @NonNull
-    public static final Action PAN = new Action(TYPE_PAN);
+    public static final @NonNull Action PAN = new Action(TYPE_PAN);
 
     private final boolean mIsEnabled;
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarIcon mIcon;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarIcon mIcon;
     private final CarColor mBackgroundColor;
-    @Nullable
-    private final OnClickDelegate mOnClickDelegate;
+    private final @Nullable OnClickDelegate mOnClickDelegate;
     @ActionType
     private final int mType;
     @ActionFlag
@@ -224,8 +218,7 @@ public final class Action {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -235,8 +228,7 @@ public final class Action {
      *
      * @see Builder#setIcon(CarIcon)
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
@@ -245,8 +237,7 @@ public final class Action {
      *
      * @see Builder#setBackgroundColor(CarColor)
      */
-    @Nullable
-    public CarColor getBackgroundColor() {
+    public @Nullable CarColor getBackgroundColor() {
         return mBackgroundColor;
     }
 
@@ -271,8 +262,7 @@ public final class Action {
     /**
      * Returns the {@link OnClickDelegate} that should be used for this action.
      */
-    @Nullable
-    public OnClickDelegate getOnClickDelegate() {
+    public @Nullable OnClickDelegate getOnClickDelegate() {
         return mOnClickDelegate;
     }
 
@@ -285,8 +275,7 @@ public final class Action {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[type: " + typeToString(mType) + ", icon: " + mIcon
                 + ", bkg: " + mBackgroundColor + ", isEnabled: " + mIsEnabled + "]";
     }
@@ -295,8 +284,7 @@ public final class Action {
      * Converts the given {@code type} into a string representation.
      */
     @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
-    @NonNull
-    public static String typeToString(@ActionType int type) {
+    public static @NonNull String typeToString(@ActionType int type) {
         switch (type) {
             case TYPE_CUSTOM:
                 return "CUSTOM";
@@ -382,12 +370,9 @@ public final class Action {
     /** A builder of {@link Action}. */
     public static final class Builder {
         boolean mIsEnabled = true;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        CarIcon mIcon;
-        @Nullable
-        OnClickDelegate mOnClickDelegate;
+        @Nullable CarText mTitle;
+        @Nullable CarIcon mIcon;
+        @Nullable OnClickDelegate mOnClickDelegate;
         CarColor mBackgroundColor = DEFAULT;
         @ActionType
         int mType = TYPE_CUSTOM;
@@ -402,8 +387,7 @@ public final class Action {
          *
          * @throws NullPointerException if {@code title} is {@code null}
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             return this;
         }
@@ -418,8 +402,7 @@ public final class Action {
          * @throws NullPointerException if {@code title} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CarText title) {
+        public @NonNull Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             return this;
         }
@@ -441,8 +424,7 @@ public final class Action {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             return this;
@@ -458,9 +440,8 @@ public final class Action {
          *
          * @throws NullPointerException if {@code listener} is {@code null}
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setOnClickListener(@NonNull OnClickListener listener) {
+        public @NonNull Builder setOnClickListener(@NonNull OnClickListener listener) {
             mOnClickDelegate = OnClickDelegateImpl.create(listener);
             return this;
         }
@@ -479,8 +460,7 @@ public final class Action {
          *                        CarColor#DEFAULT} to let the host pick a default
          * @throws NullPointerException if {@code backgroundColor} is {@code null}
          */
-        @NonNull
-        public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
+        public @NonNull Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
             UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
             mBackgroundColor = backgroundColor;
             return this;
@@ -491,17 +471,15 @@ public final class Action {
          *
          * <p>The default state of a {@link Action} is enabled.
          */
-        @NonNull
         @RequiresCarApi(5)
-        public Builder setEnabled(boolean enabled) {
+        public @NonNull Builder setEnabled(boolean enabled) {
             mIsEnabled = enabled;
             return this;
         }
 
         /** Sets flags affecting how this action should be treated. */
-        @NonNull
         @RequiresCarApi(4)
-        public Builder setFlags(@ActionFlag int flags) {
+        public @NonNull Builder setFlags(@ActionFlag int flags) {
             mFlags |= flags;
             return this;
         }
@@ -515,8 +493,7 @@ public final class Action {
          *                               title is set on either {@link #APP_ICON} or {@link #BACK}
          */
         @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
-        @NonNull
-        public Action build() {
+        public @NonNull Action build() {
             boolean isStandard = isStandardActionType(mType);
             if (!isStandard && mIcon == null && (mTitle == null || TextUtils.isEmpty(
                     mTitle.toString()))) {

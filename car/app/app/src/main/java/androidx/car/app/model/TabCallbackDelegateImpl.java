@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -32,6 +30,9 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link TabCallbackDelegate}.
@@ -42,8 +43,7 @@ import androidx.car.app.utils.RemoteUtils;
 @RequiresCarApi(6)
 @KeepFields
 public class TabCallbackDelegateImpl implements TabCallbackDelegate {
-    @Nullable
-    private final ITabCallback mStubCallback;
+    private final @Nullable ITabCallback mStubCallback;
     @Override
     public void sendTabSelected(@NonNull String tabContentId, @NonNull OnDoneCallback callback) {
         try {
@@ -54,7 +54,7 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
         }
     }
 
-    private TabCallbackDelegateImpl(@NonNull TabTemplate.TabCallback callback) {
+    private TabCallbackDelegateImpl(TabTemplate.@NonNull TabCallback callback) {
         mStubCallback = new TabCallbackStub(callback);
     }
 
@@ -63,10 +63,9 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
         mStubCallback = null;
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static TabCallbackDelegate create(@NonNull TabTemplate.TabCallback callback) {
+    public static @NonNull TabCallbackDelegate create(TabTemplate.@NonNull TabCallback callback) {
         return new TabCallbackDelegateImpl(callback);
     }
 

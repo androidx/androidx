@@ -16,9 +16,10 @@
 
 package androidx.car.app.hardware.common;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A listener for data being returned about from the car hardware.

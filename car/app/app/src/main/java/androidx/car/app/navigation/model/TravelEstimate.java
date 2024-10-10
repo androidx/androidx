@@ -21,8 +21,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
@@ -35,6 +33,9 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -51,17 +52,13 @@ public final class TravelEstimate {
     /** A value used to represent an unknown remaining amount of time. */
     public static final long REMAINING_TIME_UNKNOWN = -1L;
 
-    @Nullable
-    private final Distance mRemainingDistance;
+    private final @Nullable Distance mRemainingDistance;
     private final long mRemainingTimeSeconds;
-    @Nullable
-    private final DateTimeWithZone mArrivalTimeAtDestination;
+    private final @Nullable DateTimeWithZone mArrivalTimeAtDestination;
     private final CarColor mRemainingTimeColor;
     private final CarColor mRemainingDistanceColor;
-    @Nullable
-    private final CarText mTripText;
-    @Nullable
-    private final CarIcon mTripIcon;
+    private final @Nullable CarText mTripText;
+    private final @Nullable CarIcon mTripIcon;
 
     /**
      * Returns the remaining {@link Distance} until arriving at the destination,  or {@code null}
@@ -69,8 +66,7 @@ public final class TravelEstimate {
      *
      * @see Builder#Builder(Distance, DateTimeWithZone)
      */
-    @Nullable
-    public Distance getRemainingDistance() {
+    public @Nullable Distance getRemainingDistance() {
         return mRemainingDistance;
     }
 
@@ -89,8 +85,7 @@ public final class TravelEstimate {
      *
      * @see Builder#Builder(Distance, DateTimeWithZone)
      */
-    @Nullable
-    public DateTimeWithZone getArrivalTimeAtDestination() {
+    public @Nullable DateTimeWithZone getArrivalTimeAtDestination() {
         return mArrivalTimeAtDestination;
     }
 
@@ -99,8 +94,7 @@ public final class TravelEstimate {
      *
      * @see Builder#setRemainingTimeColor(CarColor)
      */
-    @Nullable
-    public CarColor getRemainingTimeColor() {
+    public @Nullable CarColor getRemainingTimeColor() {
         return mRemainingTimeColor;
     }
 
@@ -109,8 +103,7 @@ public final class TravelEstimate {
      *
      * @see Builder#setRemainingDistanceColor(CarColor)
      */
-    @Nullable
-    public CarColor getRemainingDistanceColor() {
+    public @Nullable CarColor getRemainingDistanceColor() {
         return mRemainingDistanceColor;
     }
 
@@ -119,9 +112,8 @@ public final class TravelEstimate {
      *
      * @see Builder#setTripText(CarText)
      */
-    @Nullable
     @RequiresCarApi(5)
-    public CarText getTripText() {
+    public @Nullable CarText getTripText() {
         return mTripText;
     }
 
@@ -130,15 +122,13 @@ public final class TravelEstimate {
      *
      * @see Builder#setTripIcon(CarIcon)
      */
-    @Nullable
     @RequiresCarApi(5)
-    public CarIcon getTripIcon() {
+    public @Nullable CarIcon getTripIcon() {
         return mTripIcon;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ remaining distance: "
                 + mRemainingDistance
                 + ", time (s): " + mRemainingTimeSeconds
@@ -206,10 +196,8 @@ public final class TravelEstimate {
         CarColor mRemainingTimeColor = CarColor.DEFAULT;
         CarColor mRemainingDistanceColor = CarColor.DEFAULT;
 
-        @Nullable
-        CarText mTripText;
-        @Nullable
-        CarIcon mTripIcon;
+        @Nullable CarText mTripText;
+        @Nullable CarIcon mTripIcon;
 
         /**
          * Constructs a new builder of {@link TravelEstimate}.
@@ -260,8 +248,8 @@ public final class TravelEstimate {
          * @throws IllegalArgumentException if {@code remainingTimeSeconds} is a negative value
          *                                  but not {@link #REMAINING_TIME_UNKNOWN}
          */
-        @NonNull
-        public Builder setRemainingTimeSeconds(@IntRange(from = -1) long remainingTimeSeconds) {
+        public @NonNull Builder setRemainingTimeSeconds(
+                @IntRange(from = -1) long remainingTimeSeconds) {
             mRemainingTimeSeconds = validateRemainingTime(remainingTimeSeconds);
             return this;
         }
@@ -277,8 +265,7 @@ public final class TravelEstimate {
          */
         @SuppressLint({"MissingGetterMatchingBuilder"})
         @RequiresApi(26)
-        @NonNull
-        public Builder setRemainingTime(@NonNull Duration remainingTime) {
+        public @NonNull Builder setRemainingTime(@NonNull Duration remainingTime) {
             return Api26Impl.setRemainingTime(this, remainingTime);
         }
 
@@ -295,8 +282,7 @@ public final class TravelEstimate {
          * @throws IllegalArgumentException if {@code remainingTimeColor} is not supported
          * @throws NullPointerException     if {@code remainingTimecolor} is {@code null}
          */
-        @NonNull
-        public Builder setRemainingTimeColor(@NonNull CarColor remainingTimeColor) {
+        public @NonNull Builder setRemainingTimeColor(@NonNull CarColor remainingTimeColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(requireNonNull(remainingTimeColor));
             mRemainingTimeColor = remainingTimeColor;
             return this;
@@ -315,8 +301,8 @@ public final class TravelEstimate {
          * @throws IllegalArgumentException if {@code remainingDistanceColor} is not supported
          * @throws NullPointerException     if {@code remainingDistanceColor} is {@code null}
          */
-        @NonNull
-        public Builder setRemainingDistanceColor(@NonNull CarColor remainingDistanceColor) {
+        public @NonNull Builder setRemainingDistanceColor(
+                @NonNull CarColor remainingDistanceColor) {
             CarColorConstraints.STANDARD_ONLY.validateOrThrow(
                     requireNonNull(remainingDistanceColor));
             mRemainingDistanceColor = remainingDistanceColor;
@@ -337,9 +323,8 @@ public final class TravelEstimate {
          * @see CarText
          */
         // TODO(b/221086935): Document the ColorSpan requirement once we have the UX spec
-        @NonNull
         @RequiresCarApi(5)
-        public Builder setTripText(@NonNull CarText tripText) {
+        public @NonNull Builder setTripText(@NonNull CarText tripText) {
             mTripText = requireNonNull(tripText);
             CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mTripText);
             return this;
@@ -354,17 +339,15 @@ public final class TravelEstimate {
          * @throws NullPointerException if {@code tripIcon} is {@code null}
          */
         // TODO(b/221086935): Document the image size requirement once we have the UX spec
-        @NonNull
         @RequiresCarApi(5)
-        public Builder setTripIcon(@NonNull CarIcon tripIcon) {
+        public @NonNull Builder setTripIcon(@NonNull CarIcon tripIcon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(tripIcon));
             mTripIcon = tripIcon;
             return this;
         }
 
         /** Constructs the {@link TravelEstimate} defined by this builder. */
-        @NonNull
-        public TravelEstimate build() {
+        public @NonNull TravelEstimate build() {
             return new TravelEstimate(this);
         }
 
@@ -386,8 +369,7 @@ public final class TravelEstimate {
             private Api26Impl() {
             }
 
-            @NonNull
-            public static Builder setRemainingTime(Builder builder,
+            public static @NonNull Builder setRemainingTime(Builder builder,
                     @NonNull Duration remainingTime) {
                 requireNonNull(remainingTime);
                 builder.mRemainingTimeSeconds =

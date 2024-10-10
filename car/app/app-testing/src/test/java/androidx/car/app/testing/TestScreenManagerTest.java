@@ -18,13 +18,13 @@ package androidx.car.app.testing;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,9 +145,8 @@ public class TestScreenManagerTest {
             super(TestCarContext.createCarContext(ApplicationProvider.getApplicationContext()));
         }
 
-        @NonNull
         @Override
-        public Template onGetTemplate() {
+        public @NonNull Template onGetTemplate() {
             return new Template() {};
         }
     }

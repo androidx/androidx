@@ -24,12 +24,13 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A {@link CarAudioRecord} for automotive OS.
@@ -42,8 +43,7 @@ public class AutomotiveCarAudioRecord extends CarAudioRecord {
     /**
      * Only used for Automotive, as the car microphone is the device microphone.
      */
-    @NonNull
-    private final AudioRecord mAudioRecord;
+    private final @NonNull AudioRecord mAudioRecord;
 
     @RequiresPermission(RECORD_AUDIO)
     public AutomotiveCarAudioRecord(
@@ -66,7 +66,7 @@ public class AutomotiveCarAudioRecord extends CarAudioRecord {
     }
 
     @Override
-    protected int readInternal(@NonNull byte[] audioData, int offsetInBytes, int sizeInBytes) {
+    protected int readInternal(byte @NonNull [] audioData, int offsetInBytes, int sizeInBytes) {
         return mAudioRecord.read(audioData, offsetInBytes, sizeInBytes);
     }
 }

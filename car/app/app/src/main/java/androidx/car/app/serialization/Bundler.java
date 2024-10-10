@@ -28,13 +28,14 @@ import android.os.Parcelable;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -122,8 +123,7 @@ public final class Bundler {
      *
      * @throws BundlerException if any exception is encountered attempting to bundle the object
      */
-    @NonNull
-    public static Bundle toBundle(@NonNull Object obj) throws BundlerException {
+    public static @NonNull Bundle toBundle(@NonNull Object obj) throws BundlerException {
         String className = getUnobfuscatedClassName(obj.getClass());
         if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
             Log.d(TAG_BUNDLER, "Bundling " + className);
@@ -189,16 +189,14 @@ public final class Bundler {
      * @throws BundlerException if any exception is encountered attempting to reconstruct the
      *                          object
      */
-    @NonNull
-    public static Object fromBundle(@NonNull Bundle bundle) throws BundlerException {
+    public static @NonNull Object fromBundle(@NonNull Bundle bundle) throws BundlerException {
         if (Log.isLoggable(TAG_BUNDLER, Log.DEBUG)) {
             Log.d(TAG_BUNDLER, "Unbundling " + getBundledTypeName(bundle.getInt(TAG_CLASS_TYPE)));
         }
         return fromBundle(bundle, Trace.create());
     }
 
-    @NonNull
-    private static Object fromBundle(@NonNull Bundle bundle, Trace parentTrace)
+    private static @NonNull Object fromBundle(@NonNull Bundle bundle, Trace parentTrace)
             throws BundlerException {
         bundle.setClassLoader(requireNonNull(Bundler.class.getClassLoader()));
 
@@ -787,8 +785,7 @@ public final class Bundler {
         private static final int MAX_LOG_INDENT = 12;
         private static final int MAX_FLAT_FRAMES = 8;
 
-        @Nullable
-        private String[] mIndents; // memoized blank lines used for indentation
+        private String @Nullable [] mIndents; // memoized blank lines used for indentation
         private final ArrayDeque<Frame> mFrames;
 
         static Trace create() {

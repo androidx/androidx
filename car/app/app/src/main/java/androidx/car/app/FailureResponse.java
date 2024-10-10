@@ -24,12 +24,13 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.serialization.BundlerException;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -71,8 +72,7 @@ public final class FailureResponse {
     public static final int RUNTIME_EXCEPTION = 5;
     public static final int REMOTE_EXCEPTION = 6;
 
-    @Nullable
-    private final String mStackTrace;
+    private final @Nullable String mStackTrace;
     @ErrorType
     private final int mErrorType;
 
@@ -107,8 +107,7 @@ public final class FailureResponse {
     }
 
     /** Returns the stack trace of the originating exception. */
-    @NonNull
-    public String getStackTrace() {
+    public @NonNull String getStackTrace() {
         return requireNonNull(mStackTrace);
     }
 

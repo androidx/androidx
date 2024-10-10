@@ -25,8 +25,6 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -45,16 +43,17 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /** Creates a screen that demonstrates usage of the full screen {@link GridTemplate}. */
 public final class GridTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
     private static final int MAX_GRID_ITEMS = 100;
     private static final int LOADING_TIME_MILLIS = 2000;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
-    @Nullable
-    private IconCompat mImage;
-    @Nullable
-    private IconCompat mIcon;
+    private @Nullable IconCompat mImage;
+    private @Nullable IconCompat mIcon;
     private boolean mIsFourthItemLoading;
     private boolean mThirdItemToggleState;
     private boolean mFourthItemToggleState;
@@ -154,9 +153,8 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
     }
 
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         int itemLimit = 6;
         // Adjust the item limit according to the car constrains.
         if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {

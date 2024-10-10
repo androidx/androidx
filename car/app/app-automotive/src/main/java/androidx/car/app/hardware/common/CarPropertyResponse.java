@@ -18,8 +18,6 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -27,6 +25,9 @@ import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,18 +62,15 @@ public abstract class CarPropertyResponse<T> {
      * If {@link #getStatus()} is {@link CarValue#STATUS_SUCCESS}, then it return response's
      * {@code T} value. Otherwise, it returns {@code null}.
      */
-    @Nullable
-    public abstract T getValue();
+    public abstract @Nullable T getValue();
 
 
     /** Returns a list of {@link CarZone}s. */
-    @NonNull
-    public abstract ImmutableList<CarZone> getCarZones();
+    public abstract @NonNull ImmutableList<CarZone> getCarZones();
 
     /** Get a builder class for {@link CarPropertyResponse}. */
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static <T> Builder<T> builder() {
+    public static <T> @NonNull Builder<T> builder() {
         return new AutoValue_CarPropertyResponse.Builder<T>()
                 .setCarZones(Collections.singletonList(CarZone.CAR_ZONE_GLOBAL))
                 .setValue(null)
@@ -87,12 +85,10 @@ public abstract class CarPropertyResponse<T> {
     @AutoValue.Builder
     public abstract static class Builder<T> {
         /** Sets a property ID for the {@link CarPropertyResponse}. */
-        @NonNull
-        public abstract Builder<T> setPropertyId(int propertyId);
+        public abstract @NonNull Builder<T> setPropertyId(int propertyId);
 
         /** Sets a timestamp for the {@link CarPropertyResponse}. */
-        @NonNull
-        public abstract Builder<T> setTimestampMillis(long timestampMillis);
+        public abstract @NonNull Builder<T> setTimestampMillis(long timestampMillis);
 
         /**
          * Sets a value for the {@link CarPropertyResponse}.
@@ -101,8 +97,7 @@ public abstract class CarPropertyResponse<T> {
          * {@link CarValue#STATUS_SUCCESS}. If this condition is not met, {@link #build()} will
          * throw an {@link IllegalArgumentException}.
          */
-        @NonNull
-        public abstract Builder<T> setValue(@Nullable T value);
+        public abstract @NonNull Builder<T> setValue(@Nullable T value);
 
         /**
          * Sets a status code for the {@link CarPropertyResponse}.
@@ -111,19 +106,16 @@ public abstract class CarPropertyResponse<T> {
          * must be set with a non {@code null} value. If this condition is not met, {@link #build()}
          * will throw an {@link IllegalArgumentException}.
          */
-        @NonNull
-        public abstract Builder<T> setStatus(@CarValue.StatusCode int status);
+        public abstract @NonNull Builder<T> setStatus(@CarValue.StatusCode int status);
 
         /** Sets the list of {@link CarZone}s for the {@link CarPropertyResponse}. */
-        @NonNull
-        public abstract Builder<T> setCarZones(@NonNull List<CarZone> carZones);
+        public abstract @NonNull Builder<T> setCarZones(@NonNull List<CarZone> carZones);
 
         /**
          * Package-private method used internally by {@link #build()}. Declaring this method
          * allows {@link #build()} to check {@link Preconditions}.
          */
-        @NonNull
-        abstract CarPropertyResponse<T> autoBuild();
+        abstract @NonNull CarPropertyResponse<T> autoBuild();
 
         /**
          * Create an instance of {@link CarPropertyResponse}.
@@ -134,8 +126,7 @@ public abstract class CarPropertyResponse<T> {
          *                                  {@link CarValue#STATUS_SUCCESS} and {@link #getValue()}
          *                                  is {@code null}.
          */
-        @NonNull
-        public final CarPropertyResponse<T> build() {
+        public final @NonNull CarPropertyResponse<T> build() {
             CarPropertyResponse<T> carPropertyResponse = autoBuild();
             Preconditions.checkState((carPropertyResponse.getStatus() == CarValue.STATUS_SUCCESS
                             && carPropertyResponse.getValue() != null) || (

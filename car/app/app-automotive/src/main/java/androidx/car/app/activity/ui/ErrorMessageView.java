@@ -33,8 +33,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.CarAppActivity;
 import androidx.car.app.activity.CarAppViewModel;
@@ -43,6 +41,9 @@ import androidx.car.app.automotive.R;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -63,8 +64,7 @@ public final class ErrorMessageView extends LinearLayout {
 
     private TextView mErrorMessage;
     private Button mActionButton;
-    @Nullable
-    private ErrorHandler.ErrorType mErrorType;
+    private ErrorHandler.@Nullable ErrorType mErrorType;
 
     public ErrorMessageView(@NonNull Context context) {
         super(context);
@@ -95,7 +95,7 @@ public final class ErrorMessageView extends LinearLayout {
     /**
      * Updates the error displayed by this view
      */
-    public void setError(@Nullable ErrorHandler.ErrorType errorType) {
+    public void setError(ErrorHandler.@Nullable ErrorType errorType) {
         mErrorType = errorType;
         mErrorMessage.setText(mErrorType != null
                 ? getContext().getString(mErrorType.getMessageResId())

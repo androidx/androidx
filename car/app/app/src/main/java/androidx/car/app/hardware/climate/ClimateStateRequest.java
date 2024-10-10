@@ -16,11 +16,12 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,14 +56,12 @@ public final class ClimateStateRequest<T> {
     }
 
     /** Returns a list of CarZones which are included in this request. */
-    @NonNull
-    public List<CarZone> getCarZones() {
+    public @NonNull List<CarZone> getCarZones() {
         return mCarZones;
     }
 
     /** Returns the requested value which is included in this request. */
-    @NonNull
-    public T getRequestedValue() {
+    public @NonNull T getRequestedValue() {
         return mRequestedValue;
     }
 
@@ -76,9 +75,8 @@ public final class ClimateStateRequest<T> {
         }
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "ClimateStateRequest{"
                 + "mFeature='" + mFeature
                 + '\'' + ", mCarZones=" + mCarZones
@@ -135,15 +133,13 @@ public final class ClimateStateRequest<T> {
          *
          * @param carZone   the CarZone which the set operation will be applied
          */
-        @NonNull
-        public Builder<T> addCarZones(@NonNull CarZone carZone) {
+        public @NonNull Builder<T> addCarZones(@NonNull CarZone carZone) {
             mCarZones.add(carZone);
             return this;
         }
 
         /** Constructs a {@link ClimateStateRequest} defined by this builder */
-        @NonNull
-        public ClimateStateRequest<T> build() {
+        public @NonNull ClimateStateRequest<T> build() {
             return new ClimateStateRequest<T>(this);
         }
     }

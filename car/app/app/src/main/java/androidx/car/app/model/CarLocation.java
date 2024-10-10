@@ -21,10 +21,11 @@ import static java.util.Objects.requireNonNull;
 
 import android.location.Location;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Represents a geographical location with a latitude and a longitude. */
 @CarProtocol
@@ -34,8 +35,7 @@ public final class CarLocation {
     private final double mLng;
 
     /** Returns a new instance of a {@link CarLocation}. */
-    @NonNull
-    public static CarLocation create(double latitude, double longitude) {
+    public static @NonNull CarLocation create(double latitude, double longitude) {
         return new CarLocation(latitude, longitude);
     }
 
@@ -45,8 +45,7 @@ public final class CarLocation {
      *
      * @throws NullPointerException if {@code location} is {@code null}
      */
-    @NonNull
-    public static CarLocation create(@NonNull Location location) {
+    public static @NonNull CarLocation create(@NonNull Location location) {
         requireNonNull(location);
         return create(location.getLatitude(), location.getLongitude());
     }

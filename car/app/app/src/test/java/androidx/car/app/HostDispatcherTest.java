@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 import android.location.Location;
 import android.os.RemoteException;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.suggestion.ISuggestionHost;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

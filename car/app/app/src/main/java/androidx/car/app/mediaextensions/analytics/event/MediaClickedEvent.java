@@ -23,9 +23,10 @@ import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEventsUt
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Describes a media clicked event. */
 public class MediaClickedEvent extends AnalyticsEvent {
@@ -41,8 +42,7 @@ public class MediaClickedEvent extends AnalyticsEvent {
         mViewComponent = eventBundle.getInt(ANALYTICS_EVENT_DATA_KEY_VIEW_COMPONENT);
     }
 
-    @Nullable
-    public String getMediaId() {
+    public @Nullable String getMediaId() {
         return mMediaId;
     }
 
@@ -52,8 +52,7 @@ public class MediaClickedEvent extends AnalyticsEvent {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder sb = new StringBuilder("MediaClickedEvent{");
         sb.append("mMediaId='").append(mMediaId).append('\'');
         sb.append(", mViewComponent=").append(viewComponentToString(mViewComponent));

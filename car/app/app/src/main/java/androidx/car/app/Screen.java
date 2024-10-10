@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.TemplateInfo;
@@ -35,6 +33,9 @@ import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A Screen has a {@link Lifecycle} and provides the mechanism for the app to send {@link Template}s
@@ -62,18 +63,15 @@ public abstract class Screen implements LifecycleOwner {
     private OnScreenResultListener mOnScreenResultListener = (obj) -> {
     };
 
-    @Nullable
-    private Object mResult;
+    private @Nullable Object mResult;
 
-    @Nullable
-    private String mMarker;
+    private @Nullable String mMarker;
 
     /**
      * A reference to the last template returned by this screen, or {@code null} if one has not been
      * returned yet.
      */
-    @Nullable
-    private TemplateWrapper mTemplateWrapper;
+    private @Nullable TemplateWrapper mTemplateWrapper;
 
     /**
      * Whether to set the ID of the last template in the next template to be returned.
@@ -140,8 +138,7 @@ public abstract class Screen implements LifecycleOwner {
      *
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Nullable
-    public Object getResultInternal() {
+    public @Nullable Object getResultInternal() {
         return mResult;
     }
 
@@ -163,8 +160,7 @@ public abstract class Screen implements LifecycleOwner {
      *
      * @see #setMarker
      */
-    @Nullable
-    public String getMarker() {
+    public @Nullable String getMarker() {
         return mMarker;
     }
 
@@ -213,20 +209,17 @@ public abstract class Screen implements LifecycleOwner {
      * @see androidx.lifecycle.LifecycleObserver
      */
     @Override
-    @NonNull
-    public final Lifecycle getLifecycle() {
+    public final @NonNull Lifecycle getLifecycle() {
         return mLifecycleRegistry;
     }
 
     /** Returns the {@link CarContext} of the {@link CarAppService}. */
-    @NonNull
-    public final CarContext getCarContext() {
+    public final @NonNull CarContext getCarContext() {
         return mCarContext;
     }
 
     /** Returns the {@link ScreenManager} to use for pushing/removing screens. */
-    @NonNull
-    public final ScreenManager getScreenManager() {
+    public final @NonNull ScreenManager getScreenManager() {
         return mCarContext.getCarService(ScreenManager.class);
     }
 
@@ -310,8 +303,7 @@ public abstract class Screen implements LifecycleOwner {
      *
      * <p>See {@link androidx.car.app.notification.CarAppExtender} for details on notifications.
      */
-    @NonNull
-    public abstract Template onGetTemplate();
+    public abstract @NonNull Template onGetTemplate();
 
     /** Sets a {@link OnScreenResultListener} for this {@link Screen}. */
     void setOnScreenResultListener(OnScreenResultListener onScreenResultListener) {
@@ -354,8 +346,7 @@ public abstract class Screen implements LifecycleOwner {
      * that is stamped with the same ID as the last template returned by this screen. This is
      * used to identify back (stack pop) operations.
      */
-    @NonNull
-    TemplateWrapper getTemplateWrapper() {
+    @NonNull TemplateWrapper getTemplateWrapper() {
         Template template = onGetTemplate();
 
         TemplateWrapper wrapper;
@@ -385,8 +376,7 @@ public abstract class Screen implements LifecycleOwner {
      * dispatched to the top screen, allowing to notify the host of the current stack of template
      * ids known to the client.
      */
-    @NonNull
-    TemplateInfo getLastTemplateInfo() {
+    @NonNull TemplateInfo getLastTemplateInfo() {
         if (mTemplateWrapper == null) {
             mTemplateWrapper = TemplateWrapper.wrap(onGetTemplate());
         }
@@ -394,8 +384,7 @@ public abstract class Screen implements LifecycleOwner {
                 mTemplateWrapper.getId());
     }
 
-    @NonNull
-    private static TemplateInfo getLastTemplateInfo(TemplateWrapper lastTemplateWrapper) {
+    private static @NonNull TemplateInfo getLastTemplateInfo(TemplateWrapper lastTemplateWrapper) {
         return new TemplateInfo(lastTemplateWrapper.getTemplate().getClass(),
                 lastTemplateWrapper.getId());
     }

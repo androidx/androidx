@@ -24,8 +24,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -41,6 +39,9 @@ import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /**
  * Creates a screen using the {@link PlaceListMapTemplate}.
  *
@@ -55,8 +56,7 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
     final HandlerThread mLocationUpdateHandlerThread = new HandlerThread("LocationThread");
     boolean mHasPermissionLocation;
 
-    @Nullable
-    private Location mCurrentLocation;
+    private @Nullable Location mCurrentLocation;
 
     public PlaceListTemplateBrowseDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -102,9 +102,8 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
         });
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         PlaceListMapTemplate.Builder builder = new PlaceListMapTemplate.Builder()
                 .setItemList(new ItemList.Builder()
                         .addItem(new Row.Builder()

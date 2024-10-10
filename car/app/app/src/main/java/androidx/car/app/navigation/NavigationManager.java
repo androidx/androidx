@@ -28,8 +28,6 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -46,6 +44,9 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 
@@ -69,10 +70,8 @@ public class NavigationManager implements Manager {
     private final HostDispatcher mHostDispatcher;
 
     // Guarded by main thread access.
-    @Nullable
-    private NavigationManagerCallback mNavigationManagerCallback;
-    @Nullable
-    private Executor mNavigationManagerCallbackExecutor;
+    private @Nullable NavigationManagerCallback mNavigationManagerCallback;
+    private @Nullable Executor mNavigationManagerCallbackExecutor;
     private boolean mIsNavigating;
     private boolean mIsAutoDriveEnabled;
 
@@ -155,7 +154,7 @@ public class NavigationManager implements Manager {
      * @throws IllegalStateException if the current thread is not the main thread
      */
     @MainThread
-    public void setNavigationManagerCallback(@NonNull /* @CallbackExecutor */ Executor executor,
+    public void setNavigationManagerCallback(/* @CallbackExecutor */ @NonNull Executor executor,
             @NonNull NavigationManagerCallback callback) {
         checkMainThread();
 
@@ -251,8 +250,7 @@ public class NavigationManager implements Manager {
      *
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public static NavigationManager create(@NonNull CarContext carContext,
+    public static @NonNull NavigationManager create(@NonNull CarContext carContext,
             @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
         requireNonNull(carContext);
         requireNonNull(hostDispatcher);
@@ -266,8 +264,7 @@ public class NavigationManager implements Manager {
      *
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public INavigationManager.Stub getIInterface() {
+    public INavigationManager.@NonNull Stub getIInterface() {
         return mNavigationManager;
     }
 

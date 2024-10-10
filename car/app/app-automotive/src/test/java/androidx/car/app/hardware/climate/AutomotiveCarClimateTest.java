@@ -66,7 +66,6 @@ import android.car.Car;
 import android.car.hardware.property.CarPropertyManager;
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.hardware.common.CarPropertyProfile;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
@@ -80,6 +79,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

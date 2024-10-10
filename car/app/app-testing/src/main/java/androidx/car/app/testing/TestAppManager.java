@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarToast;
@@ -35,6 +33,9 @@ import androidx.car.app.media.OpenMicrophoneRequest;
 import androidx.car.app.media.OpenMicrophoneResponse;
 import androidx.car.app.model.Template;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,10 +55,8 @@ import java.util.List;
 public class TestAppManager extends AppManager {
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
-    @Nullable
-    private SurfaceCallback mSurfaceCallback;
-    @Nullable
-    private OpenMicrophoneRequest mOpenMicrophoneRequest = null;
+    private @Nullable SurfaceCallback mSurfaceCallback;
+    private @Nullable OpenMicrophoneRequest mOpenMicrophoneRequest = null;
 
     /**
      * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}s.
@@ -72,8 +71,7 @@ public class TestAppManager extends AppManager {
      * Returns the callback set via {@link AppManager#setSurfaceCallback}, or {@code null} if not
      * set.
      */
-    @Nullable
-    public SurfaceCallback getSurfaceCallback() {
+    public @Nullable SurfaceCallback getSurfaceCallback() {
         return mSurfaceCallback;
     }
 
@@ -86,8 +84,7 @@ public class TestAppManager extends AppManager {
      *
      * <p>The toasts will be stored until {@link #reset} is called.
      */
-    @NonNull
-    public List<CharSequence> getToastsShown() {
+    public @NonNull List<CharSequence> getToastsShown() {
         return CollectionUtils.unmodifiableCopy(mToastsShown);
     }
 
@@ -102,8 +99,7 @@ public class TestAppManager extends AppManager {
      *
      * <p>The results will be stored until {@link #reset} is called.
      */
-    @NonNull
-    public List<Pair<Screen, Template>> getTemplatesReturned() {
+    public @NonNull List<Pair<Screen, Template>> getTemplatesReturned() {
         return CollectionUtils.unmodifiableCopy(mTemplatesReturned);
     }
 
@@ -121,9 +117,8 @@ public class TestAppManager extends AppManager {
     /**
      */
     @Override
-    @Nullable
     @RestrictTo(LIBRARY_GROUP)
-    public OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
+    public @Nullable OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
         mOpenMicrophoneRequest = request;
         return super.openMicrophone(request);
     }
@@ -133,8 +128,7 @@ public class TestAppManager extends AppManager {
      *
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Nullable
-    public OpenMicrophoneRequest getOpenMicrophoneRequest() {
+    public @Nullable OpenMicrophoneRequest getOpenMicrophoneRequest() {
         return mOpenMicrophoneRequest;
     }
 

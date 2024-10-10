@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Template;
@@ -35,6 +34,7 @@ import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,8 +71,7 @@ public final class ScreenTest {
                 .push(
                         new Screen(mCarContext) {
                             @Override
-                            @NonNull
-                            public Template onGetTemplate() {
+                            public @NonNull Template onGetTemplate() {
                                 return new Template() {
                                 };
                             }
@@ -80,8 +79,7 @@ public final class ScreenTest {
 
         mScreen = new Screen(mCarContext) {
             @Override
-            @NonNull
-            public Template onGetTemplate() {
+            public @NonNull Template onGetTemplate() {
                 return new PlaceListMapTemplate.Builder().setItemList(
                         new ItemList.Builder().build()).build();
             }

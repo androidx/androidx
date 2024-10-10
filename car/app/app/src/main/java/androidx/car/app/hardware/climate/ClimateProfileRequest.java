@@ -17,11 +17,12 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -253,20 +254,17 @@ public final class ClimateProfileRequest {
     }
 
     /** Returns a list of CarClimateFeatures which are included in this request. */
-    @NonNull
-    public List<CarClimateFeature> getClimateProfileFeatures() {
+    public @NonNull List<CarClimateFeature> getClimateProfileFeatures() {
         return mRequestFeatures;
     }
 
     /** Returns a set of all possible CarClimateFeatures. */
-    @NonNull
-    public Set<Integer>  getAllClimateProfiles() {
+    public @NonNull Set<Integer>  getAllClimateProfiles() {
         return ALL_FEATURES;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "ClimateProfileRequest{"
                 + "mRequestFeatures=" + mRequestFeatures
                 + '}';
@@ -312,8 +310,7 @@ public final class ClimateProfileRequest {
         /**
          * Adds all CarClimateFeatures in the request by enabling all profiles.
          */
-        @NonNull
-        public Builder setAllClimateProfiles() {
+        public @NonNull Builder setAllClimateProfiles() {
             mAllProfiles = true;
             return this;
         }
@@ -326,9 +323,8 @@ public final class ClimateProfileRequest {
          * @throws IllegalArgumentException if the feature flag is not one of
          *                                  ClimateProfileFeatures
          */
-        @NonNull
-        public Builder addClimateProfileFeatures(
-                @NonNull CarClimateFeature... features) {
+        public @NonNull Builder addClimateProfileFeatures(
+                CarClimateFeature @NonNull ... features) {
             for (CarClimateFeature feature : features) {
                 int flag = feature.getFeature();
                 if (!ALL_FEATURES.contains(flag)) {
@@ -347,8 +343,7 @@ public final class ClimateProfileRequest {
         /**
          * Constructs the {@link ClimateProfileRequest} defined by this builder.
          */
-        @NonNull
-        public ClimateProfileRequest build() {
+        public @NonNull ClimateProfileRequest build() {
             return new ClimateProfileRequest(this);
         }
     }

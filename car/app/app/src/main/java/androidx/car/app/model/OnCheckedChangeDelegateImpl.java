@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -32,6 +30,9 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link OnCheckedChangeDelegate}.
@@ -41,8 +42,7 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @KeepFields
 public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
-    @Nullable
-    private final IOnCheckedChangeListener mStub;
+    private final @Nullable IOnCheckedChangeListener mStub;
 
     @Override
     public void sendCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
@@ -63,10 +63,10 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
         mStub = null;
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnCheckedChangeDelegate create(@NonNull OnCheckedChangeListener listener) {
+    public static @NonNull OnCheckedChangeDelegate create(
+            @NonNull OnCheckedChangeListener listener) {
         return new OnCheckedChangeDelegateImpl(listener);
     }
 

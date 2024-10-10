@@ -26,7 +26,6 @@ import static androidx.car.app.model.CarColor.YELLOW;
 import android.graphics.BitmapFactory;
 import android.text.SpannableStringBuilder;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
@@ -42,6 +41,8 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SpannableStringBuilderAnnotationExtensions;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** Creates a screen that shows different types of texts and icons. */
 public final class TextAndIconsDemosScreen extends Screen {
 
@@ -52,9 +53,8 @@ public final class TextAndIconsDemosScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         listBuilder.addItem(buildRowForTemplate(R.string.title_with_app_icon_row_title,

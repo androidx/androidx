@@ -18,16 +18,16 @@ package androidx.car.app;
 
 import android.view.Surface;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.Nullable;
 
 /** A container for the {@link Surface} created by the host and its associated properties. */
 @CarProtocol
 @KeepFields
 public final class SurfaceContainer {
-    @Nullable
-    private final Surface mSurface;
+    private final @Nullable Surface mSurface;
     private final int mWidth;
     private final int mHeight;
     private final int mDpi;
@@ -48,8 +48,7 @@ public final class SurfaceContainer {
     }
 
     /** Returns the {@link Surface} held by the host or {@code null} if the surface is not ready. */
-    @Nullable
-    public Surface getSurface() {
+    public @Nullable Surface getSurface() {
         return mSurface;
     }
 

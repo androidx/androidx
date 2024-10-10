@@ -25,14 +25,15 @@ import static java.util.Objects.requireNonNull;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,38 +58,31 @@ public final class MessageTemplate implements Template {
      * for this field.
      */
     @Deprecated
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mMessage;
-    @Nullable
-    private final CarText mDebugMessage;
-    @Nullable
-    private final CarIcon mIcon;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarText mMessage;
+    private final @Nullable CarText mDebugMessage;
+    private final @Nullable CarIcon mIcon;
     /**
      * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
      * need for this field.
      */
     @Deprecated
-    @Nullable
-    private final Action mHeaderAction;
+    private final @Nullable Action mHeaderAction;
     private final List<Action> mActionList;
     /**
      * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
      * replaces the need for this field.
      */
     @Deprecated
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mActionStrip;
 
     /**
      * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
      *
      * @see MessageTemplate.Builder#setHeader(Header)
      */
-    @Nullable
     @RequiresCarApi(7)
-    private final Header mHeader;
+    private final @Nullable Header mHeader;
 
     /**
      * Returns whether the template is loading.
@@ -106,8 +100,7 @@ public final class MessageTemplate implements Template {
      * @deprecated use {@link Header#getTitle()} instead.
      */
     @Deprecated
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -118,8 +111,7 @@ public final class MessageTemplate implements Template {
      * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
     @Deprecated
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -130,8 +122,7 @@ public final class MessageTemplate implements Template {
      */
     @Deprecated
     @RequiresCarApi(2)
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -140,8 +131,7 @@ public final class MessageTemplate implements Template {
      *
      * @see Builder#Builder(CharSequence)
      */
-    @NonNull
-    public CarText getMessage() {
+    public @NonNull CarText getMessage() {
         return requireNonNull(mMessage);
     }
 
@@ -151,8 +141,7 @@ public final class MessageTemplate implements Template {
      * @see Builder#setDebugMessage(Throwable)
      * @see Builder#setDebugMessage(String)
      */
-    @Nullable
-    public CarText getDebugMessage() {
+    public @Nullable CarText getDebugMessage() {
         return mDebugMessage;
     }
 
@@ -161,8 +150,7 @@ public final class MessageTemplate implements Template {
      *
      * @see Builder#setIcon(CarIcon)
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
@@ -171,8 +159,7 @@ public final class MessageTemplate implements Template {
      *
      * @see Builder#addAction(Action)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActionList);
     }
 
@@ -184,8 +171,7 @@ public final class MessageTemplate implements Template {
      *
      * @see MessageTemplate.Builder#setHeader(Header)
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         if (mHeader != null) {
             return mHeader;
         }
@@ -207,9 +193,8 @@ public final class MessageTemplate implements Template {
         return headerBuilder.build();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "MessageTemplate";
     }
 
@@ -268,24 +253,16 @@ public final class MessageTemplate implements Template {
     /** A builder of {@link MessageTemplate}. */
     public static final class Builder {
         boolean mIsLoading;
-        @Nullable
-        CarText mTitle;
+        @Nullable CarText mTitle;
         CarText mMessage;
-        @Nullable
-        CarText mDebugMessage;
-        @Nullable
-        CarIcon mIcon;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable CarText mDebugMessage;
+        @Nullable CarIcon mIcon;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
         List<Action> mActionList = new ArrayList<>();
-        @Nullable
-        Throwable mDebugCause;
-        @Nullable
-        String mDebugString;
-        @Nullable
-        Header mHeader;
+        @Nullable Throwable mDebugCause;
+        @Nullable String mDebugString;
+        @Nullable Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -296,8 +273,7 @@ public final class MessageTemplate implements Template {
          * host once the data is ready.
          */
         @RequiresCarApi(2)
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -317,8 +293,7 @@ public final class MessageTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
         @Deprecated
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -333,9 +308,8 @@ public final class MessageTemplate implements Template {
          *
          * @throws NullPointerException if {@code header} is null
          */
-        @NonNull
         @RequiresCarApi(7)
-        public Builder setHeader(@NonNull Header header) {
+        public @NonNull Builder setHeader(@NonNull Header header) {
             if (header.getStartHeaderAction() != null) {
                 mHeaderAction = header.getStartHeaderAction();
             }
@@ -365,8 +339,7 @@ public final class MessageTemplate implements Template {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setDebugMessage(@NonNull Throwable cause) {
+        public @NonNull Builder setDebugMessage(@NonNull Throwable cause) {
             mDebugCause = requireNonNull(cause);
             return this;
         }
@@ -383,8 +356,7 @@ public final class MessageTemplate implements Template {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setDebugMessage(@NonNull String debugMessage) {
+        public @NonNull Builder setDebugMessage(@NonNull String debugMessage) {
             mDebugString = requireNonNull(debugMessage);
             return this;
         }
@@ -406,8 +378,7 @@ public final class MessageTemplate implements Template {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             return this;
@@ -430,8 +401,7 @@ public final class MessageTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
         @Deprecated
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -457,8 +427,7 @@ public final class MessageTemplate implements Template {
          */
         @Deprecated
         @RequiresCarApi(2)
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -476,8 +445,7 @@ public final class MessageTemplate implements Template {
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             mActionList.add(requireNonNull(action));
             ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mActionList);
             return this;
@@ -496,8 +464,7 @@ public final class MessageTemplate implements Template {
          * @throws IllegalStateException if the message is empty, or if the
          *                               template is in loading state and an icon is specified.
          */
-        @NonNull
-        public MessageTemplate build() {
+        public @NonNull MessageTemplate build() {
             if (mIsLoading && mIcon != null) {
                 throw new IllegalStateException(
                         "Template in a loading state can not have an icon");

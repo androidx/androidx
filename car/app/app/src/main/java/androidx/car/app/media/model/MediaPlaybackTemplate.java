@@ -16,8 +16,6 @@
 
 package androidx.car.app.media.model;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -25,6 +23,9 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Template;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -41,21 +42,18 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public class MediaPlaybackTemplate implements Template {
-    @Nullable
-    private final Header mHeader;
+    private final @Nullable Header mHeader;
 
     /**
      * Returns the {@link Header} to display in this template or not to display one if it is {@code
      * null}.
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         return mHeader;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "MediaPlaybackTemplate";
     }
 
@@ -89,8 +87,7 @@ public class MediaPlaybackTemplate implements Template {
     /** Builder for the {@link MediaPlaybackTemplate} */
     @ExperimentalCarApi
     public static final class Builder {
-        @Nullable
-        Header mHeader;
+        @Nullable Header mHeader;
 
         /**
          * Sets the {@link Header} for this template or {code null} to not display a {@link
@@ -98,15 +95,13 @@ public class MediaPlaybackTemplate implements Template {
          *
          * <p>Defaults to {@code null}, which means header is not displayed.
          */
-        @NonNull
-        public MediaPlaybackTemplate.Builder setHeader(@Nullable Header header) {
+        public MediaPlaybackTemplate.@NonNull Builder setHeader(@Nullable Header header) {
             this.mHeader = header;
             return this;
         }
 
         /** Constructs the template defined by this builder. */
-        @NonNull
-        public MediaPlaybackTemplate build() {
+        public @NonNull MediaPlaybackTemplate build() {
             return new MediaPlaybackTemplate(this);
         }
 

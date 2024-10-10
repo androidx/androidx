@@ -19,8 +19,9 @@ package androidx.car.app;
 import android.graphics.Rect;
 import android.view.Surface;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 /** A callback for changes on the {@link SurfaceContainer} and its attributes. */
 public interface SurfaceCallback {

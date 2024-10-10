@@ -17,10 +17,11 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarSetOperationStatusCallback;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 

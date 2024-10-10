@@ -26,11 +26,11 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-import java.lang.annotation.Retention;
+import org.jspecify.annotations.NonNull;
 
+import java.lang.annotation.Retention;
 
 /** Base class for Analytics events. */
 public  abstract class AnalyticsEvent {
@@ -154,14 +154,12 @@ public  abstract class AnalyticsEvent {
      * Returns the platform component that is generating analytic events.
      * @return component of platform that is sending events.
      */
-    @NonNull
-    public String getComponent() {
+    public @NonNull String getComponent() {
         return mComponent;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder sb = new StringBuilder("AnalyticsEvent{");
         sb.append("mAnalyticsVersion=").append(mAnalyticsVersion);
         sb.append(", mEventType=").append(mEventType);

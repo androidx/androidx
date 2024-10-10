@@ -26,7 +26,6 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
@@ -45,6 +44,8 @@ import androidx.car.app.model.Pane;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.SectionedItemList;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

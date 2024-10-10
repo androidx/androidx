@@ -21,13 +21,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.location.Location;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -45,18 +46,15 @@ public final class CarHardwareLocation {
     public static final CarValue<Location> UNKNOWN_LOCATION = new CarValue<>(null, 0,
             CarValue.STATUS_UNKNOWN);
 
-    @NonNull
-    private final CarValue<Location> mLocation;
+    private final @NonNull CarValue<Location> mLocation;
 
     /** Returns the raw location data from the car sensor. */
-    @NonNull
-    public CarValue<Location> getLocation() {
+    public @NonNull CarValue<Location> getLocation() {
         return mLocation;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ location: " + mLocation + " ]";
     }
 

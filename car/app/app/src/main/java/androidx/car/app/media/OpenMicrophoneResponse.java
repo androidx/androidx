@@ -21,11 +21,12 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.ParcelFileDescriptor;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,10 +41,8 @@ import java.io.InputStream;
 @RequiresCarApi(5)
 @KeepFields
 public final class OpenMicrophoneResponse {
-    @Nullable
-    private final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
-    @Nullable
-    private final ParcelFileDescriptor mCarMicrophoneDescriptor;
+    private final @Nullable CarAudioCallbackDelegate mCarAudioCallbackDelegate;
+    private final @Nullable ParcelFileDescriptor mCarMicrophoneDescriptor;
 
     OpenMicrophoneResponse(@NonNull Builder builder) {
         mCarAudioCallbackDelegate = builder.mCarAudioCallbackDelegate;
@@ -59,16 +58,14 @@ public final class OpenMicrophoneResponse {
     /**
      * Returns the callback to use to communicate recording state.
      */
-    @NonNull
-    public CarAudioCallbackDelegate getCarAudioCallback() {
+    public @NonNull CarAudioCallbackDelegate getCarAudioCallback() {
         return requireNonNull(mCarAudioCallbackDelegate);
     }
 
     /**
      * Returns an {@link InputStream} to read the microphone bytes from.
      */
-    @NonNull
-    public InputStream getCarMicrophoneInputStream() {
+    public @NonNull InputStream getCarMicrophoneInputStream() {
         ParcelFileDescriptor pfd = mCarMicrophoneDescriptor;
         if (pfd == null) {
             try {
@@ -87,11 +84,9 @@ public final class OpenMicrophoneResponse {
      * A builder for {@link OpenMicrophoneResponse}s.
      */
     public static final class Builder {
-        @NonNull
-        final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
+        final @NonNull CarAudioCallbackDelegate mCarAudioCallbackDelegate;
 
-        @Nullable
-        ParcelFileDescriptor mCarMicrophoneDescriptor;
+        @Nullable ParcelFileDescriptor mCarMicrophoneDescriptor;
 
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull CarAudioCallback callback) {
@@ -105,9 +100,8 @@ public final class OpenMicrophoneResponse {
          *
          * <p>This is only needed in projected case, where the car microphone comes from the host.
          */
-        @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder setCarMicrophoneDescriptor(
+        public @NonNull Builder setCarMicrophoneDescriptor(
                 @NonNull ParcelFileDescriptor carMicrophoneDescriptor) {
             mCarMicrophoneDescriptor = requireNonNull(carMicrophoneDescriptor);
             return this;
@@ -116,8 +110,7 @@ public final class OpenMicrophoneResponse {
         /**
          * Builds the {@link OpenMicrophoneResponse} for this builder.
          */
-        @NonNull
-        public OpenMicrophoneResponse build() {
+        public @NonNull OpenMicrophoneResponse build() {
             return new OpenMicrophoneResponse(this);
         }
     }

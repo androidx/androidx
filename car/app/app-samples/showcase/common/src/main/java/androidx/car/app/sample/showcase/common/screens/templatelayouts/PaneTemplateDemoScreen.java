@@ -23,8 +23,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -43,19 +41,19 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /**
  * Creates a screen that demonstrates usage of the full screen {@link PaneTemplate} to display a
  * details screen.
  */
 public final class PaneTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
-    @Nullable
-    private IconCompat mPaneImage;
+    private @Nullable IconCompat mPaneImage;
 
-    @Nullable
-    private IconCompat mRowLargeIcon;
+    private @Nullable IconCompat mRowLargeIcon;
 
-    @Nullable
-    private IconCompat mCommuteIcon;
+    private @Nullable IconCompat mCommuteIcon;
 
     public PaneTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -93,9 +91,8 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
         }
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         int listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_PANE);
 

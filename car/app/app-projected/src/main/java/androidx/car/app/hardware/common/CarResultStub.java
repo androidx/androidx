@@ -22,14 +22,15 @@ import static java.util.Objects.requireNonNull;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.hardware.ICarHardwareResult;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
 
     private final CarHardwareHostDispatcher mHostDispatcher;
     private final int mResultType;
-    @Nullable private final Bundleable mBundle;
+    private final @Nullable Bundleable mBundle;
     private final boolean mIsSingleShot;
     private final Map<OnCarDataAvailableListener<T>, Executor> mListeners = new HashMap<>();
     private final T mUnsupportedValue;

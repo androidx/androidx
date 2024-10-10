@@ -23,9 +23,10 @@ import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHA
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.media.MediaBrowserServiceCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Populates Root hints {@link Bundle} for {@link MediaBrowserServiceCompat.BrowserRoot}
@@ -52,8 +53,7 @@ public final class RootHintsPopulator {
      *
      * @param analyticsOptIn boolean value indicating opt-in to receive analytics.
      */
-    @NonNull
-    public RootHintsPopulator setAnalyticsOptIn(boolean analyticsOptIn) {
+    public @NonNull RootHintsPopulator setAnalyticsOptIn(boolean analyticsOptIn) {
         mRootHintsBundle.putBoolean(ANALYTICS_ROOT_KEY_OPT_IN, analyticsOptIn);
         return this;
     }
@@ -62,8 +62,7 @@ public final class RootHintsPopulator {
      * Sets flag to share diagnostic analytics with OEM
      * @param shareOem boolean value indicating opt-in to share diagnostic analytics with OEM.
      */
-    @NonNull
-    public RootHintsPopulator setShareOem(boolean shareOem) {
+    public @NonNull RootHintsPopulator setShareOem(boolean shareOem) {
         mRootHintsBundle.putBoolean(ANALYTICS_SHARE_OEM_DIAGNOSTICS, shareOem);
         return this;
     }
@@ -73,8 +72,7 @@ public final class RootHintsPopulator {
      * @param sharePlatform boolean value indicating opt-in to share diagnostic analytics with
      *                      the platform.
      */
-    @NonNull
-    public RootHintsPopulator setSharePlatform(boolean sharePlatform) {
+    public @NonNull RootHintsPopulator setSharePlatform(boolean sharePlatform) {
         mRootHintsBundle.putBoolean(ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS, sharePlatform);
         return this;
     }

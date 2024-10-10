@@ -33,14 +33,14 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -218,10 +218,9 @@ public class CarConnectionTypeLiveDataTest {
             return true;
         }
 
-        @Nullable
         @Override
-        public Cursor query(@NonNull Uri uri, @Nullable String[] projection,
-                @Nullable String selection, @Nullable String[] selectionArgs,
+        public @Nullable Cursor query(@NonNull Uri uri, String @Nullable [] projection,
+                @Nullable String selection, String @Nullable [] selectionArgs,
                 @Nullable String sortOrder) {
             mDidQueryContentProvider = true;
             assertThat(projection).asList().containsExactly(CarConnection.CAR_CONNECTION_STATE);
@@ -248,27 +247,25 @@ public class CarConnectionTypeLiveDataTest {
             return cursor;
         }
 
-        @Nullable
         @Override
-        public String getType(@NonNull Uri uri) {
+        public @Nullable String getType(@NonNull Uri uri) {
             return null;
         }
 
-        @Nullable
         @Override
-        public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        public @Nullable Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
             return null;
         }
 
         @Override
         public int delete(@NonNull Uri uri, @Nullable String selection,
-                @Nullable String[] selectionArgs) {
+                String @Nullable [] selectionArgs) {
             return 0;
         }
 
         @Override
         public int update(@NonNull Uri uri, @Nullable ContentValues values,
-                @Nullable String selection, @Nullable String[] selectionArgs) {
+                @Nullable String selection, String @Nullable [] selectionArgs) {
             return 0;
         }
     }

@@ -22,8 +22,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
@@ -37,6 +35,9 @@ import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,25 +77,21 @@ public final class ListTemplate implements Template {
      * for this field.
      */
     @Deprecated
-    @Nullable
-    private final CarText mTitle;
+    private final @Nullable CarText mTitle;
     /**
      * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
      * need for this field.
      */
     @Deprecated
-    @Nullable
-    private final Action mHeaderAction;
-    @Nullable
-    private final ItemList mSingleList;
+    private final @Nullable Action mHeaderAction;
+    private final @Nullable ItemList mSingleList;
     private final List<SectionedItemList> mSectionedLists;
     /**
      * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
      * replaces the need for this field.
      */
     @Deprecated
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mActionStrip;
 
     private final List<Action> mActions;
 
@@ -103,9 +100,8 @@ public final class ListTemplate implements Template {
      *
      * @see ListTemplate.Builder#setHeader(Header)
      */
-    @Nullable
     @RequiresCarApi(7)
-    private final Header mHeader;
+    private final @Nullable Header mHeader;
 
 
     /**
@@ -116,8 +112,7 @@ public final class ListTemplate implements Template {
      * @deprecated use {@link Header#getTitle()} instead.
      */
     @Deprecated
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -130,8 +125,7 @@ public final class ListTemplate implements Template {
      * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
     @Deprecated
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -143,8 +137,7 @@ public final class ListTemplate implements Template {
      * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
     @Deprecated
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -163,8 +156,7 @@ public final class ListTemplate implements Template {
      *
      * @see Builder#setSingleList(ItemList)
      */
-    @Nullable
-    public ItemList getSingleList() {
+    public @Nullable ItemList getSingleList() {
         return mSingleList;
     }
 
@@ -173,8 +165,7 @@ public final class ListTemplate implements Template {
      *
      * @see Builder#addSectionedList(SectionedItemList)
      */
-    @NonNull
-    public List<SectionedItemList> getSectionedLists() {
+    public @NonNull List<SectionedItemList> getSectionedLists() {
         return CollectionUtils.emptyIfNull(mSectionedLists);
     }
 
@@ -183,9 +174,8 @@ public final class ListTemplate implements Template {
      *
      * @see ListTemplate.Builder#addAction(Action)
      */
-    @NonNull
     @RequiresCarApi(6)
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return mActions;
     }
 
@@ -197,8 +187,7 @@ public final class ListTemplate implements Template {
      *
      * @see ListTemplate.Builder#setHeader(Header)
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         if (mHeader != null) {
             return mHeader;
         }
@@ -220,9 +209,8 @@ public final class ListTemplate implements Template {
         return headerBuilder.build();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "ListTemplate";
     }
 
@@ -279,28 +267,22 @@ public final class ListTemplate implements Template {
      * Creates and returns a new {@link Builder} initialized with this {@link ListTemplate}'s data.
      */
     @ExperimentalCarApi
-    @NonNull
-    public ListTemplate.Builder toBuilder() {
+    public ListTemplate.@NonNull Builder toBuilder() {
         return new ListTemplate.Builder(this);
     }
 
     /** A builder of {@link ListTemplate}. */
     public static final class Builder {
         boolean mIsLoading;
-        @Nullable
-        ItemList mSingleList;
+        @Nullable ItemList mSingleList;
         final List<SectionedItemList> mSectionedLists;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable CarText mTitle;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
         boolean mHasSelectableList;
 
         final List<Action> mActions;
-        @Nullable
-        Header mHeader;
+        @Nullable Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -313,8 +295,7 @@ public final class ListTemplate implements Template {
          * <p>If set to {@code false}, the UI will display the contents of the {@link ItemList}
          * instance(s) added via {@link #setSingleList} or {@link #addSectionedList}.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -337,8 +318,7 @@ public final class ListTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
         @Deprecated
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -359,8 +339,7 @@ public final class ListTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
         @Deprecated
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -374,8 +353,7 @@ public final class ListTemplate implements Template {
          *
          * @throws NullPointerException if {@code list} is null
          */
-        @NonNull
-        public Builder setSingleList(@NonNull ItemList list) {
+        public @NonNull Builder setSingleList(@NonNull ItemList list) {
             mSingleList = requireNonNull(list);
             mSectionedLists.clear();
             mHasSelectableList = false;
@@ -400,8 +378,7 @@ public final class ListTemplate implements Template {
          *                                  {@code header} is empty, or if a selectable list is
          *                                  added alongside other lists
          */
-        @NonNull
-        public Builder addSectionedList(@NonNull SectionedItemList list) {
+        public @NonNull Builder addSectionedList(@NonNull SectionedItemList list) {
             if (requireNonNull(list).getHeader().toString().length() == 0) {
                 throw new IllegalArgumentException("Header cannot be empty");
             }
@@ -433,8 +410,7 @@ public final class ListTemplate implements Template {
          * {@link #addSectionedList(SectionedItemList)}
          */
         @ExperimentalCarApi
-        @NonNull
-        public Builder clearSectionedLists() {
+        public @NonNull Builder clearSectionedLists() {
             mSectionedLists.clear();
             return this;
         }
@@ -457,8 +433,7 @@ public final class ListTemplate implements Template {
          * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
         @Deprecated
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -473,9 +448,8 @@ public final class ListTemplate implements Template {
          *                                  maximum number of allowed actions for the template.
          * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
-        @NonNull
         @RequiresCarApi(6)
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));
             ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
@@ -491,9 +465,8 @@ public final class ListTemplate implements Template {
          *
          * @throws NullPointerException if {@code header} is null
          */
-        @NonNull
         @RequiresCarApi(7)
-        public Builder setHeader(@NonNull Header header) {
+        public @NonNull Builder setHeader(@NonNull Header header) {
             if (header.getStartHeaderAction() != null) {
                 mHeaderAction = header.getStartHeaderAction();
             }
@@ -531,8 +504,7 @@ public final class ListTemplate implements Template {
          *                                  template's requirements
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public ListTemplate build() {
+        public @NonNull ListTemplate build() {
             boolean hasList = mSingleList != null || !mSectionedLists.isEmpty();
             if (mIsLoading == hasList) {
                 throw new IllegalStateException(

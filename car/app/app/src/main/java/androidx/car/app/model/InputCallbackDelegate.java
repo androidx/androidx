@@ -18,9 +18,10 @@ package androidx.car.app.model;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A host-side delegate for sending {@link InputCallback} events to the car app.

@@ -18,9 +18,8 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
@@ -28,7 +27,9 @@ import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,20 +37,16 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class MessageInfo implements NavigationInfo {
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mText;
-    @Nullable
-    private final CarIcon mImage;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarText mText;
+    private final @Nullable CarIcon mImage;
 
     /**
      * Returns the title of the message or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -58,8 +55,7 @@ public final class MessageInfo implements NavigationInfo {
      *
      * @see Builder#setText(CharSequence)
      */
-    @Nullable
-    public CarText getText() {
+    public @Nullable CarText getText() {
         return mText;
     }
 
@@ -68,14 +64,12 @@ public final class MessageInfo implements NavigationInfo {
      *
      * @see Builder#setImage(CarIcon)
      */
-    @Nullable
-    public CarIcon getImage() {
+    public @Nullable CarIcon getImage() {
         return mImage;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "MessageInfo";
     }
 
@@ -114,12 +108,9 @@ public final class MessageInfo implements NavigationInfo {
 
     /** A builder of {@link MessageInfo}. */
     public static final class Builder {
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        CarText mText;
-        @Nullable
-        CarIcon mImage;
+        @Nullable CarText mTitle;
+        @Nullable CarText mText;
+        @Nullable CarIcon mImage;
 
         /**
          * Sets the title of the message.
@@ -131,8 +122,7 @@ public final class MessageInfo implements NavigationInfo {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -148,8 +138,7 @@ public final class MessageInfo implements NavigationInfo {
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setText(@NonNull CharSequence text) {
+        public @NonNull Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
             return this;
@@ -165,8 +154,7 @@ public final class MessageInfo implements NavigationInfo {
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setText(@NonNull CarText text) {
+        public @NonNull Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
             return this;
@@ -187,16 +175,14 @@ public final class MessageInfo implements NavigationInfo {
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
-        @NonNull
-        public Builder setImage(@NonNull CarIcon image) {
+        public @NonNull Builder setImage(@NonNull CarIcon image) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
             mImage = image;
             return this;
         }
 
         /** Constructs the {@link MessageInfo} defined by this builder. */
-        @NonNull
-        public MessageInfo build() {
+        public @NonNull MessageInfo build() {
             return new MessageInfo(this);
         }
 

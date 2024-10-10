@@ -18,17 +18,18 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,15 +45,11 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class Step {
-    @Nullable
-    private final Maneuver mManeuver;
+    private final @Nullable Maneuver mManeuver;
     private final List<Lane> mLanes;
-    @Nullable
-    private final CarIcon mLanesImage;
-    @Nullable
-    private final CarText mCue;
-    @Nullable
-    private final CarText mRoad;
+    private final @Nullable CarIcon mLanesImage;
+    private final @Nullable CarText mCue;
+    private final @Nullable CarText mRoad;
 
     /**
      * Returns the maneuver to be performed on this step or {@code null} if this step doesn't
@@ -60,8 +57,7 @@ public final class Step {
      *
      * @see Builder#setManeuver(Maneuver)
      */
-    @Nullable
-    public Maneuver getManeuver() {
+    public @Nullable Maneuver getManeuver() {
         return mManeuver;
     }
 
@@ -71,8 +67,7 @@ public final class Step {
      *
      * @see Builder#addLane(Lane)
      */
-    @NonNull
-    public List<Lane> getLanes() {
+    public @NonNull List<Lane> getLanes() {
         return CollectionUtils.emptyIfNull(mLanes);
     }
 
@@ -81,8 +76,7 @@ public final class Step {
      *
      * @see Builder#setLanesImage(CarIcon)
      */
-    @Nullable
-    public CarIcon getLanesImage() {
+    public @Nullable CarIcon getLanesImage() {
         return mLanesImage;
     }
 
@@ -91,8 +85,7 @@ public final class Step {
      *
      * @see Builder#setCue(CharSequence)
      */
-    @Nullable
-    public CarText getCue() {
+    public @Nullable CarText getCue() {
         return mCue;
     }
 
@@ -101,14 +94,12 @@ public final class Step {
      *
      * @see Builder#setRoad(CharSequence)
      */
-    @Nullable
-    public CarText getRoad() {
+    public @Nullable CarText getRoad() {
         return mRoad;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[maneuver: "
                 + mManeuver
                 + ", lane count: "
@@ -170,14 +161,10 @@ public final class Step {
     /** A builder of {@link Step}. */
     public static final class Builder {
         private final List<Lane> mLanes = new ArrayList<>();
-        @Nullable
-        private Maneuver mManeuver;
-        @Nullable
-        private CarIcon mLanesImage;
-        @Nullable
-        private CarText mCue;
-        @Nullable
-        private CarText mRoad;
+        private @Nullable Maneuver mManeuver;
+        private @Nullable CarIcon mLanesImage;
+        private @Nullable CarText mCue;
+        private @Nullable CarText mRoad;
 
         /**
          * Constructs a new builder of {@link Step}.
@@ -224,8 +211,7 @@ public final class Step {
          *
          * @throws NullPointerException if {@code maneuver} is {@code null}
          */
-        @NonNull
-        public Builder setManeuver(@NonNull Maneuver maneuver) {
+        public @NonNull Builder setManeuver(@NonNull Maneuver maneuver) {
             mManeuver = requireNonNull(maneuver);
             return this;
         }
@@ -242,8 +228,7 @@ public final class Step {
          *
          * @throws NullPointerException if {@code lane} is {@code null}
          */
-        @NonNull
-        public Builder addLane(@NonNull Lane lane) {
+        public @NonNull Builder addLane(@NonNull Lane lane) {
             mLanes.add(requireNonNull(lane));
             return this;
         }
@@ -270,8 +255,7 @@ public final class Step {
          *
          * @throws NullPointerException if {@code lanesImage} is {@code null}
          */
-        @NonNull
-        public Builder setLanesImage(@NonNull CarIcon lanesImage) {
+        public @NonNull Builder setLanesImage(@NonNull CarIcon lanesImage) {
             mLanesImage = requireNonNull(lanesImage);
             return this;
         }
@@ -315,8 +299,7 @@ public final class Step {
          * @throws IllegalArgumentException if {@code cue} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setCue(@NonNull CharSequence cue) {
+        public @NonNull Builder setCue(@NonNull CharSequence cue) {
             mCue = CarText.create(requireNonNull(cue));
             CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mCue);
             return this;
@@ -337,8 +320,7 @@ public final class Step {
          * @throws IllegalArgumentException if {@code road} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setRoad(@NonNull CharSequence road) {
+        public @NonNull Builder setRoad(@NonNull CharSequence road) {
             mRoad = CarText.create(requireNonNull(road));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mRoad);
             return this;
@@ -349,8 +331,7 @@ public final class Step {
          *
          * @throws IllegalStateException if {@code lanesImage} was set but no lanes were added
          */
-        @NonNull
-        public Step build() {
+        public @NonNull Step build() {
             if (mLanesImage != null && mLanes.isEmpty()) {
                 throw new IllegalStateException(
                         "A step must have lane data when the lanes image is set");

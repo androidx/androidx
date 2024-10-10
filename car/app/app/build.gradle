@@ -53,6 +53,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     // OnBackPressedDispatcher is part of the API
     api("androidx.activity:activity:1.2.0")
     implementation(libs.guavaAndroid)

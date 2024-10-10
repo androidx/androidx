@@ -22,8 +22,9 @@ import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.view.Surface;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides the render config for the given {@link TemplateSurfaceView}.
@@ -39,8 +40,7 @@ public final class SurfaceWrapperProvider {
     }
 
     /** Creates a new render config for the current state of the holding surface view. */
-    @NonNull
-    public SurfaceWrapper createSurfaceWrapper() {
+    public @NonNull SurfaceWrapper createSurfaceWrapper() {
         IBinder hostToken = mSurfaceView.getSurfaceToken();
         int width = mSurfaceView.getWidth();
         int height = mSurfaceView.getHeight();

@@ -25,11 +25,12 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -72,19 +73,13 @@ public final class SearchTemplate implements Template {
     }
 
     private final boolean mIsLoading;
-    @Nullable
-    private final SearchCallbackDelegate mSearchCallbackDelegate;
-    @Nullable
-    private final String mInitialSearchText;
-    @Nullable
-    private final String mSearchHint;
-    @Nullable
-    private final ItemList mItemList;
+    private final @Nullable SearchCallbackDelegate mSearchCallbackDelegate;
+    private final @Nullable String mInitialSearchText;
+    private final @Nullable String mSearchHint;
+    private final @Nullable ItemList mItemList;
     private final boolean mShowKeyboardByDefault;
-    @Nullable
-    private final Action mHeaderAction;
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable Action mHeaderAction;
+    private final @Nullable ActionStrip mActionStrip;
 
     /**
      * Returns the {@link Action} that is set to be displayed in the header of the template, or
@@ -92,8 +87,7 @@ public final class SearchTemplate implements Template {
      *
      * @see Builder#setHeaderAction(Action)
      */
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -102,8 +96,7 @@ public final class SearchTemplate implements Template {
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -121,8 +114,7 @@ public final class SearchTemplate implements Template {
      *
      * @see Builder#setInitialSearchText
      */
-    @Nullable
-    public String getInitialSearchText() {
+    public @Nullable String getInitialSearchText() {
         return mInitialSearchText;
     }
 
@@ -131,8 +123,7 @@ public final class SearchTemplate implements Template {
      *
      * @see Builder#setSearchHint
      */
-    @Nullable
-    public String getSearchHint() {
+    public @Nullable String getSearchHint() {
         return mSearchHint;
     }
 
@@ -141,16 +132,14 @@ public final class SearchTemplate implements Template {
      *
      * @see Builder#getItemList
      */
-    @Nullable
-    public ItemList getItemList() {
+    public @Nullable ItemList getItemList() {
         return mItemList;
     }
 
     /**
      * Returns the {@link SearchCallbackDelegate} for search callbacks.
      */
-    @NonNull
-    public SearchCallbackDelegate getSearchCallbackDelegate() {
+    public @NonNull SearchCallbackDelegate getSearchCallbackDelegate() {
         return requireNonNull(mSearchCallbackDelegate);
     }
 
@@ -163,9 +152,8 @@ public final class SearchTemplate implements Template {
         return mShowKeyboardByDefault;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "SearchTemplate";
     }
 
@@ -227,18 +215,13 @@ public final class SearchTemplate implements Template {
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
         final SearchCallbackDelegate mSearchCallbackDelegate;
-        @Nullable
-        String mInitialSearchText;
-        @Nullable
-        String mSearchHint;
+        @Nullable String mInitialSearchText;
+        @Nullable String mSearchHint;
         boolean mIsLoading;
-        @Nullable
-        ItemList mItemList;
+        @Nullable ItemList mItemList;
         boolean mShowKeyboardByDefault = true;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
 
         /**
          * Sets the {@link Action} that will be displayed in the header of the template.
@@ -254,8 +237,7 @@ public final class SearchTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -276,8 +258,7 @@ public final class SearchTemplate implements Template {
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -288,8 +269,7 @@ public final class SearchTemplate implements Template {
          *
          * @throws NullPointerException if {@code initialSearchText} is {@code null}
          */
-        @NonNull
-        public Builder setInitialSearchText(@NonNull String initialSearchText) {
+        public @NonNull Builder setInitialSearchText(@NonNull String initialSearchText) {
             mInitialSearchText = requireNonNull(initialSearchText);
             return this;
         }
@@ -307,8 +287,7 @@ public final class SearchTemplate implements Template {
          *
          * @throws NullPointerException if {@code searchHint} is {@code null}
          */
-        @NonNull
-        public Builder setSearchHint(@NonNull String searchHint) {
+        public @NonNull Builder setSearchHint(@NonNull String searchHint) {
             mSearchHint = requireNonNull(searchHint);
             return this;
         }
@@ -322,8 +301,7 @@ public final class SearchTemplate implements Template {
          * to the host once the data is ready. If set to {@code false}, the UI shows the {@link
          * ItemList} contents added via {@link #setItemList}.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -348,8 +326,7 @@ public final class SearchTemplate implements Template {
          * @throws NullPointerException     if {@code itemList} is {@code null}
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public Builder setItemList(@NonNull ItemList itemList) {
+        public @NonNull Builder setItemList(@NonNull ItemList itemList) {
             ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(itemList));
             mItemList = itemList;
             return this;
@@ -361,8 +338,7 @@ public final class SearchTemplate implements Template {
          *
          * <p>Defaults to {@code true}.
          */
-        @NonNull
-        public Builder setShowKeyboardByDefault(boolean showKeyboardByDefault) {
+        public @NonNull Builder setShowKeyboardByDefault(boolean showKeyboardByDefault) {
             mShowKeyboardByDefault = showKeyboardByDefault;
             return this;
         }
@@ -373,8 +349,7 @@ public final class SearchTemplate implements Template {
          * @throws IllegalArgumentException if the template is in a loading state but the list is
          *                                  set
          */
-        @NonNull
-        public SearchTemplate build() {
+        public @NonNull SearchTemplate build() {
             if (mIsLoading && mItemList != null) {
                 throw new IllegalArgumentException(
                         "Template is in a loading state but a list is set");

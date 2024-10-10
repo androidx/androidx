@@ -19,7 +19,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemp
 import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.CarColor.GREEN;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -35,6 +34,8 @@ import androidx.car.app.model.Toggle;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** A screen demonstrating selectable lists. */
 public final class ToggleButtonListDemoScreen extends Screen {
 
@@ -48,9 +49,8 @@ public final class ToggleButtonListDemoScreen extends Screen {
     private int mImageType = Row.IMAGE_TYPE_ICON;
     private boolean mSetTintToVector;
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         Toggle mToggleForVector = new Toggle.Builder((checked) -> {
             mSetTintToVector = !mSetTintToVector;
             invalidate();

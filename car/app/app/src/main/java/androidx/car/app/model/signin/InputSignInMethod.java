@@ -24,8 +24,6 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
@@ -34,6 +32,9 @@ import androidx.car.app.model.CarText;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.InputCallbackDelegate;
 import androidx.car.app.model.InputCallbackDelegateImpl;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -109,18 +110,14 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      */
     public static final int KEYBOARD_NUMBER = 4;
 
-    @Nullable
-    private final CarText mHint;
-    @Nullable
-    private final CarText mDefaultValue;
+    private final @Nullable CarText mHint;
+    private final @Nullable CarText mDefaultValue;
     @InputType
     private final int mInputType;
-    @Nullable
-    private final CarText mErrorMessage;
+    private final @Nullable CarText mErrorMessage;
     @KeyboardType
     private final int mKeyboardType;
-    @Nullable
-    private final InputCallbackDelegate mInputCallbackDelegate;
+    private final @Nullable InputCallbackDelegate mInputCallbackDelegate;
     private final boolean mShowKeyboardByDefault;
 
     /**
@@ -129,8 +126,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      *
      * @see Builder#setHint(CharSequence)
      */
-    @Nullable
-    public CarText getHint() {
+    public @Nullable CarText getHint() {
         return mHint;
     }
 
@@ -142,8 +138,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      *
      * @see Builder#setDefaultValue(String)
      */
-    @Nullable
-    public CarText getDefaultValue() {
+    public @Nullable CarText getDefaultValue() {
         return mDefaultValue;
     }
 
@@ -163,8 +158,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      *
      * @see Builder#setErrorMessage(CharSequence)
      */
-    @Nullable
-    public CarText getErrorMessage() {
+    public @Nullable CarText getErrorMessage() {
         return mErrorMessage;
     }
 
@@ -182,8 +176,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      *
      * @see Builder#Builder(InputCallback)
      */
-    @NonNull
-    public InputCallbackDelegate getInputCallbackDelegate() {
+    public @NonNull InputCallbackDelegate getInputCallbackDelegate() {
         return requireNonNull(mInputCallbackDelegate);
     }
 
@@ -196,9 +189,8 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         return mShowKeyboardByDefault;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "[inputType:" + mInputType + ", keyboardType: " + mKeyboardType + "]";
     }
 
@@ -250,15 +242,11 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     /** A builder of {@link InputSignInMethod}. */
     public static final class Builder {
-        @Nullable
-        final InputCallbackDelegate mInputCallbackDelegate;
-        @Nullable
-        CarText mHint;
-        @Nullable
-        CarText mDefaultValue;
+        final @Nullable InputCallbackDelegate mInputCallbackDelegate;
+        @Nullable CarText mHint;
+        @Nullable CarText mDefaultValue;
         int mInputType = INPUT_TYPE_DEFAULT;
-        @Nullable
-        CarText mErrorMessage;
+        @Nullable CarText mErrorMessage;
         int mKeyboardType = KEYBOARD_DEFAULT;
         boolean mShowKeyboardByDefault;
 
@@ -272,8 +260,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          * @throws NullPointerException if {@code hint} is {@code null}
          */
         // TODO(b/181569051): document supported span types.
-        @NonNull
-        public Builder setHint(@NonNull CharSequence hint) {
+        public @NonNull Builder setHint(@NonNull CharSequence hint) {
             mHint = CarText.create(requireNonNull(hint));
             return this;
         }
@@ -290,8 +277,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          *
          * @throws NullPointerException if {@code defaultValue} is {@code null}
          */
-        @NonNull
-        public Builder setDefaultValue(@NonNull String defaultValue) {
+        public @NonNull Builder setDefaultValue(@NonNull String defaultValue) {
             mDefaultValue = CarText.create(requireNonNull(defaultValue));
             return this;
         }
@@ -306,8 +292,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          *
          * @throws IllegalArgumentException if the provided input type is not supported
          */
-        @NonNull
-        public Builder setInputType(@InputType int inputType) {
+        public @NonNull Builder setInputType(@InputType int inputType) {
             mInputType = validateInputType(inputType);
             return this;
         }
@@ -327,8 +312,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          *
          * @throws NullPointerException if {@code message} is {@code null}
          */
-        @NonNull
-        public Builder setErrorMessage(@NonNull CharSequence message) {
+        public @NonNull Builder setErrorMessage(@NonNull CharSequence message) {
             mErrorMessage = CarText.create(requireNonNull(message));
             return this;
         }
@@ -344,8 +328,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          *
          * @throws IllegalArgumentException if the provided type is not supported
          */
-        @NonNull
-        public Builder setKeyboardType(@KeyboardType int keyboardType) {
+        public @NonNull Builder setKeyboardType(@KeyboardType int keyboardType) {
             mKeyboardType = validateKeyboardType(keyboardType);
             return this;
         }
@@ -355,8 +338,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
          *
          * By default, keyboard will only be opened if the user focuses on the input box.
          */
-        @NonNull
-        public Builder setShowKeyboardByDefault(boolean showKeyboardByDefault) {
+        public @NonNull Builder setShowKeyboardByDefault(boolean showKeyboardByDefault) {
             mShowKeyboardByDefault = showKeyboardByDefault;
             return this;
         }
@@ -364,8 +346,7 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
         /**
          * Builds an {@link InputSignInMethod} instance.
          */
-        @NonNull
-        public InputSignInMethod build() {
+        public @NonNull InputSignInMethod build() {
             return new InputSignInMethod(this);
         }
 

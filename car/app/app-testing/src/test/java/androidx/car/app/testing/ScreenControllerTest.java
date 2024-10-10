@@ -21,13 +21,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,9 +59,8 @@ public class ScreenControllerTest {
     public void setup() {
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
         mTestScreen = new Screen(mCarContext) {
-            @NonNull
             @Override
-            public Template onGetTemplate() {
+            public @NonNull Template onGetTemplate() {
                 return mTemplate;
             }
         };

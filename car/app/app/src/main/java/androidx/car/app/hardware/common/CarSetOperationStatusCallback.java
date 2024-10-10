@@ -19,12 +19,13 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.climate.ClimateProfileRequest;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -114,8 +115,7 @@ public interface CarSetOperationStatusCallback {
      * @param statusCode                one of status codes in StatusCode
      * @throws IllegalArgumentException if status code is not in StatusCode
      */
-    @NonNull
-    static String toString(@StatusCode int statusCode) {
+    static @NonNull String toString(@StatusCode int statusCode) {
         switch (statusCode) {
             case OPERATION_STATUS_SUCCESS:
                 return "OPERATION_STATUS_SUCCESS";

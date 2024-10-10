@@ -40,8 +40,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.CarAppViewModel;
@@ -49,6 +47,9 @@ import androidx.car.app.activity.ErrorHandler;
 import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
 import androidx.car.app.serialization.Bundleable;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A surface view suitable for template rendering.
@@ -60,20 +61,15 @@ import androidx.car.app.serialization.Bundleable;
 public final class TemplateSurfaceView extends SurfaceView {
     private static final boolean SUPPORTS_SURFACE_CONTROL =
             VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    @Nullable
-    private OnCreateInputConnectionListener mOnCreateInputConnectionListener;
+    private @Nullable OnCreateInputConnectionListener mOnCreateInputConnectionListener;
 
-    @Nullable
-    ISurfaceControl mSurfaceControl;
-    @Nullable
-    SurfacePackage mSurfacePackage;
+    @Nullable ISurfaceControl mSurfaceControl;
+    @Nullable SurfacePackage mSurfacePackage;
     private boolean mIsInInputMode;
 
     // Package public to avoid synthetic accessor
-    @Nullable
-    ServiceDispatcher mServiceDispatcher;
-    @Nullable
-    private CarAppViewModel mViewModel;
+    @Nullable ServiceDispatcher mServiceDispatcher;
+    private @Nullable CarAppViewModel mViewModel;
     private final InputMethodManager mInputMethodManager =
             (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
     private final SurfaceWrapperProvider mSurfaceWrapperProvider =
@@ -123,8 +119,7 @@ public final class TemplateSurfaceView extends SurfaceView {
      * Returns the surface token used to create a {@link android.view.SurfaceControlViewHost}, or
      * null if not available.
      */
-    @Nullable
-    public IBinder getSurfaceToken() {
+    public @Nullable IBinder getSurfaceToken() {
         if (SUPPORTS_SURFACE_CONTROL) {
             return Api30Impl.getHostToken(this);
         }
@@ -145,8 +140,7 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     @Override
-    @Nullable
-    public InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
+    public @Nullable InputConnection onCreateInputConnection(@NonNull EditorInfo editorInfo) {
         requireNonNull(editorInfo);
         requireNonNull(mServiceDispatcher);
 
@@ -231,8 +225,7 @@ public final class TemplateSurfaceView extends SurfaceView {
     }
 
     @Override
-    @NonNull
-    public CharSequence getAccessibilityClassName() {
+    public @NonNull CharSequence getAccessibilityClassName() {
         return SurfaceView.class.getName();
     }
 

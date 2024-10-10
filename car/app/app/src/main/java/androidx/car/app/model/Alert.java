@@ -20,13 +20,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +51,12 @@ public final class Alert {
     public static final int DURATION_SHOW_INDEFINITELY = Integer.MAX_VALUE;
 
     private final int mId;
-    @Nullable
-    private final CarIcon mIcon;
-    @NonNull
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mSubtitle;
-    @NonNull
-    private final List<Action> mActions;
+    private final @Nullable CarIcon mIcon;
+    private final @NonNull CarText mTitle;
+    private final @Nullable CarText mSubtitle;
+    private final @NonNull List<Action> mActions;
     private final long mDuration;
-    @Nullable
-    private final AlertCallbackDelegate mCallbackDelegate;
+    private final @Nullable AlertCallbackDelegate mCallbackDelegate;
 
     /** Returns the id of the alert. */
     public int getId() {
@@ -68,8 +64,7 @@ public final class Alert {
     }
 
     /** Returns the title displayed in the alert. */
-    @NonNull
-    public CarText getTitle() {
+    public @NonNull CarText getTitle() {
         return mTitle;
     }
 
@@ -79,8 +74,7 @@ public final class Alert {
      *
      * @see Builder#setSubtitle(CarText)
      */
-    @Nullable
-    public CarText getSubtitle() {
+    public @Nullable CarText getSubtitle() {
         return mSubtitle;
     }
 
@@ -90,8 +84,7 @@ public final class Alert {
      *
      * @see Builder#setIcon(CarIcon)
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
@@ -100,8 +93,7 @@ public final class Alert {
      *
      * @see Builder#addAction(Action)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return mActions;
     }
 
@@ -115,14 +107,12 @@ public final class Alert {
      *
      * @see Builder#setCallback(AlertCallbackDelegate)
      */
-    @Nullable
-    public AlertCallbackDelegate getCallbackDelegate() {
+    public @Nullable AlertCallbackDelegate getCallbackDelegate() {
         return mCallbackDelegate;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[id: " + mId + ", title: " + mTitle + ", icon: " + mIcon + "]";
     }
 
@@ -169,17 +159,12 @@ public final class Alert {
     /** A builder of {@link Alert}. */
     public static final class Builder {
         int mId;
-        @NonNull
-        CarText mTitle;
-        @Nullable
-        CarText mSubtitle;
-        @Nullable
-        CarIcon mIcon;
-        @NonNull
-        List<Action> mActions;
+        @NonNull CarText mTitle;
+        @Nullable CarText mSubtitle;
+        @Nullable CarIcon mIcon;
+        @NonNull List<Action> mActions;
         long mDuration;
-        @Nullable
-        AlertCallbackDelegate mCallbackDelegate;
+        @Nullable AlertCallbackDelegate mCallbackDelegate;
 
         /**
          * Creates an {@link Builder} instance.
@@ -213,8 +198,7 @@ public final class Alert {
          * @throws NullPointerException if {@code subtitle} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setSubtitle(@NonNull CarText subtitle) {
+        public @NonNull Builder setSubtitle(@NonNull CarText subtitle) {
             mSubtitle = requireNonNull(subtitle);
             return this;
         }
@@ -234,8 +218,7 @@ public final class Alert {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             return this;
@@ -248,8 +231,7 @@ public final class Alert {
          *
          * @throws IllegalStateException if more than 2 actions are added.
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             if (mActions.size() >= MAX_ACTION_COUNT) {
                 throw new IllegalStateException("Cannot add more than " + MAX_ACTION_COUNT
                         + " actions.");
@@ -263,16 +245,14 @@ public final class Alert {
          *
          * @throws NullPointerException if {@code callback} is {@code null}
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setCallback(@NonNull AlertCallback callback) {
+        public @NonNull Builder setCallback(@NonNull AlertCallback callback) {
             mCallbackDelegate = AlertCallbackDelegateImpl.create(requireNonNull(callback));
             return this;
         }
 
         /** Constructs the {@link Alert} defined by this builder. */
-        @NonNull
-        public Alert build() {
+        public @NonNull Alert build() {
             return new Alert(this);
         }
     }

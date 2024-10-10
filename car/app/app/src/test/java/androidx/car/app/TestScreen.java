@@ -16,9 +16,10 @@
 
 package androidx.car.app;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.Lifecycle.Event;
+
+import org.jspecify.annotations.NonNull;
 
 /** A {@link Screen} for testing that wraps a mockable {@link Screen}. */
 public class TestScreen extends Screen {
@@ -29,9 +30,8 @@ public class TestScreen extends Screen {
         this.mScreenForMocking = screenForMocking;
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         return mScreenForMocking.onGetTemplate();
     }
 

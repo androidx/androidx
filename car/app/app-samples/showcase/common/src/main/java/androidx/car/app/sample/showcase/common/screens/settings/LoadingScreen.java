@@ -16,13 +16,14 @@
 
 package androidx.car.app.sample.showcase.common.screens.settings;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
+
+import org.jspecify.annotations.NonNull;
 
 /** A class that provides a sample template for a loading screen */
 public abstract class LoadingScreen {
@@ -33,8 +34,7 @@ public abstract class LoadingScreen {
     /**
     * Returns a sample template to be used for loading a screen
     */
-    @NonNull
-    public static Template loadingScreenTemplate(@NonNull CarContext carContext) {
+    public static @NonNull Template loadingScreenTemplate(@NonNull CarContext carContext) {
         return new MessageTemplate.Builder(
                 carContext.getString(R.string.loading_screen))
                 .setLoading(true)
