@@ -571,9 +571,9 @@ private class CombinedClickableElement(
     private val onLongClick: (() -> Unit)?,
     private val onDoubleClick: (() -> Unit)?,
     private val hapticFeedbackEnabled: Boolean,
-) : ModifierNodeElement<CombinedClickableNodeImpl>() {
+) : ModifierNodeElement<CombinedClickableNode>() {
     override fun create() =
-        CombinedClickableNodeImpl(
+        CombinedClickableNode(
             onClick,
             onLongClickLabel,
             onLongClick,
@@ -586,7 +586,7 @@ private class CombinedClickableElement(
             role,
         )
 
-    override fun update(node: CombinedClickableNodeImpl) {
+    override fun update(node: CombinedClickableNode) {
         node.hapticFeedbackEnabled = hapticFeedbackEnabled
         node.update(
             onClick,
@@ -699,94 +699,7 @@ internal open class ClickableNode(
     }
 }
 
-/**
- * Create a [CombinedClickableNode] that can be delegated to inside custom modifier nodes.
- *
- * This API is experimental and is temporarily being exposed to enable performance analysis, you
- * should use [combinedClickable] instead for the majority of use cases.
- *
- * @param onClick will be called when user clicks on the element
- * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action
- * @param onLongClick will be called when user long presses on the element
- * @param onDoubleClick will be called when user double clicks on the element
- * @param interactionSource [MutableInteractionSource] that will be used to emit
- *   [PressInteraction.Press] when this clickable is pressed. Only the initial (first) press will be
- *   recorded and emitted with [MutableInteractionSource]. If `null`, and there is an
- *   [indicationNodeFactory] provided, an internal [MutableInteractionSource] will be created when
- *   required.
- * @param indicationNodeFactory the [IndicationNodeFactory] used to optionally render [Indication]
- *   inside this node, instead of using a separate [Modifier.indication]. This should be preferred
- *   for performance reasons over using [Modifier.indication] separately.
- * @param enabled Controls the enabled state. When false, [onClick], [onLongClick] or
- *   [onDoubleClick] won't be invoked
- * @param onClickLabel semantic / accessibility label for the [onClick] action
- * @param role the type of user interface element. Accessibility services might use this to describe
- *   the element or do customizations
- */
-fun CombinedClickableNode(
-    onClick: () -> Unit,
-    onLongClickLabel: String?,
-    onLongClick: (() -> Unit)?,
-    onDoubleClick: (() -> Unit)?,
-    interactionSource: MutableInteractionSource?,
-    indicationNodeFactory: IndicationNodeFactory?,
-    enabled: Boolean,
-    onClickLabel: String?,
-    role: Role?,
-): CombinedClickableNode =
-    CombinedClickableNodeImpl(
-        onClick,
-        onLongClickLabel,
-        onLongClick,
-        onDoubleClick,
-        hapticFeedbackEnabled = true,
-        interactionSource,
-        indicationNodeFactory,
-        enabled,
-        onClickLabel,
-        role,
-    )
-
-/**
- * Public interface for the internal node used inside [combinedClickable], to allow for custom
- * modifier nodes to delegate to it.
- */
-sealed interface CombinedClickableNode : PointerInputModifierNode {
-    /**
-     * Updates this node with new values, and resets any invalidated state accordingly.
-     *
-     * @param onClick will be called when user clicks on the element
-     * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action
-     * @param onLongClick will be called when user long presses on the element
-     * @param onDoubleClick will be called when user double clicks on the element
-     * @param interactionSource [MutableInteractionSource] that will be used to emit
-     *   [PressInteraction.Press] when this clickable is pressed. Only the initial (first) press
-     *   will be recorded and emitted with [MutableInteractionSource]. If `null`, and there is an
-     *   [indicationNodeFactory] provided, an internal [MutableInteractionSource] will be created
-     *   when required.
-     * @param indicationNodeFactory the [IndicationNodeFactory] used to optionally render
-     *   [Indication] inside this node, instead of using a separate [Modifier.indication]. This
-     *   should be preferred for performance reasons over using [Modifier.indication] separately.
-     * @param enabled Controls the enabled state. When false, [onClick], [onLongClick] or
-     *   [onDoubleClick] won't be invoked
-     * @param onClickLabel semantic / accessibility label for the [onClick] action
-     * @param role the type of user interface element. Accessibility services might use this to
-     *   describe the element or do customizations
-     */
-    fun update(
-        onClick: () -> Unit,
-        onLongClickLabel: String?,
-        onLongClick: (() -> Unit)?,
-        onDoubleClick: (() -> Unit)?,
-        interactionSource: MutableInteractionSource?,
-        indicationNodeFactory: IndicationNodeFactory?,
-        enabled: Boolean,
-        onClickLabel: String?,
-        role: Role?
-    )
-}
-
-private class CombinedClickableNodeImpl(
+private class CombinedClickableNode(
     onClick: () -> Unit,
     private var onLongClickLabel: String?,
     private var onLongClick: (() -> Unit)?,
@@ -798,7 +711,6 @@ private class CombinedClickableNodeImpl(
     onClickLabel: String?,
     role: Role?,
 ) :
-    CombinedClickableNode,
     CompositionLocalConsumerModifierNode,
     AbstractClickableNode(
         interactionSource,
@@ -844,7 +756,7 @@ private class CombinedClickableNodeImpl(
         )
     }
 
-    override fun update(
+    fun update(
         onClick: () -> Unit,
         onLongClickLabel: String?,
         onLongClick: (() -> Unit)?,
