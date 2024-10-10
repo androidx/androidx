@@ -45,6 +45,7 @@ package androidx.wear.compose.material3 {
   @androidx.compose.runtime.Immutable public final class ButtonColors {
     ctor public ButtonColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long secondaryContentColor, long iconColor, androidx.compose.ui.graphics.painter.Painter disabledContainerPainter, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
     ctor public ButtonColors(long containerColor, long contentColor, long secondaryContentColor, long iconColor, long disabledContainerColor, long disabledContentColor, long disabledSecondaryContentColor, long disabledIconColor);
+    method public androidx.wear.compose.material3.ButtonColors copy(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method public androidx.compose.ui.graphics.painter.Painter getContainerPainter();
     method public long getContentColor();
     method public androidx.compose.ui.graphics.painter.Painter getDisabledContainerPainter();
@@ -149,6 +150,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CardColors {
     ctor public CardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long appNameColor, long timeColor, long titleColor, long subtitleColor);
+    method public androidx.wear.compose.material3.CardColors copy(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method public long getAppNameColor();
     method public androidx.compose.ui.graphics.painter.Painter getContainerPainter();
     method public long getContentColor();
@@ -195,6 +197,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CheckboxButtonColors {
     ctor public CheckboxButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long checkedBoxColor, long checkedCheckmarkColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long uncheckedBoxColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledCheckedBoxColor, long disabledCheckedCheckmarkColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor, long disabledUncheckedBoxColor);
+    method public androidx.wear.compose.material3.CheckboxButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedIconColor, optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedIconColor, optional long uncheckedBoxColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedIconColor, optional long disabledCheckedBoxColor, optional long disabledCheckedCheckmarkColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedIconColor, optional long disabledUncheckedBoxColor);
     method public long getCheckedBoxColor();
     method public long getCheckedCheckmarkColor();
     method public long getCheckedContainerColor();
@@ -349,6 +352,7 @@ package androidx.wear.compose.material3 {
 
   public final class ConfirmationColors {
     ctor public ConfirmationColors(long iconColor, long iconContainerColor, long textColor);
+    method public androidx.wear.compose.material3.ConfirmationColors copy(optional long iconColor, optional long iconContainerColor, optional long textColor);
     method public long getIconColor();
     method public long getIconContainerColor();
     method public long getTextColor();
@@ -404,6 +408,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class DatePickerColors {
     ctor public DatePickerColors(long selectedPickerContentColor, long unselectedPickerContentColor, long pickerLabelColor, long nextButtonContentColor, long nextButtonContainerColor, long confirmButtonContentColor, long confirmButtonContainerColor);
+    method public androidx.wear.compose.material3.DatePickerColors copy(optional long selectedPickerContentColor, optional long unselectedPickerContentColor, optional long pickerLabelColor, optional long nextButtonContentColor, optional long nextButtonContainerColor, optional long confirmButtonContentColor, optional long confirmButtonContainerColor);
     method public long getConfirmButtonContainerColor();
     method public long getConfirmButtonContentColor();
     method public long getNextButtonContainerColor();
@@ -474,6 +479,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
     ctor public IconButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public androidx.wear.compose.material3.IconButtonColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public long getContainerColor();
     method public long getContentColor();
     method public long getDisabledContainerColor();
@@ -545,6 +551,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class IconToggleButtonColors {
     ctor public IconToggleButtonColors(long checkedContainerColor, long checkedContentColor, long uncheckedContainerColor, long uncheckedContentColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor);
+    method public androidx.wear.compose.material3.IconToggleButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getDisabledCheckedContainerColor();
@@ -618,6 +625,7 @@ package androidx.wear.compose.material3 {
 
   public final class LevelIndicatorColors {
     ctor public LevelIndicatorColors(long indicatorColor, long trackColor, long disabledIndicatorColor, long disabledTrackColor);
+    method public androidx.wear.compose.material3.LevelIndicatorColors copy(optional long indicatorColor, optional long trackColor, optional long disabledIndicatorColor, optional long disabledTrackColor);
     method public long getDisabledIndicatorColor();
     method public long getDisabledTrackColor();
     method public long getIndicatorColor();
@@ -704,6 +712,7 @@ package androidx.wear.compose.material3 {
 
   public final class OpenOnPhoneDialogColors {
     ctor public OpenOnPhoneDialogColors(long iconColor, long iconContainerColor, long progressIndicatorColor, long progressTrackColor, long textColor);
+    method public androidx.wear.compose.material3.OpenOnPhoneDialogColors copy(optional long iconColor, optional long iconContainerColor, optional long progressIndicatorColor, optional long progressTrackColor, optional long textColor);
     method public long getIconColor();
     method public long getIconContainerColor();
     method public long getProgressIndicatorColor();
@@ -835,6 +844,8 @@ package androidx.wear.compose.material3 {
 
   public final class ProgressIndicatorColors {
     ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush, androidx.compose.ui.graphics.Brush overflowTrackBrush, androidx.compose.ui.graphics.Brush disabledIndicatorBrush, androidx.compose.ui.graphics.Brush disabledTrackBrush, androidx.compose.ui.graphics.Brush disabledOverflowTrackBrush);
+    method public androidx.wear.compose.material3.ProgressIndicatorColors copy(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush, optional androidx.compose.ui.graphics.Brush? overflowTrackBrush, optional androidx.compose.ui.graphics.Brush? disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush? disabledTrackBrush, optional androidx.compose.ui.graphics.Brush? disabledOverflowTrackBrush);
+    method public androidx.wear.compose.material3.ProgressIndicatorColors copy(optional long indicatorColor, optional long trackColor, optional long overflowTrackColor, optional long disabledIndicatorColor, optional long disabledTrackColor, optional long disabledOverflowTrackColor);
     method public androidx.compose.ui.graphics.Brush getDisabledIndicatorBrush();
     method public androidx.compose.ui.graphics.Brush getDisabledOverflowTrackBrush();
     method public androidx.compose.ui.graphics.Brush getDisabledTrackBrush();
@@ -858,6 +869,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
     ctor public RadioButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedIconColor, long selectedControlColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedIconColor, long unselectedControlColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedIconColor, long disabledSelectedControlColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedIconColor, long disabledUnselectedControlColor);
+    method public androidx.wear.compose.material3.RadioButtonColors copy(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedIconColor, optional long selectedControlColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedIconColor, optional long unselectedControlColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedIconColor, optional long disabledSelectedControlColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedIconColor, optional long disabledUnselectedControlColor);
     method public long getDisabledSelectedContainerColor();
     method public long getDisabledSelectedContentColor();
     method public long getDisabledSelectedControlColor();
@@ -1009,6 +1021,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class SliderColors {
     ctor public SliderColors(long containerColor, long buttonIconColor, long selectedBarColor, long unselectedBarColor, long selectedBarSeparatorColor, long unselectedBarSeparatorColor, long disabledContainerColor, long disabledButtonIconColor, long disabledSelectedBarColor, long disabledUnselectedBarColor, long disabledSelectedBarSeparatorColor, long disabledUnselectedBarSeparatorColor);
+    method public androidx.wear.compose.material3.SliderColors copy(optional long containerColor, optional long buttonIconColor, optional long selectedBarColor, optional long unselectedBarColor, optional long selectedBarSeparatorColor, optional long unselectedBarSeparatorColor, optional long disabledContainerColor, optional long disabledButtonIconColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor, optional long disabledSelectedBarSeparatorColor, optional long disabledUnselectedBarSeparatorColor);
     method public long getButtonIconColor();
     method public long getContainerColor();
     method public long getDisabledButtonIconColor();
@@ -1058,6 +1071,7 @@ package androidx.wear.compose.material3 {
 
   public final class SplitCheckboxButtonColors {
     ctor public SplitCheckboxButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedSplitContainerColor, long checkedBoxColor, long checkedCheckmarkColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedSplitContainerColor, long uncheckedBoxColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedSplitContainerColor, long disabledCheckedBoxColor, long disabledCheckedCheckmarkColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedSplitContainerColor, long disabledUncheckedBoxColor);
+    method public androidx.wear.compose.material3.SplitCheckboxButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedSplitContainerColor, optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedSplitContainerColor, optional long uncheckedBoxColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedSplitContainerColor, optional long disabledCheckedBoxColor, optional long disabledCheckedCheckmarkColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedSplitContainerColor, optional long disabledUncheckedBoxColor);
     method public long getCheckedBoxColor();
     method public long getCheckedCheckmarkColor();
     method public long getCheckedContainerColor();
@@ -1106,6 +1120,7 @@ package androidx.wear.compose.material3 {
 
   public final class SplitRadioButtonColors {
     ctor public SplitRadioButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedSplitContainerColor, long selectedControlColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedSplitContainerColor, long unselectedControlColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedSplitContainerColor, long disabledSelectedControlColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedSplitContainerColor, long disabledUnselectedControlColor);
+    method public androidx.wear.compose.material3.SplitRadioButtonColors copy(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSplitContainerColor, optional long selectedControlColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSplitContainerColor, optional long unselectedControlColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedSplitContainerColor, optional long disabledSelectedControlColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedSplitContainerColor, optional long disabledUnselectedControlColor);
     method public long getDisabledSelectedContainerColor();
     method public long getDisabledSelectedContentColor();
     method public long getDisabledSelectedControlColor();
@@ -1150,6 +1165,7 @@ package androidx.wear.compose.material3 {
 
   public final class SplitSwitchButtonColors {
     ctor public SplitSwitchButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedSplitContainerColor, long checkedThumbColor, long checkedThumbIconColor, long checkedTrackColor, long checkedTrackBorderColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedSplitContainerColor, long uncheckedThumbColor, long uncheckedTrackColor, long uncheckedTrackBorderColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedSplitContainerColor, long disabledCheckedThumbColor, long disabledCheckedThumbIconColor, long disabledCheckedTrackColor, long disabledCheckedTrackBorderColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedSplitContainerColor, long disabledUncheckedThumbColor, long disabledUncheckedTrackBorderColor);
+    method public androidx.wear.compose.material3.SplitSwitchButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedSplitContainerColor, optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackBorderColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedSplitContainerColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor, optional long uncheckedTrackBorderColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedSplitContainerColor, optional long disabledCheckedThumbColor, optional long disabledCheckedThumbIconColor, optional long disabledCheckedTrackColor, optional long disabledCheckedTrackBorderColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedSplitContainerColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedTrackBorderColor);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getCheckedSecondaryContentColor();
@@ -1212,6 +1228,7 @@ package androidx.wear.compose.material3 {
 
   public final class StepperColors {
     ctor public StepperColors(long contentColor, long buttonContainerColor, long buttonIconColor, long disabledContentColor, long disabledButtonContainerColor, long disabledButtonIconColor);
+    method public androidx.wear.compose.material3.StepperColors copy(optional long contentColor, optional long buttonContainerColor, optional long buttonIconColor, optional long disabledContentColor, optional long disabledButtonContainerColor, optional long disabledButtonIconColor);
     method public long getButtonContainerColor();
     method public long getButtonIconColor();
     method public long getContentColor();
@@ -1275,6 +1292,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class SwitchButtonColors {
     ctor public SwitchButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long checkedThumbColor, long checkedThumbIconColor, long checkedTrackBorderColor, long checkedTrackColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long uncheckedThumbColor, long uncheckedTrackColor, long uncheckedTrackBorderColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledCheckedThumbColor, long disabledCheckedThumbIconColor, long disabledCheckedTrackColor, long disabledCheckedTrackBorderColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor, long disabledUncheckedThumbColor, long disabledUncheckedTrackBorderColor);
+    method public androidx.wear.compose.material3.SwitchButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedIconColor, optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackBorderColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedIconColor, optional long uncheckedThumbColor, optional long uncheckedTrackColor, optional long uncheckedTrackBorderColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedIconColor, optional long disabledCheckedThumbColor, optional long disabledCheckedThumbIconColor, optional long disabledCheckedTrackColor, optional long disabledCheckedTrackBorderColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedIconColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedTrackBorderColor);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getCheckedIconColor();
@@ -1356,6 +1374,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class TextButtonColors {
     ctor public TextButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public androidx.wear.compose.material3.TextButtonColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public long getContainerColor();
     method public long getContentColor();
     method public long getDisabledContainerColor();
@@ -1442,6 +1461,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class TextToggleButtonColors {
     ctor public TextToggleButtonColors(long checkedContainerColor, long checkedContentColor, long uncheckedContainerColor, long uncheckedContentColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor);
+    method public androidx.wear.compose.material3.TextToggleButtonColors copy(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getDisabledCheckedContainerColor();
@@ -1504,6 +1524,7 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class TimePickerColors {
     ctor public TimePickerColors(long selectedPickerContentColor, long unselectedPickerContentColor, long separatorColor, long pickerLabelColor, long confirmButtonContentColor, long confirmButtonContainerColor);
+    method public androidx.wear.compose.material3.TimePickerColors copy(optional long selectedPickerContentColor, optional long unselectedPickerContentColor, optional long separatorColor, optional long pickerLabelColor, optional long confirmButtonContentColor, optional long confirmButtonContainerColor);
     method public long getConfirmButtonContainerColor();
     method public long getConfirmButtonContentColor();
     method public long getPickerLabelColor();

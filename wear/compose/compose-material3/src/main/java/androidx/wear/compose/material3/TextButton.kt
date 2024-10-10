@@ -494,11 +494,19 @@ class TextButtonColors(
     val disabledContentColor: Color,
 ) {
 
-    internal fun copy(
-        containerColor: Color,
-        contentColor: Color,
-        disabledContainerColor: Color,
-        disabledContentColor: Color
+    /**
+     * Returns a copy of this TextButtonColors optionally overriding some of the values.
+     *
+     * @param containerColor the background color of this text button when enabled.
+     * @param contentColor the content color of this text button when enabled.
+     * @param disabledContainerColor the background color of this text button when not enabled.
+     * @param disabledContentColor the content color of this text button when not enabled.
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        contentColor: Color = this.contentColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledContentColor: Color = this.disabledContentColor
     ) =
         TextButtonColors(
             containerColor = containerColor.takeOrElse { this.containerColor },

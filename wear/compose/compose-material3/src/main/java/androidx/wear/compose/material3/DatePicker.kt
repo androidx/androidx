@@ -554,14 +554,25 @@ class DatePickerColors(
     val confirmButtonContentColor: Color,
     val confirmButtonContainerColor: Color,
 ) {
-    internal fun copy(
-        selectedPickerContentColor: Color,
-        unselectedPickerContentColor: Color,
-        pickerLabelColor: Color,
-        nextButtonContentColor: Color,
-        nextButtonContainerColor: Color,
-        confirmButtonContentColor: Color,
-        confirmButtonContainerColor: Color,
+    /**
+     * Returns a copy of this DatePickerColors, optionally overriding some of the values.
+     *
+     * @param selectedPickerContentColor The content color of selected picker.
+     * @param unselectedPickerContentColor The content color of unselected picker.
+     * @param pickerLabelColor The color of the picker label.
+     * @param nextButtonContentColor The content color of the next button.
+     * @param nextButtonContainerColor The container color of the next button.
+     * @param confirmButtonContentColor The content color of the confirm button.
+     * @param confirmButtonContainerColor The container color of the confirm button.
+     */
+    fun copy(
+        selectedPickerContentColor: Color = this.selectedPickerContentColor,
+        unselectedPickerContentColor: Color = this.unselectedPickerContentColor,
+        pickerLabelColor: Color = this.pickerLabelColor,
+        nextButtonContentColor: Color = this.nextButtonContentColor,
+        nextButtonContainerColor: Color = this.nextButtonContainerColor,
+        confirmButtonContentColor: Color = this.confirmButtonContentColor,
+        confirmButtonContainerColor: Color = this.confirmButtonContainerColor,
     ) =
         DatePickerColors(
             selectedPickerContentColor =

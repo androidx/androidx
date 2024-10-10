@@ -758,12 +758,19 @@ constructor(
     val disabledContainerColor: Color,
     val disabledContentColor: Color,
 ) {
-
-    internal fun copy(
-        containerColor: Color,
-        contentColor: Color,
-        disabledContainerColor: Color,
-        disabledContentColor: Color
+    /**
+     * Returns a copy of this [IconButtonColors], optionally overriding some of the values.
+     *
+     * @param containerColor the background color of this icon button when enabled.
+     * @param contentColor the color of this icon when enabled.
+     * @param disabledContainerColor the background color of this icon button when not enabled.
+     * @param disabledContentColor the color of this icon when not enabled.
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        contentColor: Color = this.contentColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledContentColor: Color = this.disabledContentColor
     ) =
         IconButtonColors(
             containerColor = containerColor.takeOrElse { this.containerColor },

@@ -457,13 +457,23 @@ class TimePickerColors(
     val confirmButtonContentColor: Color,
     val confirmButtonContainerColor: Color,
 ) {
-    internal fun copy(
-        selectedPickerContentColor: Color,
-        unselectedPickerContentColor: Color,
-        separatorColor: Color,
-        pickerLabelColor: Color,
-        confirmButtonContentColor: Color,
-        confirmButtonContainerColor: Color,
+    /**
+     * Returns a copy of this TimePickerColors( optionally overriding some of the values.
+     *
+     * @param selectedPickerContentColor The content color of selected picker.
+     * @param unselectedPickerContentColor The content color of unselected pickers.
+     * @param separatorColor The color of separator between the pickers.
+     * @param pickerLabelColor The color of the picker label.
+     * @param confirmButtonContentColor The content color of the confirm button.
+     * @param confirmButtonContainerColor The container color of the confirm button.
+     */
+    fun copy(
+        selectedPickerContentColor: Color = this.selectedPickerContentColor,
+        unselectedPickerContentColor: Color = this.unselectedPickerContentColor,
+        separatorColor: Color = this.separatorColor,
+        pickerLabelColor: Color = this.pickerLabelColor,
+        confirmButtonContentColor: Color = this.confirmButtonContentColor,
+        confirmButtonContainerColor: Color = this.confirmButtonContainerColor,
     ) =
         TimePickerColors(
             selectedPickerContentColor =

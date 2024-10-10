@@ -960,36 +960,85 @@ class SwitchButtonColors(
     val disabledUncheckedThumbColor: Color,
     val disabledUncheckedTrackBorderColor: Color
 ) {
-    internal fun copy(
-        checkedContainerColor: Color,
-        checkedContentColor: Color,
-        checkedSecondaryContentColor: Color,
-        checkedIconColor: Color,
-        checkedThumbColor: Color,
-        checkedThumbIconColor: Color,
-        checkedTrackColor: Color,
-        checkedTrackBorderColor: Color,
-        uncheckedContainerColor: Color,
-        uncheckedContentColor: Color,
-        uncheckedSecondaryContentColor: Color,
-        uncheckedIconColor: Color,
-        uncheckedThumbColor: Color,
-        uncheckedTrackColor: Color,
-        uncheckedTrackBorderColor: Color,
-        disabledCheckedContainerColor: Color,
-        disabledCheckedContentColor: Color,
-        disabledCheckedSecondaryContentColor: Color,
-        disabledCheckedIconColor: Color,
-        disabledCheckedThumbColor: Color,
-        disabledCheckedThumbIconColor: Color,
-        disabledCheckedTrackColor: Color,
-        disabledCheckedTrackBorderColor: Color,
-        disabledUncheckedContainerColor: Color,
-        disabledUncheckedContentColor: Color,
-        disabledUncheckedSecondaryContentColor: Color,
-        disabledUncheckedIconColor: Color,
-        disabledUncheckedThumbColor: Color,
-        disabledUncheckedTrackBorderColor: Color,
+    /**
+     * Returns a copy of this SwitchButtonColors optionally overriding some of the values.
+     *
+     * @param checkedContainerColor Container or background color when the [SwitchButton] is checked
+     * @param checkedContentColor Color of the content like label when the [SwitchButton] is checked
+     * @param checkedSecondaryContentColor Color of the secondary content like secondary label when
+     *   the [SwitchButton] is checked
+     * @param checkedIconColor Color of the icon when the [SwitchButton] is checked
+     * @param checkedThumbColor Color of the thumb when the [SwitchButton] is checked
+     * @param checkedThumbIconColor Color of the thumb icon when the [SwitchButton] is checked
+     * @param checkedTrackColor Color of the track when the [SwitchButton] is checked
+     * @param checkedTrackBorderColor Color of the track boarder when the [SwitchButton] is checked
+     * @param uncheckedContainerColor Container or background color when the [SwitchButton] is
+     *   unchecked
+     * @param uncheckedContentColor Color of the content like label when the [SwitchButton] is
+     *   unchecked
+     * @param uncheckedSecondaryContentColor Color of the secondary content like secondary label
+     *   when the [SwitchButton] is unchecked
+     * @param uncheckedIconColor Color of the icon when the [SwitchButton] is unchecked
+     * @param uncheckedThumbColor Color of the thumb when the [SwitchButton] is unchecked
+     * @param uncheckedTrackColor Color of the track when the [SwitchButton] is unchecked
+     * @param uncheckedTrackBorderColor Color of the track border when the [SwitchButton] is
+     *   unchecked
+     * @param disabledCheckedContainerColor Container or background color when the [SwitchButton] is
+     *   disabled and checked
+     * @param disabledCheckedContentColor Color of content like label when the [SwitchButton] is
+     *   disabled and checked
+     * @param disabledCheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the [SwitchButton] is disabled and checked
+     * @param disabledCheckedIconColor Icon color when the [SwitchButton] is disabled and checked
+     * @param disabledCheckedThumbColor Thumb color when the [SwitchButton] is disabled and checked
+     * @param disabledCheckedThumbIconColor Thumb icon color when the [SwitchButton] is disabled and
+     *   checked
+     * @param disabledCheckedTrackColor Track color when the [SwitchButton] is disabled and checked
+     * @param disabledCheckedTrackBorderColor Track border color when the [SwitchButton] is disabled
+     *   and checked
+     * @param disabledUncheckedContainerColor Container or background color when the [SwitchButton]
+     *   is disabled and unchecked
+     * @param disabledUncheckedContentColor Color of the content like label when the [SwitchButton]
+     *   is disabled and unchecked
+     * @param disabledUncheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the [SwitchButton] is disabled and unchecked
+     * @param disabledUncheckedIconColor Icon color when the [SwitchButton] is disabled and
+     *   unchecked
+     * @param disabledUncheckedThumbColor Thumb color when the [SwitchButton] is disabled and
+     *   unchecked
+     * @param disabledUncheckedTrackBorderColor Track border color when the [SwitchButton] is
+     *   disabled and unchecked
+     */
+    fun copy(
+        checkedContainerColor: Color = this.checkedContainerColor,
+        checkedContentColor: Color = this.checkedContentColor,
+        checkedSecondaryContentColor: Color = this.checkedSecondaryContentColor,
+        checkedIconColor: Color = this.checkedIconColor,
+        checkedThumbColor: Color = this.checkedThumbColor,
+        checkedThumbIconColor: Color = this.checkedThumbIconColor,
+        checkedTrackColor: Color = this.checkedTrackColor,
+        checkedTrackBorderColor: Color = this.checkedTrackBorderColor,
+        uncheckedContainerColor: Color = this.uncheckedContainerColor,
+        uncheckedContentColor: Color = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: Color = this.uncheckedSecondaryContentColor,
+        uncheckedIconColor: Color = this.uncheckedIconColor,
+        uncheckedThumbColor: Color = this.uncheckedThumbColor,
+        uncheckedTrackColor: Color = this.uncheckedTrackColor,
+        uncheckedTrackBorderColor: Color = this.uncheckedTrackBorderColor,
+        disabledCheckedContainerColor: Color = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: Color = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: Color = this.disabledCheckedSecondaryContentColor,
+        disabledCheckedIconColor: Color = this.disabledCheckedIconColor,
+        disabledCheckedThumbColor: Color = this.disabledCheckedThumbColor,
+        disabledCheckedThumbIconColor: Color = this.disabledCheckedThumbIconColor,
+        disabledCheckedTrackColor: Color = this.disabledCheckedTrackColor,
+        disabledCheckedTrackBorderColor: Color = this.disabledCheckedTrackBorderColor,
+        disabledUncheckedContainerColor: Color = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: Color = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: Color = this.disabledUncheckedSecondaryContentColor,
+        disabledUncheckedIconColor: Color = this.disabledUncheckedIconColor,
+        disabledUncheckedThumbColor: Color = this.disabledUncheckedThumbColor,
+        disabledUncheckedTrackBorderColor: Color = this.disabledUncheckedTrackBorderColor,
     ): SwitchButtonColors =
         SwitchButtonColors(
             checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },
@@ -1361,36 +1410,93 @@ class SplitSwitchButtonColors(
     val disabledUncheckedThumbColor: Color,
     val disabledUncheckedTrackBorderColor: Color,
 ) {
-    internal fun copy(
-        checkedContainerColor: Color,
-        checkedContentColor: Color,
-        checkedSecondaryContentColor: Color,
-        checkedSplitContainerColor: Color,
-        checkedThumbColor: Color,
-        checkedThumbIconColor: Color,
-        checkedTrackColor: Color,
-        checkedTrackBorderColor: Color,
-        uncheckedContainerColor: Color,
-        uncheckedContentColor: Color,
-        uncheckedSecondaryContentColor: Color,
-        uncheckedSplitContainerColor: Color,
-        uncheckedThumbColor: Color,
-        uncheckedTrackColor: Color,
-        uncheckedTrackBorderColor: Color,
-        disabledCheckedContainerColor: Color,
-        disabledCheckedContentColor: Color,
-        disabledCheckedSecondaryContentColor: Color,
-        disabledCheckedSplitContainerColor: Color,
-        disabledCheckedThumbColor: Color,
-        disabledCheckedThumbIconColor: Color,
-        disabledCheckedTrackColor: Color,
-        disabledCheckedTrackBorderColor: Color,
-        disabledUncheckedContainerColor: Color,
-        disabledUncheckedContentColor: Color,
-        disabledUncheckedSecondaryContentColor: Color,
-        disabledUncheckedSplitContainerColor: Color,
-        disabledUncheckedThumbColor: Color,
-        disabledUncheckedTrackBorderColor: Color,
+    /**
+     * Returns a copy of this SplitSwitchButtonColors optionally overriding some of the values.
+     *
+     * @param checkedContainerColor Container or background color when the [SplitSwitchButton] is
+     *   checked
+     * @param checkedContentColor Color of the content like label when the [SplitSwitchButton] is
+     *   checked
+     * @param checkedSecondaryContentColor Color of the secondary content like secondary label when
+     *   the [SplitSwitchButton] is checked
+     * @param checkedSplitContainerColor Split container color when the split toggle button is
+     *   checked
+     * @param checkedThumbColor Color of the thumb when the [SplitSwitchButton] is checked
+     * @param checkedThumbIconColor Color of the thumb icon when the [SplitSwitchButton] is checked
+     * @param checkedTrackColor Color of the track when the [SplitSwitchButton] is checked
+     * @param checkedTrackBorderColor Color of the track border when the [SplitSwitchButton] is
+     *   checked
+     * @param uncheckedContainerColor Container or background color when the [SplitSwitchButton] is
+     *   unchecked
+     * @param uncheckedContentColor Color of the content like label when the [SplitSwitchButton] is
+     *   unchecked
+     * @param uncheckedSecondaryContentColor Color of the secondary content like secondary label
+     *   when the split toggle button is unchecked
+     * @param uncheckedSplitContainerColor Split container color when the split toggle button is
+     *   unchecked
+     * @param uncheckedThumbColor Color of the thumb when the [SplitSwitchButton] is unchecked
+     * @param uncheckedTrackColor Color of the track when the [SplitSwitchButton] is unchecked
+     * @param uncheckedTrackBorderColor Color of the track border when the [SplitSwitchButton] is
+     *   unchecked
+     * @param disabledCheckedContainerColor Container color when the split toggle button is disabled
+     *   and checked
+     * @param disabledCheckedContentColor Color of the content like label when the split toggle
+     *   button is disabled and checked
+     * @param disabledCheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the split toggle button is disabled and checked
+     * @param disabledCheckedSplitContainerColor Split container color when the split toggle button
+     *   is disabled and checked
+     * @param disabledCheckedThumbColor Color of the thumb when the [SplitSwitchButton] is disabled
+     *   and checked
+     * @param disabledCheckedThumbIconColor Color of the thumb icon when the [SplitSwitchButton] is
+     *   disabled and checked
+     * @param disabledCheckedTrackColor Color of the track when the [SplitSwitchButton] is disabled
+     *   and checked
+     * @param disabledCheckedTrackBorderColor Color of the track border when the [SplitSwitchButton]
+     *   is disabled and checked
+     * @param disabledUncheckedContainerColor Container color when the split toggle button is
+     *   unchecked and disabled
+     * @param disabledUncheckedContentColor Color of the content like label when the split toggle
+     *   button is unchecked and disabled
+     * @param disabledUncheckedSecondaryContentColor Color of the secondary content like secondary
+     *   label when the split toggle button is unchecked and disabled
+     * @param disabledUncheckedSplitContainerColor Split container color when the split toggle
+     *   button is unchecked and disabled
+     * @param disabledUncheckedThumbColor Color of the thumb when the [SplitSwitchButton] is
+     *   disabled and unchecked
+     * @param disabledUncheckedTrackBorderColor Color of the track border when the
+     *   [SplitSwitchButton] is disabled and unchecked
+     */
+    fun copy(
+        checkedContainerColor: Color = this.checkedContainerColor,
+        checkedContentColor: Color = this.checkedContentColor,
+        checkedSecondaryContentColor: Color = this.checkedSecondaryContentColor,
+        checkedSplitContainerColor: Color = this.checkedSplitContainerColor,
+        checkedThumbColor: Color = this.checkedThumbColor,
+        checkedThumbIconColor: Color = this.checkedThumbIconColor,
+        checkedTrackColor: Color = this.checkedTrackColor,
+        checkedTrackBorderColor: Color = this.checkedTrackBorderColor,
+        uncheckedContainerColor: Color = this.uncheckedContainerColor,
+        uncheckedContentColor: Color = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: Color = this.uncheckedSecondaryContentColor,
+        uncheckedSplitContainerColor: Color = this.uncheckedSplitContainerColor,
+        uncheckedThumbColor: Color = this.uncheckedThumbColor,
+        uncheckedTrackColor: Color = this.uncheckedTrackColor,
+        uncheckedTrackBorderColor: Color = this.uncheckedTrackBorderColor,
+        disabledCheckedContainerColor: Color = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: Color = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: Color = this.disabledCheckedSecondaryContentColor,
+        disabledCheckedSplitContainerColor: Color = this.disabledCheckedSplitContainerColor,
+        disabledCheckedThumbColor: Color = this.disabledCheckedThumbColor,
+        disabledCheckedThumbIconColor: Color = this.disabledCheckedThumbIconColor,
+        disabledCheckedTrackColor: Color = this.disabledCheckedTrackColor,
+        disabledCheckedTrackBorderColor: Color = this.disabledCheckedTrackBorderColor,
+        disabledUncheckedContainerColor: Color = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: Color = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: Color = this.disabledUncheckedSecondaryContentColor,
+        disabledUncheckedSplitContainerColor: Color = this.disabledUncheckedSplitContainerColor,
+        disabledUncheckedThumbColor: Color = this.disabledUncheckedThumbColor,
+        disabledUncheckedTrackBorderColor: Color = this.disabledUncheckedTrackBorderColor,
     ): SplitSwitchButtonColors =
         SplitSwitchButtonColors(
             checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },

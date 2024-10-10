@@ -553,19 +553,39 @@ constructor(
     val disabledSelectedBarSeparatorColor: Color,
     val disabledUnselectedBarSeparatorColor: Color,
 ) {
-    internal fun copy(
-        containerColor: Color = Color.Unspecified,
-        buttonIconColor: Color = Color.Unspecified,
-        selectedBarColor: Color = Color.Unspecified,
-        unselectedBarColor: Color = Color.Unspecified,
-        selectedBarSeparatorColor: Color = Color.Unspecified,
-        unselectedBarSeparatorColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledButtonIconColor: Color = Color.Unspecified,
-        disabledSelectedBarColor: Color = Color.Unspecified,
-        disabledUnselectedBarColor: Color = Color.Unspecified,
-        disabledSelectedBarSeparatorColor: Color = Color.Unspecified,
-        disabledUnselectedBarSeparatorColor: Color = Color.Unspecified,
+    /**
+     * Returns a copy of this SliderColors optionally overriding some of the values.
+     *
+     * @param containerColor The background color of this [Slider] when enabled.
+     * @param buttonIconColor The color of the icon of buttons when enabled.
+     * @param selectedBarColor The color of the progress bar when enabled.
+     * @param unselectedBarColor The background color of the progress bar when enabled.
+     * @param selectedBarSeparatorColor The color of selected separator between visible segments
+     *   when enabled.
+     * @param unselectedBarSeparatorColor The color of unselected separator between visible segments
+     *   when enabled.
+     * @param disabledContainerColor The background color of this [Slider] when disabled.
+     * @param disabledButtonIconColor The color of the icon of buttons when disabled.
+     * @param disabledSelectedBarColor The color of the progress bar when disabled.
+     * @param disabledUnselectedBarColor The background color of the progress bar when disabled.
+     * @param disabledSelectedBarSeparatorColor The color of selected separator between visible
+     *   segments when disabled.
+     * @param disabledUnselectedBarSeparatorColor The color of unselected separator between visible
+     *   segments when disabled.
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        buttonIconColor: Color = this.buttonIconColor,
+        selectedBarColor: Color = this.selectedBarColor,
+        unselectedBarColor: Color = this.unselectedBarColor,
+        selectedBarSeparatorColor: Color = this.selectedBarSeparatorColor,
+        unselectedBarSeparatorColor: Color = this.unselectedBarSeparatorColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledButtonIconColor: Color = this.disabledButtonIconColor,
+        disabledSelectedBarColor: Color = this.disabledSelectedBarColor,
+        disabledUnselectedBarColor: Color = this.disabledUnselectedBarColor,
+        disabledSelectedBarSeparatorColor: Color = this.disabledSelectedBarSeparatorColor,
+        disabledUnselectedBarSeparatorColor: Color = this.disabledUnselectedBarSeparatorColor,
     ) =
         SliderColors(
             containerColor = containerColor.takeOrElse { this.containerColor },

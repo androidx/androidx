@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -263,19 +264,29 @@ class OpenOnPhoneDialogColors(
     val progressTrackColor: Color,
     val textColor: Color
 ) {
-    internal fun copy(
-        iconColor: Color? = null,
-        iconContainerColor: Color? = null,
-        progressIndicatorColor: Color? = null,
-        progressTrackColor: Color? = null,
-        textColor: Color? = null
+    /**
+     * Returns a copy of this OpenOnPhoneDialogColors optionally overriding some of the values.
+     *
+     * @param iconColor Color used to tint the icon.
+     * @param iconContainerColor The color of the container behind the icon.
+     * @param progressIndicatorColor Color used to draw the indicator arc of progress indicator.
+     * @param progressTrackColor Color used to draw the track of progress indicator.
+     * @param textColor Color used to draw the text.
+     */
+    fun copy(
+        iconColor: Color = this.iconColor,
+        iconContainerColor: Color = this.iconContainerColor,
+        progressIndicatorColor: Color = this.progressIndicatorColor,
+        progressTrackColor: Color = this.progressTrackColor,
+        textColor: Color = this.textColor
     ) =
         OpenOnPhoneDialogColors(
-            iconColor = iconColor ?: this.iconColor,
-            iconContainerColor = iconContainerColor ?: this.iconContainerColor,
-            progressIndicatorColor = progressIndicatorColor ?: this.progressIndicatorColor,
-            progressTrackColor = progressTrackColor ?: this.progressTrackColor,
-            textColor = textColor ?: this.textColor
+            iconColor = iconColor.takeOrElse { this.iconColor },
+            iconContainerColor = iconContainerColor.takeOrElse { this.iconContainerColor },
+            progressIndicatorColor =
+                progressIndicatorColor.takeOrElse { this.progressIndicatorColor },
+            progressTrackColor = progressTrackColor.takeOrElse { this.progressTrackColor },
+            textColor = textColor.takeOrElse { this.textColor }
         )
 
     override fun equals(other: Any?): Boolean {

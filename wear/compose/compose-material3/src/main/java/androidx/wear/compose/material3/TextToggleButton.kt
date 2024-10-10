@@ -348,15 +348,34 @@ class TextToggleButtonColors(
     val disabledUncheckedContainerColor: Color,
     val disabledUncheckedContentColor: Color,
 ) {
-    internal fun copy(
-        checkedContainerColor: Color,
-        checkedContentColor: Color,
-        uncheckedContainerColor: Color,
-        uncheckedContentColor: Color,
-        disabledCheckedContainerColor: Color,
-        disabledCheckedContentColor: Color,
-        disabledUncheckedContainerColor: Color,
-        disabledUncheckedContentColor: Color,
+    /**
+     * Returns a copy of this TextToggleButtonColors optionally overriding some of the values.
+     *
+     * @param checkedContainerColor Container or background color when the toggle button is checked
+     * @param checkedContentColor Color of the content (text or icon) when the toggle button is
+     *   checked
+     * @param uncheckedContainerColor Container or background color when the toggle button is
+     *   unchecked
+     * @param uncheckedContentColor Color of the content (text or icon) when the toggle button is
+     *   unchecked
+     * @param disabledCheckedContainerColor Container or background color when the toggle button is
+     *   disabled and checked
+     * @param disabledCheckedContentColor Color of content (text or icon) when the toggle button is
+     *   disabled and checked
+     * @param disabledUncheckedContainerColor Container or background color when the toggle button
+     *   is disabled and unchecked
+     * @param disabledUncheckedContentColor Color of the content (text or icon) when the toggle
+     *   button is disabled and unchecked
+     */
+    fun copy(
+        checkedContainerColor: Color = this.checkedContainerColor,
+        checkedContentColor: Color = this.checkedContentColor,
+        uncheckedContainerColor: Color = this.uncheckedContainerColor,
+        uncheckedContentColor: Color = this.uncheckedContentColor,
+        disabledCheckedContainerColor: Color = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: Color = this.disabledCheckedContentColor,
+        disabledUncheckedContainerColor: Color = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: Color = this.disabledUncheckedContentColor,
     ): TextToggleButtonColors =
         TextToggleButtonColors(
             checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },

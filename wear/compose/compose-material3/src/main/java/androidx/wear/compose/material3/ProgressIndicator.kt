@@ -137,7 +137,8 @@ object ProgressIndicatorDefaults {
  * @param overflowTrackBrush [Brush] used to draw the track for progress overflow (>100%).
  * @param disabledIndicatorBrush [Brush] used to draw the indicator if the component is disabled.
  * @param disabledTrackBrush [Brush] used to draw the track if the component is disabled.
- * @param disabledOverflowTrackBrush [Brush] used to draw the track if the component is disabled.
+ * @param disabledOverflowTrackBrush [Brush] used to draw the overflow track if the component is
+ *   disabled.
  */
 class ProgressIndicatorColors(
     val indicatorBrush: Brush,
@@ -147,7 +148,17 @@ class ProgressIndicatorColors(
     val disabledTrackBrush: Brush,
     val disabledOverflowTrackBrush: Brush,
 ) {
-    internal fun copy(
+    /**
+     * Returns a copy of this ProgressIndicatorColors optionally overriding some of the values.
+     *
+     * @param indicatorColor The indicator color.
+     * @param trackColor The track color.
+     * @param overflowTrackColor The overflow track color.
+     * @param disabledIndicatorColor The disabled indicator color.
+     * @param disabledTrackColor The disabled track color.
+     * @param disabledOverflowTrackColor The disabled overflow track color.
+     */
+    fun copy(
         indicatorColor: Color = Color.Unspecified,
         trackColor: Color = Color.Unspecified,
         overflowTrackColor: Color = Color.Unspecified,
@@ -173,7 +184,19 @@ class ProgressIndicatorColors(
                 else disabledOverflowTrackBrush,
         )
 
-    internal fun copy(
+    /**
+     * Returns a copy of this ProgressIndicatorColors optionally overriding some of the values.
+     *
+     * @param indicatorBrush [Brush] used to draw the indicator of progress indicator.
+     * @param trackBrush [Brush] used to draw the track of progress indicator.
+     * @param overflowTrackBrush [Brush] used to draw the track for progress overflow.
+     * @param disabledIndicatorBrush [Brush] used to draw the indicator if the component is
+     *   disabled.
+     * @param disabledTrackBrush [Brush] used to draw the track if the component is disabled.
+     * @param disabledOverflowTrackBrush [Brush] used to draw the overflow track if the component is
+     *   disabled.
+     */
+    fun copy(
         indicatorBrush: Brush? = null,
         trackBrush: Brush? = null,
         overflowTrackBrush: Brush? = null,
