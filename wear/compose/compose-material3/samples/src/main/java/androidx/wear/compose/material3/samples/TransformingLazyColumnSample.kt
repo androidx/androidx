@@ -86,7 +86,7 @@ fun TransformingLazyColumnScalingMorphingEffectSample() {
     AppScaffold {
         ScreenScaffold(
             state,
-            bottomButton = {
+            edgeButton = {
                 EdgeButton(onClick = { coroutineScope.launch { state.scrollToItem(1) } }) {
                     Text("To top")
                 }
@@ -144,7 +144,7 @@ fun TransformingLazyColumnTargetMorphingHeightSample() {
     AppScaffold {
         ScreenScaffold(
             state,
-            bottomButton = {
+            edgeButton = {
                 EdgeButton(
                     onClick = {
                         coroutineScope.launch {

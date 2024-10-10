@@ -420,7 +420,7 @@ private fun AlertDialogImpl(
         ScreenScaffold(
             scrollState = state,
             modifier = modifier,
-            bottomButton =
+            edgeButton =
                 if (alertButtonsParams is AlertButtonsParams.EdgeButton) {
                     {
                         Box(

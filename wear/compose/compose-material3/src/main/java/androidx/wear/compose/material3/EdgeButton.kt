@@ -271,7 +271,8 @@ fun EdgeButton(
  * width, height, rounding radius for the top corners, the ellipsis size for the bottom part of the
  * shape and the space available for the content.
  */
-class EdgeButtonSize internal constructor(internal val maximumHeight: Dp) {
+@JvmInline
+value class EdgeButtonSize internal constructor(internal val maximumHeight: Dp) {
     internal fun maximumHeightPlusPadding() = maximumHeight + VERTICAL_PADDING * 2
 
     companion object {

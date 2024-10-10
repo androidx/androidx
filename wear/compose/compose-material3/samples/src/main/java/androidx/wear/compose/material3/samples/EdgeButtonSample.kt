@@ -18,7 +18,6 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -39,6 +38,7 @@ import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.ScreenScaffoldDefaults
 import androidx.wear.compose.material3.Text
 
 @Sampled
@@ -66,7 +66,7 @@ fun EdgeButtonListSample() {
     val state = rememberScalingLazyListState()
     ScreenScaffold(
         scrollState = state,
-        bottomButton = {
+        edgeButton = {
             EdgeButton(
                 onClick = {},
                 buttonSize = EdgeButtonSize.Large,
@@ -80,7 +80,14 @@ fun EdgeButtonListSample() {
             state = state,
             modifier = Modifier.fillMaxSize(),
             autoCentering = null,
-            contentPadding = PaddingValues(10.dp, 20.dp, 10.dp, 100.dp),
+            contentPadding =
+                ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
+                    edgeButtonSize = EdgeButtonSize.Large,
+                    10.dp,
+                    20.dp,
+                    10.dp,
+                    20.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(10) {

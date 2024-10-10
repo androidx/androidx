@@ -359,7 +359,7 @@ class ScaffoldTest {
                     )
                 },
                 timeText = { Box(Modifier.size(20.dp).background(timeTextColor)) },
-                bottomButton = bottomButton
+                edgeButton = bottomButton
             ) {
                 ScalingLazyColumn(
                     state = scrollState,
@@ -396,7 +396,7 @@ class ScaffoldTest {
                     )
                 },
                 timeText = { Box(Modifier.size(20.dp).background(timeTextColor)) },
-                bottomButton = bottomButton
+                edgeButton = bottomButton
             ) {
                 TransformingLazyColumn(
                     state = scrollState,
@@ -423,7 +423,7 @@ class ScaffoldTest {
             ScreenScaffold(
                 modifier = Modifier.testTag(TEST_TAG),
                 scrollState = scrollState,
-                bottomButton = bottomButton
+                edgeButton = bottomButton
             ) {
                 LazyColumn(
                     state = scrollState,

@@ -8,7 +8,7 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public void GroupSeparator();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues confirmDismissContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(optional androidx.wear.compose.material3.EdgeButtonSize edgeButtonSize);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(optional float edgeButtonSize);
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getConfirmIcon();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getDismissIcon();
     method public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
@@ -456,22 +456,22 @@ package androidx.wear.compose.material3 {
   }
 
   public final class EdgeButtonKt {
-    method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.EdgeButtonSize buttonSize, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional float buttonSize, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
-  public final class EdgeButtonSize {
+  @kotlin.jvm.JvmInline public final value class EdgeButtonSize {
     field public static final androidx.wear.compose.material3.EdgeButtonSize.Companion Companion;
   }
 
   public static final class EdgeButtonSize.Companion {
-    method public androidx.wear.compose.material3.EdgeButtonSize getExtraSmall();
-    method public androidx.wear.compose.material3.EdgeButtonSize getLarge();
-    method public androidx.wear.compose.material3.EdgeButtonSize getMedium();
-    method public androidx.wear.compose.material3.EdgeButtonSize getSmall();
-    property public final androidx.wear.compose.material3.EdgeButtonSize ExtraSmall;
-    property public final androidx.wear.compose.material3.EdgeButtonSize Large;
-    property public final androidx.wear.compose.material3.EdgeButtonSize Medium;
-    property public final androidx.wear.compose.material3.EdgeButtonSize Small;
+    method public float getExtraSmall();
+    method public float getLarge();
+    method public float getMedium();
+    method public float getSmall();
+    property public final float ExtraSmall;
+    property public final float Large;
+    property public final float Medium;
+    property public final float Small;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material3 API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterial3Api {
@@ -941,17 +941,17 @@ package androidx.wear.compose.material3 {
   }
 
   public final class ScreenScaffoldDefaults {
-    method public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(androidx.wear.compose.material3.EdgeButtonSize edgeButtonSize, optional float start, optional float top, optional float end, optional float extraBottom);
+    method public androidx.compose.foundation.layout.PaddingValues contentPaddingWithEdgeButton(float edgeButtonSize, optional float start, optional float top, optional float end, optional float extraBottom);
     field public static final androidx.wear.compose.material3.ScreenScaffoldDefaults INSTANCE;
   }
 
   public final class ScreenScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.compose.foundation.lazy.LazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? bottomButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.compose.foundation.lazy.LazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? edgeButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void ScreenScaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional androidx.wear.compose.foundation.ScrollInfoProvider? scrollInfoProvider, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? bottomButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? bottomButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void ScreenScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> bottomButton, androidx.wear.compose.foundation.ScrollInfoProvider scrollInfoProvider, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? edgeButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScreenScaffold(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? edgeButton, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScreenScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> edgeButton, androidx.wear.compose.foundation.ScrollInfoProvider scrollInfoProvider, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScreenStage {
