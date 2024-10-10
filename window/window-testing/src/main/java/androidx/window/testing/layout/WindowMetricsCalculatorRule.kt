@@ -17,6 +17,7 @@
 package androidx.window.testing.layout
 
 import android.app.Activity
+import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -33,10 +34,13 @@ import org.junit.runners.model.Statement
  */
 class WindowMetricsCalculatorRule : TestRule {
 
+    private val stubWindowMetricsCalculator = StubWindowMetricsCalculator()
+    private val decorator = StubMetricDecorator(stubWindowMetricsCalculator)
+
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                WindowMetricsCalculator.overrideDecorator(StubMetricDecorator)
+                WindowMetricsCalculator.overrideDecorator(decorator)
                 try {
                     base.evaluate()
                 } finally {
@@ -44,5 +48,15 @@ class WindowMetricsCalculatorRule : TestRule {
                 }
             }
         }
+    }
+
+    /** Overrides the window bounds with a new [WindowMetrics]. */
+    fun overrideCurrentWindowBounds(windowMetrics: WindowMetrics) {
+        stubWindowMetricsCalculator.overrideWindowBounds(windowMetrics.bounds)
+    }
+
+    /** Overrides the window bounds with a new rectangle defined by the specified coordinates. */
+    fun overrideCurrentWindowBounds(left: Int, top: Int, right: Int, bottom: Int) {
+        stubWindowMetricsCalculator.overrideWindowBounds(left, top, right, bottom)
     }
 }
