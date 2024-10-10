@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
@@ -30,6 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -38,6 +42,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -492,7 +497,54 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
     }
 
+    @Test
+    fun customOverscroll() {
+        val overscroll = TestOverscrollEffect()
+        createPager(modifier = Modifier.fillMaxSize(), overscrollEffect = { overscroll })
+
+        // The overscroll modifier should be added / drawn
+        rule.runOnIdle { assertThat(overscroll.drawCalled).isTrue() }
+
+        onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
+
+        rule.runOnIdle {
+            // The swipe will result in multiple scroll deltas
+            assertThat(overscroll.applyToScrollCalledCount).isGreaterThan(1)
+            assertThat(overscroll.applyToFlingCalledCount).isEqualTo(1)
+        }
+    }
+
     companion object {
         @JvmStatic @Parameterized.Parameters(name = "{0}") fun params() = AllOrientationsParams
+    }
+
+    private class TestOverscrollEffect : OverscrollEffect {
+        var applyToScrollCalledCount: Int = 0
+            private set
+
+        var applyToFlingCalledCount: Int = 0
+            private set
+
+        var drawCalled: Boolean = false
+
+        override fun applyToScroll(
+            delta: Offset,
+            source: NestedScrollSource,
+            performScroll: (Offset) -> Offset
+        ): Offset {
+            applyToScrollCalledCount++
+            return performScroll(delta)
+        }
+
+        override suspend fun applyToFling(
+            velocity: Velocity,
+            performFling: suspend (Velocity) -> Velocity
+        ) {
+            applyToFlingCalledCount++
+            performFling(velocity)
+        }
+
+        override val isInProgress: Boolean = false
+        override val effectModifier: Modifier = Modifier.drawBehind { drawCalled = true }
     }
 }

@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -58,6 +59,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
         reverseArrangement: Boolean = false,
         flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
         userScrollEnabled: Boolean = true,
+        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
         content: LazyGridScope.() -> Unit
@@ -71,6 +73,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
             reverseArrangement,
             flingBehavior,
             userScrollEnabled,
+            overscrollEffect,
             crossAxisSpacedBy,
             mainAxisSpacedBy,
             content
@@ -86,6 +89,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
         reverseArrangement: Boolean = false,
         flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
         userScrollEnabled: Boolean = true,
+        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
         content: LazyGridScope.() -> Unit
@@ -110,6 +114,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
                 reverseLayout = reverseLayout,
                 flingBehavior = flingBehavior,
                 userScrollEnabled = userScrollEnabled,
+                overscrollEffect = overscrollEffect,
                 verticalArrangement = verticalArrangement,
                 horizontalArrangement = horizontalArrangement,
                 content = content
@@ -134,6 +139,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
                 reverseLayout = reverseLayout,
                 flingBehavior = flingBehavior,
                 userScrollEnabled = userScrollEnabled,
+                overscrollEffect = overscrollEffect,
                 horizontalArrangement = horizontalArrangement,
                 verticalArrangement = verticalArrangement,
                 content = content

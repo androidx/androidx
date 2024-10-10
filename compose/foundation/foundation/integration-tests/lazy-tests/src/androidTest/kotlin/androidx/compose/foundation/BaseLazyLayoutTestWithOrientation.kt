@@ -24,7 +24,10 @@ import androidx.compose.foundation.lazy.grid.scrollBy
 import androidx.compose.runtime.Stable
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -35,6 +38,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 
@@ -158,6 +162,45 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         }
 
     internal fun Modifier.debugBorder(color: Color = Color.Black) = border(1.dp, color)
+
+    internal class TestOverscrollEffect : OverscrollEffect {
+        var applyToScrollCalledCount: Int = 0
+            private set
+
+        var applyToFlingCalledCount: Int = 0
+            private set
+
+        var scrollOverscrollDelta: Offset = Offset.Zero
+            private set
+
+        var flingOverscrollVelocity: Velocity = Velocity.Zero
+            private set
+
+        var drawCalled: Boolean = false
+
+        override fun applyToScroll(
+            delta: Offset,
+            source: NestedScrollSource,
+            performScroll: (Offset) -> Offset
+        ): Offset {
+            applyToScrollCalledCount++
+            val consumed = performScroll(delta)
+            scrollOverscrollDelta = delta - consumed
+            return consumed
+        }
+
+        override suspend fun applyToFling(
+            velocity: Velocity,
+            performFling: suspend (Velocity) -> Velocity
+        ) {
+            applyToFlingCalledCount++
+            val consumed = performFling(velocity)
+            flingOverscrollVelocity = velocity - consumed
+        }
+
+        override val isInProgress: Boolean = false
+        override val effectModifier: Modifier = Modifier.drawBehind { drawCalled = true }
+    }
 
     companion object {
         internal const val FrameDuration = 16L

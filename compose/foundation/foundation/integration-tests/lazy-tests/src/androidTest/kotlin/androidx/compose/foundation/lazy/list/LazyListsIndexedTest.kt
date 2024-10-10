@@ -197,6 +197,7 @@ private fun LazyColumn(
         isVertical = true,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
+        overscrollEffect = ScrollableDefaults.overscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )
@@ -226,6 +227,7 @@ private fun LazyRow(
         flingBehavior = flingBehavior,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
+        overscrollEffect = ScrollableDefaults.overscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )

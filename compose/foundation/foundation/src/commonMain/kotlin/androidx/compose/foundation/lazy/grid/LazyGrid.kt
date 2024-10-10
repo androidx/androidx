@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -71,6 +72,8 @@ internal fun LazyGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
+    /** The overscroll effect to render and dispatch events to */
+    overscrollEffect: OverscrollEffect?,
     /** The vertical arrangement for items/lines. */
     verticalArrangement: Arrangement.Vertical,
     /** The horizontal arrangement for items/lines. */
@@ -136,7 +139,7 @@ internal fun LazyGrid(
                     reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.internalInteractionSource,
-                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                    overscrollEffect = overscrollEffect
                 ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,

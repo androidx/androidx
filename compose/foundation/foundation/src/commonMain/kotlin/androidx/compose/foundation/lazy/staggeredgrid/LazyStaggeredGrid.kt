@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -51,6 +52,8 @@ internal fun LazyStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean = true,
+    /** The overscroll effect to render and dispatch events to */
+    overscrollEffect: OverscrollEffect?,
     /** The vertical spacing for items/lines. */
     mainAxisSpacing: Dp = 0.dp,
     /** The horizontal spacing for items/lines. */
@@ -109,7 +112,7 @@ internal fun LazyStaggeredGrid(
                     reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.mutableInteractionSource,
-                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                    overscrollEffect = overscrollEffect
                 ),
         prefetchState = state.prefetchState,
         itemProvider = itemProviderLambda,

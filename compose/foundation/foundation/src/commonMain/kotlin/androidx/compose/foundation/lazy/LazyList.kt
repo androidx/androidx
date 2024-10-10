@@ -17,10 +17,10 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -68,6 +68,8 @@ internal fun LazyList(
     flingBehavior: FlingBehavior,
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
+    /** The overscroll effect to render and dispatch events to */
+    overscrollEffect: OverscrollEffect?,
     /** Number of items to layout before and after the visible items */
     beyondBoundsItemCount: Int = 0,
     /** The alignment to align items horizontally. Required when isVertical is true */
@@ -144,7 +146,7 @@ internal fun LazyList(
                     reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.internalInteractionSource,
-                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                    overscrollEffect = overscrollEffect
                 ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,

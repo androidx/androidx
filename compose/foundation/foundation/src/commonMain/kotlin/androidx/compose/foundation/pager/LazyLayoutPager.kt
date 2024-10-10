@@ -19,12 +19,12 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -81,6 +81,8 @@ internal fun Pager(
     flingBehavior: TargetedFlingBehavior,
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
+    /** The overscroll effect to render and dispatch events to */
+    overscrollEffect: OverscrollEffect?,
     /** Number of pages to compose and layout before and after the visible pages */
     beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
     /** Space between pages */
@@ -182,7 +184,7 @@ internal fun Pager(
                     reverseScrolling = reverseLayout,
                     flingBehavior = resolvedFlingBehavior,
                     interactionSource = state.internalInteractionSource,
-                    overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                    overscrollEffect = overscrollEffect,
                     bringIntoViewSpec = pagerBringIntoViewSpec
                 )
                 .dragDirectionDetector(state)

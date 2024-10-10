@@ -20,9 +20,11 @@ import android.view.View
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
@@ -125,6 +127,9 @@ open class BasePagerTest(private val config: ParamConfig) :
         beyondViewportPageCount: Int = config.beyondViewportPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
+        overscrollEffect: @Composable () -> OverscrollEffect = {
+            ScrollableDefaults.overscrollEffect()
+        },
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
         nestedScrollConnection: NestedScrollConnection = object : NestedScrollConnection {},
         additionalContent: @Composable () -> Unit = {},
@@ -178,6 +183,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                             },
                         pageSize = pageSize(),
                         userScrollEnabled = userScrollEnabled,
+                        overscrollEffect = overscrollEffect(),
                         reverseLayout = reverseLayout,
                         flingBehavior = resolvedFlingBehavior,
                         pageSpacing = pageSpacing,
@@ -304,6 +310,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         modifier: Modifier = Modifier,
         userScrollEnabled: Boolean = true,
+        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
         beyondViewportPageCount: Int = 0,
@@ -319,6 +326,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 state = state,
                 modifier = modifier,
                 userScrollEnabled = userScrollEnabled,
+                overscrollEffect = overscrollEffect,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
                 beyondViewportPageCount = beyondViewportPageCount,
@@ -334,6 +342,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 state = state,
                 modifier = modifier,
                 userScrollEnabled = userScrollEnabled,
+                overscrollEffect = overscrollEffect,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
                 beyondViewportPageCount = beyondViewportPageCount,
