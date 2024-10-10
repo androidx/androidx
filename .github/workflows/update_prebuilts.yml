@@ -15,9 +15,6 @@ on:
         required: false
         default: ''
         type: string
-  push:
-    branches:
-      - 'yigit/fix-update-prebuilts'
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest
