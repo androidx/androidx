@@ -138,6 +138,17 @@ internal fun DateInputTextField(
             )
         }
 
+    // Calculate how much bottom padding should be added. In case there is an error text, which is
+    // added as a supportingText, take into account the default supportingText padding to ensure
+    // the padding does not trigger a component height change.
+    val bottomPadding =
+        if (errorText.value.isBlank()) {
+            InputTextNonErroneousBottomPadding
+        } else {
+            val textFieldPadding = TextFieldDefaults.supportingTextPadding()
+            InputTextNonErroneousBottomPadding -
+                (textFieldPadding.calculateBottomPadding() + textFieldPadding.calculateTopPadding())
+        }
     OutlinedTextField(
         value = text,
         onValueChange = { input ->
@@ -175,18 +186,9 @@ internal fun DateInputTextField(
             }
         },
         modifier =
-            modifier
-                // Add bottom padding when there is no error. Otherwise, remove it as the error text
-                // will take additional height.
-                .padding(
-                    bottom =
-                        if (errorText.value.isNotBlank()) {
-                            0.dp
-                        } else {
-                            InputTextNonErroneousBottomPadding
-                        }
-                )
-                .semantics { if (errorText.value.isNotBlank()) error(errorText.value) },
+            modifier.padding(bottom = bottomPadding).semantics {
+                if (errorText.value.isNotBlank()) error(errorText.value)
+            },
         label = label,
         placeholder = placeholder,
         supportingText = { if (errorText.value.isNotBlank()) Text(errorText.value) },
