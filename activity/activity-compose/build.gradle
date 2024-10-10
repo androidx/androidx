@@ -34,8 +34,8 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
-    api("androidx.compose.runtime:runtime:1.0.1")
-    api("androidx.compose.runtime:runtime-saveable:1.0.1")
+    api("androidx.compose.runtime:runtime:1.7.0")
+    api("androidx.compose.runtime:runtime-saveable:1.7.0")
     api(project(":activity:activity-ktx"))
     api("androidx.compose.ui:ui:1.0.1")
     api("androidx.core:core-ktx:1.13.0")
