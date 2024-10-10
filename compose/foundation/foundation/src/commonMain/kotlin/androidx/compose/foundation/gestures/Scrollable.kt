@@ -66,7 +66,6 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
-import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -77,9 +76,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.CancellationException
@@ -289,6 +286,7 @@ internal class ScrollableNode(
     private val scrollableContainerNode = delegate(ScrollableContainerNode(enabled))
 
     // Place holder fling behavior, we'll initialize it when the density is available.
+    // TODO: It should differ between platforms, move it under expect/actual
     private val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
 
     private val scrollingLogic =
@@ -316,6 +314,8 @@ internal class ScrollableNode(
     private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
     private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
+    private var mouseWheelScrollNode: MouseWheelScrollNode? = null
+
     init {
         /** Nested scrolling */
         delegate(nestedScrollModifierNode(nestedScrollConnection, nestedScrollDispatcher))
@@ -340,13 +340,32 @@ internal class ScrollableNode(
 
     override fun onDragStarted(startedPosition: Offset) {}
 
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onDragStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScope.launch { scrollingLogic.onDragStopped(velocity) }
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollingLogic.onScrollStopped(velocity, isMouseWheel = false)
+        }
+    }
+
+    private fun onWheelScrollStopped(velocity: Velocity) {
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollingLogic.onScrollStopped(velocity, isMouseWheel = true)
+        }
     }
 
     override fun startDragImmediately(): Boolean {
         return scrollingLogic.shouldScrollImmediately()
+    }
+
+    private fun ensureMouseWheelScrollNodeInitialized() {
+        if (mouseWheelScrollNode != null) return
+        mouseWheelScrollNode =
+            delegate(
+                MouseWheelScrollNode(
+                    scrollingLogic = scrollingLogic,
+                    onScrollStopped = ::onWheelScrollStopped,
+                    enabled = enabled,
+                )
+            )
     }
 
     fun update(
@@ -378,6 +397,7 @@ internal class ScrollableNode(
                 nestedScrollDispatcher = nestedScrollDispatcher
             )
         contentInViewNode.update(orientation, reverseDirection, bringIntoViewSpec)
+        mouseWheelScrollNode?.update(enabled = enabled)
 
         this.overscrollEffect = overscrollEffect
         this.flingBehavior = flingBehavior
@@ -402,6 +422,7 @@ internal class ScrollableNode(
         scrollConfig = platformScrollConfig()
     }
 
+    // TODO(b/318434914) it isn't called, because LocalDensity is staticCompositionLocalOf
     override fun onObservedReadsChanged() {
         // if density changes, update the default fling behavior.
         updateDefaultFlingBehavior()
@@ -411,7 +432,7 @@ internal class ScrollableNode(
         // monitor change in Density
         observeReads {
             val density = currentValueOf(LocalDensity)
-            defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+            defaultFlingBehavior.updateDensity(density)
         }
     }
 
@@ -468,6 +489,9 @@ internal class ScrollableNode(
 
     override fun onPreKeyEvent(event: KeyEvent) = false
 
+    // Forward all PointerInputModifierNode method calls to `mmouseWheelScrollNode.pointerInputNode`
+    // See explanation in `MouseWheelScrollNode.pointerInputNode`
+
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -476,9 +500,10 @@ internal class ScrollableNode(
         if (pointerEvent.changes.fastAny { canDrag.invoke(it) }) {
             super.onPointerEvent(pointerEvent, pass, bounds)
         }
-        if (pass == PointerEventPass.Main && pointerEvent.type == PointerEventType.Scroll) {
-            processMouseWheelEvent(pointerEvent, bounds)
+        if (pass == PointerEventPass.Initial && pointerEvent.type == PointerEventType.Scroll) {
+            ensureMouseWheelScrollNodeInitialized()
         }
+        mouseWheelScrollNode?.pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
@@ -505,25 +530,19 @@ internal class ScrollableNode(
         scrollByOffsetAction = null
     }
 
-    /** Mouse wheel */
-    private fun processMouseWheelEvent(event: PointerEvent, size: IntSize) {
-        if (event.changes.fastAll { !it.isConsumed }) {
-            with(scrollConfig!!) {
-                val scrollAmount = requireDensity().calculateMouseWheelScroll(event, size)
-                // A coroutine is launched for every individual scroll event in the
-                // larger scroll gesture. If we see degradation in the future (that is,
-                // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                // this point), we can switch to a more efficient solution where we
-                // lazily launch one coroutine (with the first event) and use a Channel
-                // to communicate the scroll amount to the UI thread.
-                coroutineScope.launch {
-                    scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
-                        scrollBy(offset = scrollAmount, source = UserInput)
-                    }
-                }
-                event.changes.fastForEach { it.consume() }
-            }
-        }
+    override fun onCancelPointerInput() {
+        super.onCancelPointerInput()
+        mouseWheelScrollNode?.pointerInputNode?.onCancelPointerInput()
+    }
+
+    override fun onDensityChange() {
+        super.onDensityChange()
+        mouseWheelScrollNode?.pointerInputNode?.onDensityChange()
+    }
+
+    override fun onViewConfigurationChange() {
+        super.onViewConfigurationChange()
+        mouseWheelScrollNode?.pointerInputNode?.onViewConfigurationChange()
     }
 }
 
@@ -531,6 +550,7 @@ internal class ScrollableNode(
 object ScrollableDefaults {
 
     /** Create and remember default [FlingBehavior] that will represent natural fling curve. */
+    // TODO: It should differ between platforms, move it under expect/actual
     @Composable
     fun flingBehavior(): FlingBehavior {
         val flingSpec = rememberSplineBasedDecay<Float>()
@@ -573,11 +593,19 @@ object ScrollableDefaults {
 }
 
 internal interface ScrollConfig {
+
+    /** Enables animated transition of scroll on mouse wheel events. */
+    val isSmoothScrollingEnabled: Boolean
+        get() = true
+
+    fun isPreciseWheelScroll(event: PointerEvent): Boolean = false
+
     fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset
 }
 
 internal expect fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig
 
+// TODO: provide public way to drag by mouse (especially requested for Pager)
 private val CanDragCalculation: (PointerInputChange) -> Boolean = { change ->
     change.type != PointerType.Mouse
 }
@@ -587,7 +615,7 @@ private val CanDragCalculation: (PointerInputChange) -> Boolean = { change ->
  * dispatching.
  */
 internal class ScrollingLogic(
-    private var scrollableState: ScrollableState,
+    var scrollableState: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior,
     private var orientation: Orientation,
@@ -610,6 +638,13 @@ internal class ScrollingLogic(
         if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
     fun Offset.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
+
+    fun Float.toVelocity(): Velocity =
+        when {
+            this == 0f -> Velocity.Zero
+            orientation == Horizontal -> Velocity(this, 0f)
+            else -> Velocity(0f, this)
+        }
 
     private fun Velocity.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
 
@@ -679,14 +714,21 @@ internal class ScrollingLogic(
         return if (scrollableState.isScrollInProgress) {
             Offset.Zero
         } else {
-            scrollableState
-                .dispatchRawDelta(scroll.toFloat().reverseIfNeeded())
-                .reverseIfNeeded()
-                .toOffset()
+            dispatchRawDelta(scroll)
         }
     }
 
-    suspend fun onDragStopped(initialVelocity: Velocity) {
+    private fun dispatchRawDelta(scroll: Offset): Offset {
+        return scrollableState
+            .dispatchRawDelta(scroll.toFloat().reverseIfNeeded())
+            .reverseIfNeeded()
+            .toOffset()
+    }
+
+    suspend fun onScrollStopped(initialVelocity: Velocity, isMouseWheel: Boolean) {
+        if (isMouseWheel && !flingBehavior.shouldBeTriggeredByMouseWheel) {
+            return
+        }
         val availableVelocity = initialVelocity.singleAxisVelocity()
 
         val performFling: suspend (Velocity) -> Velocity = { velocity ->
@@ -852,10 +894,32 @@ private class ScrollableNestedScrollConnection(
     }
 }
 
+/** Compatibility interface for default fling behaviors that depends on [Density]. */
+internal interface ScrollableDefaultFlingBehavior : FlingBehavior {
+    /**
+     * Update the internal parameters of FlingBehavior in accordance with the new
+     * [androidx.compose.ui.unit.Density] value.
+     *
+     * @param density new density value.
+     */
+    fun updateDensity(density: Density) = Unit
+}
+
+/**
+ * TODO: Move it to public interface Currently, default [FlingBehavior] is not triggered at all to
+ *   avoid unexpected effects during regular scrolling. However, custom one must be triggered
+ *   because it's used not only for "inertia", but also for snapping in
+ *   [androidx.compose.foundation.pager.Pager] or
+ *   [androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior].
+ */
+private val FlingBehavior.shouldBeTriggeredByMouseWheel
+    // TODO: Figure out more precise condition to trigger fling by mouse wheel.
+    get() = false // this !is ScrollableDefaultFlingBehavior
+
 internal class DefaultFlingBehavior(
-    var flingDecay: DecayAnimationSpec<Float>,
+    private var flingDecay: DecayAnimationSpec<Float>,
     private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale
-) : FlingBehavior {
+) : ScrollableDefaultFlingBehavior {
 
     // For Testing
     var lastAnimationCycleCount = 0
@@ -890,6 +954,10 @@ internal class DefaultFlingBehavior(
                 initialVelocity
             }
         }
+    }
+
+    override fun updateDensity(density: Density) {
+        flingDecay = splineBasedDecay(density)
     }
 }
 
