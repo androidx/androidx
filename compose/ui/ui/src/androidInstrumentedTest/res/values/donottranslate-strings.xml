@@ -26,13 +26,6 @@
         <item>string2</item>
     </string-array>
 
-    <integer name="integer_value">123</integer>
-
-    <integer-array name="integer_array">
-        <item>234</item>
-        <item>345</item>
-    </integer-array>
-
     <plurals name="plurals_without_arguments">
         <item quantity="one">There is one Android here</item>
         <item quantity="other">There are a number of Androids here</item>
@@ -42,10 +35,4 @@
         <item quantity="one">There is %d Android here</item>
         <item quantity="other">There are %d Androids here</item>
     </plurals>
-
-    <bool name="boolean_value">true</bool>
-
-    <dimen name="dimension_value">32dp</dimen>
-
-    <color name="color_resource">#12345678</color>
 </resources>

@@ -16,14 +16,12 @@
 
 package androidx.compose.ui.res
 
-import android.content.Context
-import android.os.Build
 import androidx.annotation.ColorRes
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.res.ResourcesCompat
 
 /**
  * Load a color resource.
@@ -35,16 +33,5 @@ import androidx.compose.ui.platform.LocalContext
 @ReadOnlyComposable
 fun colorResource(@ColorRes id: Int): Color {
     val context = LocalContext.current
-    return if (Build.VERSION.SDK_INT >= 23) {
-        ColorResourceHelper.getColor(context, id)
-    } else {
-        @Suppress("DEPRECATION") Color(context.resources.getColor(id))
-    }
-}
-
-@RequiresApi(23)
-private object ColorResourceHelper {
-    fun getColor(context: Context, @ColorRes id: Int): Color {
-        return Color(context.resources.getColor(id, context.theme))
-    }
+    return Color(ResourcesCompat.getColor(resources(), id, context.theme))
 }

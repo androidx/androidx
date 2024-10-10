@@ -16,14 +16,12 @@
 
 package androidx.compose.ui.res
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ConfigChangeActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -33,50 +31,83 @@ import org.junit.runner.RunWith
 @MediumTest
 class PrimitiveResourcesTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ConfigChangeActivity>()
 
     @Test
     fun integerResourceTest() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-        rule.setContent {
-            CompositionLocalProvider(LocalContext provides context) {
-                assertThat(integerResource(R.integer.integer_value)).isEqualTo(123)
-            }
-        }
+        rule.setContent { assertThat(integerResource(R.integer.integer_value)).isEqualTo(123) }
     }
 
     @Test
     fun integerArrayResourceTest() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-
         rule.setContent {
-            CompositionLocalProvider(LocalContext provides context) {
-                assertThat(integerArrayResource(R.array.integer_array))
-                    .isEqualTo(intArrayOf(234, 345))
-            }
+            assertThat(integerArrayResource(R.array.integer_array)).isEqualTo(intArrayOf(234, 345))
         }
     }
 
     @Test
-    fun boolArrayResourceTest() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-        rule.setContent {
-            CompositionLocalProvider(LocalContext provides context) {
-                assertThat(booleanResource(R.bool.boolean_value)).isTrue()
-            }
-        }
+    fun booleanResourceTest() {
+        rule.setContent { assertThat(booleanResource(R.bool.boolean_value)).isTrue() }
     }
 
     @Test
     fun dimensionResourceTest() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        rule.setContent { assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp) }
+    }
 
-        rule.setContent {
-            CompositionLocalProvider(LocalContext provides context) {
-                assertThat(dimensionResource(R.dimen.dimension_value)).isEqualTo(32.dp)
-            }
-        }
+    @Test
+    fun integerResourceTest_observesConfigChanges() {
+        var int = 0
+
+        rule.activity.setDarkMode(false)
+        rule.setContent { int = integerResource(R.integer.day_night_int) }
+
+        assertThat(int).isEqualTo(11)
+
+        rule.activity.setDarkMode(true)
+        rule.waitForIdle()
+        assertThat(int).isEqualTo(99)
+    }
+
+    @Test
+    fun integerArrayResourceTest_observesConfigChanges() {
+        var intArray = intArrayOf()
+
+        rule.activity.setDarkMode(false)
+        rule.setContent { intArray = integerArrayResource(R.array.day_night_int_array) }
+
+        assertThat(intArray).isEqualTo(intArrayOf(22, 33))
+
+        rule.activity.setDarkMode(true)
+        rule.waitForIdle()
+        assertThat(intArray).isEqualTo(intArrayOf(88, 77))
+    }
+
+    @Test
+    fun booleanResourceTest_observesConfigChanges() {
+        var bool: Boolean? = null
+
+        rule.activity.setDarkMode(false)
+        rule.setContent { bool = booleanResource(R.bool.day_night_bool) }
+
+        assertThat(bool).isEqualTo(false)
+
+        rule.activity.setDarkMode(true)
+        rule.waitForIdle()
+        assertThat(bool).isEqualTo(true)
+    }
+
+    @Test
+    fun dimensionResourceTest_observesConfigChanges() {
+        var dimen = 0.dp
+
+        rule.activity.setDarkMode(false)
+        rule.setContent { dimen = dimensionResource(R.dimen.day_night_dimen) }
+
+        assertThat(dimen).isEqualTo(100.dp)
+
+        rule.activity.setDarkMode(true)
+        rule.waitForIdle()
+        assertThat(dimen).isEqualTo(200.dp)
     }
 }

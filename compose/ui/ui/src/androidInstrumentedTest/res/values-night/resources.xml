@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2021 The Android Open Source Project
+  Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,28 +16,12 @@
   -->
 
 <resources>
-    <color name="triangle_color">#FF0000</color>
-
-    <integer name="integer_value">123</integer>
-
-    <integer-array name="integer_array">
-        <item>234</item>
-        <item>345</item>
-    </integer-array>
-
-    <bool name="boolean_value">true</bool>
-
-    <dimen name="dimension_value">32dp</dimen>
-
-    <color name="color_resource">#12345678</color>
-
-    <!-- alternate values in -night -->
-    <bool name="day_night_bool">false</bool>
-    <color name="day_night_color">#11223344</color>
-    <dimen name="day_night_dimen">100dp</dimen>
-    <integer name="day_night_int">11</integer>
+    <bool name="day_night_bool">true</bool>
+    <color name="day_night_color">#44332211</color>
+    <dimen name="day_night_dimen">200dp</dimen>
+    <integer name="day_night_int">99</integer>
     <integer-array name="day_night_int_array">
-        <item>22</item>
-        <item>33</item>
+        <item>88</item>
+        <item>77</item>
     </integer-array>
 </resources>
