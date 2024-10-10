@@ -19,19 +19,18 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"Tento soubor je chráněn"</string>
     <string name="label_password_first" msgid="4456258714097111908">"Heslo"</string>
-    <string name="label_password_incorrect" msgid="8449142641187704667">"Nesprávné heslo"</string>
+    <string name="label_password_incorrect" msgid="5291118378657145978">"Nesprávné heslo. Zkuste to znovu."</string>
     <string name="button_cancel" msgid="5855794576957267334">"Zrušit"</string>
     <string name="button_open" msgid="5445014062438566842">"Otevřít"</string>
     <string name="desc_password" msgid="6636473611443746739">"pole hesla"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"nesprávné heslo"</string>
-    <string name="desc_password_incorrect_message" msgid="4849541619951023025">"nesprávné heslo"</string>
+    <string name="desc_password_incorrect_message" msgid="4676206571020946870">"Nesprávné heslo. Zkuste to znovu."</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"stránka <xliff:g id="PAGE">%1$d</xliff:g> z <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"lupa <xliff:g id="FIRST">%1$d</xliff:g> procent"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Přejít na stránku <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"stránka <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <!-- no translation found for desc_empty_page (5041794048330057239) -->
-    <skip />
+    <string name="desc_empty_page" msgid="5041794048330057239">"Prázdná stránka"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF nelze zobrazit (<xliff:g id="TITLE">%1$s</xliff:g> má neplatný formát)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Stránku <xliff:g id="PAGE">%1$d</xliff:g> nelze zobrazit (chyba souboru)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Odkaz: stránka na webu <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

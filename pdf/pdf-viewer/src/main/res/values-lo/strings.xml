@@ -19,12 +19,14 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"ໄຟລ໌ນີ້ຖືກປ້ອງກັນໄວ້"</string>
     <string name="label_password_first" msgid="4456258714097111908">"ລະຫັດຜ່ານ"</string>
-    <string name="label_password_incorrect" msgid="8449142641187704667">"ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"</string>
+    <!-- no translation found for label_password_incorrect (5291118378657145978) -->
+    <skip />
     <string name="button_cancel" msgid="5855794576957267334">"ຍົກເລີກ"</string>
     <string name="button_open" msgid="5445014062438566842">"ເປີດ"</string>
     <string name="desc_password" msgid="6636473611443746739">"ຊ່ອງຂໍ້ມູນລະຫັດຜ່ານ"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"</string>
-    <string name="desc_password_incorrect_message" msgid="4849541619951023025">"ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"</string>
+    <!-- no translation found for desc_password_incorrect_message (4676206571020946870) -->
+    <skip />
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"ໜ້າທີ <xliff:g id="PAGE">%1$d</xliff:g> ຈາກທັງໝົດ <xliff:g id="TOTAL">%2$d</xliff:g> ໜ້າ"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"ຊູມ <xliff:g id="FIRST">%1$d</xliff:g> ເປີເຊັນ"</string>
