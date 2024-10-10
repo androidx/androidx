@@ -42,8 +42,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(gradleApi())
     compileOnly("com.android.tools.build:gradle:8.1.0")
-    compileOnly(libs.kotlinGradlePluginz)
-    compileOnly(libs.kspGradlePluginz)
+    compileOnly(libs.kotlinGradlePlugin)
+    compileOnly(libs.kspGradlePlugin)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
@@ -55,8 +55,8 @@ dependencies {
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469")
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:linux")
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:osx")
-    testPlugin(libs.kotlinGradlePluginz)
-    testPlugin(libs.kspGradlePluginz)
+    testPlugin(libs.kotlinGradlePlugin)
+    testPlugin(libs.kspGradlePlugin)
 }
 
 // Configure the generating task of plugin-under-test-metadata.properties to

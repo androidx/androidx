@@ -28,7 +28,6 @@ builder = "8.6.0-alpha05"
 byteBuddy = "1.14.9"
 asm = "9.7"
 cmake = "3.22.1"
-composeCompilerPlugin = "1.5.14"  # Update when pulling in new stable binaries
 dagger = "2.49"
 dependencyAnalysisGradlePlugin = "1.32.0"
 dexmaker = "2.28.4"
@@ -76,7 +75,7 @@ yarn = "1.22.17"
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
-androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 androidGradleSettingsPlugin = { module = "com.android.tools.build:gradle-settings", version.ref = "androidGradlePlugin" }
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
@@ -90,7 +89,6 @@ androidLintChecksMin = { module = "com.android.tools.lint:lint-checks", version.
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 androidLintPrevTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLintPrev" }
 androidToolsCommon = { module = "com.android.tools:common", version.ref = "androidLint" }
-androidToolsNinepatch = { module = "com.android.tools:ninepatch", version.ref = "androidLint" }
 androidToolsRepository= { module = "com.android.tools:repository", version.ref = "androidLint" }
 androidToolsSdkCommon = { module = "com.android.tools:sdk-common", version.ref = "androidLint" }
 androidToolsAnalyticsProtos = { module = "com.android.tools.analytics-library:protos", version.ref = "androidLint" }
@@ -98,7 +96,6 @@ androidKotlinMultiplatform = { module = "com.android.kotlin.multiplatform.librar
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotationVersion" }
 autoCommon = { module = "com.google.auto:auto-common", version = "1.2.1" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
-atomicFuPluginz = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicFu" }
 autoServiceAnnotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 autoValue = { module = "com.google.auto.value:auto-value", version.ref = "autoValue" }
@@ -156,7 +153,7 @@ googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11
 hamcrestCore = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
-hiltAndroidGradlePluginz = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
+hiltAndroidGradlePlugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 hiltCompiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hiltCore = { module = "com.google.dagger:hilt-core", version.ref = "hilt" }
 intellijCore = { module = "com.android.tools.external.com-intellij:intellij-core", version.ref = "androidLint" }
@@ -206,14 +203,12 @@ kotlinCoroutinesPlayServices = { module = "org.jetbrains.kotlinx:kotlinx-corouti
 kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesRx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2", version.ref = "kotlinCoroutines" }
 kotlinCoroutinesRx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3", version.ref = "kotlinCoroutines" }
-kotlinDaemonEmbeddable = { module = "org.jetbrains.kotlin:kotlin-daemon-embeddable", version.ref = "kotlin"  }
-kotlinKlibCommonizer = { module = "org.jetbrains.kotlin:kotlin-klib-commonizer", version.ref = "kotlin"  }
 kotlinMetadataJvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 kotlinSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinSerialization" }
 kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 kotlinSerializationJsonOkio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "kotlinSerialization" }
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
-kotlinGradlePluginz = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
 kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
@@ -226,12 +221,11 @@ kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "1.14.2" }
 kotlinPoetJavaPoet = { module = "com.squareup:kotlinpoet-javapoet", version = "1.14.2" }
-kotlinXHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version = "0.7.3" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 kspCommon = { module = "com.google.devtools.ksp:symbol-processing-common-deps", version.ref = "ksp" }
 kspEmbeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embeddable", version.ref = "ksp" }
-kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+kspGradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 ktfmt = { module = "com.facebook:ktfmt", version.ref = "ktfmt" }
 kxml2 = { module = "net.sf.kxml:kxml2", version = "2.3.0" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }

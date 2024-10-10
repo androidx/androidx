@@ -36,8 +36,8 @@ dependencies {
     implementation(findGradleKotlinDsl())
     implementation("com.android.tools.build:gradle-api:8.0.0")
     implementation(libs.kotlinStdlib)
-    compileOnly(libs.androidGradlePluginz)
-    compileOnly(libs.kspGradlePluginz)
+    compileOnly(libs.androidGradlePlugin)
+    compileOnly(libs.kspGradlePlugin)
 
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
@@ -46,8 +46,8 @@ dependencies {
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
-    testPlugin(libs.kotlinGradlePluginz)
-    testPlugin(libs.kspGradlePluginz)
+    testPlugin(libs.kotlinGradlePlugin)
+    testPlugin(libs.kspGradlePlugin)
 }
 
 gradlePlugin {

@@ -9,7 +9,7 @@ buildscript {
     apply from: "${buildscript.sourceFile.parent}/repos.gradle"
     repos.addMavenRepositories(repositories)
     dependencies {
-        classpath(libs.kotlinGradlePluginz)
+        classpath(libs.kotlinGradlePlugin)
     }
 }
 

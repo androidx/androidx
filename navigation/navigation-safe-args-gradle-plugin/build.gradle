@@ -53,7 +53,7 @@ dependencies {
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469")
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:linux")
     testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:osx")
-    testPlugin(libs.kotlinGradlePluginz)
+    testPlugin(libs.kotlinGradlePlugin)
 }
 
 tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {

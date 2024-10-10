@@ -45,8 +45,8 @@ configurations {
 }
 
 dependencies {
-    compileOnly(libs.androidGradlePluginz)
-    compileOnly(libs.kotlinGradlePluginz)
+    compileOnly(libs.androidGradlePlugin)
+    compileOnly(libs.kotlinGradlePlugin)
 
     implementation(gradleApi())
     implementation("com.google.protobuf:protobuf-java:3.22.3")
@@ -58,8 +58,8 @@ dependencies {
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
 
-    neededForGradleTestKit(libs.androidGradlePluginz)
-    neededForGradleTestKit(libs.kotlinGradlePluginz)
+    neededForGradleTestKit(libs.androidGradlePlugin)
+    neededForGradleTestKit(libs.kotlinGradlePlugin)
     neededForGradleTestKit(libs.kotlinStdlib)
 
     neededForGradleTestKitAgp80("com.android.tools.build:gradle:8.0.0")
