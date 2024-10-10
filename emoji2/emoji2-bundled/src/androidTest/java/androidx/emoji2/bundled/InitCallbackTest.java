@@ -23,12 +23,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -78,7 +78,7 @@ public class InitCallbackTest {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
             @Override
-            public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+            public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
                 loaderCallback.onFailed(new RuntimeException(""));
             }
         };
@@ -96,7 +96,7 @@ public class InitCallbackTest {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
             @Override
-            public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+            public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
                 loaderCallback.onLoaded(null);
             }
         };

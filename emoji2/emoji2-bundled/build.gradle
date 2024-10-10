@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(project(":emoji2:emoji2"))
 
     androidTestImplementation(libs.testExtJunit)

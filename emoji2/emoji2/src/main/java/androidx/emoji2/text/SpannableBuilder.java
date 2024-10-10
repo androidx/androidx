@@ -23,10 +23,11 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -86,9 +87,9 @@ public final class SpannableBuilder extends SpannableStringBuilder {
 
     /**
      */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static SpannableBuilder create(@NonNull Class<?> clazz, @NonNull CharSequence text) {
+    public static @NonNull SpannableBuilder create(@NonNull Class<?> clazz,
+            @NonNull CharSequence text) {
         return new SpannableBuilder(clazz, text);
     }
 
@@ -331,23 +332,22 @@ public final class SpannableBuilder extends SpannableStringBuilder {
         return this;
     }
 
-    @NonNull
     @Override
-    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text) {
+    public @NonNull SpannableStringBuilder append(
+            @SuppressLint("UnknownNullness") CharSequence text) {
         super.append(text);
         return this;
     }
 
-    @NonNull
     @Override
-    public SpannableStringBuilder append(char text) {
+    public @NonNull SpannableStringBuilder append(char text) {
         super.append(text);
         return this;
     }
 
-    @NonNull
     @Override
-    public SpannableStringBuilder append(@SuppressLint("UnknownNullness") CharSequence text,
+    public @NonNull SpannableStringBuilder append(
+            @SuppressLint("UnknownNullness") CharSequence text,
             int start,
             int end) {
         super.append(text, start, end);

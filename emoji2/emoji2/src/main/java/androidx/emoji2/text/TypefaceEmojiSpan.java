@@ -24,9 +24,10 @@ import android.text.style.CharacterStyle;
 import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * EmojiSpan subclass used to render emojis using Typeface.
@@ -39,8 +40,7 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
      * Paint object used to draw a background in debug mode.
      */
     private static @Nullable Paint sDebugPaint;
-    @Nullable
-    private TextPaint mWorkingPaint;
+    private @Nullable TextPaint mWorkingPaint;
 
     /**
      * Default constructor.
@@ -52,11 +52,11 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
     }
 
     @Override
-    public void draw(@NonNull final Canvas canvas,
+    public void draw(final @NonNull Canvas canvas,
             @SuppressLint("UnknownNullness") final CharSequence text,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end, final float x,
-            final int top, final int y, final int bottom, @NonNull final Paint paint) {
-        @Nullable TextPaint textPaint = applyCharacterSpanStyles(text, start, end, paint);
+            final int top, final int y, final int bottom, final @NonNull Paint paint) {
+        TextPaint textPaint = applyCharacterSpanStyles(text, start, end, paint);
         if (textPaint != null && textPaint.bgColor != 0) {
             drawBackground(canvas, textPaint, x, x + getWidth(), top, bottom);
         }
@@ -96,9 +96,8 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
      * @param paint paint (from TextLine)
      * @return TextPaint configured
      */
-    @Nullable
-    private TextPaint applyCharacterSpanStyles(@Nullable CharSequence text, int start, int end,
-            Paint paint) {
+    private @Nullable TextPaint applyCharacterSpanStyles(@Nullable CharSequence text, int start,
+            int end, Paint paint) {
         if (text instanceof Spanned) {
             Spanned spanned = (Spanned) text;
             CharacterStyle[] spans = spanned.getSpans(start, end, CharacterStyle.class);
@@ -137,8 +136,7 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
 
     }
 
-    @NonNull
-    private static Paint getDebugPaint() {
+    private static @NonNull Paint getDebugPaint() {
         if (sDebugPaint == null) {
             sDebugPaint = new TextPaint();
             sDebugPaint.setColor(EmojiCompat.get().getEmojiSpanIndicatorColor());

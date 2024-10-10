@@ -19,10 +19,11 @@ import android.graphics.Rect;
 import android.text.method.TransformationMethod;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * TransformationMethod wrapper in order to update transformed text with emojis.
@@ -30,15 +31,14 @@ import androidx.emoji2.text.EmojiCompat;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class EmojiTransformationMethod implements TransformationMethod {
-    @Nullable
-    private final TransformationMethod mTransformationMethod;
+    private final @Nullable TransformationMethod mTransformationMethod;
 
     EmojiTransformationMethod(@Nullable TransformationMethod transformationMethod) {
         mTransformationMethod = transformationMethod;
     }
 
     @Override
-    public CharSequence getTransformation(@Nullable CharSequence source, @NonNull final View view) {
+    public CharSequence getTransformation(@Nullable CharSequence source, final @NonNull View view) {
         if (view.isInEditMode()) {
             return source;
         }

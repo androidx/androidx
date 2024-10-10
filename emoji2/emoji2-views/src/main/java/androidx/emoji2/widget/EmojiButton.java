@@ -21,10 +21,11 @@ import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.viewsintegration.EmojiTextViewHelper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Button widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used
@@ -62,7 +63,7 @@ public class EmojiButton extends Button {
     }
 
     @Override
-    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+    public void setFilters(@SuppressWarnings("ArrayReturn") InputFilter @NonNull [] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 
@@ -85,7 +86,7 @@ public class EmojiButton extends Button {
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            @NonNull ActionMode.Callback actionModeCallback
+            ActionMode.@NonNull Callback actionModeCallback
     ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));

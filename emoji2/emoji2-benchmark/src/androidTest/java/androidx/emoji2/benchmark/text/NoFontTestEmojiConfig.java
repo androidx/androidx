@@ -20,9 +20,10 @@ import static org.mockito.Mockito.mock;
 
 import android.graphics.Typeface;
 
-import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
+
+import org.jspecify.annotations.NonNull;
 
 public class NoFontTestEmojiConfig extends EmojiCompat.Config {
 
@@ -44,7 +45,7 @@ public class NoFontTestEmojiConfig extends EmojiCompat.Config {
 
     private static class EmptyEmojiDataLoader implements EmojiCompat.MetadataRepoLoader {
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));
         }
     }
@@ -52,7 +53,7 @@ public class NoFontTestEmojiConfig extends EmojiCompat.Config {
     private static class NeverCompletesMetadataRepoLoader
             implements EmojiCompat.MetadataRepoLoader {
         @Override
-        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(final EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             // do nothing, this will be called on the test thread and is a no-op
         }
     }

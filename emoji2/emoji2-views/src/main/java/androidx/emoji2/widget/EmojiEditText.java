@@ -24,11 +24,12 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used
@@ -78,9 +79,8 @@ public class EmojiEditText extends EditText {
         super.setKeyListener(keyListener);
     }
 
-    @Nullable
     @Override
-    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
+    public @Nullable InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         final InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
         return getEmojiEditTextHelper().onCreateInputConnection(inputConnection, outAttrs);
     }
@@ -126,7 +126,7 @@ public class EmojiEditText extends EditText {
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            @NonNull ActionMode.Callback actionModeCallback
+            ActionMode.@NonNull Callback actionModeCallback
     ) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));

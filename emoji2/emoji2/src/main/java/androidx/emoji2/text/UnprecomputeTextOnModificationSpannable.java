@@ -22,9 +22,10 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.text.PrecomputedTextCompat;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.stream.IntStream;
 
@@ -42,8 +43,7 @@ class UnprecomputeTextOnModificationSpannable implements Spannable {
      */
     private boolean mSafeToWrite = false;
 
-    @NonNull
-    private Spannable mDelegate;
+    private @NonNull Spannable mDelegate;
 
     UnprecomputeTextOnModificationSpannable(@NonNull Spannable delegate) {
         mDelegate = delegate;
@@ -116,29 +116,25 @@ class UnprecomputeTextOnModificationSpannable implements Spannable {
         return mDelegate.charAt(i);
     }
 
-    @NonNull
     @Override
-    public CharSequence subSequence(int i, int i1) {
+    public @NonNull CharSequence subSequence(int i, int i1) {
         return mDelegate.subSequence(i, i1);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return mDelegate.toString();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @NonNull
     @Override
-    public IntStream chars() {
+    public @NonNull IntStream chars() {
         return CharSequenceHelper_API24.chars(mDelegate);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @NonNull
     @Override
-    public IntStream codePoints() {
+    public @NonNull IntStream codePoints() {
         return CharSequenceHelper_API24.codePoints(mDelegate);
     }
 

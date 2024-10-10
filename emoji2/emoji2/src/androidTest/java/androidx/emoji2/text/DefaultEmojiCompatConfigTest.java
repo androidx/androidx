@@ -38,13 +38,13 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -226,9 +226,8 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @SuppressLint("NewApi")
-    @NonNull
-    private DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper makeMockHelper(
-            @Nullable ResolveInfo info, @NonNull Signature[] signatures)
+    private DefaultEmojiCompatConfig.@NonNull DefaultEmojiCompatConfigHelper makeMockHelper(
+            @Nullable ResolveInfo info, Signature @NonNull [] signatures)
             throws PackageManager.NameNotFoundException {
         DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper = mock(
                 DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper.class);

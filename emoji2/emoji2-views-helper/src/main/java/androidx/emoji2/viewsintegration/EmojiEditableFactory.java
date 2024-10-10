@@ -19,9 +19,10 @@ import android.annotation.SuppressLint;
 import android.text.Editable;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.emoji2.text.SpannableBuilder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * EditableFactory used to improve editing operations on an EditText.
@@ -45,7 +46,7 @@ final class EmojiEditableFactory extends Editable.Factory {
     @GuardedBy("INSTANCE_LOCK")
     private static volatile Editable.Factory sInstance;
 
-    @Nullable private static Class<?> sWatcherClass;
+    private static @Nullable Class<?> sWatcherClass;
 
     @SuppressLint("PrivateApi")
     private EmojiEditableFactory() {
@@ -70,7 +71,7 @@ final class EmojiEditableFactory extends Editable.Factory {
     }
 
     @Override
-    public Editable newEditable(@NonNull final CharSequence source) {
+    public Editable newEditable(final @NonNull CharSequence source) {
         if (sWatcherClass != null) {
             return SpannableBuilder.create(sWatcherClass, source);
         }

@@ -19,8 +19,6 @@ package androidx.emoji2.text;
 import android.content.Context;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -29,6 +27,9 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleInitializer;
 import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -79,9 +80,8 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * @return result of default init
      */
     @SuppressWarnings("AutoBoxing")
-    @NonNull
     @Override
-    public Boolean create(@NonNull Context context) {
+    public @NonNull Boolean create(@NonNull Context context) {
         EmojiCompat.init(new BackgroundDefaultConfig(context));
         delayUntilFirstResume(context);
         return true;
@@ -115,9 +115,8 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     /**
      * Dependes on ProcessLifecycleInitializer
      */
-    @NonNull
     @Override
-    public List<Class<? extends Initializer<?>>> dependencies() {
+    public @NonNull List<Class<? extends Initializer<?>>> dependencies() {
         return Collections.singletonList(ProcessLifecycleInitializer.class);
     }
 
@@ -152,14 +151,14 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             ThreadPoolExecutor executor = ConcurrencyHelpers.createBackgroundPriorityExecutor(
                             S_INITIALIZER_THREAD_NAME);
             executor.execute(() -> doLoad(loaderCallback, executor));
         }
 
         @WorkerThread
-        void doLoad(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback,
+        void doLoad(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback,
                 @NonNull ThreadPoolExecutor executor) {
             try {
                 FontRequestEmojiCompatConfig config = DefaultEmojiCompatConfig.create(mContext);

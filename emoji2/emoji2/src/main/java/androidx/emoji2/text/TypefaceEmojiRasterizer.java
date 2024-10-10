@@ -26,11 +26,12 @@ import android.graphics.Typeface;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.emoji2.text.flatbuffer.MetadataItem;
 import androidx.emoji2.text.flatbuffer.MetadataList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -90,8 +91,7 @@ public class TypefaceEmojiRasterizer {
     /**
      * MetadataRepo that holds this instance.
      */
-    @NonNull
-    private final MetadataRepo mMetadataRepo;
+    private final @NonNull MetadataRepo mMetadataRepo;
 
     /**
      * Stores hasGlyph as well as exclusion values
@@ -104,7 +104,7 @@ public class TypefaceEmojiRasterizer {
     /**
      */
     @RestrictTo(LIBRARY)
-    TypefaceEmojiRasterizer(@NonNull final MetadataRepo metadataRepo,
+    TypefaceEmojiRasterizer(final @NonNull MetadataRepo metadataRepo,
             @IntRange(from = 0) final int index) {
         mMetadataRepo = metadataRepo;
         mIndex = index;
@@ -118,8 +118,8 @@ public class TypefaceEmojiRasterizer {
      * @param y y-coordinate of the baseline of the emoji being drawn
      * @param paint Paint used for the text (e.g. color, size, style)
      */
-    public void draw(@NonNull final Canvas canvas, final float x, final float y,
-            @NonNull final Paint paint) {
+    public void draw(final @NonNull Canvas canvas, final float x, final float y,
+            final @NonNull Paint paint) {
         final Typeface typeface = mMetadataRepo.getTypeface();
         final Typeface oldTypeface = paint.getTypeface();
         paint.setTypeface(typeface);
@@ -135,8 +135,7 @@ public class TypefaceEmojiRasterizer {
     /**
      * @return return typeface to be used to render
      */
-    @NonNull
-    public Typeface getTypeface() {
+    public @NonNull Typeface getTypeface() {
         return mMetadataRepo.getTypeface();
     }
 
@@ -300,9 +299,8 @@ public class TypefaceEmojiRasterizer {
         return getMetadataItem().codepointsLength();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(super.toString());
         builder.append(", id:");
