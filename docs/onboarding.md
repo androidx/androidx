@@ -17,6 +17,11 @@ This section will help you install the `repo` tool, which is used for Git branch
 and commit management. If you want to learn more about `repo`, see the
 [Repo Command Reference](https://source.android.com/setup/develop/repo).
 
+NOTE The `repo` tool uses Git submodules under the hood, and it is possible to
+skip using the tool in favor of using submodules directly. If you prefer to use
+submodules, look for notes anywhere that `repo` is mentioned in this document.
+Submodule users can skip Workstation setup.
+
 ### Linux and MacOS {#setup-linux-mac}
 
 First, download `repo` using `curl`.
@@ -100,7 +105,8 @@ much as possible. All feature development occurs in the public
 [androidx-main](https://android.googlesource.com/platform/frameworks/support/+/androidx-main)
 branch of the Android Open Source Project.
 
-As of 2023/03/30, you will need about 42 GB for a fully-built checkout.
+As of 2024/10/10, you will need about XXX GB for a clean checkout or YYY GB for
+a fully-built checkout.
 
 ### Synchronize the branch {#source-checkout}
 
@@ -117,7 +123,7 @@ The following command will check out the public main development branch:
 mkdir androidx-main && cd androidx-main
 repo init -u https://android.googlesource.com/platform/manifest \
     -b androidx-main --partial-clone --clone-filter=blob:limit=10M
-repo sync -c -j8
+repo sync -c -j32
 ```
 
 NOTE On MacOS, if you receive an SSL error like `SSL: CERTIFICATE_VERIFY_FAILED`

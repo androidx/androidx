@@ -1,7 +1,5 @@
 # What is Jetpack?
 
-![alt_text](androidx.gif "Androidx Gif")
-
 ## What is `androidx`?
 
 Artifacts within the `androidx` package comprise the libraries of
