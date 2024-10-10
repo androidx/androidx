@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.8.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha04)" variant="all" version="8.8.0-alpha04">
 
     <issue
         id="NewApi"
@@ -80,6 +80,15 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+    </issue>
+
+    <issue
+        id="Range"
+        message="Value must be ≥ 0 but `lastIndex` can be -1"
+        errorLine1="                        previousEnds.removeAt(previousEnds.lastIndex)"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/AnnotatedString.kt"/>
     </issue>
 
     <issue

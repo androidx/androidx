@@ -777,6 +777,84 @@ class AnnotatedStringTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    fun throws_exception_overlapping_exceedsLastMax() {
+        buildAnnotatedString {
+            append("12345")
+            addStyle(ParagraphStyle(), 1, 4)
+            addStyle(ParagraphStyle(), 2, 3)
+            addStyle(ParagraphStyle(), 3, 5)
+        }
+    }
+
+    @Test
+    fun doesNot_throws_exceedsMax() {
+        buildAnnotatedString {
+            append("12345")
+            addStyle(ParagraphStyle(), 0, 3)
+            addStyle(ParagraphStyle(), 1, 2)
+            addStyle(ParagraphStyle(), 4, 5)
+        }
+    }
+
+    @Test
+    fun doesNot_throws_stackCleared_insideMaxRange() {
+        buildAnnotatedString {
+            append("12345")
+            addStyle(ParagraphStyle(), 0, 3)
+            addStyle(ParagraphStyle(), 1, 2)
+            addStyle(ParagraphStyle(), 4, 5)
+            addStyle(ParagraphStyle(), 4, 4)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun throws_exception_overlapsDisallowedRange() {
+        buildAnnotatedString {
+            append("1234567890")
+            addStyle(ParagraphStyle(), 1, 10)
+            addStyle(ParagraphStyle(), 1, 8)
+            addStyle(ParagraphStyle(), 1, 6)
+            addStyle(ParagraphStyle(), 1, 4)
+            addStyle(ParagraphStyle(), 7, 9)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun throws_exception_overlapsDisallowedRange_first() {
+        buildAnnotatedString {
+            append("1234567890")
+            addStyle(ParagraphStyle(), 1, 10)
+            addStyle(ParagraphStyle(), 1, 8)
+            addStyle(ParagraphStyle(), 1, 6)
+            addStyle(ParagraphStyle(), 1, 4)
+            addStyle(ParagraphStyle(), 3, 5)
+        }
+    }
+
+    @Test
+    fun doesNot_throw_fullyOverlapsDisallowedRange() {
+        buildAnnotatedString {
+            append("1234567890")
+            addStyle(ParagraphStyle(), 1, 10)
+            addStyle(ParagraphStyle(), 1, 8)
+            addStyle(ParagraphStyle(), 1, 6)
+            addStyle(ParagraphStyle(), 1, 4)
+            addStyle(ParagraphStyle(), 7, 8)
+        }
+    }
+
+    @Test
+    fun doesNot_throw_insideAllowedRange() {
+        buildAnnotatedString {
+            append("1234567890")
+            addStyle(ParagraphStyle(), 1, 9)
+            addStyle(ParagraphStyle(), 2, 8)
+            addStyle(ParagraphStyle(), 3, 6)
+            addStyle(ParagraphStyle(), 4, 6)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun throws_exception_orderMatters_overlapping() {
         buildAnnotatedString {
             append("1234")
