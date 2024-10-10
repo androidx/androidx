@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -185,7 +186,7 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
         hitTestSource: HitTestSource,
         pointerPosition: Offset,
         hitTestResult: HitTestResult,
-        isTouchEvent: Boolean,
+        pointerType: PointerType,
         isInLayer: Boolean
     ) {
         var inLayer = isInLayer
@@ -195,7 +196,7 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
             if (withinLayerBounds(pointerPosition)) {
                 hitTestChildren = true
             } else if (
-                isTouchEvent &&
+                pointerType == PointerType.Touch &&
                     distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize)
                         .fastIsFinite()
             ) {
@@ -215,7 +216,7 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
                             child,
                             pointerPosition,
                             hitTestResult,
-                            isTouchEvent,
+                            pointerType,
                             inLayer
                         )
                         val wasHit = hitTestResult.hasHit()

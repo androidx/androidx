@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
@@ -941,7 +942,7 @@ internal class LayoutNode(
     internal fun hitTest(
         pointerPosition: Offset,
         hitTestResult: HitTestResult,
-        isTouchEvent: Boolean = false,
+        pointerType: PointerType = PointerType.Unknown,
         isInLayer: Boolean = true
     ) {
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
@@ -949,7 +950,7 @@ internal class LayoutNode(
             NodeCoordinator.PointerInputSource,
             positionInWrapped,
             hitTestResult,
-            isTouchEvent,
+            pointerType,
             isInLayer
         )
     }
@@ -958,7 +959,7 @@ internal class LayoutNode(
     internal fun hitTestSemantics(
         pointerPosition: Offset,
         hitSemanticsEntities: HitTestResult,
-        isTouchEvent: Boolean = true,
+        pointerType: PointerType = PointerType.Touch,
         isInLayer: Boolean = true
     ) {
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
@@ -966,7 +967,7 @@ internal class LayoutNode(
             NodeCoordinator.SemanticsSource,
             positionInWrapped,
             hitSemanticsEntities,
-            isTouchEvent = true,
+            pointerType = PointerType.Touch,
             isInLayer = isInLayer
         )
     }

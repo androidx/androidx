@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -32,8 +33,9 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class HitTestTouchBoundsExpansionTest {
+
     @Test
-    fun hitTest_expandedBounds() {
+    fun hitTest_touchBoundsExpansion_expandedBoundsForStylus() {
         // Density is 1f by default so 1dp equals to 1px in the tests.
         val pointerInputModifier1 =
             FakePointerInputModifierNode(touchBoundsExpansion = TouchBoundsExpansion(1, 2, 3, 4))
@@ -43,7 +45,49 @@ class HitTestTouchBoundsExpansionTest {
                 childNode(10, 10, 20, 20, pointerInputModifier1.toModifier())
             }
 
-        assertTouchBounds(pointerInputModifier1, outerNode, Rect(9f, 8f, 23f, 24f))
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Stylus,
+            outerNode,
+            Rect(9f, 8f, 23f, 24f)
+        )
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Eraser,
+            outerNode,
+            Rect(9f, 8f, 23f, 24f)
+        )
+    }
+
+    @Test
+    fun hitTest_touchBoundsExpansion_notExpandedBoundsForMouseTouchUnknown() {
+        // Density is 1f by default so 1dp equals to 1px in the tests.
+        val pointerInputModifier1 =
+            FakePointerInputModifierNode(touchBoundsExpansion = TouchBoundsExpansion(1, 2, 3, 4))
+
+        val outerNode =
+            LayoutNode(0, 0, 100, 100) {
+                childNode(10, 10, 20, 20, pointerInputModifier1.toModifier())
+            }
+
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Unknown,
+            outerNode,
+            Rect(10f, 10f, 20f, 20f)
+        )
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Mouse,
+            outerNode,
+            Rect(10f, 10f, 20f, 20f)
+        )
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Touch,
+            outerNode,
+            Rect(10f, 10f, 20f, 20f)
+        )
     }
 
     @Test
@@ -65,7 +109,12 @@ class HitTestTouchBoundsExpansionTest {
             }
 
         // start is applied on left and end is applied on right.
-        assertTouchBounds(pointerInputModifier1, outerNode, Rect(7f, 8f, 21f, 24f))
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Stylus,
+            outerNode,
+            Rect(7f, 8f, 21f, 24f)
+        )
     }
 
     @Test
@@ -88,7 +137,12 @@ class HitTestTouchBoundsExpansionTest {
                 )
             }
 
-        assertTouchBounds(pointerInputModifier1, outerNode, Rect(9f, 8f, 23f, 24f))
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Stylus,
+            outerNode,
+            Rect(9f, 8f, 23f, 24f)
+        )
     }
 
     @Test
@@ -102,7 +156,12 @@ class HitTestTouchBoundsExpansionTest {
                 childNode(10, 10, 20, 20, pointerInputModifier1.toModifier())
             }
 
-        assertTouchBounds(pointerInputModifier1, outerNode, Rect(9f, 8f, 23f, 24f))
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Stylus,
+            outerNode,
+            Rect(9f, 8f, 23f, 24f)
+        )
     }
 
     @Test
@@ -227,7 +286,12 @@ class HitTestTouchBoundsExpansionTest {
             }
 
         // Hit in expanded touch bounds, only pointerInputModifier1 is hit
-        assertTouchBounds(pointerInputModifier1, outerNode, Rect(9f, 8f, 23f, 24f))
+        assertTouchBounds(
+            pointerInputModifier1,
+            PointerType.Stylus,
+            outerNode,
+            Rect(9f, 8f, 23f, 24f)
+        )
         val hit = outerNode.hitTest(Offset(15f, 15f))
         // Hit inside the node, both modifiers are hit
         assertThat(hit).isEqualTo(listOf(pointerInputModifier1, pointerInputModifier2))
@@ -235,29 +299,33 @@ class HitTestTouchBoundsExpansionTest {
 
     private fun assertTouchBounds(
         pointerInputModifierNode: PointerInputModifierNode,
+        pointerType: PointerType = PointerType.Stylus,
         layoutNode: LayoutNode,
         expectedBounds: Rect
     ) {
-        assertThat(layoutNode.hitTest(expectedBounds.topLeft))
+        assertThat(layoutNode.hitTest(expectedBounds.topLeft, pointerType))
             .isEqualTo(listOf(pointerInputModifierNode))
 
         // Right edge is not inclusive, minus 0.01f here.
-        assertThat(layoutNode.hitTest(expectedBounds.topRight - Offset(0.01f, 0f)))
+        assertThat(layoutNode.hitTest(expectedBounds.topRight - Offset(0.01f, 0f), pointerType))
             .isEqualTo(listOf(pointerInputModifierNode))
 
         // Bottom edge is not inclusive, minus 0.01f here.
-        assertThat(layoutNode.hitTest(expectedBounds.bottomLeft - Offset(0f, 0.01f)))
+        assertThat(layoutNode.hitTest(expectedBounds.bottomLeft - Offset(0f, 0.01f), pointerType))
             .isEqualTo(listOf(pointerInputModifierNode))
 
         // Bottom and right edge are not inclusive, minus 0.01f here.
-        assertThat(layoutNode.hitTest(expectedBounds.bottomRight - Offset(0.01f, 0.01f)))
+        assertThat(
+                layoutNode.hitTest(expectedBounds.bottomRight - Offset(0.01f, 0.01f), pointerType)
+            )
             .isEqualTo(listOf(pointerInputModifierNode))
 
         // Also assert that the touch is exactly the expected bounds.
-        assertThat(layoutNode.hitTest(expectedBounds.topLeft - Offset(0.01f, 0.01f))).isEmpty()
-        assertThat(layoutNode.hitTest(expectedBounds.topRight)).isEmpty()
-        assertThat(layoutNode.hitTest(expectedBounds.bottomLeft)).isEmpty()
-        assertThat(layoutNode.hitTest(expectedBounds.bottomRight)).isEmpty()
+        assertThat(layoutNode.hitTest(expectedBounds.topLeft - Offset(0.01f, 0.01f), pointerType))
+            .isEmpty()
+        assertThat(layoutNode.hitTest(expectedBounds.topRight, pointerType)).isEmpty()
+        assertThat(layoutNode.hitTest(expectedBounds.bottomLeft, pointerType)).isEmpty()
+        assertThat(layoutNode.hitTest(expectedBounds.bottomRight, pointerType)).isEmpty()
     }
 }
 
@@ -333,10 +401,10 @@ internal class FakePointerInputModifierNode(
 
 internal fun LayoutNode.hitTest(
     pointerPosition: Offset,
-    isTouchEvent: Boolean = true
+    pointerType: PointerType = PointerType.Stylus
 ): List<Modifier.Node> {
     val hitTestResult = HitTestResult()
-    hitTest(pointerPosition, hitTestResult, isTouchEvent)
+    hitTest(pointerPosition, hitTestResult, pointerType)
     return hitTestResult
 }
 

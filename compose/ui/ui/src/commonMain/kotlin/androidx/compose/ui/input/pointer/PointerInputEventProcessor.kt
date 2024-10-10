@@ -95,8 +95,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             for (i in 0 until internalPointerEvent.changes.size()) {
                 val pointerInputChange = internalPointerEvent.changes.valueAt(i)
                 if (isHover || pointerInputChange.changedToDownIgnoreConsumed()) {
-                    val isTouchEvent = pointerInputChange.type == PointerType.Touch
-                    root.hitTest(pointerInputChange.position, hitResult, isTouchEvent)
+                    root.hitTest(pointerInputChange.position, hitResult, pointerInputChange.type)
                     if (hitResult.isNotEmpty()) {
                         hitPathTracker.addHitPath(
                             pointerId = pointerInputChange.id,
