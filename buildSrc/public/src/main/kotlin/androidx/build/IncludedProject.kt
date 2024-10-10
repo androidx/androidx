@@ -16,6 +16,9 @@
 
 package androidx.build
 
+// NOTE: This class is symlinked to
+// playground-common/playground-plugin/src/main/kotlin/androidx/build
+// Please test playground when modifying it.
 /** Represents an included project from the main settings.gradle file. */
 data class IncludedProject(
     /** Gradle path of the project (using : as separator) */
