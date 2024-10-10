@@ -16,12 +16,12 @@
 
 package androidx.activity.compose
 
-import androidx.activity.ComponentActivity
+import android.app.Activity
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.ui.platform.LocalContext
 
 /**
- * Provides the [ComponentActivity] belonging to the current [LocalContext].
+ * Provides the [android.app.Activity] belonging to the current [LocalContext].
  *
  * Note, when possible you should always prefer using the finer grained composition locals where
  * available. This API should be used as a fallback when the required API is only available via
@@ -31,6 +31,4 @@ import androidx.compose.ui.platform.LocalContext
  * [androidx.compose.ui.platform.LocalLifecycleOwner] [androidx.compose.ui.platform.LocalView]
  */
 val LocalActivity =
-    compositionLocalWithComputedDefaultOf<ComponentActivity?> {
-        findOwner(LocalContext.currentValue)
-    }
+    compositionLocalWithComputedDefaultOf<Activity?> { findOwner(LocalContext.currentValue) }

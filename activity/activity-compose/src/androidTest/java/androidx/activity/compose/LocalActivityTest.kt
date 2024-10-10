@@ -16,7 +16,7 @@
 
 package androidx.activity.compose
 
-import androidx.activity.ComponentActivity
+import android.app.Activity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -32,7 +32,7 @@ class LocalActivityTest {
 
     @Test
     fun testLocalActivityResolved() {
-        var activity: ComponentActivity? = null
+        var activity: Activity? = null
 
         composeTestRule.setContent { activity = LocalActivity.current }
 
