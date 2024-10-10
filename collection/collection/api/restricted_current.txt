@@ -1827,7 +1827,7 @@ package androidx.collection {
     method public java.util.List<E> asList();
     method public java.util.List<E> asMutableList();
     method public void clear();
-    method public void ensureCapacity(int capacity);
+    method public inline void ensureCapacity(int capacity);
     method public inline int getCapacity();
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
@@ -1853,6 +1853,7 @@ package androidx.collection {
     method public E removeAt(@IntRange(from=0L) int index);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method @kotlin.PublishedApi internal void resizeStorage(int capacity, Object?[] oldContent);
     method public boolean retainAll(androidx.collection.ObjectList<E> elements);
     method public boolean retainAll(E[] elements);
     method public boolean retainAll(Iterable<? extends E> elements);
