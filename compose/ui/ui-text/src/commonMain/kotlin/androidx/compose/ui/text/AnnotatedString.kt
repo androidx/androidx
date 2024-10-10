@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.collection.mutableIntListOf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
@@ -63,7 +64,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
      * @param spanStyles a list of [Range]s that specifies [SpanStyle]s on certain portion of the
      *   text. These styles will be applied in the order of the list. And the [SpanStyle]s applied
      *   later can override the former styles. Notice that [SpanStyle] attributes which are null or
-     *   [Unspecified] won't change the current ones.
+     *   unspecified won't change the current ones.
      * @param paragraphStyles a list of [Range]s that specifies [ParagraphStyle]s on certain portion
      *   of the text. Each [ParagraphStyle] with a [Range] defines a paragraph of text. It's
      *   required that [Range]s of paragraphs don't overlap with each other. If there are gaps
@@ -129,23 +130,26 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
 
         @Suppress("ListIterator") val sorted = paragraphStylesOrNull?.sortedBy { it.start }
         if (!sorted.isNullOrEmpty()) {
-            var start = sorted.first().start
-            var end = sorted.first().end
-            var maxEnd = end
-            sorted.fastForEach {
-                require(it.start <= end || it.start >= maxEnd) {
-                    "Paragraph overlap not allowed, start ${it.start} is within unallowed range ($end, $maxEnd)"
-                }
-                if (it.start in start until end) {
-                    require(it.end <= end) {
-                        "Paragraph overlap not allowed, end ${it.end} should be less than or equal to $end"
+            val previousEnds = mutableIntListOf(sorted.first().end)
+            for (i in 1 until sorted.size) {
+                val current = sorted[i]
+                // [*************************************].....
+                // ..[******]..................................
+                // ................[***************]...........
+                // ..................[******]..................
+                // current can only be one of these relatively to previous (start/end inclusive)
+                // ................... [**]...[**]...[**]..[**]
+                while (previousEnds.isNotEmpty()) {
+                    val previousEnd = previousEnds.last()
+                    if (current.start >= previousEnd) {
+                        previousEnds.removeAt(previousEnds.lastIndex)
+                    } else {
+                        requirePrecondition(current.end <= previousEnd) {
+                            "Paragraph overlap not allowed, end ${current.end} should be less than or equal to $previousEnd"
+                        }
+                        previousEnds.add(current.end)
+                        break
                     }
-                    start = it.start
-                    end = it.end
-                } else {
-                    start = it.start
-                    end = it.end
-                    maxEnd = end
                 }
             }
         }
