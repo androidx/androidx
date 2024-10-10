@@ -18,13 +18,14 @@ package androidx.exifinterface.media;
 
 import android.content.res.Resources;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
 import androidx.exifinterface.test.R;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -216,40 +217,40 @@ final class ExpectedAttributes {
         private double mComputedLatitude;
         private double mComputedLongitude;
         private double mComputedAltitude;
-        @Nullable private String mGpsAltitude;
-        @Nullable private String mGpsAltitudeRef;
-        @Nullable private String mGpsDatestamp;
-        @Nullable private String mGpsLatitude;
+        private @Nullable String mGpsAltitude;
+        private @Nullable String mGpsAltitudeRef;
+        private @Nullable String mGpsDatestamp;
+        private @Nullable String mGpsLatitude;
         private long mGpsLatitudeOffset;
         private long mGpsLatitudeLength;
-        @Nullable private String mGpsLatitudeRef;
-        @Nullable private String mGpsLongitude;
-        @Nullable private String mGpsLongitudeRef;
-        @Nullable private String mGpsProcessingMethod;
-        @Nullable private String mGpsTimestamp;
+        private @Nullable String mGpsLatitudeRef;
+        private @Nullable String mGpsLongitude;
+        private @Nullable String mGpsLongitudeRef;
+        private @Nullable String mGpsProcessingMethod;
+        private @Nullable String mGpsTimestamp;
 
         // Make information
         private long mMakeOffset;
         private long mMakeLength;
-        @Nullable private String mMake;
+        private @Nullable String mMake;
 
         // Values.
-        @Nullable private String mModel;
+        private @Nullable String mModel;
         private double mAperture;
-        @Nullable private String mDateTimeOriginal;
+        private @Nullable String mDateTimeOriginal;
         private double mExposureTime;
         private double mFlash;
-        @Nullable private String mFocalLength;
+        private @Nullable String mFocalLength;
         private int mImageLength;
         private int mImageWidth;
-        @Nullable private String mIso;
+        private @Nullable String mIso;
         private int mOrientation;
         private int mWhiteBalance;
 
         // XMP information.
         private boolean mHasXmp;
-        @Nullable private String mXmp;
-        @Nullable private Integer mXmpResourceId;
+        private @Nullable String mXmp;
+        private @Nullable Integer mXmpResourceId;
         private long mXmpOffset;
         private long mXmpLength;
 
@@ -555,39 +556,39 @@ final class ExpectedAttributes {
     public final double computedLatitude;
     public final double computedLongitude;
     public final double computedAltitude;
-    @Nullable public final String gpsAltitude;
-    @Nullable public final String gpsAltitudeRef;
-    @Nullable public final String gpsDatestamp;
-    @Nullable public final String gpsLatitude;
+    public final @Nullable String gpsAltitude;
+    public final @Nullable String gpsAltitudeRef;
+    public final @Nullable String gpsDatestamp;
+    public final @Nullable String gpsLatitude;
     public final long gpsLatitudeOffset;
     public final long gpsLatitudeLength;
-    @Nullable public final String gpsLatitudeRef;
-    @Nullable public final String gpsLongitude;
-    @Nullable public final String gpsLongitudeRef;
-    @Nullable public final String gpsProcessingMethod;
-    @Nullable public final String gpsTimestamp;
+    public final @Nullable String gpsLatitudeRef;
+    public final @Nullable String gpsLongitude;
+    public final @Nullable String gpsLongitudeRef;
+    public final @Nullable String gpsProcessingMethod;
+    public final @Nullable String gpsTimestamp;
 
     // Make information
     public final long makeOffset;
     public final long makeLength;
-    @Nullable public final String make;
+    public final @Nullable String make;
 
     // Values.
-    @Nullable public final String model;
+    public final @Nullable String model;
     public final double aperture;
-    @Nullable public final String dateTimeOriginal;
+    public final @Nullable String dateTimeOriginal;
     public final double exposureTime;
-    @Nullable public final String focalLength;
+    public final @Nullable String focalLength;
     public final int imageLength;
     public final int imageWidth;
-    @Nullable public final String iso;
+    public final @Nullable String iso;
     public final int orientation;
 
     // XMP information.
     public final boolean hasXmp;
-    @Nullable private final String mXmp;
-    @Nullable private final Integer mXmpResourceId;
-    @Nullable private String mMemoizedXmp;
+    private final @Nullable String mXmp;
+    private final @Nullable Integer mXmpResourceId;
+    private @Nullable String mMemoizedXmp;
     public final long xmpOffset;
     public final long xmpLength;
 
@@ -642,8 +643,7 @@ final class ExpectedAttributes {
      *
      * <p>Returns null if no expected XMP data was set.
      */
-    @Nullable
-    public String getXmp(Resources resources) throws IOException {
+    public @Nullable String getXmp(Resources resources) throws IOException {
         if (mMemoizedXmp == null && mXmpResourceId != null) {
             try (InputStreamReader inputStreamReader =
                     new InputStreamReader(
