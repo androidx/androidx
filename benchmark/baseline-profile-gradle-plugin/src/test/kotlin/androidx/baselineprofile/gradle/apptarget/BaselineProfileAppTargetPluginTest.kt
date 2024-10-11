@@ -89,15 +89,13 @@ private fun createBuildGradle(
                 initWith(myCustomRelease)
 
                 // These are the opposite of default ensure the plugin doesn't modify them
-                debuggable true
                 minifyEnabled false
                 shrinkResources false
-                profileable false
             }
             nonMinifiedMyCustomRelease {
                 initWith(myCustomRelease)
 
-                // These are the opposite of default ensure the plugin doesn't modify them
+                // These are the opposite of default ensure the plugin does modify them
                 debuggable true
                 minifyEnabled true
                 shrinkResources true
@@ -321,11 +319,11 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
 
             // Should be overridden
             contains("testCoverageEnabled=false")
+            contains("debuggable=false")
+            contains("profileable=true")
 
             // Should not be overridden
             contains("minifyEnabled=false")
-            contains("debuggable=true")
-            contains("profileable=false")
         }
 
         projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(
