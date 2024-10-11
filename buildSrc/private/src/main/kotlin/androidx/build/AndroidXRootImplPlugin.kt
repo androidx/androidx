@@ -22,7 +22,7 @@ import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
-import androidx.build.license.CheckExternalDependencyLicensesTask
+import androidx.build.license.ValidateLicensesExistTask
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
@@ -62,7 +62,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         project.validateAllAndroidxArgumentsAreRecognized()
         tasks.register("listAndroidXProperties", ListAndroidXPropertiesTask::class.java)
         configureKtfmtCheckFile()
-        tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
         maybeRegisterFilterableTask()
 
         // If we're running inside Studio, validate the Android Gradle Plugin version.
@@ -159,6 +158,12 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             dependencyAnalysis.structure { it.ignoreKtx(true) }
         }
         project.configureTasksForKotlinWeb()
+
+        tasks.register("checkExternalLicenses", ValidateLicensesExistTask::class.java) {
+            it.prebuiltsDirectory.set(File(getPrebuiltsRoot(), "androidx/external"))
+            it.baseline.set(layout.projectDirectory.file("license-baseline.txt"))
+            it.cacheEvenIfNoOutputs()
+        }
     }
 
     private fun Project.configureTasksForKotlinWeb() {
