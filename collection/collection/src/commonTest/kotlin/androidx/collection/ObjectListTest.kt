@@ -1058,9 +1058,9 @@ class ObjectListTest {
         assertEquals(2, v.size)
         assertEquals(1, v[0])
         assertEquals(5, v[1])
-        kotlin.test.assertNull(v.content[2])
-        kotlin.test.assertNull(v.content[3])
-        kotlin.test.assertNull(v.content[4])
+        assertNull(v.content[2])
+        assertNull(v.content[3])
+        assertNull(v.content[4])
     }
 
     @Test
@@ -1153,7 +1153,7 @@ class ObjectListTest {
         assertEquals(3, l2[0])
     }
 
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "RedundantSuppression")
     @Test
     fun list_outOfBounds_Get_Below() {
         assertFailsWith(IndexOutOfBoundsException::class) {
@@ -1162,7 +1162,7 @@ class ObjectListTest {
         }
     }
 
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "RedundantSuppression")
     @Test
     fun sublist_outOfBounds_Get_Below() {
         assertFailsWith(IndexOutOfBoundsException::class) {
@@ -1219,7 +1219,7 @@ class ObjectListTest {
         }
     }
 
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "RedundantSuppression")
     @Test
     fun list_outOfBounds_Set_Below() {
         assertFailsWith(IndexOutOfBoundsException::class) {
@@ -1228,7 +1228,7 @@ class ObjectListTest {
         }
     }
 
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "RedundantSuppression")
     @Test
     fun sublist_outOfBounds_Set_Below() {
         assertFailsWith(IndexOutOfBoundsException::class) {

@@ -1739,7 +1739,7 @@ package androidx.collection {
     method public java.util.List<E> asList();
     method public java.util.List<E> asMutableList();
     method public void clear();
-    method public void ensureCapacity(int capacity);
+    method public inline void ensureCapacity(int capacity);
     method public inline int getCapacity();
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
