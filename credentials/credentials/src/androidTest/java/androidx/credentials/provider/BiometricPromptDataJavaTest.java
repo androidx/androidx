@@ -116,6 +116,18 @@ public class BiometricPromptDataJavaTest {
     }
 
     @Test
+    public void build_requiredParamsOnlyForceSetCryptoObjectNull_success() {
+        int expectedAllowedAuthenticators = BiometricManager.Authenticators.BIOMETRIC_WEAK;
+
+        BiometricPromptData actualBiometricPromptData = new BiometricPromptData.Builder()
+                .setCryptoObject(null).build();
+
+        assertThat(actualBiometricPromptData.getAllowedAuthenticators()).isEqualTo(
+                expectedAllowedAuthenticators);
+        assertThat(actualBiometricPromptData.getCryptoObject()).isNull();
+    }
+
+    @Test
     public void build_setCryptoObjectWithStrongAuthenticator_success() {
         BiometricPromptData actualBiometricPromptData = new BiometricPromptData.Builder()
                 .setCryptoObject(TEST_CRYPTO_OBJECT)
