@@ -17,6 +17,7 @@
 package androidx.pdf.testapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -62,9 +63,13 @@ class MainActivity : AppCompatActivity(), OpCancellationHandler {
 
         val getContentButton: MaterialButton = findViewById(R.id.launch_button)
         val searchButton: MaterialButton = findViewById(R.id.search_button)
+        val doublePDFButton: MaterialButton = findViewById(R.id.double_pdf)
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
         searchButton.setOnClickListener { setFindInFileViewVisible() }
+        doublePDFButton.setOnClickListener {
+            startActivity(Intent(this, MultipleFragmentsActivity::class.java))
+        }
 
         handleWindowInsets()
     }
