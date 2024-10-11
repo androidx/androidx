@@ -47,7 +47,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.LayingOut
 import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadLayingOut
 import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadMeasuring
 import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
-import androidx.compose.ui.node.Nodes.Draw
 import androidx.compose.ui.node.Nodes.PointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -1214,19 +1213,6 @@ internal class LayoutNode(
             block(delegate)
             delegate = delegate.wrapped
         }
-    }
-
-    private fun shouldInvalidateParentLayer(): Boolean {
-        if (nodes.has(Nodes.Draw) && !nodes.has(Nodes.Layout)) return true
-        nodes.headToTail {
-            if (it.isKind(Nodes.Layout)) {
-                if (it.requireCoordinator(Nodes.Layout).layer != null) {
-                    return false
-                }
-            }
-            if (it.isKind(Nodes.Draw)) return true
-        }
-        return true
     }
 
     /**
