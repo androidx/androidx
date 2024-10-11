@@ -165,7 +165,7 @@ enum class AutofillType {
     /** Indicates that the associated component can be autofilled with a birth day(of the month). */
     BirthDateDay,
 
-    /** Indicates that the associated component can be autofilled with a birth day(of the month). */
+    /** Indicates that the associated component can be autofilled with a birth month. */
     BirthDateMonth,
 
     /** Indicates that the associated component can be autofilled with a birth year. */

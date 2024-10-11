@@ -97,191 +97,216 @@ import org.junit.runners.JUnit4
 class AndroidContentTypeTest {
     @Test
     fun emailAddress() {
-        assertThat(EmailAddress).isEqualTo(ContentType.from(AUTOFILL_HINT_EMAIL_ADDRESS))
+        assertThat(EmailAddress.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_EMAIL_ADDRESS).contentHints)
     }
 
     @Test
     fun username() {
-        assertThat(Username).isEqualTo(ContentType.from(AUTOFILL_HINT_USERNAME))
+        assertThat(Username.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_USERNAME).contentHints)
     }
 
     @Test
     fun password() {
-        assertThat(Password).isEqualTo(ContentType.from(AUTOFILL_HINT_PASSWORD))
+        assertThat(Password.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PASSWORD).contentHints)
     }
 
     @Test
     fun newUsername() {
-        assertThat(NewUsername).isEqualTo(ContentType.from(AUTOFILL_HINT_NEW_USERNAME))
+        assertThat(NewUsername.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_NEW_USERNAME).contentHints)
     }
 
     @Test
     fun newPassword() {
-        assertThat(NewPassword).isEqualTo(ContentType.from(AUTOFILL_HINT_NEW_PASSWORD))
+        assertThat(NewPassword.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_NEW_PASSWORD).contentHints)
     }
 
     @Test
     fun postalAddress() {
-        assertThat(PostalAddress).isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS))
+        assertThat(PostalAddress.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS).contentHints)
     }
 
     @Test
     fun postalCode() {
-        assertThat(PostalCode).isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_CODE))
+        assertThat(PostalCode.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_CODE).contentHints)
     }
 
     @Test
     fun creditCardNumber() {
-        assertThat(CreditCardNumber).isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_NUMBER))
+        assertThat(CreditCardNumber.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_NUMBER).contentHints)
     }
 
     @Test
     fun creditCardSecurityCode() {
-        assertThat(CreditCardSecurityCode)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE))
+        assertThat(CreditCardSecurityCode.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE).contentHints)
     }
 
     @Test
     fun creditCardExpirationDate() {
-        assertThat(CreditCardExpirationDate)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE))
+        assertThat(CreditCardExpirationDate.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE).contentHints)
     }
 
     @Test
     fun creditCardExpirationMonth() {
-        assertThat(CreditCardExpirationMonth)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH))
+        assertThat(CreditCardExpirationMonth.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH).contentHints)
     }
 
     @Test
     fun creditCardExpirationYear() {
-        assertThat(CreditCardExpirationYear)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR))
+        assertThat(CreditCardExpirationYear.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR).contentHints)
     }
 
     @Test
     fun creditCardExpirationDay() {
-        assertThat(CreditCardExpirationDay)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY))
+        assertThat(CreditCardExpirationDay.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY).contentHints)
     }
 
     @Test
     fun addressCountry() {
-        assertThat(AddressCountry).isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY))
+        assertThat(AddressCountry.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY).contentHints)
     }
 
     @Test
     fun addressRegion() {
-        assertThat(AddressRegion).isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_REGION))
+        assertThat(AddressRegion.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_REGION).contentHints)
     }
 
     @Test
     fun addressLocality() {
-        assertThat(AddressLocality)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY))
+        assertThat(AddressLocality.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY).contentHints)
     }
 
     @Test
     fun addressStreet() {
-        assertThat(AddressStreet)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS))
+        assertThat(AddressStreet.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS).contentHints)
     }
 
     @Test
     fun addressAuxiliaryDetails() {
-        assertThat(AddressAuxiliaryDetails)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS))
+        assertThat(AddressAuxiliaryDetails.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS).contentHints)
     }
 
     @Test
     fun postalCodeExtended() {
-        assertThat(PostalCodeExtended)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE))
+        assertThat(PostalCodeExtended.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE).contentHints)
     }
 
     @Test
     fun personFullName() {
-        assertThat(PersonFullName).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME))
+        assertThat(PersonFullName.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME).contentHints)
     }
 
     @Test
     fun personFirstName() {
-        assertThat(PersonFirstName).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_GIVEN))
+        assertThat(PersonFirstName.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_GIVEN).contentHints)
     }
 
     @Test
     fun personLastName() {
-        assertThat(PersonLastName).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_FAMILY))
+        assertThat(PersonLastName.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_FAMILY).contentHints)
     }
 
     @Test
     fun personMiddleName() {
-        assertThat(PersonMiddleName).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_MIDDLE))
+        assertThat(PersonMiddleName.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE).contentHints)
     }
 
     @Test
     fun personMiddleInitial() {
-        assertThat(PersonMiddleInitial)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL))
+        assertThat(PersonMiddleInitial.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL).contentHints)
     }
 
     @Test
     fun personNamePrefix() {
-        assertThat(PersonNamePrefix).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_PREFIX))
+        assertThat(PersonNamePrefix.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_PREFIX).contentHints)
     }
 
     @Test
     fun personNameSuffix() {
-        assertThat(PersonNameSuffix).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_SUFFIX))
+        assertThat(PersonNameSuffix.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PERSON_NAME_SUFFIX).contentHints)
     }
 
     @Test
     fun phoneNumber() {
-        assertThat(PhoneNumber).isEqualTo(ContentType.from(AUTOFILL_HINT_PHONE_NUMBER))
+        assertThat(PhoneNumber.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PHONE_NUMBER).contentHints)
     }
 
     @Test
     fun phoneNumberDevice() {
-        assertThat(PhoneNumberDevice).isEqualTo(ContentType.from(AUTOFILL_HINT_PHONE_NUMBER_DEVICE))
+        assertThat(PhoneNumberDevice.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PHONE_NUMBER_DEVICE).contentHints)
     }
 
     @Test
     fun phoneCountryCode() {
-        assertThat(PhoneCountryCode).isEqualTo(ContentType.from(AUTOFILL_HINT_PHONE_COUNTRY_CODE))
+        assertThat(PhoneCountryCode.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PHONE_COUNTRY_CODE).contentHints)
     }
 
     @Test
     fun phoneNumberNational() {
-        assertThat(PhoneNumberNational).isEqualTo(ContentType.from(AUTOFILL_HINT_PHONE_NATIONAL))
+        assertThat(PhoneNumberNational.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_PHONE_NATIONAL).contentHints)
     }
 
     @Test
     fun gender() {
-        assertThat(Gender).isEqualTo(ContentType.from(AUTOFILL_HINT_GENDER))
+        assertThat(Gender.contentHints).isEqualTo(ContentType(AUTOFILL_HINT_GENDER).contentHints)
     }
 
     @Test
     fun birthDateFull() {
-        assertThat(BirthDateFull).isEqualTo(ContentType.from(AUTOFILL_HINT_BIRTH_DATE_FULL))
+        assertThat(BirthDateFull.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_BIRTH_DATE_FULL).contentHints)
     }
 
     @Test
     fun birthDateDay() {
-        assertThat(BirthDateDay).isEqualTo(ContentType.from(AUTOFILL_HINT_BIRTH_DATE_DAY))
+        assertThat(BirthDateDay.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_BIRTH_DATE_DAY).contentHints)
     }
 
     @Test
     fun birthDateMonth() {
-        assertThat(BirthDateMonth).isEqualTo(ContentType.from(AUTOFILL_HINT_BIRTH_DATE_MONTH))
+        assertThat(BirthDateMonth.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_BIRTH_DATE_MONTH).contentHints)
     }
 
     @Test
     fun birthDateYear() {
-        assertThat(BirthDateYear).isEqualTo(ContentType.from(AUTOFILL_HINT_BIRTH_DATE_YEAR))
+        assertThat(BirthDateYear.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_BIRTH_DATE_YEAR).contentHints)
     }
 
     @Test
     fun smsOTPCode() {
-        assertThat(SmsOtpCode).isEqualTo(ContentType.from(AUTOFILL_HINT_SMS_OTP))
+        assertThat(SmsOtpCode.contentHints)
+            .isEqualTo(ContentType(AUTOFILL_HINT_SMS_OTP).contentHints)
     }
 }

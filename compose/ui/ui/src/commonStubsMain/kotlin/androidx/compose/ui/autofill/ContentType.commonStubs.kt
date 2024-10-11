@@ -18,10 +18,8 @@ package androidx.compose.ui.autofill
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-internal actual class ContentType private actual constructor(contentHint: String) {
-    internal actual companion object {
-        internal actual fun from(value: String): ContentType = implementedInJetBrainsFork()
-
+actual class ContentType private actual constructor(contentHint: String) {
+    actual companion object {
         actual val EmailAddress: ContentType = implementedInJetBrainsFork()
         actual val Username: ContentType = implementedInJetBrainsFork()
         actual val Password: ContentType = implementedInJetBrainsFork()

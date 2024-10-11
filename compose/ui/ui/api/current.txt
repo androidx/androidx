@@ -277,6 +277,107 @@ package androidx.compose.ui.autofill {
     enum_constant public static final androidx.compose.ui.autofill.AutofillType Username;
   }
 
+  @kotlin.jvm.JvmInline public final value class ContentDataType {
+    ctor public ContentDataType(int dataType);
+    method public int getDataType();
+    property public final int dataType;
+    field public static final androidx.compose.ui.autofill.ContentDataType.Companion Companion;
+  }
+
+  public static final class ContentDataType.Companion {
+    method public int getDate();
+    method public int getList();
+    method public int getNone();
+    method public int getText();
+    method public int getToggle();
+    property public final int Date;
+    property public final int List;
+    property public final int None;
+    property public final int Text;
+    property public final int Toggle;
+  }
+
+  public final class ContentType {
+    ctor public ContentType(String contentHint);
+    method public operator androidx.compose.ui.autofill.ContentType plus(androidx.compose.ui.autofill.ContentType other);
+    field public static final androidx.compose.ui.autofill.ContentType.Companion Companion;
+  }
+
+  public static final class ContentType.Companion {
+    method public androidx.compose.ui.autofill.ContentType getAddressAuxiliaryDetails();
+    method public androidx.compose.ui.autofill.ContentType getAddressCountry();
+    method public androidx.compose.ui.autofill.ContentType getAddressLocality();
+    method public androidx.compose.ui.autofill.ContentType getAddressRegion();
+    method public androidx.compose.ui.autofill.ContentType getAddressStreet();
+    method public androidx.compose.ui.autofill.ContentType getBirthDateDay();
+    method public androidx.compose.ui.autofill.ContentType getBirthDateFull();
+    method public androidx.compose.ui.autofill.ContentType getBirthDateMonth();
+    method public androidx.compose.ui.autofill.ContentType getBirthDateYear();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardExpirationDate();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardExpirationDay();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardExpirationMonth();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardExpirationYear();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardNumber();
+    method public androidx.compose.ui.autofill.ContentType getCreditCardSecurityCode();
+    method public androidx.compose.ui.autofill.ContentType getEmailAddress();
+    method public androidx.compose.ui.autofill.ContentType getGender();
+    method public androidx.compose.ui.autofill.ContentType getNewPassword();
+    method public androidx.compose.ui.autofill.ContentType getNewUsername();
+    method public androidx.compose.ui.autofill.ContentType getPassword();
+    method public androidx.compose.ui.autofill.ContentType getPersonFirstName();
+    method public androidx.compose.ui.autofill.ContentType getPersonFullName();
+    method public androidx.compose.ui.autofill.ContentType getPersonLastName();
+    method public androidx.compose.ui.autofill.ContentType getPersonMiddleInitial();
+    method public androidx.compose.ui.autofill.ContentType getPersonMiddleName();
+    method public androidx.compose.ui.autofill.ContentType getPersonNamePrefix();
+    method public androidx.compose.ui.autofill.ContentType getPersonNameSuffix();
+    method public androidx.compose.ui.autofill.ContentType getPhoneCountryCode();
+    method public androidx.compose.ui.autofill.ContentType getPhoneNumber();
+    method public androidx.compose.ui.autofill.ContentType getPhoneNumberDevice();
+    method public androidx.compose.ui.autofill.ContentType getPhoneNumberNational();
+    method public androidx.compose.ui.autofill.ContentType getPostalAddress();
+    method public androidx.compose.ui.autofill.ContentType getPostalCode();
+    method public androidx.compose.ui.autofill.ContentType getPostalCodeExtended();
+    method public androidx.compose.ui.autofill.ContentType getSmsOtpCode();
+    method public androidx.compose.ui.autofill.ContentType getUsername();
+    property public final androidx.compose.ui.autofill.ContentType AddressAuxiliaryDetails;
+    property public final androidx.compose.ui.autofill.ContentType AddressCountry;
+    property public final androidx.compose.ui.autofill.ContentType AddressLocality;
+    property public final androidx.compose.ui.autofill.ContentType AddressRegion;
+    property public final androidx.compose.ui.autofill.ContentType AddressStreet;
+    property public final androidx.compose.ui.autofill.ContentType BirthDateDay;
+    property public final androidx.compose.ui.autofill.ContentType BirthDateFull;
+    property public final androidx.compose.ui.autofill.ContentType BirthDateMonth;
+    property public final androidx.compose.ui.autofill.ContentType BirthDateYear;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardExpirationDate;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardExpirationDay;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardExpirationMonth;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardExpirationYear;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardNumber;
+    property public final androidx.compose.ui.autofill.ContentType CreditCardSecurityCode;
+    property public final androidx.compose.ui.autofill.ContentType EmailAddress;
+    property public final androidx.compose.ui.autofill.ContentType Gender;
+    property public final androidx.compose.ui.autofill.ContentType NewPassword;
+    property public final androidx.compose.ui.autofill.ContentType NewUsername;
+    property public final androidx.compose.ui.autofill.ContentType Password;
+    property public final androidx.compose.ui.autofill.ContentType PersonFirstName;
+    property public final androidx.compose.ui.autofill.ContentType PersonFullName;
+    property public final androidx.compose.ui.autofill.ContentType PersonLastName;
+    property public final androidx.compose.ui.autofill.ContentType PersonMiddleInitial;
+    property public final androidx.compose.ui.autofill.ContentType PersonMiddleName;
+    property public final androidx.compose.ui.autofill.ContentType PersonNamePrefix;
+    property public final androidx.compose.ui.autofill.ContentType PersonNameSuffix;
+    property public final androidx.compose.ui.autofill.ContentType PhoneCountryCode;
+    property public final androidx.compose.ui.autofill.ContentType PhoneNumber;
+    property public final androidx.compose.ui.autofill.ContentType PhoneNumberDevice;
+    property public final androidx.compose.ui.autofill.ContentType PhoneNumberNational;
+    property public final androidx.compose.ui.autofill.ContentType PostalAddress;
+    property public final androidx.compose.ui.autofill.ContentType PostalCode;
+    property public final androidx.compose.ui.autofill.ContentType PostalCodeExtended;
+    property public final androidx.compose.ui.autofill.ContentType SmsOtpCode;
+    property public final androidx.compose.ui.autofill.ContentType Username;
+  }
+
 }
 
 package androidx.compose.ui.contentcapture {
@@ -3429,6 +3530,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<java.lang.Float>,java.lang.Boolean>>> getGetScrollViewportLength();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> getGetTextLayoutResult();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getInsertTextAtCursor();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getOnAutofillText();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getOnClick();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getOnImeAction();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getOnLongClick();
@@ -3457,6 +3559,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<java.lang.Float>,java.lang.Boolean>>> GetScrollViewportLength;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>,java.lang.Boolean>>> GetTextLayoutResult;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> InsertTextAtCursor;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> OnAutofillText;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnClick;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnImeAction;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> OnLongClick;
@@ -3560,7 +3663,9 @@ package androidx.compose.ui.semantics {
   public final class SemanticsProperties {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionInfo> getCollectionInfo();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionItemInfo> getCollectionItemInfo();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentDataType> getContentDataType();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> getContentDescription();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentType> getContentType();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getDisabled();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> getEditableText();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getError();
@@ -3596,7 +3701,9 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ScrollAxisRange> getVerticalScrollAxisRange();
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionInfo> CollectionInfo;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionItemInfo> CollectionItemInfo;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentDataType> ContentDataType;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.util.List<java.lang.String>> ContentDescription;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentType> ContentType;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Disabled;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> EditableText;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> Error;
@@ -3651,7 +3758,9 @@ package androidx.compose.ui.semantics {
     method public static void expand(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static androidx.compose.ui.semantics.CollectionInfo getCollectionInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.CollectionItemInfo getCollectionItemInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static int getContentDataType(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getContentDescription(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.compose.ui.autofill.ContentType getContentType(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static java.util.List<androidx.compose.ui.semantics.CustomAccessibilityAction> getCustomActions(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.text.AnnotatedString getEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean getFocused(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -3682,6 +3791,7 @@ package androidx.compose.ui.semantics {
     method public static boolean isEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean isShowingTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean isTraversalGroup(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static void onAutofillText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>? action);
     method public static void onClick(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void onImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int imeActionType, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void onLongClick(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
@@ -3701,7 +3811,9 @@ package androidx.compose.ui.semantics {
     method public static void setCollectionInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.CollectionInfo);
     method public static void setCollectionItemInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.CollectionItemInfo);
     method @Deprecated public static void setContainer(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
+    method public static void setContentDataType(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setContentDescription(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
+    method public static void setContentType(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.autofill.ContentType);
     method public static void setCustomActions(androidx.compose.ui.semantics.SemanticsPropertyReceiver, java.util.List<androidx.compose.ui.semantics.CustomAccessibilityAction>);
     method public static void setEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     method public static void setEditableText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);

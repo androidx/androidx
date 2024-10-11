@@ -16,20 +16,32 @@
 
 package androidx.compose.ui.autofill
 
-// TODO(b/333102566): When Autofill goes live for Compose,
-//  these classes will need to be made public.
+/**
+ * Content data type information.
+ *
+ * Autofill services use the [ContentDataType] to determine what kind of field is associated with
+ * the component.
+ */
+expect class NativeContentDataType
 
-// Using `typealias` with the internal qualifier triggers a Kotlin visibility issue.
-// For now, the types will be kept internal and just as Ints. When Autofill goes live,
-// the `NativeContentDataType` and `ContentDataType` classes will be used.
-// expect class NativeContentDataType
-
-internal expect value class ContentDataType(val dataType: Int) {
-    internal companion object {
+expect value class ContentDataType(val dataType: NativeContentDataType) {
+    companion object {
+        /** Indicates that the associated component is a text field. */
         val Text: ContentDataType
+
+        /** Indicates that the associated component is a list. */
         val List: ContentDataType
+
+        /** Indicates that the associated component is a date. */
         val Date: ContentDataType
+
+        /** Indicates that the associated component is a toggle. */
         val Toggle: ContentDataType
+
+        /**
+         * Indicates that the associated component does not have a data type, and therefore is not
+         * autofillable.
+         */
         val None: ContentDataType
     }
 }

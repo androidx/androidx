@@ -23,11 +23,8 @@ package androidx.compose.ui.autofill
  * associated with this type. If the [ContentType] is not specified, the autofill services have to
  * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
-// TODO(b/333102566): When Autofill goes live for Compose,
-//  these classes will need to be made public.
-internal expect class ContentType private constructor(contentHint: String) {
-
-    internal companion object {
+expect class ContentType private constructor(contentHint: String) {
+    companion object {
         /** Indicates that the associated component can be autofilled with an email address. */
         val EmailAddress: ContentType
 
@@ -189,9 +186,7 @@ internal expect class ContentType private constructor(contentHint: String) {
          */
         val BirthDateDay: ContentType
 
-        /**
-         * Indicates that the associated component can be autofilled with a birth day(of the month).
-         */
+        /** Indicates that the associated component can be autofilled with a birth month. */
         val BirthDateMonth: ContentType
 
         /** Indicates that the associated component can be autofilled with a birth year. */
@@ -202,7 +197,5 @@ internal expect class ContentType private constructor(contentHint: String) {
          * (OTP).
          */
         val SmsOtpCode: ContentType
-
-        internal fun from(value: String): ContentType
     }
 }
