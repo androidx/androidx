@@ -382,8 +382,8 @@ public abstract class VideoRecordEvent {
         /**
          * Indicates whether an error occurred.
          *
-         * <p>Returns {@code true} if {@link #getError()} returns {@link #ERROR_NONE}, otherwise
-         * {@code false}.
+         * <p>Returns {@code false} if {@link #getError()} returns {@link #ERROR_NONE}, otherwise
+         * {@code true}.
          */
         public boolean hasError() {
             return mError != ERROR_NONE;
