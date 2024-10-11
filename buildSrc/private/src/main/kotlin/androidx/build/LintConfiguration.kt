@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.build
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.Lint
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
@@ -81,8 +79,9 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
         configureLint(extension.lint, isLibrary)
     }
 
+@Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 private fun Project.configureAndroidMultiplatformProjectForLint(
-    extension: KotlinMultiplatformAndroidTarget,
+    extension: DeprecatedKotlinMultiplatformAndroidTarget,
     componentsExtension: KotlinMultiplatformAndroidComponentsExtension
 ) {
     componentsExtension.finalizeDsl {

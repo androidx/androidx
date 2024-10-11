@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 
 package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.DeprecatedKotlinMultiplatformAndroidTarget
 import androidx.build.androidXExtension
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
@@ -32,7 +34,6 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -563,7 +564,7 @@ fun Project.configureTestConfigGeneration(
 
 @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
 fun Project.configureTestConfigGeneration(
-    kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
+    kotlinMultiplatformAndroidTarget: DeprecatedKotlinMultiplatformAndroidTarget,
     componentsExtension: KotlinMultiplatformAndroidComponentsExtension,
     projectIsolationEnabled: Boolean,
 ) {

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage") // KotlinMultiplatformAndroidTarget
+@file:Suppress(
+    "UnstableApiUsage",
+    "TYPEALIAS_EXPANSION_DEPRECATION"
+) // // KotlinMultiplatformAndroidTarget / DeprecatedKotlinMultiplatformAndroidTarget
 
 package androidx.build
 
@@ -22,7 +25,6 @@ import androidx.build.clang.AndroidXClang
 import androidx.build.clang.MultiTargetNativeCompilation
 import androidx.build.clang.NativeLibraryBundler
 import androidx.build.clang.configureCinterop
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import groovy.lang.Closure
 import java.io.File
@@ -75,10 +77,10 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         // make sure to initialize the kotlin extension by accessing the property
         val extension = (kotlinExtension as ExtensionAware)
         project.plugins.apply(KotlinMultiplatformAndroidPlugin::class.java)
-        extension.extensions.getByType(KotlinMultiplatformAndroidTarget::class.java)
+        extension.extensions.getByType(DeprecatedKotlinMultiplatformAndroidTarget::class.java)
     }
 
-    val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
+    val agpKmpExtension: DeprecatedKotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
 
     /**
      * The list of platforms that have been declared as supported in the build configuration.
@@ -417,8 +419,8 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun androidLibrary(
-        block: Action<KotlinMultiplatformAndroidTarget>? = null
-    ): KotlinMultiplatformAndroidTarget? {
+        block: Action<DeprecatedKotlinMultiplatformAndroidTarget>? = null
+    ): DeprecatedKotlinMultiplatformAndroidTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
             agpKmpExtension.also { block?.execute(it) }
