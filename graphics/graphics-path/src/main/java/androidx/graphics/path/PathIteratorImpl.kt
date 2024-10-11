@@ -44,8 +44,14 @@ internal abstract class PathIteratorImpl(
             /**
              * The native library is used mainly for pre-API34, but we also rely on the conic
              * conversion code in API34+, thus it is initialized here.
+             *
+             * Currently this native library is only available for Android, it should not be loaded
+             * on host platforms, e.g. LayoutLib and Robolectric.
              */
-            System.loadLibrary("androidx.graphics.path")
+            val isDalvik = "dalvik".equals(System.getProperty("java.vm.name"), ignoreCase = true)
+            if (isDalvik) {
+                System.loadLibrary("androidx.graphics.path")
+            }
         }
     }
 
