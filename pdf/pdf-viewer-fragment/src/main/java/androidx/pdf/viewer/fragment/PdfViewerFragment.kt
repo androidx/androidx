@@ -941,6 +941,8 @@ public open class PdfViewerFragment : Fragment() {
         val intent = AnnotationUtils.getAnnotationIntent(localUri!!)
         intent.setData(localUri)
         intent.putExtra(EXTRA_PDF_FILE_NAME, getFileName(localUri!!))
+        // TODO: Pass current page number to restore it in edit mode.
+        intent.putExtra(EXTRA_STARTING_PAGE, 0)
         startActivity(intent)
     }
 
@@ -956,5 +958,7 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_PENDING_DOCUMENT_LOAD = "pendingDocumentLoad"
         private const val KEY_TOOLBOX_VISIBILITY = "isToolboxVisible"
         private const val EXTRA_PDF_FILE_NAME = "androidx.pdf.viewer.fragment.extra.PDF_FILE_NAME"
+        private const val EXTRA_STARTING_PAGE: String =
+            "androidx.pdf.viewer.fragment.extra.STARTING_PAGE"
     }
 }
