@@ -1924,7 +1924,8 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SheetState {
-    ctor public SheetState(boolean skipPartiallyExpanded, androidx.compose.ui.unit.Density density, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
+    ctor @Deprecated public SheetState(boolean skipPartiallyExpanded, androidx.compose.ui.unit.Density density, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
+    ctor public SheetState(boolean skipPartiallyExpanded, kotlin.jvm.functions.Function0<java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.SheetValue getCurrentValue();
     method public boolean getHasExpandedState();
@@ -1946,7 +1947,8 @@ package androidx.compose.material3 {
   }
 
   public static final class SheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SheetState,androidx.compose.material3.SheetValue> Saver(boolean skipPartiallyExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, androidx.compose.ui.unit.Density density, boolean skipHiddenState);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SheetState,androidx.compose.material3.SheetValue> Saver(boolean skipPartiallyExpanded, kotlin.jvm.functions.Function0<java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, boolean skipHiddenState);
+    method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SheetState,androidx.compose.material3.SheetValue> Saver(boolean skipPartiallyExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, androidx.compose.ui.unit.Density density, boolean skipHiddenState);
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum SheetValue {
