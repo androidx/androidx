@@ -64,13 +64,6 @@ public interface CameraController {
     public fun stop()
 
     /**
-     * Restart the current session. This should basically perform stop() then start(). However, the
-     * implementation should handle its internal states correctly, and only restart under the right
-     * [CameraStatusMonitor.CameraStatus] and [ControllerState].
-     */
-    public fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus)
-
-    /**
      * Close this instance. [start] and [stop] should not be invoked, and any additional calls will
      * be ignored once this method returns. Depending on implementation the underlying camera
      * connection may not be terminated immediately, depending on the [CameraBackend]

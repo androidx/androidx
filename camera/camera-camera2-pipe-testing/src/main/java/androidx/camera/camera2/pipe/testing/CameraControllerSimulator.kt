@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
@@ -169,14 +168,6 @@ public class CameraControllerSimulator(
         synchronized(lock) {
             check(!closed) { "Attempted to invoke stop after close." }
             started = false
-        }
-    }
-
-    override fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus) {
-        synchronized(lock) {
-            check(!closed) { "Attempted to invoke restart after close." }
-            stop()
-            start()
         }
     }
 

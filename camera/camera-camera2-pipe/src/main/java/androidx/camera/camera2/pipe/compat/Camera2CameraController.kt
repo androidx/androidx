@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
@@ -36,6 +35,8 @@ import androidx.camera.camera2.pipe.core.Threading.runBlockingCheckedOrNull
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
+import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -59,6 +60,7 @@ constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
+    private val cameraStatusMonitor: CameraStatusMonitor,
     private val captureSessionFactory: CaptureSessionFactory,
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
@@ -89,6 +91,33 @@ constructor(
     private var currentSurfaceMap: Map<StreamId, Surface>? = null
 
     private var currentCameraStateJob: Job? = null
+    private var cameraAvailabilityJob: Job? = null
+    private var cameraPrioritiesJob: Job? = null
+
+    init {
+        cameraAvailabilityJob =
+            scope.launch {
+                cameraStatusMonitor.cameraAvailability.collect { cameraStatus ->
+                    when (cameraStatus) {
+                        is CameraStatus.CameraAvailable -> {
+                            check(cameraStatus.cameraId == cameraId)
+                            onCameraStatusChanged(cameraStatus)
+                        }
+                        is CameraStatus.CameraUnavailable -> {
+                            check(cameraStatus.cameraId == cameraId)
+                            onCameraStatusChanged(cameraStatus)
+                        }
+                    }
+                }
+            }
+
+        cameraPrioritiesJob =
+            scope.launch {
+                cameraStatusMonitor.cameraPriorities.collect {
+                    onCameraStatusChanged(CameraStatus.CameraPrioritiesChanged)
+                }
+            }
+    }
 
     override fun start(): Unit =
         synchronized(lock) {
@@ -166,7 +195,7 @@ constructor(
             disconnectSessionAndCamera(session, camera)
         }
 
-    override fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
+    private fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
         synchronized(lock) {
             Log.debug { "$this ($cameraId) camera status changed to $cameraStatus" }
             if (
@@ -221,6 +250,11 @@ constructor(
 
             currentCameraStateJob?.cancel()
             currentCameraStateJob = null
+            cameraAvailabilityJob?.cancel()
+            cameraAvailabilityJob = null
+            cameraPrioritiesJob?.cancel()
+            cameraPrioritiesJob = null
+            cameraStatusMonitor.close()
 
             disconnectSessionAndCamera(session, camera)
             if (graphConfig.flags.closeCameraDeviceOnClose) {
@@ -347,6 +381,8 @@ constructor(
             }
                 ?: run {
                     Log.warn { "Timeout when disconnecting session and camera for $session" }
+                    Log.info { "Force finalizing current capture session" }
+                    session?.finalizeSession(delayMs = 0)
                     graphListener.onGraphError(
                         GraphState.GraphStateError(
                             CameraError.ERROR_CAMERA_DEVICE,
@@ -358,7 +394,7 @@ constructor(
     }
 
     companion object {
-        private const val DISCONNECT_TIMEOUT_MS = 3_000L // 3s
+        private const val DISCONNECT_TIMEOUT_MS = 5000L // 5s
         private const val MS_TO_NS = 1_000_000
     }
 }

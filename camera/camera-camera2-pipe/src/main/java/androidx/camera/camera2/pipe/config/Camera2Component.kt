@@ -16,11 +16,11 @@
 
 package androidx.camera.camera2.pipe.config
 
+import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.compat.AudioRestrictionControllerImpl
@@ -43,10 +43,12 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import javax.inject.Provider
 import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -73,11 +75,6 @@ internal abstract class Camera2Module {
     abstract fun bindCameraAvailabilityMonitor(
         camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
     ): CameraAvailabilityMonitor
-
-    @Binds
-    abstract fun bindCameraStatusMonitor(
-        camera2CameraStatusMonitor: Camera2CameraStatusMonitor
-    ): CameraStatusMonitor
 
     @Binds
     abstract fun bindCamera2DeviceCloser(
@@ -150,6 +147,16 @@ internal abstract class Camera2ControllerModule {
             return CoroutineScope(
                 threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller"))
             )
+        }
+
+        @Camera2ControllerScope
+        @Provides
+        fun provideCameraStatusMonitor(
+            cameraManager: Provider<CameraManager>,
+            threads: Threads,
+            graphConfig: CameraGraph.Config
+        ): CameraStatusMonitor {
+            return Camera2CameraStatusMonitor(cameraManager, threads, graphConfig.camera)
         }
     }
 }

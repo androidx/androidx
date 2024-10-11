@@ -43,7 +43,7 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
     // Lightweight executors are for CPU bound work that should take less than ~10ms to operate and
     // do not block the calling thread.
     private val lightweightThreadCount: Int =
-        maxOf(2, Runtime.getRuntime().availableProcessors() - 2)
+        maxOf(4, Runtime.getRuntime().availableProcessors() - 2)
 
     // Background thread count is for operations that are not latency sensitive and may take more
     // than a few milliseconds to run.

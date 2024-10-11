@@ -18,36 +18,11 @@ package androidx.camera.camera2.pipe
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.flow.Flow
 
 /** This is used to uniquely identify a specific backend implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class CameraBackendId(public val value: String)
-
-/**
- * A CameraStatusMonitors monitors the status of the cameras, and emits updates when the status of
- * cameras changes, for instance when the camera access priorities have changed or when a particular
- * camera has become available.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface CameraStatusMonitor {
-    public val cameraStatus: Flow<CameraStatus>
-
-    public abstract class CameraStatus internal constructor() {
-        public object CameraPrioritiesChanged : CameraStatus() {
-            override fun toString(): String = "CameraPrioritiesChanged"
-        }
-
-        public class CameraAvailable(public val cameraId: CameraId) : CameraStatus() {
-            override fun toString(): String = "CameraAvailable(camera=$cameraId)"
-        }
-
-        public class CameraUnavailable(public val cameraId: CameraId) : CameraStatus() {
-            override fun toString(): String = "CameraUnavailable(camera=$cameraId)"
-        }
-    }
-}
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions
@@ -65,12 +40,6 @@ public interface CameraStatusMonitor {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraBackend {
     public val id: CameraBackendId
-
-    /**
-     * A flow of camera statuses that provide camera status updates such as when the camera access
-     * priorities have changed, or a certain camera has become available.
-     */
-    public val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report

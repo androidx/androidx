@@ -19,24 +19,58 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraStatusMonitor
-import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
-import javax.inject.Inject
+import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
+import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
 import javax.inject.Provider
-import javax.inject.Singleton
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 
-@Singleton
-internal class Camera2CameraStatusMonitor
-@Inject
-constructor(cameraManager: Provider<CameraManager>, threads: Threads) : CameraStatusMonitor {
-    override val cameraStatus = callbackFlow {
-        val manager = cameraManager.get()
+internal class Camera2CameraStatusMonitor(
+    cameraManager: Provider<CameraManager>,
+    private val threads: Threads,
+    private val cameraId: CameraId,
+) : CameraStatusMonitor {
+    private val manager = cameraManager.get()
+    private val scope =
+        CoroutineScope(
+            threads.lightweightDispatcher.plus(CoroutineName("CXCP-CameraStatusMonitor"))
+        )
+
+    private val closed = atomic(false)
+
+    private val _cameraAvailability = MutableStateFlow<CameraStatus>(CameraStatus.Unknown)
+    override val cameraAvailability: StateFlow<CameraStatus> = _cameraAvailability.asStateFlow()
+
+    private val _cameraPriorities = MutableSharedFlow<Unit>()
+    override val cameraPriorities: SharedFlow<Unit> = _cameraPriorities.asSharedFlow()
+
+    private val cameraStatus = cameraStatusFlow()
+    private val cameraStatusJob =
+        scope.launch {
+            cameraStatus.collect { cameraStatus ->
+                when (cameraStatus) {
+                    is CameraStatus.CameraAvailable -> _cameraAvailability.emit(cameraStatus)
+                    is CameraStatus.CameraUnavailable -> _cameraAvailability.emit(cameraStatus)
+                    is CameraStatus.CameraPrioritiesChanged -> _cameraPriorities.emit(Unit)
+                }
+            }
+        }
+
+    private fun cameraStatusFlow() = callbackFlow {
         val availabilityCallback =
             object : CameraManager.AvailabilityCallback() {
                 override fun onCameraAccessPrioritiesChanged() {
@@ -47,12 +81,14 @@ constructor(cameraManager: Provider<CameraManager>, threads: Threads) : CameraSt
                 }
 
                 override fun onCameraAvailable(cameraId: String) {
+                    if (cameraId != this@Camera2CameraStatusMonitor.cameraId.value) return
                     Log.debug { "Camera $cameraId has become available" }
                     trySendBlocking(CameraStatus.CameraAvailable(CameraId.fromCamera2Id(cameraId)))
                         .onFailure { Log.warn { "Failed to emit CameraAvailable($cameraId)" } }
                 }
 
                 override fun onCameraUnavailable(cameraId: String) {
+                    if (cameraId != this@Camera2CameraStatusMonitor.cameraId.value) return
                     Log.debug { "Camera $cameraId has become unavailable" }
                     trySendBlocking(
                             CameraStatus.CameraUnavailable(CameraId.fromCamera2Id(cameraId))
@@ -71,5 +107,11 @@ constructor(cameraManager: Provider<CameraManager>, threads: Threads) : CameraSt
         }
 
         awaitClose { manager.unregisterAvailabilityCallback(availabilityCallback) }
+    }
+
+    override fun close() {
+        if (closed.compareAndSet(expect = false, update = true)) {
+            cameraStatusJob.cancel()
+        }
     }
 }
