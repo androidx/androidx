@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.handwriting
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.internal.ComposeInputMethodManager
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -25,6 +24,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.TouchBoundsExpansion
 import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
@@ -54,10 +54,6 @@ import androidx.compose.ui.unit.IntSize
 fun Modifier.handwritingDetector(callback: () -> Unit) =
     if (isStylusHandwritingSupported) {
         then(HandwritingDetectorElement(callback))
-            .padding(
-                horizontal = HandwritingBoundsHorizontalOffset,
-                vertical = HandwritingBoundsVerticalOffset
-            )
     } else {
         this
     }
@@ -100,10 +96,13 @@ private class HandwritingDetectorNode(var callback: () -> Unit) :
 
     val pointerInputNode =
         delegate(
-            StylusHandwritingNodeWithNegativePadding {
+            StylusHandwritingNode {
                 callback()
                 composeImm.prepareStylusHandwritingDelegation()
-                return@StylusHandwritingNodeWithNegativePadding true
+                return@StylusHandwritingNode true
             }
         )
+
+    override val touchBoundsExpansion: TouchBoundsExpansion
+        get() = pointerInputNode.touchBoundsExpansion
 }
