@@ -41,7 +41,7 @@ fun SwitchButtonDemo() {
         item { ListHeader { Text("Disabled Switch") } }
         item { DemoSwitchButton(enabled = false, initiallyChecked = true) }
         item { DemoSwitchButton(enabled = false, initiallyChecked = false) }
-        item { ListHeader { Text("Icon") } }
+        item { ListHeader { Text("Switch with Icon") } }
         item {
             DemoSwitchButton(
                 enabled = true,
@@ -59,6 +59,28 @@ fun SwitchButtonDemo() {
                 secondary = "Secondary label"
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+            }
+        }
+        item { ListHeader { Text("Disabled Switch with Icon") } }
+        for (initiallyChecked in booleanArrayOf(true, false)) {
+            item {
+                DemoSwitchButton(
+                    enabled = false,
+                    initiallyChecked = initiallyChecked,
+                    primary = "Primary label",
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
+            }
+            item {
+                DemoSwitchButton(
+                    enabled = false,
+                    initiallyChecked = initiallyChecked,
+                    primary = "Primary label",
+                    secondary = "Secondary label"
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
             }
         }
         item { ListHeader { Text("Multi-line") } }

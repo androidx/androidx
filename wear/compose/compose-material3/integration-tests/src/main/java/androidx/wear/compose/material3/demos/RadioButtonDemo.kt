@@ -63,7 +63,7 @@ fun RadioButtonDemo() {
         item { ListHeader { Text("Disabled Radio Button") } }
         item { DemoRadioButton(enabled = false, selected = true) }
         item { DemoRadioButton(enabled = false, selected = false) }
-        item { ListHeader { Text("Icon") } }
+        item { ListHeader { Text("Radio Button with Icon") } }
         item {
             DemoRadioButton(
                 enabled = true,
@@ -81,6 +81,26 @@ fun RadioButtonDemo() {
                 secondary = "Secondary label"
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+            }
+        }
+        item { ListHeader { Text("Disabled Radio Button with Icon") } }
+        for (selected in booleanArrayOf(true, false)) {
+            item {
+                DemoRadioButton(
+                    enabled = false,
+                    selected = selected,
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
+            }
+            item {
+                DemoRadioButton(
+                    enabled = false,
+                    selected = selected,
+                    secondary = "Secondary label"
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
             }
         }
         item { ListHeader { Text("Multi-line") } }

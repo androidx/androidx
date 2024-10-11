@@ -61,6 +61,28 @@ fun CheckboxButtonDemo() {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
+        item { ListHeader { Text("Disabled Checkbox with Icon") } }
+        for (initiallyChecked in booleanArrayOf(true, false)) {
+            item {
+                DemoCheckboxButton(
+                    enabled = false,
+                    initiallyChecked = initiallyChecked,
+                    primary = "Primary label",
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
+            }
+            item {
+                DemoCheckboxButton(
+                    enabled = false,
+                    initiallyChecked = initiallyChecked,
+                    primary = "Primary label",
+                    secondary = "Secondary label"
+                ) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+                }
+            }
+        }
         item { ListHeader { Text("Multi-line") } }
         item {
             DemoCheckboxButton(
