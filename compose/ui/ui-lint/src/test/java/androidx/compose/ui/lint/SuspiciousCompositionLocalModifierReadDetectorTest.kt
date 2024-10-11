@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.lint
 
+import androidx.compose.lint.test.Stubs
 import androidx.compose.ui.lint.SuspiciousCompositionLocalModifierReadDetector.Companion.SuspiciousCompositionLocalModifierRead
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
@@ -64,29 +65,6 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
         """
         )
 
-    private val CompositionLocalStub =
-        kotlin(
-            """
-            package androidx.compose.runtime
-
-            import java.lang.RuntimeException
-
-            class CompositionLocal<T>(defaultFactory: () -> T)
-
-            class ProvidedValue<T> internal constructor(
-                val compositionLocal: CompositionLocal<T>,
-                val value: T,
-                val canOverride: Boolean
-            )
-
-            fun <T> compositionLocalOf(defaultFactory: () -> T): CompositionLocal<T> =
-                throw RuntimeException("Not implemented in lint stubs.")
-
-            fun <T> staticCompositionLocalOf(defaultFactory: () -> T): CompositionLocal<T> =
-                throw RuntimeException("Not implemented in lint stubs.")
-        """
-        )
-
     @Test
     fun testCompositionLocalReadInModifierAttachAndDetach() {
         lint()
@@ -116,7 +94,7 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )
@@ -167,7 +145,7 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )
@@ -201,7 +179,7 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )
@@ -243,7 +221,7 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )
@@ -275,7 +253,7 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )
@@ -319,7 +297,7 @@ src/test/NodeUnderTest.kt:16: Error: Reading staticLocalInt lazily will only acc
                 }
             """
                 ),
-                CompositionLocalStub,
+                Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
                 ModifierNodeStub
             )

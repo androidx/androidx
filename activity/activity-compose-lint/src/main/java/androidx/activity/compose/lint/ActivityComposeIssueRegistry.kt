@@ -31,7 +31,8 @@ class ActivityComposeIssueRegistry : IssueRegistry() {
         get() =
             listOf(
                 ActivityResultLaunchDetector.LaunchDuringComposition,
-                CollectProgressDetector.NoCollectCallFound
+                CollectProgressDetector.NoCollectCallFound,
+                LocalContextCastIssueDetector.ContextCastToActivity
             )
 
     override val vendor =
