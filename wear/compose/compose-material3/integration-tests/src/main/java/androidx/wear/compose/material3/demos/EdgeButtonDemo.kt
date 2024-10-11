@@ -70,7 +70,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
         val state = rememberLazyListState()
         ScreenScaffold(
             scrollState = state,
-            bottomButton = {
+            edgeButton = {
                 EdgeButton(
                     onClick = {},
                     buttonSize = EdgeButtonSize.Large,
@@ -125,7 +125,7 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
         val state = rememberScalingLazyListState()
         ScreenScaffold(
             scrollState = state,
-            bottomButton = {
+            edgeButton = {
                 EdgeButton(
                     onClick = {},
                     buttonSize = EdgeButtonSize.Large,
@@ -269,7 +269,7 @@ fun EdgeButtonConfigurableDemo() {
         val state = rememberScalingLazyListState()
         ScreenScaffold(
             scrollState = state,
-            bottomButton = {
+            edgeButton = {
                 EdgeButton(
                     onClick = {},
                     buttonSize = sizes[selectedSize].second,

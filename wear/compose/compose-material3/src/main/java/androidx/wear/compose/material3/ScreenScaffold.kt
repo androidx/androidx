@@ -70,9 +70,9 @@ import kotlin.math.roundToInt
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
- * @param bottomButton Optional slot for a Button (usually an [EdgeButton]) that takes the available
- *   space below a scrolling list. It will scale up and fade in when the user scrolls to the end of
- *   the list, and scale down and fade out as the user scrolls up.
+ * @param edgeButton Optional slot for a [EdgeButton] that takes the available space below a
+ *   scrolling list. It will scale up and fade in when the user scrolls to the end of the list, and
+ *   scale down and fade out as the user scrolls up.
  * @param content The body content for this screen.
  */
 @Composable
@@ -83,12 +83,12 @@ fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
         ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
     },
-    bottomButton: (@Composable BoxScope.() -> Unit)? = null,
+    edgeButton: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) =
-    if (bottomButton != null) {
+    if (edgeButton != null) {
         ScreenScaffold(
-            bottomButton,
+            edgeButton,
             ScrollInfoProvider(scrollState),
             modifier,
             timeText,
@@ -133,9 +133,9 @@ fun ScreenScaffold(
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
- * @param bottomButton Optional slot for a Button (usually an [EdgeButton]) that takes the available
- *   space below a scrolling list. It will scale up and fade in when the user scrolls to the end of
- *   the list, and scale down and fade out as the user scrolls up.
+ * @param edgeButton Optional slot for a [EdgeButton] that takes the available space below a
+ *   scrolling list. It will scale up and fade in when the user scrolls to the end of the list, and
+ *   scale down and fade out as the user scrolls up.
  * @param content The body content for this screen.
  */
 @Composable
@@ -146,12 +146,12 @@ fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
         ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
     },
-    bottomButton: (@Composable BoxScope.() -> Unit)? = null,
+    edgeButton: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) =
-    if (bottomButton != null) {
+    if (edgeButton != null) {
         ScreenScaffold(
-            bottomButton,
+            edgeButton,
             ScrollInfoProvider(scrollState),
             modifier,
             timeText,
@@ -192,9 +192,9 @@ fun ScreenScaffold(
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
- * @param bottomButton Optional slot for a Button (usually an [EdgeButton]) that takes the available
- *   space below a scrolling list. It will scale up and fade in when the user scrolls to the end of
- *   the list, and scale down and fade out as the user scrolls up.
+ * @param edgeButton Optional slot for a [EdgeButton] that takes the available space below a
+ *   scrolling list. It will scale up and fade in when the user scrolls to the end of the list, and
+ *   scale down and fade out as the user scrolls up.
  * @param content The body content for this screen.
  */
 @Composable
@@ -205,12 +205,12 @@ fun ScreenScaffold(
     scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
         ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
     },
-    bottomButton: (@Composable BoxScope.() -> Unit)? = null,
+    edgeButton: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) =
-    if (bottomButton != null) {
+    if (edgeButton != null) {
         ScreenScaffold(
-            bottomButton,
+            edgeButton,
             ScrollInfoProvider(scrollState),
             modifier,
             timeText,
@@ -275,14 +275,14 @@ fun ScreenScaffold(
  *
  * This version of [ScreenScaffold] has a special slot for a button at the bottom, that grows and
  * shrinks to take the available space after the scrollable content. In this overload, both
- * bottomButton and scrollInfoProvider must be specified.
+ * edgeButton and scrollInfoProvider must be specified.
  *
  * Example of using AppScaffold and ScreenScaffold:
  *
  * @sample androidx.wear.compose.material3.samples.ScaffoldSample
- * @param bottomButton slot for a Button (usually an [EdgeButton]) that takes the available space
- *   below a scrolling list. It will scale up and fade in when the user scrolls to the end of the
- *   list, and scale down and fade out as the user scrolls up.
+ * @param edgeButton slot for a [EdgeButton] that takes the available space below a scrolling list.
+ *   It will scale up and fade in when the user scrolls to the end of the list, and scale down and
+ *   fade out as the user scrolls up.
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
  *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator], this needs to be a
  *   [ScrollInfoProvider].
@@ -297,7 +297,7 @@ fun ScreenScaffold(
  */
 @Composable
 fun ScreenScaffold(
-    bottomButton: @Composable BoxScope.() -> Unit,
+    edgeButton: @Composable BoxScope.() -> Unit,
     scrollInfoProvider: ScrollInfoProvider,
     modifier: Modifier = Modifier,
     timeText: (@Composable () -> Unit)? = null,
@@ -316,7 +316,7 @@ fun ScreenScaffold(
                     scrollInfoProvider.lastItemOffset.coerceAtLeast(0f)
                 },
                 contentAlignment = Alignment.BottomCenter,
-                content = bottomButton
+                content = edgeButton
             )
         }
     )
