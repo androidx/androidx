@@ -143,6 +143,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".material3.DialogActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.integration.macrobenchmark.target.material3.DIALOG_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />

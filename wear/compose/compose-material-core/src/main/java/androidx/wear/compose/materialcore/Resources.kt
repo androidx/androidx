@@ -23,8 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -63,6 +65,11 @@ fun currentTimeMillis(): Long = System.currentTimeMillis()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 fun screenHeightDp() = LocalConfiguration.current.screenHeightDp
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun screenHeightPx(): Int =
+    with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.roundToPx() }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
