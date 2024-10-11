@@ -88,18 +88,9 @@ fun Project.getPrivacySandboxFilesDirectory(): Provider<Directory> =
 fun Project.getFileInTestConfigDirectory(name: String): Provider<RegularFile> =
     getTestConfigDirectory().map { it.file(name) }
 
-/** Directory to put release note files for generate release note tasks. */
-fun Project.getReleaseNotesDirectory(): File = File(getDistributionDirectory(), "release-notes")
-
 /** Directory to put host test results so they can be consumed by the testing dashboard. */
 fun Project.getHostTestResultDirectory(): File =
     File(getDistributionDirectory(), "host-test-reports")
-
-/** Directory to put json metrics so they can be consumed by the metrics dashboards. */
-fun Project.getLibraryMetricsDirectory(): File = File(getDistributionDirectory(), "librarymetrics")
-
-/** Directory to put json metrics so they can be consumed by the metrics dashboards. */
-fun Project.getLibraryReportsDirectory(): File = File(getDistributionDirectory(), "libraryreports")
 
 /** Whether the build should force all versions to be snapshots. */
 fun isSnapshotBuild() = System.getenv("SNAPSHOT") != null
