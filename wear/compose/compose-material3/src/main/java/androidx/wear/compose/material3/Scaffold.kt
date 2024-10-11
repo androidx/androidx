@@ -67,6 +67,12 @@ internal class ScaffoldState(private val appTimeText: (@Composable (() -> Unit))
             }
         }
 
+    /**
+     * Represents the scale factor applied to the parent screen. This should be used when scaling is
+     * needed for transitions or other animations affecting the parent.
+     */
+    var parentScale = mutableFloatStateOf(1f)
+
     internal val screenStage: MutableState<ScreenStage> = mutableStateOf(ScreenStage.New)
 
     @Composable
@@ -104,12 +110,6 @@ internal class ScaffoldState(private val appTimeText: (@Composable (() -> Unit))
         }
         return resultContent to (resultTimeText ?: appTimeText ?: {})
     }
-
-    /**
-     * Represents the scale factor applied to the parent screen. This should be used when scaling is
-     * needed for transitions or other animations affecting the parent.
-     */
-    var parentScale = mutableFloatStateOf(1f)
 
     private val screenContent = mutableStateListOf<ScreenContent>()
 }
