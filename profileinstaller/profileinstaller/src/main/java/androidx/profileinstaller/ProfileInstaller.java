@@ -21,6 +21,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Parcel;
+import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
@@ -56,7 +58,7 @@ public class ProfileInstaller {
 
     private static final String TAG = "ProfileInstaller";
 
-    private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
+    private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/" + getCurrentUserId();
     private static final String PROFILE_FILE = "primary.prof";
     private static final String PROFILE_META_LOCATION = "dexopt/baseline.profm";
     private static final String PROFILE_INSTALLER_SKIP_FILE_NAME =
@@ -84,6 +86,24 @@ public class ProfileInstaller {
          * @param data Optional data passed in that relates to the code that was passed.
          */
         void onResultReceived(@ResultCode int code, @Nullable Object data);
+    }
+
+    /**
+     * Returns the current selected user id. Internally the value is read from
+     * {@link android.os.Process#myUserHandle()}.
+     *
+     * @return the current selected user id.
+     */
+    private static int getCurrentUserId() {
+        try {
+            Parcel parcel = Parcel.obtain();
+            Process.myUserHandle().writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            return parcel.readInt();
+        } catch (Throwable e) {
+            Log.d(TAG, "Error when reading current user id. Selected default user id `0`.");
+            return 0;
+        }
     }
 
     @SuppressWarnings("SameParameterValue")
