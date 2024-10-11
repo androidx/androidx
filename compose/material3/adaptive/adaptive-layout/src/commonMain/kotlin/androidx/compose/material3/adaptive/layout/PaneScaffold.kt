@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Transition
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.Modifier
@@ -95,7 +96,7 @@ sealed interface PaneScaffoldTransitionScope<Role, ScaffoldValue : PaneScaffoldV
     val scaffoldStateTransition: Transition<ScaffoldValue>
 
     /** The current motion progress. */
-    val motionProgress: Float
+    @get:FloatRange(from = 0.0, to = 1.0) val motionProgress: Float
 }
 
 /**
