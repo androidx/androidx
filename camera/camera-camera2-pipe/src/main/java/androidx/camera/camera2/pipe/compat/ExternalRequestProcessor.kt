@@ -73,7 +73,7 @@ public class ExternalCameraController(
         }
     }
 
-    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+    override fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus) {
         // This is intentionally made a no-op for now as CameraPipe external doesn't support
         // camera status monitoring and camera controller restart.
     }

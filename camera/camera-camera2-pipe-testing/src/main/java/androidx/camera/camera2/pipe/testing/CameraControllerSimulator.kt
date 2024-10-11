@@ -172,7 +172,7 @@ public class CameraControllerSimulator(
         }
     }
 
-    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+    override fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus) {
         synchronized(lock) {
             check(!closed) { "Attempted to invoke restart after close." }
             stop()

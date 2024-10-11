@@ -79,6 +79,9 @@ constructor(
 
     @GuardedBy("lock") private var controllerState: ControllerState = ControllerState.STOPPED
 
+    @GuardedBy("lock")
+    private var cameraStatus: CameraStatus = CameraStatus.CameraUnavailable(cameraId)
+
     @GuardedBy("lock") private var lastCameraError: CameraError? = null
 
     private var currentCamera: VirtualCamera? = null
@@ -163,8 +166,16 @@ constructor(
             disconnectSessionAndCamera(session, camera)
         }
 
-    override fun tryRestart(cameraStatus: CameraStatus): Unit =
+    override fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
         synchronized(lock) {
+            Log.debug { "$this ($cameraId) camera status changed to $cameraStatus" }
+            if (
+                cameraStatus is CameraStatus.CameraAvailable ||
+                    cameraStatus is CameraStatus.CameraUnavailable
+            ) {
+                this@Camera2CameraController.cameraStatus = cameraStatus
+            }
+
             var shouldRestart = false
             when (controllerState) {
                 ControllerState.DISCONNECTED ->
@@ -184,7 +195,8 @@ constructor(
             }
             if (!shouldRestart) {
                 Log.debug {
-                    "Ignoring tryRestart(): state = $controllerState, cameraStatus = $cameraStatus"
+                    "Camera status changed but not restarting: " +
+                        "Controller state = $controllerState, camera status = $cameraStatus."
                 }
                 return
             }
@@ -285,14 +297,28 @@ constructor(
                         Build.VERSION.SDK_INT in
                             (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2) && _isForeground
                     ) {
-                        Log.debug { "Quirk for multi-resume: Internal tryRestart()" }
-                        tryRestart(CameraStatus.CameraPrioritiesChanged)
+                        Log.debug {
+                            "Quirk for multi-resume activated: " +
+                                "Emulating camera priorities changed to kickoff potential restart."
+                        }
+                        onCameraStatusChanged(CameraStatus.CameraPrioritiesChanged)
                     }
                 } else {
                     controllerState = ControllerState.ERROR
                     Log.debug {
-                        "Camera2CameraController encountered an " +
-                            "unrecoverable error: ${cameraState.cameraErrorCode}"
+                        "Camera2CameraController encountered error: ${cameraState.cameraErrorCode}"
+                    }
+
+                    // When camera is closed under error, it is possible for the camera availability
+                    // callback to indicate camera as available, before we finish processing
+                    // (receiving) the camera error. Therefore, if we have an error, but we think
+                    // the camera is available, we should attempt a retry.
+                    // Please refer to b/362902859 for details.
+                    if (
+                        cameraStatus is CameraStatus.CameraAvailable &&
+                            cameraState.cameraErrorCode != CameraError.ERROR_GRAPH_CONFIG
+                    ) {
+                        onCameraStatusChanged(cameraStatus)
                     }
                 }
                 lastCameraError = cameraState.cameraErrorCode
