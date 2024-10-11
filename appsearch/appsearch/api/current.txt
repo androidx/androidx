@@ -1046,6 +1046,24 @@ package androidx.appsearch.usagereporting {
     method public androidx.appsearch.usagereporting.ClickAction.Builder setTimeStayOnResultMillis(long);
   }
 
+  @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:DismissAction") public class DismissAction extends androidx.appsearch.usagereporting.TakenAction {
+    method public String? getQuery();
+    method public String? getReferencedQualifiedId();
+    method public int getResultRankGlobal();
+    method public int getResultRankInBlock();
+  }
+
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class DismissAction.Builder {
+    ctor public DismissAction.Builder(androidx.appsearch.usagereporting.DismissAction);
+    ctor public DismissAction.Builder(String, String, long);
+    method public androidx.appsearch.usagereporting.DismissAction build();
+    method public androidx.appsearch.usagereporting.DismissAction.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.usagereporting.DismissAction.Builder setQuery(String?);
+    method public androidx.appsearch.usagereporting.DismissAction.Builder setReferencedQualifiedId(String?);
+    method public androidx.appsearch.usagereporting.DismissAction.Builder setResultRankGlobal(int);
+    method public androidx.appsearch.usagereporting.DismissAction.Builder setResultRankInBlock(int);
+  }
+
   @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ImpressionAction") public class ImpressionAction extends androidx.appsearch.usagereporting.TakenAction {
     method public String? getQuery();
     method public String? getReferencedQualifiedId();

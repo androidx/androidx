@@ -47,6 +47,7 @@ public abstract class TakenAction {
             ActionConstants.ACTION_TYPE_SEARCH,
             ActionConstants.ACTION_TYPE_CLICK,
             ActionConstants.ACTION_TYPE_IMPRESSION,
+            ActionConstants.ACTION_TYPE_DISMISS,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {

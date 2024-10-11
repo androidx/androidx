@@ -68,6 +68,7 @@ import androidx.appsearch.flags.Flags;
 import androidx.appsearch.flags.RequiresFlagsEnabled;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.usagereporting.ClickAction;
+import androidx.appsearch.usagereporting.DismissAction;
 import androidx.appsearch.usagereporting.ImpressionAction;
 import androidx.appsearch.usagereporting.SearchAction;
 import androidx.appsearch.util.DocumentIdUtil;
@@ -104,6 +105,7 @@ public abstract class AppSearchSessionCtsTestBase {
     private static final int ACTION_TYPE_SEARCH = 1;
     private static final int ACTION_TYPE_CLICK = 2;
     private static final int ACTION_TYPE_IMPRESSION = 3;
+    private static final int ACTION_TYPE_DISMISS = 4;
 
     @Rule
     public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
@@ -1576,7 +1578,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchemaAsync(
                         new SetSchemaRequest.Builder()
                                 .addDocumentClasses(SearchAction.class, ClickAction.class,
-                                        ImpressionAction.class)
+                                        ImpressionAction.class, DismissAction.class)
                                 .build())
                 .get();
 
@@ -1605,14 +1607,24 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setResultRankInBlock(2)
                         .setResultRankGlobal(4)
                         .build();
+        DismissAction dismissAction =
+                new DismissAction.Builder(
+                        "namespace", "dismiss", /* actionTimestampMillis= */4000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("query")
+                        .setReferencedQualifiedId("pkg$db/ns#refId3")
+                        .setResultRankInBlock(3)
+                        .setResultRankGlobal(5)
+                        .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
-                        .addTakenActions(searchAction, clickAction, impressionAction)
+                        .addTakenActions(searchAction, clickAction, impressionAction, dismissAction)
                         .build()));
         assertThat(result.getSuccesses()).containsEntry("search", null);
         assertThat(result.getSuccesses()).containsEntry("click", null);
         assertThat(result.getSuccesses()).containsEntry("impression", null);
+        assertThat(result.getSuccesses()).containsEntry("dismiss", null);
         assertThat(result.getFailures()).isEmpty();
     }
 // @exportToFramework:endStrip()
@@ -1663,10 +1675,26 @@ public abstract class AppSearchSessionCtsTestBase {
                                         StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
                                 .build()
                         ).build();
+        AppSearchSchema dismissActionSchema =
+                new AppSearchSchema.Builder("builtin:DismissAction")
+                        .addProperty(new LongPropertyConfig.Builder("actionType")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new StringPropertyConfig.Builder("query")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build()
+                        ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build()
+                        ).build();
 
         mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(searchActionSchema, clickActionSchema,
-                                impressionActionSchema)
+                                impressionActionSchema, dismissActionSchema)
                         .build()).get();
 
         // Put search action, click action and impression action generic documents.
@@ -1690,14 +1718,23 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId2")
                         .build();
+        GenericDocument dismissAction =
+                new GenericDocument.Builder<>("namespace", "dismiss", "builtin:DismissAction")
+                        .setCreationTimestampMillis(4000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId3")
+                        .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
-                        .addTakenActionGenericDocuments(searchAction, clickAction, impressionAction)
+                        .addTakenActionGenericDocuments(searchAction, clickAction, impressionAction,
+                                dismissAction)
                         .build()));
         assertThat(result.getSuccesses()).containsEntry("search", null);
         assertThat(result.getSuccesses()).containsEntry("click", null);
         assertThat(result.getSuccesses()).containsEntry("impression", null);
+        assertThat(result.getSuccesses()).containsEntry("dismiss", null);
         assertThat(result.getFailures()).isEmpty();
     }
 
@@ -2710,7 +2747,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         new SetSchemaRequest.Builder()
                                 .addSchemas(AppSearchEmail.SCHEMA)
                                 .addDocumentClasses(SearchAction.class, ClickAction.class,
-                                        ImpressionAction.class)
+                                        ImpressionAction.class, DismissAction.class)
                                 .build())
                 .get();
 
@@ -2779,12 +2816,21 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setResultRankInBlock(2)
                         .setResultRankGlobal(2)
                         .build();
+        DismissAction dismissAction1 =
+                new DismissAction.Builder(
+                        "namespace", "dismiss1", /* actionTimestampMillis= */6000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
 
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
                         .addTakenActions(searchAction, clickAction1, clickAction2, clickAction3,
-                                impressionAction1)
+                                impressionAction1, dismissAction1)
                         .build()));
 
         SearchSpec nestedSearchSpec =
@@ -2831,7 +2877,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         new SetSchemaRequest.Builder()
                                 .addSchemas(AppSearchEmail.SCHEMA)
                                 .addDocumentClasses(SearchAction.class, ClickAction.class,
-                                        ImpressionAction.class)
+                                        ImpressionAction.class, DismissAction.class)
                                 .build())
                 .get();
 
@@ -2900,12 +2946,21 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setResultRankInBlock(2)
                         .setResultRankGlobal(2)
                         .build();
+        DismissAction dismissAction1 =
+                new DismissAction.Builder(
+                        "namespace", "dismiss1", /* actionTimestampMillis= */6000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
 
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
                         .addTakenActions(searchAction, clickAction1, clickAction2, clickAction3,
-                                impressionAction1)
+                                impressionAction1, dismissAction1)
                         .build()));
 
         SearchSpec nestedSearchSpec =
@@ -2940,6 +2995,154 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(sr.get(0).getRankingSignal()).isEqualTo(1.0);
         assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email1");
         assertThat(sr.get(1).getRankingSignal()).isEqualTo(0.0);
+    }
+
+    @Test
+    public void testQueryRankByDismissActions_useTakenAction() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(AppSearchEmail.SCHEMA)
+                                .addDocumentClasses(SearchAction.class, ClickAction.class,
+                                        ImpressionAction.class, DismissAction.class)
+                                .build())
+                .get();
+
+        // Index several email documents
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "email1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "email2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+
+        String qualifiedId1 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail1);
+        String qualifiedId2 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail2);
+
+        SearchAction searchAction =
+                new SearchAction.Builder("namespace", "search1", /* actionTimestampMillis= */1000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setFetchedResultCount(20)
+                        .build();
+        ClickAction clickAction1 =
+                new ClickAction.Builder("namespace", "click1", /* actionTimestampMillis= */2000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId1)
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(1)
+                        .setTimeStayOnResultMillis(512)
+                        .build();
+        ClickAction clickAction2 =
+                new ClickAction.Builder("namespace", "click2", /* actionTimestampMillis= */3000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .setTimeStayOnResultMillis(128)
+                        .build();
+        ClickAction clickAction3 =
+                new ClickAction.Builder("namespace", "click3", /* actionTimestampMillis= */4000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId1)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .setTimeStayOnResultMillis(256)
+                        .build();
+        ImpressionAction impressionAction1 =
+                new ImpressionAction.Builder(
+                        "namespace", "impression1", /* actionTimestampMillis= */5000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
+        DismissAction dismissAction1 =
+                new DismissAction.Builder(
+                        "namespace", "dismiss1", /* actionTimestampMillis= */6000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
+        DismissAction dismissAction2 =
+                new DismissAction.Builder(
+                        "namespace", "dismiss2", /* actionTimestampMillis= */7000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
+        DismissAction dismissAction3 =
+                new DismissAction.Builder(
+                        "namespace", "dismiss3", /* actionTimestampMillis= */8000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setReferencedQualifiedId(qualifiedId2)
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(2)
+                        .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(inEmail1, inEmail2)
+                        .addTakenActions(searchAction, clickAction1, clickAction2, clickAction3,
+                                impressionAction1, dismissAction1, dismissAction2, dismissAction3)
+                        .build()));
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .addFilterDocumentClasses(DismissAction.class)
+                        .build();
+
+        // Note: SearchSpec.Builder#setMaxJoinedResultCount only limits the number of child
+        // documents returned. It does not affect the number of child documents that are scored.
+        JoinSpec js = new JoinSpec.Builder("referencedQualifiedId")
+                .setNestedSearch("query:body", nestedSearchSpec)
+                .setMaxJoinedResultCount(0)
+                .build();
+
+        // Search "body" for AppSearchEmail documents, ranking by DismissAction signals with
+        // query = "body" via advanced scoring language syntax to assign negative weights.
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setRankingStrategy("-len(this.childrenRankingSignals())")
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                .build());
+
+        List<SearchResult> sr = searchResults.getNextPageAsync().get();
+
+        assertThat(sr).hasSize(2);
+        assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("email1");
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(-0.0);
+        assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email2");
+        assertThat(sr.get(1).getRankingSignal()).isEqualTo(-3.0);
+
     }
 // @exportToFramework:endStrip()
 
@@ -2988,12 +3191,28 @@ public abstract class AppSearchSessionCtsTestBase {
                                         StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
                                 .build()
                         ).build();
+        AppSearchSchema dismissActionSchema =
+                new AppSearchSchema.Builder("builtin:DismissAction")
+                        .addProperty(new LongPropertyConfig.Builder("actionType")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new StringPropertyConfig.Builder("query")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build()
+                        ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build()
+                        ).build();
 
         // Schema registration
         mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder()
                         .addSchemas(AppSearchEmail.SCHEMA, searchActionSchema, clickActionSchema,
-                                impressionActionSchema)
+                                impressionActionSchema, dismissActionSchema)
                         .build())
                 .get();
 
@@ -3055,13 +3274,20 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", qualifiedId2)
                         .build();
+        GenericDocument dismissAction1 =
+                new GenericDocument.Builder<>("namespace", "dismiss1", "builtin:DismissAction")
+                        .setCreationTimestampMillis(6000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
 
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
                         .addTakenActionGenericDocuments(
                                 searchAction, clickAction1, clickAction2, clickAction3,
-                                impressionAction1)
+                                impressionAction1, dismissAction1)
                         .build()));
 
         SearchSpec nestedSearchSpec =
@@ -3143,12 +3369,28 @@ public abstract class AppSearchSessionCtsTestBase {
                                         StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
                                 .build()
                         ).build();
+        AppSearchSchema dismissActionSchema =
+                new AppSearchSchema.Builder("builtin:DismissAction")
+                        .addProperty(new LongPropertyConfig.Builder("actionType")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new StringPropertyConfig.Builder("query")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build()
+                        ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build()
+                        ).build();
 
         // Schema registration
         mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder()
                         .addSchemas(AppSearchEmail.SCHEMA, searchActionSchema, clickActionSchema,
-                                impressionActionSchema)
+                                impressionActionSchema, dismissActionSchema)
                         .build())
                 .get();
 
@@ -3210,13 +3452,20 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", qualifiedId2)
                         .build();
+        GenericDocument dismissAction1 =
+                new GenericDocument.Builder<>("namespace", "dismiss1", "builtin:DismissAction")
+                        .setCreationTimestampMillis(6000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
 
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
                         .addTakenActionGenericDocuments(
                                 searchAction, clickAction1, clickAction2, clickAction3,
-                                impressionAction1)
+                                impressionAction1, dismissAction1)
                         .build()));
 
         SearchSpec nestedSearchSpec =
@@ -3251,6 +3500,197 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(sr.get(0).getRankingSignal()).isEqualTo(1.0);
         assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email1");
         assertThat(sr.get(1).getRankingSignal()).isEqualTo(0.0);
+    }
+
+    @Test
+    public void testQueryRankByDismissActions_useTakenActionGenericDocument() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        AppSearchSchema searchActionSchema = new AppSearchSchema.Builder("builtin:SearchAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("query")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+        AppSearchSchema clickActionSchema = new AppSearchSchema.Builder("builtin:ClickAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("query")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+        AppSearchSchema impressionActionSchema =
+                new AppSearchSchema.Builder("builtin:ImpressionAction")
+                        .addProperty(new LongPropertyConfig.Builder("actionType")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new StringPropertyConfig.Builder("query")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build()
+                        ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build()
+                        ).build();
+        AppSearchSchema dismissActionSchema =
+                new AppSearchSchema.Builder("builtin:DismissAction")
+                        .addProperty(new LongPropertyConfig.Builder("actionType")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new StringPropertyConfig.Builder("query")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build()
+                        ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setJoinableValueType(
+                                        StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                                .build()
+                        ).build();
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA, searchActionSchema, clickActionSchema,
+                                impressionActionSchema, dismissActionSchema)
+                        .build())
+                .get();
+
+        // Index several email documents
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "email1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "email2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+
+        String qualifiedId1 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail1);
+        String qualifiedId2 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail2);
+
+        GenericDocument searchAction =
+                new GenericDocument.Builder<>("namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyLong("actionType", ACTION_TYPE_SEARCH)
+                        .setPropertyString("query", "body")
+                        .build();
+        GenericDocument clickAction1 =
+                new GenericDocument.Builder<>("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId1)
+                        .build();
+        GenericDocument clickAction2 =
+                new GenericDocument.Builder<>("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+        GenericDocument clickAction3 =
+                new GenericDocument.Builder<>("namespace", "click3", "builtin:ClickAction")
+                        .setCreationTimestampMillis(4000)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId1)
+                        .build();
+        GenericDocument impressionAction1 =
+                new GenericDocument.Builder<>(
+                        "namespace", "impression1", "builtin:ImpressionAction")
+                        .setCreationTimestampMillis(5000)
+                        .setPropertyLong("actionType", ACTION_TYPE_IMPRESSION)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+        GenericDocument dismissAction1 =
+                new GenericDocument.Builder<>("namespace", "dismiss1", "builtin:DismissAction")
+                        .setCreationTimestampMillis(6000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+        GenericDocument dismissAction2 =
+                new GenericDocument.Builder<>("namespace", "dismiss2", "builtin:DismissAction")
+                        .setCreationTimestampMillis(7000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+        GenericDocument dismissAction3 =
+                new GenericDocument.Builder<>("namespace", "dismiss3", "builtin:DismissAction")
+                        .setCreationTimestampMillis(8000)
+                        .setPropertyLong("actionType", ACTION_TYPE_DISMISS)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(inEmail1, inEmail2)
+                        .addTakenActionGenericDocuments(
+                                searchAction, clickAction1, clickAction2, clickAction3,
+                                impressionAction1, dismissAction1, dismissAction2, dismissAction3)
+                        .build()));
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .addFilterSchemas("builtin:DismissAction")
+                        .build();
+
+        // Note: SearchSpec.Builder#setMaxJoinedResultCount only limits the number of child
+        // documents returned. It does not affect the number of child documents that are scored.
+        JoinSpec js = new JoinSpec.Builder("referencedQualifiedId")
+                .setNestedSearch("query:body", nestedSearchSpec)
+                .setMaxJoinedResultCount(0)
+                .build();
+
+        // Search "body" for AppSearchEmail documents, ranking by DismissAction signals with
+        // query = "body" via advanced scoring language syntax to assign negative weights.
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setRankingStrategy("-len(this.childrenRankingSignals())")
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                .build());
+
+        List<SearchResult> sr = searchResults.getNextPageAsync().get();
+
+        assertThat(sr).hasSize(2);
+        assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("email1");
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(-0.0);
+        assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email2");
+        assertThat(sr.get(1).getRankingSignal()).isEqualTo(-3.0);
     }
 
     @Test
