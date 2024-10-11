@@ -20,17 +20,23 @@ import android.os.Build
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -228,6 +234,29 @@ class DateInputTest {
     }
 
     @Test
+    fun heightUnchangedWithError() {
+        lateinit var dateInputLabel: String
+        rule.setMaterialContent(lightColorScheme()) {
+            dateInputLabel = getString(string = Strings.DateInputLabel)
+            DatePicker(
+                state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input),
+                modifier = Modifier.testTag(DateInputTestTag)
+            )
+        }
+        val withoutErrorBounds = rule.onNodeWithTag(DateInputTestTag).getBoundsInRoot()
+        // Type a date that will trigger an error text.
+        rule.onNodeWithText(dateInputLabel).performClick().performTextInput("12123000")
+        rule.waitForIdle()
+        val withErrorBounds = rule.onNodeWithTag(DateInputTestTag).getBoundsInRoot()
+
+        // Check that the height of the component did not change after having the error text visible
+        withoutErrorBounds.height.assertIsEqualTo(
+            withErrorBounds.height,
+            subject = "Date input height"
+        )
+    }
+
+    @Test
     fun defaultSemantics() {
         val selectedDateInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
         lateinit var expectedHeadlineStringFormat: String
@@ -268,4 +297,6 @@ class DateInputTest {
         firstDayCalendar[Calendar.DAY_OF_MONTH] = dayOfMonth
         return firstDayCalendar.timeInMillis
     }
+
+    private val DateInputTestTag = "DateInput"
 }
