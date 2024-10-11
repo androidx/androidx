@@ -21,11 +21,10 @@ import android.os.Build;
 import android.system.Os;
 import android.system.OsConstants;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -248,7 +247,8 @@ public class ProfileSession {
         return file.canExecute();
     }
 
-    private @Nullable String findSimpleperfInTempDir() {
+    @Nullable
+    private String findSimpleperfInTempDir() {
         String path = "/data/local/tmp/simpleperf";
         File file = new File(path);
         if (!file.isFile()) {
@@ -408,7 +408,8 @@ public class ProfileSession {
         }
     }
 
-    private @NonNull String readReply() {
+    @NonNull
+    private String readReply() {
         // Read one byte at a time to stop at line break or EOF. BufferedReader will try to read
         // more than available and make us blocking, so don't use it.
         String s = "";

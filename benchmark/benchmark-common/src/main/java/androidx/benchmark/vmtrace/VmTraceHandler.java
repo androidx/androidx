@@ -15,7 +15,7 @@
  */
 package androidx.benchmark.vmtrace;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * This interface used by {@link VmTraceParser}. {@link VmTraceParser} parses a trace file and

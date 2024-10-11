@@ -63,7 +63,6 @@ android {
 }
 
 dependencies {
-    api(libs.jspecify)
     api(project(":benchmark:benchmark-common"))
     api(libs.junit)
     api(libs.kotlinStdlib)
