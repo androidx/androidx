@@ -247,11 +247,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      */
     private boolean mDocumentLoaded = false;
     /**
-     * Represents if the configChanges property has been overridden in the manifest. This is
+     * If true, indicates that a config change has happened when recreation is disabled. This is
      * important because we will need to reset mRestoreLookAtPoint manually since
      * onSaveInstanceState() and onRestoreInstanceState(Parcelable) do not get invoked.
      */
-    private boolean mIsConfigChangesOverridden = false;
+    private boolean mConfigChangeObserved = false;
 
     {
         mScroller = new RelativeScroller(getContext());
@@ -671,14 +671,14 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mIsConfigChangesOverridden = true;
+        mConfigChangeObserved = true;
     }
 
     private void restoreLookAtPointIfNecessary() {
         if (mSaveState && mRestoreLookAtPoint != null) {
             if (mDocumentLoaded) {
                 centerAt(mRestoreLookAtPoint.x, mRestoreLookAtPoint.y, /* forceReport= */ true);
-                if (mIsConfigChangesOverridden) {
+                if (mConfigChangeObserved) {
                     mRestoreLookAtPoint = null;
                 }
             }
