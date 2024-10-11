@@ -19,12 +19,11 @@ package androidx.benchmark.macro;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -171,7 +170,8 @@ class JankCollectionHelper {
             mMetricId = metricId;
         }
 
-        public @Nullable Double parse(@NonNull String lines) {
+        @Nullable
+        public Double parse(@NonNull String lines) {
             Matcher matcher = mPattern.matcher(lines);
             if (matcher.matches()) {
                 return Double.valueOf(matcher.group(mGroupIndex));
@@ -180,7 +180,8 @@ class JankCollectionHelper {
             }
         }
 
-        public @NonNull String getMetricId() {
+        @NonNull
+        public String getMetricId() {
             return mMetricId;
         }
     }
@@ -220,7 +221,8 @@ class JankCollectionHelper {
     }
 
     /** Collect the {@code gfxinfo} metrics for tracked processes (or all, if unspecified). */
-    public @NonNull Map<String, Double> getMetrics() {
+    @NonNull
+    public Map<String, Double> getMetrics() {
         Map<String, Double> result = new HashMap<>();
         if (mTrackedPackages.isEmpty()) {
             result.putAll(getGfxInfoMetrics());
@@ -256,7 +258,7 @@ class JankCollectionHelper {
     }
 
     /** Add a package or list of packages to be tracked. */
-    public void addTrackedPackages(String @NonNull ... packages) {
+    public void addTrackedPackages(@NonNull String... packages) {
         Collections.addAll(mTrackedPackages, packages);
     }
 
@@ -346,7 +348,7 @@ class JankCollectionHelper {
         return results;
     }
 
-    private String constructKey(String  @NonNull ...tokens) {
+    private String constructKey(@NonNull String ...tokens) {
         return TextUtils.join("_", tokens);
     }
 
@@ -369,8 +371,9 @@ class JankCollectionHelper {
     }
 
     /** Returns the {@link UiDevice} under test. */
+    @NonNull
     @VisibleForTesting
-    protected @NonNull UiDevice getDevice() {
+    protected UiDevice getDevice() {
         if (mDevice == null) {
             mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         }
