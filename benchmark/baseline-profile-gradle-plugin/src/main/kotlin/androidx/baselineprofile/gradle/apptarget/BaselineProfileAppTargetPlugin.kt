@@ -254,6 +254,8 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             overrideConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type exists.
+                ext.isDebuggable = false
+                ext.isJniDebuggable = false
                 ext.isProfileable = true
                 ext.enableAndroidTestCoverage = false
                 ext.enableUnitTestCoverage = false
@@ -362,6 +364,9 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             overrideConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type exists.
+                ext.isJniDebuggable = false
+                ext.isDebuggable = false
+                ext.isProfileable = true
                 ext.enableAndroidTestCoverage = false
                 ext.enableUnitTestCoverage = false
 
