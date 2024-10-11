@@ -786,6 +786,16 @@ class AnnotatedStringTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun throws_exception_overlapping_addsCurrentToStack_whenEmptyStack() {
+        buildAnnotatedString {
+            append("12345")
+            addStyle(ParagraphStyle(), 1, 2)
+            addStyle(ParagraphStyle(), 2, 4)
+            addStyle(ParagraphStyle(), 3, 5)
+        }
+    }
+
     @Test
     fun doesNot_throws_exceedsMax() {
         buildAnnotatedString {

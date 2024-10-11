@@ -147,10 +147,10 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
                         requirePrecondition(current.end <= previousEnd) {
                             "Paragraph overlap not allowed, end ${current.end} should be less than or equal to $previousEnd"
                         }
-                        previousEnds.add(current.end)
                         break
                     }
                 }
+                previousEnds.add(current.end)
             }
         }
     }
