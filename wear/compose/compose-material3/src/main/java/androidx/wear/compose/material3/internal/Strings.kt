@@ -91,6 +91,12 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val StepperIncreaseIconContentDescription
             get() = Strings(R.string.wear_m3c_stepper_increase_content_description)
+
+        inline val AlertDialogContentDescriptionConfirmButton
+            get() = Strings(R.string.wear_m3c_alert_dialog_content_description_confirm_button)
+
+        inline val AlertDialogContentDescriptionDismissButton
+            get() = Strings(R.string.wear_m3c_alert_dialog_content_description_dismiss_button)
     }
 }
 

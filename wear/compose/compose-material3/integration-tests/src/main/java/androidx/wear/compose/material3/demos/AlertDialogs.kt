@@ -152,18 +152,16 @@ fun AlertDialogBuilder() {
         }
     }
 
-    if (showDialog) {
-        CustomAlertDialog(
-            show = true,
-            showIcon = showIcon,
-            showCaption = showCaption,
-            showSecondaryButton = showSecondaryButton,
-            showMessage = showMessage,
-            buttonsType = buttonsType,
-            onConfirmButton = { showDialog = false },
-            onDismissRequest = { showDialog = false }
-        )
-    }
+    CustomAlertDialog(
+        show = showDialog,
+        showIcon = showIcon,
+        showCaption = showCaption,
+        showSecondaryButton = showSecondaryButton,
+        showMessage = showMessage,
+        buttonsType = buttonsType,
+        onConfirmButton = { showDialog = false },
+        onDismissRequest = { showDialog = false }
+    )
 }
 
 @Composable

@@ -49,6 +49,8 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AlertDialogDefaults.edgeButtonExtraTopPadding
 import androidx.wear.compose.material3.PaddingDefaults.horizontalContentPadding
 import androidx.wear.compose.material3.PaddingDefaults.verticalContentPadding
+import androidx.wear.compose.material3.internal.Strings
+import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.materialcore.isSmallScreen
 import androidx.wear.compose.materialcore.screenHeightDp
 import androidx.wear.compose.materialcore.screenWidthDp
@@ -58,7 +60,7 @@ import androidx.wear.compose.materialcore.screenWidthDp
  * information, or help users accomplish a task. The AlertDialog is scrollable by default if the
  * content exceeds the viewport height.
  *
- * This overload has 2 [Button]s for confirmation and cancellation, placed horizontally at the
+ * This overload has 2 [IconButton]s for confirmation and cancellation, placed horizontally at the
  * bottom of the dialog. It should be used when the user will be presented with a binary decision,
  * to either confirm or dismiss an action.
  *
@@ -72,7 +74,8 @@ import androidx.wear.compose.materialcore.screenWidthDp
  *   must remove the dialog from the composition hierarchy e.g. by setting [show] to false. It's
  *   recommended to use [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
- *   dialog's purpose or content and should not exceed 3 lines of text.
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
  * @param modifier Modifier to be applied to the dialog content.
  * @param dismissButton A slot for a [Button] indicating negative sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy e.g. by setting [show] to false. It's
@@ -105,19 +108,23 @@ fun AlertDialog(
     properties: DialogProperties = DialogProperties(),
     content: (ScalingLazyListScope.() -> Unit)? = null
 ) {
-    AlertDialogImpl(
+    Dialog(
         show = show,
         onDismissRequest = onDismissRequest,
-        modifier = modifier,
         properties = properties,
-        verticalArrangement = verticalArrangement,
-        contentPadding = contentPadding,
-        title = title,
-        icon = icon,
-        text = text,
-        alertButtonsParams = AlertButtonsParams.ConfirmDismissButtons(confirmButton, dismissButton),
-        content = content
-    )
+    ) {
+        AlertDialogContent(
+            confirmButton = confirmButton,
+            title = title,
+            dismissButton = dismissButton,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            content = content
+        )
+    }
 }
 
 /**
@@ -125,11 +132,16 @@ fun AlertDialog(
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
  * exceeds the viewport height.
  *
+ * This overload doesn't have any dedicated slots for buttons. It has a content slot so that the
+ * caller has flexibility in how to seek user input. In most cases, we recommend using other
+ * AlertDialog variations with 2 confirm/dismiss buttons or a single confirmation button.
+ *
  * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
- *   dialog's purpose or content and should not exceed 3 lines of text.
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
  * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param text Optional slot for displaying the message of the dialog below the title. Should
@@ -155,19 +167,21 @@ fun AlertDialog(
     properties: DialogProperties = DialogProperties(),
     content: (ScalingLazyListScope.() -> Unit)? = null
 ) {
-    AlertDialogImpl(
+    Dialog(
         show = show,
         onDismissRequest = onDismissRequest,
-        modifier = modifier,
         properties = properties,
-        verticalArrangement = verticalArrangement,
-        contentPadding = contentPadding,
-        title = title,
-        icon = icon,
-        text = text,
-        alertButtonsParams = AlertButtonsParams.NoButtons,
-        content = content
-    )
+    ) {
+        AlertDialogContent(
+            title = title,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            content = content
+        )
+    }
 }
 
 /**
@@ -188,13 +202,14 @@ fun AlertDialog(
  * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.
- * @param edgeButton Slot for a [EdgeButton] indicating positive sentiment. Clicking the button must
- *   remove the dialog from the composition hierarchy e.g. by setting [show] to false. It's
+ * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy e.g. by setting [show] to false. It's
  *   recommended to use [AlertDialogDefaults.EdgeButton] in this slot with onClick callback. Note
- *   that when using a [EdgeButton] which is not Medium size, the contentPadding parameters should
+ *   that when using an [EdgeButton] which is not Medium size, the contentPadding parameters should
  *   be specified.
  * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
- *   dialog's purpose or content and should not exceed 3 lines of text.
+ *   dialog's purpose or content and should not exceed 3 lines of text.By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
  * @param modifier Modifier to be applied to the dialog content.
  * @param icon Optional slot for an icon to be shown at the top of the dialog.
  * @param text Optional slot for displaying the message of the dialog below the title. Should
@@ -223,11 +238,155 @@ fun AlertDialog(
     properties: DialogProperties = DialogProperties(),
     content: (ScalingLazyListScope.() -> Unit)? = null
 ) {
-    AlertDialogImpl(
+    Dialog(
         show = show,
         onDismissRequest = onDismissRequest,
-        modifier = modifier,
         properties = properties,
+    ) {
+        AlertDialogContent(
+            edgeButton = edgeButton,
+            title = title,
+            modifier = modifier,
+            icon = icon,
+            text = text,
+            verticalArrangement = verticalArrangement,
+            contentPadding = contentPadding,
+            content = content
+        )
+    }
+}
+
+/**
+ * This [AlertDialogContent] overload provides the content for an [AlertDialog] with 2 buttons to
+ * confirm or dismiss an action. Prefer using [AlertDialog] directly, which provides built-in
+ * animations and a streamlined API. This composable may be used to provide the content for an alert
+ * dialog if custom animations are required.
+ *
+ * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param dismissButton A slot for a [Button] indicating negative sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.DismissButton] in this slot with onClick callback.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents.
+ * @param content A slot for additional content, displayed within a scrollable [ScalingLazyColumn].
+ */
+@Composable
+fun AlertDialogContent(
+    confirmButton: @Composable RowScope.() -> Unit,
+    title: @Composable () -> Unit,
+    dismissButton: @Composable RowScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues = AlertDialogDefaults.confirmDismissContentPadding(),
+    content: (ScalingLazyListScope.() -> Unit)? = null
+) {
+    AlertDialogImpl(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        contentPadding = contentPadding,
+        title = title,
+        icon = icon,
+        text = text,
+        alertButtonsParams = AlertButtonsParams.ConfirmDismissButtons(confirmButton, dismissButton),
+        content = content
+    )
+}
+
+/**
+ * This [AlertDialogContent] overload provides the content for an [AlertDialog] without any
+ * dedicated slots for buttons. Prefer using [AlertDialog] directly, which provides built-in
+ * animations and a streamlined API. This composable may be used to provide the content for an alert
+ * dialog if custom animations are required.
+ *
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents.
+ * @param content A slot for additional content, displayed within a scrollable [ScalingLazyColumn].
+ */
+@Composable
+fun AlertDialogContent(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues = AlertDialogDefaults.contentPadding(),
+    content: (ScalingLazyListScope.() -> Unit)? = null
+) {
+    AlertDialogImpl(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        contentPadding = contentPadding,
+        title = title,
+        icon = icon,
+        text = text,
+        alertButtonsParams = AlertButtonsParams.NoButtons,
+        content = content
+    )
+}
+
+/**
+ * This [AlertDialogContent] overload provides the content for an [AlertDialog] with a single
+ * [EdgeButton] to confirm an action. Prefer using [AlertDialog] directly, which provides built-in
+ * animations and a streamlined API. This composable may be used to provide the content for an alert
+ * dialog if custom animations are required.
+ *
+ * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
+ *   must remove the dialog from the composition hierarchy. It's recommended to use
+ *   [AlertDialogDefaults.EdgeButton] in this slot with onClick callback. Note that when using an
+ *   [EdgeButton] which is not Medium size, the contentPadding parameters should be specified.
+ * @param title A slot for displaying the title of the dialog. Title should contain a summary of the
+ *   dialog's purpose or content and should not exceed 3 lines of text. By default,
+ *   [TextOverflow.Ellipsis] will be applied when text exceeds 3 lines.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param icon Optional slot for an icon to be shown at the top of the dialog.
+ * @param text Optional slot for displaying the message of the dialog below the title. Should
+ *   contain additional text that presents further details about the dialog's purpose if the title
+ *   is insufficient.
+ * @param verticalArrangement The vertical arrangement of the dialog's children. There is a default
+ *   padding between icon, title, and text, which will be added to the spacing specified in this
+ *   [verticalArrangement] parameter.
+ * @param contentPadding The padding to apply around the entire dialog's contents. Ensure there is
+ *   enough space for the [EdgeButton], for example, using
+ *   [AlertDialogDefaults.contentPaddingWithEdgeButton]
+ * @param content A slot for additional content, displayed within a scrollable [ScalingLazyColumn].
+ */
+@Composable
+fun AlertDialogContent(
+    edgeButton: (@Composable BoxScope.() -> Unit),
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    verticalArrangement: Arrangement.Vertical = AlertDialogDefaults.VerticalArrangement,
+    contentPadding: PaddingValues = AlertDialogDefaults.contentPaddingWithEdgeButton(),
+    content: (ScalingLazyListScope.() -> Unit)? = null
+) {
+    AlertDialogImpl(
+        modifier = modifier,
         verticalArrangement = verticalArrangement,
         contentPadding = contentPadding,
         title = title,
@@ -247,17 +406,20 @@ object AlertDialogDefaults {
      *
      * @param onClick The callback to be invoked when the button is clicked.
      * @param modifier The [Modifier] to be applied to the button.
+     * @param colors The [ButtonColors] to be used for the button.
      * @param content The composable content of the button. Defaults to [ConfirmIcon].
      */
     @Composable
     fun EdgeButton(
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
+        colors: ButtonColors = ButtonDefaults.buttonColors(),
         content: @Composable RowScope.() -> Unit = ConfirmIcon
     ) {
         EdgeButton(
             modifier = modifier,
             onClick = onClick,
+            colors = colors,
             buttonSize = EdgeButtonSize.Medium,
             content = content
         )
@@ -268,10 +430,17 @@ object AlertDialogDefaults {
      * [AlertDialog] overload which has 2 button slots to confirm or dismiss the action.
      *
      * @param onClick The callback to be invoked when the button is clicked.
+     * @param modifier The [Modifier] to be applied to the button.
+     * @param colors The [IconButtonColors] to be used for the button.
      * @param content The composable content of the button. Defaults to [ConfirmIcon].
      */
     @Composable
-    fun ConfirmButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit = ConfirmIcon) {
+    fun ConfirmButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
+        content: @Composable RowScope.() -> Unit = ConfirmIcon
+    ) {
         val confirmWidth = if (isSmallScreen()) 63.dp else 76.dp
         val confirmHeight = if (isSmallScreen()) 54.dp else 65.dp
 
@@ -279,7 +448,8 @@ object AlertDialogDefaults {
 
         FilledIconButton(
             onClick = onClick,
-            modifier = Modifier.rotate(-45f).size(confirmWidth, confirmHeight),
+            modifier = modifier.rotate(-45f).size(confirmWidth, confirmHeight),
+            colors = colors,
             shapes = IconButtonDefaults.shapes(confirmShape)
         ) {
             Row(
@@ -294,17 +464,25 @@ object AlertDialogDefaults {
      * [AlertDialog] overload which has 2 button slots to confirm or dismiss the action.
      *
      * @param onClick The callback to be invoked when the button is clicked.
+     * @param modifier The [Modifier] to be applied to the button.
+     * @param colors The [IconButtonColors] to be used for the button.
      * @param content The composable content of the button. Defaults to [DismissIcon].
      */
     @Composable
-    fun DismissButton(onClick: () -> Unit, content: @Composable RowScope.() -> Unit = DismissIcon) {
+    fun DismissButton(
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
+        content: @Composable RowScope.() -> Unit = DismissIcon
+    ) {
         val dismissSize = if (isSmallScreen()) 60.dp else 72.dp
         val dismissShape = MaterialTheme.shapes.medium
 
         Box(modifier = Modifier.size(dismissSize + cancelButtonPadding)) {
             FilledTonalIconButton(
                 onClick = onClick,
-                modifier = Modifier.size(dismissSize).align(Alignment.BottomEnd),
+                modifier = modifier.size(dismissSize).align(Alignment.BottomEnd),
+                colors = colors,
                 shapes = IconButtonDefaults.shapes(dismissShape)
             ) {
                 Row(content = content)
@@ -376,7 +554,7 @@ object AlertDialogDefaults {
     val ConfirmIcon: @Composable RowScope.() -> Unit = {
         Icon(
             imageVector = Icons.Filled.Check,
-            contentDescription = null,
+            contentDescription = getString(Strings.AlertDialogContentDescriptionConfirmButton),
             modifier = Modifier.size(36.dp).align(Alignment.CenterVertically)
         )
     }
@@ -385,7 +563,7 @@ object AlertDialogDefaults {
     val DismissIcon: @Composable RowScope.() -> Unit = {
         Icon(
             imageVector = Icons.Outlined.Close,
-            contentDescription = null,
+            contentDescription = getString(Strings.AlertDialogContentDescriptionDismissButton),
             modifier = Modifier.size(36.dp).align(Alignment.CenterVertically)
         )
     }
@@ -398,10 +576,7 @@ object AlertDialogDefaults {
 
 @Composable
 private fun AlertDialogImpl(
-    show: Boolean,
-    onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    properties: DialogProperties,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues,
     title: @Composable () -> Unit,
@@ -411,54 +586,47 @@ private fun AlertDialogImpl(
     content: (ScalingLazyListScope.() -> Unit)?
 ) {
     val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-
-    Dialog(
-        show = show,
-        onDismissRequest = onDismissRequest,
-        properties = properties,
+    ScreenScaffold(
+        scrollState = state,
+        modifier = modifier,
+        edgeButton =
+            if (alertButtonsParams is AlertButtonsParams.EdgeButton) {
+                {
+                    Box(
+                        Modifier.padding(top = edgeButtonExtraTopPadding),
+                        content = alertButtonsParams.edgeButton
+                    )
+                }
+            } else null
     ) {
-        ScreenScaffold(
-            scrollState = state,
-            modifier = modifier,
-            edgeButton =
-                if (alertButtonsParams is AlertButtonsParams.EdgeButton) {
-                    {
-                        Box(
-                            Modifier.padding(top = edgeButtonExtraTopPadding),
-                            content = alertButtonsParams.edgeButton
-                        )
-                    }
-                } else null
+        ScalingLazyColumn(
+            state = state,
+            contentPadding = contentPadding,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = verticalArrangement,
+            autoCentering = null,
+            modifier = Modifier.fillMaxSize(),
         ) {
-            ScalingLazyColumn(
-                state = state,
-                contentPadding = contentPadding,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = verticalArrangement,
-                autoCentering = null,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                if (icon != null) {
-                    item { IconAlert(icon) }
-                }
-                item { Title(title) }
-                if (text != null) {
-                    item { TextMessage(text) }
-                }
-                if (content != null) {
-                    item { Spacer(Modifier.height(ContentTopSpacing)) }
-                    content()
-                }
+            if (icon != null) {
+                item { IconAlert(icon) }
+            }
+            item { Title(title) }
+            if (text != null) {
+                item { TextMessage(text) }
+            }
+            if (content != null) {
+                item { Spacer(Modifier.height(ContentTopSpacing)) }
+                content()
+            }
 
-                when (alertButtonsParams) {
-                    is AlertButtonsParams.ConfirmDismissButtons ->
-                        item { ConfirmDismissButtons(alertButtonsParams) }
-                    is AlertButtonsParams.EdgeButton ->
-                        if (content == null) {
-                            item { Spacer(Modifier.height(BottomButtonSpacing)) }
-                        }
-                    is AlertButtonsParams.NoButtons -> Unit
-                }
+            when (alertButtonsParams) {
+                is AlertButtonsParams.ConfirmDismissButtons ->
+                    item { ConfirmDismissButtons(alertButtonsParams) }
+                is AlertButtonsParams.EdgeButton ->
+                    if (content == null) {
+                        item { Spacer(Modifier.height(BottomButtonSpacing)) }
+                    }
+                is AlertButtonsParams.NoButtons -> Unit
             }
         }
     }
