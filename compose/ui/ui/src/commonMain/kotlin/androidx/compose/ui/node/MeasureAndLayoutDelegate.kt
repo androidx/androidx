@@ -577,6 +577,12 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                                 layoutNode.replace()
                             }
                             onPositionedDispatcher.onNodePositioned(layoutNode)
+                            // Since there has been an update to a coordinator somewhere in the
+                            // modifier chain of this layout node, we might have onRectChanged
+                            // callbacks that need to be notified of that change. As a result, even
+                            // if the outer rect of this layout node hasn't changed, we want to
+                            // invalidate the callbacks for them
+                            layoutNode.requireOwner().rectManager.invalidateCallbacksFor(layoutNode)
                             consistencyChecker?.assertConsistent()
                         }
                     }

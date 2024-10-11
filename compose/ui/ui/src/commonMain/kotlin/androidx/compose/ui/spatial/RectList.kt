@@ -57,11 +57,12 @@ internal class RectList {
      *        Long 3 (64 bits): the "meta" long
      *          26 bits: item id
      *          26 bits: parent id
-     *          10 bits: last child offset
+     *          9 bits: last child offset
+     *           1 bits: updated
      *           1 bits: focusable
      *           1 bits: gesturable
      */
-    @JvmField internal var items: LongArray = LongArray(LongsPerItem * 64) // 64 items
+    @JvmField internal var items: LongArray = LongArray(LongsPerItem * InitialSize)
 
     /**
      * We allocate a 2nd LongArray. This is always going to be sized identical to [items], and
@@ -76,7 +77,7 @@ internal class RectList {
      * @see [defragment]
      * @see [updateSubhierarchy]
      */
-    @JvmField internal var stack: LongArray = LongArray(LongsPerItem * 64) // 64 items
+    @JvmField internal var stack: LongArray = LongArray(LongsPerItem * InitialSize)
 
     /**
      * The size of the items array that is filled with actual data. This is different from
@@ -145,13 +146,28 @@ internal class RectList {
 
         items[index + 0] = packXY(l, t)
         items[index + 1] = packXY(r, b)
-        items[index + 2] = packMeta(value, parentId, lastChildOffset = 0, focusable, gesturable)
+        items[index + 2] =
+            packMeta(
+                value,
+                parentId,
+                lastChildOffset = 0,
+                // TODO: consider the fact that we will be updating every rect on insert, and that
+                //  will probably impact insert times somewhat negatively. We could potentially
+                //  try and check whether or not a node has a "global rect listener" on it before
+                //  insert, or alternatively "mark" the updated array when we add a listener so
+                //  that we could avoid the "fire" for every rect in the collection. This might not
+                //  be a big deal though so let's wait until we can measure and find out if it is
+                //  a problem
+                updated = true,
+                focusable,
+                gesturable
+            )
 
         if (parentId < 0) return
         val parentId = parentId and Lower26Bits
         // After inserting, find the item with id = parentId and update it's "last child offset".
         var i = index - LongsPerItem
-        while (i > 0) {
+        while (i >= 0) {
             val meta = items[i + 2]
             if (unpackMetaValue(meta) == parentId) {
                 // TODO: right now this number will always be a multiple of 3. Since the last child
@@ -214,6 +230,7 @@ internal class RectList {
             if (unpackMetaValue(meta) == value) {
                 items[i + 0] = packXY(l, t)
                 items[i + 1] = packXY(r, b)
+                items[i + 2] = metaMarkUpdated(meta)
                 return true
             }
             i += LongsPerItem
@@ -240,6 +257,7 @@ internal class RectList {
                 val prevLT = items[i + 0]
                 items[i + 0] = packXY(l, t)
                 items[i + 1] = packXY(r, b)
+                items[i + 2] = metaMarkUpdated(meta)
                 val deltaX = l - unpackX(prevLT)
                 val deltaY = t - unpackY(prevLT)
                 if ((deltaX != 0) or (deltaY != 0)) {
@@ -259,7 +277,8 @@ internal class RectList {
                 packMeta(
                     itemId = id,
                     parentId = 0,
-                    lastChildOffset = items.size,
+                    lastChildOffset = itemsSize,
+                    updated = false,
                     focusable = false,
                     gesturable = false,
                 ),
@@ -297,7 +316,7 @@ internal class RectList {
             val parentId = unpackMetaValue(idAndStartAndOffset) // parent id is in the id slot
             var i = unpackMetaParentId(idAndStartAndOffset) // start index is in the parent id slot
             val offset = unpackMetaLastChildOffset(idAndStartAndOffset)
-            val endIndex = if (offset == Lower10Bits) size else offset + i
+            val endIndex = if (offset == Lower9Bits) size else offset + i
             if (i < 0) break
             while (i < items.size - 2) {
                 if (i >= endIndex) break
@@ -308,6 +327,7 @@ internal class RectList {
                     items[i + 0] = packXY(unpackX(topLeft) + deltaX, unpackY(topLeft) + deltaY)
                     items[i + 1] =
                         packXY(unpackX(bottomRight) + deltaX, unpackY(bottomRight) + deltaY)
+                    items[i + 2] = metaMarkUpdated(meta)
                     if (unpackMetaLastChildOffset(meta) > 0) {
                         // we need to store itemId, lastChildOffset, and a "start index".
                         // For convenience, we just use `meta` which already encodes two of those
@@ -317,6 +337,22 @@ internal class RectList {
                 }
                 i += LongsPerItem
             }
+        }
+    }
+
+    fun markUpdated(value: Int) {
+        val value = value and Lower26Bits
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaValue(meta) == value) {
+                items[i + 2] = metaMarkUpdated(meta)
+                return
+            }
+            i += LongsPerItem
         }
     }
 
@@ -612,6 +648,37 @@ internal class RectList {
         stack = from
     }
 
+    fun clearUpdated() {
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            items[i + 2] = metaUnMarkUpdated(items[i + 2])
+            i += LongsPerItem
+        }
+    }
+
+    inline fun forEachUpdatedRect(block: (Int, Long, Long) -> Unit) {
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaUpdated(meta) != 0) {
+                val topLeft = items[i + 0]
+                val bottomRight = items[i + 1]
+                block(
+                    unpackMetaValue(meta),
+                    topLeft,
+                    bottomRight,
+                )
+            }
+            i += LongsPerItem
+        }
+    }
+
     fun debugString(): String = buildString {
         val items = items
         val size = itemsSize
@@ -634,10 +701,11 @@ internal class RectList {
 }
 
 internal const val LongsPerItem = 3
+internal const val InitialSize = 64
 internal const val Lower26Bits = 0b0000_0011_1111_1111_1111_1111_1111_1111
-internal const val Lower10Bits = 0b0000_0000_0000_0000_0000_0011_1111_1111
+internal const val Lower9Bits = 0b0000_0000_0000_0000_0000_0001_1111_1111
 internal const val EverythingButParentId = 0xfff0_0000_03ff_ffffUL
-internal const val EverythingButLastChildOffset = 0xc00f_ffff_ffff_ffffUL
+internal const val EverythingButLastChildOffset = 0xe00fffffffffffffUL
 
 /**
  * This is the "meta" value that we assign to every removed value.
@@ -658,17 +726,20 @@ internal inline fun packMeta(
     itemId: Int,
     parentId: Int,
     lastChildOffset: Int,
+    updated: Boolean,
     focusable: Boolean,
     gesturable: Boolean,
 ): Long =
     //     26 bits: item id
     //     26 bits: parent id
-    //     10 bits: last child offset
+    //     9 bits: last child offset
+    //      1 bits: updated
     //      1 bits: focusable
     //      1 bits: gesturable
     (gesturable.toLong() shl 63) or
         (focusable.toLong() shl 62) or
-        ((lastChildOffset and Lower10Bits).toLong() shl 52) or
+        (updated.toLong() shl 61) or
+        ((lastChildOffset and Lower9Bits).toLong() shl 52) or
         ((parentId and Lower26Bits).toLong() shl 26) or
         ((itemId and Lower26Bits).toLong() shl 0)
 
@@ -677,18 +748,27 @@ internal inline fun unpackMetaValue(meta: Long): Int = meta.toInt() and Lower26B
 internal inline fun unpackMetaParentId(meta: Long): Int = (meta shr 26).toInt() and Lower26Bits
 
 internal inline fun unpackMetaLastChildOffset(meta: Long): Int =
-    (meta shr 52).toInt() and Lower10Bits
+    (meta shr 52).toInt() and Lower9Bits
 
 internal inline fun metaWithParentId(meta: Long, parentId: Int): Long =
     (meta and EverythingButParentId.toLong()) or ((parentId and Lower26Bits).toLong() shl 26)
 
+internal inline fun metaWithUpdated(meta: Long, updated: Boolean): Long =
+    (meta and (0b1L shl 61).inv()) or (updated.toLong() shl 61)
+
+internal inline fun metaMarkUpdated(meta: Long): Long = meta or (1L shl 61)
+
+internal inline fun metaUnMarkUpdated(meta: Long): Long = meta and (1L shl 61).inv()
+
 internal inline fun metaWithLastChildOffset(meta: Long, lastChildOffset: Int): Long =
     (meta and EverythingButLastChildOffset.toLong()) or
-        ((lastChildOffset and Lower10Bits).toLong() shl 52)
+        ((lastChildOffset and Lower9Bits).toLong() shl 52)
 
 internal inline fun unpackMetaFocusable(meta: Long): Int = (meta shr 62).toInt() and 0b1
 
 internal inline fun unpackMetaGesturable(meta: Long): Int = (meta shr 63).toInt() and 0b1
+
+internal inline fun unpackMetaUpdated(meta: Long): Int = (meta shr 61).toInt() and 0b1
 
 internal inline fun unpackX(xy: Long): Int = (xy shr 32).toInt()
 

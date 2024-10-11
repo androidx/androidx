@@ -189,6 +189,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -1063,10 +1064,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // to the front of the list, so removing in a chunk is cheaper than removing one-by-one
             endApplyChangesListeners.removeRange(0, size)
         }
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.dispatchCallbacks()
-        }
     }
 
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
@@ -1492,15 +1489,16 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
             }
         }
+        recalculateWindowPosition()
+        rectManager.updateOffsets(globalPosition, windowPosition.round(), viewToWindowMatrix)
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = positionChanged)
-    }
-
-    override fun onDraw(canvas: android.graphics.Canvas) {
         @OptIn(ExperimentalComposeUiApi::class)
         if (ComposeUiFlags.isRectTrackingEnabled) {
             rectManager.dispatchCallbacks()
         }
     }
+
+    override fun onDraw(canvas: android.graphics.Canvas) {}
 
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
