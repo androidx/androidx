@@ -16,12 +16,9 @@
 
 package androidx.build.testutils
 
-
-
-/**
- * POM for androidx.collection:collection:1.3.0-alpha04, which is a KMP library anchor artifact.
- */
-const val POM_COLLECTION = """<?xml version="1.0" encoding="UTF-8"?>
+/** POM for androidx.collection:collection:1.3.0-alpha04, which is a KMP library anchor artifact. */
+const val POM_COLLECTION =
+    """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -65,7 +62,8 @@ const val POM_COLLECTION = """<?xml version="1.0" encoding="UTF-8"?>
 /**
  * POM for androidx.collection:collection-jvm:1.3.0-alpha04, which is a KMP library targeted to JVM.
  */
-const val POM_COLLECTION_JVM = """<?xml version="1.0" encoding="UTF-8"?>
+const val POM_COLLECTION_JVM =
+    """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -107,24 +105,23 @@ const val POM_COLLECTION_JVM = """<?xml version="1.0" encoding="UTF-8"?>
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>androidx.annotation</groupId>
-      <artifactId>annotation</artifactId>
-      <version>1.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <version>1.8.21</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>androidx.annotation</groupId>
+      <artifactId>annotation</artifactId>
+      <version>1.3.0</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>"""
 
-/**
- * POM for androidx.compose.ui:ui-geometry:1.6.0-alpha01.
- */
-const val POM_COMPOSE_UI_GEOMETRY = """<?xml version="1.0"?>
+/** POM for androidx.compose.ui:ui-geometry:1.6.0-alpha01. */
+const val POM_COMPOSE_UI_GEOMETRY =
+    """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -159,10 +156,9 @@ const val POM_COMPOSE_UI_GEOMETRY = """<?xml version="1.0"?>
 </project>
 """
 
-/**
- * POM for androidx.core:core:1.12.0-alpha05.
- */
-const val POM_CORE_CORE = """<?xml version="1.0" encoding="UTF-8"?>
+/** POM for androidx.core:core:1.12.0-alpha05. */
+const val POM_CORE_CORE =
+    """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -260,4 +256,3 @@ const val POM_CORE_CORE = """<?xml version="1.0" encoding="UTF-8"?>
   </dependencies>
 </project>
 """
-
