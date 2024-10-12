@@ -40,10 +40,8 @@
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Para"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"Ul"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Rrit"</string>
-    <!-- no translation found for wear_m3c_stepper_decrease_content_description (6939134411425530620) -->
-    <skip />
-    <!-- no translation found for wear_m3c_stepper_increase_content_description (6513575827514139918) -->
-    <skip />
+    <string name="wear_m3c_stepper_decrease_content_description" msgid="6939134411425530620">"Ul"</string>
+    <string name="wear_m3c_stepper_increase_content_description" msgid="6513575827514139918">"Rrit"</string>
     <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Dështoi"</string>
     <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Me sukses"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Hape në telefon"</string>
