@@ -19,19 +19,18 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"هذا الملف محمي"</string>
     <string name="label_password_first" msgid="4456258714097111908">"كلمة المرور"</string>
-    <string name="label_password_incorrect" msgid="8449142641187704667">"كلمة المرور غير صحيحة"</string>
+    <string name="label_password_incorrect" msgid="5291118378657145978">"كلمة المرور خاطئة. يُرجى إعادة المحاولة."</string>
     <string name="button_cancel" msgid="5855794576957267334">"إلغاء"</string>
     <string name="button_open" msgid="5445014062438566842">"فتح"</string>
     <string name="desc_password" msgid="6636473611443746739">"حقل كلمة المرور"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"كلمة المرور غير صحيحة"</string>
-    <string name="desc_password_incorrect_message" msgid="4849541619951023025">"كلمة المرور غير صحيحة"</string>
+    <string name="desc_password_incorrect_message" msgid="4676206571020946870">"لقد أدخلت كلمة مرور خاطئة. يُرجى إعادة المحاولة."</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="TOTAL">%2$d</xliff:g> / <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"الصفحة <xliff:g id="PAGE">%1$d</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"التكبير أو التصغير بنسبة <xliff:g id="FIRST">%1$d</xliff:g> في المئة"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"الانتقال إلى الصفحة <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"الصفحة <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <!-- no translation found for desc_empty_page (5041794048330057239) -->
-    <skip />
+    <string name="desc_empty_page" msgid="5041794048330057239">"صفحة فارغة"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"‏يتعذَّر عرض ملف PDF (تنسيق الملف \"<xliff:g id="TITLE">%1$s</xliff:g>\" غير صالح)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"يتعذَّر عرض الصفحة <xliff:g id="PAGE">%1$d</xliff:g> (خطأ في الملف)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"الرابط: صفحة ويب في <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>

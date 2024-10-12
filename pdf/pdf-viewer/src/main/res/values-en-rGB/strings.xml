@@ -19,19 +19,20 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"This file is protected"</string>
     <string name="label_password_first" msgid="4456258714097111908">"Password"</string>
-    <string name="label_password_incorrect" msgid="8449142641187704667">"Password incorrect"</string>
+    <!-- no translation found for label_password_incorrect (5291118378657145978) -->
+    <skip />
     <string name="button_cancel" msgid="5855794576957267334">"Cancel"</string>
     <string name="button_open" msgid="5445014062438566842">"Open"</string>
     <string name="desc_password" msgid="6636473611443746739">"password field"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"password incorrect"</string>
-    <string name="desc_password_incorrect_message" msgid="4849541619951023025">"password incorrect"</string>
+    <!-- no translation found for desc_password_incorrect_message (4676206571020946870) -->
+    <skip />
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"page <xliff:g id="PAGE">%1$d</xliff:g> of <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"zoom <xliff:g id="FIRST">%1$d</xliff:g> per cent"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Go to page <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"page <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <!-- no translation found for desc_empty_page (5041794048330057239) -->
-    <skip />
+    <string name="desc_empty_page" msgid="5041794048330057239">"Empty page"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Cannot display PDF (<xliff:g id="TITLE">%1$s</xliff:g> is of invalid format)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Cannot display page <xliff:g id="PAGE">%1$d</xliff:g> (file error)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Link: web page at <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
