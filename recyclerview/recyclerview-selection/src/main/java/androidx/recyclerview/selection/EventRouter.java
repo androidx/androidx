@@ -35,22 +35,21 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
  */
 final class EventRouter implements OnItemTouchListener, Resettable {
 
-    private final ToolHandlerRegistry<OnItemTouchListener> mDelegates;
+    private final ToolSourceHandlerRegistry<OnItemTouchListener> mDelegates;
     private boolean mDisallowIntercept;
 
     EventRouter() {
-        mDelegates = new ToolHandlerRegistry<>(new StubOnItemTouchListener());
+        mDelegates = new ToolSourceHandlerRegistry<>(new StubOnItemTouchListener());
     }
 
     /**
-     * @param toolType See MotionEvent for details on available types.
-     * @param delegate An {@link OnItemTouchListener} to receive events
-     *                 of {@code toolType}.
+     * @param key      Either a TOOL_TYPE or a combination of TOOL_TYPE and SOURCE
+     * @param delegate An {@link OnItemTouchListener} to receive events of {@code ToolSourceKey}.
      */
-    void set(int toolType, @NonNull OnItemTouchListener delegate) {
+    void set(@NonNull ToolSourceKey key, @NonNull OnItemTouchListener delegate) {
         checkArgument(delegate != null);
 
-        mDelegates.set(toolType, delegate);
+        mDelegates.set(key, delegate);
     }
 
     @Override

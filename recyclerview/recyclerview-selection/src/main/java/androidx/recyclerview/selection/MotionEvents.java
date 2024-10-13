@@ -17,6 +17,7 @@
 package androidx.recyclerview.selection;
 
 import android.graphics.Point;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -28,6 +29,14 @@ import androidx.annotation.NonNull;
 final class MotionEvents {
 
     private MotionEvents() {
+    }
+
+    static boolean isTouchpadEvent(@NonNull MotionEvent e) {
+        // ChromeOS ARC devices with touchpads emit their events with
+        // {@link MotionEvent#TOOL_TYPE_MOUSE}, so this is specifically capturing non-ARC devices
+        // with touchpads (e.g. attachable keyboards with touchpads on Android tablets).
+        return e.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
+                && e.getSource() == InputDevice.SOURCE_MOUSE;
     }
 
     static boolean isMouseEvent(@NonNull MotionEvent e) {
@@ -102,7 +111,8 @@ final class MotionEvents {
     static boolean isTouchpadScroll(@NonNull MotionEvent e) {
         // Touchpad inputs are treated as mouse inputs, and when scrolling, there are no buttons
         // returned.
-        return isMouseEvent(e) && isActionMove(e) && e.getButtonState() == 0;
+        return (isTouchpadEvent(e) || isMouseEvent(e)) && isActionMove(e)
+                && e.getButtonState() == 0;
     }
 
     /**

@@ -45,7 +45,7 @@ public class EventRouterTest {
         mListener = new TestOnItemTouchListener();
         mRouter = new EventRouter();
         mRecyclerView = new RecyclerView(ApplicationProvider.getApplicationContext());
-        mRouter.set(MotionEvent.TOOL_TYPE_FINGER, mListener);
+        mRouter.set(new ToolSourceKey(MotionEvent.TOOL_TYPE_FINGER), mListener);
     }
 
     @Test
