@@ -82,7 +82,7 @@ internal inline fun DelegatableNode.visitAncestors(
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated. Although that might only be
     //  necessary for visiting subtree.
-    check(node.isAttached) { "visitAncestors called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitAncestors called on an unattached node" }
     var node: Modifier.Node? = if (includeSelf) node else node.parent
     var layout: LayoutNode? = requireLayoutNode()
     while (layout != null) {
@@ -140,7 +140,7 @@ internal inline fun DelegatableNode.visitChildren(
     zOrder: Boolean,
     block: (Modifier.Node) -> Unit
 ) {
-    check(node.isAttached) { "visitChildren called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitChildren called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
     if (child == null) branches.addLayoutNodeChildren(node, zOrder) else branches.add(child)
