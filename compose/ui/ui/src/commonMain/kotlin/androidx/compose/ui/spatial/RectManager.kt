@@ -19,148 +19,49 @@ package androidx.compose.ui.spatial
 import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.currentTimeMillis
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.isIdentity
-import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
-import androidx.compose.ui.postDelayed
-import androidx.compose.ui.removePost
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.plus
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.util.trace
-import kotlin.math.max
-import kotlinx.coroutines.DisposableHandle
 
 internal class RectManager {
 
     val rects: RectList = RectList()
 
-    private val throttledCallbacks = ThrottledCallbacks()
     private val callbacks = mutableObjectListOf<() -> Unit>()
     private var isDirty = false
-    private var isScreenOrWindowDirty = false
     private var isFragmented = false
-    private var dispatchToken: Any? = null
-    private var scheduledDispatchDeadline: Long = -1
-    private val dispatchLambda = {
-        dispatchToken = null
-        trace("OnPositionedDispatch") { dispatchCallbacks() }
-    }
 
     fun invalidate() {
         isDirty = true
     }
 
-    fun updateOffsets(
-        screenOffset: IntOffset,
-        windowOffset: IntOffset,
-        viewToWindowMatrix: Matrix
-    ) {
-        val analysis = viewToWindowMatrix.analyzeComponents()
-        isScreenOrWindowDirty =
-            throttledCallbacks.updateOffsets(
-                screenOffset,
-                windowOffset,
-                if (analysis.hasNonTranslationComponents) viewToWindowMatrix else null,
-            ) || isScreenOrWindowDirty
-    }
-
     // TODO: we need to make sure these are dispatched after draw if needed
     fun dispatchCallbacks() {
-        val currentTime = currentTimeMillis()
-        // TODO: we need to move this to avoid double-firing
         if (isDirty) {
             isDirty = false
-            callbacks.forEach { it() }
-            rects.forEachUpdatedRect { id, topLeft, bottomRight ->
-                throttledCallbacks.fire(id, topLeft, bottomRight, currentTime)
+            // The hierarchy is "settled" in terms of nodes being added/removed for this frame
+            // This makes it a reasonable time to "defragment" the RectList data structure. This
+            // will keep operations on this data structure efficient over time. This is a fairly
+            // cheap operation to run, so we just do it every time
+            if (isFragmented) {
+                isFragmented = false
+                rects.defragment()
             }
-            rects.clearUpdated()
+            callbacks.forEach { it() }
         }
-        if (isScreenOrWindowDirty) {
-            isScreenOrWindowDirty = false
-            throttledCallbacks.fireAll(currentTime)
-        }
-        // The hierarchy is "settled" in terms of nodes being added/removed for this frame
-        // This makes it a reasonable time to "defragment" the RectList data structure. This
-        // will keep operations on this data structure efficient over time. This is a fairly
-        // cheap operation to run, so we just do it every time
-        if (isFragmented) {
-            isFragmented = false
-            // TODO: if we want to take advantage of the "generation", we will be motivated to
-            //  call this less often. Alternatively we could track the number of remove() calls
-            //  we have made and only call defragment once it exceeds a certain percentage of
-            //  the overall list.
-            rects.defragment()
-        }
-        // this gets called frequently, but we might need to schedule it more often to ensure that
-        // debounced callbacks get fired
-        throttledCallbacks.triggerDebounced(currentTime)
-    }
-
-    fun scheduleDebounceCallback(ensureSomethingScheduled: Boolean) {
-        val canExitEarly = !ensureSomethingScheduled || dispatchToken != null
-        val nextDeadline = throttledCallbacks.minDebounceDeadline
-        if (nextDeadline < 0 && canExitEarly) {
-            return
-        }
-        val currentScheduledDeadline = scheduledDispatchDeadline
-        if (currentScheduledDeadline == nextDeadline && canExitEarly) {
-            return
-        }
-        if (dispatchToken != null) {
-            removePost(dispatchToken)
-        }
-        val currentTime = currentTimeMillis()
-        val nextFrameIsh = currentTime + 16
-        val deadline = max(nextDeadline, nextFrameIsh)
-        scheduledDispatchDeadline = deadline
-        val delay = deadline - currentTime
-        dispatchToken = postDelayed(delay, dispatchLambda)
-    }
-
-    fun currentRectInfo(id: Int, node: DelegatableNode): RectInfo? {
-        var result: RectInfo? = null
-        rects.withRect(id) { l, t, r, b ->
-            result =
-                rectInfoFor(
-                    node,
-                    packXY(l, t),
-                    packXY(r, b),
-                    throttledCallbacks.windowOffset,
-                    throttledCallbacks.screenOffset,
-                    throttledCallbacks.viewToWindowMatrix,
-                )
-        }
-        return result
     }
 
     fun registerOnChangedCallback(callback: () -> Unit): Any? {
         callbacks.add(callback)
         return callback
-    }
-
-    fun registerOnRectChangedCallback(
-        id: Int,
-        throttleMs: Int,
-        debounceMs: Int,
-        node: DelegatableNode,
-        callback: (RectInfo) -> Unit
-    ): DisposableHandle {
-        return throttledCallbacks.register(
-            id,
-            throttleMs.toLong(),
-            debounceMs.toLong(),
-            node,
-            callback,
-        )
     }
 
     fun unregisterOnChangedCallback(token: Any?) {
@@ -169,25 +70,17 @@ internal class RectManager {
         callbacks.remove(token)
     }
 
-    fun invalidateCallbacksFor(layoutNode: LayoutNode) {
-        isDirty = true
-        rects.markUpdated(layoutNode.semanticsId)
-        scheduleDebounceCallback(ensureSomethingScheduled = true)
-    }
-
     fun onLayoutLayerPositionalPropertiesChanged(layoutNode: LayoutNode) {
         @OptIn(ExperimentalComposeUiApi::class) if (!ComposeUiFlags.isRectTrackingEnabled) return
         val outerToInnerOffset = layoutNode.outerToInnerOffset()
         if (outerToInnerOffset.isSet) {
-            // translational properties only. AABB still valid.
+            // translational properties only. AARB still valid.
             layoutNode.outerToInnerOffset = outerToInnerOffset
             layoutNode.outerToInnerOffsetDirty = false
             layoutNode.forEachChild {
                 // NOTE: this calls rectlist.move(...) so does not need to be recursive
-                // TODO: we could potentially move to a single call of `updateSubhierarchy(...)`
                 onLayoutPositionChanged(it, it.outerCoordinator.position, false)
             }
-            invalidateCallbacksFor(layoutNode)
         } else {
             // there are rotations/skews/scales going on, so we need to do a more expensive update
             insertOrUpdateTransformedNodeSubhierarchy(layoutNode)
