@@ -204,8 +204,13 @@ public class WebViewCompat {
      * @param context Application Context.
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
+     * @deprecated In WebView version 122.0.6174.0 and later, this initialization is done
+     * automatically, so there is no need to call this API. If called, this API will invoke
+     * the {@code callback} immediately with {@code true}, given that Safe Browsing
+     * is enabled and supported on the device.
      */
     @AnyThread
+    @Deprecated
     @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,

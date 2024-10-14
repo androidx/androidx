@@ -32,7 +32,6 @@
     <string name="full_page_interstitial_activity_title">Full Page Interstitial</string>
     <string name="giant_interstitial_activity_title">Giant Interstitial</string>
     <string name="per_web_view_enable_activity_title">Per-WebView Enable APIs</string>
-    <string name="cannot_start_safe_browsing">Unable to start Safe Browsing, this is unexpected. Tap for more info.</string>
     <string name="safebrowsing_enabled_caption">Safe Browsing enabled</string>
     <string name="safebrowsing_disabled_caption">Safe Browsing disabled</string>
     <string name="default_safebrowsing_caption">Default Safe Browsing setting</string>
