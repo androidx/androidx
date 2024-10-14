@@ -19,14 +19,13 @@ package androidx.appcompat.app.inflater;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatViewInflater;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Custom view inflater that takes over the inflation of a few widget types.
@@ -90,24 +89,27 @@ public class CustomViewInflater extends AppCompatViewInflater {
         }
     }
 
+    @NonNull
     @Override
-    protected @NonNull AppCompatButton createButton(Context context, AttributeSet attrs) {
+    protected AppCompatButton createButton(Context context, AttributeSet attrs) {
         return new CustomButton(context, attrs);
     }
 
+    @NonNull
     @Override
-    protected @NonNull AppCompatTextView createTextView(Context context, AttributeSet attrs) {
+    protected AppCompatTextView createTextView(Context context, AttributeSet attrs) {
         return new CustomTextView(context, attrs);
     }
 
+    @NonNull
     @Override
-    protected @NonNull AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {
+    protected AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {
         return new CustomImageButton(context, attrs);
     }
 
+    @NonNull
     @Override
-    protected @NonNull AppCompatToggleButton createToggleButton(Context context,
-            AttributeSet attrs) {
+    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {
         return new CustomToggleButton(context, attrs);
     }
 }

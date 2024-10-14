@@ -33,6 +33,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
@@ -40,9 +42,6 @@ import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link Button} which supports compatible features on older versions of the platform,
@@ -66,7 +65,8 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
-    private @NonNull AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
+    @NonNull
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatButton(@NonNull Context context) {
         this(context, null);
@@ -129,7 +129,8 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public @Nullable ColorStateList getSupportBackgroundTintList() {
+    @Nullable
+    public ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
@@ -141,7 +142,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -154,7 +155,8 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
+    @Nullable
+    public PorterDuff.Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
@@ -258,7 +260,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setAutoSizeTextTypeUniformWithPresetSizes(int @NonNull [] presetSizes, int unit)
+    public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
         if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
             super.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
@@ -370,13 +372,14 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            ActionMode.@Nullable Callback actionModeCallback) {
+            @Nullable ActionMode.Callback actionModeCallback) {
         super.setCustomSelectionActionModeCallback(
                 TextViewCompat.wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 
     @Override
-    public ActionMode.@Nullable Callback getCustomSelectionActionModeCallback() {
+    @Nullable
+    public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
     }
@@ -394,9 +397,10 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     /**
      * @return the tint applied to the compound drawables
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
+    public ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
 
@@ -405,7 +409,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
     }
@@ -413,15 +417,16 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     /**
      * @return the blending mode used to apply the tint to the compound drawables
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
+    public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
 
 
     @Override
-    public void setFilters(@SuppressWarnings("ArrayReturn") InputFilter @NonNull [] filters) {
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 
@@ -429,7 +434,8 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     /**
      * This may be called from super constructors.
      */
-    private @NonNull AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
         //noinspection ConstantConditions
         if (mAppCompatEmojiTextHelper == null) {
             mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);

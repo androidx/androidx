@@ -36,6 +36,8 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate.NightMode;
 import androidx.appcompat.view.ActionMode;
@@ -50,9 +52,6 @@ import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for activities that wish to use some of the newer platform features on older
@@ -118,8 +117,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         // TODO: Directly connect AppCompatDelegate to SavedStateRegistry
         getSavedStateRegistry().registerSavedStateProvider(DELEGATE_TAG,
                 new SavedStateRegistry.SavedStateProvider() {
+                    @NonNull
                     @Override
-                    public @NonNull Bundle saveState() {
+                    public Bundle saveState() {
                         Bundle outState = new Bundle();
                         getDelegate().onSaveInstanceState(outState);
                         return outState;
@@ -160,7 +160,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @return The Activity's ActionBar, or null if it does not have one.
      */
-    public @Nullable ActionBar getSupportActionBar() {
+    @Nullable
+    public ActionBar getSupportActionBar() {
         return getDelegate().getSupportActionBar();
     }
 
@@ -184,8 +185,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().setSupportActionBar(toolbar);
     }
 
+    @NonNull
     @Override
-    public @NonNull MenuInflater getMenuInflater() {
+    public MenuInflater getMenuInflater() {
         return getDelegate().getMenuInflater();
     }
 
@@ -263,7 +265,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     @Override
-    public final boolean onMenuItemSelected(int featureId, android.view.@NonNull MenuItem item) {
+    public final boolean onMenuItemSelected(int featureId, @NonNull android.view.MenuItem item) {
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
@@ -348,9 +350,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param callback Callback to control the lifecycle of this action mode
      * @return The ActionMode that was started, or null if the system should present it
      */
+    @Nullable
     @Override
-    public @Nullable ActionMode onWindowStartingSupportActionMode(
-            ActionMode.@NonNull Callback callback) {
+    public ActionMode onWindowStartingSupportActionMode(@NonNull ActionMode.Callback callback) {
         return null;
     }
 
@@ -360,7 +362,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param callback Callback that will manage lifecycle events for this context mode
      * @return The ContextMode that was started, or null if it was canceled
      */
-    public @Nullable ActionMode startSupportActionMode(ActionMode.@NonNull Callback callback) {
+    @Nullable
+    public ActionMode startSupportActionMode(@NonNull ActionMode.Callback callback) {
         return getDelegate().startSupportActionMode(callback);
     }
 
@@ -496,8 +499,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      *
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
+    @Nullable
     @Override
-    public @Nullable Intent getSupportParentActivityIntent() {
+    public Intent getSupportParentActivityIntent() {
         return NavUtils.getParentActivityIntent(this);
     }
 
@@ -548,8 +552,9 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     public void onSupportContentChanged() {
     }
 
+    @Nullable
     @Override
-    public ActionBarDrawerToggle.@Nullable Delegate getDrawerToggleDelegate() {
+    public ActionBarDrawerToggle.Delegate getDrawerToggleDelegate() {
         return getDelegate().getDrawerToggleDelegate();
     }
 
@@ -578,7 +583,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     /**
      * @return The {@link AppCompatDelegate} being used by this Activity.
      */
-    public @NonNull AppCompatDelegate getDelegate() {
+    @NonNull
+    public AppCompatDelegate getDelegate() {
         if (mDelegate == null) {
             mDelegate = AppCompatDelegate.create(this, this);
         }

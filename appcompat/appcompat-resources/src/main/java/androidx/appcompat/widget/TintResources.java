@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 
@@ -31,7 +31,7 @@ class TintResources extends ResourcesWrapper {
 
     private final WeakReference<Context> mContextRef;
 
-    public TintResources(@NonNull Context context, final @NonNull Resources res) {
+    public TintResources(@NonNull Context context, @NonNull final Resources res) {
         super(res);
         mContextRef = new WeakReference<>(context);
     }

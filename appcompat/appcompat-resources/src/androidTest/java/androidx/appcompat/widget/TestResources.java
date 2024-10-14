@@ -19,7 +19,7 @@ package androidx.appcompat.widget;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Observable Resources class.
@@ -39,8 +39,9 @@ class TestResources extends Resources {
         return super.getDrawable(id);
     }
 
+    @NonNull
     @Override
-    public @NonNull String getString(int id) throws NotFoundException {
+    public String getString(int id) throws NotFoundException {
         mGetStringCalled = true;
         return super.getString(id);
     }

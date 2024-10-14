@@ -25,10 +25,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * An extension of SpinnerAdapter that is capable of inflating drop-down views
@@ -50,7 +49,7 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
      *              {@code null} to use the default theme
      * @see SpinnerAdapter#getDropDownView(int, View, ViewGroup)
      */
-    void setDropDownViewTheme(Resources.@Nullable Theme theme);
+    void setDropDownViewTheme(@Nullable Resources.Theme theme);
 
     /**
      * Returns the value previously set by a call to
@@ -59,7 +58,8 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
      * @return the {@link Resources.Theme} against which drop-down views are
      *         inflated, or {@code null} if one has not been explicitly set
      */
-    Resources.@Nullable Theme getDropDownViewTheme();
+    @Nullable
+    Resources.Theme getDropDownViewTheme();
 
     /**
      * A helper class which allows easy integration of {@link ThemedSpinnerAdapter} into existing
@@ -120,7 +120,7 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
          * @param theme the theme passed in to
          *              {@link ThemedSpinnerAdapter#setDropDownViewTheme(Theme)}
          */
-        public void setDropDownViewTheme(Resources.@Nullable Theme theme) {
+        public void setDropDownViewTheme(@Nullable Resources.Theme theme) {
             if (theme == null) {
                 mDropDownInflater = null;
             } else if (theme.equals(mContext.getTheme())) {
@@ -135,7 +135,8 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
          * Should be called from your adapter's {@link ThemedSpinnerAdapter#getDropDownViewTheme()},
          * returning the value returned from this method.
          */
-        public Resources.@Nullable Theme getDropDownViewTheme() {
+        @Nullable
+        public Resources.Theme getDropDownViewTheme() {
             return mDropDownInflater == null ? null : mDropDownInflater.getContext().getTheme();
         }
 
@@ -146,7 +147,8 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
          * <p>The instance returned will have a correct theme, meaning that any inflated views
          * will be created with the same theme.</p>
          */
-        public @NonNull LayoutInflater getDropDownViewInflater() {
+        @NonNull
+        public LayoutInflater getDropDownViewInflater() {
             return mDropDownInflater != null ? mDropDownInflater : mInflater;
         }
     }

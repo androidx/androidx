@@ -25,6 +25,8 @@ import android.util.Log;
 import android.view.InflateException;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -44,9 +46,6 @@ import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.TintContextWrapper;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.view.ViewCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -121,7 +120,8 @@ public class AppCompatViewInflater {
      *                    additional resource system feature backports
      * @return an AppCompat-compatible widget
      */
-    public final @Nullable View createView(@Nullable View parent, final @NonNull String name,
+    @Nullable
+    public final View createView(@Nullable View parent, @NonNull final String name,
             @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
             boolean readAndroidTheme, boolean readAppTheme, boolean wrapContext) {
@@ -223,63 +223,75 @@ public class AppCompatViewInflater {
         return view;
     }
 
-    protected @NonNull AppCompatTextView createTextView(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatTextView createTextView(Context context, AttributeSet attrs) {
         return new AppCompatTextView(context, attrs);
     }
 
-    protected @NonNull AppCompatImageView createImageView(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatImageView createImageView(Context context, AttributeSet attrs) {
         return new AppCompatImageView(context, attrs);
     }
 
-    protected @NonNull AppCompatButton createButton(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatButton createButton(Context context, AttributeSet attrs) {
         return new AppCompatButton(context, attrs);
     }
 
-    protected @NonNull AppCompatEditText createEditText(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatEditText createEditText(Context context, AttributeSet attrs) {
         return new AppCompatEditText(context, attrs);
     }
 
-    protected @NonNull AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {
         return new AppCompatSpinner(context, attrs);
     }
 
-    protected @NonNull AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {
         return new AppCompatImageButton(context, attrs);
     }
 
-    protected @NonNull AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {
         return new AppCompatCheckBox(context, attrs);
     }
 
-    protected @NonNull AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {
         return new AppCompatRadioButton(context, attrs);
     }
 
-    protected @NonNull AppCompatCheckedTextView createCheckedTextView(Context context,
-            AttributeSet attrs) {
+    @NonNull
+    protected AppCompatCheckedTextView createCheckedTextView(Context context, AttributeSet attrs) {
         return new AppCompatCheckedTextView(context, attrs);
     }
 
-    protected @NonNull AppCompatAutoCompleteTextView createAutoCompleteTextView(Context context,
+    @NonNull
+    protected AppCompatAutoCompleteTextView createAutoCompleteTextView(Context context,
             AttributeSet attrs) {
         return new AppCompatAutoCompleteTextView(context, attrs);
     }
 
-    protected @NonNull AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(
-            Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(Context context,
+            AttributeSet attrs) {
         return new AppCompatMultiAutoCompleteTextView(context, attrs);
     }
 
-    protected @NonNull AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {
         return new AppCompatRatingBar(context, attrs);
     }
 
-    protected @NonNull AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {
+    @NonNull
+    protected AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {
         return new AppCompatSeekBar(context, attrs);
     }
 
-    protected @NonNull AppCompatToggleButton createToggleButton(Context context,
-            AttributeSet attrs) {
+    @NonNull
+    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {
         return new AppCompatToggleButton(context, attrs);
     }
 
@@ -290,7 +302,8 @@ public class AppCompatViewInflater {
         }
     }
 
-    protected @Nullable View createView(Context context, String name, AttributeSet attrs) {
+    @Nullable
+    protected View createView(Context context, String name, AttributeSet attrs) {
         return null;
     }
 

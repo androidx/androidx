@@ -25,12 +25,11 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * Special implementation of linear layout that's capable of laying out alert

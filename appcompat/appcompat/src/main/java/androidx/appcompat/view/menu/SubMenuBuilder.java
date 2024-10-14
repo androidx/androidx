@@ -25,9 +25,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
-import org.jspecify.annotations.NonNull;
 
 /**
  * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to the

@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
@@ -39,7 +40,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
-import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

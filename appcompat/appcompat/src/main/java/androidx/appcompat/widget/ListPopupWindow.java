@@ -45,15 +45,14 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.appcompat.view.menu.ShowableListMenu;
 import androidx.core.widget.PopupWindowCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -522,7 +521,8 @@ public class ListPopupWindow implements ShowableListMenu {
      * @return anchor-relative bounds, or @{@code null} if not set
      * @see #setEpicenterBounds(Rect)
      */
-    public @Nullable Rect getEpicenterBounds() {
+    @Nullable
+    public Rect getEpicenterBounds() {
         return mEpicenterBounds != null ? new Rect(mEpicenterBounds) : null;
     }
 
@@ -613,7 +613,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @see ListView#setOnItemClickListener(AdapterView.OnItemClickListener)
      */
-    public void setOnItemClickListener(AdapterView.@Nullable OnItemClickListener clickListener) {
+    public void setOnItemClickListener(@Nullable AdapterView.OnItemClickListener clickListener) {
         mItemClickListener = clickListener;
     }
 
@@ -779,7 +779,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @param listener Listener that will be notified when the popup is dismissed.
      */
-    public void setOnDismissListener(PopupWindow.@Nullable OnDismissListener listener) {
+    public void setOnDismissListener(@Nullable PopupWindow.OnDismissListener listener) {
         mPopup.setOnDismissListener(listener);
     }
 

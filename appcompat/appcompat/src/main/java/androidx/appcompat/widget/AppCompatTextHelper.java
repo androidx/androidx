@@ -37,6 +37,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
@@ -48,9 +50,6 @@ import androidx.core.util.TypedValueCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.widget.TextViewCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.Locale;
@@ -65,7 +64,8 @@ class AppCompatTextHelper {
     private static final int SERIF = 2;
     private static final int MONOSPACE = 3;
 
-    private final @NonNull TextView mView;
+    @NonNull
+    private final TextView mView;
 
     private TintInfo mDrawableLeftTint;
     private TintInfo mDrawableTopTint;
@@ -75,12 +75,14 @@ class AppCompatTextHelper {
     private TintInfo mDrawableEndTint;
     private TintInfo mDrawableTint; // Tint used for all compound drawables
 
-    private final @NonNull AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
+    @NonNull
+    private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
 
     private int mStyle = Typeface.NORMAL;
     private int mFontWeight = TEXT_FONT_WEIGHT_UNSPECIFIED;
     private Typeface mFontTypeface;
-    private @Nullable String mFontVariationSettings = null;
+    @Nullable
+    private String mFontVariationSettings = null;
     private boolean mAsyncFontPending;
 
     AppCompatTextHelper(@NonNull TextView view) {
@@ -470,7 +472,8 @@ class AppCompatTextHelper {
         return false;
     }
 
-    private ResourcesCompat.@NonNull FontCallback makeFontCallback(int fontWeight, int style) {
+    @NonNull
+    private ResourcesCompat.FontCallback makeFontCallback(int fontWeight, int style) {
         final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
         return new ResourcesCompat.FontCallback() {
             @Override
@@ -662,7 +665,7 @@ class AppCompatTextHelper {
                 autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
     }
 
-    void setAutoSizeTextTypeUniformWithPresetSizes(int @NonNull [] presetSizes, int unit)
+    void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
         mAutoSizeTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
     }
@@ -688,7 +691,8 @@ class AppCompatTextHelper {
         return mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
     }
 
-    @Nullable ColorStateList getCompoundDrawableTintList() {
+    @Nullable
+    ColorStateList getCompoundDrawableTintList() {
         return mDrawableTint != null ? mDrawableTint.mTintList : null;
     }
 
@@ -701,11 +705,12 @@ class AppCompatTextHelper {
         setCompoundTints();
     }
 
-    PorterDuff.@Nullable Mode getCompoundDrawableTintMode() {
+    @Nullable
+    PorterDuff.Mode getCompoundDrawableTintMode() {
         return mDrawableTint != null ? mDrawableTint.mTintMode : null;
     }
 
-    void setCompoundDrawableTintMode(PorterDuff.@Nullable Mode tintMode) {
+    void setCompoundDrawableTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mDrawableTint == null) {
             mDrawableTint = new TintInfo();
         }
@@ -825,8 +830,9 @@ class AppCompatTextHelper {
          *         {@link Paint#setFontVariationSettings(String)} would return null for this
          *         Typeface and font variation settings string.
          */
+        @Nullable
         @UiThread
-        static @Nullable Typeface createVariationInstance(@Nullable Typeface baseTypeface,
+        static Typeface createVariationInstance(@Nullable Typeface baseTypeface,
                 @Nullable String fontVariationSettings) {
             Pair<Typeface, String> cacheKey = new Pair<>(baseTypeface, fontVariationSettings);
 

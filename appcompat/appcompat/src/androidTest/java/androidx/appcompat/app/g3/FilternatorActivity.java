@@ -19,9 +19,8 @@ package androidx.appcompat.app.g3;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CountDownLatch;
 

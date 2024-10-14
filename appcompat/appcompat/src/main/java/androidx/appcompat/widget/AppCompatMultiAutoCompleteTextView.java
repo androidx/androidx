@@ -30,15 +30,14 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link MultiAutoCompleteTextView} which supports compatible features on older version of the
@@ -66,7 +65,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
-    private final @NonNull AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
+    @NonNull
+    private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
 
     public AppCompatMultiAutoCompleteTextView(@NonNull Context context) {
         this(context, null);
@@ -183,7 +183,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public @Nullable ColorStateList getSupportBackgroundTintList() {
+    @Nullable
+    public ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
@@ -195,7 +196,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -208,7 +209,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
+    @Nullable
+    public PorterDuff.Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
@@ -287,9 +289,10 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
+    public ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
 
@@ -327,9 +330,10 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
+    public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
 
@@ -348,7 +352,7 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
     }
