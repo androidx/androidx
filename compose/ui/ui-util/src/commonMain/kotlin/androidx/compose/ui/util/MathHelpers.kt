@@ -132,14 +132,23 @@ inline fun Long.fastCoerceAtMost(maximumValue: Long): Long {
  * Returns `true` if this float is a finite floating-point value; returns `false` otherwise (for
  * `NaN` and infinity).
  */
-inline fun Float.fastIsFinite(): Boolean = (toRawBits() and 0x7fffffff) < 0x7f800000
+inline fun Float.fastIsFinite(): Boolean {
+    // TODO: We can delegate back to Float.isFinite() when
+    //  https://youtrack.jetbrains.com/issue/KT-70695 is fixed and Compose depends on the proper
+    // version of Kotlin
+    return (toRawBits() and 0x7fffffff) < 0x7f800000
+}
 
 /**
  * Returns `true` if this double is a finite floating-point value; returns `false` otherwise (for
  * `NaN` and infinity).
  */
-inline fun Double.fastIsFinite(): Boolean =
-    (toRawBits() and 0x7fffffff_ffffffffL) < 0x7ff00000_00000000L
+inline fun Double.fastIsFinite(): Boolean {
+    // TODO: We can delegate back to Float.isFinite() when
+    //  https://youtrack.jetbrains.com/issue/KT-70695 is fixed and Compose depends on the proper
+    // version of Kotlin
+    return (toRawBits() and 0x7fffffff_ffffffffL) < 0x7ff00000_00000000L
+}
 
 /**
  * Fast, approximate cube root function. Returns the cube root of [x]; for any [x] `fastCbrt(-x) ==
