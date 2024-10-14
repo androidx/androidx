@@ -35,11 +35,10 @@ import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.DrawableCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A helper class that contains several {@link Drawable}s and selects which one to use.
@@ -300,7 +299,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
     }
 
     @Override
-    protected boolean onStateChange(int @NonNull [] state) {
+    protected boolean onStateChange(@NonNull int[] state) {
         if (mLastDrawable != null) {
             return mLastDrawable.setState(state);
         }
@@ -569,8 +568,9 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
         }
     }
 
+    @NonNull
     @Override
-    public @NonNull Drawable getCurrent() {
+    public Drawable getCurrent() {
         return mCurrDrawable;
     }
 

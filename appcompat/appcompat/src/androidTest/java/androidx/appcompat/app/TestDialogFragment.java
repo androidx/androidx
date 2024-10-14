@@ -19,10 +19,9 @@ package androidx.appcompat.app;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Test class extending DialogFragment used for testing of configuration changes like nightMode and
@@ -38,8 +37,9 @@ public class TestDialogFragment extends DialogFragment {
         return new TestDialogFragment();
     }
 
+    @NonNull
     @Override
-    public @NonNull Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("TestDialogFragment");
         builder.setMessage("TestDialogFragment");

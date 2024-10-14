@@ -72,6 +72,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -81,9 +83,6 @@ import androidx.core.view.ViewCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.customview.view.AbsSavedState;
 import androidx.resourceinspection.annotation.Attribute;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
@@ -621,7 +620,8 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * {@link R.attr#queryHint}
      */
     @Attribute("androidx.appcompat:queryHint")
-    public @Nullable CharSequence getQueryHint() {
+    @Nullable
+    public CharSequence getQueryHint() {
         final CharSequence hint;
         if (mQueryHint != null) {
             hint = mQueryHint;

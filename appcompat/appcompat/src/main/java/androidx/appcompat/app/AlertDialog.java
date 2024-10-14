@@ -37,13 +37,12 @@ import android.widget.ListView;
 import androidx.annotation.ArrayRes;
 import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A subclass of Dialog that can display one, two or three buttons. If you only want to
@@ -353,7 +352,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * @return A Context for built Dialogs.
          */
-        public @NonNull Context getContext() {
+        @NonNull
+        public Context getContext() {
             return P.mContext;
         }
 
@@ -975,7 +975,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          * processing is needed, {@link #show()} may be called instead to both
          * create and display the dialog.
          */
-        public @NonNull AlertDialog create() {
+        @NonNull
+        public AlertDialog create() {
             // We can't use Dialog's 3-arg constructor with the createThemeContextWrapper param,
             // so we always have to re-set the theme
             final AlertDialog dialog = new AlertDialog(P.mContext, mTheme);

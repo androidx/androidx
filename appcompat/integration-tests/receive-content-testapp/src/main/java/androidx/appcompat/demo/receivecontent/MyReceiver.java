@@ -27,15 +27,14 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -57,8 +56,9 @@ final class MyReceiver implements OnReceiveContentListener {
         mAttachmentsRecyclerViewAdapter = attachmentsRecyclerViewAdapter;
     }
 
+    @Nullable
     @Override
-    public @Nullable ContentInfoCompat onReceiveContent(@NonNull View view,
+    public ContentInfoCompat onReceiveContent(@NonNull View view,
             @NonNull ContentInfoCompat payload) {
         // Split the incoming content into two groups: content URIs and everything else.
         // This way we can implement custom handling for URIs and delegate the rest.

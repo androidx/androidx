@@ -39,6 +39,8 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.widget.OverScroller;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -51,9 +53,6 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Special layout for the containing of an overlay action bar (and its content) to correctly handle
@@ -102,10 +101,10 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private final Rect mLastInnerInsetsRect = new Rect();
 
     // Used on API 21+
-    private @NonNull WindowInsetsCompat mBaseInnerInsets = WindowInsetsCompat.CONSUMED;
-    private @NonNull WindowInsetsCompat mLastBaseInnerInsets = WindowInsetsCompat.CONSUMED;
-    private @NonNull WindowInsetsCompat mInnerInsets = WindowInsetsCompat.CONSUMED;
-    private @NonNull WindowInsetsCompat mLastInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mBaseInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mLastBaseInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mInnerInsets = WindowInsetsCompat.CONSUMED;
+    @NonNull private WindowInsetsCompat mLastInnerInsets = WindowInsetsCompat.CONSUMED;
 
     private ActionBarVisibilityCallback mActionBarVisibilityCallback;
 
@@ -395,7 +394,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     @RequiresApi(21)
     @Override
-    public WindowInsets onApplyWindowInsets(final @NonNull WindowInsets in) {
+    public WindowInsets onApplyWindowInsets(@NonNull final WindowInsets in) {
         pullChildren();
 
         final int vis = getWindowSystemUiVisibility();

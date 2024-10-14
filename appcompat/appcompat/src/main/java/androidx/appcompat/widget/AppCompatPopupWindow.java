@@ -23,12 +23,11 @@ import android.view.View;
 import android.widget.PopupWindow;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.core.widget.PopupWindowCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 class AppCompatPopupWindow extends PopupWindow {
 

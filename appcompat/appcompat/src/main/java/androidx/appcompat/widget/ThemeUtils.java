@@ -25,12 +25,11 @@ import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.graphics.ColorUtils;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  */
@@ -59,8 +58,8 @@ public class ThemeUtils {
      * @param disabledTextColor Disabled text color.
      * @return Color state list.
      */
-    public static @NonNull ColorStateList createDisabledStateList(int textColor,
-            int disabledTextColor) {
+    @NonNull
+    public static ColorStateList createDisabledStateList(int textColor, int disabledTextColor) {
         // Now create a new ColorStateList with the default color, and the new disabled
         // color
         final int[][] states = new int[2][];
@@ -104,8 +103,8 @@ public class ThemeUtils {
      * @param attr Theme attribute for resolving color state list.
      * @return Resolved color state list.
      */
-    public static @Nullable ColorStateList getThemeAttrColorStateList(@NonNull Context context,
-            int attr) {
+    @Nullable
+    public static ColorStateList getThemeAttrColorStateList(@NonNull Context context, int attr) {
         TEMP_ARRAY[0] = attr;
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, null, TEMP_ARRAY);
         try {

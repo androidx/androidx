@@ -29,6 +29,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -37,9 +39,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.widget.TintableCompoundButton;
 import androidx.core.widget.TintableCompoundDrawablesView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link RadioButton} which supports compatible features on older versions of the platform,
@@ -93,7 +92,8 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
     /**
      * This may be called from super constructors.
      */
-    private @NonNull AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
         if (mAppCompatEmojiTextHelper == null) {
             mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
         }
@@ -128,8 +128,9 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      * This should be accessed from {@link androidx.core.widget.CompoundButtonCompat}
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
     @Override
-    public @Nullable ColorStateList getSupportButtonTintList() {
+    public ColorStateList getSupportButtonTintList() {
         return mCompoundButtonHelper != null
                 ? mCompoundButtonHelper.getSupportButtonTintList()
                 : null;
@@ -140,7 +141,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportButtonTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportButtonTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mCompoundButtonHelper != null) {
             mCompoundButtonHelper.setSupportButtonTintMode(tintMode);
         }
@@ -150,8 +151,9 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      * This should be accessed from {@link androidx.core.widget.CompoundButtonCompat}
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
     @Override
-    public PorterDuff.@Nullable Mode getSupportButtonTintMode() {
+    public PorterDuff.Mode getSupportButtonTintMode() {
         return mCompoundButtonHelper != null
                 ? mCompoundButtonHelper.getSupportButtonTintMode()
                 : null;
@@ -177,7 +179,8 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public @Nullable ColorStateList getSupportBackgroundTintList() {
+    @Nullable
+    public ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
@@ -189,7 +192,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -202,7 +205,8 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
+    @Nullable
+    public PorterDuff.Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
@@ -235,7 +239,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
     }
 
     @Override
-    public void setFilters(@SuppressWarnings("ArrayReturn") InputFilter @NonNull [] filters) {
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 
@@ -282,9 +286,10 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
+    public ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
 
@@ -322,9 +327,10 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
      */
+    @Nullable
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
+    public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
 
@@ -343,7 +349,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
     }

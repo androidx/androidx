@@ -33,10 +33,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
-
-import org.jspecify.annotations.NonNull;
 
 /**
  * A popup window displaying a text message aligned to a specified view.

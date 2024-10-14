@@ -22,13 +22,13 @@ import static org.junit.Assert.assertTrue;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.test.R;
 import androidx.fragment.app.DialogFragment;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,8 +82,9 @@ public class AppCompatDialogFragmentTest {
     }
 
     public static class TestDialogFragment extends AppCompatDialogFragment {
+        @NonNull
         @Override
-        public @NonNull Dialog onCreateDialog(Bundle savedInstanceState) {
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
             return new AlertDialog.Builder(requireContext())
                     .setTitle("Test")
                     .setMessage("Message")

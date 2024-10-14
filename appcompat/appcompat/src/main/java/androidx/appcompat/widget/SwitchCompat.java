@@ -49,6 +49,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.text.AllCapsTransformationMethod;
@@ -57,9 +59,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.resourceinspection.annotation.Attribute;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -196,11 +195,14 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     private ColorStateList mTextColors;
     private Layout mOnLayout;
     private Layout mOffLayout;
-    private @Nullable TransformationMethod mSwitchTransformationMethod;
+    @Nullable
+    private TransformationMethod mSwitchTransformationMethod;
     ObjectAnimator mPositionAnimator;
     private final AppCompatTextHelper mTextHelper;
-    private @NonNull AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
-    private @Nullable EmojiCompatInitCallback mEmojiCompatInitCallback;
+    @NonNull
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
+    @Nullable
+    private EmojiCompatInitCallback mEmojiCompatInitCallback;
 
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
@@ -580,7 +582,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see android.R.attr#trackTint
      */
     @Attribute("androidx.appcompat:trackTint")
-    public @Nullable ColorStateList getTrackTintList() {
+    @Nullable
+    public ColorStateList getTrackTintList() {
         return mTrackTintList;
     }
 
@@ -595,7 +598,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see #getTrackTintMode()
      * @see android.R.attr#trackTintMode
      */
-    public void setTrackTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setTrackTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTrackTintMode = tintMode;
         mHasTrackTintMode = true;
 
@@ -610,7 +613,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see android.R.attr#trackTintMode
      */
     @Attribute("androidx.appcompat:trackTintMode")
-    public PorterDuff.@Nullable Mode getTrackTintMode() {
+    @Nullable
+    public PorterDuff.Mode getTrackTintMode() {
         return mTrackTintMode;
     }
 
@@ -706,7 +710,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see android.R.attr#thumbTint
      */
     @Attribute("androidx.appcompat:thumbTint")
-    public @Nullable ColorStateList getThumbTintList() {
+    @Nullable
+    public ColorStateList getThumbTintList() {
         return mThumbTintList;
     }
 
@@ -722,7 +727,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see android.R.attr#thumbTintMode
      * @see Drawable#setTintMode(PorterDuff.Mode)
      */
-    public void setThumbTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setThumbTintMode(@Nullable PorterDuff.Mode tintMode) {
         mThumbTintMode = tintMode;
         mHasThumbTintMode = true;
 
@@ -737,7 +742,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      * @see android.R.attr#thumbTintMode
      */
     @Attribute("androidx.appcompat:thumbTintMode")
-    public PorterDuff.@Nullable Mode getThumbTintMode() {
+    @Nullable
+    public PorterDuff.Mode getThumbTintMode() {
         return mThumbTintMode;
     }
 
@@ -862,7 +868,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
         }
     }
 
-    private @Nullable CharSequence doTransformForOnOffText(@Nullable CharSequence onOffText) {
+    @Nullable
+    private CharSequence doTransformForOnOffText(@Nullable CharSequence onOffText) {
         TransformationMethod transformationMethod =
                 getEmojiTextViewHelper().wrapTransformationMethod(mSwitchTransformationMethod);
         return ((transformationMethod != null)
@@ -1535,13 +1542,14 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
      */
     @Override
     public void setCustomSelectionActionModeCallback(
-            ActionMode.@Nullable Callback actionModeCallback) {
+            @Nullable ActionMode.Callback actionModeCallback) {
         super.setCustomSelectionActionModeCallback(
                 TextViewCompat.wrapCustomSelectionActionModeCallback(this, actionModeCallback));
     }
 
     @Override
-    public ActionMode.@Nullable Callback getCustomSelectionActionModeCallback() {
+    @Nullable
+    public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
     }
@@ -1589,14 +1597,15 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     @Override
-    public void setFilters(@SuppressWarnings("ArrayReturn") InputFilter @NonNull [] filters) {
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
     }
 
     /**
      * This may be called from super constructors.
      */
-    private @NonNull AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
         //noinspection ConstantConditions
         if (mAppCompatEmojiTextHelper == null) {
             mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);

@@ -20,10 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.MenuBuilder;
-
-import org.jspecify.annotations.NonNull;
 
 /**
  * An interface notified when a menu item is hovered. Useful for cases when hover should trigger

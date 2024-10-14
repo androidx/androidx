@@ -29,15 +29,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.core.widget.TintableImageSourceView;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link ImageButton} which supports compatible features on older versions of the platform,
@@ -161,7 +160,8 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public @Nullable ColorStateList getSupportBackgroundTintList() {
+    @Nullable
+    public ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintList() : null;
     }
@@ -173,7 +173,7 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.setSupportBackgroundTintMode(tintMode);
         }
@@ -186,7 +186,8 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
+    @Nullable
+    public PorterDuff.Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
@@ -210,7 +211,8 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public @Nullable ColorStateList getSupportImageTintList() {
+    @Nullable
+    public ColorStateList getSupportImageTintList() {
         return mImageHelper != null
                 ? mImageHelper.getSupportImageTintList() : null;
     }
@@ -222,7 +224,7 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public void setSupportImageTintMode(PorterDuff.@Nullable Mode tintMode) {
+    public void setSupportImageTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mImageHelper != null) {
             mImageHelper.setSupportImageTintMode(tintMode);
         }
@@ -235,7 +237,8 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public PorterDuff.@Nullable Mode getSupportImageTintMode() {
+    @Nullable
+    public PorterDuff.Mode getSupportImageTintMode() {
         return mImageHelper != null
                 ? mImageHelper.getSupportImageTintMode() : null;
     }

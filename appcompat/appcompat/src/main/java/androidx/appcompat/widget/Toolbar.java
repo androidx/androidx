@@ -48,6 +48,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.MenuRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
@@ -72,9 +74,6 @@ import androidx.customview.view.AbsSavedState;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.resourceinspection.annotation.Attribute;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -982,7 +981,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * {@link androidx.appcompat.R.attr#navigationContentDescription}
      */
     @Attribute("androidx.appcompat:navigationContentDescription")
-    public @Nullable CharSequence getNavigationContentDescription() {
+    @Nullable
+    public CharSequence getNavigationContentDescription() {
         return mNavButtonView != null ? mNavButtonView.getContentDescription() : null;
     }
 
@@ -1075,7 +1075,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * {@link androidx.appcompat.R.attr#navigationIcon}
      */
     @Attribute("androidx.appcompat:navigationIcon")
-    public @Nullable Drawable getNavigationIcon() {
+    @Nullable
+    public Drawable getNavigationIcon() {
         return mNavButtonView != null ? mNavButtonView.getDrawable() : null;
     }
 
@@ -1103,7 +1104,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * {@link androidx.appcompat.R.attr#collapseContentDescription}
      */
     @Attribute("androidx.appcompat:collapseContentDescription")
-    public @Nullable CharSequence getCollapseContentDescription() {
+    @Nullable
+    public CharSequence getCollapseContentDescription() {
         return mCollapseButtonView != null ? mCollapseButtonView.getContentDescription() : null;
     }
 
@@ -1148,7 +1150,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * {@link androidx.appcompat.R.attr#collapseIcon}
      */
     @Attribute("androidx.appcompat:collapseIcon")
-    public @Nullable Drawable getCollapseIcon() {
+    @Nullable
+    public Drawable getCollapseIcon() {
         return mCollapseButtonView != null ? mCollapseButtonView.getDrawable() : null;
     }
 
@@ -1215,7 +1218,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      *
      * @return The overflow icon drawable
      */
-    public @Nullable Drawable getOverflowIcon() {
+    @Nullable
+    public Drawable getOverflowIcon() {
         ensureMenu();
         return mMenuView.getOverflowIcon();
     }
@@ -1600,7 +1604,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
      *
      */
     @VisibleForTesting
-    @Nullable View getNavButtonView() {
+    @Nullable
+    View getNavButtonView() {
         return mNavButtonView;
     }
 
@@ -2409,14 +2414,16 @@ public class Toolbar extends ViewGroup implements MenuHost {
     /**
      */
     @VisibleForTesting
-    final @Nullable TextView getTitleTextView() {
+    @Nullable
+    final TextView getTitleTextView() {
         return mTitleTextView;
     }
 
     /**
      */
     @VisibleForTesting
-    final @Nullable TextView getSubtitleTextView() {
+    @Nullable
+    final TextView getSubtitleTextView() {
         return mSubtitleTextView;
     }
 
@@ -2468,7 +2475,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     @MainThread
     @SuppressLint("LambdaLast")
     public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,
-            Lifecycle.@NonNull State state) {
+            @NonNull Lifecycle.State state) {
         mMenuHostHelper.addMenuProvider(provider, owner, state);
     }
 
@@ -2803,11 +2810,13 @@ public class Toolbar extends ViewGroup implements MenuHost {
             dispatcher.unregisterOnBackInvokedCallback((OnBackInvokedCallback) callbackObj);
         }
 
-        static @Nullable OnBackInvokedDispatcher findOnBackInvokedDispatcher(@NonNull View view) {
+        @Nullable
+        static OnBackInvokedDispatcher findOnBackInvokedDispatcher(@NonNull View view) {
             return view.findOnBackInvokedDispatcher();
         }
 
-        static @NonNull OnBackInvokedCallback newOnBackInvokedCallback(@NonNull Runnable action) {
+        @NonNull
+        static OnBackInvokedCallback newOnBackInvokedCallback(@NonNull Runnable action) {
             return action::run;
         }
     }

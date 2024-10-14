@@ -20,6 +20,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingResource;
@@ -27,7 +28,6 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 
 import org.hamcrest.Matcher;
-import org.jspecify.annotations.Nullable;
 
 public class DrawerLayoutActions {
     /**
@@ -38,7 +38,7 @@ public class DrawerLayoutActions {
             implements DrawerLayout.DrawerListener, IdlingResource {
         private int mCurrState = DrawerLayout.STATE_IDLE;
 
-        private IdlingResource.@Nullable ResourceCallback mCallback;
+        @Nullable private IdlingResource.ResourceCallback mCallback;
 
         private boolean mNeedsIdle = false;
 

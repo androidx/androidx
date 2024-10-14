@@ -25,10 +25,9 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Drawable which delegates all calls to its wrapped {@link Drawable}.
@@ -223,7 +222,8 @@ public class DrawableWrapperCompat extends Drawable implements Drawable.Callback
     /**
      * @return the wrapped drawable
      */
-    public @Nullable Drawable getDrawable() {
+    @Nullable
+    public Drawable getDrawable() {
         return mDrawable;
     }
 

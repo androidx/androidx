@@ -36,15 +36,14 @@ import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  */
@@ -256,8 +255,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
+    public MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers) {
         if (mShortcutAlphabeticChar == alphaChar
                 && mShortcutAlphabeticModifiers == alphaModifiers) {
             return this;
@@ -298,8 +298,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull MenuItem setNumericShortcut(char numericChar, int numericModifiers) {
+    public MenuItem setNumericShortcut(char numericChar, int numericModifiers) {
         if (mShortcutNumericChar == numericChar && mShortcutNumericModifiers == numericModifiers) {
             return this;
         }
@@ -322,8 +323,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
+    public MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
             int alphaModifiers) {
         mShortcutNumericChar = numericChar;
         mShortcutNumericModifiers = KeyEvent.normalizeMetaState(numericModifiers);
@@ -524,8 +526,9 @@ public final class MenuItemImpl implements SupportMenuItem {
     }
 
 
+    @NonNull
     @Override
-    public @NonNull MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
+    public MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
         mIconTintList = iconTintList;
         mHasIconTint = true;
         mNeedToApplyIconTint = true;
@@ -540,8 +543,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return mIconTintList;
     }
 
+    @NonNull
     @Override
-    public @NonNull MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
+    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
         mIconTintMode = iconTintMode;
         mHasIconTintMode = true;
         mNeedToApplyIconTint = true;
@@ -736,8 +740,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         mMenu.onItemActionRequestChanged(this);
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setActionView(View view) {
+    public SupportMenuItem setActionView(View view) {
         mActionView = view;
         mActionProvider = null;
         if (view != null && view.getId() == View.NO_ID && mId > 0) {
@@ -747,8 +752,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setActionView(int resId) {
+    public SupportMenuItem setActionView(int resId) {
         final Context context = mMenu.getContext();
         final LayoutInflater inflater = LayoutInflater.from(context);
         setActionView(inflater.inflate(resId, new LinearLayout(context), false));
@@ -784,8 +790,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return mActionProvider;
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
+    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {
         if (mActionProvider != null) {
             mActionProvider.reset();
         }
@@ -803,8 +810,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setShowAsActionFlags(int actionEnum) {
+    public SupportMenuItem setShowAsActionFlags(int actionEnum) {
         setShowAsAction(actionEnum);
         return this;
     }
@@ -867,8 +875,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return this;
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setContentDescription(CharSequence contentDescription) {
+    public SupportMenuItem setContentDescription(CharSequence contentDescription) {
         mContentDescription = contentDescription;
 
         mMenu.onItemsChanged(false);
@@ -881,8 +890,9 @@ public final class MenuItemImpl implements SupportMenuItem {
         return mContentDescription;
     }
 
+    @NonNull
     @Override
-    public @NonNull SupportMenuItem setTooltipText(CharSequence tooltipText) {
+    public SupportMenuItem setTooltipText(CharSequence tooltipText) {
         mTooltipText = tooltipText;
 
         mMenu.onItemsChanged(false);

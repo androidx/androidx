@@ -29,6 +29,8 @@ import android.widget.PopupWindow;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.MenuRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
@@ -36,9 +38,6 @@ import androidx.appcompat.view.SupportMenuInflater;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.view.menu.ShowableListMenu;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Static library support version of the framework's {@link android.widget.PopupMenu}.
@@ -170,7 +169,8 @@ public class PopupMenu {
      *
      * @return a touch listener that controls drag-to-open behavior
      */
-    public View.@NonNull OnTouchListener getDragToOpenListener() {
+    @NonNull
+    public View.OnTouchListener getDragToOpenListener() {
         if (mDragListener == null) {
             mDragListener = new ForwardingListener(mAnchor) {
                 @Override
@@ -204,7 +204,8 @@ public class PopupMenu {
      * @see #show()
      * @see #getMenuInflater()
      */
-    public @NonNull Menu getMenu() {
+    @NonNull
+    public Menu getMenu() {
         return mMenu;
     }
 
@@ -213,7 +214,8 @@ public class PopupMenu {
      *         from XML into the menu returned by {@link #getMenu()}
      * @see #getMenu()
      */
-    public @NonNull MenuInflater getMenuInflater() {
+    @NonNull
+    public MenuInflater getMenuInflater() {
         return new SupportMenuInflater(mContext);
     }
 

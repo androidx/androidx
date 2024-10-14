@@ -23,11 +23,10 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
-
-import org.jspecify.annotations.Nullable;
 
 class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 
@@ -96,7 +95,8 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
         mView.invalidate();
     }
 
-    @Nullable Drawable getTickMark() {
+    @Nullable
+    Drawable getTickMark() {
         return mTickMark;
     }
 
@@ -107,18 +107,20 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
         applyTickMarkTint();
     }
 
-    @Nullable ColorStateList getTickMarkTintList() {
+    @Nullable
+    ColorStateList getTickMarkTintList() {
         return mTickMarkTintList;
     }
 
-    void setTickMarkTintMode(PorterDuff.@Nullable Mode tintMode) {
+    void setTickMarkTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTickMarkTintMode = tintMode;
         mHasTickMarkTintMode = true;
 
         applyTickMarkTint();
     }
 
-    PorterDuff.@Nullable Mode getTickMarkTintMode() {
+    @Nullable
+    PorterDuff.Mode getTickMarkTintMode() {
         return mTickMarkTintMode;
     }
 

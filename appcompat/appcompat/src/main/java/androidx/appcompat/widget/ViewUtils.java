@@ -28,10 +28,9 @@ import android.view.View;
 import android.view.WindowInsets;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

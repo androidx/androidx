@@ -30,12 +30,11 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.CollapsibleActionView;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.view.ActionProvider;
-
-import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
 
@@ -470,7 +469,8 @@ public class MenuItemWrapperICS extends BaseMenuWrapper implements MenuItem {
         }
 
         @Override
-        public @NonNull View onCreateActionView() {
+        @NonNull
+        public View onCreateActionView() {
             return mInner.onCreateActionView();
         }
 

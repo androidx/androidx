@@ -23,17 +23,17 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.CompoundButtonCompat;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
 class AppCompatCompoundButtonHelper {
-    private final @NonNull CompoundButton mView;
+    @NonNull
+    private final CompoundButton mView;
 
     private ColorStateList mButtonTintList = null;
     private PorterDuff.Mode mButtonTintMode = null;
@@ -101,7 +101,7 @@ class AppCompatCompoundButtonHelper {
         return mButtonTintList;
     }
 
-    void setSupportButtonTintMode(PorterDuff.@Nullable Mode tintMode) {
+    void setSupportButtonTintMode(@Nullable PorterDuff.Mode tintMode) {
         mButtonTintMode = tintMode;
         mHasButtonTintMode = true;
 

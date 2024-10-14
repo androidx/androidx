@@ -20,9 +20,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.view.CollapsibleActionView;
-
-import org.jspecify.annotations.Nullable;
 
 public class CustomCollapsibleView extends View implements CollapsibleActionView {
     public CustomCollapsibleView(Context context) {

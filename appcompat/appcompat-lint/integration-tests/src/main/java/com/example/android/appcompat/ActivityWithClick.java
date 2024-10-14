@@ -20,9 +20,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * Activity for testing the android:onClick Lint rule

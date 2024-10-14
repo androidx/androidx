@@ -25,14 +25,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatCallback;
 import androidx.appcompat.test.R;
 import androidx.appcompat.view.ActionMode;
 import androidx.testutils.LocaleTestUtils;
 import androidx.testutils.RecreatedAppCompatActivity;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -245,9 +244,9 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
         }
     }
 
+    @Nullable
     @Override
-    public @Nullable ActionMode onWindowStartingSupportActionMode(
-            ActionMode.@NonNull Callback callback) {
+    public ActionMode onWindowStartingSupportActionMode(@NonNull ActionMode.Callback callback) {
         if (mAppCompatCallback != null) {
             return mAppCompatCallback.onWindowStartingSupportActionMode(callback);
         }

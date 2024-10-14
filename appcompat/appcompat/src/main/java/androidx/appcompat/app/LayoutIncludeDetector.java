@@ -18,8 +18,9 @@ package androidx.appcompat.app;
 
 import android.util.AttributeSet;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -34,7 +35,8 @@ import java.util.Deque;
  */
 class LayoutIncludeDetector {
 
-    private final @NonNull Deque<WeakReference<XmlPullParser>> mXmlParserStack = new ArrayDeque<>();
+    @NonNull
+    private final Deque<WeakReference<XmlPullParser>> mXmlParserStack = new ArrayDeque<>();
 
     /**
      * Returns true if this is the start of an included layout file, otherwise false.
@@ -87,8 +89,9 @@ class LayoutIncludeDetector {
      * @param xmlParserStack stack to purge
      * @return most recent {@link XmlPullParser} that is not outdated
      */
-    private static @Nullable XmlPullParser popOutdatedAttrHolders(
-            @NonNull Deque<WeakReference<XmlPullParser>> xmlParserStack) {
+    @Nullable
+    private static XmlPullParser popOutdatedAttrHolders(@NonNull
+            Deque<WeakReference<XmlPullParser>> xmlParserStack) {
         while (!xmlParserStack.isEmpty()) {
             XmlPullParser parser = xmlParserStack.peek().get();
             if (isParserOutdated(parser)) {

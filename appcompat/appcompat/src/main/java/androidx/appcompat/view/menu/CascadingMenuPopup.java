@@ -42,15 +42,14 @@ import android.widget.TextView;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.appcompat.widget.MenuItemHoverListener;
 import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.view.GravityCompat;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -145,7 +144,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
         @Override
         public void onItemHoverEnter(
-                final @NonNull MenuBuilder menu, final @NonNull MenuItem item) {
+                @NonNull final MenuBuilder menu, @NonNull final MenuItem item) {
             // Something new was hovered, cancel all scheduled runnables.
             mSubMenuHoverHandler.removeCallbacksAndMessages(null);
 
@@ -532,7 +531,8 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      * @param submenu the submenu whose parent view should be obtained
      * @return the parent view, or {@code null} if one could not be found
      */
-    private @Nullable View findParentViewForSubmenu(
+    @Nullable
+    private View findParentViewForSubmenu(
             @NonNull CascadingMenuInfo parentInfo, @NonNull MenuBuilder submenu) {
         final MenuItem owner = findMenuItemForSubmenu(parentInfo.menu, submenu);
         if (owner == null) {

@@ -31,6 +31,8 @@ import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.view.menu.ActionMenuItemView;
@@ -38,9 +40,6 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuItemImpl;
 import androidx.appcompat.view.menu.MenuPresenter;
 import androidx.appcompat.view.menu.MenuView;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * ActionMenuView is a presentation of a series of menu options as a View. It provides
@@ -560,7 +559,8 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      *
      * @return The overflow icon drawable
      */
-    public @Nullable Drawable getOverflowIcon() {
+    @Nullable
+    public Drawable getOverflowIcon() {
         getMenu();
         return mPresenter.getOverflowIcon();
     }
