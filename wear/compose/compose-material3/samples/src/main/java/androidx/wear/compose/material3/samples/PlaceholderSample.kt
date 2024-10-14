@@ -106,10 +106,8 @@ fun ButtonWithIconAndLabelAndPlaceholders() {
         delay(1000)
         labelText = "A label"
     }
-    if (!buttonPlaceholderState.isShowContent) {
-        LaunchedEffect(buttonPlaceholderState) {
-            buttonPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!buttonPlaceholderState.isHidden) {
+        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
     }
 }
 
@@ -135,7 +133,7 @@ fun ButtonWithIconAndLabelsAndOverlaidPlaceholder() {
         labelText.isNotEmpty() && secondaryLabelText.isNotEmpty() && imageVector != null
     }
     Box {
-        if (buttonPlaceholderState.isShowContent || buttonPlaceholderState.isWipeOff) {
+        if (buttonPlaceholderState.isHidden || buttonPlaceholderState.isWipingOff) {
             Button(
                 onClick = { /* Do something */ },
                 enabled = true,
@@ -171,7 +169,7 @@ fun ButtonWithIconAndLabelsAndOverlaidPlaceholder() {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        if (!buttonPlaceholderState.isShowContent) {
+        if (!buttonPlaceholderState.isHidden) {
             Button(
                 onClick = { /* Do something */ },
                 enabled = true,
@@ -220,10 +218,8 @@ fun ButtonWithIconAndLabelsAndOverlaidPlaceholder() {
         delay(500)
         labelText = "A label"
     }
-    if (!buttonPlaceholderState.isShowContent) {
-        LaunchedEffect(buttonPlaceholderState) {
-            buttonPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!buttonPlaceholderState.isHidden) {
+        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
     }
 }
 
@@ -255,9 +251,7 @@ fun TextPlaceholder() {
         delay(3000)
         labelText = "A label"
     }
-    if (!buttonPlaceholderState.isShowContent) {
-        LaunchedEffect(buttonPlaceholderState) {
-            buttonPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!buttonPlaceholderState.isHidden) {
+        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
     }
 }

@@ -100,7 +100,7 @@ import kotlinx.coroutines.isActive
 @Composable
 fun Modifier.placeholder(
     placeholderState: PlaceholderState,
-    shape: Shape = PlaceholderDefaults.shape,
+    shape: Shape = PlaceholderDefaults.Shape,
     color: Color =
         MaterialTheme.colorScheme.onSurface
             .copy(alpha = 0.1f)
@@ -152,7 +152,7 @@ fun Modifier.placeholder(
 @Composable
 fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
-    shape: Shape = PlaceholderDefaults.shape,
+    shape: Shape = PlaceholderDefaults.Shape,
     color: Color = MaterialTheme.colorScheme.onSurface,
 ): Modifier =
     this.then(
@@ -175,8 +175,8 @@ fun Modifier.placeholderShimmer(
     )
 
 /**
- * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
- * animations run [PlaceholderState.startPlaceholderAnimation].
+ * Creates a [PlaceholderState] that is remembered across compositions. To animate the placeholder
+ * depending on the state, run [PlaceholderState.animatePlaceholder].
  *
  * A [PlaceholderState] should be created for each component that has placeholder data. The state is
  * used to coordinate all of the different placeholder effects and animations.
@@ -222,15 +222,15 @@ fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
 object PlaceholderDefaults {
 
     /** Default [Shape] for Placeholder. */
-    val shape: Shape = ShapeTokens.CornerFull
+    val Shape: Shape = ShapeTokens.CornerFull
 
     /**
      * Create a [ButtonColors] that can be used in placeholder mode. This will provide the
      * placeholder background effect that covers the normal button background with a solid
      * background of [color] when the [placeholderState] is set to show the placeholder and a wipe
      * off gradient brush when the state is in wipe-off mode. If the state is
-     * [PlaceholderState.isShowContent] then the normal background will be used. All other colors
-     * will be delegated to [originalButtonColors].
+     * [PlaceholderState.isHidden] then the normal background will be used. All other colors will be
+     * delegated to [originalButtonColors].
      *
      * Example of a [Button] with icon and a label that put placeholders over individual content
      * slots and then draws a placeholder shimmer over the result and draws over the [Button]s
@@ -248,7 +248,7 @@ object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colorScheme.surfaceContainer
     ): ButtonColors {
-        return if (!placeholderState.isShowContent) {
+        return if (!placeholderState.isHidden) {
             ButtonColors(
                 containerPainter =
                     PlaceholderBackgroundPainter(
@@ -318,37 +318,37 @@ object PlaceholderDefaults {
 
     /**
      * Create a [Painter] that wraps another painter and overlays a placeholder background brush on
-     * top. If the [placeholderState] is [PlaceholderState.isShowContent] the original painter will
-     * be used. Otherwise the [painter] will be drawn and then a placeholder background will be
+     * top. If the [placeholderState] is [PlaceholderState.isHidden] the original painter will be
+     * used. Otherwise the [originalPainter] will be drawn and then a placeholder background will be
      * drawn over it or a wipe-off brush will be used to reveal the background when the state is
-     * [PlaceholderState.isWipeOff].
+     * [PlaceholderState.isWipingOff].
      *
      * @param placeholderState the state of the placeholder
-     * @param painter the original painter that will be drawn over when in placeholder mode.
+     * @param originalPainter the original painter that will be drawn over when in placeholder mode.
      * @param color the color to use for the placeholder background brush
      */
     @Composable
     fun painterWithPlaceholderOverlayBackgroundBrush(
         placeholderState: PlaceholderState,
-        painter: Painter,
+        originalPainter: Painter,
         color: Color = MaterialTheme.colorScheme.surfaceContainer,
     ): Painter {
-        return if (!placeholderState.isShowContent) {
+        return if (!placeholderState.isHidden) {
             PlaceholderBackgroundPainter(
-                painter = painter,
+                painter = originalPainter,
                 placeholderState = placeholderState,
                 color = color
             )
         } else {
-            painter
+            originalPainter
         }
     }
 
     /**
      * Create a [Painter] that paints with a placeholder background brush. If the [placeholderState]
-     * is [PlaceholderState.isShowContent] then a transparent background will be shown. Otherwise a
+     * is [PlaceholderState.isHidden] then a transparent background will be shown. Otherwise a
      * placeholder background will be drawn or a wipe-off brush will be used to reveal the content
-     * underneath when [PlaceholderState.isWipeOff] is true.
+     * underneath when [PlaceholderState.isWipingOff] is true.
      *
      * @param placeholderState the state of the placeholder
      * @param color the color to use for the placeholder background brush
@@ -418,8 +418,11 @@ internal constructor(
      */
     internal var backgroundOffset: Offset = Offset.Zero
 
-    /** Start the animation of the placeholder state. */
-    suspend fun startPlaceholderAnimation() {
+    /**
+     * Animate the placeholder according to the placeholder state. Cancels when the placeholder
+     * becomes inactive.
+     */
+    suspend fun animatePlaceholder() {
         if (!isReduceMotionEnabled) {
             coroutineScope {
                 while (isActive) {
@@ -430,7 +433,7 @@ internal constructor(
     }
 
     /**
-     * The current value of the placeholder wipe-off visual effect gradient progression. The
+     * The current value of the placeholder wipe-off visual effect gradient progression in Px. The
      * progression is a 45 degree angle sweep across the whole screen running from outside of the
      * Top|Left of the screen to Bottom|Right used as the anchor for wipe-off gradient effects.
      *
@@ -439,8 +442,7 @@ internal constructor(
      * of height/width to create a 45 degree angle) * 1.75f and progress to the
      * maximumScreenDimension * 0.75f.
      *
-     * The time taken for this progression to reach the edge of visible screen is
-     * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
+     * The time taken for this progression to reach the edge of visible screen is 300ms.
      */
     internal val placeholderWipeOffProgression: Float by derivedStateOf {
         val absoluteProgression =
@@ -461,7 +463,7 @@ internal constructor(
      * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
      * of height/width to create a 45 degree angle) and progress to the maximumScreenDimension.
      *
-     * The time taken for this progression is [PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS]
+     * The time taken for this progression is 80ms.
      */
     internal val placeholderWipeOffAlpha: Float by derivedStateOf {
         val absoluteProgression =
@@ -475,12 +477,12 @@ internal constructor(
     }
 
     /**
-     * The current value of the placeholder visual effect gradient progression. The progression
-     * gives the x coordinate to be applied to the placeholder gradient as it moves across the
-     * screen. Starting off screen to the left and progressing across the screen and finishing off
-     * the screen to the right after [PLACEHOLDER_SHIMMER_DURATION_MS].
+     * The current value of the placeholder visual effect gradient progression in Px. The
+     * progression gives the x coordinate to be applied to the placeholder gradient as it moves
+     * across the screen. Starting off screen to the left and progressing across the screen and
+     * finishing off the screen to the after 800ms.
      */
-    val placeholderProgression: Float by derivedStateOf {
+    internal val placeholderShimmerProgression: Float by derivedStateOf {
         val absoluteProgression =
             (frameMillis.longValue
                 .mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
@@ -493,7 +495,7 @@ internal constructor(
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity. The
      * progression gives the alpha to apply during the period of the placeholder effect. This allows
-     * the effect to be faded in and then out during the [PLACEHOLDER_SHIMMER_DURATION_MS].
+     * the effect to be faded in and then out during 800ms.
      */
     internal val placeholderShimmerAlpha: Float by derivedStateOf {
         val absoluteProgression =
@@ -514,7 +516,7 @@ internal constructor(
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity during
      * the fade-in part of reset placeholder animation. This allows the effect to be faded in during
-     * the [PLACEHOLDER_RESET_ANIMATION_DURATION_MS].
+     * 450ms.
      */
     internal val resetPlaceholderFadeInAlpha: Float by derivedStateOf {
         val absoluteProgression =
@@ -534,7 +536,7 @@ internal constructor(
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity during
      * the fade-out part of reset placeholder animation. This allows the effect to be faded out
-     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION_MS].
+     * during 450ms.
      */
     internal val resetPlaceholderFadeOutAlpha: Float by derivedStateOf {
         val absoluteProgression =
@@ -549,15 +551,13 @@ internal constructor(
      * Returns true if the placeholder content should be shown with no placeholders effects and
      * false if either the placeholder or the wipe-off effect are being shown.
      */
-    val isShowContent: Boolean by derivedStateOf {
-        placeholderStage == PlaceholderStage.ShowContent
-    }
+    val isHidden: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.HidePlaceholder }
 
     /**
-     * Should only be called when [isShowContent] is false. Returns true if the wipe-off effect that
-     * reveals content should be shown and false if the placeholder effect should be shown.
+     * Returns true if the wipe-off effect that reveals content is being shown and false if the
+     * placeholder effect should be shown.
      */
-    val isWipeOff: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.WipeOff }
+    val isWipingOff: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.WipeOff }
 
     /**
      * The width of the gradient to use for the placeholder shimmer and wipe-off effects. This is
@@ -567,7 +567,7 @@ internal constructor(
     internal val gradientXYWidth: Float by derivedStateOf { maxScreenDimension * 2f.pow(1.5f) }
 
     internal var placeholderStage: PlaceholderStage =
-        if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
+        if (isContentReady.value.invoke()) PlaceholderStage.HidePlaceholder
         else PlaceholderStage.ShowPlaceholder
         get() =
             derivedStateOf {
@@ -581,12 +581,12 @@ internal constructor(
                                 (frameMillis.longValue - startOfWipeOffAnimation) >=
                                     PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
                             ) {
-                                field = PlaceholderStage.ShowContent
+                                field = PlaceholderStage.HidePlaceholder
                             }
                             // Placeholder
                         } else if (isContentReady.value()) {
                             if (isReduceMotionEnabled) {
-                                field = PlaceholderStage.ShowContent
+                                field = PlaceholderStage.HidePlaceholder
                             } else {
                                 startOfWipeOffAnimation = frameMillis.longValue
                                 field = PlaceholderStage.WipeOff
@@ -652,13 +652,14 @@ internal value class PlaceholderStage internal constructor(internal val type: In
 
         /**
          * Indicates that placeholders no longer to be shown. Enter this stage from [WipeOff] in the
-         * loop after the wire-off animation.
+         * loop after the wipe-off animation.
          */
-        val ShowContent = PlaceholderStage(2)
+        val HidePlaceholder = PlaceholderStage(2)
 
         /**
          * Resets the component to remove the content and reinstate the placeholders so that new
-         * content can be loaded. Enter this stage from [ShowContent] and exit to [ShowPlaceholder].
+         * content can be loaded. Enter this stage from [HidePlaceholder] and exit to
+         * [ShowPlaceholder].
          */
         val ResetContent = PlaceholderStage(3)
     }
@@ -668,7 +669,7 @@ internal value class PlaceholderStage internal constructor(internal val type: In
             ShowPlaceholder -> "PlaceholderStage.ShowPlaceholder"
             WipeOff -> "PlaceholderStage.WipeOff"
             ResetContent -> "PlaceholderStage.ResetContent"
-            else -> "PlaceholderStage.ShowContent"
+            else -> "PlaceholderStage.HidePlaceholder"
         }
     }
 }
@@ -992,13 +993,23 @@ private class PlaceholderShimmerModifierNode(
             Brush.linearGradient(
                 start =
                     Offset(
-                        x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
-                        y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
+                        x =
+                            placeholderState.placeholderShimmerProgression -
+                                halfGradientWidth -
+                                offset.x,
+                        y =
+                            placeholderState.placeholderShimmerProgression -
+                                halfGradientWidth -
+                                offset.y
                     ),
                 end =
                     Offset(
-                        x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
-                        y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
+                        x =
+                            placeholderState.placeholderShimmerProgression + halfGradientWidth -
+                                offset.x,
+                        y =
+                            placeholderState.placeholderShimmerProgression + halfGradientWidth -
+                                offset.y
                     ),
                 colorStops =
                     listOf(

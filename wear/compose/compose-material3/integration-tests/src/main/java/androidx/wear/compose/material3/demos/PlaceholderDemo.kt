@@ -405,7 +405,7 @@ fun ButtonWithOverlaidPlaceholder(
                     placeholderState = buttonPlaceholderState
                 )
         )
-        if (!buttonPlaceholderState.isShowContent) {
+        if (!buttonPlaceholderState.isHidden) {
             Button(
                 modifier =
                     modifier
@@ -457,7 +457,7 @@ fun ButtonWithOverlaidPlaceholder(
             )
         }
     }
-    LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.startPlaceholderAnimation() }
+    LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
 }
 
 @Composable
@@ -532,7 +532,7 @@ fun ButtonWithContentPlaceholders(
                 placeholderState = buttonPlaceholderState
             )
     )
-    LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.startPlaceholderAnimation() }
+    LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
 }
 
 @Composable
@@ -553,7 +553,7 @@ fun CardWithOverlaidPlaceholder(
         ) {
             if (content != null) content()
         }
-        if (!cardPlaceholderState.isShowContent) {
+        if (!cardPlaceholderState.isHidden) {
             AppCard(
                 onClick = {},
                 appName = {
@@ -596,5 +596,5 @@ fun CardWithOverlaidPlaceholder(
             }
         }
     }
-    LaunchedEffect(cardPlaceholderState) { cardPlaceholderState.startPlaceholderAnimation() }
+    LaunchedEffect(cardPlaceholderState) { cardPlaceholderState.animatePlaceholder() }
 }
