@@ -392,11 +392,10 @@ public open class PdfViewerFragment : Fragment() {
         // Add listener to adjust bottom margin for [FindInFile] view
         findInFileView?.let {
             val windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val screenHeight = windowManager.currentWindowMetrics.bounds.height()
 
             ViewCompat.setWindowInsetsAnimationCallback(
                 it,
-                TranslateInsetsAnimationCallback(it, screenHeight, container)
+                TranslateInsetsAnimationCallback(it, windowManager, container)
             )
         }
 
