@@ -31,7 +31,9 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 
 @Deprecated(
     "Use rememberTransformingLazyColumnState instead",
@@ -205,6 +207,7 @@ private val EmptyTransformingLazyColumnMeasureResult =
         lastMeasuredItemHeight = Int.MIN_VALUE,
         canScrollForward = false,
         canScrollBackward = false,
+        coroutineScope = CoroutineScope(EmptyCoroutineContext),
         measureResult =
             object : MeasureResult {
                 override val width: Int = 0

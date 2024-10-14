@@ -34,6 +34,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -147,7 +148,7 @@ internal fun TransformingLazyColumnImpl(
     content: TransformingLazyColumnScope.() -> Unit
 ) {
     val latestContent = rememberUpdatedState(newValue = content)
-
+    val coroutineScope = rememberCoroutineScope()
     val itemProviderLambda by
         remember(state) {
             val scope =
@@ -174,6 +175,7 @@ internal fun TransformingLazyColumnImpl(
             horizontalAlignment = horizontalAlignment,
             verticalArrangement = verticalArrangement,
             measurementStrategyProvider = measurementStrategyProvider,
+            coroutineScope = coroutineScope,
         )
     val reverseDirection =
         ScrollableDefaults.reverseDirection(

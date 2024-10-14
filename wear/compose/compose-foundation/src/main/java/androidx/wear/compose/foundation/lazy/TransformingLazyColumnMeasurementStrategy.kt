@@ -21,6 +21,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 internal interface TransformingLazyColumnMeasurementStrategy {
     /**
@@ -35,6 +37,8 @@ internal interface TransformingLazyColumnMeasurementStrategy {
      *   [itemsCount] (exclusive).
      * @param anchorItemScrollOffset The scroll offset of the anchor item. Anchor item is a visible
      *   item used to position the rest of the items before and after it.
+     * @param lastMeasuredAnchorItemHeight Last measured height from the previous measurement.
+     * @param coroutineScope Scope for animations.
      * @param scrollToBeConsumed The amount of scroll to be consumed.
      * @param layout A function that lays out the items.
      */
@@ -46,6 +50,7 @@ internal interface TransformingLazyColumnMeasurementStrategy {
         anchorItemIndex: Int,
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
+        coroutineScope: CoroutineScope,
         scrollToBeConsumed: Float,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
     ): TransformingLazyColumnMeasureResult
@@ -77,5 +82,6 @@ internal fun emptyMeasureResult(
         lastMeasuredItemHeight = Int.MIN_VALUE,
         canScrollForward = false,
         canScrollBackward = false,
+        coroutineScope = CoroutineScope(EmptyCoroutineContext),
         measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
     )

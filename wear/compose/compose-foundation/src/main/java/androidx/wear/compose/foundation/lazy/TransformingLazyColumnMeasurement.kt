@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import kotlinx.coroutines.CoroutineScope
 
 internal fun interface MeasuredItemProvider {
     /**
@@ -46,6 +47,7 @@ internal fun interface MeasuredItemProvider {
 internal fun rememberTransformingLazyColumnMeasurePolicy(
     itemProviderLambda: () -> TransformingLazyColumnItemProvider,
     state: TransformingLazyColumnState,
+    coroutineScope: CoroutineScope,
     horizontalAlignment: Alignment.Horizontal,
     verticalArrangement: Arrangement.Vertical,
     measurementStrategyProvider:
@@ -113,6 +115,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                         anchorItemIndex = anchorItemIndex,
                         anchorItemScrollOffset = anchorItemScrollOffset,
                         lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
+                        coroutineScope = coroutineScope,
                         layout = { width, height, placement ->
                             layout(
                                 containerConstraints.constrainWidth(width),

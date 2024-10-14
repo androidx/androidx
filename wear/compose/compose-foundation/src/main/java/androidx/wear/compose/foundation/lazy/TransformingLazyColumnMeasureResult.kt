@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
+import kotlinx.coroutines.CoroutineScope
 
 /** The result of the measure pass of the [TransformingLazyColumn]. */
 internal class TransformingLazyColumnMeasureResult(
@@ -29,6 +30,7 @@ internal class TransformingLazyColumnMeasureResult(
     val anchorItemScrollOffset: Int,
     /** Last known height for the anchor item or negative number if it hasn't been measured. */
     val lastMeasuredItemHeight: Int,
+    val coroutineScope: CoroutineScope,
     /** Layout information for the visible items. */
     override val visibleItems: List<TransformingLazyColumnVisibleItemInfo>,
     /** see [TransformingLazyColumnLayoutInfo.totalItemsCount] */
