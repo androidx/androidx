@@ -1,0 +1,69 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+androidXMultiplatform {
+    android()
+    jvm()
+    mac()
+    linux()
+    ios()
+    watchosDeviceArm64()
+    watchos()
+    tvos()
+    mingwX64()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        androidMain {
+            dependsOn(commonMain)
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
+        }
+    }
+}
+
+android {
+    namespace = "androidx.performance.annotation"
+}
+
+androidx {
+    name = "Performance - Annotation"
+    publish = Publish.NONE
+    inceptionYear = "2024"
+    description = "Provides source annotations for performance optimizations."
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
+}
