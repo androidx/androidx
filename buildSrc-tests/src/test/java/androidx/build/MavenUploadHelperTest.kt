@@ -23,6 +23,7 @@ import androidx.build.testutils.POM_CORE_CORE
 import androidx.build.testutils.XmlProviderImpl
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,7 +36,8 @@ class MavenUploadHelperTest {
         val pom = XmlProviderImpl(POM_COLLECTION)
 
         // Expect that collection-jvm has been inserted in <dependencies>.
-        val expected = """<?xml version="1.0"?>
+        val expected =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -94,7 +96,8 @@ class MavenUploadHelperTest {
         val pom = XmlProviderImpl(POM_COMPOSE_UI_GEOMETRY)
 
         // Expect that collection-jvm has been inserted in <dependencies>.
-        val expected = """<?xml version="1.0"?>
+        val expected =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -147,15 +150,15 @@ class MavenUploadHelperTest {
     @Test
     fun testAssignAarTypes() {
         val pom = XmlProviderImpl(POM_CORE_CORE)
-        val androidLibrariesSet = setOf(
-            "androidx.annotation:annotation-experimental",
-            "androidx.lifecycle:lifecycle-runtime"
-        )
-
-
+        val androidLibrariesSet =
+            setOf(
+                "androidx.annotation:annotation-experimental",
+                "androidx.lifecycle:lifecycle-runtime"
+            )
 
         // Expect that elements in <dependencies> are sorted alphabetically.
-        val expected = """<?xml version="1.0"?>
+        val expected =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -265,7 +268,8 @@ class MavenUploadHelperTest {
     @Test
     fun testEnsureConsistentJvmSuffix() {
 
-        val pom = """<?xml version="1.0"?>
+        val pom =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -283,7 +287,8 @@ class MavenUploadHelperTest {
 </project>
 """
 
-        val expected = """<?xml version="1.0"?>
+        val expected =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -311,7 +316,8 @@ class MavenUploadHelperTest {
     @Test
     fun testAssignSingleVersionDependenciesInGroupForPom() {
 
-        val pom = """<?xml version="1.0"?>
+        val pom =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -335,7 +341,8 @@ class MavenUploadHelperTest {
 </project>
 """
 
-        val expected = """<?xml version="1.0"?>
+        val expected =
+            """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -372,7 +379,8 @@ class MavenUploadHelperTest {
         val pom = POM_COLLECTION_JVM
 
         // Expect that elements in <dependencies> are sorted alphabetically.
-        val expected = """<?xml version="1.0" encoding="UTF-8"?>
+        val expected =
+            """<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
@@ -427,14 +435,15 @@ class MavenUploadHelperTest {
     </dependency>
   </dependencies>
 </project>"""
-
+        assertNotEquals(expected, pom)
         val actual = sortPomDependencies(pom)
         assertEquals(expected, actual)
     }
 
     @Test
     fun testSortGradleMetadataDependencies() {
-        val metadata = """
+        val metadata =
+            """
 {
   "formatVersion": "1.1",
   "component": {
@@ -540,10 +549,12 @@ class MavenUploadHelperTest {
     }
   ]
 }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         // Expect that elements in "dependencies" are sorted alphabetically.
-        val expected = """
+        val expected =
+            """
 {
   "formatVersion": "1.1",
   "component": {
@@ -649,7 +660,8 @@ class MavenUploadHelperTest {
     }
   ]
 }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val actual = sortGradleMetadataDependencies(metadata)
         assertEquals(expected, actual)
@@ -657,7 +669,8 @@ class MavenUploadHelperTest {
 
     @Test
     fun testSortGradleMetadataDependenciesWithConstraints() {
-        val metadata = """
+        val metadata =
+            """
 {
   "formatVersion": "1.1",
   "component": {
@@ -830,10 +843,12 @@ class MavenUploadHelperTest {
     }
   ]
 }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         // Expect that elements in "dependencies" are sorted alphabetically.
-        val expected = """
+        val expected =
+            """
 {
   "formatVersion": "1.1",
   "component": {
@@ -1006,7 +1021,8 @@ class MavenUploadHelperTest {
     }
   ]
 }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         val actual = sortGradleMetadataDependencies(metadata)
         assertEquals(expected, actual)
@@ -1014,7 +1030,8 @@ class MavenUploadHelperTest {
 
     @Test
     fun testVerifyGradleMetadata() {
-        val metadata = """
+        val metadata =
+            """
 {
   "formatVersion": "1.1",
   "component": {
@@ -1167,10 +1184,12 @@ class MavenUploadHelperTest {
     }
   ]
 }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-       val error =  assertThrows<Exception> { verifyGradleMetadata(metadata) }
-        error.hasMessageThat()
+        val error = assertThrows<Exception> { verifyGradleMetadata(metadata) }
+        error
+            .hasMessageThat()
             .isEqualTo("The sourcesElements variant must exist in the module file.")
     }
 }

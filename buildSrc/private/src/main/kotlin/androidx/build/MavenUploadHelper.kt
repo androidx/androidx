@@ -309,7 +309,7 @@ fun sortPomDependencies(pom: String): String {
         element.content().replaceAll {
             val index = sortedDeps.indexOf(it)
             if (index >= 0) {
-                sortedDeps[index]
+                deps[index]
             } else {
                 it
             }
