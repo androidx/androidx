@@ -354,9 +354,8 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     }
 
     /**
-     * Fetch the current available call audio endpoints that can be used for a new call session. The
-     * callback flow will be continuously updated until the call session is established via
-     * [addCall]. The callbackFlow should be cleaned up client-side by calling cancel() from the
+     * Continuously stream the available call audio endpoints that can be used for a new call
+     * session. The [callbackFlow] should be cleaned up client-side by calling cancel() from the
      * same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting in.
      *
      * Note: The endpoints emitted will be sorted by the [CallEndpointCompat.type] . See
