@@ -16,14 +16,18 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.test.assertThatIntRect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -42,9 +46,10 @@ import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -71,17 +76,20 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
 import kotlin.math.max
 import kotlin.math.sign
 import org.junit.Rule
@@ -444,6 +452,61 @@ class SelectionContainerTest {
         assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
     }
 
+    /**
+     * Regression test for b/372053402 - Modifier.weight not working on SelectionContainer.
+     *
+     * Lay out a selection container with a weight next to a fixed size box in a row. We expect the
+     * selection container to take up the remaining space in the row that the box does not use.
+     */
+    @Test
+    fun selectionContainer_layoutWeightApplies() {
+        val density = Density(1f)
+        with(density) {
+            val rowSize = 100
+            val boxSize = 10
+            val expectedSelConWidth = rowSize - boxSize
+
+            val rowTag = "row"
+            val boxTag = "box"
+            val selConTag = "sel"
+            val textTag = "text"
+
+            rule.setContent {
+                CompositionLocalProvider(LocalDensity provides density) {
+                    Row(Modifier.size(rowSize.toDp()).testTag(rowTag)) {
+                        SelectionContainer(Modifier.weight(1f).testTag(selConTag)) {
+                            TestText("text ".repeat(100).trim(), Modifier.testTag(textTag))
+                        }
+                        Box(Modifier.size(boxSize.toDp()).testTag(boxTag))
+                    }
+                }
+            }
+
+            fun layoutCoordinatesForTag(tag: String): LayoutCoordinates =
+                rule.onNodeWithTag(tag).fetchSemanticsNode().layoutInfo.coordinates
+
+            val rowCoords = layoutCoordinatesForTag(rowTag)
+            fun boundsInRow(tag: String): IntRect =
+                rowCoords
+                    .localBoundingBoxOf(layoutCoordinatesForTag(tag), clipBounds = false)
+                    .roundToIntRect()
+
+            val rowBounds = IntRect(IntOffset.Zero, rowCoords.size)
+            val selConBounds = boundsInRow(selConTag)
+            val textBounds = boundsInRow(textTag)
+            val boxBounds = boundsInRow(boxTag)
+
+            assertThatIntRect(rowBounds)
+                .isEqualTo(top = 0, left = 0, right = rowSize, bottom = rowSize)
+            assertThatIntRect(selConBounds)
+                .isEqualTo(top = 0, left = 0, right = expectedSelConWidth, bottom = rowSize)
+            assertThatIntRect(textBounds)
+                .isEqualTo(top = 0, left = 0, right = expectedSelConWidth, bottom = rowSize)
+            assertThatIntRect(boxBounds)
+                .isEqualTo(top = 0, left = expectedSelConWidth, right = rowSize, bottom = boxSize)
+        }
+    }
+
     @Test
     @OptIn(ExperimentalTestApi::class)
     fun selection_doesCopy_whenCopyKeyEventSent() {
@@ -527,8 +590,6 @@ class SelectionContainerTest {
         isRtl: Boolean = false,
         content: (@Composable () -> Unit)? = null
     ) {
-        val measureLatch = CountDownLatch(1)
-
         val layoutDirection = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         rule.setContent {
             CompositionLocalProvider(
@@ -537,25 +598,30 @@ class SelectionContainerTest {
             ) {
                 TestParent(Modifier.testTag("selectionContainer").gestureSpy(log)) {
                     SelectionContainer(
-                        modifier = Modifier.onGloballyPositioned { measureLatch.countDown() },
                         selection = selection.value,
                         onSelectionChange = { selection.value = it }
                     ) {
-                        content?.invoke()
-                            ?: BasicText(
-                                AnnotatedString(textContent),
-                                Modifier.fillMaxSize(),
-                                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                                softWrap = true,
-                                overflow = TextOverflow.Clip,
-                                maxLines = Int.MAX_VALUE,
-                                inlineContent = mapOf(),
-                                onTextLayout = {}
-                            )
+                        content?.invoke() ?: TestText(textContent, Modifier.fillMaxSize())
                     }
                 }
             }
         }
+
+        rule.waitForIdle()
+    }
+
+    @Composable
+    private fun TestText(text: String, modifier: Modifier = Modifier) {
+        BasicText(
+            text = AnnotatedString(text),
+            modifier = modifier,
+            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            maxLines = Int.MAX_VALUE,
+            inlineContent = mapOf(),
+            onTextLayout = {}
+        )
     }
 }
 
