@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Density
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Deprecated(
     "Use rememberTransformingLazyColumnState instead",
@@ -186,7 +187,8 @@ class TransformingLazyColumnState() : ScrollableState {
      * This operation happens instantly without animation.
      *
      * @param index The index of the item to scroll to. Must be non-negative.
-     * @param scrollOffset The offset between the center of the screen and item's center.
+     * @param scrollOffset The offset between the center of the screen and item's center. Positive
+     *   offset means the item will be scrolled up.
      */
     suspend fun scrollToItem(
         @androidx.annotation.IntRange(from = 0) index: Int,
@@ -195,11 +197,43 @@ class TransformingLazyColumnState() : ScrollableState {
         scroll { snapToItemIndexInternal(index, scrollOffset) }
     }
 
-    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
+    /**
+     * Requests the item at [index] to be at the center of the viewport during the next remeasure,
+     * offset by [scrollOffset].
+     *
+     * The scroll position will be updated to the requested position rather than maintain the index
+     * based on the center item key (when a data set change will also be applied during the next
+     * remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset The offset between the center of the screen and item's center. Positive
+     *   offset means the item will be scrolled up.
+     */
+    fun requestScrollToItem(
+        @androidx.annotation.IntRange(from = 0) index: Int,
+        scrollOffset: Int = 0
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            layoutInfoState.value.coroutineScope.launch { scroll {} }
+        }
+
+        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
+    }
+
+    internal fun snapToItemIndexInternal(
+        index: Int,
+        scrollOffset: Int,
+        forceRemeasure: Boolean = true
+    ) {
         anchorItemIndex = index
         anchorItemScrollOffset = scrollOffset
         lastMeasuredAnchorItemHeight = Int.MIN_VALUE
-        remeasurement?.forceRemeasure()
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        }
         nearestRange = calculateNearestItemsRange(anchorItemIndex)
     }
 

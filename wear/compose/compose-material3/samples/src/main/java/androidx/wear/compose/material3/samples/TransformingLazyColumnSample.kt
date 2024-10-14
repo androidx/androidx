@@ -19,13 +19,19 @@ package androidx.wear.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +41,6 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
-import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.ListHeader
@@ -52,32 +57,49 @@ import kotlinx.coroutines.launch
 fun TransformingLazyColumnScrollingSample() {
     val state = rememberTransformingLazyColumnState()
     val coroutineScope = rememberCoroutineScope()
-    TransformingLazyColumn(
-        state = state,
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
-    ) {
-        items(20) { idx ->
-            Column(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .scrollTransform(
-                            this,
-                            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .padding(10.dp)
-                        .clickable { coroutineScope.launch { state.scrollToItem(idx) } }
-            ) {
-                Text(
-                    "Item $idx",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+    var expandedIndex by remember { mutableStateOf(-1) }
+    AppScaffold {
+        ScreenScaffold(
+            state,
+            edgeButton = {
+                EdgeButton(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) {
+                    Text("To top")
+                }
             }
-        }
-        item {
-            Button(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) { Text("To top") }
+        ) {
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
+                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+            ) {
+                items(20) {
+                    Column(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .scrollTransform(
+                                    this,
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                .padding(10.dp)
+                                .clickable {
+                                    coroutineScope.launch {
+                                        expandedIndex = if (expandedIndex == it) -1 else it
+                                        state.requestScrollToItem(it)
+                                    }
+                                }
+                    ) {
+                        Text(
+                            "Item $it",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        if (expandedIndex == it) {
+                            Box(modifier = Modifier.fillMaxWidth().height(100.dp))
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -172,9 +194,7 @@ fun TransformingLazyColumnTargetMorphingHeightSample() {
             TransformingLazyColumn(
                 state = state,
                 contentPadding = PaddingValues(horizontal = 10.dp),
-                modifier =
-                    Modifier.background(MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 10.dp)
+                modifier = Modifier.background(MaterialTheme.colorScheme.background),
             ) {
                 item(contentType = "header") {
                     // No modifier is applied - no Material 3 Motion transformations.
