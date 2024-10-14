@@ -25,10 +25,3 @@ internal actual fun classKeyForObject(a: Any): Any = implementedInJetBrainsFork(
 
 internal actual fun InspectorInfo.tryPopulateReflectively(element: ModifierNodeElement<*>): Unit =
     implementedInJetBrainsFork()
-
-internal actual fun currentTimeMillis(): Long = implementedInJetBrainsFork()
-
-internal actual fun postDelayed(delayMillis: Long, block: () -> Unit): Any =
-    implementedInJetBrainsFork()
-
-internal actual fun removePost(token: Any?): Unit = implementedInJetBrainsFork()
