@@ -1575,6 +1575,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (cacheValue) {
             layerCache.push(layer)
         }
+        dirtyLayers -= layer
         return cacheValue
     }
 
