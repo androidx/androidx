@@ -95,11 +95,16 @@ internal fun SelectionContainer(
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
-    ContextMenuArea(manager) {
-        CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
-            // Get the layout coordinates of the selection container. This is for hit test of
-            // cross-composable selection.
-            SimpleLayout(modifier = modifier.then(manager.modifier)) {
+    /*
+     * Need a layout for selection gestures that span multiple text children.
+     *
+     * b/372053402: SimpleLayout must be the top layout in this composable because
+     *     the modifier argument must be applied to the top layout in case it contains
+     *     something like `Modifier.weight`.
+     */
+    SimpleLayout(modifier = modifier.then(manager.modifier)) {
+        ContextMenuArea(manager) {
+            CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
                 children()
                 if (
                     manager.isInTouchMode &&
