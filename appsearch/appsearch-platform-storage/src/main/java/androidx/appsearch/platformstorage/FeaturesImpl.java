@@ -82,12 +82,23 @@ final class FeaturesImpl implements Features {
                 // backported to Android T devices.
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
+            // Features that first landed in T Extensions 10 (Mainline Release M-2023-11) and later
+            // in Android V.
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                        || tSdkExtensionVersion >= AppSearchVersionUtil.TExtensionVersions.M2023_11;
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // Add Parent Type has special handling. Polymorphism was restricted to U+ devices
+                // due to rollback compatibility concerns.
+                // TODO(b/369703879) Remove this special handling once polymorphism is backported to
+                // Android T devices.
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                        || (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                                && tSdkExtensionVersion
+                                        >= AppSearchVersionUtil.TExtensionVersions.M2023_11);
+
             // Android V Features
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
-                // fall through
-            case Features.SCHEMA_ADD_PARENT_TYPE:
-                // fall through
-            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // fall through
