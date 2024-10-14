@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
 
 /** Represents a placeable item in the [TransformingLazyColumn] layout. */
 internal data class TransformingLazyColumnMeasuredItem(
@@ -66,8 +66,8 @@ internal data class TransformingLazyColumnMeasuredItem(
 
     fun pinToCenter() {
         scrollProgress =
-            topItemScrollProgress(
-                containerConstraints.maxHeight / 2 - transformedHeight / 2,
+            bottomItemScrollProgress(
+                containerConstraints.maxHeight / 2 - placeable.height / 2,
                 placeable.height,
                 containerConstraints.maxHeight
             )

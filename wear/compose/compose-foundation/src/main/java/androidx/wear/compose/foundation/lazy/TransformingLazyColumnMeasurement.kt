@@ -113,16 +113,16 @@ private fun measureTransformingLazyColumn(
             centerItem.offset + centerItem.transformedHeight / 2 >=
                 containerConstraints.maxHeight / 2
     ) {
-        canScrollBackward = false
         centerItem.pinToCenter()
+        canScrollBackward = false
     }
     if (
         centerItem.index == itemsCount - 1 &&
             centerItem.offset + centerItem.transformedHeight / 2 <=
                 containerConstraints.maxHeight / 2
     ) {
-        canScrollForward = false
         centerItem.pinToCenter()
+        canScrollForward = false
     }
 
     visibleItems.add(centerItem)
@@ -161,9 +161,9 @@ private fun measureTransformingLazyColumn(
     }
 
     val anchorItem =
-        visibleItems.minByOrNull {
+        visibleItems.minBy {
             abs(it.offset + it.transformedHeight / 2 - containerConstraints.maxHeight / 2)
-        } ?: centerItem
+        }
 
     return TransformingLazyColumnMeasureResult(
         anchorItemIndex = anchorItem.index,
