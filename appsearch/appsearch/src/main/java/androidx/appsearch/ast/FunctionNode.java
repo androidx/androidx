@@ -47,6 +47,7 @@ public interface FunctionNode extends Node {
             FUNCTION_NAME_HAS_PROPERTY,
             FUNCTION_NAME_PROPERTY_DEFINED,
             FUNCTION_NAME_SEARCH,
+            FUNCTION_NAME_SEMANTIC_SEARCH
     })
     @interface FunctionName {}
 
@@ -72,6 +73,12 @@ public interface FunctionNode extends Node {
      * Name of the query function represented by {@link androidx.appsearch.ast.query.SearchNode}.
      */
     String FUNCTION_NAME_SEARCH = "search";
+
+    /**
+     * Name of the query function represented by
+     * {@link androidx.appsearch.ast.query.SemanticSearchNode}.
+     */
+    String FUNCTION_NAME_SEMANTIC_SEARCH = "semanticSearch";
 
     /**
      * Gets the name of the node that extends the {@link FunctionNode}.
