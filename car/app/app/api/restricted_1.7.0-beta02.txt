@@ -2316,6 +2316,7 @@ package androidx.car.app.notification {
 
   public final class CarAppExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public CarAppExtender(android.app.Notification);
+    method public android.app.Notification.Builder extend(android.app.Notification.Builder);
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public java.util.List<android.app.Notification.Action!> getActions();
     method public String? getChannelId();

@@ -18,6 +18,7 @@ package androidx.car.app.notification;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.app.Notification;
 import android.app.Notification.Action;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -252,5 +253,44 @@ public final class CarAppExtenderTest {
 
         assertThat(new CarAppExtender(builder.build()).getChannelId())
                 .isEqualTo(channelId);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Required for Notification.Builder(Context)
+    public void extend_withNonCompatNotification_hasExtras() {
+        CarAppExtender extender =
+                new CarAppExtender.Builder()
+                        .setContentTitle("Some title")
+                        .setContentText("Some text")
+                        .setSmallIcon(TestUtils.getTestDrawableResId(mContext, "ic_test_1"))
+                        .setLargeIcon(
+                                BitmapFactory.decodeResource(mContext.getResources(),
+                                        TestUtils.getTestDrawableResId(mContext, "ic_test_2")))
+                        .setContentIntent(PendingIntent.getBroadcast(mContext, 0, new Intent(), 0))
+                        .setDeleteIntent(PendingIntent.getBroadcast(mContext, 0, new Intent(), 0))
+                        .addAction(
+                                TestUtils.getTestDrawableResId(mContext, "ic_test_1"),
+                                "Title",
+                                PendingIntent.getBroadcast(mContext, 0, new Intent(), 0))
+                        .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
+                        .setColor(CarColor.BLUE)
+                        .setChannelId("Some id")
+                        .build();
+
+        Notification.Builder plainAndroidNotificationBuilder = new Notification.Builder(mContext);
+        extender.extend(plainAndroidNotificationBuilder);
+
+        Notification resultNotification = plainAndroidNotificationBuilder.build();
+        CarAppExtender resultExtender = new CarAppExtender(resultNotification);
+
+        assertThat(resultExtender.getContentTitle()).isEqualTo(extender.getContentTitle());
+        assertThat(resultExtender.getContentText()).isEqualTo(extender.getContentText());
+        assertThat(resultExtender.getSmallIcon()).isEqualTo(extender.getSmallIcon());
+        assertThat(resultExtender.getContentIntent()).isNotNull();
+        assertThat(resultExtender.getDeleteIntent()).isNotNull();
+        assertThat(resultExtender.getActions()).hasSize(1);
+        assertThat(resultExtender.getImportance()).isEqualTo(extender.getImportance());
+        assertThat(resultExtender.getColor()).isEqualTo(extender.getColor());
+        assertThat(resultExtender.getChannelId()).isEqualTo(extender.getChannelId());
     }
 }
