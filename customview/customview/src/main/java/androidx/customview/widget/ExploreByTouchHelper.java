@@ -67,13 +67,13 @@ import java.util.List;
  *
  *     &#64;Override
  *     public boolean dispatchHoverEvent(MotionEvent event) {
- *       return mHelper.dispatchHoverEvent(this, event)
+ *       return mExploreByTouchHelper.dispatchHoverEvent(event)
  *           || super.dispatchHoverEvent(event);
  *     }
  *
  *     &#64;Override
  *     public boolean dispatchKeyEvent(KeyEvent event) {
- *       return mHelper.dispatchKeyEvent(event)
+ *       return mExploreByTouchHelper.dispatchKeyEvent(event)
  *           || super.dispatchKeyEvent(event);
  *     }
  *
@@ -81,7 +81,7 @@ import java.util.List;
  *     public void onFocusChanged(boolean gainFocus, int direction,
  *         Rect previouslyFocusedRect) {
  *       super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
- *       mHelper.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+ *       mExploreByTouchHelper.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
  *     }
  * }
  * </pre>
