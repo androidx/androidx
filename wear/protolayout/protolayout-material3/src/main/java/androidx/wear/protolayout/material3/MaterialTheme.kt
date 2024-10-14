@@ -23,6 +23,7 @@ import androidx.wear.protolayout.DimensionBuilders.SpProp
 import androidx.wear.protolayout.DimensionBuilders.sp
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle
 import androidx.wear.protolayout.ModifiersBuilders.Corner
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental
 import androidx.wear.protolayout.material3.ColorTokens.ColorToken
 import androidx.wear.protolayout.material3.Shape.ShapeToken
 import androidx.wear.protolayout.material3.Typography.TypographyToken
@@ -73,6 +74,7 @@ internal class MaterialTheme(private val customColorScheme: Map<Int, ColorProp> 
 @JvmField internal val DEFAULT_MATERIAL_THEME: MaterialTheme = MaterialTheme(emptyMap())
 
 @SuppressLint("ResourceType")
+@androidx.annotation.OptIn(ProtoLayoutExperimental::class)
 internal fun createFontStyleBuilder(
     @TypographyToken typographyToken: Int,
     deviceConfiguration: DeviceParameters? = null,
@@ -90,5 +92,6 @@ internal fun createFontStyleBuilder(
         )
         .setLetterSpacing(textStyle.letterSpacing)
         .setSettings(*textStyle.fontSettings.toTypedArray())
-        .setPreferredFontFamilies(textStyle.fontFamily)
+        .setVariant(TypographyFontSelection.getFontVariant(typographyToken))
+        .setWeight(TypographyFontSelection.getFontWeight(typographyToken))
 }

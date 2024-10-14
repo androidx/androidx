@@ -33,7 +33,7 @@ class MaterialThemeTest {
             val fontStyle: LayoutElementBuilders.FontStyle =
                 DEFAULT_MATERIAL_THEME.getFontStyleBuilder(i).build()
             val textStyle = Typography.fromToken(i)
-            assertThat(fontStyle.preferredFontFamilies[0]).isEqualTo(textStyle.fontFamily)
+            assertThat(fontStyle.preferredFontFamilies).isEmpty()
             assertThat(fontStyle.size!!.value).isEqualTo(textStyle.size.value)
             assertThat(fontStyle.letterSpacing!!.value).isEqualTo(textStyle.letterSpacing.value)
             assertThat(fontStyle.settings).isEqualTo(textStyle.fontSettings)
