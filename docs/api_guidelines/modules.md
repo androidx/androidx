@@ -136,15 +136,17 @@ conventions as published libraries. In this situation it is safe to comment out
 the `artifact_id` validation from the script or rename the module after it has \
 been created.
 
-If you see an error message `No module named 'toml'` try the following steps.
+If you see an error message `No module named 'toml'`, `'setuptools'`, or
+similar, try the following steps:
 
 *   Install necessary tools if they are not already installed
     *   (Linux) `sudo apt-get install virtualenv python3-venv`
     *   (Mac) `pip3 install virtualenv`
+    *   (Mac homebrew) `brew install virtualenv`
 *   Create a virtual environment with `virtualenv androidx_project_creator` (you
     can choose another name for your virtualenv if you wish).
-*   Install the `toml` library in your virtual env with
-    `androidx_project_creator/bin/pip3 install toml`
+*   Install the missing module(s) in your virtual environment with
+    `androidx_project_creator/bin/pip3 install setuptools toml`
 *   Run the project creator script from your virtual env with
     `androidx_project_creator/bin/python3
     ../../development/project-creator/create_project.py androidx.foo foo-bar`
@@ -313,7 +315,7 @@ DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATAS
 Note that you can specify a `multiplatformGroupVersion` if and only if you are
 also specifying a `atomicGroupVersion`.
 
-##### Non atomic Kotlin Multiplatform versions
+##### Non-atomic Kotlin Multiplatform versions
 
 If your Kotlin Multiplatform Library does not have atomic version groups, you
 can specify a KMP specifc version in the `build gradle` file:
