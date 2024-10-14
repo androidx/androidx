@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
@@ -67,14 +68,14 @@ fun LazyColumn(
     content: TransformingLazyColumnScope.() -> Unit
 ) =
     TransformingLazyColumn(
-        modifier,
-        state,
-        verticalArrangement,
-        horizontalAlignment,
-        flingBehavior,
-        userScrollEnabled,
-        rotaryScrollableBehavior,
-        content
+        modifier = modifier,
+        state = state,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        rotaryScrollableBehavior = rotaryScrollableBehavior,
+        content = content
     )
 
 /**
@@ -97,7 +98,6 @@ fun LazyColumn(
  *   separate [Modifier.rotaryScrollable] modifier.
  * @param content The content of the list.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransformingLazyColumn(
     modifier: Modifier = Modifier,
@@ -109,6 +109,38 @@ fun TransformingLazyColumn(
             alignment = Alignment.Top
         ),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
+    content: TransformingLazyColumnScope.() -> Unit
+) {
+    TransformingLazyColumnImpl(
+        modifier = modifier,
+        state = state,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+        measurementStrategyProvider = { TransformingLazyColumnCenterBoundsMeasurementStrategy() },
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        rotaryScrollableBehavior = rotaryScrollableBehavior,
+        content = content,
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun TransformingLazyColumnImpl(
+    modifier: Modifier = Modifier,
+    state: TransformingLazyColumnState = rememberTransformingLazyColumnState(),
+    verticalArrangement: Arrangement.Vertical =
+        Arrangement.spacedBy(
+            space = 4.dp,
+            // TODO: b/352513793 - Add support for reverseLayout.
+            alignment = Alignment.Top
+        ),
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    measurementStrategyProvider:
+        IntrinsicMeasureScope.() -> TransformingLazyColumnMeasurementStrategy,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.behavior(state),
@@ -141,6 +173,7 @@ fun TransformingLazyColumn(
             state = state,
             horizontalAlignment = horizontalAlignment,
             verticalArrangement = verticalArrangement,
+            measurementStrategyProvider = measurementStrategyProvider,
         )
     val reverseDirection =
         ScrollableDefaults.reverseDirection(
