@@ -16,9 +16,8 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
-import androidx.compose.foundation.text.FontSizeSearchScope
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
@@ -56,7 +55,7 @@ internal class MultiParagraphLayoutCache(
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
     private var placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
-    private var autoSize: AutoSize? = null
+    private var autoSize: TextAutoSize? = null
 ) {
     /** Convert min max lines into actual constraints */
     private var mMinLinesConstrainer: MinLinesConstrainer? = null
@@ -183,7 +182,7 @@ internal class MultiParagraphLayoutCache(
         return localMin.coerceMinLines(inConstraints = constraints, minLines = minLines)
     }
 
-    private fun AutoSize.performAutoSize(
+    private fun TextAutoSize.performAutoSize(
         finalConstraints: Constraints,
         layoutDirection: LayoutDirection
     ): TextUnit {
@@ -252,7 +251,7 @@ internal class MultiParagraphLayoutCache(
         maxLines: Int,
         minLines: Int,
         placeholders: List<AnnotatedString.Range<Placeholder>>?,
-        autoSize: AutoSize?
+        autoSize: TextAutoSize?
     ) {
         this.text = text
         this.style = style
@@ -378,8 +377,8 @@ internal class MultiParagraphLayoutCache(
         return setLayoutDirection(layoutDirection).minIntrinsicWidth.ceilToIntPx()
     }
 
-    /** [MultiParagraph] specific implementation of [FontSizeSearchScope] */
-    private inner class FontSizeSearchScopeImpl : FontSizeSearchScope {
+    /** [MultiParagraph] specific implementation of [AutoSizeTextLayoutScope] */
+    private inner class FontSizeSearchScopeImpl : AutoSizeTextLayoutScope {
         /** Constraints that will be used to layout the text */
         var constraints: Constraints = Constraints.fixed(0, 0)
 

@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.modifiers
 import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Paragraph
@@ -408,7 +409,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(20.sp),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -432,7 +433,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(20.sp),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -461,7 +462,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(TextUnit.Unspecified),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -485,7 +486,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(TextUnit.Unspecified),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Ellipsis,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -510,7 +511,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(TextUnit.Unspecified),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Visible,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -670,7 +671,7 @@ class ParagraphLayoutCacheTest {
                     style = createTextStyle(TextUnit.Unspecified),
                     fontFamilyResolver = fontFamilyResolver,
                     minLines = 2,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -765,7 +766,7 @@ class ParagraphLayoutCacheTest {
     private fun ParagraphLayoutCache.updateAutoSize(
         text: String,
         fontSize: TextUnit,
-        autoSize: AutoSize
+        autoSize: TextAutoSize
     ) =
         update(
             text = text,

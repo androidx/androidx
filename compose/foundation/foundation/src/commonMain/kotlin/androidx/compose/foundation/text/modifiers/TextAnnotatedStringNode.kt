@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -79,7 +79,7 @@ internal class TextAnnotatedStringNode(
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
     private var overrideColor: ColorProducer? = null,
-    private var autoSize: AutoSize? = null,
+    private var autoSize: TextAutoSize? = null,
     private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     @Suppress("PrimitiveInCollection")
@@ -157,7 +157,7 @@ internal class TextAnnotatedStringNode(
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
         overflow: TextOverflow,
-        autoSize: AutoSize?
+        autoSize: TextAutoSize?
     ): Boolean {
         var changed: Boolean
 

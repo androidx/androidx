@@ -99,6 +99,7 @@ val TextDemos =
                     ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
                     ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                     ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
+                    ComposableDemo("Auto Size") { AutoSizeTextDemo() }
                 )
             ),
             DemoCategory(

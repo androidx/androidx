@@ -16,48 +16,20 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.ui.unit.Density
+import androidx.compose.foundation.text.modifiers.AutoSizeTextLayoutScope
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import kotlin.math.floor
 
-/** Interface used by Text composables to automatically size their text. */
-internal interface AutoSize {
-    /**
-     * Calculates font size. Use utility function [FontSizeSearchScope.performLayoutAndGetOverflow]
-     * to lay out the text and check if it overflows. The expectation is that
-     * implementation-specific constraints should be used in unison with
-     * [FontSizeSearchScope.performLayoutAndGetOverflow] to determine a suitable font size to be
-     * used.
-     *
-     * @return The derived optimal font size.
-     * @see [FontSizeSearchScope.performLayoutAndGetOverflow]
-     */
-    // TODO(b/362904946): Add sample
-    fun FontSizeSearchScope.getFontSize(): TextUnit
-
-    /**
-     * Require equals() to be implemented for performance purposes. Using a data class is
-     * sufficient. Singletons may implement this function with referential equality (`this ===
-     * other`). Instances with no properties may implement this function by checking the type of the
-     * other object.
-     *
-     * @return true if both AutoSize instances are structurally identical.
-     */
-    override fun equals(other: Any?): Boolean
-
+/**
+ * Interface used by Text composables to override text size to automatically grow or shrink text to
+ * fill the layout bounds.
+ */
+sealed interface AutoSize {
     companion object {
         /**
-         * Automatically size the text to attempt to fit its container. This uses a
-         * step-based/granular implementation where potential font sizes are uniformly spread out
-         * between [minFontSize] and [maxFontSize]. [stepSize] is the smallest difference between
-         * two distinct font sizes. e.g. if `minFontSize = 1.sp`, `maxFontSize = 2.sp` and `stepSize
-         * = 0.5.sp`, the potential font sizes are `1.sp`, `1.5.sp`, and `2.sp`. In cases where
-         * [stepSize] is strictly greater than (not equal to) the difference between [minFontSize]
-         * and [maxFontSize], the only potential font size is [minFontSize].
-         *
-         * Both or neither [minFontSize] and [maxFontSize] must be declared.
+         * Automatically size the text with the biggest font size that fits the available space.
          *
          * @param minFontSize The smallest potential font size of the text. Default = 12.sp. This
          *   must be smaller than [maxFontSize]; an [IllegalArgumentException] will be thrown
@@ -68,67 +40,70 @@ internal interface AutoSize {
          * @param stepSize The smallest difference between potential font sizes. Specifically, every
          *   font size, when subtracted by [minFontSize], is divisible by [stepSize]. Default =
          *   0.25.sp. This must not be less than `0.0001f.sp`; an [IllegalArgumentException] will be
-         *   thrown otherwise.
+         *   thrown otherwise. If [stepSize] is greater than the difference between [minFontSize]
+         *   and [maxFontSize], [minFontSize] will be used for the layout.
          * @return AutoSize instance with the step-based configuration. Using this in a compatible
          *   composable will cause its text to be sized as above.
          */
         fun StepBased(
-            minFontSize: TextUnit,
-            maxFontSize: TextUnit,
+            minFontSize: TextUnit = AutoSizeDefaults.MinFontSize,
+            maxFontSize: TextUnit = AutoSizeDefaults.MaxFontSize,
             stepSize: TextUnit = 0.25.sp
-        ): AutoSize {
-            return AutoSizeStepBased(minFontSize, maxFontSize, stepSize)
-        }
-
-        /**
-         * Automatically size the text to attempt to fit its container. This uses a
-         * step-based/granular implementation where potential font sizes are uniformly spread out
-         * between `minFontSize` and `maxFontSize`. [stepSize] is the smallest difference between
-         * two distinct font sizes. e.g. if `minFontSize = 1.sp`, `maxFontSize = 2.sp` and `stepSize
-         * = 0.5.sp`, the potential font sizes are `1.sp`, `1.5.sp`, and `2.sp`. In cases where
-         * [stepSize] is strictly greater than (not equal to) the difference between `minFontSize`
-         * and `maxFontSize`, the only potential font size is `minFontSize`.
-         *
-         * Both or neither `minFontSize` and `maxFontSize` must be declared.
-         *
-         * @param stepSize The smallest difference between potential font sizes. Specifically, every
-         *   font size, when subtracted by `minFontSize` (`12.sp`), is divisible by [stepSize].
-         *   Default = 0.25.sp. [stepSize] must not be less than `0.0001f.sp`, an
-         *   [IllegalArgumentException] will be thrown otherwise.
-         * @return AutoSize instance with the step-based configuration. Using this in a compatible
-         *   composable will cause its text to be sized as above.
-         */
-        fun StepBased(stepSize: TextUnit = 0.25.sp): AutoSize {
-            return AutoSizeStepBased(minFontSize = 12.sp, maxFontSize = 112.sp, stepSize = stepSize)
-        }
+        ): AutoSize =
+            AutoSizeStepBased(
+                minFontSize = minFontSize,
+                maxFontSize = maxFontSize,
+                stepSize = stepSize
+            )
     }
 }
 
-/**
- * This interface is used by classes responsible for laying out text. Layout will be performed here
- * alongside logic that checks if the text overflows.
- *
- * These methods are used by [AutoSize] in the [AutoSize.getFontSize] method, where developers can
- * lay out text with different font sizes and do certain logic depending on whether or not the text
- * overflows.
- *
- * This may be implemented in unit tests when testing [AutoSize.getFontSize] to see if the method
- * works as intended.
- */
-internal interface FontSizeSearchScope : Density {
+/** Contains defaults for [AutoSize] APIs. */
+object AutoSizeDefaults {
+    /** The default minimum font size for [AutoSize]. */
+    val MinFontSize = 12.sp
+
+    /** The default maximum font size for [AutoSize]. */
+    val MaxFontSize = 112.sp
+}
+
+internal interface TextAutoSize : AutoSize {
     /**
-     * Lays out the text with the given font size.
+     * Calculates font size. Use utility function
+     * [AutoSizeTextLayoutScope.performLayoutAndGetOverflow] to lay out the text and check if it
+     * overflows. The expectation is that implementation-specific constraints should be used in
+     * unison with [AutoSizeTextLayoutScope.performLayoutAndGetOverflow] to determine a suitable
+     * font size to be used.
      *
-     * @return true if the text overflows.
+     * @return The derived optimal font size.
+     * @see [AutoSizeTextLayoutScope.performLayoutAndGetOverflow]
      */
-    fun performLayoutAndGetOverflow(fontSize: TextUnit): Boolean
+    // TODO(b/362904946): Add sample
+    fun AutoSizeTextLayoutScope.getFontSize(): TextUnit
+
+    /**
+     * This type is used in performance-sensitive paths and requires providing equality guarantees.
+     * Using a data class is sufficient. Singletons may implement this function with referential
+     * equality (`this === other`). Instances with no properties may implement this function by
+     * checking the type of the other object.
+     *
+     * @return true if both AutoSize instances are identical.
+     */
+    override fun equals(other: Any?): Boolean
+
+    /**
+     * This type is used in performance-sensitive paths and requires providing identity guarantees.
+     *
+     * @return a unique hashcode for this AutoSize instance.
+     */
+    override fun hashCode(): Int
 }
 
 private class AutoSizeStepBased(
     private var minFontSize: TextUnit,
     private val maxFontSize: TextUnit,
     private val stepSize: TextUnit
-) : AutoSize {
+) : TextAutoSize {
     init {
         // Checks for validity of AutoSize instance
         // Unspecified check
@@ -172,7 +147,7 @@ private class AutoSizeStepBased(
         }
     }
 
-    override fun FontSizeSearchScope.getFontSize(): TextUnit {
+    override fun AutoSizeTextLayoutScope.getFontSize(): TextUnit {
         val stepSize = stepSize.toPx()
         val smallest = minFontSize.toPx()
         val largest = maxFontSize.toPx()

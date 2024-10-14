@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
@@ -47,7 +47,7 @@ internal class TextAnnotatedStringElement(
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
     private val color: ColorProducer? = null,
-    private val autoSize: AutoSize? = null,
+    private val autoSize: TextAutoSize? = null,
     private val onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
