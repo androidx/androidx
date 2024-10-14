@@ -60,6 +60,7 @@ abstract class AnchoredDraggableBackwardsCompatibleTest(private val testNewBehav
         snapAnimationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.SnapAnimationSpec,
         decayAnimationSpec: DecayAnimationSpec<Float> =
             AnchoredDraggableDefaults.DecayAnimationSpec,
+        shouldCreateFling: Boolean = true
     ): Pair<AnchoredDraggableState<T>, Modifier> {
         val state =
             createAnchoredDraggableState(
@@ -74,12 +75,16 @@ abstract class AnchoredDraggableBackwardsCompatibleTest(private val testNewBehav
         val modifier =
             if (testNewBehavior) {
                 val flingBehavior =
-                    anchoredDraggableFlingBehavior(
-                        state,
-                        density = rule.density,
-                        positionalThreshold = positionalThreshold,
-                        snapAnimationSpec = snapAnimationSpec
-                    )
+                    if (shouldCreateFling) {
+                        anchoredDraggableFlingBehavior(
+                            state,
+                            density = rule.density,
+                            positionalThreshold = positionalThreshold,
+                            snapAnimationSpec = snapAnimationSpec
+                        )
+                    } else {
+                        null
+                    }
                 createAnchoredDraggableModifier(
                     state = state,
                     reverseDirection = reverseDirection,

@@ -60,14 +60,11 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.TraversableNode
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
-import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.scrollBy
@@ -274,8 +271,6 @@ internal class ScrollableNode(
         interactionSource = interactionSource,
         orientationLock = orientation
     ),
-    ObserverModifierNode,
-    CompositionLocalConsumerModifierNode,
     KeyInputModifierNode,
     SemanticsModifierNode {
 
@@ -308,9 +303,6 @@ internal class ScrollableNode(
             ContentInViewNode(orientation, scrollingLogic, reverseDirection, bringIntoViewSpec)
         )
 
-    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
-    // don't need to worry about observation / updating this over time.
-    private var scrollConfig: ScrollConfig? = null
     private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
     private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
@@ -419,21 +411,18 @@ internal class ScrollableNode(
 
     override fun onAttach() {
         updateDefaultFlingBehavior()
-        scrollConfig = platformScrollConfig()
-    }
-
-    // TODO(b/318434914) it isn't called, because LocalDensity is staticCompositionLocalOf
-    override fun onObservedReadsChanged() {
-        // if density changes, update the default fling behavior.
-        updateDefaultFlingBehavior()
     }
 
     private fun updateDefaultFlingBehavior() {
-        // monitor change in Density
-        observeReads {
-            val density = currentValueOf(LocalDensity)
-            defaultFlingBehavior.updateDensity(density)
-        }
+        if (!isAttached) return
+        val density = requireDensity()
+        defaultFlingBehavior.updateDensity(density)
+    }
+
+    override fun onDensityChange() {
+        onCancelPointerInput()
+        updateDefaultFlingBehavior()
+        mouseWheelScrollNode?.pointerInputNode?.onDensityChange()
     }
 
     // Key handler for Page up/down scrolling behavior.
@@ -533,11 +522,6 @@ internal class ScrollableNode(
     override fun onCancelPointerInput() {
         super.onCancelPointerInput()
         mouseWheelScrollNode?.pointerInputNode?.onCancelPointerInput()
-    }
-
-    override fun onDensityChange() {
-        onCancelPointerInput()
-        mouseWheelScrollNode?.pointerInputNode?.onDensityChange()
     }
 
     override fun onViewConfigurationChange() {

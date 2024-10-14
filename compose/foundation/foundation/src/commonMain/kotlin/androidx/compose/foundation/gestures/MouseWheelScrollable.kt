@@ -56,6 +56,9 @@ internal class MouseWheelScrollNode(
     private val onScrollStopped: suspend (velocity: Velocity) -> Unit,
     private var enabled: Boolean,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+
+    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
+    // don't need to worry about observation / updating this over time.
     private lateinit var mouseWheelScrollConfig: ScrollConfig
 
     override fun onAttach() {

@@ -52,6 +52,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
@@ -88,6 +89,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -115,6 +117,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -3159,6 +3162,41 @@ class ScrollableTest {
         rule
             .onNodeWithTag(scrollableBoxTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
+    }
+
+    @Test
+    fun onDensityChange_shouldUpdateFlingBehavior() {
+        var density by mutableStateOf(rule.density)
+        var flingDelta = 0f
+        val fixedSize = 400
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides density) {
+                Box(
+                    Modifier.size(with(density) { fixedSize.toDp() })
+                        .testTag(scrollableBoxTag)
+                        .scrollable(
+                            state =
+                                rememberScrollableState {
+                                    flingDelta += it
+                                    it
+                                },
+                            orientation = Orientation.Vertical
+                        )
+                )
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTouchInput { swipeUp() }
+
+        rule.waitForIdle()
+
+        density = Density(rule.density.density * 2f)
+        val previousDelta = flingDelta
+        flingDelta = 0.0f
+
+        rule.onNodeWithTag(scrollableBoxTag).performTouchInput { swipeUp() }
+
+        rule.runOnIdle { assertThat(flingDelta).isNotEqualTo(previousDelta) }
     }
 
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
