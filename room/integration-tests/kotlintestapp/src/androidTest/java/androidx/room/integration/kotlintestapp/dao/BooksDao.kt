@@ -17,11 +17,13 @@
 package androidx.room.integration.kotlintestapp.dao
 
 import androidx.lifecycle.LiveData
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.Relation
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
@@ -474,4 +476,15 @@ interface BooksDao {
     @Upsert suspend fun upsertBookSuspendReturnId(book: Book): Long
 
     @Upsert suspend fun upsertBooksSuspendReturnIds(books: List<Book>): List<Long>
+
+    @Transaction
+    @Query("SELECT * FROM Publisher")
+    fun getPagingSourceRelation(): androidx.paging.PagingSource<Int, PublisherRelation>
+
+    data class PublisherRelation(
+        val publisherId: String,
+        @ColumnInfo(defaultValue = "0") val name: String,
+        @Relation(parentColumn = "publisherId", entityColumn = "publisherId")
+        val relationEntity: Publisher
+    )
 }

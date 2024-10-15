@@ -18,7 +18,7 @@ package androidx.room.paging
 import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomRawQuery
-import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.SQLiteConnection
 
 @Suppress("UNUSED_PARAMETER")
 abstract class LimitOffsetPagingSource<T : Any>(
@@ -33,5 +33,5 @@ abstract class LimitOffsetPagingSource<T : Any>(
     override public suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
         return LoadResult.Invalid()
     }
-    protected abstract fun convertRows(statement: SQLiteStatement, itemCount: Int): List<T>
+    protected abstract suspend fun convertRows(limitOffsetQuery: RoomRawQuery, itemCount: Int): List<T>
 }

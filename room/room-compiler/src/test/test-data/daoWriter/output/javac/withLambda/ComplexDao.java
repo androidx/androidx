@@ -16,6 +16,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.Class;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.processing.Generated;
+import kotlin.coroutines.Continuation;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation", "removal"})
@@ -634,41 +636,47 @@ public final class ComplexDao_Impl extends ComplexDao {
     final RoomRawQuery _rawQuery = new RoomRawQuery(_sql);
     return new LimitOffsetPagingSource<Child1>(_rawQuery, __db, "Child1") {
       @Override
-      @NonNull
-      protected List<Child1> convertRows(@NonNull final SQLiteStatement statement,
-          final int itemCount) {
-        _rawQuery.getBindingFunction().invoke(statement);
-        final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "id");
-        final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "name");
-        final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "serial");
-        final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "code");
-        final List<Child1> _result = new ArrayList<Child1>();
-        while (statement.step()) {
-          final Child1 _item;
-          final int _tmpId;
-          _tmpId = (int) (statement.getLong(_cursorIndexOfId));
-          final String _tmpName;
-          if (statement.isNull(_cursorIndexOfName)) {
-            _tmpName = null;
-          } else {
-            _tmpName = statement.getText(_cursorIndexOfName);
-          }
-          final Info _tmpInfo;
-          if (!(statement.isNull(_cursorIndexOfSerial) && statement.isNull(_cursorIndexOfCode))) {
-            _tmpInfo = new Info();
-            _tmpInfo.serial = (int) (statement.getLong(_cursorIndexOfSerial));
-            if (statement.isNull(_cursorIndexOfCode)) {
-              _tmpInfo.code = null;
-            } else {
-              _tmpInfo.code = statement.getText(_cursorIndexOfCode);
+      protected Object convertRows(final RoomRawQuery limitOffsetQuery, final int itemCount,
+          final Continuation<? super List<? extends Child1>> arg2) {
+        return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+          final SQLiteStatement _stmt = _connection.prepare(limitOffsetQuery.getSql());
+          limitOffsetQuery.getBindingFunction().invoke(_stmt);
+          try {
+            final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "id");
+            final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+            final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "serial");
+            final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "code");
+            final List<Child1> _result = new ArrayList<Child1>();
+            while (_stmt.step()) {
+              final Child1 _item;
+              final int _tmpId;
+              _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
+              final String _tmpName;
+              if (_stmt.isNull(_cursorIndexOfName)) {
+                _tmpName = null;
+              } else {
+                _tmpName = _stmt.getText(_cursorIndexOfName);
+              }
+              final Info _tmpInfo;
+              if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
+                _tmpInfo = new Info();
+                _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
+                if (_stmt.isNull(_cursorIndexOfCode)) {
+                  _tmpInfo.code = null;
+                } else {
+                  _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+                }
+              } else {
+                _tmpInfo = null;
+              }
+              _item = new Child1(_tmpId,_tmpName,_tmpInfo);
+              _result.add(_item);
             }
-          } else {
-            _tmpInfo = null;
+            return _result;
+          } finally {
+            _stmt.close();
           }
-          _item = new Child1(_tmpId,_tmpName,_tmpInfo);
-          _result.add(_item);
-        }
-        return _result;
+        }, arg2);
       }
     };
   }
