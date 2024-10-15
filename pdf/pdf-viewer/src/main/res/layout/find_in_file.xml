@@ -37,13 +37,11 @@
             android:paddingLeft="14dp"
             android:imeOptions="actionSearch"
             android:inputType="textFilter"
-            android:textSize="16sp"
             android:clickable="true"
             android:focusable="true"
             android:background="@null"
-            style="@style/TextAppearance.Material3.TitleSmall"
-            android:layout_gravity="center_vertical">
-        </androidx.pdf.widget.SearchEditText>
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:layout_gravity="center_vertical" />
 
         <TextView android:id="@+id/match_status_textview"
             android:layout_width="wrap_content"
@@ -51,6 +49,7 @@
             android:layout_alignEnd="@+id/query_box"
             android:paddingRight="10dp"
             android:textColor="?attr/colorOnSurfaceVariant"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:layout_gravity="center_vertical">
         </TextView>
     </LinearLayout>
