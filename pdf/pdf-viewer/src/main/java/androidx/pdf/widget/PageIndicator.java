@@ -99,7 +99,8 @@ public class PageIndicator extends ReusableToast {
 
         if (zoom != mCurrentZoom && stable) {
             // Override announcement with zoom info.
-            announceStr = getDescription(range) + "\n" + getZoomDescription(zoom);
+            announceStr = (announceStr != null) ? announceStr + getZoomDescription(zoom) :
+                    getZoomDescription(zoom);
             mCurrentZoom = zoom;
         }
         if (announceStr != null && mAccessibility.isAccessibilityEnabled(mContext)) {
