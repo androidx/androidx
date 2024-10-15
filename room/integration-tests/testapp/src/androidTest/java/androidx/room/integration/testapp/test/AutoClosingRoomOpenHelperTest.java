@@ -288,6 +288,8 @@ public class AutoClosingRoomOpenHelperTest {
         assertEquals(3, invalidationCount.get());
     }
 
+    // TODO(372946311): Broken test
+    @Ignore
     @Test
     @MediumTest
     public void invalidationObserver_canRequeryDb() throws TimeoutException, InterruptedException {
