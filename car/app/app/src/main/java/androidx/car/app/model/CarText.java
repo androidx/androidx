@@ -275,6 +275,7 @@ public final class CarText {
      *
      */
     @RestrictTo(LIBRARY)
+    @CarProtocol
     @KeepFields
     public static class SpanWrapper {
         private final int mStart;
@@ -342,6 +343,7 @@ public final class CarText {
     }
 
     /** A builder of {@link CarText}. */
+    @CarProtocol
     @KeepFields
     public static final class Builder {
         CharSequence mText;

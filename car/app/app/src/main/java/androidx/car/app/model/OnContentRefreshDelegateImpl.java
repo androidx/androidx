@@ -72,6 +72,7 @@ public class OnContentRefreshDelegateImpl implements OnContentRefreshDelegate {
         mListener = null;
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class OnContentRefreshListenerStub extends
             IOnContentRefreshListener.Stub {

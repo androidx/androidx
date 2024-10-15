@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 
@@ -378,6 +379,10 @@ public final class Bundler {
 
     private static Bundle serializeObject(Object obj, Trace trace) throws BundlerException {
         String className = obj.getClass().getName();
+        if (!obj.getClass().isAnnotationPresent(CarProtocol.class)) {
+            throw new TracedBundlerException(
+                    "Invalid class not marked as CarProtocol: " + className, trace);
+        }
         try {
             obj.getClass().getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
@@ -580,6 +585,10 @@ public final class Bundler {
 
         try {
             Class<?> clazz = Class.forName(className);
+            if (!clazz.isAnnotationPresent(CarProtocol.class)) {
+                throw new TracedBundlerException(
+                        "Invalid class not marked as CarProtocol: " + className, trace);
+            }
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             Object obj = constructor.newInstance();

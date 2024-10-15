@@ -25,11 +25,13 @@ import android.view.SurfaceView;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 
 /**
  * A class holding the information needed to render the content on a surface.
  */
+@CarProtocol
 @KeepFields
 public final class SurfaceWrapper {
     @Nullable

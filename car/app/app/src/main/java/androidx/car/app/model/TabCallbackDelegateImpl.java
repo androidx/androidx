@@ -70,6 +70,7 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
         return new TabCallbackDelegateImpl(callback);
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class TabCallbackStub extends ITabCallback.Stub {
         private final TabTemplate.TabCallback mCallback;

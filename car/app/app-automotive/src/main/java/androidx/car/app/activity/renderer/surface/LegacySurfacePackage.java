@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -35,6 +36,7 @@ import androidx.car.app.serialization.BundlerException;
  * This class exists for compatibility with Q devices. In Android R and later,
  * {@link android.view.SurfaceControlViewHost.SurfacePackage} will be used instead.
  */
+@CarProtocol
 @KeepFields
 public final class LegacySurfacePackage {
     @Nullable

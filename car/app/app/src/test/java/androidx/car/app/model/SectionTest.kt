@@ -18,6 +18,7 @@ package androidx.car.app.model
 
 import android.text.SpannableString
 import android.text.Spanned
+import androidx.car.app.annotations.CarProtocol
 import androidx.car.app.testing.TestDelegateInvoker.requestAllItemsForTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -28,11 +29,13 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SectionTest {
     /** An example item containing a uniquely identifying field. */
+    @CarProtocol
     private data class TestItem(val someUniquelyIdentifyingField: Int) : Item {
         constructor() : this(-1)
     }
 
     /** An empty section implementation to test the base class. */
+    @CarProtocol
     private class TestSection(builder: Builder) : Section<TestItem>(builder) {
         /** An empty builder implementation to test the base class. */
         class Builder : BaseBuilder<TestItem, Builder>() {

@@ -25,9 +25,10 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import java.util.Objects;
  * @see Screen#onGetTemplate()
  */
 @RequiresCarApi(2)
+@CarProtocol
 @KeepFields
 public final class LongMessageTemplate implements Template {
     @Nullable

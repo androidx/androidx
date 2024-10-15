@@ -82,6 +82,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
         return new SearchCallbackDelegateImpl(callback);
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class SearchCallbackStub extends ISearchCallback.Stub {
         private final SearchCallback mCallback;

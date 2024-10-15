@@ -69,6 +69,7 @@ public class PanModeDelegateImpl implements PanModeDelegate {
         return new PanModeDelegateImpl(listener);
     }
 
+    @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class PanModeListenerStub extends IPanModeListener.Stub {
         private final PanModeListener mListener;
