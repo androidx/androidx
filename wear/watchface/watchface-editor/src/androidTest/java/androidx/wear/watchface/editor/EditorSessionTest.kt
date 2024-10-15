@@ -2173,6 +2173,31 @@ public class EditorSessionTest {
     }
 
     @Test
+    public fun editorSessionClosedBeforeComplicationFetch_ensuresComplicationFetchJobWithinTimeout() {
+        val getProviderInfosLatch = CountDownLatch(1)
+        val complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider(getProviderInfosLatch)
+
+        val scenario =
+            createOnWatchFaceEditingTestActivity(
+                listOf(colorStyleSetting, watchHandStyleSetting),
+                listOf(leftComplication, rightComplication),
+                complicationDataSourceInfoRetrieverProvider =
+                    complicationDataSourceInfoRetrieverProvider
+            )
+        scenario.onActivity { activity ->
+            activity.editorSession.close()
+            activity.finish()
+        }
+        getProviderInfosLatch.countDown()
+
+        assertTrue(
+            complicationDataSourceInfoRetrieverProvider.lastComplicationDataSourceInfoRetriever
+                .closed
+        )
+    }
+
+    @Test
     @Suppress("Deprecation") // userStyleSettings
     public fun forceCloseEditorSession() {
         val scenario =
