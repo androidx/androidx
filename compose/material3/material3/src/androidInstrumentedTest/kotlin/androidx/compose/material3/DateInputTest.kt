@@ -244,6 +244,38 @@ class DateInputTest {
     }
 
     @Test
+    fun inputDateOutOfRange_withInitialDate() {
+        lateinit var dateInputLabel: String
+        lateinit var errorMessage: String
+        lateinit var state: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            dateInputLabel = getString(string = Strings.DateInputLabel)
+            errorMessage = getString(string = Strings.DateInputInvalidNotAllowed)
+            state =
+                rememberDatePickerState(
+                    initialDisplayMode = DisplayMode.Input,
+                    initialSelectedDateMillis =
+                        dayInUtcMilliseconds(year = 2030, month = 2, dayOfMonth = 27),
+                    selectableDates =
+                        object : SelectableDates {
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
+                )
+            DatePicker(state = state)
+        }
+
+        rule.runOnIdle { assertThat(state.selectedDateMillis).isNull() }
+
+        // Check that the title is displaying the default text and not a date string.
+        rule.onNodeWithText(dateInputLabel).assertIsDisplayed()
+        // Check for the error semantics.
+        rule
+            .onNodeWithText("02/27/2030")
+            .assert(keyIsDefined(SemanticsProperties.Error))
+            .assert(expectValue(SemanticsProperties.Error, errorMessage.format("Feb 27, 2030")))
+    }
+
+    @Test
     fun inputDateInvalidForPattern() {
         lateinit var dateInputLabel: String
         lateinit var errorMessage: String

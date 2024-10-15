@@ -726,40 +726,35 @@ private class DateRangePickerStateImpl(
         @Suppress("AutoBoxing") startDateMillis: Long?,
         @Suppress("AutoBoxing") endDateMillis: Long?
     ) {
-        val startDate =
-            if (startDateMillis != null) {
-                calendarModel.getCanonicalDate(startDateMillis)
-            } else {
-                null
-            }
-        val endDate =
-            if (endDateMillis != null) {
-                calendarModel.getCanonicalDate(endDateMillis)
-            } else {
-                null
-            }
-        // Validate that both dates are within the valid years range.
-        startDate?.let {
-            require(yearRange.contains(it.year)) {
-                "The provided start date year (${it.year}) is out of the years range of $yearRange."
-            }
+        val startDate = getDate(startDateMillis)
+        val endDate = getDate(endDateMillis)
+
+        // Validate that an end date cannot be set without a start date and that the end date
+        // appears on or after the start date.
+        if (
+            startDate != null &&
+                (endDate == null || startDate.utcTimeMillis <= endDate.utcTimeMillis)
+        ) {
+            _selectedStartDate.value = startDate
+            _selectedEndDate.value = endDate
+        } else {
+            _selectedStartDate.value = null
+            _selectedEndDate.value = null
         }
-        endDate?.let {
-            require(yearRange.contains(it.year)) {
-                "The provided end date year (${it.year}) is out of the years range of $yearRange."
-            }
-        }
-        // Validate that an end date cannot be set without a start date.
-        if (endDate != null) {
-            requireNotNull(startDate) { "An end date was provided without a start date." }
-            // Validate that the end date appears on or after the start date.
-            require(startDate.utcTimeMillis <= endDate.utcTimeMillis) {
-                "The provided end date appears before the start date."
-            }
-        }
-        _selectedStartDate.value = startDate
-        _selectedEndDate.value = endDate
     }
+
+    private fun getDate(dateMillis: Long?) =
+        if (dateMillis != null) {
+            val date = calendarModel.getCanonicalDate(dateMillis)
+            // Validate that the date is within the valid years range.
+            if (yearRange.contains(date.year)) {
+                date
+            } else {
+                null
+            }
+        } else {
+            null
+        }
 
     companion object {
         /**

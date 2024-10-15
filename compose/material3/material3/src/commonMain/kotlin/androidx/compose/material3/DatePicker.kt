@@ -1125,7 +1125,7 @@ constructor(
             when {
                 selected && enabled -> selectedYearContentColor
                 selected && !enabled -> disabledSelectedYearContentColor
-                currentYear -> currentYearContentColor
+                currentYear && enabled -> currentYearContentColor
                 enabled -> yearContentColor
                 else -> disabledYearContentColor
             }
@@ -1252,10 +1252,11 @@ internal abstract class BaseDatePickerStateImpl(
     private val _displayedMonth =
         mutableStateOf(
             if (initialDisplayedMonthMillis != null) {
-                val month = calendarModel.getMonth(initialDisplayedMonthMillis)
-                require(yearRange.contains(month.year)) {
-                    "The initial display month's year (${month.year}) is out of the years range of " +
-                        "$yearRange."
+                var month = calendarModel.getMonth(initialDisplayedMonthMillis)
+                if (!yearRange.contains(month.year)) {
+                    // The initial display month's year is out of the years range, so just set the
+                    // displayed month to the current one.
+                    month = calendarModel.getMonth(calendarModel.today)
                 }
                 month
             } else {
@@ -1268,10 +1269,10 @@ internal abstract class BaseDatePickerStateImpl(
         get() = _displayedMonth.value.startUtcTimeMillis
         set(monthMillis) {
             val month = calendarModel.getMonth(monthMillis)
-            require(yearRange.contains(month.year)) {
-                "The display month's year (${month.year}) is out of the years range of $yearRange."
+            // Set the displayed month only if the month's year is within the years range.
+            if (yearRange.contains(month.year)) {
+                _displayedMonth.value = month
             }
-            _displayedMonth.value = month
         }
 }
 
@@ -1313,11 +1314,9 @@ private class DatePickerStateImpl(
         mutableStateOf(
             if (initialSelectedDateMillis != null) {
                 val date = calendarModel.getCanonicalDate(initialSelectedDateMillis)
-                require(yearRange.contains(date.year)) {
-                    "The provided initial date's year (${date.year}) is out of the years range " +
-                        "of $yearRange."
-                }
-                date
+                // If the provided initial date's year is out of the years range, return null.
+                // Otherwise, return the date.
+                if (yearRange.contains(date.year)) date else null
             } else {
                 null
             }
@@ -1328,12 +1327,9 @@ private class DatePickerStateImpl(
         set(@Suppress("AutoBoxing") dateMillis) {
             if (dateMillis != null) {
                 val date = calendarModel.getCanonicalDate(dateMillis)
-                // Validate that the give date is within the valid years range.
-                require(yearRange.contains(date.year)) {
-                    "The provided date's year (${date.year}) is out of the years range of " +
-                        "$yearRange."
-                }
-                _selectedDate.value = date
+                // Validate that the give date is within the valid years range. In not, set the
+                // selected date to null.
+                _selectedDate.value = if (yearRange.contains(date.year)) date else null
             } else {
                 _selectedDate.value = null
             }
