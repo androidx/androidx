@@ -23,6 +23,7 @@ import android.view.Display
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.ActivityAction
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -279,7 +280,9 @@ class WindowMetricsCalculatorCompatTest {
 
     @Test
     fun testWindowMetricBoundsMatchesEdgeToEdgeFullScreenView() {
-        ActivityScenario.launch(TestActivityEdgeToEdge::class.java).onActivity { activity ->
+        val scenario = ActivityScenario.launch(TestActivityEdgeToEdge::class.java)
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        scenario.onActivity { activity ->
             val windowMetrics =
                 WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
             val rootView = activity.findViewById<FrameLayout>(androidx.window.test.R.id.view_home)
