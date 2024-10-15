@@ -2731,8 +2731,7 @@ internal class ComposerImpl(
                 // Calculate the compound hash code (a semi-unique code for every group in the
                 // composition used to restore saved state).
                 val newParent = reader.parent(newGroup)
-                compoundKeyHash =
-                    compoundKeyOf(newParent, rGroupIndexOf(newParent), parent, recomposeCompoundKey)
+                compoundKeyHash = compoundKeyOf(newParent, parent, recomposeCompoundKey)
 
                 // We have moved so the cached lookup of the provider is invalid
                 providerCache = null
@@ -2957,32 +2956,50 @@ internal class ComposerImpl(
      * for [group]. Passing in the [recomposeGroup] and [recomposeKey] allows this method to exit
      * early.
      */
-    private fun compoundKeyOf(
-        group: Int,
-        rGroupIndex: Int,
-        recomposeGroup: Int,
-        recomposeKey: Int
-    ): Int {
-        return if (group == recomposeGroup) recomposeKey
-        else
-            run {
-                val groupKey = reader.groupCompoundKeyPart(group)
-                if (groupKey == movableContentKey) groupKey
-                else {
-                    val parent = reader.parent(group)
-                    val parentKey =
-                        if (parent == recomposeGroup) recomposeKey
-                        else
-                            compoundKeyOf(
-                                parent,
-                                rGroupIndexOf(parent),
-                                recomposeGroup,
-                                recomposeKey
-                            )
-                    val effectiveRGroupIndex = if (reader.hasObjectKey(group)) 0 else rGroupIndex
-                    (((parentKey rol 3) xor groupKey) rol 3) xor effectiveRGroupIndex
-                }
+    private fun compoundKeyOf(group: Int, recomposeGroup: Int, recomposeKey: Int): Int {
+        // The general form of a group's compoundKey can be solved by recursively evaluating:
+        // compoundKey(group) = ((compoundKey(parent(group)) rol 3)
+        //      xor compoundKeyPart(group) rol 3) xor effectiveRGroupIndex
+        //
+        // To solve this without recursion, first expand the terms:
+        // compoundKey(group) = (compoundKey(parent(group)) rol 6)
+        //                      xor (compoundKeyPart(group) rol 3)
+        //                      xor effectiveRGroupIndex
+        //
+        // Then rewrite this as an iterative XOR sum, where n represents the distance from the
+        // starting node and takes the range 0 <= n < depth(group) and g - n represents the n-th
+        // parent of g, and all terms are XOR-ed together:
+        //
+        // [compoundKeyPart(g - n) rol (6n + 3)] xor [rGroupIndexOf(g - n) rol (6n)]
+        //
+        // Because compoundKey(g - n) is known when (g - n) == recomposeGroup, we can terminate
+        // early and substitute that iteration's terms with recomposeKey rol (6n).
+
+        var keyRot = 3
+        var rgiRot = 0
+        var result = 0
+
+        var parent = group
+        while (parent >= 0) {
+            if (parent == recomposeGroup) {
+                result = result xor (recomposeKey rol rgiRot)
+                return result
             }
+
+            val groupKey = reader.groupCompoundKeyPart(parent)
+            if (groupKey == movableContentKey) {
+                result = result xor (groupKey rol rgiRot)
+                return result
+            }
+
+            result = result xor (groupKey rol keyRot) xor (rGroupIndexOf(parent) rol rgiRot)
+            keyRot = (keyRot + 6) % 32
+            rgiRot = (rgiRot + 6) % 32
+
+            parent = reader.parent(parent)
+        }
+
+        return result
     }
 
     private fun SlotReader.groupCompoundKeyPart(group: Int) =
