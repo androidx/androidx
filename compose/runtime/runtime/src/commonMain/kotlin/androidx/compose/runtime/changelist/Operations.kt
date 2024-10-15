@@ -24,7 +24,7 @@ import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.IntParameter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
-import androidx.compose.runtime.checkPrecondition
+import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
@@ -182,7 +182,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         WriteScope(this).args()
 
         // Verify all arguments were written to.
-        checkPrecondition(
+        debugRuntimeCheck(
             pushedIntMask == createExpectedArgMask(operation.ints) &&
                 pushedObjectMask == createExpectedArgMask(operation.objects)
         ) {
@@ -345,7 +345,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         fun setInt(parameter: IntParameter, value: Int) =
             with(stack) {
                 val mask = 0b1 shl parameter.offset
-                checkPrecondition(pushedIntMask and mask == 0) {
+                debugRuntimeCheck(pushedIntMask and mask == 0) {
                     "Already pushed argument ${operation.intParamName(parameter)}"
                 }
                 pushedIntMask = pushedIntMask or mask
@@ -355,7 +355,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         fun <T> setObject(parameter: ObjectParameter<T>, value: T) =
             with(stack) {
                 val mask = 0b1 shl parameter.offset
-                checkPrecondition(pushedObjectMask and mask == 0) {
+                debugRuntimeCheck(pushedObjectMask and mask == 0) {
                     "Already pushed argument ${operation.objectParamName(parameter)}"
                 }
                 pushedObjectMask = pushedObjectMask or mask

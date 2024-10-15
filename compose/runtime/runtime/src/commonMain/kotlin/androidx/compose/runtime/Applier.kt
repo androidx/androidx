@@ -283,6 +283,6 @@ internal class OffsetApplier<N>(private val applier: Applier<N>, private val off
     }
 
     override fun clear() {
-        runtimeCheck(false) { "Clear is not valid on OffsetApplier" }
+        composeImmediateRuntimeError("Clear is not valid on OffsetApplier")
     }
 }
