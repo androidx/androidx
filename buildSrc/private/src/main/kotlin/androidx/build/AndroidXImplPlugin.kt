@@ -84,7 +84,6 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataRule
@@ -1012,13 +1011,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureJavaCompilationWarnings(androidXExtension)
 
         project.hideJavadocTask()
-
-        project.configureDependencyVerification(androidXExtension) { taskProvider ->
-            taskProvider.configure { task ->
-                try {
+        if (
+            project.multiplatformExtension == null ||
+                project.multiplatformExtension!!.hasJavaEnabled()
+        ) {
+            project.configureDependencyVerification(androidXExtension) { taskProvider ->
+                taskProvider.configure { task ->
                     task.dependsOn(project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME))
-                } catch (e: UnknownTaskException) {
-                    // Java compile task doesn't exist; do nothing
                 }
             }
         }
@@ -1699,6 +1698,9 @@ private fun Project.enforceBanOnVersionRanges() {
 internal fun Project.hasAndroidMultiplatformPlugin(): Boolean =
     extensions.findByType(AndroidXMultiplatformExtension::class.java)?.hasAndroidMultiplatform()
         ?: false
+
+internal fun KotlinMultiplatformExtension.hasJavaEnabled(): Boolean =
+    targets.withType(KotlinJvmTarget::class.java).singleOrNull()?.withJavaEnabled ?: false
 
 internal fun String.camelCase() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase() else it.toString()
