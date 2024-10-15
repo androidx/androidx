@@ -498,12 +498,6 @@ private fun MeasureScope.place(
                 y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height)
             )
         }
-        trailingPlaceable?.let {
-            it.placeRelative(
-                x = width - endPadding - it.width,
-                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height)
-            )
-        }
 
         val mainContentX = startPadding + leadingPlaceable.widthOrZero
         val mainContentY =
@@ -525,6 +519,13 @@ private fun MeasureScope.place(
         currentY += headlinePlaceable.heightOrZero
 
         supportingPlaceable?.placeRelative(mainContentX, currentY)
+
+        trailingPlaceable?.let {
+            it.placeRelative(
+                x = width - endPadding - it.width,
+                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height)
+            )
+        }
     }
 }
 
