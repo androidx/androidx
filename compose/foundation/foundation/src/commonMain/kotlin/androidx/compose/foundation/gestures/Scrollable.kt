@@ -26,6 +26,7 @@ import androidx.compose.foundation.ComposeFoundationFlags.NewNestedFlingPropagat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.NoOpOverscrollEffect
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
@@ -547,7 +548,7 @@ object ScrollableDefaults {
      */
     @Composable
     fun overscrollEffect(): OverscrollEffect {
-        return rememberOverscrollEffect()
+        return rememberOverscrollEffect() ?: NoOpOverscrollEffect
     }
 
     /**

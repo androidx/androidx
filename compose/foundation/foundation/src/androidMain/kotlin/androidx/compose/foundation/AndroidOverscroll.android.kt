@@ -31,10 +31,9 @@ import androidx.compose.foundation.EdgeEffectCompat.onReleaseWithOppositeDelta
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
@@ -64,17 +63,44 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
-@Composable
-internal actual fun rememberOverscrollEffect(): OverscrollEffect {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    val config = LocalOverscrollConfiguration.current
-    return if (config != null) {
-        remember(context, density, config) {
-            AndroidEdgeEffectOverscrollEffect(context, density, config)
-        }
+internal actual fun CompositionLocalAccessorScope.defaultOverscrollFactory(): OverscrollFactory? {
+    val context = LocalContext.currentValue
+    val density = LocalDensity.currentValue
+    val config = LocalOverscrollConfiguration.currentValue
+    return if (config == null) {
+        null
     } else {
-        NoOpOverscrollEffect
+        AndroidEdgeEffectOverscrollFactory(context, density, config)
+    }
+}
+
+private class AndroidEdgeEffectOverscrollFactory(
+    private val context: Context,
+    private val density: Density,
+    private val configuration: OverscrollConfiguration
+) : OverscrollFactory {
+    override fun createOverscrollEffect(): OverscrollEffect {
+        return AndroidEdgeEffectOverscrollEffect(context, density, configuration)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AndroidEdgeEffectOverscrollFactory
+
+        if (context != other.context) return false
+        if (density != other.density) return false
+        if (configuration != other.configuration) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = context.hashCode()
+        result = 31 * result + density.hashCode()
+        result = 31 * result + configuration.hashCode()
+        return result
     }
 }
 

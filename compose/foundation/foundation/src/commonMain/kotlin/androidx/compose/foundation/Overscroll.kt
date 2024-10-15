@@ -17,7 +17,11 @@
 package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalAccessorScope
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -131,7 +135,16 @@ interface OverscrollEffect {
 fun Modifier.overscroll(overscrollEffect: OverscrollEffect): Modifier =
     this.then(overscrollEffect.effectModifier)
 
-@Composable internal expect fun rememberOverscrollEffect(): OverscrollEffect
+/**
+ * Returns a remembered [OverscrollEffect] created from the current value of
+ * [LocalOverscrollFactory]. If [LocalOverscrollFactory] changes, a new [OverscrollEffect] will be
+ * returned. Returns `null` if `null` is provided to [LocalOverscrollFactory].
+ */
+@Composable
+fun rememberOverscrollEffect(): OverscrollEffect? {
+    val overscrollFactory = LocalOverscrollFactory.current ?: return null
+    return remember(overscrollFactory) { overscrollFactory.createOverscrollEffect() }
+}
 
 internal object NoOpOverscrollEffect : OverscrollEffect {
     override fun applyToScroll(
@@ -153,3 +166,43 @@ internal object NoOpOverscrollEffect : OverscrollEffect {
     override val effectModifier: Modifier
         get() = Modifier
 }
+
+/**
+ * A factory for creating [OverscrollEffect]s. You can provide a factory instance to
+ * [LocalOverscrollFactory] to globally change the factory, and hence effect, used by components
+ * within the hierarchy.
+ *
+ * See [rememberOverscrollEffect] to remember an [OverscrollEffect] from the current factory
+ * provided to [LocalOverscrollFactory].
+ */
+interface OverscrollFactory {
+    /** Returns a new [OverscrollEffect] instance. */
+    fun createOverscrollEffect(): OverscrollEffect
+
+    /**
+     * Require hashCode() to be implemented. Using a data class is sufficient. Singletons and
+     * instances with no properties may implement this function by returning an arbitrary constant.
+     */
+    override fun hashCode(): Int
+
+    /**
+     * Require equals() to be implemented. Using a data class is sufficient. Singletons may
+     * implement this function with referential equality (`this === other`). Instances with no
+     * properties may implement this function by checking the type of the other object.
+     */
+    override fun equals(other: Any?): Boolean
+}
+
+/**
+ * CompositionLocal that provides an [OverscrollFactory] through the hierarchy. This will be used by
+ * default by scrolling components, so you can provide an [OverscrollFactory] here to override the
+ * overscroll used by components within a hierarchy.
+ *
+ * See [rememberOverscrollEffect] to remember an [OverscrollEffect] from the current provided value.
+ */
+val LocalOverscrollFactory: ProvidableCompositionLocal<OverscrollFactory?> =
+    compositionLocalWithComputedDefaultOf {
+        defaultOverscrollFactory()
+    }
+
+internal expect fun CompositionLocalAccessorScope.defaultOverscrollFactory(): OverscrollFactory?

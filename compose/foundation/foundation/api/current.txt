@@ -236,8 +236,17 @@ package androidx.compose.foundation {
     property public abstract boolean isInProgress;
   }
 
+  public interface OverscrollFactory {
+    method public androidx.compose.foundation.OverscrollEffect createOverscrollEffect();
+    method public boolean equals(Object? other);
+    method public int hashCode();
+  }
+
   public final class OverscrollKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.OverscrollFactory?> getLocalOverscrollFactory();
     method public static androidx.compose.ui.Modifier overscroll(androidx.compose.ui.Modifier, androidx.compose.foundation.OverscrollEffect overscrollEffect);
+    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.OverscrollEffect? rememberOverscrollEffect();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.OverscrollFactory?> LocalOverscrollFactory;
   }
 
   public final class PreferKeepClear_androidKt {
