@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -75,7 +76,7 @@ fun LazyVerticalStaggeredGrid(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit
 ) {
     LazyStaggeredGrid(
@@ -118,7 +119,7 @@ fun LazyVerticalStaggeredGrid(
         horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }
@@ -199,7 +200,7 @@ fun LazyHorizontalStaggeredGrid(
     horizontalItemSpacing: Dp = 0.dp,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit
 ) {
     LazyStaggeredGrid(
@@ -242,7 +243,7 @@ fun LazyHorizontalStaggeredGrid(
         horizontalItemSpacing = horizontalItemSpacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }

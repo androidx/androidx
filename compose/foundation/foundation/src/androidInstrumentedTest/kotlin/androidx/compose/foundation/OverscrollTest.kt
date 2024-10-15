@@ -1242,7 +1242,7 @@ class OverscrollTest {
                 modifier =
                     Modifier.testTag(boxTag)
                         .size(100.dp)
-                        .overscroll(ScrollableDefaults.overscrollEffect())
+                        .overscroll(rememberOverscrollEffect())
                         .drawBehind { drawCount++ }
             )
         }

@@ -24,7 +24,6 @@ import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
@@ -33,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -127,9 +127,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         beyondViewportPageCount: Int = config.beyondViewportPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
-        overscrollEffect: @Composable () -> OverscrollEffect = {
-            ScrollableDefaults.overscrollEffect()
-        },
+        overscrollEffect: @Composable () -> OverscrollEffect? = { rememberOverscrollEffect() },
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
         nestedScrollConnection: NestedScrollConnection = object : NestedScrollConnection {},
         additionalContent: @Composable () -> Unit = {},
@@ -310,7 +308,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         modifier: Modifier = Modifier,
         userScrollEnabled: Boolean = true,
-        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
         beyondViewportPageCount: Int = 0,

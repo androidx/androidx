@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -75,7 +76,7 @@ fun LazyVerticalGrid(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyGridScope.() -> Unit
 ) {
     LazyGrid(
@@ -119,7 +120,7 @@ fun LazyVerticalGrid(
         horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }
@@ -163,7 +164,7 @@ fun LazyHorizontalGrid(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyGridScope.() -> Unit
 ) {
     LazyGrid(
@@ -207,7 +208,7 @@ fun LazyHorizontalGrid(
         verticalArrangement = verticalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }

@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -197,7 +198,7 @@ private fun LazyColumn(
         isVertical = true,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )
@@ -227,7 +228,7 @@ private fun LazyRow(
         flingBehavior = flingBehavior,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )

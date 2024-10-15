@@ -41,6 +41,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,7 +122,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         reverseArrangement: Boolean = false,
         flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
         userScrollEnabled: Boolean = true,
-        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         spacedBy: Dp = 0.dp,
         isCrossAxis: Boolean = false,
         content: LazyListScope.() -> Unit
@@ -242,7 +243,7 @@ private fun LazyColumn(
         isVertical = true,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )
@@ -272,7 +273,7 @@ private fun LazyRow(
         flingBehavior = flingBehavior,
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
         content = content
     )

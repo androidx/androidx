@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -331,7 +332,7 @@ fun LazyRow(
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyListScope.() -> Unit
 ) {
     LazyList(
@@ -390,7 +391,7 @@ fun LazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyListScope.() -> Unit
 ) {
     LazyList(
@@ -431,7 +432,7 @@ fun LazyColumn(
         horizontalAlignment = horizontalAlignment,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }
@@ -485,7 +486,7 @@ fun LazyRow(
         verticalAlignment = verticalAlignment,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        overscrollEffect = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect = rememberOverscrollEffect(),
         content = content
     )
 }

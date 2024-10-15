@@ -1111,8 +1111,7 @@ class StretchOverscrollIntegrationTest {
         val state = TestState()
         rule.setContent {
             WithTouchSlop(touchSlop = 0f) {
-                state.overscroll =
-                    ScrollableDefaults.overscrollEffect() as AndroidEdgeEffectOverscrollEffect
+                state.overscroll = rememberOverscrollEffect() as AndroidEdgeEffectOverscrollEffect
                 Box(
                     Modifier.testTag(OverscrollBox)
                         .size(250.dp)

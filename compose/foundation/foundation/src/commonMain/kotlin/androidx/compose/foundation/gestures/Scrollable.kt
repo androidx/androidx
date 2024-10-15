@@ -26,13 +26,11 @@ import androidx.compose.foundation.ComposeFoundationFlags.NewNestedFlingPropagat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.MutatePriority
-import androidx.compose.foundation.NoOpOverscrollEffect
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
-import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -133,8 +131,8 @@ fun Modifier.scrollable(
  * draggable, consider using [draggable].
  *
  * This overload provides the access to [OverscrollEffect] that defines the behaviour of the over
- * scrolling logic. Consider using [ScrollableDefaults.overscrollEffect] for the platform
- * look-and-feel.
+ * scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an instance
+ * of the current provided overscroll implementation.
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
@@ -540,15 +538,6 @@ object ScrollableDefaults {
     fun flingBehavior(): FlingBehavior {
         val flingSpec = rememberSplineBasedDecay<Float>()
         return remember(flingSpec) { DefaultFlingBehavior(flingSpec) }
-    }
-
-    /**
-     * Create and remember default [OverscrollEffect] that will be used for showing over scroll
-     * effects.
-     */
-    @Composable
-    fun overscrollEffect(): OverscrollEffect {
-        return rememberOverscrollEffect() ?: NoOpOverscrollEffect
     }
 
     /**

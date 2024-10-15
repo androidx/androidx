@@ -29,9 +29,8 @@ import androidx.compose.ui.unit.Velocity
 
 /**
  * An OverscrollEffect represents a visual effect that displays when the edges of a scrolling
- * container have been reached with a scroll or fling. For the default platform effect that should
- * be used in most cases, see
- * [androidx.compose.foundation.gestures.ScrollableDefaults.overscrollEffect].
+ * container have been reached with a scroll or fling. To create an instance of the default /
+ * currently provided [OverscrollFactory], use [rememberOverscrollEffect].
  *
  * OverscrollEffect conceptually 'decorates' scroll / fling events: consuming some of the delta or
  * velocity before and/or after the event is consumed by the scrolling container. [applyToScroll]
@@ -132,8 +131,8 @@ interface OverscrollEffect {
  * @sample androidx.compose.foundation.samples.OverscrollSample
  * @param overscrollEffect the [OverscrollEffect] to render
  */
-fun Modifier.overscroll(overscrollEffect: OverscrollEffect): Modifier =
-    this.then(overscrollEffect.effectModifier)
+fun Modifier.overscroll(overscrollEffect: OverscrollEffect?): Modifier =
+    this.then(overscrollEffect?.effectModifier ?: Modifier)
 
 /**
  * Returns a remembered [OverscrollEffect] created from the current value of
@@ -144,27 +143,6 @@ fun Modifier.overscroll(overscrollEffect: OverscrollEffect): Modifier =
 fun rememberOverscrollEffect(): OverscrollEffect? {
     val overscrollFactory = LocalOverscrollFactory.current ?: return null
     return remember(overscrollFactory) { overscrollFactory.createOverscrollEffect() }
-}
-
-internal object NoOpOverscrollEffect : OverscrollEffect {
-    override fun applyToScroll(
-        delta: Offset,
-        source: NestedScrollSource,
-        performScroll: (Offset) -> Offset
-    ): Offset = performScroll(delta)
-
-    override suspend fun applyToFling(
-        velocity: Velocity,
-        performFling: suspend (Velocity) -> Velocity
-    ) {
-        performFling(velocity)
-    }
-
-    override val isInProgress: Boolean
-        get() = false
-
-    override val effectModifier: Modifier
-        get() = Modifier
 }
 
 /**
