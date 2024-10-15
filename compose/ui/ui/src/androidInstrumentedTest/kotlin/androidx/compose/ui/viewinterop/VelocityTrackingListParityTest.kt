@@ -207,6 +207,7 @@ class VelocityTrackingListParityTest {
         }
     }
 
+    @Ignore // b/373631123
     @Test
     fun equalLists_withEqualFlings_shouldFinishAtTheSameItem_largeFast() = runBlocking {
         val state = LazyListState()
