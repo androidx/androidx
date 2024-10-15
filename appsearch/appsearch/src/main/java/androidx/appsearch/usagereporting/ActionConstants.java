@@ -51,5 +51,23 @@ public final class ActionConstants {
      */
     public static final int ACTION_TYPE_CLICK = 2;
 
+    /**
+     * Impression action type.
+     *
+     * <!--@exportToFramework:ifJetpack()-->
+     * <p>It is the action type for {@link ImpressionAction}.
+     * <!--@exportToFramework:else()-->
+     */
+    public static final int ACTION_TYPE_IMPRESSION = 3;
+
+    /**
+     * Dismiss action type.
+     *
+     * <!--@exportToFramework:ifJetpack()-->
+     * <p>It is the action type for {@link DismissAction}.
+     * <!--@exportToFramework:else()-->
+     */
+    public static final int ACTION_TYPE_DISMISS = 4;
+
     private ActionConstants() {}
 }
