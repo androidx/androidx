@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
+import kotlinx.coroutines.CoroutineScope
 import org.junit.runner.RunWith
 
 @SmallTest
@@ -276,6 +278,7 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
             anchorItemScrollOffset = anchorItemScrollOffset,
             lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
             scrollToBeConsumed = scrollToBeConsumed,
+            coroutineScope = CoroutineScope(EmptyCoroutineContext),
             layout = { width, height, _ -> EmptyMeasureResult(width, height) },
         )
 

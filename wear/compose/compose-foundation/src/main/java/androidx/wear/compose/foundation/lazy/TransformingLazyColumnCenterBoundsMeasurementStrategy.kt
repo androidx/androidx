@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
 
 internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
     TransformingLazyColumnMeasurementStrategy {
@@ -39,6 +40,8 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
      *   [itemsCount] (exclusive).
      * @param anchorItemScrollOffset The scroll offset of the anchor item. Anchor item is a visible
      *   item used to position the rest of the items before and after it.
+     * @param lastMeasuredAnchorItemHeight Last measured height from the previous measurement.
+     * @param coroutineScope Scope for animations.
      * @param scrollToBeConsumed The amount of scroll to be consumed.
      * @param layout A function that lays out the items.
      */
@@ -50,6 +53,7 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
         anchorItemIndex: Int,
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
+        coroutineScope: CoroutineScope,
         scrollToBeConsumed: Float,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
     ): TransformingLazyColumnMeasureResult {
@@ -149,6 +153,7 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
             lastMeasuredItemHeight = anchorItem.transformedHeight,
             canScrollForward = canScrollForward,
             canScrollBackward = canScrollBackward,
+            coroutineScope = coroutineScope,
             measureResult =
                 layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                     visibleItems.fastForEach { it.place(this) }
