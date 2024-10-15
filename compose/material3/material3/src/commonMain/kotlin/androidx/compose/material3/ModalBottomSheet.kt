@@ -31,11 +31,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
@@ -45,7 +43,6 @@ import androidx.compose.material3.internal.DraggableAnchors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -64,7 +61,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -230,10 +226,7 @@ internal fun BoxScope.ModalBottomSheetContent(
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val density = LocalDensity.current
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
-    val systemBarTopInsets =
-        WindowInsets.systemBarsForVisualComponents.asPaddingValues().calculateTopPadding()
 
     Surface(
         modifier =
@@ -330,18 +323,6 @@ internal fun BoxScope.ModalBottomSheetContent(
                 // The wrapping Surface is scaled up, so this is done to maintain the content's
                 // aspect ratio.
                 .verticalScaleDown(sheetState)
-                .then(
-                    with(density) {
-                        if (sheetState.offset.toDp() < systemBarTopInsets) {
-                            Modifier.padding(
-                                top =
-                                    (systemBarTopInsets - sheetState.offset.toDp()).coerceAtLeast(
-                                        0.dp
-                                    )
-                            )
-                        } else Modifier
-                    }
-                )
         ) {
             if (dragHandle != null) {
                 val collapseActionLabel = getString(Strings.BottomSheetPartialExpandDescription)
