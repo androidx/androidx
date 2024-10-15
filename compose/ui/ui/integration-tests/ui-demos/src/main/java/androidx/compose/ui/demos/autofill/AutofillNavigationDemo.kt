@@ -16,9 +16,11 @@
 
 package androidx.compose.ui.demos.autofill
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -140,12 +143,18 @@ fun LoginScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(8.dp))
                 BasicTextField(
                     state = remember { TextFieldState() },
-                    modifier = Modifier.semantics { ContentType.Username }
+                    modifier =
+                        Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                            ContentType.Username
+                        }
                 )
 
                 BasicTextField(
                     state = remember { TextFieldState() },
-                    modifier = Modifier.semantics { ContentType.Username }
+                    modifier =
+                        Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                            ContentType.Username
+                        }
                 )
             }
         }

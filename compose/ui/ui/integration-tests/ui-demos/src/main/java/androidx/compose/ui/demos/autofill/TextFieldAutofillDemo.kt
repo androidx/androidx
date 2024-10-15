@@ -18,7 +18,9 @@ package androidx.compose.ui.demos.autofill
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -61,13 +64,19 @@ fun BTFResetCredentialsDemo() {
 
         BasicTextField(
             state = remember { TextFieldState() },
-            modifier = Modifier.semantics { contentType = ContentType.NewUsername },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.NewUsername
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             cursorBrush = SolidColor(Color.White)
         )
         BasicTextField(
             state = remember { TextFieldState() },
-            modifier = Modifier.semantics { contentType = ContentType.NewPassword },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.NewPassword
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             cursorBrush = SolidColor(Color.White)
         )
@@ -89,14 +98,20 @@ fun BasicTextFieldAutofill() {
 
         BasicTextField(
             state = remember { TextFieldState() },
-            modifier = Modifier.semantics { contentType = ContentType.Username },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.Username
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
         )
 
         BasicTextField(
             state = remember { TextFieldState() },
-            modifier = Modifier.semantics { contentType = ContentType.Password },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.Password
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
         )
@@ -119,7 +134,10 @@ fun BasicSecureTextFieldAutofillDemo() {
         Text(text = "Enter your username and password below.", color = Color.White)
         BasicTextField(
             state = remember { TextFieldState() },
-            modifier = Modifier.semantics { contentType = ContentType.Username },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.Username
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
         )
@@ -133,7 +151,10 @@ fun BasicSecureTextFieldAutofillDemo() {
                 } else {
                     TextObfuscationMode.RevealLastTyped
                 },
-            modifier = Modifier.semantics { contentType = ContentType.Password },
+            modifier =
+                Modifier.fillMaxWidth().border(1.dp, Color.LightGray).semantics {
+                    contentType = ContentType.Password
+                },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             cursorBrush = SolidColor(Color.White)
         )
