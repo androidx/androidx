@@ -68,37 +68,45 @@ fun FullScreenProgressIndicatorSample() {
 @Composable
 fun MediaButtonProgressIndicatorSample() {
     var isPlaying by remember { mutableStateOf(false) }
-    val progressPadding = 4.dp
+    val buttonPadding = 4.dp
+    val progressStrokeWidth = 4.dp
     val progress = 0.75f
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Box(
+        // The CircularProgressIndicator should be around the IconButton, with an extra gap between
+        // then of 'buttonPadding'. We multiply by 2 because the size includes progressStrokeWidth
+        // at top and bottom and the buttonPadding at top and bottom.
+        CircularProgressIndicator(
             modifier =
                 Modifier.align(Alignment.Center)
-                    .size(IconButtonDefaults.DefaultButtonSize + progressPadding)
+                    .size(
+                        IconButtonDefaults.DefaultButtonSize +
+                            progressStrokeWidth * 2 +
+                            buttonPadding * 2
+                    ),
+            progress = { progress },
+            strokeWidth = progressStrokeWidth
+        )
+
+        IconButton(
+            modifier =
+                Modifier.align(Alignment.Center)
+                    .semantics {
+                        // Set custom progress semantics for accessibility.
+                        contentDescription =
+                            String.format(
+                                "Play/pause button, track progress: %.0f%%",
+                                progress * 100
+                            )
+                    }
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            onClick = { isPlaying = !isPlaying }
         ) {
-            CircularProgressIndicator(progress = { progress }, strokeWidth = progressPadding)
-            IconButton(
-                modifier =
-                    Modifier.align(Alignment.Center)
-                        .semantics {
-                            // Set custom progress semantics for accessibility.
-                            contentDescription =
-                                String.format(
-                                    "Play/pause button, track progress: %.0f%%",
-                                    progress * 100
-                                )
-                        }
-                        .padding(progressPadding)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerLow),
-                onClick = { isPlaying = !isPlaying }
-            ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Filled.Close else Icons.Filled.PlayArrow,
-                    contentDescription = null,
-                )
-            }
+            Icon(
+                imageVector = if (isPlaying) Icons.Filled.Close else Icons.Filled.PlayArrow,
+                contentDescription = null,
+            )
         }
     }
 }
