@@ -166,7 +166,6 @@ private fun Modifier.handleGestures(enabled: Boolean, state: TooltipState): Modi
                         val isLongPressedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
                         val longPressTimeout = viewConfiguration.longPressTimeoutMillis
                         val pass = PointerEventPass.Initial
-
                         // wait for the first down press
                         val inputType = awaitFirstDown(pass = pass).type
 
@@ -184,9 +183,11 @@ private fun Modifier.handleGestures(enabled: Boolean, state: TooltipState): Modi
                                         isLongPressedFlow.tryEmit(true)
                                         state.show(MutatePriority.PreventUserInput)
                                     } finally {
-                                        isLongPressedFlow.collectLatest { isLongPressed ->
-                                            if (!isLongPressed) {
-                                                state.dismiss()
+                                        if (state.isVisible) {
+                                            isLongPressedFlow.collectLatest { isLongPressed ->
+                                                if (!isLongPressed) {
+                                                    state.dismiss()
+                                                }
                                             }
                                         }
                                     }
