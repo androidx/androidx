@@ -249,6 +249,10 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
         autofillManager.commit()
     }
 
+    override fun cancel() {
+        autofillManager.cancel()
+    }
+
     internal fun onTextFillHelper(toFillId: Int, autofillValue: String) {
         // Use mapping to find lambda corresponding w semanticsNodeId,
         // then invoke the lambda. This will change the field text.
@@ -489,6 +493,8 @@ internal interface AutofillManagerWrapper {
     fun notifyViewVisibilityChanged(semanticsId: Int, isVisible: Boolean)
 
     fun commit()
+
+    fun cancel()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -522,5 +528,9 @@ private class AutofillManagerWrapperImpl(val view: AndroidComposeView) : Autofil
 
     override fun commit() {
         autofillManager.commit()
+    }
+
+    override fun cancel() {
+        autofillManager.cancel()
     }
 }

@@ -219,6 +219,7 @@ package androidx.compose.ui.autofill {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface AutofillManager {
+    method public void cancel();
     method public void commit();
   }
 

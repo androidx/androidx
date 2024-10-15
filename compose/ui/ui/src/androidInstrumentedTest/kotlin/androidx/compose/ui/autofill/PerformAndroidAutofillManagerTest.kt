@@ -828,11 +828,9 @@ class PerformAndroidAutofillManagerTest {
         val viewStructure = FakeViewStructure()
 
         rule.setContentWithAutofillEnabled {
-            val usernameState = remember { TextFieldState() }
-
             Column {
                 BasicTextField(
-                    state = usernameState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.Username }
                             .testTag(contentTag)
@@ -937,18 +935,15 @@ class PerformAndroidAutofillManagerTest {
         val passwordTag = "password_tag"
 
         rule.setContentWithAutofillEnabled {
-            val usernameState = remember { TextFieldState() }
-            val passwordState = remember { TextFieldState() }
-
             Column {
                 BasicTextField(
-                    state = usernameState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.Username }
                             .testTag(usernameTag)
                 )
                 BasicTextField(
-                    state = passwordState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.Password }
                             .testTag(passwordTag)

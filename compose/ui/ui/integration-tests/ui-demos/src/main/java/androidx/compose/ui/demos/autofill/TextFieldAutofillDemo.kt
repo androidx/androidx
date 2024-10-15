@@ -54,22 +54,19 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun BTFResetCredentialsDemo() {
-    val usernameState = remember { TextFieldState() }
-    val passwordState = remember { TextFieldState() }
-
     val autofillManager = LocalAutofillManager.current
 
     Column(modifier = Modifier.background(color = Color.Black)) {
         Text(text = "Enter your new username and password below.", color = Color.White)
 
         BasicTextField(
-            state = usernameState,
+            state = remember { TextFieldState() },
             modifier = Modifier.semantics { contentType = ContentType.NewUsername },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             cursorBrush = SolidColor(Color.White)
         )
         BasicTextField(
-            state = passwordState,
+            state = remember { TextFieldState() },
             modifier = Modifier.semantics { contentType = ContentType.NewPassword },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             cursorBrush = SolidColor(Color.White)
@@ -85,23 +82,20 @@ fun BTFResetCredentialsDemo() {
 @Preview
 @Composable
 fun BasicTextFieldAutofill() {
-    val usernameState = remember { TextFieldState() }
-    val passwordState = remember { TextFieldState() }
-
     val autofillManager = LocalAutofillManager.current
 
     Column(modifier = Modifier.background(color = Color.Black)) {
         Text(text = "Enter your username and password below.", color = Color.White)
 
         BasicTextField(
-            state = usernameState,
+            state = remember { TextFieldState() },
             modifier = Modifier.semantics { contentType = ContentType.Username },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
         )
 
         BasicTextField(
-            state = passwordState,
+            state = remember { TextFieldState() },
             modifier = Modifier.semantics { contentType = ContentType.Password },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
@@ -117,16 +111,14 @@ fun BasicTextFieldAutofill() {
 @Preview
 @Composable
 fun BasicSecureTextFieldAutofillDemo() {
-    val passwordState = remember { TextFieldState() }
     var visible by remember { mutableStateOf(false) }
-    val usernameState = remember { TextFieldState() }
 
     val autofillManager = LocalAutofillManager.current
 
     Column(modifier = Modifier.background(color = Color.Black)) {
         Text(text = "Enter your username and password below.", color = Color.White)
         BasicTextField(
-            state = usernameState,
+            state = remember { TextFieldState() },
             modifier = Modifier.semantics { contentType = ContentType.Username },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
             cursorBrush = SolidColor(Color.White)
@@ -134,7 +126,7 @@ fun BasicSecureTextFieldAutofillDemo() {
         // TODO(mnuzen): Check if `Password` ContentType should automatically
         //  be applied to a BasicSecureTextField.
         BasicSecureTextField(
-            state = passwordState,
+            state = remember { TextFieldState() },
             textObfuscationMode =
                 if (visible) {
                     TextObfuscationMode.Visible
