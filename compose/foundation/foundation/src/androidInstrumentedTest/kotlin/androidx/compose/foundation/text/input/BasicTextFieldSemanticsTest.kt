@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -104,14 +105,16 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             .assert(hasSetTextAction())
             .assert(hasImeAction(ImeAction.Default))
             .assert(isNotFocused())
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.TextSelectionRange, TextRange.Zero)
-            )
+            .assert(expectValue(SemanticsProperties.TextSelectionRange, TextRange.Zero))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Password))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetSelection))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult))
+            // All text elements should be automatically be autofillable and of "Text" data type
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDataType))
+            .assert(expectValue(SemanticsProperties.ContentDataType, ContentDataType.Text))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnAutofillText))
 
         val textLayoutResults = mutableListOf<TextLayoutResult>()
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.GetTextLayoutResult) {

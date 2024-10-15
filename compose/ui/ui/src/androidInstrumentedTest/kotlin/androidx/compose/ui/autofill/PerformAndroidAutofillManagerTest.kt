@@ -26,7 +26,6 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.RequiresApi
 import androidx.autofill.HintConstants
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,13 +33,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.insert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
@@ -52,7 +51,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.maxTextLength
-import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
@@ -80,7 +78,7 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.O)
 // TODO(MNUZEN): split into filling / saving etc. when more of Autofill goes live and more
 // data types are supported.
-class AndroidPerformSemanticAutofillTest {
+class PerformAndroidAutofillManagerTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var composeView: View
@@ -836,7 +834,8 @@ class AndroidPerformSemanticAutofillTest {
                 BasicTextField(
                     state = usernameState,
                     modifier =
-                        createTextFieldModifier(ContentType.Username, contentTag, usernameState)
+                        Modifier.semantics { contentType = ContentType.Username }
+                            .testTag(contentTag)
                 )
             }
         }
@@ -884,7 +883,8 @@ class AndroidPerformSemanticAutofillTest {
                 BasicTextField(
                     state = passwordState,
                     modifier =
-                        createTextFieldModifier(ContentType.Password, contentTag, passwordState)
+                        Modifier.semantics { contentType = ContentType.Password }
+                            .testTag(contentTag)
                 )
             }
         }
@@ -944,12 +944,14 @@ class AndroidPerformSemanticAutofillTest {
                 BasicTextField(
                     state = usernameState,
                     modifier =
-                        createTextFieldModifier(ContentType.Username, usernameTag, usernameState)
+                        Modifier.semantics { contentType = ContentType.Username }
+                            .testTag(usernameTag)
                 )
                 BasicTextField(
                     state = passwordState,
                     modifier =
-                        createTextFieldModifier(ContentType.Password, passwordTag, passwordState)
+                        Modifier.semantics { contentType = ContentType.Password }
+                            .testTag(passwordTag)
                 )
             }
         }
@@ -983,20 +985,14 @@ class AndroidPerformSemanticAutofillTest {
                 BasicTextField(
                     state = creditCardInput,
                     modifier =
-                        createTextFieldModifier(
-                            ContentType.Username,
-                            creditCardTag,
-                            creditCardInput
-                        )
+                        Modifier.semantics { contentType = ContentType.CreditCardNumber }
+                            .testTag(creditCardTag)
                 )
                 BasicTextField(
                     state = securityCodeInput,
                     modifier =
-                        createTextFieldModifier(
-                            ContentType.Username,
-                            securityCodeTag,
-                            securityCodeInput
-                        )
+                        Modifier.semantics { contentType = ContentType.CreditCardSecurityCode }
+                            .testTag(securityCodeTag)
                 )
             }
         }
@@ -1013,16 +1009,6 @@ class AndroidPerformSemanticAutofillTest {
         rule.onNodeWithTag(securityCodeTag).assertTextEquals(expectedSecurityCode)
     }
 
-    // TODO(b/333102566): Add BTF tests here after BTF and TF supports the new Autofill.
-
-    // ============================================================================================
-    // Tests to verify BasicTextField populating and filling.
-    // ============================================================================================
-
-    // ============================================================================================
-    // Tests to verify TextField populating and filling.
-    // ============================================================================================
-
     // ============================================================================================
     // Helper functions
     // ============================================================================================
@@ -1030,24 +1016,6 @@ class AndroidPerformSemanticAutofillTest {
     private fun String.semanticsId() = rule.onNodeWithTag(this).fetchSemanticsNode().id
 
     private fun Dp.dpToPx() = with(rule.density) { this@dpToPx.roundToPx() }
-
-    private fun createTextFieldModifier(
-        autofillHints: ContentType,
-        inputTag: String,
-        inputState: TextFieldState
-    ): Modifier {
-        return Modifier.border(1.dp, Color.LightGray)
-            .semantics {
-                contentType = autofillHints
-                contentDataType = ContentDataType.Text
-                onAutofillText {
-                    inputState.edit { insert(0, it.text) }
-                    true
-                }
-            }
-            .size(width, height)
-            .testTag(inputTag)
-    }
 
     private inline fun FakeViewStructure(block: FakeViewStructure.() -> Unit): FakeViewStructure {
         return FakeViewStructure()
@@ -1058,13 +1026,14 @@ class AndroidPerformSemanticAutofillTest {
             .apply(block)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun ComposeContentTestRule.setContentWithAutofillEnabled(
         content: @Composable () -> Unit
     ) {
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
-            androidComposeView.semanticAutofill?._TEMP_AUTOFILL_FLAG = true
-            androidComposeView.semanticAutofill?.currentSemanticsNodesInvalidated = true
+            androidComposeView._autofillManager?.currentSemanticsNodesInvalidated = true
+            isSemanticAutofillEnabled = true
 
             composeView = LocalView.current
             LaunchedEffect(Unit) {

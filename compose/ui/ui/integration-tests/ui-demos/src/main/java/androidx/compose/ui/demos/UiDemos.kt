@@ -27,7 +27,12 @@ import androidx.compose.ui.demos.accessibility.ScaffoldSampleDemo
 import androidx.compose.ui.demos.accessibility.ScaffoldSampleScrollDemo
 import androidx.compose.ui.demos.accessibility.ScrollingColumnDemo
 import androidx.compose.ui.demos.accessibility.SimpleRtlLayoutDemo
+import androidx.compose.ui.demos.autofill.BTFResetCredentialsDemo
+import androidx.compose.ui.demos.autofill.BasicSecureTextFieldAutofillDemo
+import androidx.compose.ui.demos.autofill.BasicTextFieldAutofill
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
+import androidx.compose.ui.demos.autofill.LegacyTextFieldAutofillDemo
+import androidx.compose.ui.demos.autofill.OutlinedTextFieldAutofillDemo
 import androidx.compose.ui.demos.focus.AdjacentScrollablesFocusDemo
 import androidx.compose.ui.demos.focus.CancelFocusDemo
 import androidx.compose.ui.demos.focus.CaptureFocusDemo
@@ -265,6 +270,20 @@ private val ModifierDemos =
         )
     )
 
+private val AutofillDemos =
+    DemoCategory(
+        "Autofill",
+        listOf(
+            ComposableDemo("S: New login") { BTFResetCredentialsDemo() },
+            ComposableDemo("S: BasicTextField Autofill") { BasicTextFieldAutofill() },
+            ComposableDemo("S: BasicSecureTextField Autofill") {
+                BasicSecureTextFieldAutofillDemo()
+            },
+            ComposableDemo("S: TextField Autofill") { LegacyTextFieldAutofillDemo() },
+            ComposableDemo("S: OutlinedTextField Autofill") { OutlinedTextFieldAutofillDemo() }
+        )
+    )
+
 val AccessibilityDemos =
     DemoCategory(
         "Accessibility",
@@ -284,6 +303,7 @@ val CoreDemos =
         "Framework",
         listOf(
             ModifierDemos,
+            AutofillDemos,
             ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
             FocusDemos,
             KeyInputDemos,

@@ -58,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -90,6 +91,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
@@ -97,6 +99,7 @@ import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
+import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
@@ -461,6 +464,15 @@ internal fun CoreTextField(
             // focused semantics are handled by Modifier.focusable()
             this.editableText = transformedText.text
             this.textSelectionRange = value.selection
+
+            // The developer will set `contentType`. CTF populates the other autofill-related
+            // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
+            this.contentDataType = ContentDataType.Text
+            onAutofillText { text ->
+                handleTextUpdateFromSemantics(state, text.text, readOnly, enabled)
+                true
+            }
+
             if (!enabled) this.disabled()
             if (isPassword) this.password()
             val editable = enabled && !readOnly
@@ -475,23 +487,7 @@ internal fun CoreTextField(
             }
             if (editable) {
                 setText { text ->
-                    // If the action is performed while in an active text editing session, treat
-                    // this like an IME command and update the text by going through the buffer.
-                    // This keeps the buffer state consistent if other IME commands are performed
-                    // before the next recomposition, and is used for the testing code path.
-                    state.inputSession?.let { session ->
-                        TextFieldDelegate.onEditCommand(
-                            ops = listOf(DeleteAllCommand(), CommitTextCommand(text, 1)),
-                            editProcessor = state.processor,
-                            state.onValueChange,
-                            session
-                        )
-                    }
-                        ?: run {
-                            state.onValueChange(
-                                TextFieldValue(text.text, TextRange(text.text.length))
-                            )
-                        }
+                    handleTextUpdateFromSemantics(state, text.text, readOnly, enabled)
                     true
                 }
 
@@ -865,6 +861,30 @@ private fun Modifier.previewKeyEventToDeselectOnBack(
     } else {
         false
     }
+}
+
+/**
+ * In an active input session, semantics updates are handled just as user updates coming from the
+ * IME. Otherwise the updates are directly applied on the current state.
+ */
+private fun handleTextUpdateFromSemantics(
+    state: LegacyTextFieldState,
+    text: String,
+    readOnly: Boolean,
+    enabled: Boolean
+) {
+    if (readOnly || !enabled) return
+
+    // If the action is performed while in an active text editing session, treat this
+    // like an IME command and update the text by going through the buffer.
+    state.inputSession?.let { session ->
+        TextFieldDelegate.onEditCommand(
+            ops = listOf(DeleteAllCommand(), CommitTextCommand(text, 1)),
+            editProcessor = state.processor,
+            state.onValueChange,
+            session
+        )
+    } ?: run { state.onValueChange(TextFieldValue(text, TextRange(text.length))) }
 }
 
 internal class LegacyTextFieldState(

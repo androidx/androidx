@@ -18,11 +18,12 @@
 package androidx.compose.ui.node
 
 import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.drawBehind
@@ -2348,7 +2349,8 @@ internal class MockOwner(
     override val autofill: Autofill?
         get() = TODO("Not yet implemented")
 
-    override val semanticAutofill: SemanticAutofill
+    @ExperimentalComposeUiApi
+    override val autofillManager: AutofillManager
         get() = TODO("Not yet implemented")
 
     override val density: Density

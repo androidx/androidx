@@ -16,13 +16,16 @@
 
 package androidx.compose.ui.autofill
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+
 /**
  * Autofill API.
  *
  * This interface is available to all composables via a CompositionLocal. The composable can then
  * notify the Autofill framework that user values have been committed as required.
  */
-internal interface SemanticAutofill {
+@ExperimentalComposeUiApi
+interface AutofillManager {
 
     /**
      * Notify credentials have been committed.
@@ -30,5 +33,5 @@ internal interface SemanticAutofill {
      * This function is called when the Autofill framework needs to be notified that credentials
      * have been entered by the user.
      */
-    fun notifyAutofillCommit()
+    fun commit()
 }

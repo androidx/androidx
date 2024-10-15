@@ -135,6 +135,7 @@ package androidx.compose.ui {
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean NewNestedScrollFlingDispatchingEnabled;
     field public static boolean isRectTrackingEnabled;
+    field public static boolean isSemanticAutofillEnabled;
   }
 
   public final class ComposedModifierKt {
@@ -215,6 +216,10 @@ package androidx.compose.ui.autofill {
   public interface Autofill {
     method public void cancelAutofillForNode(androidx.compose.ui.autofill.AutofillNode autofillNode);
     method public void requestAutofillForNode(androidx.compose.ui.autofill.AutofillNode autofillNode);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface AutofillManager {
+    method public void commit();
   }
 
   public final class AutofillNode {
@@ -3094,6 +3099,7 @@ package androidx.compose.ui.platform {
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.AccessibilityManager?> getLocalAccessibilityManager();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.Autofill?> getLocalAutofill();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillManager?> getLocalAutofillManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillTree> getLocalAutofillTree();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ClipboardManager> getLocalClipboardManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalCursorBlinkEnabled();
@@ -3113,6 +3119,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.WindowInfo> getLocalWindowInfo();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.AccessibilityManager?> LocalAccessibilityManager;
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.Autofill?> LocalAutofill;
+    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillManager?> LocalAutofillManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillTree> LocalAutofillTree;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ClipboardManager> LocalClipboardManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalCursorBlinkEnabled;

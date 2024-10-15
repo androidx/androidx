@@ -35,6 +35,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager
@@ -71,6 +72,7 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
@@ -78,6 +80,7 @@ import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
+import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
@@ -502,6 +505,16 @@ internal class TextFieldDecoratorModifierNode(
         if (isPassword) password()
 
         isEditable = this@TextFieldDecoratorModifierNode.editable
+
+        // The developer will set `contentType`. TF populates the other autofill-related
+        // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
+        this.contentDataType = ContentDataType.Text
+
+        onAutofillText { newText ->
+            if (!editable) return@onAutofillText false
+            textFieldState.replaceAll(newText)
+            true
+        }
 
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false

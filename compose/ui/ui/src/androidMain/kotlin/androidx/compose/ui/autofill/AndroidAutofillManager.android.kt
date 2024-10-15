@@ -25,7 +25,7 @@ import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewStructure
-import android.view.autofill.AutofillManager
+import android.view.autofill.AutofillManager as PlatformAndroidManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.RequiresApi
@@ -34,6 +34,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
@@ -72,9 +73,9 @@ import kotlinx.coroutines.delay
  *
  * @param view The parent compose view.
  */
-// TODO(b/333102566): Make this class public when Autofill is ready to go live
+@OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticAutofill {
+internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillManager {
     internal var autofillManager: AutofillManagerWrapper = AutofillManagerWrapperImpl(view)
 
     init {
@@ -96,9 +97,6 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
     private val subtreeChangedLayoutNodes = ArraySet<LayoutNode>()
     private val boundsUpdateChannel = Channel<Unit>(1)
     internal var currentSemanticsNodesInvalidated = true
-
-    // TODO(333102566): This is internal for testing for now.
-    internal var _TEMP_AUTOFILL_FLAG = false
 
     /**
      * Delay before dispatching a recurring accessibility event in milliseconds. This delay
@@ -246,7 +244,8 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
         autofillManager.notifyViewVisibilityChanged(semanticsId, !isInvisible)
     }
 
-    override fun notifyAutofillCommit() {
+    @ExperimentalComposeUiApi
+    override fun commit() {
         autofillManager.commit()
     }
 
@@ -268,7 +267,7 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
          * This callback is called when we receive autofill events. It adds some logs that can be
          * useful for debug purposes.
          */
-        internal object AutofillSemanticCallback : AutofillManager.AutofillCallback() {
+        internal object AutofillSemanticCallback : PlatformAndroidManager.AutofillCallback() {
             override fun onAutofillEvent(view: View, virtualId: Int, event: Int) {
                 super.onAutofillEvent(view, virtualId, event)
                 Log.d(
@@ -296,20 +295,20 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
             }
 
             /** Registers the autofill debug callback. */
-            fun register(semanticAutofill: AndroidSemanticAutofill) {
-                semanticAutofill.autofillManager.autofillManager.registerCallback(this)
+            fun register(androidAutofillManager: AndroidAutofillManager) {
+                androidAutofillManager.autofillManager.autofillManager.registerCallback(this)
             }
 
             /** Unregisters the autofill debug callback. */
-            fun unregister(semanticAutofill: AndroidSemanticAutofill) {
-                semanticAutofill.autofillManager.autofillManager.unregisterCallback(this)
+            fun unregister(androidAutofillManager: AndroidAutofillManager) {
+                androidAutofillManager.autofillManager.autofillManager.unregisterCallback(this)
             }
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun AndroidSemanticAutofill.populateViewStructure(root: ViewStructure) {
+internal fun AndroidAutofillManager.populateViewStructure(root: ViewStructure) {
     // Add child nodes. The function returns the index to the first item.
     val count =
         currentSemanticsNodes.count { _, semanticsNodeWithAdjustedBounds ->
@@ -459,7 +458,7 @@ internal fun SemanticsNode.populateViewStructure(child: ViewStructure) {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun AndroidSemanticAutofill.performAutofill(values: SparseArray<AutofillValue>) {
+internal fun AndroidAutofillManager.performAutofill(values: SparseArray<AutofillValue>) {
     for (index in 0 until values.size()) {
         val itemId = values.keyAt(index)
         val value = values[itemId]
@@ -479,7 +478,7 @@ internal fun AndroidSemanticAutofill.performAutofill(values: SparseArray<Autofil
 /** Wrapper for the final AutofillManager class. This can be mocked in testing. */
 @RequiresApi(Build.VERSION_CODES.O)
 internal interface AutofillManagerWrapper {
-    val autofillManager: AutofillManager
+    val autofillManager: PlatformAndroidManager
 
     fun notifyViewEntered(semanticsId: Int, bounds: Rect)
 
@@ -495,7 +494,7 @@ internal interface AutofillManagerWrapper {
 @RequiresApi(Build.VERSION_CODES.O)
 private class AutofillManagerWrapperImpl(val view: AndroidComposeView) : AutofillManagerWrapper {
     override val autofillManager =
-        view.context.getSystemService(AutofillManager::class.java)
+        view.context.getSystemService(PlatformAndroidManager::class.java)
             ?: error("Autofill service could not be located.")
 
     override fun notifyViewEntered(semanticsId: Int, bounds: Rect) {

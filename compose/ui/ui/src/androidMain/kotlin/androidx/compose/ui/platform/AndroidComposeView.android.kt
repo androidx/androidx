@@ -71,14 +71,16 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
-import androidx.compose.ui.autofill.AndroidSemanticAutofill
+import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillCallback
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
@@ -476,12 +478,16 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
 
+    internal val _autofillManager = if (autofillSupported()) AndroidAutofillManager(this) else null
+
     // Used as a CompositionLocal for performing autofill.
     override val autofill: Autofill?
         get() = _autofill
 
     // Used as a CompositionLocal for performing semantic autofill.
-    override val semanticAutofill = if (autofillSupported()) AndroidSemanticAutofill(this) else null
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofillManager: AutofillManager?
+        get() = _autofillManager
 
     private var observationClearRequested = false
 
@@ -1021,7 +1027,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (SDK_INT >= 26) {
             // TODO(333102566): add a setAutofillEventBatchIntervalMillis instead of using the
             // accessibility interval here.
-            semanticAutofill?.SendRecurringAutofillEventsIntervalMillis = intervalMillis
+            _autofillManager?.SendRecurringAutofillEventsIntervalMillis = intervalMillis
         }
     }
 
@@ -1584,20 +1590,18 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onSemanticsChange() {
         composeAccessibilityDelegate.onSemanticsChange()
         contentCaptureManager.onSemanticsChange()
-        // TODO(b/333102566): Use _semanticAutofill's `onSemanticsChange` after semantic autofill
-        // goes live.
-        if (SDK_INT >= 26 && semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
-            semanticAutofill.onSemanticsChange()
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (SDK_INT >= 26 && isSemanticAutofillEnabled) {
+            _autofillManager?.onSemanticsChange()
         }
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
         contentCaptureManager.onLayoutChange(layoutNode)
-        // TODO(b/333102566): Use _semanticAutofill's `onLayoutChange` after semantic autofill
-        // goes live.
-        if (SDK_INT >= 26 && semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
-            semanticAutofill.onLayoutChange(layoutNode)
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (SDK_INT >= 26 && isSemanticAutofillEnabled) {
+            _autofillManager?.onLayoutChange(layoutNode)
         }
     }
 
@@ -1732,6 +1736,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         composeAccessibilityDelegate.boundsUpdatesEventLoop()
     }
 
+    @RequiresApi(O)
+    suspend fun boundsUpdatesAutofillEventLoop() {
+        _autofillManager?.boundsUpdatesEventLoop()
+    }
+
     /** Walks the entire LayoutNode sub-hierarchy and marks all nodes as needing measurement. */
     private fun invalidateLayoutNodeMeasurement(node: LayoutNode) {
         measureAndLayoutDelegate.requestRemeasure(node)
@@ -1840,20 +1849,22 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
         if (autofillSupported() && structure != null) {
-            if (semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
-                semanticAutofill.populateViewStructure(structure)
+            if (isSemanticAutofillEnabled) {
+                _autofillManager?.populateViewStructure(structure)
             } else {
                 _autofill?.populateViewStructure(structure)
             }
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun autofill(values: SparseArray<AutofillValue>) {
         if (autofillSupported()) {
-            if (semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
-                semanticAutofill.performAutofill(values)
+            if (isSemanticAutofillEnabled) {
+                _autofillManager?.performAutofill(values)
             } else {
                 _autofill?.performAutofill(values)
             }

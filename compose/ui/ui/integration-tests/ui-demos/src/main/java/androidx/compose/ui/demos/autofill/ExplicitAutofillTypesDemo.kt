@@ -42,9 +42,6 @@ import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
-// TODO(333102566): will add demos when semantic autofill goes live. For now, see
-// AndroidSemanticAutofillTest.kt which can reference the internal properties.
-
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 fun ExplicitAutofillTypesDemo() {
