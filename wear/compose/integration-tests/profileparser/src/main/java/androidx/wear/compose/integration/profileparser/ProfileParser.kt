@@ -23,8 +23,10 @@ class ProfileParser {
         @JvmStatic
         fun main(args: Array<String>) {
             if (args.size < 3) {
-                println("Usage: profileparser <input file> <target e.g. wear/compose/material> " +
-                    "<output file>")
+                println(
+                    "Usage: profileparser <input file> <target e.g. wear/compose/material> " +
+                        "<output file>"
+                )
                 return
             }
 
@@ -33,46 +35,43 @@ class ProfileParser {
             println("Output: ${args[2]}")
 
             val input = File(args[0])
-            val parse = args[1].let{ if (it.endsWith("/")) it else "$it/" }
+            val parse = args[1].let { if (it.endsWith("/")) it else "$it/" }
             val output = File(args[2]).printWriter()
 
-            val lines = input.useLines {
-                it
-                    .toList()
-                    .map { it.truncatedAt(';') }
-                    .map { it.truncatedAt('$') }
-                    .filter { it.contains(parse) }
-                    .fold(mutableMapOf()) {
-                            acc: MutableMap<String, MutableList<String>>, item: String ->
-                        // Collect unique keys based on the androidx/xxxx part of the name
-                        // and accumulate a list of flags as the map value e.g. HSPL, L, SPL
-                        val idx = item.indexOf("androidx")
-                        val key = item.substring(idx)
-                        val flags = item.substring(0, idx)
-                        acc.getOrPut(key) { mutableListOf() }.add(flags)
-                        acc
-                    }
-                    .map { (key, flags) ->
-                        val flag = "HSPL".filter { c -> flags.any { flag -> flag.contains(c) } }
-                        flag + key
-                    }
-                    .map {
-                        // Tag on wild cards.
-                        if (it.startsWith("L")) {
-                            it + ";"
-                        } else if (it.endsWith("Kt")) {
-                            it + "**->**(**)**"
-                        } else {
-                            it + ";->**(**)**"
+            val lines =
+                input.useLines {
+                    it.toList()
+                        .map { it.truncatedAt(';') }
+                        .map { it.truncatedAt('$') }
+                        .filter { it.contains(parse) && !it.contains("/material3/macrobenchmark/") }
+                        .fold(mutableMapOf()) {
+                            acc: MutableMap<String, MutableList<String>>,
+                            item: String ->
+                            // Collect unique keys based on the androidx/xxxx part of the name
+                            // and accumulate a list of flags as the map value e.g. HSPL, L, SPL
+                            val idx = item.indexOf("androidx")
+                            val key = item.substring(idx)
+                            val flags = item.substring(0, idx)
+                            acc.getOrPut(key) { mutableListOf() }.add(flags)
+                            acc
                         }
-                    }
-                    .sortedBy { it.substring(it.indexOf("androidx")) }
-            }
-            output.use { out ->
-                lines.forEach {
-                    out.println(it)
+                        .map { (key, flags) ->
+                            val flag = "HSPL".filter { c -> flags.any { flag -> flag.contains(c) } }
+                            flag + key
+                        }
+                        .map {
+                            // Tag on wild cards.
+                            if (it.startsWith("L")) {
+                                it + ";"
+                            } else if (it.endsWith("Kt")) {
+                                it + "**->**(**)**"
+                            } else {
+                                it + ";->**(**)**"
+                            }
+                        }
+                        .sortedBy { it.substring(it.indexOf("androidx")) }
                 }
-            }
+            output.use { out -> lines.forEach { out.println(it) } }
             println("Success!")
         }
 
