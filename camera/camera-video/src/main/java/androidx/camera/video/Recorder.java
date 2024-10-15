@@ -20,6 +20,7 @@ import static androidx.camera.video.AudioStats.AUDIO_AMPLITUDE_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA;
@@ -31,7 +32,10 @@ import static androidx.camera.video.internal.DebugUtils.readableUs;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioEncoderConfig;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioMimeInfo;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSettings;
+import static androidx.camera.video.internal.utils.StorageUtil.formatSize;
+import static androidx.camera.video.internal.utils.StorageUtil.isStorageFullException;
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkNotNull;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -80,6 +84,8 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.utils.ArrayRingBuffer;
 import androidx.camera.core.internal.utils.RingBuffer;
 import androidx.camera.video.StreamInfo.StreamState;
+import androidx.camera.video.internal.OutputStorage;
+import androidx.camera.video.internal.OutputStorageImpl;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.camera.video.internal.audio.AudioSource;
@@ -345,8 +351,16 @@ public final class Recorder implements VideoOutput {
     private static final long RETRY_SETUP_VIDEO_DELAY_MS = 1000L;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
+    private static final OutputStorage.Factory OUTPUT_STORAGE_FACTORY_DEFAULT =
+            OutputStorageImpl::new;
     private static final Executor AUDIO_EXECUTOR =
             CameraXExecutors.newSequentialExecutor(CameraXExecutors.ioExecutor());
+    private static final long REQUIRED_FREE_STORAGE_UNSET = -1L;
+    private static final long REQUIRED_FREE_STORAGE_DEFAULT_BYTES =
+            50L * 1024L * 1024L; // 50MB
+    private static final String INSUFFICIENT_STORAGE_ERROR_MSG =
+            "Insufficient storage space. The available storage (%d bytes) is below the required "
+                    + "threshold of %d bytes.";
 
     @VisibleForTesting
     static int sRetrySetupVideoMaxCount = RETRY_SETUP_VIDEO_MAX_COUNT;
@@ -366,10 +380,12 @@ public final class Recorder implements VideoOutput {
     final Executor mSequentialExecutor;
     private final EncoderFactory mVideoEncoderFactory;
     private final EncoderFactory mAudioEncoderFactory;
+    private final OutputStorage.Factory mOutputStorageFactory;
     private final Object mLock = new Object();
     private final boolean mEncoderNotUsePersistentInputSurface = DeviceQuirks.get(
             EncoderNotUsePersistentInputSurfaceQuirk.class) != null;
     private final @VideoCapabilitiesSource int mVideoCapabilitiesSource;
+    private final long mRequiredFreeStorageBytes;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                          Members only accessed when holding mLock                          //
@@ -497,12 +513,17 @@ public final class Recorder implements VideoOutput {
     private boolean mShouldSendResumeEvent = false;
     @Nullable
     private SetupVideoTask mSetupVideoTask = null;
+    @Nullable
+    private OutputStorage mOutputStorage = null;
+    private long mAvailableBytesAboveRequired = Long.MAX_VALUE;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
             @VideoCapabilitiesSource int videoCapabilitiesSource,
             @NonNull EncoderFactory videoEncoderFactory,
-            @NonNull EncoderFactory audioEncoderFactory) {
+            @NonNull EncoderFactory audioEncoderFactory,
+            @NonNull OutputStorage.Factory outputStorageFactory,
+            long requiredFreeStorageBytes) {
         mUserProvidedExecutor = executor;
         mExecutor = executor != null ? executor : CameraXExecutors.ioExecutor();
         mSequentialExecutor = CameraXExecutors.newSequentialExecutor(mExecutor);
@@ -514,8 +535,13 @@ public final class Recorder implements VideoOutput {
         mIsRecording = MutableStateObservable.withInitialState(false);
         mVideoEncoderFactory = videoEncoderFactory;
         mAudioEncoderFactory = audioEncoderFactory;
+        mOutputStorageFactory = outputStorageFactory;
         mVideoEncoderSession =
                 new VideoEncoderSession(mVideoEncoderFactory, mSequentialExecutor, mExecutor);
+        mRequiredFreeStorageBytes =
+                requiredFreeStorageBytes != REQUIRED_FREE_STORAGE_UNSET
+                        ? requiredFreeStorageBytes : REQUIRED_FREE_STORAGE_DEFAULT_BYTES;
+        Logger.d(TAG, "mRequiredFreeStorageBytes = " + formatSize(mRequiredFreeStorageBytes));
     }
 
     @Override
@@ -1602,8 +1628,9 @@ public final class Recorder implements VideoOutput {
                 mediaMuxer = recordingToStart.performOneTimeMediaMuxerCreation(muxerOutputFormat,
                         uri -> mOutputUri = uri);
             } catch (IOException e) {
-                onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS,
-                        e);
+                int error = isStorageFullException(e) ? ERROR_INSUFFICIENT_STORAGE
+                        : ERROR_INVALID_OUTPUT_OPTIONS;
+                onInProgressRecordingInternalError(recordingToStart, error, e);
                 return;
             }
 
@@ -1632,7 +1659,15 @@ public final class Recorder implements VideoOutput {
             if (isAudioEnabled()) {
                 mAudioTrackIndex = mediaMuxer.addTrack(mAudioOutputConfig.getMediaFormat());
             }
-            mediaMuxer.start();
+            try {
+                mediaMuxer.start();
+            } catch (IllegalStateException e) {
+                long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+                int error = availableBytes < mRequiredFreeStorageBytes
+                        ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+                onInProgressRecordingInternalError(recordingToStart, error, e);
+                return;
+            }
 
             // MediaMuxer is successfully initialized, transfer the ownership to Recorder.
             mMediaMuxer = mediaMuxer;
@@ -1670,6 +1705,18 @@ public final class Recorder implements VideoOutput {
             throw new AssertionError("Attempted to start a new recording while another was in "
                     + "progress.");
         }
+        mInProgressRecording = recordingToStart;
+
+        mOutputStorage = mOutputStorageFactory.create(recordingToStart.getOutputOptions());
+        long availableBytes = mOutputStorage.getAvailableBytes();
+        Logger.d(TAG, "availableBytes = " + formatSize(availableBytes));
+        if (availableBytes < mRequiredFreeStorageBytes) {
+            finalizeInProgressRecording(ERROR_INSUFFICIENT_STORAGE,
+                    new IOException(String.format(INSUFFICIENT_STORAGE_ERROR_MSG, availableBytes,
+                            mRequiredFreeStorageBytes)));
+            return;
+        }
+        mAvailableBytesAboveRequired = availableBytes - mRequiredFreeStorageBytes;
 
         if (recordingToStart.getOutputOptions().getFileSizeLimit() > 0) {
             // Use %95 of the given file size limit as the criteria, which refers to the
@@ -1688,8 +1735,6 @@ public final class Recorder implements VideoOutput {
         } else {
             mDurationLimitNs = OutputOptions.DURATION_UNLIMITED;
         }
-
-        mInProgressRecording = recordingToStart;
 
         // Configure audio based on the current audio state.
         switch (mAudioState) {
@@ -2048,21 +2093,41 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
-                encodedData.getBufferInfo());
+        try {
+            mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                    encodedData.getBufferInfo());
+        } catch (IllegalStateException e) {
+            long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+            int error = availableBytes < mRequiredFreeStorageBytes
+                    ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+            onInProgressRecordingInternalError(recording, error, e);
+            return;
+        }
 
         mRecordingBytes = newRecordingBytes;
         mRecordingDurationNs = newRecordingDurationNs;
         mPreviousRecordingVideoDataTimeUs = currentPresentationTimeUs;
 
         updateInProgressStatusEvent();
+
+        if (newRecordingBytes > mAvailableBytesAboveRequired) {
+            long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+            Logger.d(TAG, "availableBytes = " + formatSize(availableBytes));
+            if (availableBytes < mRequiredFreeStorageBytes) {
+                onInProgressRecordingInternalError(recording, ERROR_INSUFFICIENT_STORAGE,
+                        new IOException(
+                                String.format(INSUFFICIENT_STORAGE_ERROR_MSG, availableBytes,
+                                        mRequiredFreeStorageBytes)));
+                return;
+            }
+            mAvailableBytesAboveRequired = availableBytes - mRequiredFreeStorageBytes;
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeAudioData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
-
         long newRecordingBytes = mRecordingBytes + encodedData.size();
         if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
                 && newRecordingBytes > mFileSizeLimitInBytes) {
@@ -2102,9 +2167,17 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        mMediaMuxer.writeSampleData(mAudioTrackIndex,
-                encodedData.getByteBuffer(),
-                encodedData.getBufferInfo());
+        try {
+            mMediaMuxer.writeSampleData(mAudioTrackIndex,
+                    encodedData.getByteBuffer(),
+                    encodedData.getBufferInfo());
+        } catch (IllegalStateException e) {
+            long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+            int error = availableBytes < mRequiredFreeStorageBytes
+                    ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+            onInProgressRecordingInternalError(recording, error, e);
+            return;
+        }
 
         mRecordingBytes = newRecordingBytes;
         mPreviousRecordingAudioDataTimeUs = currentPresentationTimeUs;
@@ -2373,9 +2446,12 @@ public final class Recorder implements VideoOutput {
                 mMediaMuxer.stop();
                 mMediaMuxer.release();
             } catch (IllegalStateException e) {
-                Logger.e(TAG, "MediaMuxer failed to stop or release with error: " + e.getMessage());
+                Logger.e(TAG, "MediaMuxer failed to stop or release with error: " + e.getMessage(),
+                        e);
                 if (errorToSend == ERROR_NONE) {
-                    errorToSend = ERROR_UNKNOWN;
+                    long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+                    errorToSend = availableBytes < mRequiredFreeStorageBytes
+                            ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
                 }
             }
             mMediaMuxer = null;
@@ -2418,6 +2494,8 @@ public final class Recorder implements VideoOutput {
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
         mAudioAmplitude = AUDIO_AMPLITUDE_NONE;
+        mOutputStorage = null;
+        mAvailableBytesAboveRequired = Long.MAX_VALUE;
         clearPendingAudioRingBuffer();
         setInProgressTransformationInfo(null);
 
@@ -3401,6 +3479,8 @@ public final class Recorder implements VideoOutput {
         private Executor mExecutor = null;
         private EncoderFactory mVideoEncoderFactory = DEFAULT_ENCODER_FACTORY;
         private EncoderFactory mAudioEncoderFactory = DEFAULT_ENCODER_FACTORY;
+        private OutputStorage.Factory mOutputStorageFactory = OUTPUT_STORAGE_FACTORY_DEFAULT;
+        private long mRequiredFreeStorageBytes = REQUIRED_FREE_STORAGE_UNSET;
 
         /**
          * Constructor for {@code Recorder.Builder}.
@@ -3546,6 +3626,31 @@ public final class Recorder implements VideoOutput {
         }
 
         /**
+         * Sets the required free storage space, in bytes, needed for recording.
+         *
+         * <p>The recording will be finalized automatically with
+         * {@link VideoRecordEvent.Finalize#ERROR_INSUFFICIENT_STORAGE} if the available storage
+         * space drops below this value. Any data already recorded will still be saved to
+         * the output file.
+         *
+         * <p>Note: This check is not performed when using {@link FileDescriptorOutputOptions} as
+         * the output.
+         *
+         * <p>The default value is 50 MB.
+         *
+         * @param bytes The required free storage space in bytes. Must be positive.
+         * @return The builder instance for chaining calls.
+         * @throws IllegalArgumentException If {@code bytes} is not positive.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull
+        public Builder setRequiredFreeStorageBytes(@IntRange(from = 1L) long bytes) {
+            Preconditions.checkArgument(bytes > 0L);
+            mRequiredFreeStorageBytes = bytes;
+            return this;
+        }
+
+        /**
          * Sets the audio source for recordings with audio enabled.
          *
          * <p>This will only set the source of audio for recordings, but audio must still be
@@ -3577,6 +3682,12 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
+        @NonNull
+        Builder setOutputStorageFactory(@NonNull OutputStorage.Factory outputStorageFactory) {
+            mOutputStorageFactory = outputStorageFactory;
+            return this;
+        }
+
         /**
          * Builds the {@link Recorder} instance.
          *
@@ -3587,7 +3698,8 @@ public final class Recorder implements VideoOutput {
         @NonNull
         public Recorder build() {
             return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoCapabilitiesSource,
-                    mVideoEncoderFactory, mAudioEncoderFactory);
+                    mVideoEncoderFactory, mAudioEncoderFactory, mOutputStorageFactory,
+                    mRequiredFreeStorageBytes);
         }
     }
 }
