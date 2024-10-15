@@ -205,6 +205,43 @@ class CompositionTests {
     }
 
     @Test
+    fun testSeveralArbitraryMoves() = compositionTest {
+        val random = Random(1337)
+        val list = mutableStateListOf(*List(10) { it }.toTypedArray())
+
+        var position by mutableStateOf(-1)
+
+        compose {
+            for (item in list) {
+                key(item) { Text("Item $item") }
+            }
+        }
+
+        fun validate() {
+            validate {
+                for (item in list) {
+                    Text("Item $item")
+                }
+            }
+        }
+
+        validate()
+
+        repeat(10) {
+            position = it
+            list.shuffle(random)
+            expectChanges()
+            validate()
+            list.first()
+        }
+
+        position = -1
+        list.shuffle(random)
+        expectChanges()
+        validate()
+    }
+
+    @Test
     fun testChangeTheFilter() = compositionTest {
         val model = testModel(mutableListOf(bob, steve, jon))
         var scope: RecomposeScope? = null
@@ -1665,6 +1702,60 @@ class CompositionTests {
         validate { Composition() }
         assertEquals(0, rememberObject1.count, "first object should have left")
         assertEquals(0, rememberObject2.count, "second object should have left")
+    }
+
+    @Test
+    fun testRemember_forget_forgetAfterPredecessorReplaced() = compositionTest {
+        val rememberObject =
+            object : RememberObserver {
+                var count = 0
+
+                override fun onRemembered() {
+                    count++
+                }
+
+                override fun onForgotten() {
+                    count--
+                }
+
+                override fun onAbandoned() {
+                    assertEquals(0, count, "onAbandon called after onRemember")
+                }
+
+                override fun toString() = "rememberObject"
+            }
+
+        var key = 0
+        var include = true
+        var scope: RecomposeScope? = null
+        compose {
+            scope = currentRecomposeScope
+            if (include) {
+                Linear {
+                    key(key) { Linear { Text("Some value") } }
+                    use(remember { rememberObject })
+                }
+            }
+        }
+
+        fun MockViewValidator.Composition() {
+            if (include) Linear { Linear { Text("Some value") } }
+        }
+
+        validate { this.Composition() }
+        assertEquals(1, rememberObject.count, "object should enter")
+
+        key++
+        scope?.invalidate()
+        expectChanges()
+        validate { Composition() }
+        assertEquals(1, rememberObject.count, "object should still be remembered")
+
+        include = false
+        scope?.invalidate()
+        expectChanges()
+        validate { Composition() }
+        assertEquals(0, rememberObject.count, "object should have left")
     }
 
     @Test
