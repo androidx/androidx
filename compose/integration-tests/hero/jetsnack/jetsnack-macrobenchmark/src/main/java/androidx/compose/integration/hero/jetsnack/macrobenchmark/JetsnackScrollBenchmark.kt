@@ -60,7 +60,7 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
         benchmarkScroll(
             action = "$JETSNACK_TARGET_PACKAGE_NAME.JETSNACK_VIEWS_ACTIVITY",
             measureBlock = {
-                val resPkg = "androidx.compose.integration.hero.macrobenchmark.target"
+                val resPkg = JETSNACK_TARGET_PACKAGE_NAME
                 val searchCondition = Until.hasObject(By.res(resPkg, "snackImageView"))
                 // Wait until a snack collection item within the list is rendered
                 device.wait(searchCondition, 3_000)
