@@ -72,7 +72,8 @@ import java.util.Objects;
  */
 public final class ProfileVerifier {
     private static final String REF_PROFILES_BASE_DIR = "/data/misc/profiles/ref/";
-    private static final String CUR_PROFILES_BASE_DIR = "/data/misc/profiles/cur/0/";
+    private static final String CUR_PROFILES_BASE_DIR = "/data/misc/profiles/cur/"
+            + UserInfo.getCurrentUserId() + "/";
     private static final String PROFILE_FILE_NAME = "primary.prof";
     private static final String PROFILE_INSTALLED_CACHE_FILE_NAME = "profileInstalled";
     private static final ResolvableFuture<CompilationStatus> sFuture = ResolvableFuture.create();
