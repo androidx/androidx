@@ -218,8 +218,9 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     /**
      * Applies car extensions to a notification that is being built.
      *
-     * <p>This is typically called by
-     * {@link NotificationCompat.Builder#extend(NotificationCompat.Extender)}.
+     * <p>This is automatically called when the style is applied to the builder via {@link
+     * NotificationCompat.Builder#extend(NotificationCompat.Extender)} so this method does not need
+     * to be manually called.
      *
      * @throws NullPointerException if {@code builder} is {@code null}
      */
@@ -227,6 +228,31 @@ public final class CarAppExtender implements NotificationCompat.Extender {
     @Override
     public NotificationCompat.Builder extend(@NonNull NotificationCompat.Builder builder) {
         requireNonNull(builder);
+        Bundle carExtensions = createExtrasBundle();
+        builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
+        return builder;
+    }
+
+    /**
+     * Applies car extensions to a notification that is being built.
+     *
+     * <p>For the most part, developers should be building notifications via {@link
+     * NotificationCompat.Builder} and not {@link Notification.Builder}; however, there may be
+     * reasons to not use the compat version, so this non-compat method is provided for convenience
+     * in those situations.
+     *
+     * @throws NullPointerException if {@code builder} is {@code null}
+     */
+    @NonNull
+    public Notification.Builder extend(@NonNull Notification.Builder builder) {
+        requireNonNull(builder);
+        Bundle carExtensions = createExtrasBundle();
+        builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
+        return builder;
+    }
+
+    @NonNull
+    private Bundle createExtrasBundle() {
         Bundle carExtensions = new Bundle();
 
         if (mContentTitle != null) {
@@ -272,8 +298,7 @@ public final class CarAppExtender implements NotificationCompat.Extender {
             carExtensions.putString(EXTRA_CHANNEL_ID, mChannelId);
         }
 
-        builder.getExtras().putBundle(EXTRA_CAR_EXTENDER, carExtensions);
-        return builder;
+        return carExtensions;
     }
 
     /**
