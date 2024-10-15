@@ -8,6 +8,7 @@ package androidx.appsearch.platformstorage {
   }
 
   public static final class PlatformStorage.GlobalSearchContext {
+    method public android.content.Context getContext();
     method public java.util.concurrent.Executor getWorkerExecutor();
   }
 
@@ -18,6 +19,7 @@ package androidx.appsearch.platformstorage {
   }
 
   public static final class PlatformStorage.SearchContext {
+    method public android.content.Context getContext();
     method public String getDatabaseName();
     method public java.util.concurrent.Executor getWorkerExecutor();
   }

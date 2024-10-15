@@ -7,6 +7,7 @@ package androidx.appsearch.localstorage {
   }
 
   public static final class LocalStorage.GlobalSearchContext {
+    method public android.content.Context getContext();
     method public java.util.concurrent.Executor getWorkerExecutor();
   }
 
@@ -17,6 +18,7 @@ package androidx.appsearch.localstorage {
   }
 
   public static final class LocalStorage.SearchContext {
+    method public android.content.Context getContext();
     method public String getDatabaseName();
     method public java.util.concurrent.Executor getWorkerExecutor();
   }

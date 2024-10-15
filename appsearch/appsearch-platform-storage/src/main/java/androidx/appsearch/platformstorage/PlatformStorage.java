@@ -63,6 +63,14 @@ public final class PlatformStorage {
         }
 
         /**
+         * Returns the {@link Context} associated with the {@link AppSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
+        }
+
+        /**
          * Returns the name of the database to create or open.
          */
         @NonNull
@@ -150,6 +158,14 @@ public final class PlatformStorage {
         GlobalSearchContext(@NonNull Context context, @NonNull Executor executor) {
             mContext = Preconditions.checkNotNull(context);
             mExecutor = Preconditions.checkNotNull(executor);
+        }
+
+        /**
+         * Returns the {@link Context} associated with the {@link GlobalSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
         }
 
         /**
