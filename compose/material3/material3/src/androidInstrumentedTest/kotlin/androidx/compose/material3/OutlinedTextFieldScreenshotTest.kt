@@ -621,7 +621,7 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Default(
+                    TextFieldLabelPosition.Attached(
                         minimizedAlignment = Alignment.CenterHorizontally
                     ),
             )
@@ -637,7 +637,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
             )
         }
 
@@ -651,7 +651,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
                 placeholder = { Text("Placeholder") },
             )
         }

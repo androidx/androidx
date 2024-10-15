@@ -2476,36 +2476,29 @@ package androidx.compose.material3 {
   }
 
   public abstract class TextFieldLabelPosition {
-    method public abstract boolean getAlwaysMinimize();
-    method public androidx.compose.ui.Alignment.Horizontal getExpandedAlignment();
-    method public abstract androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
-    property public abstract boolean alwaysMinimize;
-    property public androidx.compose.ui.Alignment.Horizontal expandedAlignment;
-    property public abstract androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
   }
 
   public static final class TextFieldLabelPosition.Above extends androidx.compose.material3.TextFieldLabelPosition {
     ctor public TextFieldLabelPosition.Above();
-    ctor public TextFieldLabelPosition.Above(optional androidx.compose.ui.Alignment.Horizontal minimizedAlignment);
-    method public boolean getAlwaysMinimize();
-    method public androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
-    property public boolean alwaysMinimize;
-    property public androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
+    ctor public TextFieldLabelPosition.Above(optional androidx.compose.ui.Alignment.Horizontal alignment);
+    method public androidx.compose.ui.Alignment.Horizontal getAlignment();
+    property public final androidx.compose.ui.Alignment.Horizontal alignment;
   }
 
-  public static final class TextFieldLabelPosition.Default extends androidx.compose.material3.TextFieldLabelPosition {
-    ctor public TextFieldLabelPosition.Default();
-    ctor public TextFieldLabelPosition.Default(optional boolean alwaysMinimize, optional androidx.compose.ui.Alignment.Horizontal minimizedAlignment, optional androidx.compose.ui.Alignment.Horizontal expandedAlignment);
+  public static final class TextFieldLabelPosition.Attached extends androidx.compose.material3.TextFieldLabelPosition {
+    ctor public TextFieldLabelPosition.Attached();
+    ctor public TextFieldLabelPosition.Attached(optional boolean alwaysMinimize, optional androidx.compose.ui.Alignment.Horizontal minimizedAlignment, optional androidx.compose.ui.Alignment.Horizontal expandedAlignment);
     method public boolean getAlwaysMinimize();
+    method public androidx.compose.ui.Alignment.Horizontal getExpandedAlignment();
     method public androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
-    property public boolean alwaysMinimize;
-    property public androidx.compose.ui.Alignment.Horizontal expandedAlignment;
-    property public androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
+    property public final boolean alwaysMinimize;
+    property public final androidx.compose.ui.Alignment.Horizontal expandedAlignment;
+    property public final androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
   }
 
   @androidx.compose.runtime.Stable public interface TextFieldLabelScope {
-    method @FloatRange(from=0.0, to=1.0) public float getProgress();
-    property @FloatRange(from=0.0, to=1.0) public abstract float progress;
+    method @FloatRange(from=0.0, to=1.0) public float getLabelMinimizedProgress();
+    property @FloatRange(from=0.0, to=1.0) public abstract float labelMinimizedProgress;
   }
 
   public final class TextKt {

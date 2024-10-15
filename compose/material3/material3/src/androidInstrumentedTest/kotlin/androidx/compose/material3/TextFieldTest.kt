@@ -607,7 +607,7 @@ class TextFieldTest {
                     )
                 },
                 labelPosition =
-                    TextFieldLabelPosition.Default(
+                    TextFieldLabelPosition.Attached(
                         minimizedAlignment = Alignment.End,
                         expandedAlignment = Alignment.CenterHorizontally
                     ),
@@ -643,7 +643,7 @@ class TextFieldTest {
                     SideEffect { compositionCount++ }
 
                     // lambda reads `progress` in the draw phase
-                    Box(Modifier.graphicsLayer { progressValue.value = progress })
+                    Box(Modifier.graphicsLayer { progressValue.value = labelMinimizedProgress })
                 }
             )
         }
@@ -1073,7 +1073,7 @@ class TextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = false),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = false),
             )
         }
 
@@ -1097,7 +1097,7 @@ class TextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
             )
         }
 

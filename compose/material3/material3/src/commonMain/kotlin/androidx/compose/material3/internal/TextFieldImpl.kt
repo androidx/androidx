@@ -48,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Size
@@ -122,12 +123,12 @@ internal fun CommonDecorationBox(
                 if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
             },
         labelColor = labelColor,
-        showExpandedLabel = label != null && !labelPosition.alwaysMinimize,
+        showExpandedLabel = label != null && labelPosition.showExpandedLabel,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
         ->
         val labelScope = remember {
             object : TextFieldLabelScope {
-                override val progress: Float
+                override val labelMinimizedProgress: Float
                     get() = labelProgress.value
             }
         }
@@ -276,7 +277,7 @@ internal fun CommonDecorationBox(
                     supporting = decoratedSupporting,
                     singleLine = singleLine,
                     onLabelMeasured = {
-                        if (labelPosition !is TextFieldLabelPosition.Default) {
+                        if (labelPosition is TextFieldLabelPosition.Above) {
                             return@OutlinedTextFieldLayout
                         }
                         val progress = labelProgress.value
@@ -299,6 +300,25 @@ internal fun CommonDecorationBox(
         }
     }
 }
+
+private val TextFieldLabelPosition.showExpandedLabel: Boolean
+    get() = this is TextFieldLabelPosition.Attached && !alwaysMinimize
+
+internal val TextFieldLabelPosition.minimizedAlignment: Alignment.Horizontal
+    get() =
+        when (this) {
+            is TextFieldLabelPosition.Above -> alignment
+            is TextFieldLabelPosition.Attached -> minimizedAlignment
+            else -> throw IllegalArgumentException("Unknown position: $this")
+        }
+
+internal val TextFieldLabelPosition.expandedAlignment: Alignment.Horizontal
+    get() =
+        when (this) {
+            is TextFieldLabelPosition.Above -> alignment
+            is TextFieldLabelPosition.Attached -> expandedAlignment
+            else -> throw IllegalArgumentException("Unknown position: $this")
+        }
 
 /** Decorates [content] with [contentColor] and [textStyle]. */
 @Composable

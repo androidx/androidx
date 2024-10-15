@@ -585,7 +585,7 @@ class TextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Default(
+                    TextFieldLabelPosition.Attached(
                         minimizedAlignment = Alignment.CenterHorizontally
                     ),
             )
@@ -601,7 +601,7 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
             )
         }
 
@@ -615,7 +615,7 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+                labelPosition = TextFieldLabelPosition.Attached(alwaysMinimize = true),
                 placeholder = { Text("Placeholder") },
             )
         }
