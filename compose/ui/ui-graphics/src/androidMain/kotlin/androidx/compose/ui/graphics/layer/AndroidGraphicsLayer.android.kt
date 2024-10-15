@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -82,6 +83,7 @@ internal constructor(
     private var outlinePath: Path? = null
     private var roundRectClipPath: Path? = null
     private var usePathForClip = false
+    private var softwareDrawScope: CanvasDrawScope? = null
 
     // Paint used only in Software rendering scenarios for API 21 when rendering to a Bitmap
     private var softwareLayerPaint: Paint? = null
@@ -476,7 +478,7 @@ internal constructor(
     }
 
     internal fun drawForPersistence(canvas: Canvas) {
-        if (canvas.nativeCanvas.isHardwareAccelerated) {
+        if (canvas.nativeCanvas.isHardwareAccelerated || impl.supportsSoftwareRendering) {
             recreateDisplayListIfNeeded()
             impl.draw(canvas)
         }
@@ -545,7 +547,13 @@ internal constructor(
 
         parentLayer?.addSubLayer(this)
 
-        impl.draw(canvas)
+        if (canvas.nativeCanvas.isHardwareAccelerated || impl.supportsSoftwareRendering) {
+            impl.draw(canvas)
+        } else {
+            val drawScope = softwareDrawScope ?: CanvasDrawScope().also { softwareDrawScope = it }
+            drawScope.draw(density, layoutDirection, canvas, size.toSize(), drawBlock)
+        }
+
         if (willClipPath) {
             canvas.restore()
         }
@@ -960,6 +968,14 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.setRoundRectOutline
      */
     fun setOutline(outline: AndroidOutline?, outlineSize: IntSize)
+
+    /**
+     * Flag to determine if the layer implementation has a software backed implementation On Android
+     * L we conditionally also record drawing commands into a Picture as it does not natively
+     * support rendering into a Bitmap with hardware acceleration
+     */
+    val supportsSoftwareRendering: Boolean
+        get() = false
 
     /** Draw the GraphicsLayer into the provided canvas */
     fun draw(canvas: Canvas)
