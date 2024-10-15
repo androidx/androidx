@@ -73,6 +73,14 @@ public class LocalStorage {
         }
 
         /**
+         * Returns the {@link Context} associated with the {@link AppSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
+        }
+
+        /**
          * Returns the name of the database to create or open.
          */
         @NonNull
@@ -177,6 +185,14 @@ public class LocalStorage {
             mContext = Preconditions.checkNotNull(context);
             mExecutor = Preconditions.checkNotNull(executor);
             mLogger = logger;
+        }
+
+        /**
+         * Returns the {@link Context} associated with the {@link GlobalSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
         }
 
         /**

@@ -58,6 +58,14 @@ public final class PlayServicesStorage {
         }
 
         /**
+         * Returns the {@link Context} associated with the {@link AppSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
+        }
+
+        /**
          * Returns the name of the database to create or open.
          */
         @NonNull
@@ -145,6 +153,14 @@ public final class PlayServicesStorage {
         GlobalSearchContext(@NonNull Context context, Executor executor) {
             mContext = Preconditions.checkNotNull(context);
             mExecutor = Preconditions.checkNotNull(executor);
+        }
+
+        /**
+         * Returns the {@link Context} associated with the {@link GlobalSearchSession}
+         */
+        @NonNull
+        public Context getContext() {
+            return mContext;
         }
 
         /**
