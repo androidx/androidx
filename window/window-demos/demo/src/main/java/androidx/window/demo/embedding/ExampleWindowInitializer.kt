@@ -34,7 +34,6 @@ import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_FULLSCREEN_IN_PORTRAIT
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
-import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingBounds
 import androidx.window.embedding.EmbeddingConfiguration
@@ -134,14 +133,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 ?.removePrefix(PREFIX_PLACEHOLDER)
                 ?.removeSuffix(SUFFIX_REVERSED)
         ) {
-            TAG_USE_DEFAULT_SPLIT_ATTRIBUTES,
-            null -> {
-                return if (params.areDefaultConstraintsSatisfied) {
-                    defaultSplitAttributes
-                } else {
-                    expandContainersAttrs
-                }
-            }
             TAG_SHOW_FULLSCREEN_IN_PORTRAIT -> {
                 if (isPortrait) {
                     return expandContainersAttrs
@@ -265,7 +256,12 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                     .build()
             }
         }
-        return defaultSplitAttributes
+
+        return if (params.areDefaultConstraintsSatisfied) {
+            defaultSplitAttributes
+        } else {
+            expandContainersAttrs
+        }
     }
 
     private fun sampleOverlayAttributesCalculator(
