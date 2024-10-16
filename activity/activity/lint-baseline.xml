@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,16 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 34"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 34) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/activity/BackEventCompat.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="            if (Build.VERSION.SDK_INT > 19) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +30,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 21"
+        message="Unnecessary; `Build.VERSION.SDK_INT == 19` is never true here"
         errorLine1="                Build.VERSION.SDK_INT == 19 &amp;&amp;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,7 +39,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -39,7 +48,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="@RequiresApi(21)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location

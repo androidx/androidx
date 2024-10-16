@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha04)" variant="all" version="8.8.0-alpha04">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="NewApi"
@@ -89,6 +89,15 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/AnnotatedString.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= 26) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/text/font/AndroidPreloadedFont.android.kt"/>
     </issue>
 
     <issue
