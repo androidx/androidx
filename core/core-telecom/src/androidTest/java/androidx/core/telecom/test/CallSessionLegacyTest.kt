@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -87,6 +88,40 @@ class CallSessionLegacyTest : BaseTelecomTest() {
             assertEquals(
                 mSpeakerEndpoint,
                 callSession.toRemappedCallEndpointCompat(platformSpeaker)
+            )
+        }
+    }
+
+    /**
+     * Ensure that if the platform returns a null active bluetooth device, the jetpack layer does
+     * not crash the client application or destroy the call session
+     */
+    @SmallTest
+    @Test
+    fun testOnCallAudioStateChangedWithNullActiveDevice() {
+        setUpBackwardsCompatTest()
+        runBlocking {
+            val callSession =
+                initCallSessionLegacy(
+                    coroutineContext,
+                    null,
+                )
+
+            val supportedRouteMask =
+                CallAudioState.ROUTE_BLUETOOTH or
+                    CallAudioState.ROUTE_WIRED_HEADSET or
+                    CallAudioState.ROUTE_SPEAKER
+
+            val cas = CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH, supportedRouteMask)
+
+            callSession.onCallAudioStateChanged(cas)
+
+            val currentCallEndpoint = callSession.getCurrentCallEndpointForSession()
+            assertNotNull(currentCallEndpoint)
+            assertEquals(CallEndpointCompat.TYPE_BLUETOOTH, currentCallEndpoint!!.type)
+            assertEquals(
+                EndpointUtils.endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH),
+                currentCallEndpoint.name
             )
         }
     }
