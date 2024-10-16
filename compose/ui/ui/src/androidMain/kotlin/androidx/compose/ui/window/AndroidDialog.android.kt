@@ -91,10 +91,9 @@ import kotlin.math.roundToInt
  * @property decorFitsSystemWindows Sets [WindowCompat.setDecorFitsSystemWindows] value. Set to
  *   `false` to use WindowInsets. If `false`, the
  *   [soft input mode][WindowManager.LayoutParams.softInputMode] will be changed to
- *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] and `android:windowIsFloating` is set to
- *   `false` when [decorFitsSystemWindows] is false. When
- *   `targetSdk` >= [Build.VERSION_CODES.VANILLA_ICE_CREAM], [decorFitsSystemWindows] can only be
- *   `false` and this property doesn't have any effect.
+ *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] on [Build.VERSION_CODES.R] and below and
+ *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING] on [Build.VERSION_CODES.S] and above.
+ *   [Window.isFloating] will be `false` when `decorFitsSystemWindows` is `false`.
  */
 @Immutable
 actual class DialogProperties(
@@ -412,10 +411,6 @@ private class DialogLayout(context: Context, override val window: Window) :
     }
 }
 
-private fun adjustedDecorFitsSystemWindows(dialogProperties: DialogProperties, context: Context) =
-    dialogProperties.decorFitsSystemWindows &&
-        context.applicationInfo.targetSdkVersion < Build.VERSION_CODES.VANILLA_ICE_CREAM
-
 private class DialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: DialogProperties,
@@ -431,7 +426,7 @@ private class DialogWrapper(
          */
         ContextThemeWrapper(
             composeView.context,
-            if (adjustedDecorFitsSystemWindows(properties, composeView.context)) {
+            if (properties.decorFitsSystemWindows) {
                 R.style.DialogWindowTheme
             } else {
                 R.style.FloatingDialogWindowTheme
@@ -453,8 +448,7 @@ private class DialogWrapper(
         val window = window ?: error("Dialog has no window")
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
-        val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
-        WindowCompat.setDecorFitsSystemWindows(window, decorFitsSystemWindows)
+        WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
 
         dialogLayout =
             DialogLayout(context, window).apply {
@@ -568,7 +562,7 @@ private class DialogWrapper(
         this.properties = properties
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
-        val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
+        val decorFitsSystemWindows = properties.decorFitsSystemWindows
         dialogLayout.updateProperties(
             usePlatformDefaultWidth = properties.usePlatformDefaultWidth,
             decorFitsSystemWindows = decorFitsSystemWindows
