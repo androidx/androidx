@@ -431,6 +431,68 @@ private constructor(
     }
 }
 
+/**
+ * An implementation of [ComposeTestRule] that will correctly reset itself in-between test retries.
+ *
+ * NOTE: In order to function properly this rule should be wrapped by your retry rule.
+ *
+ * This is necessary because there is currently no ability to reset the
+ * [AndroidComposeUiTestEnvironment] in the standard [AndroidComposeTestRule].
+ *
+ * @param ruleProvider Function to create the underlying ComposeTestRule rule, defaults to [createEmptyComposeRule]
+ */
+class RetryableComposeTestRule constructor(
+    private val ruleProvider: () -> ComposeTestRule = ::createEmptyComposeRule
+) :
+    ComposeTestRule {
+    private var rule: ComposeTestRule = ruleProvider.invoke()
+
+    override val density: Density
+        get() = rule.density
+    override val mainClock: MainTestClock
+        get() = rule.mainClock
+
+    override fun apply(base: Statement, description: Description): Statement {
+        return object : Statement() {
+            override fun evaluate() {
+                try {
+                    rule.apply(base, description).evaluate()
+                } finally {
+                    rule = ruleProvider.invoke()
+                }
+            }
+        }
+    }
+
+    override suspend fun awaitIdle() = rule.awaitIdle()
+
+    override fun onAllNodes(
+        matcher: SemanticsMatcher,
+        useUnmergedTree: Boolean
+    ): SemanticsNodeInteractionCollection = rule.onAllNodes(matcher, useUnmergedTree)
+
+    override fun onNode(matcher: SemanticsMatcher, useUnmergedTree: Boolean): SemanticsNodeInteraction =
+        rule.onNode(matcher, useUnmergedTree)
+
+    override fun registerIdlingResource(idlingResource: IdlingResource) =
+        rule.registerIdlingResource(idlingResource)
+
+    override fun <T> runOnIdle(action: () -> T): T =
+        rule.runOnIdle(action)
+
+    override fun <T> runOnUiThread(action: () -> T): T =
+        rule.runOnUiThread(action)
+
+    override fun unregisterIdlingResource(idlingResource: IdlingResource) =
+        rule.unregisterIdlingResource(idlingResource)
+
+    override fun waitForIdle() = rule.waitForIdle()
+
+    override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
+        rule.waitUntil(timeoutMillis, condition)
+
+}
+    
 private fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScenarioRule<A>): A {
     var activity: A? = null
     rule.scenario.onActivity { activity = it }
