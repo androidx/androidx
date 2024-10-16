@@ -76,6 +76,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -162,7 +167,9 @@ fun Slider(
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     require(steps >= 0) { "steps should be >= 0" }
     val onValueChangeState = rememberUpdatedState(onValueChange)
+    val onValueChangeFinishedState = rememberUpdatedState(onValueChangeFinished)
     val tickFractions = remember(steps) { stepsToTickFractions(steps) }
+
     BoxWithConstraints(
         modifier
             .minimumInteractiveComponentSize()
@@ -176,6 +183,15 @@ fun Slider(
                 steps
             )
             .focusable(enabled, interactionSource)
+            .slideOnKeyEvents(
+                enabled,
+                steps,
+                valueRange,
+                value,
+                LocalLayoutDirection.current == LayoutDirection.Rtl,
+                onValueChangeState,
+                onValueChangeFinishedState
+            )
     ) {
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         val widthPx = constraints.maxWidth.toFloat()
@@ -257,6 +273,88 @@ fun Slider(
             interactionSource,
             modifier = press.then(drag)
         )
+    }
+}
+
+private fun Modifier.slideOnKeyEvents(
+    enabled: Boolean,
+    steps: Int,
+    valueRange: ClosedFloatingPointRange<Float>,
+    value: Float,
+    isRtl: Boolean,
+    onValueChangeState: State<(Float) -> Unit>,
+    onValueChangeFinishedState: State<(() -> Unit)?>
+): Modifier {
+    require(steps >= 0) { "steps should be >= 0" }
+    return this.onKeyEvent {
+        if (!enabled) return@onKeyEvent false
+        when (it.type) {
+            KeyEventType.KeyDown -> {
+                val rangeLength = abs(valueRange.endInclusive - valueRange.start)
+                // When steps == 0, it means that a user is not limited by a step length (delta)
+                // when using touch or mouse. But it is not possible to adjust the value
+                // continuously when using keyboard buttons - the delta has to be discrete.
+                // In this case, 1% of the valueRange seems to make sense.
+                val actualSteps = if (steps > 0) steps + 1 else 100
+                val delta = rangeLength / actualSteps
+                when (it.key) {
+                    Key.DirectionUp -> {
+                        onValueChangeState.value((value + delta).coerceIn(valueRange))
+                        true
+                    }
+                    Key.DirectionDown -> {
+                        onValueChangeState.value((value - delta).coerceIn(valueRange))
+                        true
+                    }
+                    Key.DirectionRight -> {
+                        val sign = if (isRtl) -1 else 1
+                        onValueChangeState.value((value + sign * delta).coerceIn(valueRange))
+                        true
+                    }
+                    Key.DirectionLeft -> {
+                        val sign = if (isRtl) -1 else 1
+                        onValueChangeState.value((value - sign * delta).coerceIn(valueRange))
+                        true
+                    }
+                    Key.MoveHome -> {
+                        onValueChangeState.value(valueRange.start)
+                        true
+                    }
+                    Key.MoveEnd -> {
+                        onValueChangeState.value(valueRange.endInclusive)
+                        true
+                    }
+                    Key.PageUp -> {
+                        val page = (actualSteps / 10).coerceIn(1, 10)
+                        onValueChangeState.value((value - page * delta).coerceIn(valueRange))
+                        true
+                    }
+                    Key.PageDown -> {
+                        val page = (actualSteps / 10).coerceIn(1, 10)
+                        onValueChangeState.value((value + page * delta).coerceIn(valueRange))
+                        true
+                    }
+                    else -> false
+                }
+            }
+            KeyEventType.KeyUp -> {
+                when (it.key) {
+                    Key.DirectionUp,
+                    Key.DirectionDown,
+                    Key.DirectionRight,
+                    Key.DirectionLeft,
+                    Key.MoveHome,
+                    Key.MoveEnd,
+                    Key.PageUp,
+                    Key.PageDown -> {
+                        onValueChangeFinishedState.value?.invoke()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            else -> false
+        }
     }
 }
 
