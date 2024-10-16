@@ -65,7 +65,7 @@ class TransformingLazyColumnState : ScrollableState {
         block: suspend ScrollScope.() -> Unit
     ) = scrollableState.scroll(scrollPriority, block)
 
-    private val layoutInfoState =
+    internal val layoutInfoState =
         mutableStateOf(EmptyTransformingLazyColumnMeasureResult, neverEqualPolicy())
 
     /**
