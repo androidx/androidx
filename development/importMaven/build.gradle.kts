@@ -53,7 +53,7 @@ java {
 tasks.withType(KotlinCompile::class.java).configureEach { kotlinOptions { jvmTarget = "17" } }
 
 dependencies {
-    implementation(libs.kotlinGradlePluginz)
+    implementation(libs.kotlinGradlePlugin)
     implementation(gradleTestKit())
     implementation(libs.kotlinCoroutinesCore)
     implementation(importMavenLibs.okio)

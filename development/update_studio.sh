@@ -51,9 +51,9 @@ ARTIFACTS_TO_DOWNLOAD+="com.android.tools:ninepatch:$LINT_VERSION,"
 
 # Update libs.versions.toml
 echo Updating dependency versions
-sedInPlace "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidGradlePlugin = \".*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
 sedInPlace "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
-sedInPlace "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidStudio = \".*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
 
 # update settings.gradle -- don't match the line with :$agpOverride
 sedInPlace "s/com.android.settings:com.android.settings.gradle.plugin:[^$][0-9a-z\.\-]*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION/g" settings.gradle
