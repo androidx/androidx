@@ -46,8 +46,6 @@ androidXMultiplatform {
             it.defaultSourceSetName = "androidInstrumentedTest"
             it.sourceSetTreeName = "test"
         }
-        // b/370769491
-        experimentalProperties["android.lint.useK2Uast"] = false
     }
 
     defaultPlatform(PlatformIdentifier.JVM)

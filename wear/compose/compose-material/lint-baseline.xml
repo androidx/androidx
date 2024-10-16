@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha04)" variant="all" version="8.8.0-alpha04">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="PrimitiveInCollection"
@@ -57,7 +57,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method setAnchors$compose_material has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,7 +66,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;Float, T> of getAnchors$lint_module: replace with FloatObjectMap"
+        message="return type Map&lt;Float, T> of getAnchors$compose_material: replace with FloatObjectMap"
         errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
         errorLine2="                 ~~~~~~~">
         <location
@@ -75,7 +75,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method ensureInit$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method ensureInit$compose_material has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal fun ensureInit(newAnchors: Map&lt;Float, T>) {"
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method processNewAnchors$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method processNewAnchors$compose_material has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal suspend fun processNewAnchors(oldAnchors: Map&lt;Float, T>, newAnchors: Map&lt;Float, T>) {"
         errorLine2="                                                                                  ~~~~~~~~~~~~~">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method processNewAnchors$lint_module has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method processNewAnchors$compose_material has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal suspend fun processNewAnchors(oldAnchors: Map&lt;Float, T>, newAnchors: Map&lt;Float, T>) {"
         errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
