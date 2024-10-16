@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.text.modifiers.AutoSizeTextLayoutScope
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -55,96 +56,110 @@ class AutoSizeTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_stepSize_tooSmall() {
-        AutoSize.StepBased(0.00000134.sp)
+        AutoSize.StepBased(stepSize = 0.00000134.sp)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_minFontSize_unspecified() {
-        AutoSize.StepBased(TextUnit.Unspecified, 1.sp)
+        AutoSize.StepBased(minFontSize = TextUnit.Unspecified, maxFontSize = 1.sp)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_maxFontSize_unspecified() {
-        AutoSize.StepBased(2.sp, TextUnit.Unspecified)
+        AutoSize.StepBased(minFontSize = 2.sp, maxFontSize = TextUnit.Unspecified)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_stepSize_unspecified() {
-        AutoSize.StepBased(TextUnit.Unspecified)
+        AutoSize.StepBased(stepSize = TextUnit.Unspecified)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_minFontSize_negative() {
-        AutoSize.StepBased((-1).sp, 0.sp)
+        AutoSize.StepBased(minFontSize = (-1).sp, maxFontSize = 0.sp)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun stepBased_maxFontSize_negative() {
-        AutoSize.StepBased(0.sp, (-1).sp)
+        AutoSize.StepBased(minFontSize = 0.sp, maxFontSize = (-1).sp)
     }
 
     @Test
     fun stepBased_equals() {
-        var autoSize1 = AutoSize.StepBased(1.sp, 10.sp, 2.sp)
-        var autoSize2 = AutoSize.StepBased(1.0.sp, 10.0.sp, 2.0.sp)
+        var autoSize1 = AutoSize.StepBased(minFontSize = 1.sp, maxFontSize = 10.sp, stepSize = 2.sp)
+        var autoSize2 =
+            AutoSize.StepBased(minFontSize = 1.0.sp, maxFontSize = 10.0.sp, stepSize = 2.0.sp)
         assertThat(autoSize1).isEqualTo(autoSize2)
         assertThat(autoSize2).isEqualTo(autoSize1)
 
-        autoSize2 = AutoSize.StepBased(1.1.sp, 10.sp, 2.sp)
+        autoSize2 = AutoSize.StepBased(minFontSize = 1.1.sp, maxFontSize = 10.sp, stepSize = 2.sp)
         assertThat(autoSize1).isNotEqualTo(autoSize2)
         assertThat(autoSize2).isNotEqualTo(autoSize1)
 
-        autoSize2 = AutoSize.StepBased(1.sp, 11.1.sp, 2.sp)
+        autoSize2 = AutoSize.StepBased(minFontSize = 1.sp, maxFontSize = 11.1.sp, stepSize = 2.sp)
         assertThat(autoSize1).isNotEqualTo(autoSize2)
         assertThat(autoSize2).isNotEqualTo(autoSize1)
 
-        autoSize2 = AutoSize.StepBased(1.sp, 10.sp, 2.5.sp)
+        autoSize2 = AutoSize.StepBased(minFontSize = 1.sp, maxFontSize = 10.sp, stepSize = 2.5.sp)
         assertThat(autoSize1).isNotEqualTo(autoSize2)
         assertThat(autoSize2).isNotEqualTo(autoSize1)
 
         autoSize2 = TestAutoSize(7)
         assertThat(autoSize1).isNotEqualTo(autoSize2)
 
-        autoSize1 = AutoSize.StepBased(1.em, 2.em, 0.1.em)
-        autoSize2 = AutoSize.StepBased(1.0.em, 2.0.em, 0.1.em)
+        autoSize1 = AutoSize.StepBased(minFontSize = 1.em, maxFontSize = 2.em, stepSize = 0.1.em)
+        autoSize2 =
+            AutoSize.StepBased(minFontSize = 1.0.em, maxFontSize = 2.0.em, stepSize = 0.1.em)
         assertThat(autoSize1).isEqualTo(autoSize2)
         assertThat(autoSize2).isEqualTo(autoSize1)
     }
 
     @Test
     fun stepBased_getFontSize_alwaysOverflows() {
-        val autoSize = AutoSize.StepBased(12.sp, 112.sp, 0.25.sp)
-        val searchScope: FontSizeSearchScope = AlwaysOverflows()
+        val autoSize =
+            AutoSize.StepBased(minFontSize = 12.sp, maxFontSize = 112.sp, stepSize = 0.25.sp)
+                as TextAutoSize
+        val searchScope: AutoSizeTextLayoutScope = AlwaysOverflows()
         with(autoSize) { assertThat(searchScope.getFontSize().value).isEqualTo(12) }
     }
 
     @Test
     fun stepBased_getFontSize_neverOverflows() {
-        val autoSize = AutoSize.StepBased(12.sp, 112.sp, 0.25.sp)
-        val searchScope: FontSizeSearchScope = NeverOverflows()
+        val autoSize =
+            AutoSize.StepBased(minFontSize = 12.sp, maxFontSize = 112.sp, stepSize = 0.25.sp)
+                as TextAutoSize
+        val searchScope: AutoSizeTextLayoutScope = NeverOverflows()
         with(autoSize) { assertThat(searchScope.getFontSize().value).isEqualTo(112) }
     }
 
     @Test
     fun stepBased_getFontSize_cappedAtMaxSize_beforeOverflow() {
-        val autoSize = AutoSize.StepBased(12.sp, 112.sp, 0.25.sp)
-        val searchScope: FontSizeSearchScope = OverflowsWhenFontSizeIsGreaterThan60px()
+        val autoSize =
+            AutoSize.StepBased(minFontSize = 12.sp, maxFontSize = 112.sp, stepSize = 0.25.sp)
+                as TextAutoSize
+        val searchScope: AutoSizeTextLayoutScope = OverflowsWhenFontSizeIsGreaterThan60px()
         with(autoSize) { assertThat(searchScope.getFontSize().value).isEqualTo(60) }
     }
 
     @Test
     fun stepBased_getFontSize_searchRangeMidpoint_overflows() {
-        val autoSize = AutoSize.StepBased(0.sp, 100.sp, 70.sp)
-        val searchScope: FontSizeSearchScope = OverflowsWhenFontSizeIsGreaterThan60px()
+        val autoSize =
+            AutoSize.StepBased(minFontSize = 0.sp, maxFontSize = 100.sp, stepSize = 70.sp)
+                as TextAutoSize
+        val searchScope: AutoSizeTextLayoutScope = OverflowsWhenFontSizeIsGreaterThan60px()
         // Here we're testing when (max - min) / 2 overflows and min doesn't overflow
         with(autoSize) { assertThat(searchScope.getFontSize().value) }.isEqualTo(0)
     }
 
     @Test
     fun stepBased_getFontSize_differentStepSizes() {
-        val autoSize1 = AutoSize.StepBased(10.sp, 100.sp, 10.sp)
-        val autoSize2 = AutoSize.StepBased(10.sp, 100.sp, 20.sp)
-        val searchScope: FontSizeSearchScope = OverflowsWhenFontSizeIsGreaterThan60px()
+        val autoSize1 =
+            AutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 100.sp, stepSize = 10.sp)
+                as TextAutoSize
+        val autoSize2 =
+            AutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 100.sp, stepSize = 20.sp)
+                as TextAutoSize
+        val searchScope: AutoSizeTextLayoutScope = OverflowsWhenFontSizeIsGreaterThan60px()
 
         with(autoSize1) { assertThat(searchScope.getFontSize().value).isEqualTo(60) }
         with(autoSize2) { assertThat(searchScope.getFontSize().value).isEqualTo(50) }
@@ -153,9 +168,11 @@ class AutoSizeTest {
     @Test
     fun stepBased_getFontSize_stepSize_greaterThan_maxFontSize_minus_minFontSize() {
         // regardless of the bounds of the container, the only potential font size is minFontSize
-        val autoSize = AutoSize.StepBased(45.sp, 55.sp, 15.sp)
+        val autoSize =
+            AutoSize.StepBased(minFontSize = 45.sp, maxFontSize = 55.sp, stepSize = 15.sp)
+                as TextAutoSize
         with(autoSize) {
-            var searchScope: FontSizeSearchScope = AlwaysOverflows()
+            var searchScope: AutoSizeTextLayoutScope = AlwaysOverflows()
             assertThat(searchScope.getFontSize().value).isEqualTo(45)
 
             searchScope = NeverOverflows()
@@ -166,8 +183,8 @@ class AutoSizeTest {
         }
     }
 
-    private class TestAutoSize(private val testParam: Int) : AutoSize {
-        override fun FontSizeSearchScope.getFontSize(): TextUnit {
+    private class TestAutoSize(private val testParam: Int) : TextAutoSize {
+        override fun AutoSizeTextLayoutScope.getFontSize(): TextUnit {
             return if (!performLayoutAndGetOverflow(testParam.sp)) testParam.sp else 3.sp
         }
 
@@ -183,7 +200,7 @@ class AutoSizeTest {
         }
     }
 
-    private class AlwaysOverflows : FontSizeSearchScope {
+    private class AlwaysOverflows : AutoSizeTextLayoutScope {
         override val density = 1f
         override val fontScale = 1f
 
@@ -192,7 +209,7 @@ class AutoSizeTest {
         }
     }
 
-    private class NeverOverflows : FontSizeSearchScope {
+    private class NeverOverflows : AutoSizeTextLayoutScope {
         override val density = 1f
         override val fontScale = 1f
 
@@ -201,7 +218,7 @@ class AutoSizeTest {
         }
     }
 
-    private class OverflowsWhenFontSizeIsGreaterThan60px : FontSizeSearchScope {
+    private class OverflowsWhenFontSizeIsGreaterThan60px : AutoSizeTextLayoutScope {
         override val density = 1f
         override val fontScale = 1f
 

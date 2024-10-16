@@ -17,8 +17,8 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.internal.requirePreconditionNotNull
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
@@ -77,7 +77,7 @@ internal class TextStringSimpleNode(
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
     private var overrideColor: ColorProducer? = null,
-    private var autoSize: AutoSize? = null
+    private var autoSize: TextAutoSize? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     @Suppress("PrimitiveInCollection") // Map required for use in public API.
     // Usages of this collection are so few that the gains of using
@@ -147,7 +147,7 @@ internal class TextStringSimpleNode(
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
         overflow: TextOverflow,
-        autoSize: AutoSize?
+        autoSize: TextAutoSize?
     ): Boolean {
         var changed: Boolean
 

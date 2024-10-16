@@ -16,8 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
-import androidx.compose.foundation.text.FontSizeSearchScope
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
@@ -27,8 +26,8 @@ import androidx.compose.ui.unit.sp
  *
  * @param presets The array of font sizes to be checked
  */
-internal class AutoSizePreset(private val presets: Array<TextUnit>) : AutoSize {
-    override fun FontSizeSearchScope.getFontSize(): TextUnit {
+internal class AutoSizePreset(private val presets: Array<TextUnit>) : TextAutoSize {
+    override fun AutoSizeTextLayoutScope.getFontSize(): TextUnit {
         var optimalFontSize = 0.sp
         for (size in presets) {
             if (
@@ -55,14 +54,14 @@ internal class AutoSizePreset(private val presets: Array<TextUnit>) : AutoSize {
 }
 
 /**
- * [AutoSize] class with a binary implementation where `100.sp` is returned if the font size given
- * doesn't overflow, and `0.sp` if the font size does overflow.
+ * [TextAutoSize] class with a binary implementation where `100.sp` is returned if the font size
+ * given doesn't overflow, and `0.sp` if the font size does overflow.
  *
  * The aim of this class is to perform AutoSize without using density methods like `toPx()` to check
  * if [TextUnit.Unspecified] works correctly with `performLayoutAndGetOverflow()`
  */
-internal class AutoSizeWithoutToPx(private val fontSize: TextUnit) : AutoSize {
-    override fun FontSizeSearchScope.getFontSize(): TextUnit {
+internal class AutoSizeWithoutToPx(private val fontSize: TextUnit) : TextAutoSize {
+    override fun AutoSizeTextLayoutScope.getFontSize(): TextUnit {
         // if there is overflow then 100.sp is returned. Otherwise 0.sp is returned
         if (performLayoutAndGetOverflow(fontSize)) return 100.sp
         return 0.sp

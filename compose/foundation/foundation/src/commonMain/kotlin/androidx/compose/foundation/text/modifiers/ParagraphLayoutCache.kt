@@ -16,9 +16,8 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
-import androidx.compose.foundation.text.FontSizeSearchScope
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
@@ -56,7 +55,7 @@ internal class ParagraphLayoutCache(
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
-    private var autoSize: AutoSize? = null
+    private var autoSize: TextAutoSize? = null
 ) {
 
     /**
@@ -121,7 +120,10 @@ internal class ParagraphLayoutCache(
     /** Backing property for [fontSizeSearchScope] */
     private var _fontSizeSearchScope: FontSizeSearchScopeImpl? = null
 
-    /** Used to get the font size if AutoSize is enabled and perform layout with many font sizes */
+    /**
+     * Used to get the font size if InternalAutoSize is enabled and perform layout with many font
+     * sizes
+     */
     private val fontSizeSearchScope: FontSizeSearchScopeImpl
         get() {
             if (_fontSizeSearchScope == null) _fontSizeSearchScope = FontSizeSearchScopeImpl()
@@ -161,7 +163,8 @@ internal class ParagraphLayoutCache(
         }
 
         if (autoSize != null) {
-            val optimalFontSize = autoSize!!.performAutoSize(finalConstraints, layoutDirection)
+            val optimalFontSize =
+                autoSize!!.performInternalAutoSize(finalConstraints, layoutDirection)
             if (optimalFontSize == style.fontSize && paragraph != null) return true
             style = style.copy(fontSize = optimalFontSize)
             // paragraphIntrinsics now does not match with style and needs to be set to null
@@ -206,7 +209,7 @@ internal class ParagraphLayoutCache(
      *
      * @return The derived optimal font size
      */
-    private fun AutoSize.performAutoSize(
+    private fun TextAutoSize.performInternalAutoSize(
         finalConstraints: Constraints,
         layoutDirection: LayoutDirection
     ): TextUnit {
@@ -248,7 +251,7 @@ internal class ParagraphLayoutCache(
         softWrap: Boolean,
         maxLines: Int,
         minLines: Int,
-        autoSize: AutoSize?
+        autoSize: TextAutoSize?
     ) {
         this.text = text
         this.style = style
@@ -419,12 +422,12 @@ internal class ParagraphLayoutCache(
             "lastDensity=$lastDensity)"
 
     /**
-     * [Paragraph] specific implementation of [FontSizeSearchScope].
+     * [Paragraph] specific implementation of [AutoSizeTextLayoutScope].
      *
      * Uses [layoutText] in [ParagraphLayoutCache] to lay out the text and check for overflow. Also
      * caches to [style], [paragraph], [prevConstraints] and [layoutSize]
      */
-    private inner class FontSizeSearchScopeImpl : FontSizeSearchScope {
+    private inner class FontSizeSearchScopeImpl : AutoSizeTextLayoutScope {
         /** Constraints that will be used to layout the text */
         var constraints: Constraints = Constraints.fixed(0, 0)
 
@@ -501,7 +504,7 @@ internal class ParagraphLayoutCache(
         override fun TextUnit.toPx(): Float {
             if (isEm) {
                 check(!originalFontSize.isEm) {
-                    "AutoSize -> toPx(): Cannot convert Em to Px when style.fontSize is Em\n" +
+                    "InternalAutoSize -> toPx(): Cannot convert Em to Px when style.fontSize is Em\n" +
                         "Declare the composable's style.fontSize with Sp units instead."
                 }
                 if (originalFontSize == TextUnit.Unspecified) {

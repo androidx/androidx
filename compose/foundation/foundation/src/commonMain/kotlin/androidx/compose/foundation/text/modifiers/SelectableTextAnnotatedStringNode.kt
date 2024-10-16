@@ -17,8 +17,8 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.internal.requirePreconditionNotNull
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -59,7 +59,7 @@ internal class SelectableTextAnnotatedStringNode(
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null,
-    autoSize: AutoSize? = null,
+    autoSize: TextAutoSize? = null,
     private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
 
@@ -133,7 +133,7 @@ internal class SelectableTextAnnotatedStringNode(
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
         selectionController: SelectionController?,
         color: ColorProducer?,
-        autoSize: AutoSize?
+        autoSize: TextAutoSize?
     ) {
         delegate.doInvalidations(
             drawChanged = delegate.updateDraw(color, style),

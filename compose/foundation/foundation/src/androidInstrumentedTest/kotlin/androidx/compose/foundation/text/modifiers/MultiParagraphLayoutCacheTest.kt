@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.modifiers
 import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
@@ -401,7 +402,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontSize = 20.sp, fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -426,7 +427,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -450,7 +451,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontSize = 20.sp, fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -480,7 +481,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Ellipsis,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -509,7 +510,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Visible,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -675,7 +676,7 @@ class MultiParagraphLayoutCacheTest {
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
                     minLines = 2,
-                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp) as TextAutoSize
                 )
                 .also { it.density = density }
 
@@ -739,7 +740,7 @@ class MultiParagraphLayoutCacheTest {
     private fun MultiParagraphLayoutCache.updateAutoSize(
         text: String,
         fontSize: TextUnit,
-        autoSize: AutoSize
+        autoSize: TextAutoSize
     ) =
         update(
             text = AnnotatedString(text),

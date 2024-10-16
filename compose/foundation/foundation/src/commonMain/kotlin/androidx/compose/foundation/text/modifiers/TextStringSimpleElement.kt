@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -39,7 +39,7 @@ internal class TextStringSimpleElement(
     private val maxLines: Int = Int.MAX_VALUE,
     private val minLines: Int = DefaultMinLines,
     private val color: ColorProducer? = null,
-    private val autoSize: AutoSize? = null
+    private val autoSize: TextAutoSize? = null
 ) : ModifierNodeElement<TextStringSimpleNode>() {
 
     override fun create(): TextStringSimpleNode =
