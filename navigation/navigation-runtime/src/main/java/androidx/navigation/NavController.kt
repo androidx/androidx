@@ -119,7 +119,18 @@ public open class NavController(
         MutableStateFlow(emptyList())
 
     /**
-     * Retrieve the current back stack.
+     * This probably isn't what you actually want. If you're looking for the back stack of a
+     * particular kind of destination (e.g., all of the composables on your back stack), then you
+     * should be looking up the back stack for the particular Navigator you want, rather than this
+     * combined back stack that is going to interleave navigation graphs with the actual back stack
+     * entries you are interested in.
+     *
+     * ```
+     * val composeNavigator = navController.navigatorProvider.get(ComposeNavigator::class)
+     * composeNavigator.backStack.collect { entries ->
+     *     // Use the entries
+     * }
+     * ```
      *
      * @return The current back stack.
      */
