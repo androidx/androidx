@@ -55,6 +55,16 @@ import java.util.concurrent.Executor;
 public class FontsContractCompat {
     private FontsContractCompat() { }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            Typeface.NORMAL,
+            Typeface.BOLD,
+            Typeface.ITALIC,
+            Typeface.BOLD_ITALIC
+    })
+    public @interface TypefaceStyle {}
+
     /**
      * Build a Typeface from an array of {@link FontInfo}
      *
@@ -156,7 +166,7 @@ public class FontsContractCompat {
     public static void requestFont(
             @NonNull Context context,
             @NonNull FontRequest request,
-            int style,
+            @TypefaceStyle int style,
             @Nullable Executor loadingExecutor,
             @NonNull Executor callbackExecutor,
             @NonNull FontRequestCallback callback
@@ -193,7 +203,7 @@ public class FontsContractCompat {
     public static void requestFontWithFallbackChain(
             @NonNull Context context,
             @NonNull List<FontRequest> requests,
-            int style,
+            @TypefaceStyle int style,
             @Nullable Executor loadingExecutor,
             @NonNull Executor callbackExecutor,
             @NonNull FontRequestCallback callback
@@ -233,7 +243,7 @@ public class FontsContractCompat {
     public static Typeface requestFont(
             @NonNull final Context context,
             @NonNull final List<FontRequest> requests,
-            final int style,
+            @TypefaceStyle final int style,
             boolean isBlockingFetch,
             @IntRange(from = 0) int timeout,
             @NonNull final Handler handler,
@@ -284,7 +294,7 @@ public class FontsContractCompat {
     public static Typeface requestFont(
             @NonNull final Context context,
             @NonNull final FontRequest request,
-            final int style,
+            @TypefaceStyle final int style,
             boolean isBlockingFetch,
             @IntRange(from = 0) int timeout,
             @NonNull final Handler handler,
@@ -689,7 +699,7 @@ public class FontsContractCompat {
             final @Nullable Handler handler,
             boolean isBlockingFetch,
             int timeout,
-            final int style
+            @TypefaceStyle final int style
     ) {
         FontRequestCallback newCallback = new TypefaceCompat.ResourcesCallbackAdapter(fontCallback);
         Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
