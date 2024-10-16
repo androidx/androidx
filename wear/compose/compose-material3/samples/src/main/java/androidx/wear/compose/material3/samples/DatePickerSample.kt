@@ -106,13 +106,13 @@ fun DatePickerYearMonthDaySample() {
 
 @Sampled
 @Composable
-fun DatePickerFromDateToDateSample() {
+fun DatePickerMinDateMaxDateSample() {
     var showDatePicker by remember { mutableStateOf(false) }
     var datePickerDate by remember { mutableStateOf(LocalDate.of(2024, 9, 2)) }
     val formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
             .withLocale(LocalConfiguration.current.locales[0])
-    val minDate = LocalDate.of(2022, 10, 15)
+    val minDate = LocalDate.of(2022, 10, 30)
     val maxDate = LocalDate.of(2025, 2, 4)
     if (showDatePicker) {
         DatePicker(
