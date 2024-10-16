@@ -29,6 +29,7 @@ import androidx.window.core.ConsumerAdapter
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -189,7 +190,14 @@ internal class EmbeddingCompat(
                 adapter.embeddingConfiguration != null
         ) {
             embeddingExtension.setSplitAttributesCalculator { params ->
-                adapter.translateSplitAttributes(adapter.translate(params.defaultSplitAttributes))
+                if (params.areDefaultConstraintsSatisfied())
+                    adapter.translateSplitAttributes(
+                        adapter.translate(params.defaultSplitAttributes)
+                    )
+                else
+                    adapter.translateSplitAttributes(
+                        SplitAttributes.Builder().setSplitType(SPLIT_TYPE_EXPAND).build()
+                    )
             }
         }
     }
