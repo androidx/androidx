@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
@@ -305,6 +306,26 @@ class IconButtonTest {
                 TestImage()
             }
         }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun animates_corners_to_75_percent_on_click() {
+        val baseShape = RoundedCornerShape(20.dp)
+        val pressedShape = RoundedCornerShape(0.dp)
+
+        rule.verifyRoundedButtonTapAnimationEnd(
+            baseShape,
+            pressedShape,
+            0.75f,
+            color = { IconButtonDefaults.filledIconButtonColors().containerColor }
+        ) { modifier ->
+            FilledIconButton(
+                onClick = {},
+                shapes = IconButtonShapes(baseShape, pressedShape),
+                modifier = modifier
+            ) {}
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test

@@ -16,9 +16,8 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
@@ -33,8 +32,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.launch
 
 /**
  * This is a copy of RoundButton from materialcore, with additional onLongClick callback and usage
@@ -103,33 +105,33 @@ internal fun rememberAnimatedPressedButtonShape(
     onReleaseAnimationSpec: FiniteAnimationSpec<Float>,
 ): Shape {
     val pressed = interactionSource.collectIsPressedAsState()
+    val progress = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
 
-    val transition = updateTransition(pressed.value, label = "Pressed State")
-    val progress: State<Float> =
-        transition.animateFloat(
-            label = "Pressed",
-            transitionSpec = {
-                when {
-                    false isTransitioningTo true -> onPressAnimationSpec
-                    else -> onReleaseAnimationSpec
+    LaunchedEffect(pressed.value) {
+        when (pressed.value) {
+            true -> scope.launch { progress.animateTo(1f, animationSpec = onPressAnimationSpec) }
+            false -> {
+                waitUntil {
+                    !progress.isRunning || progress.value > MIN_REQUIRED_ANIMATION_PROGRESS
                 }
+                scope.launch { progress.animateTo(0f, animationSpec = onReleaseAnimationSpec) }
             }
-        ) { pressedTarget ->
-            if (pressedTarget) 1f else 0f
         }
+    }
 
     return when {
         shape is RoundedCornerShape && pressedShape is RoundedCornerShape ->
             rememberAnimatedRoundedCornerShape(
                 shape = shape,
                 pressedShape = pressedShape,
-                progress = progress
+                progress = progress.asState()
             )
         else ->
             rememberAnimatedCornerBasedShape(
                 shape = shape,
                 pressedShape = pressedShape,
-                progress = progress
+                progress = progress.asState()
             )
     }
 }
@@ -208,3 +210,16 @@ internal fun animateToggleButtonShape(
         Pair(uncheckedShape, interactionSource)
     }
 }
+
+private suspend fun waitUntil(condition: () -> Boolean) {
+    val initialTimeMillis = withFrameMillis { it }
+    while (!condition()) {
+        val timeMillis = withFrameMillis { it }
+        if (timeMillis - initialTimeMillis > MAX_WAIT_TIME_MILLIS) return
+    }
+    return
+}
+
+private const val MAX_WAIT_TIME_MILLIS = 1_000L
+
+private const val MIN_REQUIRED_ANIMATION_PROGRESS = 0.75f

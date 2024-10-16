@@ -110,7 +110,9 @@ fun IconButtonDemo() {
             Row {
                 IconButtonWithCornerAnimationSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButtonWithCornerAnimationSample()
+                IconButtonWithCornerAnimationSample(
+                    colors = IconButtonDefaults.filledVariantIconButtonColors()
+                )
             }
         }
         item { ListHeader { Text("Morphed Animation") } }

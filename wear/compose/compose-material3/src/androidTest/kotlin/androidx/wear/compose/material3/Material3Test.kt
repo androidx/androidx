@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -61,6 +63,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -393,6 +396,49 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     }
 
     onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun ComposeContentTestRule.verifyRoundedButtonTapAnimationEnd(
+    baseShape: RoundedCornerShape,
+    pressedShape: RoundedCornerShape,
+    targetProgress: Float,
+    color: @Composable () -> Color,
+    content: @Composable (Modifier) -> Unit
+) {
+    val expectedAnimationEnd =
+        AnimatedRoundedCornerShape(baseShape, pressedShape) { targetProgress }
+    var fillColor = Color.Transparent
+
+    setContent {
+        fillColor = color()
+        content(Modifier.testTag(TEST_TAG))
+    }
+
+    mainClock.autoAdvance = false
+    onNodeWithTag(TEST_TAG).performClick()
+
+    /**
+     * We are manually advancing by a fixed amount of frames since
+     * 1) the RoundButton.animateButtonShape is internal and therefore we cannot modify the
+     *    animation spec being used. Otherwise, we could set a custom animation time isolated and
+     *    known to this test we could wait for.
+     * 2) rule.mainClock.waitUntil expects a condition. However, the shape validations for
+     *    ImageBitMap only includes of assets
+     */
+    repeat(8) { mainClock.advanceTimeByFrame() }
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertShape(
+            density = density,
+            horizontalPadding = 0.dp,
+            verticalPadding = 0.dp,
+            shapeColor = fillColor,
+            backgroundColor = Color.Transparent,
+            antiAliasingGap = 2.0f,
+            shape = expectedAnimationEnd,
+        )
 }
 
 private fun ImageBitmap.histogram(): MutableMap<Color, Long> {

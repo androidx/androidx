@@ -29,6 +29,7 @@ import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.IconButtonColors
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconButtonShapes
 import androidx.wear.compose.material3.OutlinedIconButton
@@ -90,10 +91,13 @@ fun IconButtonWithOnLongClickSample(onLongClick: () -> Unit) {
 
 @Composable
 @Sampled
-fun IconButtonWithCornerAnimationSample() {
+fun IconButtonWithCornerAnimationSample(
+    colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors()
+) {
     FilledIconButton(
         onClick = { /* Do something */ },
         shapes = IconButtonDefaults.animatedShapes(),
+        colors = colors
     ) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
