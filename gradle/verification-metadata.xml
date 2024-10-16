@@ -526,6 +526,7 @@
          <trusted-key id="E01ED293981AE484403B65D7DA70BCBA6D76AD03" group="com.charleskorn.kaml"/>
          <trusted-key id="E0D98C5FD55A8AF232290E58DEE12B9896F97E34" group="org.pcollections"/>
          <trusted-key id="E2ACB037933CDEAAB7BF77D49A2C7A98E457C53D" group="org.springframework"/>
+         <trusted-key id="E2F51A65767284220C6DFD60520410E2AF06FA82" group="com.github.bumptech.glide"/>
          <trusted-key id="E376140124BED4E3C06D227581C27DE945332233" group="com.google.auto"/>
          <trusted-key id="E3A9F95079E84CE201F7CF60BEDE11EAF1164480" group="org.hamcrest"/>
          <trusted-key id="E62231331BCA7E1F292C9B88C1B12A5D99C0729D" group="org.jetbrains"/>
