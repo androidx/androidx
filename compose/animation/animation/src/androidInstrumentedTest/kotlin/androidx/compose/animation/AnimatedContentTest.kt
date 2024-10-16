@@ -31,6 +31,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +47,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -60,6 +62,7 @@ import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -92,6 +95,7 @@ import org.junit.runner.RunWith
 @LargeTest
 class AnimatedContentTest {
     val rule = createComposeRule()
+
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
@@ -1152,6 +1156,76 @@ class AnimatedContentTest {
             // a 0, 0 lookahead offset.
             assertOffsetEquals(Offset(0f, 0f), lookaheadPosition1!!)
         }
+    }
+
+    @Test
+    fun testRecreatingTransitionInAnimatedContent() {
+        var toggle by mutableStateOf(true)
+        var targetState by mutableStateOf(true)
+        var currentSize = IntSize(200, 200)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val transition = key(toggle) { updateTransition(targetState) }
+                Column {
+                    transition.AnimatedContent(
+                        modifier =
+                            Modifier.onSizeChanged {
+                                currentSize = it
+                                assertNotEquals(IntSize.Zero, it)
+                            },
+                        transitionSpec = { fadeIn() togetherWith fadeOut() }
+                    ) {
+                        if (it) {
+                            Box(Modifier.background(Color.Red).size(200.dp))
+                        } else {
+                            Box(Modifier.background(Color.Green).size(300.dp))
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle { toggle = !toggle }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        targetState = !targetState
+        while (currentSize == IntSize(200, 200)) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        var lastSize = IntSize(200, 200)
+        var frameCount = 0
+        while (currentSize.width < 290f && currentSize.height < 290f || frameCount < 10) {
+            // Assert that the size is monotonically increasing, never jumps to 0
+            assert(lastSize.width < currentSize.width)
+            assert(lastSize.height < currentSize.height)
+            lastSize = currentSize
+            rule.mainClock.advanceTimeByFrame()
+            frameCount++
+        }
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        // Now recreate the transition again
+        rule.runOnIdle { toggle = !toggle }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        targetState = !targetState
+        while (currentSize == IntSize(300, 300)) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        lastSize = IntSize(300, 300)
+        frameCount = 0
+        while (currentSize.width > 210f && currentSize.height > 210f || frameCount < 10) {
+            // Assert that the size is monotonically increasing, never jumps to 0
+            assert(lastSize.width > currentSize.width)
+            assert(lastSize.height > currentSize.height)
+            lastSize = currentSize
+            rule.mainClock.advanceTimeByFrame()
+            frameCount++
+        }
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
     }
 
     private fun assertOffsetEquals(expected: Offset, actual: Offset) {

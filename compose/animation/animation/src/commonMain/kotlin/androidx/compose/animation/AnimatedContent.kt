@@ -580,7 +580,7 @@ internal constructor(
                 // Keep the SizeModifier in the chain and switch between active animating and
                 // passive
                 // observing based on sizeAnimation's value
-                SizeModifierElement(sizeAnimation, sizeTransform)
+                SizeModifierElement(sizeAnimation, sizeTransform, this)
             )
     }
 
@@ -596,39 +596,44 @@ internal constructor(
         }
     }
 
-    private inner class SizeModifierElement(
+    private class SizeModifierElement<S>(
         val sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?,
-        val sizeTransform: State<SizeTransform?>
-    ) : ModifierNodeElement<SizeModifierNode>() {
-        override fun create(): SizeModifierNode {
-            return SizeModifierNode(sizeAnimation, sizeTransform)
+        val sizeTransform: State<SizeTransform?>,
+        val scope: AnimatedContentTransitionScopeImpl<S>
+    ) : ModifierNodeElement<SizeModifierNode<S>>() {
+        override fun create(): SizeModifierNode<S> {
+            return SizeModifierNode(sizeAnimation, sizeTransform, scope)
         }
 
         override fun hashCode(): Int {
-            return sizeAnimation.hashCode() * 31 + sizeTransform.hashCode()
+            return (31 * scope.hashCode() + sizeAnimation.hashCode()) * 31 +
+                sizeTransform.hashCode()
         }
 
         override fun equals(other: Any?): Boolean {
-            return other is AnimatedContentTransitionScopeImpl<*>.SizeModifierElement &&
+            return other is SizeModifierElement<*> &&
                 other.sizeAnimation == sizeAnimation &&
                 other.sizeTransform == sizeTransform
         }
 
-        override fun update(node: SizeModifierNode) {
+        override fun update(node: SizeModifierNode<S>) {
             node.sizeAnimation = sizeAnimation
             node.sizeTransform = sizeTransform
+            node.scope = scope
         }
 
         override fun InspectorInfo.inspectableProperties() {
             name = "sizeTransform"
             properties["sizeAnimation"] = sizeAnimation
             properties["sizeTransform"] = sizeTransform
+            properties["scope"] = scope
         }
     }
 
-    private inner class SizeModifierNode(
+    private class SizeModifierNode<S>(
         var sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?,
         var sizeTransform: State<SizeTransform?>,
+        var scope: AnimatedContentTransitionScopeImpl<S>,
     ) : LayoutModifierNodeWithPassThroughIntrinsics() {
         // This is used to track the on-going size change so that when the target state changes,
         // we always start from the last seen size to the new target size to ensure continuity.
@@ -636,6 +641,11 @@ internal constructor(
 
         private fun lastContinuousSizeOrDefault(default: IntSize) =
             if (lastSize == UnspecifiedSize) default else lastSize
+
+        override fun onReset() {
+            super.onReset()
+            lastSize = UnspecifiedSize
+        }
 
         override fun MeasureScope.measure(
             measurable: Measurable,
@@ -655,33 +665,30 @@ internal constructor(
                     sizeAnimation!!.animate(
                         transitionSpec = {
                             val initial =
-                                if (
-                                    initialState ==
-                                        this@AnimatedContentTransitionScopeImpl.initialState
-                                ) {
+                                if (initialState == scope.initialState) {
                                     lastContinuousSizeOrDefault(currentSize)
                                 } else {
-                                    targetSizeMap[initialState]?.value ?: IntSize.Zero
+                                    scope.targetSizeMap[initialState]?.value ?: IntSize.Zero
                                 }
-                            val target = targetSizeMap[targetState]?.value ?: IntSize.Zero
+                            val target = scope.targetSizeMap[targetState]?.value ?: IntSize.Zero
                             sizeTransform.value?.createAnimationSpec(initial, target)
                                 ?: spring(stiffness = Spring.StiffnessMediumLow)
                         }
                     ) {
                         // Animate from the approach size to the lookahead size.
-                        if (it == initialState) {
+                        if (it == scope.initialState) {
                             lastContinuousSizeOrDefault(currentSize)
                         } else {
-                            targetSizeMap[it]?.value ?: IntSize.Zero
+                            scope.targetSizeMap[it]?.value ?: IntSize.Zero
                         }
                     }
-                animatedSize = size
+                scope.animatedSize = size
                 measuredSize = size.value
                 lastSize = size.value
             }
             return layout(measuredSize.width, measuredSize.height) {
                 val offset =
-                    contentAlignment.align(
+                    scope.contentAlignment.align(
                         IntSize(placeable.width, placeable.height),
                         measuredSize,
                         LayoutDirection.Ltr
