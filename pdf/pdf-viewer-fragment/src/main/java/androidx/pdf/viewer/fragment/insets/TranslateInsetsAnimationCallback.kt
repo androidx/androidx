@@ -18,13 +18,24 @@ package androidx.pdf.viewer.fragment.insets
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 
+/**
+ * A callback that will update bottom margin for provided view as per keyboard visibility.
+ *
+ * @param view: A view whose bottom margin needs to be updated with keyboard.
+ * @param windowManager: An interface to interact with window params, here helps to fetch screen
+ *   height.
+ * @param pdfContainer: Container view where PDF is hosted.
+ * @param dispatchMode: Specifies whether children view should get callback, by default callback
+ *   will be propagated.
+ */
 internal class TranslateInsetsAnimationCallback(
     private val view: View,
-    private val screenHeight: Int,
+    private val windowManager: WindowManager?,
     private val pdfContainer: View?,
     dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE
 ) : WindowInsetsAnimationCompat.Callback(dispatchMode) {
@@ -46,12 +57,26 @@ internal class TranslateInsetsAnimationCallback(
             absoluteContainerBottom = pdfContainer.height + containerLocation[1]
         }
 
+        // Extract keyboard insets
         val keyboardInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-        val keyboardTop = screenHeight - keyboardInsets.bottom
 
+        /*
+        By default the keyboard top should be aligned with container bottom;
+        This is same as keyboard is in closed state
+         */
+        var keyboardTop = absoluteContainerBottom
+
+        // Calculate keyboard top wrt screen height
+        windowManager?.let {
+            val screenHeight = windowManager.currentWindowMetrics.bounds.height()
+            keyboardTop = screenHeight - keyboardInsets.bottom
+        }
+
+        // Net margin wrt pdf container bottom
         val margin =
             if (absoluteContainerBottom >= keyboardTop) absoluteContainerBottom - keyboardTop else 0
 
+        // Update bottom margin for view
         view.updateLayoutParams<ViewGroup.MarginLayoutParams> { bottomMargin = margin }
 
         return insets
