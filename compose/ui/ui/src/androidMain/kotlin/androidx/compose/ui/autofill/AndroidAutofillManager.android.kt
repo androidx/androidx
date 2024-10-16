@@ -29,14 +29,12 @@ import android.view.autofill.AutofillManager as PlatformAndroidManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.RequiresApi
-import androidx.collection.ArraySet
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
-import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
@@ -65,8 +63,6 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState.On
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 
 /**
  * Semantic autofill implementation for Android.
@@ -94,16 +90,7 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
         SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, intObjectMapOf())
     private var checkingForSemanticsChanges = false
 
-    private val subtreeChangedLayoutNodes = ArraySet<LayoutNode>()
-    private val boundsUpdateChannel = Channel<Unit>(1)
     internal var currentSemanticsNodesInvalidated = true
-
-    /**
-     * Delay before dispatching a recurring accessibility event in milliseconds. This delay
-     * guarantees that a recurring event will be send at most once during the
-     * [SendRecurringAutofillEventsIntervalMillis] time frame.
-     */
-    internal var SendRecurringAutofillEventsIntervalMillis = 100L
 
     internal var currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds> =
         intObjectMapOf()
@@ -114,19 +101,6 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
             }
             return field
         }
-
-    internal suspend fun boundsUpdatesEventLoop() {
-        try {
-            if (!checkingForSemanticsChanges) {
-                checkingForSemanticsChanges = true
-                handler.post(autofillChangeChecker)
-            }
-            subtreeChangedLayoutNodes.clear()
-            delay(SendRecurringAutofillEventsIntervalMillis)
-        } finally {
-            subtreeChangedLayoutNodes.clear()
-        }
-    }
 
     private fun updateSemanticsCopy() {
         previousSemanticsNodes.clear()
@@ -139,7 +113,6 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
     }
 
     private val autofillChangeChecker = Runnable {
-        view.measureAndLayout()
         checkForAutofillPropertyChanges(currentSemanticsNodes)
         updateSemanticsCopy()
         checkingForSemanticsChanges = false
@@ -197,14 +170,6 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
         if (!checkingForSemanticsChanges) {
             checkingForSemanticsChanges = true
             handler.post(autofillChangeChecker)
-        }
-    }
-
-    internal fun onLayoutChange(layoutNode: LayoutNode) {
-        currentSemanticsNodesInvalidated = true
-
-        if (subtreeChangedLayoutNodes.add(layoutNode)) {
-            boundsUpdateChannel.trySend(Unit)
         }
     }
 
@@ -380,6 +345,8 @@ internal fun SemanticsNode.populateViewStructure(child: ViewStructure) {
     // ———————— Visibility, elevation, alpha
     // Transparency should be the only thing affecting View.VISIBLE (pruning will take care of all
     // covered nodes).
+    // TODO(mnuzen): since we are removing pruning in semantics/accessibility with `semanticInfo`,
+    // double check that this is the correct behavior even after switching.
     AutofillApi26Helper.setVisibility(
         child,
         if (!isTransparent || isRoot) View.VISIBLE else View.INVISIBLE

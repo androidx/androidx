@@ -1023,12 +1023,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
      */
     override fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {
         composeAccessibilityDelegate.SendRecurringAccessibilityEventsIntervalMillis = intervalMillis
-
-        if (SDK_INT >= 26) {
-            // TODO(333102566): add a setAutofillEventBatchIntervalMillis instead of using the
-            // accessibility interval here.
-            _autofillManager?.SendRecurringAutofillEventsIntervalMillis = intervalMillis
-        }
     }
 
     override fun onAttach(node: LayoutNode) {}
@@ -1599,10 +1593,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
         contentCaptureManager.onLayoutChange(layoutNode)
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (SDK_INT >= 26 && isSemanticAutofillEnabled) {
-            _autofillManager?.onLayoutChange(layoutNode)
-        }
     }
 
     override val rectManager = RectManager()
@@ -1734,11 +1724,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     suspend fun boundsUpdatesAccessibilityEventLoop() {
         composeAccessibilityDelegate.boundsUpdatesEventLoop()
-    }
-
-    @RequiresApi(O)
-    suspend fun boundsUpdatesAutofillEventLoop() {
-        _autofillManager?.boundsUpdatesEventLoop()
     }
 
     /** Walks the entire LayoutNode sub-hierarchy and marks all nodes as needing measurement. */

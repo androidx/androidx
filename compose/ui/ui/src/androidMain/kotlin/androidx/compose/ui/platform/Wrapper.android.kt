@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.platform
 
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.MainThread
@@ -31,8 +30,6 @@ import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
-import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
@@ -142,14 +139,6 @@ private class WrappedComposition(val owner: AndroidComposeView, val original: Co
                         // TODO(mnuzen): Combine the two boundsUpdatesLoop() into one LaunchedEffect
                         LaunchedEffect(owner) { owner.boundsUpdatesAccessibilityEventLoop() }
                         LaunchedEffect(owner) { owner.boundsUpdatesContentCaptureEventLoop() }
-                        // TODO(mnuzen): this can be removed after we use `semanticsListener`
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                                isSemanticAutofillEnabled
-                        ) {
-                            LaunchedEffect(owner) { owner.boundsUpdatesAutofillEventLoop() }
-                        }
 
                         CompositionLocalProvider(LocalInspectionTables provides inspectionTable) {
                             ProvideAndroidCompositionLocals(owner, content)
