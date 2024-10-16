@@ -16,8 +16,10 @@
 
 package androidx.room.ext
 
+import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XTypeElement
 import kotlin.contracts.contract
 
@@ -26,7 +28,7 @@ fun XElement.isEntityElement(): Boolean {
     return this.hasAnnotation(androidx.room.Entity::class)
 }
 
-fun XTypeElement.getValueClassUnderlyingElement(): XExecutableParameterElement {
+fun XTypeElement.getValueClassUnderlyingInfo(): ValueClassInfo {
     check(this.isValueClass()) {
         "Can't get value class property, type element '$this' is not a value class"
     }
@@ -34,12 +36,21 @@ fun XTypeElement.getValueClassUnderlyingElement(): XExecutableParameterElement {
     // * Primary constructor is required for value class
     // * Value class must have exactly one primary constructor parameter
     // * Value class primary constructor must only have final read-only (val) property parameter
-    return checkNotNull(this.findPrimaryConstructor()) {
+    val constructor =
+        checkNotNull(this.findPrimaryConstructor()) {
             "Couldn't find primary constructor for value class."
         }
-        .parameters
-        .single()
+    val param = constructor.parameters.first()
+    val field = getDeclaredFields().first { it.name == param.name }
+    return ValueClassInfo(constructor, param, field)
 }
+
+/** Store information about the underlying value property of a Kotlin value class */
+class ValueClassInfo(
+    val constructor: XConstructorElement,
+    val parameter: XExecutableParameterElement,
+    val field: XFieldElement,
+)
 
 /** Suffix of the Kotlin synthetic class created interface method implementations. */
 const val DEFAULT_IMPLS_CLASS_NAME = "DefaultImpls"
