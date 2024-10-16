@@ -188,6 +188,8 @@ private fun rememberLazyGridMeasurePolicy(
     ) {
         { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
+            // Tracks if the lookahead pass has occurred
+            val isInLookaheadScope = state.hasLookaheadOccurred || isLookingAhead
             checkScrollableContainerConstraints(
                 containerConstraints,
                 if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -366,6 +368,13 @@ private fun rememberLazyGridMeasurePolicy(
                     state.beyondBoundsInfo
                 )
 
+            val scrollToBeConsumed =
+                if (isLookingAhead || !isInLookaheadScope) {
+                    state.scrollToBeConsumed
+                } else {
+                    state.scrollDeltaBetweenPasses
+                }
+
             // todo: wrap with snapshot when b/341782245 is resolved
             val measureResult =
                 measureLazyGrid(
@@ -378,7 +387,7 @@ private fun rememberLazyGridMeasurePolicy(
                     spaceBetweenLines = spaceBetweenLines,
                     firstVisibleLineIndex = firstVisibleLineIndex,
                     firstVisibleLineScrollOffset = firstVisibleLineScrollOffset,
-                    scrollToBeConsumed = state.scrollToBeConsumed,
+                    scrollToBeConsumed = scrollToBeConsumed,
                     constraints = contentConstraints,
                     isVertical = isVertical,
                     verticalArrangement = verticalArrangement,
@@ -388,6 +397,9 @@ private fun rememberLazyGridMeasurePolicy(
                     itemAnimator = state.itemAnimator,
                     slotsPerLine = slotsPerLine,
                     pinnedItems = pinnedItems,
+                    isInLookaheadScope = isInLookaheadScope,
+                    isLookingAhead = isLookingAhead,
+                    approachLayoutInfo = state.approachLayoutInfo,
                     coroutineScope = coroutineScope,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     prefetchInfoRetriever = prefetchInfoRetriever,
@@ -402,7 +414,7 @@ private fun rememberLazyGridMeasurePolicy(
                         )
                     }
                 )
-            state.applyMeasureResult(measureResult)
+            state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
             measureResult
         }
     }

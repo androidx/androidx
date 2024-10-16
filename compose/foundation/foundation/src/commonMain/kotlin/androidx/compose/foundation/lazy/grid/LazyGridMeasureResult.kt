@@ -38,6 +38,8 @@ internal class LazyGridMeasureResult(
     val consumedScroll: Float,
     /** MeasureResult defining the layout. */
     private val measureResult: MeasureResult,
+    /** The amount of scroll-back that happened due to reaching the end of the list. */
+    val scrollBackAmount: Float,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
     /** Scope for animations. */
@@ -90,7 +92,10 @@ internal class LazyGridMeasureResult(
      *   If If new layout info is returned, only the placement phase is needed to apply new offsets.
      *   If null is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun copyWithScrollDeltaWithoutRemeasure(delta: Int): LazyGridMeasureResult? {
+    fun copyWithScrollDeltaWithoutRemeasure(
+        delta: Int,
+        updateAnimations: Boolean
+    ): LazyGridMeasureResult? {
         if (
             remeasureNeeded ||
                 visibleItemsInfo.isEmpty() ||
@@ -125,7 +130,7 @@ internal class LazyGridMeasureResult(
                 minOf(deltaToFirstItemChange, deltaToLastItemChange) > delta
             }
         return if (canApply) {
-            visibleItemsInfo.fastForEach { it.applyScrollDelta(delta) }
+            visibleItemsInfo.fastForEach { it.applyScrollDelta(delta, updateAnimations) }
             LazyGridMeasureResult(
                 firstVisibleLine = firstVisibleLine,
                 firstVisibleLineScrollOffset = firstVisibleLineScrollOffset - delta,
@@ -133,6 +138,7 @@ internal class LazyGridMeasureResult(
                     canScrollForward ||
                         delta > 0, // we scrolled backward, so now we can scroll forward
                 consumedScroll = delta.toFloat(),
+                scrollBackAmount = scrollBackAmount,
                 measureResult = measureResult,
                 remeasureNeeded = remeasureNeeded,
                 coroutineScope = coroutineScope,
