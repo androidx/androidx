@@ -708,6 +708,7 @@ class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
         db.close()
     }
 
+    @Ignore("Due to b/373727432.")
     @Test
     fun invalid_append() = runTest {
         val pagingSource = LimitOffsetPagingSourceImpl(db)
