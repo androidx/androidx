@@ -90,6 +90,21 @@ class AnnotatedStringTest {
     }
 
     @Test
+    fun normalizedParagraphStyles_stackCorrectlyCleared_whenEndsOverlap() {
+        val testString = buildAnnotatedString {
+            withStyle(par1) {
+                append("a")
+                withStyle(par2) { append("b") }
+            } // check this is cleared correctly
+            withStyle(par3) { append("c") }
+        }
+
+        val paragraphs = testString.normalizedParagraphStyles(ParagraphStyle())
+        assertThat(paragraphs)
+            .isEqualTo(listOf(Range(par1, 0, 1), Range(par1.merge(par2), 1, 2), Range(par3, 2, 3)))
+    }
+
+    @Test
     fun normalizedParagraphStyles_fullyOverlapped() {
         val testString = buildAnnotatedString {
             withStyle(par1) { withStyle(par2) { append("a") } }
@@ -266,6 +281,32 @@ class AnnotatedStringTest {
                     Range(par1, 20, 25),
                 )
             )
+    }
+
+    @Test
+    fun normalizedParagraphStyles_zeroLengthParagraph_atStart() {
+        val testString = buildAnnotatedString {
+            withStyle(par1) {}
+            append("0")
+            withStyle(par2) { append("a") }
+        }
+
+        val paragraphs = testString.normalizedParagraphStyles(ParagraphStyle())
+        assertThat(paragraphs)
+            .isEqualTo(listOf(Range(par1, 0, 0), Range(ParagraphStyle(), 0, 1), Range(par2, 1, 2)))
+    }
+
+    @Test
+    fun normalizedParagraphStyles_zeroLengthParagraph() {
+        val testString = buildAnnotatedString {
+            append("0")
+            withStyle(par1) {}
+            withStyle(par2) { append("a") }
+        }
+
+        val paragraphs = testString.normalizedParagraphStyles(ParagraphStyle())
+        assertThat(paragraphs)
+            .isEqualTo(listOf(Range(ParagraphStyle(), 0, 1), Range(par1, 1, 1), Range(par2, 1, 2)))
     }
 
     @Test
