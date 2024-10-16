@@ -76,6 +76,13 @@ internal actual object NativeLibraryLoader {
                 else -> error("Unsupported architecture: $osArch")
             }
         val resourceFolder = "${osPrefix}_$archSuffix"
+        val prefix =
+            when (osPrefix) {
+                "linux",
+                "osx" -> "lib"
+                "windows" -> ""
+                else -> error("Unsupported operating system: $osName")
+            }
         val extension =
             when (osPrefix) {
                 "linux" -> "so"
@@ -83,6 +90,6 @@ internal actual object NativeLibraryLoader {
                 "windows" -> "dll"
                 else -> error("Unsupported operating system: $osName")
             }
-        return "natives/$resourceFolder/lib$name.$extension"
+        return "natives/$resourceFolder/$prefix$name.$extension"
     }
 }
