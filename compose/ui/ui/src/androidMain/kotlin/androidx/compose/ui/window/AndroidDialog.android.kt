@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -449,6 +450,7 @@ private class DialogWrapper(
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
+        window.setGravity(Gravity.CENTER)
 
         dialogLayout =
             DialogLayout(context, window).apply {
