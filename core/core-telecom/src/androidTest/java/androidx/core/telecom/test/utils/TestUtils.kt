@@ -414,6 +414,12 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
     private val isLocallySilencedFlow: MutableSharedFlow<Pair<String, Boolean>> =
         MutableStateFlow(Pair("", false))
     private val callAddedFlow: MutableSharedFlow<Pair<Int, String>> = MutableSharedFlow(replay = 1)
+    private val isMutedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    override fun onGlobalMuteStateChanged(isMuted: Boolean) {
+        Log.i("TestCallCallbackListener", "onGlobalMuteStateChanged: isMuted: $isMuted")
+        scope.launch { isMutedFlow.emit(isMuted) }
+    }
 
     override fun onCallAdded(requestId: Int, callId: String?) {
         if (callId == null) return
@@ -457,6 +463,11 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
                     .first()
             }
         assertEquals("<LOCAL CALL SILENCE> never received", expectedState, result?.second)
+    }
+
+    suspend fun waitForGlobalMuteState(isMuted: Boolean) {
+        val result = withTimeoutOrNull(5000) { isMutedFlow.filter { it == isMuted }.first() }
+        assertEquals("Global mute state never reached the expected state", isMuted, result)
     }
 
     suspend fun waitForKickParticipant(callId: String, expectedParticipant: Participant?) {

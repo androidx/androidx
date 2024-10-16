@@ -41,5 +41,6 @@ data class CallUiState(
     val direction: Direction,
     val callType: CallType,
     val onStateChanged: (transition: CallStateTransition) -> Unit,
-    val participantUiState: ParticipantExtensionUiState?
+    val participantUiState: ParticipantExtensionUiState?,
+    val localCallSilenceUiState: LocalCallSilenceExtensionUiState?
 )

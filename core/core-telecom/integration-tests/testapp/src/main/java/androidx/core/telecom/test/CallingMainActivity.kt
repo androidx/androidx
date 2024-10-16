@@ -254,6 +254,14 @@ class CallingMainActivity : Activity() {
             callObject.mOnSetActiveLambda,
             callObject.mOnSetInActiveLambda,
         ) {
+            val initLocalCallSilenceValue = false
+            callObject.onLocalCallSilenceUpdate(initLocalCallSilenceValue)
+            val lcsE =
+                addLocalCallSilenceExtension(initLocalCallSilenceValue) {
+                    callObject.onLocalCallSilenceUpdate(it)
+                }
+            callObject.mLocalCallSilenceExtension = lcsE
+
             val participants = ParticipantsExtensionManager()
             val participantExtension =
                 addParticipantExtension(

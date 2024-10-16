@@ -202,8 +202,8 @@ fun CallerCard(
                     Text(
                         text =
                             when (callType) {
-                                CallType.AUDIO -> "Audio"
-                                CallType.VIDEO -> "Video"
+                                CallType.AUDIO -> "Audio Call"
+                                CallType.VIDEO -> "Video Call"
                             }
                     )
                     VerticalDivider(modifier = Modifier.padding(horizontal = 6.dp))
@@ -256,19 +256,21 @@ fun DeviceStatusCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+                Text("Global Mute:")
                 OutlinedIconButton(onClick = { onMuteStateChange(!isMuted) }) {
                     if (!isMuted) {
                         Icon(
                             painter = painterResource(R.drawable.mic),
-                            contentDescription = "device unmuted"
+                            contentDescription = "device unmuted globally"
                         )
                     } else {
                         Icon(
                             painter = painterResource(R.drawable.mic_off_24px),
-                            contentDescription = "device muted"
+                            contentDescription = "device muted globally"
                         )
                     }
                 }
+                Text("Current Audio Route:")
                 OutlinedIconButton(
                     enabled = currentAudioRoute.audioRoute != AudioRoute.UNKNOWN,
                     onClick = onShowAudioRouteDialog
@@ -353,14 +355,9 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
             AnimatedVisibility(isExpanded) {
                 Column {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
-                    if (caller.participantUiState == null) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(6.dp),
-                            text = "<No Extensions supported>"
-                        )
-                    } else {
-                        ExtensionsContent(participantUiState = caller.participantUiState)
-                    }
+                    ExtensionsContent(
+                        ExtensionUiState(caller.localCallSilenceUiState, caller.participantUiState)
+                    )
                 }
             }
         }

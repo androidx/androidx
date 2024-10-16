@@ -19,6 +19,7 @@ package androidx.core.telecom.test.services
 import android.net.Uri
 import android.telecom.PhoneAccountHandle
 import androidx.core.telecom.extensions.KickParticipantAction
+import androidx.core.telecom.extensions.LocalCallSilenceExtensionRemote
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.RaiseHandAction
 import androidx.core.telecom.test.ui.calling.CallStateTransition
@@ -91,6 +92,12 @@ data class ParticipantExtensionData(
 )
 
 @OptIn(ExperimentalAppActions::class)
+data class LocalCallSilenceData(
+    val isLocallySilenced: Boolean,
+    val extension: LocalCallSilenceExtensionRemote?
+)
+
+@OptIn(ExperimentalAppActions::class)
 data class RaiseHandData(val raisedHands: List<Participant>, val raiseHandAction: RaiseHandAction)
 
 @OptIn(ExperimentalAppActions::class)
@@ -99,5 +106,6 @@ data class KickParticipantData(val kickParticipantAction: KickParticipantAction)
 /** Combined call data including extensions. */
 data class CallData(
     val callData: BaseCallData,
-    val participantExtensionData: ParticipantExtensionData?
+    val participantExtensionData: ParticipantExtensionData?,
+    val localSilenceData: LocalCallSilenceData?
 )

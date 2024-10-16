@@ -81,7 +81,7 @@ internal class LocalCallSilenceExtensionRemoteImpl(
             return
         }
         isSupported = true
-
+        Log.i(TAG, "onExchangeComplete: isSupported=[true]")
         isLocallySilenced
             .drop(1) // ignore the first default value
             .onEach {

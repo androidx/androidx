@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallException.Companion.ERROR_CALL_IS_NOT_BEING_TRACKED
 import androidx.core.telecom.extensions.KickParticipantAction
+import androidx.core.telecom.extensions.LocalCallSilenceExtensionRemote
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.RaiseHandAction
 import androidx.core.telecom.test.Compatibility
@@ -101,6 +102,19 @@ class RaiseHandDataEmitter {
         raisedHands: List<Participant>
     ): RaiseHandData {
         return RaiseHandData(raisedHands, action)
+    }
+}
+
+@OptIn(ExperimentalAppActions::class)
+class LocalCallSilenceExtensionDataEmitter {
+    private val mLcsDataFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    fun onLocalCallSilenceStateChanged(isSilenced: Boolean) {
+        mLcsDataFlow.value = isSilenced
+    }
+
+    fun collect(e: LocalCallSilenceExtensionRemote): Flow<LocalCallSilenceData> {
+        return mLcsDataFlow.map { LocalCallSilenceData(it, e) }
     }
 }
 

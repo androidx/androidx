@@ -16,22 +16,82 @@
 
 package androidx.core.telecom.extensions
 
+import android.content.Context
+import android.media.AudioManager
 import android.util.Log
+import androidx.core.telecom.internal.CallStateEvent
 import androidx.core.telecom.internal.CapabilityExchangeRepository
 import androidx.core.telecom.internal.LocalCallSilenceCallbackRepository
 import androidx.core.telecom.internal.LocalCallSilenceStateListenerRemote
 import androidx.core.telecom.util.ExperimentalAppActions
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAppActions::class)
 internal class LocalCallSilenceExtensionImpl(
+    context: Context,
+    coroutineContext: CoroutineContext,
+    private val callStateFlow: MutableSharedFlow<CallStateEvent>,
     private val initialSilenceState: Boolean,
     private val onLocalSilenceUpdate: suspend (Boolean) -> Unit
 ) : LocalCallSilenceExtension {
+    private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var mIsGloballyMuted: Boolean = false
+    private var mCallState: CallStateEvent = CallStateEvent.NEW
+    private val TAG = LocalCallSilenceExtensionImpl::class.java.simpleName
+
+    init {
+        var shouldRemute = false
+        CoroutineScope(coroutineContext).launch {
+            callStateFlow.collect {
+                maybeUpdateCallControlState(state = it)
+                maybeUpdateGlobalMuteState(state = it)
+                if (isFocus() && isGloballyMuted()) {
+                    Log.i(TAG, "UNMUTING the mic globally in favor of a local call silence")
+                    mAudioManager.setMicrophoneMute(false)
+                    shouldRemute = true
+                } else if (isInactive() && shouldRemute) {
+                    Log.i(
+                        TAG,
+                        "MUTING the mic globally to put the device back in its original state"
+                    )
+                    mAudioManager.setMicrophoneMute(true)
+                    shouldRemute = false
+                }
+            }
+        }
+    }
+
+    private fun isFocus(): Boolean {
+        return mCallState.isFocusState()
+    }
+
+    private fun isInactive(): Boolean {
+        return mCallState.isInactiveState()
+    }
+
+    private fun isGloballyMuted(): Boolean {
+        return mIsGloballyMuted
+    }
+
+    private fun maybeUpdateGlobalMuteState(state: CallStateEvent) {
+        if (state.isGlobalMuteState()) {
+            mIsGloballyMuted = state.isMuted()
+        }
+    }
+
+    private fun maybeUpdateCallControlState(state: CallStateEvent) {
+        if (state.isCallControlState()) {
+            mCallState = state
+        }
+    }
+
     companion object {
         internal const val VERSION = 1
         val TAG: String = LocalCallSilenceExtensionImpl::class.java.simpleName

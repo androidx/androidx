@@ -20,6 +20,9 @@
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!-- MODIFY_AUDIO_SETTINGS is needed for the LocalCallSilence extension to toggle the global
+         mute state -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:icon="@drawable/ic_launcher"

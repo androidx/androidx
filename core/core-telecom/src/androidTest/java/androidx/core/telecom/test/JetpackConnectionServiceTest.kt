@@ -34,6 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -255,6 +256,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
                 TestUtils.mOnSetActiveLambda,
                 TestUtils.mOnSetInActiveLambda,
                 TestUtils.mOnEventLambda,
+                MutableSharedFlow(),
                 null,
                 CompletableDeferred()
             )

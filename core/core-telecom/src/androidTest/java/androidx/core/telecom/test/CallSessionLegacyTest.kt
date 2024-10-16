@@ -34,6 +34,7 @@ import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -104,6 +105,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
             TestUtils.mOnSetActiveLambda,
             TestUtils.mOnSetInActiveLambda,
             { _, _ -> },
+            MutableSharedFlow(),
             preferredStartingEndpoint,
             CompletableDeferred(Unit),
         )

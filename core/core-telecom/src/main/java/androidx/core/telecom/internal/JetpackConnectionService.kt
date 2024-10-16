@@ -36,6 +36,7 @@ import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 internal class JetpackConnectionService : ConnectionService() {
@@ -62,6 +63,7 @@ internal class JetpackConnectionService : ConnectionService() {
         val onSetActive: suspend () -> Unit,
         val onSetInactive: suspend () -> Unit,
         val onEvent: suspend (event: String, extras: Bundle) -> Unit,
+        val onStateChangedCallback: MutableSharedFlow<CallStateEvent>,
         val preferredStartingCallEndpoint: CallEndpointCompat? = null,
         val execution: CompletableDeferred<Unit>
     )
@@ -224,6 +226,7 @@ internal class JetpackConnectionService : ConnectionService() {
                 targetRequest.onSetActive,
                 targetRequest.onSetInactive,
                 targetRequest.onEvent,
+                targetRequest.onStateChangedCallback,
                 targetRequest.preferredStartingCallEndpoint,
                 targetRequest.execution
             )

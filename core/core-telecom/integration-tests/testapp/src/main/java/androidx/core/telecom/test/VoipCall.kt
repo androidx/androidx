@@ -21,6 +21,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.extensions.LocalCallSilenceExtension
+import androidx.core.telecom.util.ExperimentalAppActions
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @RequiresApi(34)
 class VoipCall {
@@ -33,6 +38,9 @@ class VoipCall {
     var mAvailableEndpoints: List<CallEndpointCompat>? = ArrayList()
     var mIsMuted = false
     var mTelecomCallId: String = ""
+    var mIsLocallySilence: Boolean = false
+    @OptIn(ExperimentalAppActions::class)
+    var mLocalCallSilenceExtension: LocalCallSilenceExtension? = null
 
     val mOnSetActiveLambda: suspend () -> Unit = {
         Log.i(TAG, "onSetActive: completing")
@@ -60,6 +68,30 @@ class VoipCall {
 
     fun setParticipantControl(participantControl: ParticipantControl) {
         mParticipantControl = participantControl
+    }
+
+    @OptIn(ExperimentalAppActions::class)
+    suspend fun toggleLocalCallSilence() {
+        CoroutineScope(coroutineContext).launch {
+            // toggle the value for the call
+            mIsLocallySilence = !mIsLocallySilence
+
+            mAdapter?.updateLocalCallSilenceIcon(mTelecomCallId, mIsLocallySilence)
+
+            // send update to the ICS
+            mLocalCallSilenceExtension?.updateIsLocallySilenced(mIsLocallySilence)
+        }
+    }
+
+    @OptIn(ExperimentalAppActions::class)
+    suspend fun onLocalCallSilenceUpdate(isSilenced: Boolean) {
+        // change the value for the app to match the ics
+        mIsLocallySilence = isSilenced
+        CoroutineScope(coroutineContext).launch {
+            // TODO:: b/372766291 should not have to update the ICS to keep internal state
+            mLocalCallSilenceExtension?.updateIsLocallySilenced(mIsLocallySilence)
+            mAdapter?.updateLocalCallSilenceIcon(mTelecomCallId, isSilenced)
+        }
     }
 
     fun setCallAdapter(adapter: CallListAdapter?) {

@@ -126,18 +126,33 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
                         participantExtension.addRaiseHandAction(
                             raiseHandDataEmitter::onRaisedHandsChanged
                         )
+
+                    val localCallSilenceDataEmitter = LocalCallSilenceExtensionDataEmitter()
+                    val localCallSilenceExtension =
+                        addLocalCallSilenceExtension(
+                            onIsLocallySilencedUpdated =
+                                localCallSilenceDataEmitter::onLocalCallSilenceStateChanged
+                        )
+
                     onConnected {
-                        val callDataEmitter = CallDataEmitter(IcsCall(currId.getAndAdd(1), call))
+                        val callData = CallDataEmitter(IcsCall(currId.getAndAdd(1), call)).collect()
+
                         val participantData =
                             participantsEmitter.collect(
                                 participantExtension.isSupported,
                                 raiseHandDataEmitter.collect(raiseHandAction),
                                 kickParticipantDataEmitter.collect(kickParticipantAction)
                             )
+
+                        val localCallSilenceData =
+                            localCallSilenceDataEmitter.collect(localCallSilenceExtension)
+
                         val fullData =
-                            callDataEmitter.collect().combine(participantData) { callData, partData
-                                ->
-                                CallData(callData, partData)
+                            combine(callData, participantData, localCallSilenceData) {
+                                cd,
+                                partData,
+                                silenceData ->
+                                CallData(cd, partData, silenceData)
                             }
                         mCallDataAggregator.watch(this@launch, fullData)
                     }
