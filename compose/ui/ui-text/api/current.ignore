@@ -1,9 +1,1 @@
 // Baseline format: 1.0
-DefaultValueChange: androidx.compose.ui.text.MultiParagraph#MultiParagraph(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.text.TextStyle, long, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, int, boolean) parameter #7:
-    Attempted to remove default value from parameter ellipsis in androidx.compose.ui.text.MultiParagraph
-DefaultValueChange: androidx.compose.ui.text.MultiParagraph#MultiParagraph(androidx.compose.ui.text.MultiParagraphIntrinsics, long, int, boolean) parameter #3:
-    Attempted to remove default value from parameter ellipsis in androidx.compose.ui.text.MultiParagraph
-DefaultValueChange: androidx.compose.ui.text.ParagraphKt#Paragraph(String, androidx.compose.ui.text.TextStyle, long, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, int, boolean) parameter #8:
-    Attempted to remove default value from parameter ellipsis in androidx.compose.ui.text.ParagraphKt.Paragraph
-DefaultValueChange: androidx.compose.ui.text.ParagraphKt#Paragraph(androidx.compose.ui.text.ParagraphIntrinsics, long, int, boolean) parameter #3:
-    Attempted to remove default value from parameter ellipsis in androidx.compose.ui.text.ParagraphKt.Paragraph

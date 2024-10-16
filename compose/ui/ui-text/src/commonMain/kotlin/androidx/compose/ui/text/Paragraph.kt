@@ -500,7 +500,10 @@ fun Paragraph(
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
-@Deprecated("Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.")
+@Deprecated(
+    "Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.",
+    level = DeprecationLevel.HIDDEN
+)
 fun Paragraph(
     text: String,
     style: TextStyle,
@@ -510,7 +513,7 @@ fun Paragraph(
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,
-    ellipsis: Boolean
+    ellipsis: Boolean = false
 ): Paragraph =
     ActualParagraph(
         text,
@@ -615,13 +618,14 @@ fun Paragraph(
     ReplaceWith(
         "Paragraph(paragraphIntrinsics, constraints, maxLines, " +
             "if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip"
-    )
+    ),
+    level = DeprecationLevel.HIDDEN
 )
 fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int = DefaultMaxLines,
-    ellipsis: Boolean
+    ellipsis: Boolean = false
 ): Paragraph =
     ActualParagraph(
         paragraphIntrinsics,
