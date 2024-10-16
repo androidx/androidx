@@ -38,14 +38,25 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 /**
  * Combines all given [objectFiles] into a directory with a well defined directory structure.
  *
- * The android targets will be placed into a directory structure that matches the jniLibs structure
- * of Android Gradle Plugin.
- *
- * e.g.: <outputDir> x86/libfoo.so x86_64/libfoo.so armeabi-v7a/libfoo.so arm64-v8a/libfoo.so
+ * The Android targets will be placed into a directory structure that matches the jniLibs structure
+ * of Android Gradle Plugin, e.g.:
+ * ```
+ * <outputDir>
+ *     armeabi-v7a/libfoo.so
+ *     arm64-v8a/libfoo.so
+ *     x86/libfoo.so
+ *     x86_64/libfoo.so
+ * ```
  *
  * Desktop targets will be placed on a structure that is based on the OS and architecture. e.g.:
- * <outputDir> osx_arm64/libfoo.dylib osx_x64/libfoo.dylib windows_x64/libfoo.dll
- * linux_x64/libfoo.so linux_arm64/libfoo.so
+ * ```
+ * <outputDir>
+ *     linux_arm64/libfoo.so
+ *     linux_x64/libfoo.so
+ *     osx_arm64/libfoo.dylib
+ *     osx_x64/libfoo.dylib
+ *     windows_x64/foo.dll
+ * ```
  */
 @DisableCachingByDefault(because = "not worth caching,just copies inputs into a another directory")
 abstract class CombineObjectFilesTask : DefaultTask() {

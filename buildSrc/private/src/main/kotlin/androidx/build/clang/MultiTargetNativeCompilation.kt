@@ -260,7 +260,7 @@ class MultiTargetNativeCompilation(
                     val konanTarget = serializableKonanTarget.asKonanTarget
                     val archiveFileName =
                         listOf(
-                                konanTarget.family.staticPrefix,
+                                konanTarget.family.dynamicPrefix,
                                 archiveName,
                                 ".",
                                 konanTarget.family.dynamicSuffix
