@@ -67,9 +67,9 @@ internal fun measureLazyList(
     itemAnimator: LazyLayoutItemAnimator<LazyListMeasuredItem>,
     beyondBoundsItemCount: Int,
     pinnedItems: List<Int>,
-    hasLookaheadPassOccurred: Boolean,
+    hasLookaheadOccurred: Boolean,
     isLookingAhead: Boolean,
-    postLookaheadLayoutInfo: LazyListLayoutInfo?,
+    approachLayoutInfo: LazyListLayoutInfo?,
     coroutineScope: CoroutineScope,
     placementScopeInvalidator: ObservableScopeInvalidator,
     graphicsContext: GraphicsContext,
@@ -93,7 +93,7 @@ internal fun measureLazyList(
             isVertical = isVertical,
             laneCount = 1,
             isLookingAhead = isLookingAhead,
-            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            hasLookaheadOccurred = hasLookaheadOccurred,
             layoutMinOffset = 0,
             layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
@@ -330,7 +330,7 @@ internal fun measureLazyList(
                 pinnedItems = pinnedItems,
                 consumedScroll = consumedScroll,
                 isLookingAhead = isLookingAhead,
-                lastPostLookaheadLayoutInfo = postLookaheadLayoutInfo
+                lastApproachLayoutInfo = approachLayoutInfo
             )
 
         // Update maxCrossAxis with extra items
@@ -373,7 +373,7 @@ internal fun measureLazyList(
             isVertical = isVertical,
             laneCount = 1,
             isLookingAhead = isLookingAhead,
-            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            hasLookaheadOccurred = hasLookaheadOccurred,
             coroutineScope = coroutineScope,
             layoutMinOffset = currentFirstItemScrollOffset,
             layoutMaxOffset = currentMainAxisOffset,
@@ -468,7 +468,7 @@ private fun createItemsAfterList(
     pinnedItems: List<Int>,
     consumedScroll: Float,
     isLookingAhead: Boolean,
-    lastPostLookaheadLayoutInfo: LazyListLayoutInfo?
+    lastApproachLayoutInfo: LazyListLayoutInfo?
 ): List<LazyListMeasuredItem> {
     var list: MutableList<LazyListMeasuredItem>? = null
 
@@ -482,15 +482,14 @@ private fun createItemsAfterList(
     }
 
     if (isLookingAhead) {
-        // Check if there's any item that needs to be composed based on last postLookaheadLayoutInfo
+        // Check if there's any item that needs to be composed based on last approachLayoutInfo
         if (
-            lastPostLookaheadLayoutInfo != null &&
-                lastPostLookaheadLayoutInfo.visibleItemsInfo.isNotEmpty()
+            lastApproachLayoutInfo != null && lastApproachLayoutInfo.visibleItemsInfo.isNotEmpty()
         ) {
             // Find first item with index > end. Note that `visibleItemsInfo.last()` may not have
             // the largest index as the last few items could be added to animate item placement.
             val firstItem =
-                lastPostLookaheadLayoutInfo.visibleItemsInfo.run {
+                lastApproachLayoutInfo.visibleItemsInfo.run {
                     var found: LazyListItemInfo? = null
                     for (i in size - 1 downTo 0) {
                         if (this[i].index > end && (i == 0 || this[i - 1].index <= end)) {
@@ -500,7 +499,7 @@ private fun createItemsAfterList(
                     }
                     found
                 }
-            val lastVisibleItem = lastPostLookaheadLayoutInfo.visibleItemsInfo.last()
+            val lastVisibleItem = lastApproachLayoutInfo.visibleItemsInfo.last()
             if (firstItem != null) {
                 for (i in firstItem.index..min(lastVisibleItem.index, itemsCount - 1)) {
                     // Only add to the list items that are _not_ already in the list.
@@ -514,7 +513,7 @@ private fun createItemsAfterList(
             // Calculate the additional offset to subcompose based on what was shown in the
             // previous post-loookahead pass and the scroll consumed.
             val additionalOffset =
-                lastPostLookaheadLayoutInfo.viewportEndOffset -
+                lastApproachLayoutInfo.viewportEndOffset -
                     lastVisibleItem.offset -
                     lastVisibleItem.size -
                     consumedScroll

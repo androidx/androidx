@@ -408,23 +408,22 @@ internal class LayoutNodeSubcompositionsState(
         }
 
     private var currentIndex = 0
-    private var currentPostLookaheadIndex = 0
+    private var currentApproachIndex = 0
     private val nodeToNodeState = mutableScatterMapOf<LayoutNode, NodeState>()
 
     // this map contains active slotIds (without precomposed or reusable nodes)
     private val slotIdToNode = mutableScatterMapOf<Any?, LayoutNode>()
     private val scope = Scope()
-    private val postLookaheadMeasureScope = PostLookaheadMeasureScopeImpl()
+    private val approachMeasureScope = ApproachMeasureScopeImpl()
 
     private val precomposeMap = mutableScatterMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
 
     // SlotHandles precomposed in the post-lookahead pass.
-    private val postLookaheadPrecomposeSlotHandleMap =
-        mutableScatterMapOf<Any?, PrecomposedSlotHandle>()
+    private val approachPrecomposeSlotHandleMap = mutableScatterMapOf<Any?, PrecomposedSlotHandle>()
     // Slot ids _composed_ in post-lookahead. The valid slot ids are stored between 0 and
-    // currentPostLookaheadIndex - 1, beyond index currentPostLookaheadIndex are obsolete ids.
-    private val postLookaheadComposedSlotIds = mutableVectorOf<Any?>()
+    // currentApproachIndex - 1, beyond index currentApproachIndex are obsolete ids.
+    private val approachComposedSlotIds = mutableVectorOf<Any?>()
 
     /**
      * `root.foldedChildren` list consist of:
@@ -739,14 +738,14 @@ internal class LayoutNodeSubcompositionsState(
                 scope.fontScale = fontScale
                 if (!isLookingAhead && root.lookaheadRoot != null) {
                     // Approach pass
-                    currentPostLookaheadIndex = 0
-                    val result = postLookaheadMeasureScope.block(constraints)
-                    val indexAfterMeasure = currentPostLookaheadIndex
+                    currentApproachIndex = 0
+                    val result = approachMeasureScope.block(constraints)
+                    val indexAfterMeasure = currentApproachIndex
                     return createMeasureResult(result) {
-                        currentPostLookaheadIndex = indexAfterMeasure
+                        currentApproachIndex = indexAfterMeasure
                         result.placeChildren()
                         // dispose
-                        disposeUnusedSlotsInPostLookahead()
+                        disposeUnusedSlotsInApproach()
                     }
                 } else {
                     // Lookahead pass, or the main pass if not in a lookahead scope.
@@ -763,10 +762,10 @@ internal class LayoutNodeSubcompositionsState(
         }
     }
 
-    private fun disposeUnusedSlotsInPostLookahead() {
-        postLookaheadPrecomposeSlotHandleMap.removeIf { slotId, handle ->
-            val id = postLookaheadComposedSlotIds.indexOf(slotId)
-            if (id < 0 || id >= currentPostLookaheadIndex) {
+    private fun disposeUnusedSlotsInApproach() {
+        approachPrecomposeSlotHandleMap.removeIf { slotId, handle ->
+            val id = approachComposedSlotIds.indexOf(slotId)
+            if (id < 0 || id >= currentApproachIndex) {
                 // Slot was not used in the latest pass of post-lookahead.
                 handle.dispose()
                 true
@@ -805,8 +804,8 @@ internal class LayoutNodeSubcompositionsState(
         }
         makeSureStateIsConsistent()
         if (!slotIdToNode.containsKey(slotId)) {
-            // Yield ownership of PrecomposedHandle from postLookahead to the caller of precompose
-            postLookaheadPrecomposeSlotHandleMap.remove(slotId)
+            // Yield ownership of PrecomposedHandle from approach to the caller of precompose
+            approachPrecomposeSlotHandleMap.remove(slotId)
             val node =
                 precomposeMap.getOrPut(slotId) {
                     val reusedNode = takeNodeFromReusables(slotId)
@@ -959,8 +958,7 @@ internal class LayoutNodeSubcompositionsState(
         }
     }
 
-    private inner class PostLookaheadMeasureScopeImpl :
-        SubcomposeMeasureScope, MeasureScope by scope {
+    private inner class ApproachMeasureScopeImpl : SubcomposeMeasureScope, MeasureScope by scope {
         /**
          * This function retrieves [Measurable]s created for [slotId] based on the subcomposition
          * that happened in the lookahead pass. If [slotId] was not subcomposed in the lookahead
@@ -970,31 +968,31 @@ internal class LayoutNodeSubcompositionsState(
             val nodeInSlot = slotIdToNode[slotId]
             if (nodeInSlot != null && root.foldedChildren.indexOf(nodeInSlot) < currentIndex) {
                 // Check that the node has been composed in lookahead. Otherwise, we need to
-                // compose the node in approach pass via postLookaheadSubcompose.
+                // compose the node in approach pass via approachSubcompose.
                 return nodeInSlot.childMeasurables
             } else {
-                return postLookaheadSubcompose(slotId, content)
+                return approachSubcompose(slotId, content)
             }
         }
     }
 
-    private fun postLookaheadSubcompose(
+    private fun approachSubcompose(
         slotId: Any?,
         content: @Composable () -> Unit
     ): List<Measurable> {
-        requirePrecondition(postLookaheadComposedSlotIds.size >= currentPostLookaheadIndex) {
-            "Error: currentPostLookaheadIndex cannot be greater than the size of the" +
-                "postLookaheadComposedSlotIds list."
+        requirePrecondition(approachComposedSlotIds.size >= currentApproachIndex) {
+            "Error: currentApproachIndex cannot be greater than the size of the" +
+                "approachComposedSlotIds list."
         }
-        if (postLookaheadComposedSlotIds.size == currentPostLookaheadIndex) {
-            postLookaheadComposedSlotIds.add(slotId)
+        if (approachComposedSlotIds.size == currentApproachIndex) {
+            approachComposedSlotIds.add(slotId)
         } else {
-            postLookaheadComposedSlotIds[currentPostLookaheadIndex] = slotId
+            approachComposedSlotIds[currentApproachIndex] = slotId
         }
-        currentPostLookaheadIndex++
+        currentApproachIndex++
         if (!precomposeMap.contains(slotId)) {
             // Not composed yet
-            precompose(slotId, content).also { postLookaheadPrecomposeSlotHandleMap[slotId] = it }
+            precompose(slotId, content).also { approachPrecomposeSlotHandleMap[slotId] = it }
             if (root.layoutState == LayoutState.LayingOut) {
                 root.requestLookaheadRelayout(true)
             } else {

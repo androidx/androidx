@@ -199,7 +199,7 @@ private fun rememberLazyListMeasurePolicy(
         { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
             // Tracks if the lookahead pass has occurred
-            val hasLookaheadPassOccurred = state.hasLookaheadPassOccurred || isLookingAhead
+            val hasLookaheadOccurred = state.hasLookaheadOccurred || isLookingAhead
             checkScrollableContainerConstraints(
                 containerConstraints,
                 if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -340,7 +340,7 @@ private fun rememberLazyListMeasurePolicy(
                 )
 
             val scrollToBeConsumed =
-                if (isLookingAhead || !hasLookaheadPassOccurred) {
+                if (isLookingAhead || !hasLookaheadOccurred) {
                     state.scrollToBeConsumed
                 } else {
                     state.scrollDeltaBetweenPasses
@@ -367,9 +367,9 @@ private fun rememberLazyListMeasurePolicy(
                     itemAnimator = state.itemAnimator,
                     beyondBoundsItemCount = beyondBoundsItemCount,
                     pinnedItems = pinnedItems,
-                    hasLookaheadPassOccurred = hasLookaheadPassOccurred,
+                    hasLookaheadOccurred = hasLookaheadOccurred,
                     isLookingAhead = isLookingAhead,
-                    postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
+                    approachLayoutInfo = state.approachLayoutInfo,
                     coroutineScope = coroutineScope,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     graphicsContext = graphicsContext,

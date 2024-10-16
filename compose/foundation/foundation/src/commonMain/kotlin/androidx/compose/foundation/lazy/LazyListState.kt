@@ -144,10 +144,10 @@ constructor(
         firstVisibleItemScrollOffset: Int = 0
     ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, LazyListPrefetchStrategy())
 
-    internal var hasLookaheadPassOccurred: Boolean = false
+    internal var hasLookaheadOccurred: Boolean = false
         private set
 
-    internal var postLookaheadLayoutInfo: LazyListMeasureResult? = null
+    internal var approachLayoutInfo: LazyListMeasureResult? = null
         private set
 
     /** The holder class for the current scroll position. */
@@ -416,21 +416,21 @@ constructor(
             var scrolledLayoutInfo =
                 layoutInfoState.value.copyWithScrollDeltaWithoutRemeasure(
                     delta = intDelta,
-                    updateAnimations = !hasLookaheadPassOccurred
+                    updateAnimations = !hasLookaheadOccurred
                 )
-            if (scrolledLayoutInfo != null && this.postLookaheadLayoutInfo != null) {
+            if (scrolledLayoutInfo != null && this.approachLayoutInfo != null) {
                 // if we were able to scroll the lookahead layout info without remeasure, lets
-                // try to do the same for post lookahead layout info (sometimes they diverge).
-                val scrolledPostLookaheadLayoutInfo =
-                    postLookaheadLayoutInfo?.copyWithScrollDeltaWithoutRemeasure(
+                // try to do the same for approach layout info (sometimes they diverge).
+                val scrolledApproachLayoutInfo =
+                    approachLayoutInfo?.copyWithScrollDeltaWithoutRemeasure(
                         delta = intDelta,
                         updateAnimations = true
                     )
-                if (scrolledPostLookaheadLayoutInfo != null) {
+                if (scrolledApproachLayoutInfo != null) {
                     // we can apply scroll delta for both phases without remeasure
-                    postLookaheadLayoutInfo = scrolledPostLookaheadLayoutInfo
+                    approachLayoutInfo = scrolledApproachLayoutInfo
                 } else {
-                    // we can't apply scroll delta for post lookahead, so we have to remeasure
+                    // we can't apply scroll delta for approach, so we have to remeasure
                     scrolledLayoutInfo = null
                 }
             }
@@ -438,7 +438,7 @@ constructor(
             if (scrolledLayoutInfo != null) {
                 applyMeasureResult(
                     result = scrolledLayoutInfo,
-                    isLookingAhead = hasLookaheadPassOccurred,
+                    isLookingAhead = hasLookaheadOccurred,
                     visibleItemsStayedTheSame = true
                 )
                 // we don't need to remeasure, so we only trigger re-placement:
@@ -495,12 +495,12 @@ constructor(
         isLookingAhead: Boolean,
         visibleItemsStayedTheSame: Boolean = false
     ) {
-        if (!isLookingAhead && hasLookaheadPassOccurred) {
-            // If there was already a lookahead pass, record this result as postLookahead result
-            postLookaheadLayoutInfo = result
+        if (!isLookingAhead && hasLookaheadOccurred) {
+            // If there was already a lookahead pass, record this result as approach result
+            approachLayoutInfo = result
         } else {
             if (isLookingAhead) {
-                hasLookaheadPassOccurred = true
+                hasLookaheadOccurred = true
             }
 
             canScrollBackward = result.canScrollBackward
@@ -518,7 +518,7 @@ constructor(
             }
 
             if (isLookingAhead) {
-                updateScrollDeltaForPostLookahead(
+                updateScrollDeltaForApproach(
                     result.scrollBackAmount,
                     result.density,
                     result.coroutineScope
@@ -535,7 +535,7 @@ constructor(
         AnimationState(Float.VectorConverter, 0f, 0f)
 
     // Updates the scroll delta between lookahead & post-lookahead pass
-    private fun updateScrollDeltaForPostLookahead(
+    private fun updateScrollDeltaForApproach(
         delta: Float,
         density: Density,
         coroutineScope: CoroutineScope
