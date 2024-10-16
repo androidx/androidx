@@ -195,6 +195,14 @@ public object DeviceQuirksLoader {
         ) {
             quirks.add(SmallDisplaySizeQuirk())
         }
+        if (
+            quirkSettings.shouldEnableQuirk(
+                PreviewUnderExposureQuirk::class.java,
+                PreviewUnderExposureQuirk.load()
+            )
+        ) {
+            quirks.add(PreviewUnderExposureQuirk)
+        }
         return quirks
     }
 }

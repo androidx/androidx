@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraDevice
 import android.util.Size
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.PreviewUnderExposureQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.setupHDRnet
 import androidx.camera.camera2.pipe.integration.compat.workaround.toggleHDRPlus
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
@@ -84,7 +86,11 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             CaptureType.IMAGE_ANALYSIS ->
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             CaptureType.VIDEO_CAPTURE ->
-                sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD)
+                sessionBuilder.setTemplateType(
+                    if (DeviceQuirks[PreviewUnderExposureQuirk::class.java] != null)
+                        CameraDevice.TEMPLATE_PREVIEW
+                    else CameraDevice.TEMPLATE_RECORD
+                )
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG,
@@ -102,7 +108,11 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             CaptureType.STREAM_SHARING,
             CaptureType.METERING_REPEATING ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_PREVIEW
-            CaptureType.VIDEO_CAPTURE -> captureBuilder.templateType = CameraDevice.TEMPLATE_RECORD
+            CaptureType.VIDEO_CAPTURE ->
+                captureBuilder.templateType =
+                    if (DeviceQuirks[PreviewUnderExposureQuirk::class.java] != null)
+                        CameraDevice.TEMPLATE_PREVIEW
+                    else CameraDevice.TEMPLATE_RECORD
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG,
