@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -54,6 +55,7 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
         coroutineScope: CoroutineScope,
+        density: Density,
         scrollToBeConsumed: Float,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
     ): TransformingLazyColumnMeasureResult {
@@ -154,6 +156,8 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
             canScrollForward = canScrollForward,
             canScrollBackward = canScrollBackward,
             coroutineScope = coroutineScope,
+            density = density,
+            itemSpacing = itemSpacing,
             measureResult =
                 layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                     visibleItems.fastForEach { it.place(this) }

@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
+import androidx.compose.ui.unit.Density
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +79,9 @@ class TransformingLazyColumnState : ScrollableState {
      */
     val layoutInfo: TransformingLazyColumnLayoutInfo
         get() = layoutInfoState.value
+
+    internal val density: Density
+        get() = layoutInfoState.value.density
 
     internal var scrollToBeConsumed = 0f
         private set
@@ -165,7 +169,7 @@ class TransformingLazyColumnState : ScrollableState {
         scroll { snapToItemIndexInternal(index, scrollOffset) }
     }
 
-    private fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
+    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
         anchorItemIndex = index
         anchorItemScrollOffset = scrollOffset
         lastMeasuredAnchorItemHeight = Int.MIN_VALUE
@@ -208,6 +212,8 @@ private val EmptyTransformingLazyColumnMeasureResult =
         canScrollForward = false,
         canScrollBackward = false,
         coroutineScope = CoroutineScope(EmptyCoroutineContext),
+        density = Density(1f),
+        itemSpacing = 0,
         measureResult =
             object : MeasureResult {
                 override val width: Int = 0

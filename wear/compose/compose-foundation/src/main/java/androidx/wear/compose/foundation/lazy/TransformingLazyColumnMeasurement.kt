@@ -97,7 +97,6 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
             val anchorItemIndex: Int
             val anchorItemScrollOffset: Int
             val lastMeasuredAnchorItemHeight: Int
-
             Snapshot.withoutReadObservation {
                 anchorItemIndex =
                     if (itemsCount == 0) 0 else state.anchorItemIndex.coerceIn(0 until itemsCount)
@@ -116,6 +115,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                         anchorItemScrollOffset = anchorItemScrollOffset,
                         lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
                         coroutineScope = coroutineScope,
+                        density = this,
                         layout = { width, height, placement ->
                             layout(
                                 containerConstraints.constrainWidth(width),

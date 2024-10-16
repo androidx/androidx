@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -38,9 +39,10 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TransformingLazyColumnTransformingLazyColumnContentPaddingMeasurementStrategyTest {
+class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
     private val screenHeight = 100
     private val screenWidth = 120
+    private val density = 1f
 
     private val containerConstraints =
         Constraints(
@@ -312,9 +314,12 @@ class TransformingLazyColumnTransformingLazyColumnContentPaddingMeasurementStrat
 
     private val measureScope: IntrinsicMeasureScope =
         object : IntrinsicMeasureScope {
-            override val fontScale = 1f
+            override val fontScale: Float
+                get() = this@TransformingLazyColumnContentPaddingMeasurementStrategyTest.density
+
             override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
-            override val density = 1f
+            override val density: Float
+                get() = this@TransformingLazyColumnContentPaddingMeasurementStrategyTest.density
         }
 
     private fun TransformingLazyColumnMeasurementStrategy.measure(
@@ -336,6 +341,7 @@ class TransformingLazyColumnTransformingLazyColumnContentPaddingMeasurementStrat
             lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
             scrollToBeConsumed = scrollToBeConsumed,
             coroutineScope = CoroutineScope(EmptyCoroutineContext),
+            density = Density(density),
             layout = { width, height, _ -> EmptyMeasureResult(width, height) },
         )
 
