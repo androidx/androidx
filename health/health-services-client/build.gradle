@@ -58,6 +58,8 @@ android {
         aidl = true
     }
     buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
+
         stableAidl {
             version 1
         }
