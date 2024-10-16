@@ -26,6 +26,8 @@ import androidx.compose.runtime.Immutable
 actual class ModalBottomSheetProperties
 actual constructor(
     actual val shouldDismissOnBackPress: Boolean,
+    actual val isAppearanceLightStatusBars: Boolean,
+    actual val isAppearanceLightNavigationBars: Boolean,
 )
 
 @Immutable
@@ -40,5 +42,5 @@ internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     properties: ModalBottomSheetProperties,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
