@@ -19,14 +19,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"ไฟล์นี้ได้รับการป้องกัน"</string>
     <string name="label_password_first" msgid="4456258714097111908">"รหัสผ่าน"</string>
-    <!-- no translation found for label_password_incorrect (5291118378657145978) -->
-    <skip />
+    <string name="label_password_incorrect" msgid="5291118378657145978">"รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง"</string>
     <string name="button_cancel" msgid="5855794576957267334">"ยกเลิก"</string>
     <string name="button_open" msgid="5445014062438566842">"เปิด"</string>
     <string name="desc_password" msgid="6636473611443746739">"ช่องรหัสผ่าน"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"รหัสผ่านไม่ถูกต้อง"</string>
-    <!-- no translation found for desc_password_incorrect_message (4676206571020946870) -->
-    <skip />
+    <string name="desc_password_incorrect_message" msgid="4676206571020946870">"รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง"</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"หน้า <xliff:g id="PAGE">%1$d</xliff:g> จาก <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"ซูม <xliff:g id="FIRST">%1$d</xliff:g> เปอร์เซ็นต์"</string>
