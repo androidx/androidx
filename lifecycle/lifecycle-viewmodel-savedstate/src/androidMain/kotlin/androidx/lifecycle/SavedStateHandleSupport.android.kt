@@ -156,7 +156,7 @@ internal class SavedStateHandlesProvider(
                 // have restored
                 viewModel.handles.forEach { (key, handle) ->
                     val savedState = handle.savedStateProvider().saveState()
-                    if (savedState != Bundle.EMPTY) {
+                    if (!savedState.isEmpty()) {
                         putBundle(key, savedState)
                     }
                 }
