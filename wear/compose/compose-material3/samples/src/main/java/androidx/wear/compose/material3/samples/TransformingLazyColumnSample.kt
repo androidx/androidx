@@ -62,14 +62,21 @@ fun TransformingLazyColumnScrollingSample() {
         ScreenScaffold(
             state,
             edgeButton = {
-                EdgeButton(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) {
+                EdgeButton(onClick = { coroutineScope.launch { state.animateScrollToItem(0) } }) {
                     Text("To top")
                 }
             }
         ) {
             TransformingLazyColumn(
                 state = state,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
+                contentPadding =
+                    ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
+                        EdgeButtonSize.Small,
+                        start = 10.dp,
+                        end = 10.dp,
+                        top = 20.dp,
+                        extraBottom = 20.dp
+                    ),
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             ) {
                 items(20) {

@@ -564,6 +564,7 @@ package androidx.wear.compose.foundation.lazy {
 
   public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TransformingLazyColumnState();
+    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
