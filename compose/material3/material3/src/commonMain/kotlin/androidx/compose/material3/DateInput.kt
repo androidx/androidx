@@ -128,7 +128,6 @@ internal fun DateInputTextField(
     colors: DatePickerColors,
     requestFocus: Boolean
 ) {
-    val errorText = rememberSaveable { mutableStateOf("") }
     var text by
         rememberSaveable(stateSaver = TextFieldValue.Saver) {
             val initialText =
@@ -152,6 +151,21 @@ internal fun DateInputTextField(
                 )
             )
         }
+
+    val errorText = rememberSaveable {
+        // Run an initial validation if the text is not empty.
+        var initialError = ""
+        if (text.text.isNotEmpty()) {
+            initialError =
+                dateInputValidator.validate(
+                    dateToValidate =
+                        calendarModel.parse(text.text, dateInputFormat.patternWithoutDelimiters),
+                    inputIdentifier = inputIdentifier,
+                    locale = locale
+                )
+        }
+        mutableStateOf(initialError)
+    }
 
     // Calculate how much bottom padding should be added. In case there is an error text, which is
     // added as a supportingText, take into account the default supportingText padding to ensure
@@ -226,10 +240,16 @@ internal fun DateInputTextField(
         singleLine = true,
         colors = colors.dateTextFieldColors
     )
-    if (focusRequester != null) {
-        LaunchedEffect(focusRequester) {
-            // Delay the focus request to allow a smooth transition in case the DateInput is in a
-            // dialog.
+
+    LaunchedEffect(Unit) {
+        // Call the onDateSelectionChange in a LaunchedEffect to ensure the title is cleared in case
+        // the input was initialized with an invalid date.
+        if (errorText.value.isNotEmpty()) {
+            onDateSelectionChange(null)
+        }
+        // In case a focus is to be requested, delay the request to allow a smooth transition in
+        // case the DateInput is in a dialog.
+        if (focusRequester != null) {
             delay(MotionTokens.DurationMedium2.toLong())
             focusRequester.requestFocus()
         }

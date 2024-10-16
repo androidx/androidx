@@ -598,7 +598,6 @@ class DatePickerTest {
         rule.onNodeWithText("July 2020").assertExists()
     }
 
-    @Test(expected = IllegalArgumentException::class)
     fun setSelection_outOfYearsBound() {
         lateinit var datePickerState: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
@@ -608,20 +607,26 @@ class DatePickerTest {
         // Setting the selection to a year that is out of range.
         datePickerState.selectedDateMillis =
             dayInUtcMilliseconds(year = 1999, month = 5, dayOfMonth = 11)
+
+        // Expecting a null selected date as the provided date was out of range.
+        assertThat(datePickerState.selectedDateMillis).isNull()
     }
 
-    @Test(expected = IllegalArgumentException::class)
     fun initialDateOutOfBounds() {
+        lateinit var datePickerState: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val initialDateMillis = dayInUtcMilliseconds(year = 2051, month = 5, dayOfMonth = 11)
-            rememberDatePickerState(
-                initialSelectedDateMillis = initialDateMillis,
-                yearRange = IntRange(2000, 2050)
-            )
+            datePickerState =
+                rememberDatePickerState(
+                    initialSelectedDateMillis = initialDateMillis,
+                    yearRange = IntRange(2000, 2050)
+                )
         }
+
+        // Expecting a null selected date as the initial date is out of range.
+        assertThat(datePickerState.selectedDateMillis).isNull()
     }
 
-    @Test(expected = IllegalArgumentException::class)
     fun initialDisplayedMonthOutObBounds() {
         lateinit var datePickerState: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
@@ -633,6 +638,12 @@ class DatePickerTest {
                 )
             DatePicker(state = datePickerState)
         }
+
+        val calendarModel = createCalendarModel(Locale.getDefault())
+
+        // Check that the initial displayed month is the current month.
+        assertThat(datePickerState.displayedMonthMillis)
+            .isEqualTo(calendarModel.getMonth(calendarModel.today).startUtcTimeMillis)
     }
 
     @Test

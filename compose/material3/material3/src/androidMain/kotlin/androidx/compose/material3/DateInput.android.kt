@@ -78,7 +78,7 @@ actual constructor(
         // Additional validation when the InputIdentifier is for start of end dates in a range input
         if (
             (inputIdentifier == InputIdentifier.StartDateInput &&
-                dateToValidate.utcTimeMillis >= (currentEndDateMillis ?: Long.MAX_VALUE)) ||
+                dateToValidate.utcTimeMillis > (currentEndDateMillis ?: Long.MAX_VALUE)) ||
                 (inputIdentifier == InputIdentifier.EndDateInput &&
                     dateToValidate.utcTimeMillis < (currentStartDateMillis ?: Long.MIN_VALUE))
         ) {
