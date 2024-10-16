@@ -195,7 +195,7 @@ private fun ExpensiveSecondaryColorConsumer(compositionTracker: CompositionTrack
  * Immutable as we want to ensure that we always skip recomposition unless the CompositionLocal
  * value inside the function changes.
  */
-@Immutable private class CompositionTracker(var compositions: Int = 0)
+@Immutable internal class CompositionTracker(var compositions: Int = 0)
 
 private val LocalTestTheme =
     staticCompositionLocalOf<TestTheme> { error("CompositionLocal LocalTestThemem not present") }

@@ -29,7 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -374,6 +377,35 @@ private fun ScaffoldLayout(
     contentWindowInsets: WindowInsets,
     bottomBar: @Composable @UiComposable () -> Unit
 ) {
+    // Create the backing value for the content padding
+    // These values will be updated during measurement, but before subcomposing the body content
+    // Remembering and updating a single PaddingValues avoids needing to recompose when the values
+    // change
+    val contentPadding = remember {
+        object : PaddingValues {
+            var topContentPadding by mutableStateOf(0.dp)
+            var startContentPadding by mutableStateOf(0.dp)
+            var endContentPadding by mutableStateOf(0.dp)
+            var bottomContentPadding by mutableStateOf(0.dp)
+
+            override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
+                when (layoutDirection) {
+                    LayoutDirection.Ltr -> startContentPadding
+                    LayoutDirection.Rtl -> endContentPadding
+                }
+
+            override fun calculateTopPadding(): Dp = topContentPadding
+
+            override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
+                when (layoutDirection) {
+                    LayoutDirection.Ltr -> endContentPadding
+                    LayoutDirection.Rtl -> startContentPadding
+                }
+
+            override fun calculateBottomPadding(): Dp = bottomContentPadding
+        }
+    }
+
     SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
@@ -486,34 +518,27 @@ private fun ScaffoldLayout(
                 0
             }
 
+        // Update the backing state for the content padding before subcomposing the body
+        val insets = contentWindowInsets.asPaddingValues(this)
+        contentPadding.topContentPadding =
+            if (topBarPlaceables.isEmpty()) {
+                insets.calculateTopPadding()
+            } else {
+                0.dp
+            }
+        contentPadding.bottomContentPadding =
+            if (bottomBarPlaceables.isEmpty() || bottomBarHeight == null) {
+                insets.calculateBottomPadding()
+            } else {
+                bottomBarHeight.toDp()
+            }
+        contentPadding.startContentPadding = insets.calculateStartPadding(layoutDirection)
+        contentPadding.endContentPadding = insets.calculateEndPadding(layoutDirection)
+
         val bodyContentHeight = layoutHeight - topBarHeight
 
         val bodyContentPlaceables =
-            subcompose(ScaffoldLayoutContent.MainContent) {
-                    val insets = contentWindowInsets.asPaddingValues(this@SubcomposeLayout)
-                    val innerPadding =
-                        PaddingValues(
-                            top =
-                                if (topBarPlaceables.isEmpty()) {
-                                    insets.calculateTopPadding()
-                                } else {
-                                    0.dp
-                                },
-                            bottom =
-                                if (bottomBarPlaceables.isEmpty() || bottomBarHeight == null) {
-                                    insets.calculateBottomPadding()
-                                } else {
-                                    bottomBarHeight.toDp()
-                                },
-                            start =
-                                insets.calculateStartPadding(
-                                    (this@SubcomposeLayout).layoutDirection
-                                ),
-                            end =
-                                insets.calculateEndPadding((this@SubcomposeLayout).layoutDirection)
-                        )
-                    content(innerPadding)
-                }
+            subcompose(ScaffoldLayoutContent.MainContent) { content(contentPadding) }
                 .fastMap { it.measure(looseConstraints.copy(maxHeight = bodyContentHeight)) }
 
         layout(layoutWidth, layoutHeight) {
