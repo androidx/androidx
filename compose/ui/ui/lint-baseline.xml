@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(sleepTime)"
-        errorLine2="                       ~~~~~">
+        errorLine1="            rule.runOnUiThread { Thread.sleep(sleepTime) }"
+        errorLine2="                                        ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
     </issue>
@@ -17,6 +17,15 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/ComposeView.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.S` is never true here"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.S) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/contentcapture/AndroidContentCaptureManager.android.kt"/>
     </issue>
 
     <issue
@@ -96,24 +105,6 @@
         message="field oldAlignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
         errorLine1="    private var oldAlignmentLines: MutableMap&lt;AlignmentLine, Int>? = null"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/node/LookaheadDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field cachedAlignmentLinesMap with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    protected val cachedAlignmentLinesMap = mutableMapOf&lt;AlignmentLine, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/node/LookaheadDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;AlignmentLine, Integer> of getCachedAlignmentLinesMap: replace with ObjectIntMap"
-        errorLine1="    protected val cachedAlignmentLinesMap = mutableMapOf&lt;AlignmentLine, Int>()"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/node/LookaheadDelegate.kt"/>
     </issue>

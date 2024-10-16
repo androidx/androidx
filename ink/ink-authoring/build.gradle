@@ -68,8 +68,6 @@ android {
   compileSdk = 35
   sourceSets.androidTest.assets.srcDirs +=
       project.rootDir.absolutePath + "/../../golden/ink/ink-authoring"
-  // b/370769491
-  experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {

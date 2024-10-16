@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="MissingClass"
@@ -372,7 +372,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -381,7 +381,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -390,7 +390,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -399,7 +399,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -408,7 +408,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
+        message="Unnecessary; `SDK_INT` is always >= 19"
         errorLine1="    @RequiresApi(19)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -417,7 +417,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -426,7 +426,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -435,7 +435,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -444,7 +444,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -453,7 +453,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -462,7 +462,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -471,7 +471,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -480,7 +480,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -489,7 +489,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -498,7 +498,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -507,7 +507,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; `SDK_INT` is always >= 21"
         errorLine1="        return if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -516,7 +516,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
+        message="Unnecessary; `SDK_INT` is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -525,7 +525,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
+        message="Unnecessary; `SDK_INT` is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -534,7 +534,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
+        message="Unnecessary; `SDK_INT` is always >= 19"
         errorLine1="    @RequiresApi(19)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -543,7 +543,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
+        message="Unnecessary; `SDK_INT` is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -552,7 +552,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19 from outer annotation (`@RequiresApi(19)`)"
+        message="Unnecessary; `SDK_INT` is always >= 19 from outer annotation (`@RequiresApi(19)`)"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -561,7 +561,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
+        message="Unnecessary; `SDK_INT` is always >= 16"
         errorLine1="@RequiresApi(16)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -570,7 +570,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
+        message="Unnecessary; `SDK_INT` is always >= 16"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -579,7 +579,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
+        message="Unnecessary; `SDK_INT` is always >= 16"
         errorLine1="@RequiresApi(16)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -588,7 +588,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
+        message="Unnecessary; `SDK_INT` is always >= 16"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location

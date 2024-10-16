@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha04)" variant="all" version="8.8.0-alpha04">
+<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
 
     <issue
         id="NewApi"
@@ -31,8 +31,8 @@
     <issue
         id="WrongConstant"
         message="Must be one or more of: LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON, LayoutParams.FLAG_DIM_BEHIND, LayoutParams.FLAG_BLUR_BEHIND, LayoutParams.FLAG_NOT_FOCUSABLE, LayoutParams.FLAG_NOT_TOUCHABLE, LayoutParams.FLAG_NOT_TOUCH_MODAL, LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING, LayoutParams.FLAG_KEEP_SCREEN_ON, LayoutParams.FLAG_LAYOUT_IN_SCREEN, LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, LayoutParams.FLAG_DITHER, LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SCALED, LayoutParams.FLAG_IGNORE_CHEEK_PRESSES, LayoutParams.FLAG_LAYOUT_INSET_DECOR, LayoutParams.FLAG_ALT_FOCUSABLE_IM, LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, LayoutParams.FLAG_SHOW_WHEN_LOCKED, LayoutParams.FLAG_SHOW_WALLPAPER, LayoutParams.FLAG_TURN_SCREEN_ON, LayoutParams.FLAG_DISMISS_KEYGUARD, LayoutParams.FLAG_SPLIT_TOUCH, LayoutParams.FLAG_HARDWARE_ACCELERATED, LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, LayoutParams.FLAG_TRANSLUCENT_STATUS, LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, LayoutParams.FLAG_LOCAL_FOCUS_MODE, LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR, LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS"
-        errorLine1="                    presentation!!"
-        errorLine2="                    ^">
+        errorLine1="                        ?.or(android.R.attr.showWhenLocked or android.R.attr.turnScreenOn)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/demo/PresentationActivity.kt"/>
     </issue>
@@ -40,8 +40,8 @@
     <issue
         id="WrongConstant"
         message="Must be one or more of: LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON, LayoutParams.FLAG_DIM_BEHIND, LayoutParams.FLAG_BLUR_BEHIND, LayoutParams.FLAG_NOT_FOCUSABLE, LayoutParams.FLAG_NOT_TOUCHABLE, LayoutParams.FLAG_NOT_TOUCH_MODAL, LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING, LayoutParams.FLAG_KEEP_SCREEN_ON, LayoutParams.FLAG_LAYOUT_IN_SCREEN, LayoutParams.FLAG_LAYOUT_NO_LIMITS, LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, LayoutParams.FLAG_DITHER, LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SCALED, LayoutParams.FLAG_IGNORE_CHEEK_PRESSES, LayoutParams.FLAG_LAYOUT_INSET_DECOR, LayoutParams.FLAG_ALT_FOCUSABLE_IM, LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, LayoutParams.FLAG_SHOW_WHEN_LOCKED, LayoutParams.FLAG_SHOW_WALLPAPER, LayoutParams.FLAG_TURN_SCREEN_ON, LayoutParams.FLAG_DISMISS_KEYGUARD, LayoutParams.FLAG_SPLIT_TOUCH, LayoutParams.FLAG_HARDWARE_ACCELERATED, LayoutParams.FLAG_LAYOUT_IN_OVERSCAN, LayoutParams.FLAG_TRANSLUCENT_STATUS, LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, LayoutParams.FLAG_LOCAL_FOCUS_MODE, LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR, LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS"
-        errorLine1="                    presentation!!"
-        errorLine2="                    ^">
+        errorLine1="                        ?.or(android.R.attr.showWhenLocked or android.R.attr.turnScreenOn)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/window/demo/PresentationActivity.kt"/>
     </issue>
