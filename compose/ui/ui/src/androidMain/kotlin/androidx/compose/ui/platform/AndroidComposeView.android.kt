@@ -1953,7 +1953,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 uptimeMillis = event.eventTime,
                 inputDeviceId = event.deviceId
             )
-        return focusOwner.dispatchRotaryEvent(rotaryEvent)
+        return focusOwner.dispatchRotaryEvent(rotaryEvent) {
+            super.dispatchGenericMotionEvent(event)
+        }
     }
 
     private fun handleMotionEvent(motionEvent: MotionEvent): ProcessResult {

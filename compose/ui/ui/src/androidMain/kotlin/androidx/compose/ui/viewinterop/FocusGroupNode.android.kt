@@ -76,6 +76,7 @@ private class FocusGroupPropertiesNode :
         // If this requestFocus is triggered by the embedded view getting focus,
         // then we don't perform this onEnter logic.
         val embeddedView = getView()
+
         if (embeddedView.isFocused || embeddedView.hasFocus()) return Default
 
         val focusOwner = requireOwner().focusOwner

@@ -130,7 +130,10 @@ internal interface FocusOwner : FocusManager {
     fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean
 
     /** Dispatches a rotary scroll event through the compose hierarchy. */
-    fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean
+    fun dispatchRotaryEvent(
+        event: RotaryScrollEvent,
+        onFocusedItem: () -> Boolean = { false }
+    ): Boolean
 
     /** Schedule a FocusTarget node to be invalidated after onApplyChanges. */
     fun scheduleInvalidation(node: FocusTargetNode)

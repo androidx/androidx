@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.rotary
 
+import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_SCROLL
 import android.view.View
 import android.view.ViewConfiguration
@@ -38,6 +39,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.ViewConfigurationCompat.getScaledHorizontalScrollFactor
 import androidx.core.view.ViewConfigurationCompat.getScaledVerticalScrollFactor
@@ -450,6 +452,41 @@ class RotaryScrollEventTest {
             assertThat(keyEventFromOnPreRotaryScrollEvent1).isNull()
             assertThat(keyEventFromOnPreRotaryScrollEvent2).isNotNull()
         }
+    }
+
+    @Test
+    fun onRotary_views_Interop() {
+        // Arrange
+        var eventFromOnView: MotionEvent? = null
+        lateinit var buttonView: View
+
+        rule.setFocusableContent {
+            AndroidView(
+                factory = { context ->
+                    android.widget.Button(context).apply {
+                        isFocusable = true
+                        isFocusableInTouchMode = true
+                        text = "Text"
+                        setOnGenericMotionListener { view, event ->
+                            if (view == this) {
+                                eventFromOnView = event
+                            }
+                            false
+                        }
+
+                        buttonView = this
+                    }
+                }
+            )
+        }
+        rule.runOnIdle { buttonView.requestFocus() }
+
+        // Act.
+        @OptIn(ExperimentalTestApi::class)
+        rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(eventFromOnView).isNotNull() }
     }
 
     private fun Modifier.focusable(initiallyFocused: Boolean = false) =
