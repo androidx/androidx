@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
@@ -143,12 +144,27 @@ public class Person {
     /**
      * Converts this compat {@link Person} to the base Android framework {@link android.app.Person}.
      *
+     * @deprecated Use {@link #toAndroidPerson(Context)} instead.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     @RequiresApi(28)
+    @Deprecated
     public android.app.Person toAndroidPerson() {
-        return Api28Impl.toAndroidPerson(this);
+        //noinspection DataFlowIssue
+        return toAndroidPerson(null);
+    }
+
+    /**
+     * Converts this compat {@link Person} to the base Android framework {@link android.app.Person}.
+     *
+     * @param context A {@link Context} that will be used to get icon from the person.
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @NonNull
+    @RequiresApi(28)
+    public android.app.Person toAndroidPerson(@NonNull Context context) {
+        return Api28Impl.toAndroidPerson(context, this);
     }
 
     /**
@@ -415,11 +431,10 @@ public class Person {
                     .build();
         }
 
-        @SuppressWarnings("deprecation")
-        static android.app.Person toAndroidPerson(Person person) {
+        static android.app.Person toAndroidPerson(Context context, Person person) {
             return new android.app.Person.Builder()
                     .setName(person.getName())
-                    .setIcon((person.getIcon() != null) ? person.getIcon().toIcon() : null)
+                    .setIcon((person.getIcon() != null) ? person.getIcon().toIcon(context) : null)
                     .setUri(person.getUri())
                     .setKey(person.getKey())
                     .setBot(person.isBot())
