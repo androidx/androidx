@@ -17,6 +17,7 @@
 package androidx.lifecycle
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -44,15 +45,28 @@ class CommonLifecycleRegistryTest {
 
     @Test
     fun moveInitializedToDestroyed() {
-        try {
-            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        } catch (e: IllegalStateException) {
-            assertThat(e.message)
-                .isEqualTo(
-                    "State must be at least CREATED to move to DESTROYED, " +
-                        "but was INITIALIZED in component $mLifecycleOwner"
-                )
-        }
+        assertThrows<IllegalStateException> {
+                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            }
+            .hasMessageThat()
+            .contains(
+                "State must be at least 'CREATED' to be moved to 'DESTROYED' in component " +
+                    "$mLifecycleOwner"
+            )
+    }
+
+    @Test
+    fun moveDestroyedToAny() {
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        assertThrows<IllegalStateException> {
+                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            }
+            .hasMessageThat()
+            .contains(
+                "State is 'DESTROYED' and cannot be moved to `CREATED` in component " +
+                    "$mLifecycleOwner"
+            )
     }
 
     @Test

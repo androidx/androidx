@@ -69,8 +69,21 @@ public class LifecycleRegistryTest {
             mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(),
-                    is("State must be at least CREATED to move to DESTROYED, but was "
-                            + "INITIALIZED in component " + mLifecycleOwner));
+                    is("State must be at least 'CREATED' to be moved to 'DESTROYED' in "
+                            + "component " + mLifecycleOwner));
+        }
+    }
+
+    @Test
+    public void moveDestroyedToAny() {
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        try {
+            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        } catch (IllegalStateException e) {
+            assertThat(e.getMessage(),
+                    is("State is 'DESTROYED' and cannot be moved to `CREATED` in "
+                            + "component " + mLifecycleOwner));
         }
     }
 

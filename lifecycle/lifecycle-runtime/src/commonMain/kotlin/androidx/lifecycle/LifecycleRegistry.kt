@@ -17,6 +17,7 @@ package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.Lifecycle.State
 import kotlin.jvm.JvmStatic
 
 /**
@@ -73,5 +74,25 @@ constructor(provider: LifecycleOwner) : Lifecycle {
         @JvmStatic
         @VisibleForTesting
         public fun createUnsafe(owner: LifecycleOwner): LifecycleRegistry
+    }
+}
+
+/**
+ * Checks the [Lifecycle.State] of a component and throws an error if an invalid state transition is
+ * detected.
+ *
+ * @param owner The [LifecycleOwner] holding the [Lifecycle] of the component.
+ * @param current The current [Lifecycle.State] of the component.
+ * @param next The desired next [Lifecycle.State] of the component.
+ * @throws IllegalStateException if the component is in an invalid state for the desired transition.
+ */
+internal fun checkLifecycleStateTransition(owner: LifecycleOwner?, current: State, next: State) {
+    if (current == State.INITIALIZED && next == State.DESTROYED) {
+        error(
+            "State must be at least '${State.CREATED}' to be moved to '$next' in component $owner"
+        )
+    }
+    if (current == State.DESTROYED && current != next) {
+        error("State is '${State.DESTROYED}' and cannot be moved to `$next` in component $owner")
     }
 }

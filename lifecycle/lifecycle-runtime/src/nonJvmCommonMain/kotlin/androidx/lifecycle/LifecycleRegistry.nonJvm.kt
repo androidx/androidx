@@ -107,10 +107,8 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         if (state == next) {
             return
         }
-        check(!(state == State.INITIALIZED && next == State.DESTROYED)) {
-            "State must be at least CREATED to move to $next, but was $state in component " +
-                "${lifecycleOwner.get()}"
-        }
+        checkLifecycleStateTransition(lifecycleOwner.get(), state, next)
+
         state = next
         if (handlingEvent || addingObserverCounter != 0) {
             newEventOccurred = true
