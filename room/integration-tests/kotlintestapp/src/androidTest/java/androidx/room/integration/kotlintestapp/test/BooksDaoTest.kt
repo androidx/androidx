@@ -24,6 +24,7 @@ import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.sqlite.SQLiteException
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.base.Optional
@@ -34,18 +35,26 @@ import java.util.Date
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 @MediumTest
-class BooksDaoTest : TestDatabaseTest() {
+@RunWith(Parameterized::class)
+class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLite) {
+
+    private companion object {
+        @JvmStatic
+        @Parameters(name = "useBundledSQLite={0}")
+        fun parameters() = arrayOf(false, true)
+    }
 
     @Test
     fun addPublisherIdError() {
@@ -212,17 +221,14 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        var throwable: Throwable? = null
         try {
             booksDao.updateBookTitle(TestUtil.BOOK_1.bookId, null)
-        } catch (t: Throwable) {
-            throwable = t
+            fail("updateBookTitle should have failed")
+        } catch (ex: SQLiteConstraintException) {
+            // ignored on purpose
+        } catch (ex: SQLiteException) {
+            assertThat(ex).hasMessageThat().contains("NOT NULL constraint failed")
         }
-        assertNotNull(throwable)
-        assertThat<Throwable>(
-            throwable,
-            instanceOf<Throwable>(SQLiteConstraintException::class.java)
-        )
     }
 
     @Test
@@ -397,6 +403,8 @@ class BooksDaoTest : TestDatabaseTest() {
                 fail("addAuthorPublisherBooks should have failed")
             } catch (ex: SQLiteConstraintException) {
                 // ignored on purpose
+            } catch (ex: SQLiteException) {
+                assertThat(ex).hasMessageThat().contains("UNIQUE constraint failed")
             }
 
             assertThat(booksDao.getBooksSuspend().isEmpty(), `is`(true))

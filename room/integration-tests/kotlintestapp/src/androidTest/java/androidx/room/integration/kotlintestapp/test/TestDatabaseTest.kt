@@ -22,13 +22,14 @@ import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.integration.kotlintestapp.dao.UsersDao
 import androidx.room.integration.kotlintestapp.testutil.TestObserver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 
-abstract class TestDatabaseTest {
+abstract class TestDatabaseTest(private val useBundledSQLite: Boolean = false) {
     @Rule @JvmField val countingTaskExecutorRule = CountingTaskExecutorRule()
     protected lateinit var database: TestDatabase
     protected lateinit var booksDao: BooksDao
@@ -42,6 +43,7 @@ abstract class TestDatabaseTest {
                     ApplicationProvider.getApplicationContext(),
                     TestDatabase::class.java
                 )
+                .apply { if (useBundledSQLite) setDriver(BundledSQLiteDriver()) }
                 .build()
 
         booksDao = database.booksDao()

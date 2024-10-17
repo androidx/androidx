@@ -563,7 +563,7 @@ actual abstract class RoomDatabase {
     /** Asserts that we are not on a suspending transaction. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used in generated code
     open fun assertNotSuspendingTransaction() {
-        check(inTransaction() || suspendingTransactionId.get() == null) {
+        check(!inCompatibilityMode() || inTransaction() || suspendingTransactionId.get() == null) {
             "Cannot access database on a different coroutine" +
                 " context inherited from a suspending transaction."
         }
