@@ -16,10 +16,14 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.MutableIntList
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableIntListOf
+import androidx.collection.mutableObjectListOf
 import kotlin.jvm.JvmInline
 
 @JvmInline
-internal value class Stack<T>(private val backing: ArrayList<T> = ArrayList()) {
+internal value class Stack<T>(private val backing: MutableObjectList<T> = mutableObjectListOf()) {
     val size: Int
         get() = backing.size
 
@@ -41,40 +45,28 @@ internal value class Stack<T>(private val backing: ArrayList<T> = ArrayList()) {
     fun toArray(): Array<T> = Array<Any?>(backing.size) { backing[it] } as Array<T>
 }
 
-internal class IntStack {
-    private var slots = IntArray(10)
-    private var tos = 0
-
+@JvmInline
+internal value class IntStack(private val slots: MutableIntList = mutableIntListOf()) {
     val size: Int
-        get() = tos
+        get() = slots.size
 
-    fun push(value: Int) {
-        if (tos >= slots.size) {
-            slots = slots.copyOf(slots.size * 2)
-        }
-        slots[tos++] = value
-    }
+    fun push(value: Int) = slots.add(value)
 
-    fun pop(): Int = slots[--tos]
+    fun pop(): Int = slots.removeAt(size - 1)
 
-    fun peekOr(default: Int): Int = if (tos > 0) peek() else default
+    fun peekOr(default: Int): Int = if (size > 0) peek() else default
 
-    fun peek() = slots[tos - 1]
+    fun peek() = slots[size - 1]
 
-    fun peek2() = slots[tos - 2]
+    fun peek2() = slots[size - 2]
 
     fun peek(index: Int) = slots[index]
 
-    fun isEmpty() = tos == 0
+    fun isEmpty() = slots.isEmpty()
 
-    fun isNotEmpty() = tos != 0
+    fun isNotEmpty() = slots.isNotEmpty()
 
-    fun clear() {
-        tos = 0
-    }
+    fun clear() = slots.clear()
 
-    fun indexOf(value: Int): Int {
-        for (i in 0 until tos) if (slots[i] == value) return i
-        return -1
-    }
+    fun indexOf(value: Int) = slots.indexOf(value)
 }
