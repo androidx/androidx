@@ -245,6 +245,42 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getLong_whenSet_returns() {
+        val underTest = savedState { putLong(KEY_1, Long.MAX_VALUE) }
+        val actual = underTest.read { getLong(KEY_1) }
+
+        assertThat(actual).isEqualTo(Long.MAX_VALUE)
+    }
+
+    @Test
+    fun getLong_whenNotSet_throws() {
+        assertThrows<IllegalStateException> { savedState().read { getLong(KEY_1) } }
+    }
+
+    @Test
+    fun getLong_whenSet_differentType_returnsDefault() {
+        val underTest = savedState { putBoolean(KEY_1, false) }
+        val actual = underTest.read { getLong(KEY_1) }
+
+        assertThat(actual).isEqualTo(SavedStateUtils.DEFAULT_LONG)
+    }
+
+    @Test
+    fun getLongOrElse_whenSet_returns() {
+        val underTest = savedState { putLong(KEY_1, Long.MAX_VALUE) }
+        val actual = underTest.read { getLongOrElse(KEY_1) { Long.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Long.MAX_VALUE)
+    }
+
+    @Test
+    fun getLongOrElse_whenNotSet_returnsElse() {
+        val actual = savedState().read { getLongOrElse(KEY_1) { Long.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Long.MIN_VALUE)
+    }
+
+    @Test
     fun getString_whenSet_returns() {
         val underTest = savedState { putString(KEY_1, STRING_VALUE) }
         val actual = underTest.read { getString(KEY_1) }

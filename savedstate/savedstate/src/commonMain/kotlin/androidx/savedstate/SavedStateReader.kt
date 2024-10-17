@@ -115,6 +115,27 @@ internal constructor(
     public inline fun getIntOrElse(key: String, defaultValue: () -> Int): Int
 
     /**
+     * Retrieves an [Long] value associated with the specified [key]. Throws an
+     * [IllegalStateException] if the [key] doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The [Long] value associated with the [key].
+     * @throws IllegalStateException If the [key] is not found.
+     */
+    public inline fun getLong(key: String): Long
+
+    /**
+     * Retrieves an [Int] value associated with the specified [key], or a default value if the [key]
+     * doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param defaultValue A function providing the default value if the [key] is not found.
+     * @return The [Int] value associated with the [key], or the default value if the [key] is not
+     *   found.
+     */
+    public inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long
+
+    /**
      * Retrieves a [String] value associated with the specified [key]. Throws an
      * [IllegalStateException] if the [key] doesn't exist.
      *
