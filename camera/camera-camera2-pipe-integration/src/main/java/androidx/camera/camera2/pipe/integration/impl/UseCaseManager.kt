@@ -1140,6 +1140,7 @@ constructor(
                 closeCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
                 finalizeSessionOnCloseBehavior = shouldFinalizeSessionOnCloseBehavior,
                 disableGraphLevelSurfaceTracking = shouldDisableGraphLevelSurfaceTracking,
+                enableRestartDelays = true,
             )
         }
     }

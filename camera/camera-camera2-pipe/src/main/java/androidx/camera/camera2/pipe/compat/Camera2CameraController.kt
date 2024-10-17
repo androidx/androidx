@@ -263,7 +263,8 @@ constructor(
             return
         }
         Log.debug { "Restarting Camera2CameraController" }
-        restart(0L)
+        val delayMs = if (graphConfig.flags.enableRestartDelays) 700L else 0L
+        restart(delayMs)
     }
 
     override fun close(): Unit =

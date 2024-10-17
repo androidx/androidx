@@ -399,7 +399,17 @@ public interface CameraGraph : AutoCloseable {
          * - Device(s): LEGACY camera hardware level
          * - API levels: 23 or LEGACY hardware level.
          */
-        val disableGraphLevelSurfaceTracking: Boolean = false
+        val disableGraphLevelSurfaceTracking: Boolean = false,
+
+        /**
+         * Flag to enable CameraGraph to restart its internal camera controller(s) with a delay. The
+         * delay might be needed during Activity switching, to allow time for the preceding Activity
+         * to close its CameraGraphs to allow for the succeeding Activity to acquire the same
+         * camera.
+         * - Bug(s): b/344752133, b/153714651
+         * - Device(s): CameraX users
+         */
+        val enableRestartDelays: Boolean = false
     ) {
 
         @JvmInline
