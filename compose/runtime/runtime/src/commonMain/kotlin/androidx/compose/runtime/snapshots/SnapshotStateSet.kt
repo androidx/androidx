@@ -210,8 +210,9 @@ class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
  * between sets. As there is already contention on the global snapshot lock to write so the
  * additional contention introduced by this lock is nominal.
  *
- * In code that requires this lock and calls `writable` (or other operation that acquires the
- * snapshot global lock), this lock *MUST* be acquired first to avoid deadlocks.
+ * In code the requires this lock and calls `writable` (or other operation that acquires the
+ * snapshot global lock), this lock *MUST* be acquired last to avoid deadlocks. In other words, the
+ * lock must be taken in the `writable` lambda, if `writable` is used.
  */
 private val sync = makeSynchronizedObject()
 

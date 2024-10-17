@@ -319,7 +319,8 @@ private class SnapshotMapValueSet<K, V>(map: SnapshotStateMap<K, V>) :
  * additional contention introduced by this lock is nominal.
  *
  * In code the requires this lock and calls `writable` (or other operation that acquires the
- * snapshot global lock), this lock *MUST* be acquired first to avoid deadlocks.
+ * snapshot global lock), this lock *MUST* be acquired last to avoid deadlocks. In other words, the
+ * lock must be taken in the `writable` lambda, if `writable` is used.
  */
 private val sync = makeSynchronizedObject()
 
