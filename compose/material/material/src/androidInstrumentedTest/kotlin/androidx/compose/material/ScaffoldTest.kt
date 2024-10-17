@@ -17,6 +17,7 @@
 package androidx.compose.material
 
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -34,6 +36,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
+import androidx.compose.testutils.assertNoPendingChanges
+import androidx.compose.testutils.doFramesUntilNoChangesPending
+import androidx.compose.testutils.forGivenTestCase
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -53,7 +60,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -61,6 +68,7 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
@@ -71,6 +79,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -80,7 +89,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ScaffoldTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val fabSpacing = 16.dp
     private val scaffoldTag = "Scaffold"
@@ -719,9 +728,68 @@ class ScaffoldTest {
         assertWithMessage("Expected placeCount to be >= 1").that(onPlaceCount).isAtLeast(1)
     }
 
+    // Regression test for b/373904168
+    @Test
+    fun scaffold_topBarHeightChanging_noRecompositionInBody() {
+        val testCase = TopBarHeightChangingScaffoldTestCase()
+        rule.forGivenTestCase(testCase).performTestWithEventsControl {
+            doFrame()
+            assertNoPendingChanges()
+
+            assertEquals(1, testCase.tracker.compositions)
+
+            testCase.toggleState()
+
+            doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
+
+            assertEquals(1, testCase.tracker.compositions)
+        }
+    }
+
     private fun assertDpIsWithinThreshold(actual: Dp, expected: Dp, threshold: Dp) {
         assertThat(actual.value).isWithin(threshold.value).of(expected.value)
     }
 
     private val roundingError = 0.5.dp
+}
+
+private class TopBarHeightChangingScaffoldTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+
+    private lateinit var state: MutableState<Dp>
+
+    val tracker = CompositionTracker()
+
+    @Composable
+    override fun MeasuredContent() {
+        state = remember { mutableStateOf(0.dp) }
+        val paddingValues = remember {
+            object : PaddingValues {
+                override fun calculateBottomPadding(): Dp = state.value
+
+                override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
+
+                override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
+
+                override fun calculateTopPadding(): Dp = 0.dp
+            }
+        }
+
+        Scaffold(
+            topBar = {
+                TopAppBar(title = { Text("Title") }, modifier = Modifier.padding(paddingValues))
+            },
+        ) { contentPadding ->
+            tracker.compositions++
+            Box(Modifier.padding(contentPadding).fillMaxSize())
+        }
+    }
+
+    @Composable
+    override fun ContentWrappers(content: @Composable () -> Unit) {
+        MaterialTheme { content() }
+    }
+
+    override fun toggleState() {
+        state.value = if (state.value == 0.dp) 10.dp else 0.dp
+    }
 }
