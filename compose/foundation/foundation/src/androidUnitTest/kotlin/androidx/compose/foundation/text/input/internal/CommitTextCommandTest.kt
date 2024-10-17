@@ -23,177 +23,175 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class CommitTextCommandTest {
+internal class CommitTextCommandTest : ImeEditCommandTest() {
 
     @Test
     fun test_insert_empty() {
-        val eb = TextFieldBuffer("", TextRange.Zero)
+        imeScope.commitText("X", 1)
 
-        eb.commitText("X", 1)
-
-        assertThat(eb.toString()).isEqualTo("X")
-        assertThat(eb.selection.start).isEqualTo(1)
-        assertThat(eb.selection.end).isEqualTo(1)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("X")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(1)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_cursor_tail() {
-        val eb = TextFieldBuffer("A", TextRange(1))
+        initialize("A", TextRange(1))
 
-        eb.commitText("X", 1)
+        imeScope.commitText("X", 1)
 
-        assertThat(eb.toString()).isEqualTo("AX")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("AX")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_cursor_head() {
-        val eb = TextFieldBuffer("A", TextRange(1))
+        initialize("A", TextRange(1))
 
-        eb.commitText("X", 0)
+        imeScope.commitText("X", 0)
 
-        assertThat(eb.toString()).isEqualTo("AX")
-        assertThat(eb.selection.start).isEqualTo(1)
-        assertThat(eb.selection.end).isEqualTo(1)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("AX")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(1)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_cursor_far_tail() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1))
+        initialize("ABCDE", TextRange(1))
 
-        eb.commitText("X", 2)
+        imeScope.commitText("X", 2)
 
-        assertThat(eb.toString()).isEqualTo("AXBCDE")
-        assertThat(eb.selection.start).isEqualTo(3)
-        assertThat(eb.selection.end).isEqualTo(3)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("AXBCDE")
+        assertThat(state.selection.start).isEqualTo(3)
+        assertThat(state.selection.end).isEqualTo(3)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_cursor_far_head() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(4))
+        initialize("ABCDE", TextRange(4))
 
-        eb.commitText("X", -2)
+        imeScope.commitText("X", -2)
 
-        assertThat(eb.toString()).isEqualTo("ABCDXE")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDXE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_empty_text_cursor_head() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1))
+        initialize("ABCDE", TextRange(1))
 
-        eb.commitText("", 0)
+        imeScope.commitText("", 0)
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(1)
-        assertThat(eb.selection.end).isEqualTo(1)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(1)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_empty_text_cursor_tail() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1))
+        initialize("ABCDE", TextRange(1))
 
-        eb.commitText("", 1)
+        imeScope.commitText("", 1)
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(1)
-        assertThat(eb.selection.end).isEqualTo(1)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(1)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_empty_text_cursor_far_tail() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1))
+        initialize("ABCDE", TextRange(1))
 
-        eb.commitText("", 2)
+        imeScope.commitText("", 2)
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_insert_empty_text_cursor_far_head() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(4))
+        initialize("ABCDE", TextRange(4))
 
-        eb.commitText("", -2)
+        imeScope.commitText("", -2)
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_cancel_composition() {
-        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
+        initialize("ABCDE", TextRange.Zero)
 
-        eb.setComposition(1, 4) // Mark "BCD" as composition
-        eb.commitText("X", 1)
+        imeScope.setComposingRegion(1, 4) // Mark "BCD" as composition
+        imeScope.commitText("X", 1)
 
-        assertThat(eb.toString()).isEqualTo("AXE")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("AXE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_replace_selection() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1, 4)) // select "BCD"
+        initialize("ABCDE", TextRange(1, 4)) // select "BCD"
 
-        eb.commitText("X", 1)
+        imeScope.commitText("X", 1)
 
-        assertThat(eb.toString()).isEqualTo("AXE")
-        assertThat(eb.selection.start).isEqualTo(2)
-        assertThat(eb.selection.end).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("AXE")
+        assertThat(state.selection.start).isEqualTo(2)
+        assertThat(state.selection.end).isEqualTo(2)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_composition_and_selection() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1, 3)) // select "BC"
+        initialize("ABCDE", TextRange(1, 3)) // select "BC"
 
-        eb.setComposition(2, 4) // Mark "CD" as composition
-        eb.commitText("X", 1)
+        imeScope.setComposingRegion(2, 4) // Mark "CD" as composition
+        imeScope.commitText("X", 1)
 
         // If composition and selection exists at the same time, replace composition and cancel
         // selection and place cursor.
-        assertThat(eb.toString()).isEqualTo("ABXE")
-        assertThat(eb.selection.start).isEqualTo(3)
-        assertThat(eb.selection.end).isEqualTo(3)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABXE")
+        assertThat(state.selection.start).isEqualTo(3)
+        assertThat(state.selection.end).isEqualTo(3)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_cursor_position_too_small() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(5))
+        initialize("ABCDE", TextRange(5))
 
-        eb.commitText("X", -1000)
+        imeScope.commitText("X", -1000)
 
-        assertThat(eb.toString()).isEqualTo("ABCDEX")
-        assertThat(eb.selection.start).isEqualTo(0)
-        assertThat(eb.selection.end).isEqualTo(0)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDEX")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_cursor_position_too_large() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(5))
+        initialize("ABCDE", TextRange(5))
 
-        eb.commitText("X", 1000)
+        imeScope.commitText("X", 1000)
 
-        assertThat(eb.toString()).isEqualTo("ABCDEX")
-        assertThat(eb.selection.start).isEqualTo(6)
-        assertThat(eb.selection.end).isEqualTo(6)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDEX")
+        assertThat(state.selection.start).isEqualTo(6)
+        assertThat(state.selection.end).isEqualTo(6)
+        assertThat(state.composition).isNull()
     }
 }

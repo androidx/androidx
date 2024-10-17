@@ -139,12 +139,11 @@ internal abstract class TextFieldKeyEventHandler {
             if (codePoint != null) {
                 val text = StringBuilder(2).appendCodePointX(codePoint).toString()
                 return if (editable) {
-                    textFieldState.editUntransformedTextAsUser(
+                    textFieldState.replaceSelectedText(
+                        newText = text,
+                        clearComposition = true,
                         restartImeIfContentChanges = !event.isFromSoftKeyboard
-                    ) {
-                        commitComposition()
-                        commitText(text, 1)
-                    }
+                    )
                     preparedSelectionState.resetCachedX()
                     true
                 } else {
@@ -209,20 +208,22 @@ internal abstract class TextFieldKeyEventHandler {
                 }
                 KeyCommand.NEW_LINE -> {
                     if (!singleLine) {
-                        textFieldState.editUntransformedTextAsUser {
-                            commitComposition()
-                            commitText("\n", 1)
-                        }
+                        textFieldState.replaceSelectedText(
+                            newText = "\n",
+                            clearComposition = true,
+                            restartImeIfContentChanges = !event.isFromSoftKeyboard
+                        )
                     } else {
                         onSubmit()
                     }
                 }
                 KeyCommand.TAB -> {
                     if (!singleLine) {
-                        textFieldState.editUntransformedTextAsUser {
-                            commitComposition()
-                            commitText("\t", 1)
-                        }
+                        textFieldState.replaceSelectedText(
+                            newText = "\t",
+                            clearComposition = true,
+                            restartImeIfContentChanges = !event.isFromSoftKeyboard
+                        )
                     } else {
                         consumed = false // let propagate to focus system
                     }

@@ -23,7 +23,6 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
@@ -34,20 +33,13 @@ import androidx.compose.ui.text.input.TextFieldValue
  * [StatelessInputConnection] from [TextFieldState] for testability.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal interface TextInputSession {
+internal interface TextInputSession : ImeEditCommandScope {
 
     /**
      * The current [TextFieldValue] in this input session. This value is typically supplied by a
      * backing [TextFieldState] that is used to initialize the session.
      */
     val text: TextFieldCharSequence
-
-    /**
-     * Callback to execute for InputConnection to communicate the changes requested by the IME.
-     *
-     * @param block Lambda scoped to an EditingBuffer to apply changes direct onto a buffer.
-     */
-    fun requestEdit(block: TextFieldBuffer.() -> Unit)
 
     /** Delegates IME requested KeyEvents. */
     fun sendKeyEvent(keyEvent: KeyEvent)

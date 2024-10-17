@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.matchers.assertThat
+import androidx.compose.foundation.text.input.setSelectionCoerced
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -115,7 +116,7 @@ class TextFieldBufferUseFromImeTest {
         assertThat(eb.hasComposition()).isFalse()
         assertThat(eb.composition).isNull()
 
-        eb.setSelection(0, 2) // Set the selection again
+        eb.setSelectionCoerced(0, 2) // Set the selection again
         assertThat(eb).hasChars("XDE")
         assertThat(eb.selection.start).isEqualTo(0)
         assertThat(eb.selection.end).isEqualTo(2)
@@ -147,7 +148,7 @@ class TextFieldBufferUseFromImeTest {
     fun setSelection_coerces_whenNegativeStart() {
         val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
-        eb.setSelection(-1, 1)
+        eb.setSelectionCoerced(-1, 1)
 
         assertThat(eb.selection.start).isEqualTo(0)
         assertThat(eb.selection.end).isEqualTo(1)
@@ -157,7 +158,7 @@ class TextFieldBufferUseFromImeTest {
     fun setSelection_coerces_whenNegativeEnd() {
         val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
-        eb.setSelection(1, -1)
+        eb.setSelectionCoerced(1, -1)
 
         assertThat(eb.selection.start).isEqualTo(1)
         assertThat(eb.selection.end).isEqualTo(0)
@@ -166,7 +167,7 @@ class TextFieldBufferUseFromImeTest {
     @Test
     fun setSelection_allowReversedSelection() {
         val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
-        eb.setSelection(4, 2)
+        eb.setSelectionCoerced(4, 2)
 
         assertThat(eb.selection).isEqualTo(TextRange(4, 2))
     }
@@ -553,7 +554,7 @@ class TextFieldBufferUseFromImeTest {
         assertThat(eb.highlight)
             .isEqualTo(Pair(TextHighlightType.HandwritingSelectPreview, TextRange(1, 3)))
 
-        eb.setSelection(0, 1)
+        eb.setSelectionCoerced(0, 1)
         assertThat(eb.highlight).isNull()
     }
 

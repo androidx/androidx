@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.commitText
+import androidx.compose.foundation.text.input.internal.withImeScope
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
@@ -44,7 +45,7 @@ class TextFieldStateSaverTest {
     fun savesAndRestoresUndo() {
         val state = TextFieldState("hello, world", initialSelection = TextRange(0, 5))
 
-        state.editAsUser(null) { commitText("hi", 1) }
+        state.withImeScope { commitText("hi", 1) }
 
         val saved = with(TextFieldState.Saver) { TestSaverScope.save(state) }
         assertNotNull(saved)

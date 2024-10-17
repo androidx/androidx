@@ -29,7 +29,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
-import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.previewHandwritingGesture
@@ -132,17 +131,11 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
         startInputMethod { outAttrs ->
             logDebug { "createInputConnection(value=\"${state.visualText}\")" }
 
+            val imeEditCommandScope = DefaultImeEditCommandScope(state)
             val textInputSession =
-                object : TextInputSession {
+                object : TextInputSession, ImeEditCommandScope by imeEditCommandScope {
                     override val text: TextFieldCharSequence
                         get() = state.visualText
-
-                    override fun requestEdit(block: TextFieldBuffer.() -> Unit) {
-                        state.editUntransformedTextAsUser(
-                            restartImeIfContentChanges = false,
-                            block = block
-                        )
-                    }
 
                     override fun sendKeyEvent(keyEvent: KeyEvent) {
                         composeImm.sendKeyEvent(keyEvent)
