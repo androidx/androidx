@@ -322,6 +322,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
     // {@link SearchSpecProto.EmbeddingQueryMetricType.Code}
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
+            EMBEDDING_SEARCH_METRIC_TYPE_DEFAULT,
             EMBEDDING_SEARCH_METRIC_TYPE_COSINE,
             EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT,
             EMBEDDING_SEARCH_METRIC_TYPE_EUCLIDEAN,
@@ -329,6 +330,13 @@ public final class SearchSpec extends AbstractSafeParcelable {
     @Retention(RetentionPolicy.SOURCE)
     public @interface EmbeddingSearchMetricType {
     }
+
+    /**
+     * Use the default metric set in {@link SearchSpec#getDefaultEmbeddingSearchMetricType()} for
+     * embedding search and ranking.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public static final int EMBEDDING_SEARCH_METRIC_TYPE_DEFAULT = 0;
 
     /**
      * Cosine similarity as metric for embedding search and ranking.

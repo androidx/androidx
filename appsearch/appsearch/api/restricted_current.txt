@@ -649,6 +649,7 @@ package androidx.appsearch.app {
     method public boolean isNumericSearchEnabled();
     method public boolean isVerbatimSearchEnabled();
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_COSINE = 1; // 0x1
+    field public static final int EMBEDDING_SEARCH_METRIC_TYPE_DEFAULT = 0; // 0x0
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT = 2; // 0x2
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_EUCLIDEAN = 3; // 0x3
     field public static final int GROUPING_TYPE_PER_NAMESPACE = 2; // 0x2
@@ -880,6 +881,7 @@ package androidx.appsearch.ast {
     field public static final String FUNCTION_NAME_HAS_PROPERTY = "hasProperty";
     field public static final String FUNCTION_NAME_PROPERTY_DEFINED = "propertyDefined";
     field public static final String FUNCTION_NAME_SEARCH = "search";
+    field public static final String FUNCTION_NAME_SEMANTIC_SEARCH = "semanticSearch";
   }
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class NegationNode implements androidx.appsearch.ast.Node {
@@ -982,6 +984,21 @@ package androidx.appsearch.ast.query {
     method public java.util.List<androidx.appsearch.app.PropertyPath!> getProperties();
     method public void setChild(androidx.appsearch.ast.Node);
     method public void setProperties(java.util.List<androidx.appsearch.app.PropertyPath!>);
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class SemanticSearchNode implements androidx.appsearch.ast.FunctionNode {
+    ctor public SemanticSearchNode(int);
+    ctor public SemanticSearchNode(int, float);
+    ctor public SemanticSearchNode(int, float, float);
+    ctor public SemanticSearchNode(int, float, float, int);
+    method public int getDistanceMetric();
+    method public String getFunctionName();
+    method public float getLowerBound();
+    method public float getUpperBound();
+    method public int getVectorIndex();
+    method public void setBounds(float, float);
+    method public void setDistanceMetric(int);
+    method public void setVectorIndex(int);
   }
 
 }
