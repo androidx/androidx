@@ -22,6 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.pdf.idlingresource.PdfIdlingResource
 import androidx.pdf.testapp.R
 import androidx.pdf.viewer.fragment.PdfViewerFragment
@@ -46,6 +48,8 @@ internal class TestPdfViewerFragment : PdfViewerFragment() {
         // Inflate the custom layout for this fragment
         hostView = inflater.inflate(R.layout.fragment_host, container, false) as FrameLayout
         search = hostView?.findViewById(R.id.host_Search)
+
+        hostView?.let { hostView -> handleInsets(hostView) }
 
         // Add the default PDF viewer to the custom layout
         hostView?.addView(view)
@@ -75,5 +79,21 @@ internal class TestPdfViewerFragment : PdfViewerFragment() {
 
     companion object {
         private const val PDF_LOAD_RESOURCE_NAME = "PdfLoad"
+    }
+}
+
+fun handleInsets(hostView: View) {
+    ViewCompat.setOnApplyWindowInsetsListener(hostView) { view, insets ->
+        // Get the insets for the system bars (status bar, navigation bar)
+        val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+        // Adjust the padding of the container view to accommodate system windows
+        view.setPadding(
+            view.paddingLeft,
+            systemBarsInsets.top,
+            view.paddingRight,
+            systemBarsInsets.bottom
+        )
+        insets
     }
 }
