@@ -692,7 +692,7 @@ package androidx.compose.runtime.collection {
     method public boolean containsAll(java.util.Collection<? extends T> elements);
     method public boolean containsAll(java.util.List<? extends T> elements);
     method public boolean contentEquals(androidx.compose.runtime.collection.MutableVector<T> other);
-    method public inline void ensureCapacity(int capacity);
+    method public void ensureCapacity(int capacity);
     method public T first();
     method public inline T first(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public inline T? firstOrNull();

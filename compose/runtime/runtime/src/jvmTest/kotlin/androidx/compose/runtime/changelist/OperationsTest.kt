@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.changelist
 
-import androidx.compose.runtime.EnableDebugRuntimeChecks
 import androidx.compose.runtime.changelist.Operation.IntParameter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
 import androidx.compose.runtime.changelist.TestOperations.MixedOperation
@@ -59,14 +58,9 @@ class OperationsTest {
         )
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun testPush_withNoBlock_failsIfOperationHasArguments() {
-        if (EnableDebugRuntimeChecks) {
-            try {
-                stack.push(MixedOperation)
-                fail("Pushing an operation should fail if it has arguments")
-            } catch (_: IllegalArgumentException) {}
-        }
+        stack.push(MixedOperation)
     }
 
     @Test
@@ -171,16 +165,16 @@ class OperationsTest {
     @Test
     fun testPush_withResizingRequired() {
         check(
-            stack.opCodes.size == OperationsInitialCapacity &&
-                stack.intArgs.size == OperationsInitialCapacity &&
-                stack.objectArgs.size == OperationsInitialCapacity
+            stack.opCodes.size == Operations.InitialCapacity &&
+                stack.intArgs.size == Operations.InitialCapacity &&
+                stack.objectArgs.size == Operations.InitialCapacity
         ) {
             "OpStack did not initialize one or more of its backing arrays (opCodes, intArgs, " +
                 "or objectArgs) to `OpStack.InitialCapacity`. Please use the constant or update " +
                 "this test with the correct capacity to ensure that resizing is being tested."
         }
 
-        val itemsToForceResize = OperationsInitialCapacity + 1
+        val itemsToForceResize = Operations.InitialCapacity + 1
         repeat(itemsToForceResize) { opNumber ->
             stack.push(TwoIntsOperation) {
                 val (int1, int2) = TwoIntsOperation.intParams
@@ -221,89 +215,81 @@ class OperationsTest {
 
     @Test
     fun testPush_throwsIfAnyIntArgsNotProvided() {
-        if (EnableDebugRuntimeChecks) {
-            try {
-                stack.push(TwoIntsOperation) {
-                    val (_, intArg2) = TwoIntsOperation.intParams
-                    setInt(intArg2, 42)
-                }
-                fail(
-                    "Pushing an operation that defines two parameters should fail " +
-                        "if only one of the arguments is set"
-                )
-            } catch (e: IllegalStateException) {
-                assertTrue(
-                    message =
-                        "The thrown exception does not appear to have reported the expected " +
-                            "error (its message is '${e.message}')",
-                    actual = e.message.orEmpty().contains("Not all arguments were provided")
-                )
+        try {
+            stack.push(TwoIntsOperation) {
+                val (_, intArg2) = TwoIntsOperation.intParams
+                setInt(intArg2, 42)
             }
+            fail(
+                "Pushing an operation that defines two parameters should fail " +
+                    "if only one of the arguments is set"
+            )
+        } catch (e: IllegalStateException) {
+            assertTrue(
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
+                actual = e.message.orEmpty().contains("Not all arguments were provided")
+            )
         }
     }
 
     @Test
     fun testPush_throwsIfAnyObjectArgsNotProvided() {
-        if (EnableDebugRuntimeChecks) {
-            try {
-                stack.push(TwoObjectsOperation) {
-                    val (_, objectArg2) = TwoObjectsOperation.objParams
-                    setObject(objectArg2, Any())
-                }
-                fail(
-                    "Pushing an operation that defines two parameters should fail " +
-                        "if only one of the arguments is set"
-                )
-            } catch (e: IllegalStateException) {
-                assertTrue(
-                    message =
-                        "The thrown exception does not appear to have reported the expected " +
-                            "error (its message is '${e.message}')",
-                    actual = e.message.orEmpty().contains("Not all arguments were provided")
-                )
+        try {
+            stack.push(TwoObjectsOperation) {
+                val (_, objectArg2) = TwoObjectsOperation.objParams
+                setObject(objectArg2, Any())
             }
+            fail(
+                "Pushing an operation that defines two parameters should fail " +
+                    "if only one of the arguments is set"
+            )
+        } catch (e: IllegalStateException) {
+            assertTrue(
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
+                actual = e.message.orEmpty().contains("Not all arguments were provided")
+            )
         }
     }
 
     @Test
     fun testPush_throwsIfIntArgProvidedTwice() {
-        if (EnableDebugRuntimeChecks) {
-            try {
-                stack.push(ThreeIntsOperation) {
-                    val (_, intArg2, _) = ThreeIntsOperation.intParams
-                    setInt(intArg2, 2)
-                    setInt(intArg2, 2)
-                }
-                fail("Pushing an operation should fail if an argument is set twice")
-            } catch (e: IllegalStateException) {
-                assertTrue(
-                    message =
-                        "The thrown exception does not appear to have reported the expected " +
-                            "error (its message is '${e.message}')",
-                    actual = e.message.orEmpty().contains("Already pushed argument")
-                )
+        try {
+            stack.push(ThreeIntsOperation) {
+                val (_, intArg2, _) = ThreeIntsOperation.intParams
+                setInt(intArg2, 2)
+                setInt(intArg2, 2)
             }
+            fail("Pushing an operation should fail if an argument is set twice")
+        } catch (e: IllegalStateException) {
+            assertTrue(
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
+                actual = e.message.orEmpty().contains("Already pushed argument")
+            )
         }
     }
 
     @Test
     fun testPush_throwsIfObjectArgProvidedTwice() {
-        if (EnableDebugRuntimeChecks) {
-            try {
-                stack.push(ThreeObjectsOperation) {
-                    val (_, objectArg2, _) = ThreeObjectsOperation.objParams
-                    setObject(objectArg2, Any())
-                    setObject(objectArg2, Any())
-                }
-                fail("Pushing an operation should fail if an argument is set twice")
-            } catch (e: IllegalStateException) {
-                assertTrue(
-                    message =
-                        "The thrown exception does not appear to have reported the expected " +
-                            "error (its message is '${e.message}')",
-                    actual = e.message.orEmpty().contains("Already pushed argument")
-                )
+        try {
+            stack.push(ThreeObjectsOperation) {
+                val (_, objectArg2, _) = ThreeObjectsOperation.objParams
+                setObject(objectArg2, Any())
+                setObject(objectArg2, Any())
             }
+            fail("Pushing an operation should fail if an argument is set twice")
+        } catch (e: IllegalStateException) {
+            assertTrue(
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
+                actual = e.message.orEmpty().contains("Already pushed argument")
+            )
         }
     }
 
@@ -426,7 +412,7 @@ class OperationsTest {
 
     @Test
     fun testClear_resetsToInitialState() {
-        val operationCount = OperationsInitialCapacity * 4
+        val operationCount = Operations.InitialCapacity * 4
         repeat(operationCount) { opNumber ->
             stack.push(MixedOperation) {
                 val (int1, int2) = MixedOperation.intParams

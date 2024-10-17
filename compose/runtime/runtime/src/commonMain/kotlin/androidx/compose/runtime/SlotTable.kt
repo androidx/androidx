@@ -1600,8 +1600,7 @@ internal class SlotWriter(
     }
 
     /** Set the group's slot at [index] to [value]. Returns the previous value. */
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun set(index: Int, value: Any?): Any? = set(currentGroup, index, value)
+    fun set(index: Int, value: Any?): Any? = set(currentGroup, index, value)
 
     /** Convert a slot group index into a global slot index. */
     fun slotIndexOfGroupSlotIndex(group: Int, index: Int): Int {

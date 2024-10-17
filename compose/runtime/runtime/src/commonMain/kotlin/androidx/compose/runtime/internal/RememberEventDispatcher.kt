@@ -26,8 +26,7 @@ import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stack
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.snapshots.fastForEach
 
 /**
  * Used as a placeholder for paused compositions to ensure the remembers are dispatch in the correct
@@ -38,10 +37,10 @@ import androidx.compose.runtime.collection.mutableVectorOf
  */
 internal class PausedCompositionRemembers(private val abandoning: MutableSet<RememberObserver>) :
     RememberObserver {
-    val pausedRemembers = mutableVectorOf<RememberObserver>()
+    val pausedRemembers = mutableListOf<RememberObserver>()
 
     override fun onRemembered() {
-        pausedRemembers.forEach {
+        pausedRemembers.fastForEach {
             abandoning.remove(it)
             it.onRemembered()
         }
@@ -56,10 +55,10 @@ internal class PausedCompositionRemembers(private val abandoning: MutableSet<Rem
 /** Helper for collecting remember observers for later strictly ordered dispatch. */
 internal class RememberEventDispatcher(private val abandoning: MutableSet<RememberObserver>) :
     RememberManager {
-    private val remembering = mutableVectorOf<RememberObserver>()
+    private val remembering = mutableListOf<RememberObserver>()
     private var currentRememberingList = remembering
-    private val leaving = mutableVectorOf<Any>()
-    private val sideEffects = mutableVectorOf<() -> Unit>()
+    private val leaving = mutableListOf<Any>()
+    private val sideEffects = mutableListOf<() -> Unit>()
     private var releasing: MutableScatterSet<ComposeNodeLifecycleCallback>? = null
     private var pausedPlaceholders:
         MutableScatterMap<RecomposeScopeImpl, PausedCompositionRemembers>? =
@@ -67,7 +66,7 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
     private val pending = mutableListOf<Any>()
     private val priorities = MutableIntList()
     private val afters = MutableIntList()
-    private var nestedRemembersLists: Stack<MutableVector<RememberObserver>>? = null
+    private var nestedRemembersLists: Stack<MutableList<RememberObserver>>? = null
 
     override fun remembering(instance: RememberObserver) {
         currentRememberingList.add(instance)
@@ -121,7 +120,7 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
         val placeholder = pausedPlaceholders?.get(scope)
         if (placeholder != null) {
             (nestedRemembersLists
-                    ?: Stack<MutableVector<RememberObserver>>().also { nestedRemembersLists = it })
+                    ?: Stack<MutableList<RememberObserver>>().also { nestedRemembersLists = it })
                 .push(currentRememberingList)
             currentRememberingList = placeholder.pausedRemembers
         }
@@ -170,8 +169,8 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
         }
     }
 
-    private fun dispatchRememberList(list: MutableVector<RememberObserver>) {
-        list.forEach { instance ->
+    private fun dispatchRememberList(list: List<RememberObserver>) {
+        list.fastForEach { instance ->
             abandoning.remove(instance)
             instance.onRemembered()
         }
@@ -180,7 +179,7 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
     fun dispatchSideEffects() {
         if (sideEffects.isNotEmpty()) {
             trace("Compose:sideeffects") {
-                sideEffects.forEach { sideEffect -> sideEffect() }
+                sideEffects.fastForEach { sideEffect -> sideEffect() }
                 sideEffects.clear()
             }
         }

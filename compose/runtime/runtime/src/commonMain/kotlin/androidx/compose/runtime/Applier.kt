@@ -206,8 +206,7 @@ abstract class AbstractApplier<T>(val root: T) : Applier<T> {
     }
 
     override fun up() {
-        // Let us fail with IndexOutOfBounds exception
-        // checkPrecondition(stack.isNotEmpty()) { "empty stack" }
+        checkPrecondition(stack.isNotEmpty()) { "empty stack" }
         current = stack.removeAt(stack.size - 1)
     }
 

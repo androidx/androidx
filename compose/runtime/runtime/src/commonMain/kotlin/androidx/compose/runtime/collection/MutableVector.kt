@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
+@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
 package androidx.compose.runtime.collection
 
-import dalvik.annotation.optimization.NeverInline
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
-import kotlin.jvm.JvmField
 import kotlin.math.max
 
 /**
@@ -31,8 +29,7 @@ import kotlin.math.max
 @OptIn(ExperimentalContracts::class)
 class MutableVector<T>
 @PublishedApi
-internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, size: Int) :
-    RandomAccess {
+internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) : RandomAccess {
     /** Stores allocated [MutableList] representation of this vector. */
     private var list: MutableList<T>? = null
 
@@ -47,9 +44,6 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /** Returns an [IntRange] of the valid indices for this [MutableVector]. */
     inline val indices: IntRange
         get() = 0 until size
-
-    // Added for compatibility with `content` previously defined without @JvmField
-    @PublishedApi internal fun getContent() = content
 
     /** Adds [element] to the [MutableVector] and returns `true`. */
     fun add(element: T): Boolean {
@@ -189,10 +183,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /** Returns `true` if any of the elements give a `true` return value for [predicate]. */
     inline fun any(predicate: (T) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            if (predicate(content[i])) return true
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                if (predicate(content[i])) return true
+                i++
+            } while (i < size)
         }
         return false
     }
@@ -203,11 +201,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun reversedAny(predicate: (T) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        val content = content as Array<T>
-        var i = size - 1
-        while (i >= 0) {
-            if (predicate(content[i])) return true
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                if (predicate(content[i])) return true
+                i--
+            } while (i >= 0)
         }
         return false
     }
@@ -220,7 +221,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /** Removes all elements in the [MutableVector]. */
     fun clear() {
         val content = content
-        for (i in 0 until size) {
+        for (i in lastIndex downTo 0) {
             content[i] = null
         }
         size = 0
@@ -282,21 +283,12 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     }
 
     /** Ensures that there is enough space to store [capacity] elements in the [MutableVector]. */
-    inline fun ensureCapacity(capacity: Int) {
-        if (content.size < capacity) {
-            resizeStorage(capacity)
-        }
-    }
-
-    @NeverInline
-    @PublishedApi
-    internal fun resizeStorage(capacity: Int) {
+    fun ensureCapacity(capacity: Int) {
         val oldContent = content
-        val oldSize = oldContent.size
-        val newSize = max(capacity, oldSize * 2)
-        val newContent = arrayOfNulls<Any?>(newSize) as Array<T?>
-        oldContent.copyInto(newContent, 0, 0, oldSize)
-        content = newContent
+        if (oldContent.size < capacity) {
+            val newSize = max(capacity, oldContent.size * 2)
+            content = oldContent.copyOf(newSize)
+        }
     }
 
     /**
@@ -316,11 +308,15 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun first(predicate: (T) -> Boolean): T {
         contract { callsInPlace(predicate) }
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            val item = content[i]
-            if (predicate(item)) return item
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                val item = content[i]
+                if (predicate(item)) return item
+                i++
+            } while (i < size)
         }
         throwNoSuchElementException("MutableVector contains no element matching the predicate.")
     }
@@ -343,11 +339,15 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun firstOrNull(predicate: (T) -> Boolean): T? {
         contract { callsInPlace(predicate) }
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            val item = content[i]
-            if (predicate(item)) return item
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                val item = content[i]
+                if (predicate(item)) return item
+                i++
+            } while (i < size)
         }
         return null
     }
@@ -359,10 +359,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     inline fun <R> fold(initial: R, operation: (acc: R, T) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            acc = operation(acc, content[i])
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                acc = operation(acc, content[i])
+                i++
+            } while (i < size)
         }
         return acc
     }
@@ -374,10 +378,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     inline fun <R> foldIndexed(initial: R, operation: (index: Int, acc: R, T) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            acc = operation(i, acc, content[i])
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                acc = operation(i, acc, content[i])
+                i++
+            } while (i < size)
         }
         return acc
     }
@@ -389,12 +397,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     inline fun <R> foldRight(initial: R, operation: (T, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        var i = size - 1
-        val content = content as Array<T>
-        if (i >= content.size) return acc
-        while (i >= 0) {
-            acc = operation(content[i], acc)
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                acc = operation(content[i], acc)
+                i--
+            } while (i >= 0)
         }
         return acc
     }
@@ -406,12 +416,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     inline fun <R> foldRightIndexed(initial: R, operation: (index: Int, T, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        var i = size - 1
-        val content = content as Array<T>
-        if (i >= content.size) return acc
-        while (i >= 0) {
-            acc = operation(i, content[i], acc)
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                acc = operation(i, content[i], acc)
+                i--
+            } while (i >= 0)
         }
         return acc
     }
@@ -419,36 +431,42 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     /** Calls [block] for each element in the [MutableVector], in order. */
     inline fun forEach(block: (T) -> Unit) {
         contract { callsInPlace(block) }
-        var i = 0
-        val content = content as Array<T>
         val size = size
-        while (i < size) {
-            block(content[i])
-            i++
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                block(content[i])
+                i++
+            } while (i < size)
         }
     }
 
     /** Calls [block] for each element in the [MutableVector] along with its index, in order. */
     inline fun forEachIndexed(block: (Int, T) -> Unit) {
         contract { callsInPlace(block) }
-        var i = 0
-        val content = content as Array<T>
         val size = size
-        while (i < size) {
-            block(i, content[i])
-            i++
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                block(i, content[i])
+                i++
+            } while (i < size)
         }
     }
 
     /** Calls [block] for each element in the [MutableVector] in reverse order. */
     inline fun forEachReversed(block: (T) -> Unit) {
         contract { callsInPlace(block) }
-        var i = size - 1
-        val content = content as Array<T>
-        if (i >= content.size) return
-        while (i >= 0) {
-            block(content[i])
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                block(content[i])
+                i--
+            } while (i >= 0)
         }
     }
 
@@ -457,12 +475,13 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun forEachReversedIndexed(block: (Int, T) -> Unit) {
         contract { callsInPlace(block) }
-        var i = size - 1
-        val content = content as Array<T>
-        if (i >= content.size) return
-        while (i >= 0) {
-            block(i, content[i])
-            i--
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                block(i, content[i])
+                i--
+            } while (i >= 0)
         }
     }
 
@@ -471,10 +490,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
 
     /** Returns the index of [element] in the [MutableVector] or `-1` if [element] is not there. */
     fun indexOf(element: T): Int {
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            if (element == content[i]) return i
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                if (element == content[i]) return i
+                i++
+            } while (i < size)
         }
         return -1
     }
@@ -485,10 +508,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun indexOfFirst(predicate: (T) -> Boolean): Int {
         contract { callsInPlace(predicate) }
-        val content = content as Array<T>
         val size = size
-        for (i in 0 until size) {
-            if (predicate(content[i])) return i
+        if (size > 0) {
+            var i = 0
+            val content = content as Array<T>
+            do {
+                if (predicate(content[i])) return i
+                i++
+            } while (i < size)
         }
         return -1
     }
@@ -499,13 +526,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun indexOfLast(predicate: (T) -> Boolean): Int {
         contract { callsInPlace(predicate) }
-        var i = size - 1
-        val content = content as Array<T>
-        if (i < content.size) {
-            while (i >= 0) {
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
                 if (predicate(content[i])) return i
                 i--
-            }
+            } while (i >= 0)
         }
         return -1
     }
@@ -533,12 +561,15 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun last(predicate: (T) -> Boolean): T {
         contract { callsInPlace(predicate) }
-        var i = size - 1
-        val content = content as Array<T>
-        while (i >= 0) {
-            val item = content[i]
-            if (predicate(item)) return item
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                val item = content[i]
+                if (predicate(item)) return item
+                i--
+            } while (i >= 0)
         }
         throwNoSuchElementException("MutableVector contains no element matching the predicate.")
     }
@@ -548,11 +579,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * `-1` if no elements match.
      */
     fun lastIndexOf(element: T): Int {
-        var i = size - 1
-        val content = content as Array<T>
-        while (i >= 0) {
-            if (element == content[i]) return i
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                if (element == content[i]) return i
+                i--
+            } while (i >= 0)
         }
         return -1
     }
@@ -566,12 +600,15 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     inline fun lastOrNull(predicate: (T) -> Boolean): T? {
         contract { callsInPlace(predicate) }
-        var i = size - 1
-        val content = content as Array<T>
-        while (i >= 0) {
-            val item = content[i]
-            if (predicate(item)) return item
-            i--
+        val size = size
+        if (size > 0) {
+            var i = size - 1
+            val content = content as Array<T>
+            do {
+                val item = content[i]
+                if (predicate(item)) return item
+                i--
+            } while (i >= 0)
         }
         return null
     }
@@ -605,12 +642,16 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         val size = size
         val arr = arrayOfNulls<R>(size)
         var targetSize = 0
-        val content = content as Array<T>
-        for (i in 0 until size) {
-            val target = transform(i, content[i])
-            if (target != null) {
-                arr[targetSize++] = target
-            }
+        if (size > 0) {
+            val content = content as Array<T>
+            var i = 0
+            do {
+                val target = transform(i, content[i])
+                if (target != null) {
+                    arr[targetSize++] = target
+                }
+                i++
+            } while (i < size)
         }
         return MutableVector(arr, targetSize)
     }
@@ -624,12 +665,16 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         val size = size
         val arr = arrayOfNulls<R>(size)
         var targetSize = 0
-        val content = content as Array<T>
-        for (i in 0 until size) {
-            val target = transform(content[i])
-            if (target != null) {
-                arr[targetSize++] = target
-            }
+        if (size > 0) {
+            val content = content as Array<T>
+            var i = 0
+            do {
+                val target = transform(content[i])
+                if (target != null) {
+                    arr[targetSize++] = target
+                }
+                i++
+            } while (i < size)
         }
         return MutableVector(arr, targetSize)
     }
@@ -782,11 +827,14 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     inline fun sumBy(selector: (T) -> Int): Int {
         contract { callsInPlace(selector) }
         var sum = 0
-        val content = content as Array<T>
-        var i = 0
-        while (i < size) {
-            sum += selector(content[i])
-            i++
+        val size = size
+        if (size > 0) {
+            val content = content as Array<T>
+            var i = 0
+            do {
+                sum += selector(content[i])
+                i++
+            } while (i < size)
         }
         return sum
     }
