@@ -352,14 +352,14 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
 
         override fun intParamName(parameter: IntParameter) =
             when (parameter) {
-                GroupSlotIndex -> "groupSlotIndex"
+                UpdateAnchoredValue.GroupSlotIndex -> "groupSlotIndex"
                 else -> super.intParamName(parameter)
             }
 
         override fun objectParamName(parameter: ObjectParameter<*>) =
             when (parameter) {
-                Value -> "value"
-                Anchor -> "anchor"
+                UpdateAnchoredValue.Value -> "value"
+                UpdateAnchoredValue.Anchor -> "anchor"
                 else -> super.objectParamName(parameter)
             }
 
@@ -368,9 +368,9 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            val value = getObject(Value)
-            val anchor = getObject(Anchor)
-            val groupSlotIndex = getInt(GroupSlotIndex)
+            val value = getObject(UpdateAnchoredValue.Value)
+            val anchor = getObject(UpdateAnchoredValue.Anchor)
+            val groupSlotIndex = getInt(UpdateAnchoredValue.GroupSlotIndex)
             if (value is RememberObserverHolder) {
                 rememberManager.remembering(value.wrapped)
             }

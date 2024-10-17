@@ -32,6 +32,12 @@
     static java.lang.Void compose*RuntimeError(...);
 }
 
-# NeverInline is compile-time only and present in the platform itself, we don't bundle
-# it with the library, so we can safely ignore this warning
--dontwarn dalvik.annotation.optimization.NeverInline
+# Optimize out all debugRuntimeChecks. These checks insert a fair amount of overhead, and
+# are focused more towards throwing exceptions intend for Compose engineering. If a removed
+# check would have failed, we'll generally still get a usable exception, it just won't be
+# as pretty as the original. This is at the benefit of removing both the overhead of doing
+# the check to begin with, and prevents throw instructions that would prevent ART from
+# inlining a function body.
+-assumevalues class androidx.compose.runtime.ComposerKt {
+    static boolean getEnableDebugRuntimeChecks() return false;
+}

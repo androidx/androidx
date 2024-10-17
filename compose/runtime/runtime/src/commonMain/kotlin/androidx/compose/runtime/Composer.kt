@@ -4549,7 +4549,8 @@ internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> String) {
     }
 }
 
-internal const val EnableDebugRuntimeChecks = false
+// R8 rules cause this to be inlined as `false`
+private val enableDebugRuntimeChecks = true
 
 /**
  * A variation of [composeRuntimeError] that gets stripped from R8-minified builds. Use this for
@@ -4558,7 +4559,7 @@ internal const val EnableDebugRuntimeChecks = false
  * binary.
  */
 internal inline fun debugRuntimeCheck(value: Boolean, lazyMessage: () -> String) {
-    if (EnableDebugRuntimeChecks && !value) {
+    if (enableDebugRuntimeChecks && !value) {
         composeImmediateRuntimeError(lazyMessage())
     }
 }

@@ -19,7 +19,6 @@
 package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.EnableDebugRuntimeChecks
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
@@ -27,14 +26,10 @@ import androidx.compose.runtime.changelist.Operation.IntParameter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.requirePrecondition
-import dalvik.annotation.optimization.NeverInline
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
-
-private const val OperationsMaxResizeAmount = 1024
-internal const val OperationsInitialCapacity = 16
 
 /**
  * `Operations` is a data structure used to store a sequence of [Operations][Operation] and their
@@ -48,13 +43,14 @@ internal const val OperationsInitialCapacity = 16
  * `Operations` is not a thread safe data structure.
  */
 internal class Operations : OperationsDebugStringFormattable() {
-    private var opCodes = arrayOfNulls<Operation>(OperationsInitialCapacity)
+
+    private var opCodes = arrayOfNulls<Operation>(InitialCapacity)
     private var opCodesSize = 0
 
-    private var intArgs = IntArray(OperationsInitialCapacity)
+    private var intArgs = IntArray(InitialCapacity)
     private var intArgsSize = 0
 
-    private var objectArgs = arrayOfNulls<Any>(OperationsInitialCapacity)
+    private var objectArgs = arrayOfNulls<Any>(InitialCapacity)
     private var objectArgsSize = 0
 
     /*
@@ -102,13 +98,17 @@ internal class Operations : OperationsDebugStringFormattable() {
      */
     @InternalComposeApi
     fun pushOp(operation: Operation) {
-        if (EnableDebugRuntimeChecks) {
-            pushedIntMask = 0b0
-            pushedObjectMask = 0b0
-        }
+        pushedIntMask = 0b0
+        pushedObjectMask = 0b0
 
+        // Resize arrays if needed
         if (opCodesSize == opCodes.size) {
-            resizeOpCodes()
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
+            val resizeAmount = opCodesSize.coerceAtMost(MaxResizeAmount)
+            val newOpCodes = arrayOfNulls<Operation>(opCodesSize + resizeAmount)
+            opCodes.copyInto(newOpCodes, 0, 0, opCodesSize)
+            opCodes = newOpCodes
         }
         ensureIntArgsSizeAtLeast(intArgsSize + operation.ints)
         ensureObjectArgsSizeAtLeast(objectArgsSize + operation.objects)
@@ -120,43 +120,30 @@ internal class Operations : OperationsDebugStringFormattable() {
     }
 
     private fun determineNewSize(currentSize: Int, requiredSize: Int): Int {
-        val resizeAmount = currentSize.coerceAtMost(OperationsMaxResizeAmount)
+        val resizeAmount = currentSize.coerceAtMost(MaxResizeAmount)
         return (currentSize + resizeAmount).coerceAtLeast(requiredSize)
     }
 
-    @NeverInline
-    private fun resizeOpCodes() {
-        val resizeAmount = opCodesSize.coerceAtMost(OperationsMaxResizeAmount)
-        val newOpCodes = arrayOfNulls<Operation>(opCodesSize + resizeAmount)
-        opCodes = opCodes.copyInto(newOpCodes, 0, 0, opCodesSize)
-    }
-
-    private inline fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
+    private fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
         val currentSize = intArgs.size
         if (requiredSize > currentSize) {
-            resizeIntArgs(currentSize, requiredSize)
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
+            val newIntArgs = IntArray(determineNewSize(currentSize, requiredSize))
+            intArgs.copyInto(newIntArgs, 0, 0, currentSize)
+            intArgs = newIntArgs
         }
     }
 
-    @NeverInline
-    private fun resizeIntArgs(currentSize: Int, requiredSize: Int) {
-        val newIntArgs = IntArray(determineNewSize(currentSize, requiredSize))
-        intArgs.copyInto(newIntArgs, 0, 0, currentSize)
-        intArgs = newIntArgs
-    }
-
-    private inline fun ensureObjectArgsSizeAtLeast(requiredSize: Int) {
+    private fun ensureObjectArgsSizeAtLeast(requiredSize: Int) {
         val currentSize = objectArgs.size
         if (requiredSize > currentSize) {
-            resizeObjectArgs(currentSize, requiredSize)
+            // Note: manual allocation + copy of the array produces much better code on Android
+            // than calling Array.copyOf()
+            val newObjectArgs = arrayOfNulls<Any>(determineNewSize(currentSize, requiredSize))
+            objectArgs.copyInto(newObjectArgs, 0, 0, currentSize)
+            objectArgs = newObjectArgs
         }
-    }
-
-    @NeverInline
-    private fun resizeObjectArgs(currentSize: Int, requiredSize: Int) {
-        val newObjectArgs = arrayOfNulls<Any>(determineNewSize(currentSize, requiredSize))
-        objectArgs.copyInto(newObjectArgs, 0, 0, currentSize)
-        objectArgs = newObjectArgs
     }
 
     /**
@@ -167,10 +154,8 @@ internal class Operations : OperationsDebugStringFormattable() {
      * any arguments.
      */
     fun push(operation: Operation) {
-        if (EnableDebugRuntimeChecks) {
-            requirePrecondition((operation.ints and operation.objects) == 0) {
-                exceptionMessageForOperationPushNoScope(operation)
-            }
+        requirePrecondition((operation.ints and operation.objects) == 0) {
+            exceptionMessageForOperationPushNoScope(operation)
         }
         @OptIn(InternalComposeApi::class) pushOp(operation)
     }
@@ -355,25 +340,21 @@ internal class Operations : OperationsDebugStringFormattable() {
 
         fun setInt(parameter: IntParameter, value: Int) =
             with(stack) {
-                if (EnableDebugRuntimeChecks) {
-                    val mask = 0b1 shl parameter.offset
-                    debugRuntimeCheck(pushedIntMask and mask == 0) {
-                        "Already pushed argument ${operation.intParamName(parameter)}"
-                    }
-                    pushedIntMask = pushedIntMask or mask
+                val mask = 0b1 shl parameter.offset
+                debugRuntimeCheck(pushedIntMask and mask == 0) {
+                    "Already pushed argument ${operation.intParamName(parameter)}"
                 }
+                pushedIntMask = pushedIntMask or mask
                 intArgs[topIntIndexOf(parameter)] = value
             }
 
         fun <T> setObject(parameter: ObjectParameter<T>, value: T) =
             with(stack) {
-                if (EnableDebugRuntimeChecks) {
-                    val mask = 0b1 shl parameter.offset
-                    debugRuntimeCheck(pushedObjectMask and mask == 0) {
-                        "Already pushed argument ${operation.objectParamName(parameter)}"
-                    }
-                    pushedObjectMask = pushedObjectMask or mask
+                val mask = 0b1 shl parameter.offset
+                debugRuntimeCheck(pushedObjectMask and mask == 0) {
+                    "Already pushed argument ${operation.objectParamName(parameter)}"
                 }
+                pushedObjectMask = pushedObjectMask or mask
                 objectArgs[topObjectIndexOf(parameter)] = value
             }
     }
@@ -418,6 +399,11 @@ internal class Operations : OperationsDebugStringFormattable() {
             append("] = ")
             append(currentOpToDebugString(""))
         }
+    }
+
+    companion object {
+        private const val MaxResizeAmount = 1024
+        internal const val InitialCapacity = 16
     }
 
     @Deprecated(
