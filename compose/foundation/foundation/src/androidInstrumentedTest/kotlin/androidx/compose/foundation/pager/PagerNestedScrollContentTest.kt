@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyList
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
@@ -81,7 +82,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 reverseLayout = false,
                 state = rememberLazyListState(),
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
@@ -127,7 +128,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 flingBehavior = flingInspector,
                 state = rememberLazyListState(initialFirstVisibleItemIndex = 8),
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
@@ -190,7 +191,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 reverseLayout = false,
                 state = rememberLazyListState(),
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
@@ -234,7 +235,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 reverseLayout = false,
                 state = lazyListState,
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
@@ -287,7 +288,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 reverseLayout = false,
                 state = lazyListState,
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
@@ -348,7 +349,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
                 reverseLayout = false,
                 state = lazyListState,
                 userScrollEnabled = true,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
                 verticalArrangement = Arrangement.Top,
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,

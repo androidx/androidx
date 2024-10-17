@@ -24,7 +24,6 @@ import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.forEach
@@ -37,6 +36,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.Center
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.End
 import androidx.compose.foundation.samples.AnchoredDraggableSampleValue.HalfEnd
@@ -185,7 +185,7 @@ fun AnchoredDraggableWithOverscrollSample() {
         }
     val draggableSize = 80.dp
     val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
+    val overscrollEffect = rememberOverscrollEffect()
 
     Box(
         Modifier.fillMaxWidth().onSizeChanged { layoutSize ->

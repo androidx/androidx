@@ -22,7 +22,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -31,6 +30,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -184,14 +184,13 @@ fun OverscrollWithDraggable_After() {
     val minPosition = -1000f
     val maxPosition = 1000f
 
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
+    val overscrollEffect = rememberOverscrollEffect()
 
     val draggableState = rememberDraggableState { delta ->
         // Horizontal, so convert the delta to a horizontal offset
         val deltaAsOffset = Offset(delta, 0f)
-        // Wrap the original logic inside applyToScroll
-        overscrollEffect.applyToScroll(deltaAsOffset, NestedScrollSource.UserInput) {
-            remainingOffset ->
+
+        val performDrag: (Offset) -> Offset = { remainingOffset ->
             val remainingDelta = remainingOffset.x
             val newPosition = (dragPosition + remainingDelta).coerceIn(minPosition, maxPosition)
             // Calculate how much delta we have consumed
@@ -199,6 +198,13 @@ fun OverscrollWithDraggable_After() {
             dragPosition = newPosition
             // Return how much offset we consumed, so that we can show overscroll for what is left
             Offset(consumed, 0f)
+        }
+
+        if (overscrollEffect != null) {
+            // Wrap the original logic inside applyToScroll
+            overscrollEffect.applyToScroll(deltaAsOffset, NestedScrollSource.UserInput, performDrag)
+        } else {
+            performDrag(deltaAsOffset)
         }
     }
 
@@ -211,7 +217,7 @@ fun OverscrollWithDraggable_After() {
                 draggableState,
                 orientation = Orientation.Horizontal,
                 onDragStopped = {
-                    overscrollEffect.applyToFling(Velocity(it, 0f)) { velocity ->
+                    overscrollEffect?.applyToFling(Velocity(it, 0f)) { velocity ->
                         if (dragPosition == minPosition || dragPosition == maxPosition) {
                             // If we are at the min / max bound, give overscroll all of the velocity
                             Velocity.Zero

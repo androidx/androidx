@@ -21,10 +21,10 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -56,7 +56,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
         reverseLayout: Boolean = false,
         mainAxisSpacing: Dp = 0.dp,
         crossAxisArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(0.dp),
-        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         content: LazyStaggeredGridScope.() -> Unit,
     ) {
         LazyStaggeredGrid(
@@ -93,7 +93,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
         mainAxisSpacing: Dp = 0.dp,
         crossAxisArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(0.dp),
         reverseLayout: Boolean = false,
-        overscrollEffect: OverscrollEffect? = ScrollableDefaults.overscrollEffect(),
+        overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         content: LazyStaggeredGridScope.() -> Unit,
     ) {
         if (orientation == Orientation.Vertical) {

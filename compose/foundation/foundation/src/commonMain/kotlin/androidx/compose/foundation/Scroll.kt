@@ -224,7 +224,7 @@ fun Modifier.verticalScroll(
                 enabled = enabled,
                 flingBehavior = flingBehavior,
                 reverseScrolling = reverseScrolling,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
             )
         },
         inspectorInfo =
@@ -302,7 +302,7 @@ fun Modifier.horizontalScroll(
                 enabled = enabled,
                 flingBehavior = flingBehavior,
                 reverseScrolling = reverseScrolling,
-                overscrollEffect = ScrollableDefaults.overscrollEffect(),
+                overscrollEffect = rememberOverscrollEffect(),
             )
         },
         inspectorInfo =

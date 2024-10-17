@@ -2725,9 +2725,7 @@ class ScrollableTest {
         rule.setContent {
             counter.value // just to trigger recomposition
             materialized =
-                currentComposer.materialize(
-                    Modifier.scrollable(state, Orientation.Vertical, NoOpOverscrollEffect)
-                )
+                currentComposer.materialize(Modifier.scrollable(state, Orientation.Vertical, null))
         }
 
         lateinit var first: Modifier

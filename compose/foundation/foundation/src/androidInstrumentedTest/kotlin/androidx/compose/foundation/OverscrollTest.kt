@@ -30,6 +30,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
@@ -88,6 +93,71 @@ class OverscrollTest {
     }
 
     private val boxTag = "box"
+
+    @Test
+    fun rememberOverscrollEffect_defaultValue() {
+        lateinit var effect: OverscrollEffect
+        rule.setContent { effect = rememberOverscrollEffect()!! }
+        rule.runOnIdle {
+            assertThat(effect).isInstanceOf(AndroidEdgeEffectOverscrollEffect::class.java)
+        }
+    }
+
+    @Test
+    fun rememberOverscrollEffect_nullOverscrollFactory() {
+        var effect: OverscrollEffect? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalOverscrollFactory provides null) {
+                effect = rememberOverscrollEffect()
+            }
+        }
+        rule.runOnIdle { assertThat(effect).isNull() }
+    }
+
+    @Test
+    fun rememberOverscrollEffect_ChangeOverscrollFactory() {
+        lateinit var effect: OverscrollEffect
+        val movableContent = movableContentOf { effect = rememberOverscrollEffect()!! }
+        var setCustomFactory by mutableStateOf(false)
+        class CustomEffect : OverscrollEffect {
+            override val isInProgress = false
+            override val effectModifier = Modifier
+
+            override fun applyToScroll(
+                delta: Offset,
+                source: NestedScrollSource,
+                performScroll: (Offset) -> Offset
+            ) = performScroll(delta)
+
+            override suspend fun applyToFling(
+                velocity: Velocity,
+                performFling: suspend (Velocity) -> Velocity
+            ) {}
+        }
+        val customFactory =
+            object : OverscrollFactory {
+                override fun createOverscrollEffect(): OverscrollEffect = CustomEffect()
+
+                override fun hashCode(): Int = -1
+
+                override fun equals(other: Any?) = other === this
+            }
+        rule.setContent {
+            if (setCustomFactory) {
+                CompositionLocalProvider(
+                    LocalOverscrollFactory provides customFactory,
+                    content = movableContent
+                )
+            } else {
+                movableContent()
+            }
+        }
+        rule.runOnIdle {
+            assertThat(effect).isInstanceOf(AndroidEdgeEffectOverscrollEffect::class.java)
+            setCustomFactory = true
+        }
+        rule.runOnIdle { assertThat(effect).isInstanceOf(CustomEffect::class.java) }
+    }
 
     @Test
     fun overscrollEffect_scrollable_drag() {
@@ -800,7 +870,7 @@ class OverscrollTest {
         lateinit var effect: OverscrollEffect
         rule.setContent {
             Box {
-                effect = rememberOverscrollEffect()
+                effect = rememberOverscrollEffect()!!
                 Box(Modifier.overscroll(effect).size(0.dp))
             }
         }
@@ -833,7 +903,7 @@ class OverscrollTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun notAttachedEffectIsNotConsumingOffsetsAndVelocity() {
         lateinit var effect: OverscrollEffect
-        rule.setContent { effect = rememberOverscrollEffect() }
+        rule.setContent { effect = rememberOverscrollEffect()!! }
 
         rule.runOnIdle {
             repeat(2) {
@@ -1172,7 +1242,7 @@ class OverscrollTest {
                 modifier =
                     Modifier.testTag(boxTag)
                         .size(100.dp)
-                        .overscroll(ScrollableDefaults.overscrollEffect())
+                        .overscroll(rememberOverscrollEffect())
                         .drawBehind { drawCount++ }
             )
         }
