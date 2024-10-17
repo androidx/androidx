@@ -62,10 +62,14 @@ class LifecycleEventFlowTest {
         testScope.runTest {
             val collectedEvents = mutableListOf<Lifecycle.Event>()
             val lifecycleEventFlow = owner.lifecycle.eventFlow
-            backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
+            val job =
+                backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
+
             owner.currentState = Lifecycle.State.CREATED
             owner.currentState = Lifecycle.State.DESTROYED
             owner.currentState = Lifecycle.State.RESUMED
+
+            assertThat(job.isCompleted).isTrue()
             assertThat(collectedEvents)
                 .containsExactly(
                     Lifecycle.Event.ON_CREATE,
