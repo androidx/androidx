@@ -87,10 +87,10 @@ fun SingleSelectConnectedButtonGroupSample() {
             checkedShape = ToggleButtonDefaults.checkedShape
         )
     val middleButtonShapes =
-        ToggleButtonDefaults.shapes(
-            ShapeDefaults.Small,
-            ToggleButtonDefaults.pressedShape,
-            ToggleButtonDefaults.checkedShape
+        ButtonShapes(
+            shape = ShapeDefaults.Small,
+            pressedShape = ToggleButtonDefaults.pressedShape,
+            checkedShape = ToggleButtonDefaults.checkedShape
         )
     val endButtonShapes =
         ButtonShapes(
@@ -138,10 +138,10 @@ fun MultiSelectConnectedButtonGroupSample() {
             checkedShape = ToggleButtonDefaults.checkedShape
         )
     val middleButtonShapes =
-        ToggleButtonDefaults.shapes(
-            ShapeDefaults.Small,
-            ToggleButtonDefaults.pressedShape,
-            ToggleButtonDefaults.checkedShape
+        ButtonShapes(
+            shape = ShapeDefaults.Small,
+            pressedShape = ToggleButtonDefaults.pressedShape,
+            checkedShape = ToggleButtonDefaults.checkedShape
         )
     val endButtonShapes =
         ButtonShapes(
