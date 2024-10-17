@@ -725,7 +725,7 @@ package androidx.compose.runtime.collection {
     method public boolean containsAll(java.util.Collection<? extends T> elements);
     method public boolean containsAll(java.util.List<? extends T> elements);
     method public boolean contentEquals(androidx.compose.runtime.collection.MutableVector<T> other);
-    method public void ensureCapacity(int capacity);
+    method public inline void ensureCapacity(int capacity);
     method public T first();
     method public inline T first(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public inline T? firstOrNull();
@@ -739,6 +739,7 @@ package androidx.compose.runtime.collection {
     method public inline void forEachReversed(kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> block);
     method public inline operator T get(int index);
+    method @kotlin.PublishedApi internal T?[] getContent();
     method public inline kotlin.ranges.IntRange getIndices();
     method public inline int getLastIndex();
     method public int getSize();
@@ -765,6 +766,7 @@ package androidx.compose.runtime.collection {
     method public T removeAt(int index);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public void removeRange(int start, int end);
+    method @kotlin.PublishedApi internal void resizeStorage(int capacity);
     method public boolean retainAll(java.util.Collection<? extends T> elements);
     method public inline boolean reversedAny(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public operator T set(int index, T element);

@@ -31,13 +31,3 @@
     static void compose*RuntimeError(...);
     static java.lang.Void compose*RuntimeError(...);
 }
-
-# Optimize out all debugRuntimeChecks. These checks insert a fair amount of overhead, and
-# are focused more towards throwing exceptions intend for Compose engineering. If a removed
-# check would have failed, we'll generally still get a usable exception, it just won't be
-# as pretty as the original. This is at the benefit of removing both the overhead of doing
-# the check to begin with, and prevents throw instructions that would prevent ART from
-# inlining a function body.
--assumevalues class androidx.compose.runtime.ComposerKt {
-    static boolean getEnableDebugRuntimeChecks() return false;
-}
