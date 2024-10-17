@@ -21,7 +21,9 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.isDeepPress
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -47,12 +49,11 @@ import androidx.compose.ui.util.fastFirstOrNull
  * @param enabled whether this modifier is enabled, it's used for the case where the editor is
  *   readOnly or disabled.
  * @param onHandwritingSlopExceeded the callback that's invoked when it detects stylus handwriting.
- *   The return value determines whether the handwriting is triggered or not. When it's true, this
- *   modifier will consume the pointer events.
+ *   And this modifier will consume the pointer events.
  */
 internal fun Modifier.stylusHandwriting(
     enabled: Boolean,
-    onHandwritingSlopExceeded: () -> Boolean
+    onHandwritingSlopExceeded: () -> Unit
 ): Modifier =
     if (enabled && isStylusHandwritingSupported) {
         this.then(StylusHandwritingElement(onHandwritingSlopExceeded))
@@ -60,7 +61,7 @@ internal fun Modifier.stylusHandwriting(
         this
     }
 
-private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Boolean) :
+private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Unit) :
     ModifierNodeElement<StylusHandwritingNode>() {
     override fun create(): StylusHandwritingNode {
         return StylusHandwritingNode(onHandwritingSlopExceeded)
@@ -76,8 +77,8 @@ private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () ->
     }
 }
 
-internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> Boolean) :
-    DelegatingNode(), PointerInputModifierNode, FocusEventModifierNode {
+internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> Unit) :
+    DelegatingNode(), PointerInputModifierNode, FocusEventModifierNode, FocusRequesterModifierNode {
 
     private var focused = false
 
@@ -157,9 +158,15 @@ internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> B
                         }
                     }
 
-                    if (exceedsTouchSlop == null || !onHandwritingSlopExceeded.invoke()) {
+                    if (exceedsTouchSlop == null) {
                         return@awaitEachGesture
                     }
+
+                    if (!focused) {
+                        requestFocus()
+                    }
+
+                    onHandwritingSlopExceeded.invoke()
                     exceedsTouchSlop.consume()
 
                     // Consume the remaining changes of this pointer.
