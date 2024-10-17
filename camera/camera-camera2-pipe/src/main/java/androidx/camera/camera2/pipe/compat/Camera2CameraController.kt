@@ -41,6 +41,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -86,6 +87,8 @@ constructor(
 
     @GuardedBy("lock") private var lastCameraError: CameraError? = null
 
+    @GuardedBy("lock") private var restartJob: Job? = null
+
     private var currentCamera: VirtualCamera? = null
     private var currentSession: CaptureSessionState? = null
     private var currentSurfaceMap: Map<StreamId, Surface>? = null
@@ -119,120 +122,149 @@ constructor(
             }
     }
 
-    override fun start(): Unit =
+    override fun start() {
+        synchronized(lock) { startLocked() }
+    }
+
+    override fun stop() {
+        synchronized(lock) { stopLocked() }
+    }
+
+    private fun restart(delayMs: Long) {
         synchronized(lock) {
-            if (controllerState == ControllerState.CLOSED) {
-                Log.info { "Ignoring start(): Camera2CameraController is already closed" }
-                return
-            } else if (controllerState == ControllerState.STARTED) {
-                Log.warn { "Ignoring start(): Camera2CameraController is already started" }
-                return
-            }
-            lastCameraError = null
-            val camera =
-                virtualCameraManager.open(
-                    graphConfig.camera,
-                    graphConfig.sharedCameraIds,
-                    graphListener,
-                ) { _ ->
-                    isForeground
-                }
-            if (camera == null) {
-                Log.error {
-                    "Failed to start Camera2CameraController: Open request submission failed"
-                }
-                return
-            }
-
-            check(currentCamera == null)
-            check(currentSession == null)
-
-            currentCamera = camera
-            val session =
-                CaptureSessionState(
-                    graphListener,
-                    captureSessionFactory,
-                    captureSequenceProcessorFactory,
-                    cameraSurfaceManager,
-                    timeSource,
-                    graphConfig.flags,
-                    scope
-                )
-            currentSession = session
-
-            val surfaces: Map<StreamId, Surface>? = currentSurfaceMap
-            if (surfaces != null) {
-                session.configureSurfaceMap(surfaces)
-            }
-
-            controllerState = ControllerState.STARTED
-            Log.debug { "Started Camera2CameraController" }
-            currentCameraStateJob?.cancel()
-            currentCameraStateJob = scope.launch { bindSessionToCamera() }
-        }
-
-    override fun stop(): Unit =
-        synchronized(lock) {
-            if (controllerState == ControllerState.CLOSED) {
-                Log.warn { "Ignoring stop(): Camera2CameraController is already closed" }
-                return
-            } else if (
-                controllerState == ControllerState.STOPPING ||
-                    controllerState == ControllerState.STOPPED
-            ) {
-                Log.warn { "Ignoring stop(): CameraController already stopping or stopped" }
-                return
-            }
-
-            val camera = currentCamera
-            val session = currentSession
-
-            currentCamera = null
-            currentSession = null
-
-            controllerState = ControllerState.STOPPING
-            Log.debug { "Stopping Camera2CameraController" }
-            disconnectSessionAndCamera(session, camera)
-        }
-
-    private fun onCameraStatusChanged(cameraStatus: CameraStatus): Unit =
-        synchronized(lock) {
-            Log.debug { "$this ($cameraId) camera status changed to $cameraStatus" }
-            if (
-                cameraStatus is CameraStatus.CameraAvailable ||
-                    cameraStatus is CameraStatus.CameraUnavailable
-            ) {
-                this@Camera2CameraController.cameraStatus = cameraStatus
-            }
-
-            var shouldRestart = false
-            when (controllerState) {
-                ControllerState.DISCONNECTED ->
-                    if (
-                        cameraStatus is CameraStatus.CameraAvailable ||
-                            cameraStatus is CameraStatus.CameraPrioritiesChanged
-                    ) {
-                        shouldRestart = true
+            restartJob?.cancel()
+            restartJob =
+                scope.launch {
+                    delay(delayMs)
+                    synchronized(lock) {
+                        if (
+                            controllerState != ControllerState.CLOSED &&
+                                controllerState != ControllerState.STOPPING &&
+                                controllerState != ControllerState.STOPPED
+                        ) {
+                            controllerState
+                            stopLocked()
+                            startLocked()
+                        }
                     }
-                ControllerState.ERROR ->
-                    if (
-                        cameraStatus is CameraStatus.CameraAvailable &&
-                            lastCameraError != CameraError.ERROR_GRAPH_CONFIG
-                    ) {
-                        shouldRestart = true
-                    }
-            }
-            if (!shouldRestart) {
-                Log.debug {
-                    "Camera status changed but not restarting: " +
-                        "Controller state = $controllerState, camera status = $cameraStatus."
                 }
-                return
-            }
-            Log.debug { "Restarting Camera2CameraController" }
-            stop()
-            start()
         }
+    }
+
+    @GuardedBy("lock")
+    private fun startLocked() {
+        if (controllerState == ControllerState.CLOSED) {
+            Log.info { "Ignoring start(): Camera2CameraController is already closed" }
+            return
+        } else if (controllerState == ControllerState.STARTED) {
+            Log.warn { "Ignoring start(): Camera2CameraController is already started" }
+            return
+        }
+        lastCameraError = null
+        val camera =
+            virtualCameraManager.open(
+                graphConfig.camera,
+                graphConfig.sharedCameraIds,
+                graphListener,
+            ) { _ ->
+                isForeground
+            }
+        if (camera == null) {
+            Log.error { "Failed to start Camera2CameraController: Open request submission failed" }
+            return
+        }
+
+        check(currentCamera == null)
+        check(currentSession == null)
+
+        currentCamera = camera
+        val session =
+            CaptureSessionState(
+                graphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                graphConfig.flags,
+                scope
+            )
+        currentSession = session
+
+        val surfaces: Map<StreamId, Surface>? = currentSurfaceMap
+        if (surfaces != null) {
+            session.configureSurfaceMap(surfaces)
+        }
+
+        controllerState = ControllerState.STARTED
+        Log.debug { "Started Camera2CameraController" }
+        currentCameraStateJob?.cancel()
+        currentCameraStateJob = scope.launch { bindSessionToCamera() }
+    }
+
+    @GuardedBy("lock")
+    private fun stopLocked() {
+        if (controllerState == ControllerState.CLOSED) {
+            Log.warn { "Ignoring stop(): Camera2CameraController is already closed" }
+            return
+        } else if (
+            controllerState == ControllerState.STOPPING ||
+                controllerState == ControllerState.STOPPED
+        ) {
+            Log.warn { "Ignoring stop(): CameraController already stopping or stopped" }
+            return
+        }
+
+        val camera = currentCamera
+        val session = currentSession
+
+        currentCamera = null
+        currentSession = null
+
+        controllerState = ControllerState.STOPPING
+        Log.debug { "Stopping Camera2CameraController" }
+        disconnectSessionAndCamera(session, camera)
+    }
+
+    private fun onCameraStatusChanged(cameraStatus: CameraStatus) {
+        val shouldRestart =
+            synchronized(lock) {
+                Log.debug { "$this ($cameraId) camera status changed to $cameraStatus" }
+                if (
+                    cameraStatus is CameraStatus.CameraAvailable ||
+                        cameraStatus is CameraStatus.CameraUnavailable
+                ) {
+                    this@Camera2CameraController.cameraStatus = cameraStatus
+                }
+
+                var shouldRestart = false
+                when (controllerState) {
+                    ControllerState.DISCONNECTED ->
+                        if (
+                            cameraStatus is CameraStatus.CameraAvailable ||
+                                cameraStatus is CameraStatus.CameraPrioritiesChanged
+                        ) {
+                            shouldRestart = true
+                        }
+                    ControllerState.ERROR ->
+                        if (
+                            cameraStatus is CameraStatus.CameraAvailable &&
+                                lastCameraError != CameraError.ERROR_GRAPH_CONFIG
+                        ) {
+                            shouldRestart = true
+                        }
+                }
+                shouldRestart
+            }
+        if (!shouldRestart) {
+            Log.debug {
+                "Camera status changed but not restarting: " +
+                    "Controller state = $controllerState, camera status = $cameraStatus."
+            }
+            return
+        }
+        Log.debug { "Restarting Camera2CameraController" }
+        restart(0L)
+    }
 
     override fun close(): Unit =
         synchronized(lock) {
