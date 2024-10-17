@@ -18,14 +18,19 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.ElevatedToggleButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
@@ -108,9 +113,121 @@ fun ToggleButtonWithIconSample() {
         Icon(
             if (checked) Icons.Filled.Favorite else Icons.Outlined.Favorite,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+            modifier = Modifier.size(ButtonDefaults.IconSize)
         )
-        Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text("Like")
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun XSmallToggleButtonWithIconSample() {
+    var checked by remember { mutableStateOf(false) }
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
+        shapes =
+            ToggleButtonDefaults.shapes(
+                shape = ToggleButtonDefaults.XSmallSquareShape,
+                pressedShape = ToggleButtonDefaults.XSmallPressedShape,
+                checkedShape = ToggleButtonDefaults.checkedShape
+            ),
+        contentPadding = ButtonDefaults.XSmallContentPadding
+    ) {
+        Icon(
+            if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
+            contentDescription = "Localized description",
+            modifier = Modifier.size(ButtonDefaults.XSmallIconSize)
+        )
+        Spacer(Modifier.size(ButtonDefaults.XSmallIconSpacing))
+        Text("Label")
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun MediumToggleButtonWithIconSample() {
+    var checked by remember { mutableStateOf(false) }
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
+        shapes =
+            ToggleButtonDefaults.shapes(
+                shape = ToggleButtonDefaults.MediumSquareShape,
+                pressedShape = ToggleButtonDefaults.MediumPressedShape,
+                checkedShape = ToggleButtonDefaults.checkedShape
+            ),
+        contentPadding = ButtonDefaults.MediumContentPadding
+    ) {
+        Icon(
+            if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
+            contentDescription = "Localized description",
+            modifier = Modifier.size(ButtonDefaults.MediumIconSize)
+        )
+        Spacer(Modifier.size(ButtonDefaults.MediumIconSpacing))
+        Text(text = "Label", style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun LargeToggleButtonWithIconSample() {
+    var checked by remember { mutableStateOf(false) }
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
+        shapes =
+            ToggleButtonDefaults.shapes(
+                shape = ToggleButtonDefaults.LargeSquareShape,
+                pressedShape = ToggleButtonDefaults.LargePressedShape,
+                checkedShape = ToggleButtonDefaults.checkedShape
+            ),
+        contentPadding = ButtonDefaults.LargeContentPadding
+    ) {
+        Icon(
+            if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
+            contentDescription = "Localized description",
+            modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+        )
+        Spacer(Modifier.size(ButtonDefaults.LargeIconSpacing))
+        Text(text = "Label", style = MaterialTheme.typography.headlineSmall)
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun XLargeToggleButtonWithIconSample() {
+    var checked by remember { mutableStateOf(false) }
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
+        shapes =
+            ToggleButtonDefaults.shapes(
+                shape = ToggleButtonDefaults.XLargeSquareShape,
+                pressedShape = ToggleButtonDefaults.XLargePressedShape,
+                checkedShape = ToggleButtonDefaults.checkedShape
+            ),
+        contentPadding = ButtonDefaults.XLargeContentPadding
+    ) {
+        Icon(
+            if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
+            contentDescription = "Localized description",
+            modifier = Modifier.size(ButtonDefaults.XLargeIconSize)
+        )
+        Spacer(Modifier.size(ButtonDefaults.XLargeIconSpacing))
+        Text(text = "Label", style = MaterialTheme.typography.headlineLarge)
     }
 }
