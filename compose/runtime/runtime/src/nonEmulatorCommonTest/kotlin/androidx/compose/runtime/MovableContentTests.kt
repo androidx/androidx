@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.InlineLinear
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
 import androidx.compose.runtime.mock.View
@@ -1571,6 +1572,37 @@ class MovableContentTests {
         toggle = !toggle
         expectChanges()
         revalidate()
+    }
+
+    @Test // 365802563
+    fun movableContent_movingChildOfDeletedNode() = compositionTest {
+        var index by mutableIntStateOf(0)
+        val content = movableContentOf { Text("Some text") }
+        compose {
+            for (i in index..3) {
+                InlineLinear { content() }
+            }
+            for (i in 0..index) {
+                InlineLinear { content() }
+            }
+        }
+        validate {
+            for (i in index..3) {
+                Linear { Text("Some text") }
+            }
+            for (i in 0..index) {
+                Linear { Text("Some text") }
+            }
+        }
+
+        index++
+        advance()
+
+        index++
+        advance()
+
+        index++
+        advance()
     }
 }
 

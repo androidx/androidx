@@ -3705,7 +3705,7 @@ internal class ComposerImpl(
                         parentContext,
                         reference
                     )
-                    if (needsNodeDelete) {
+                    if (needsNodeDelete && group != groupBeingRemoved) {
                         changeListWriter.endNodeMovementAndDeleteNode(nodeIndex, group)
                         0 // These nodes were deleted
                     } else reader.nodeCount(group)
@@ -3733,7 +3733,7 @@ internal class ComposerImpl(
             } else if (reader.containsMark(group)) {
                 // Traverse the group freeing the child movable content. This group is known to
                 // have at least one child that contains movable content because the group is
-                // marked as containing a mark.
+                // marked as containing a mark
                 val size = reader.groupSize(group)
                 val end = group + size
                 var current = group + 1
@@ -3766,8 +3766,18 @@ internal class ComposerImpl(
                 if (reader.isNode(group)) 1 else runningNodeCount
             } else if (reader.isNode(group)) 1 else reader.nodeCount(group)
         }
-        reportGroup(groupBeingRemoved, needsNodeDelete = false, nodeIndex = 0)
+        // If the group that is being deleted is a node we need to remove any children that
+        // are moved.
+        val rootIsNode = reader.isNode(groupBeingRemoved)
+        if (rootIsNode) {
+            changeListWriter.endNodeMovement()
+            changeListWriter.moveDown(reader.node(groupBeingRemoved))
+        }
+        reportGroup(groupBeingRemoved, needsNodeDelete = rootIsNode, nodeIndex = 0)
         changeListWriter.endNodeMovement()
+        if (rootIsNode) {
+            changeListWriter.moveUp()
+        }
     }
 
     /**
