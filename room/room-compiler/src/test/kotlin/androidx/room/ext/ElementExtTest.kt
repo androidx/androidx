@@ -24,7 +24,7 @@ import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.runKspTestWithK1
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -225,25 +225,44 @@ class ElementExtTest(private val preCompile: Boolean) {
                 """
             package foo
             class Subject {
-              fun makeULong(): ULong {
-                TODO()
-              }
+              fun uLongFunction(): ULong = TODO()
+              fun durationFunction(): kotlin.time.Duration = TODO()
             }
             """
                     .trimIndent()
             )
-        runKspTestWithK1(
+        runKspTest(
             sources = listOf(src),
             config =
                 XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("foo.Subject")
-            val returnType =
-                subject.getDeclaredMethods().single { it.name == "makeULong" }.returnType
-            val prop = checkNotNull(returnType.typeElement).getValueClassUnderlyingElement()
-            assertThat(prop.name).isEqualTo("data")
-            assertThat(prop.type)
-                .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
+            subject
+                .getDeclaredMethods()
+                .first { it.name == "uLongFunction" }
+                .let { uLongFunction ->
+                    val returnType = uLongFunction.returnType
+                    val info = checkNotNull(returnType.typeElement).getValueClassUnderlyingInfo()
+                    assertThat(info.parameter.name).isEqualTo("data")
+                    assertThat(info.field.name).isEqualTo("data")
+                    assertThat(info.parameter.type)
+                        .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
+                    assertThat(info.field.type)
+                        .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
+                }
+            subject
+                .getDeclaredMethods()
+                .first { it.name == "durationFunction" }
+                .let { durationFunction ->
+                    val returnType = durationFunction.returnType
+                    val info = checkNotNull(returnType.typeElement).getValueClassUnderlyingInfo()
+                    assertThat(info.parameter.name).isEqualTo("rawValue")
+                    assertThat(info.field.name).isEqualTo("rawValue")
+                    assertThat(info.parameter.type)
+                        .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
+                    assertThat(info.field.type)
+                        .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
+                }
         }
     }
 
