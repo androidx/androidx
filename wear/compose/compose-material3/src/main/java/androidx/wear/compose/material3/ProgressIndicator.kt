@@ -358,6 +358,27 @@ internal fun wrapProgress(progress: Float, allowProgressOverflow: Boolean): Floa
     return if (roundedFraction == 0.0f) 1.0f else roundedFraction
 }
 
+internal fun DrawScope.drawCircularIndicator(
+    startAngle: Float,
+    sweep: Float,
+    brush: Brush,
+    stroke: Stroke
+) {
+    // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
+    // To do this we need to remove half the stroke width from the total diameter for both sides.
+    val diameterOffset = stroke.width / 2
+    val arcDimen = size.width - 2 * diameterOffset
+    drawArc(
+        brush = brush,
+        startAngle = startAngle,
+        sweepAngle = sweep,
+        useCenter = false,
+        topLeft = Offset(diameterOffset, diameterOffset),
+        size = Size(arcDimen, arcDimen),
+        style = stroke
+    )
+}
+
 internal fun Float.isFullInt(): Boolean = (round(this) == this)
 
 internal fun Float.equalsWithTolerance(number: Float, tolerance: Float = 0.1f) =

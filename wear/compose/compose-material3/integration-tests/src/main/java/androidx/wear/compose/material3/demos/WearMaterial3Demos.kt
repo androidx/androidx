@@ -86,6 +86,7 @@ val WearMaterial3Demos =
                     )
                 ),
                 Material3DemoCategory("ScrollAway", ScrollAwayDemos),
+                Material3DemoCategory(title = "Typography", TypographyDemos),
                 ComposableDemo("Compact Button") { CompactButtonDemo() },
                 ComposableDemo("Icon Button") { IconButtonDemo() },
                 ComposableDemo("Image Button") { ImageButtonDemo() },
@@ -180,7 +181,6 @@ val WearMaterial3Demos =
                         }
                     )
                 ),
-                Material3DemoCategory(title = "Typography", TypographyDemos),
                 Material3DemoCategory(
                     "Animated Text",
                     if (Build.VERSION.SDK_INT > 31) {
