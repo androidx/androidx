@@ -87,6 +87,17 @@ class RectListTest {
     }
 
     @Test
+    fun insertUpdateClearUpdatedRemove() {
+        val list = RectList()
+        list.insert(1, 1, 1, 2, 2)
+        list.update(1, 2, 2, 3, 3)
+        list.remove(1)
+        list.clearUpdated()
+        list.defragment()
+        assertEquals(0, list.size)
+    }
+
+    @Test
     fun testFindIntersectingPoint() {
         val testData = exampleLayoutRects
         val queries = pointerInputQueries
@@ -361,12 +372,14 @@ class RectListTest {
                 itemId = 1,
                 parentId = 2,
                 lastChildOffset = 3,
+                updated = true,
                 focusable = false,
                 gesturable = true
             )
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(2, unpackMetaParentId(meta))
         assertEquals(3, unpackMetaLastChildOffset(meta))
+        assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(1, unpackMetaGesturable(meta))
     }
@@ -378,12 +391,14 @@ class RectListTest {
                 itemId = 10,
                 parentId = -1,
                 lastChildOffset = 0,
+                updated = true,
                 focusable = true,
                 gesturable = false,
             )
         assertEquals(10, unpackMetaValue(meta))
         // TODO: this actually returns 268,435,455. Not sure if we need to change this or not.
         // assertEquals(-1, unpackMetaParentScrollableValue(meta))
+        assertEquals(1, unpackMetaUpdated(meta))
         assertEquals(1, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
     }

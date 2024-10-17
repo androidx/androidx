@@ -191,6 +191,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -1063,10 +1064,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // to the front of the list, so removing in a chunk is cheaper than removing one-by-one
             endApplyChangesListeners.removeRange(0, size)
         }
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.dispatchCallbacks()
-        }
     }
 
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
@@ -1485,22 +1482,29 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         var positionChanged = false
         getLocationOnScreen(tmpPositionArray)
         val (globalX, globalY) = globalPosition
-        if (globalX != tmpPositionArray[0] || globalY != tmpPositionArray[1]) {
+        if (
+            globalX != tmpPositionArray[0] ||
+                globalY != tmpPositionArray[1] ||
+                // -1 means it has never been set, 0 means it has been "reset". We only want to
+                // catch the "never been set" case
+                lastMatrixRecalculationAnimationTime < 0L
+        ) {
             globalPosition = IntOffset(tmpPositionArray[0], tmpPositionArray[1])
             if (globalX != Int.MAX_VALUE && globalY != Int.MAX_VALUE) {
                 positionChanged = true
                 root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
             }
         }
+        recalculateWindowPosition()
+        rectManager.updateOffsets(globalPosition, windowPosition.round(), viewToWindowMatrix)
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = positionChanged)
-    }
-
-    override fun onDraw(canvas: android.graphics.Canvas) {
         @OptIn(ExperimentalComposeUiApi::class)
         if (ComposeUiFlags.isRectTrackingEnabled) {
             rectManager.dispatchCallbacks()
         }
     }
+
+    override fun onDraw(canvas: android.graphics.Canvas) {}
 
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
