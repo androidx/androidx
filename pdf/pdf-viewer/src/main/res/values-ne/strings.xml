@@ -19,14 +19,12 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"यो फाइलमा पासवर्ड राखिएको छ"</string>
     <string name="label_password_first" msgid="4456258714097111908">"पासवर्ड"</string>
-    <!-- no translation found for label_password_incorrect (5291118378657145978) -->
-    <skip />
+    <string name="label_password_incorrect" msgid="5291118378657145978">"पासवर्ड गलत छ। फेरि प्रयास गर्नुहोस्।"</string>
     <string name="button_cancel" msgid="5855794576957267334">"रद्द गर्नुहोस्"</string>
     <string name="button_open" msgid="5445014062438566842">"खोल्नुहोस्"</string>
     <string name="desc_password" msgid="6636473611443746739">"पासवर्ड हाल्ने फिल्ड"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"पासवर्ड मिलेन"</string>
-    <!-- no translation found for desc_password_incorrect_message (4676206571020946870) -->
-    <skip />
+    <string name="desc_password_incorrect_message" msgid="4676206571020946870">"पासवर्ड गलत छ। फेरि प्रयास गर्नुहोस्।"</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g> मध्ये <xliff:g id="PAGE">%1$d</xliff:g> औँ पेज"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> प्रतिशत जुम गर्नुहोस्"</string>

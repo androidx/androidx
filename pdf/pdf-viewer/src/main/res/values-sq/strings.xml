@@ -19,21 +19,18 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_dialog_password" msgid="2018068413709926925">"Ky skedar është i mbrojtur."</string>
     <string name="label_password_first" msgid="4456258714097111908">"Fjalëkalimi"</string>
-    <!-- no translation found for label_password_incorrect (5291118378657145978) -->
-    <skip />
+    <string name="label_password_incorrect" msgid="5291118378657145978">"Fjalëkalim i gabuar. Provo përsëri."</string>
     <string name="button_cancel" msgid="5855794576957267334">"Anulo"</string>
     <string name="button_open" msgid="5445014062438566842">"Hap"</string>
     <string name="desc_password" msgid="6636473611443746739">"fusha e fjalëkalimit"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"fjalëkalimi është i pasaktë"</string>
-    <!-- no translation found for desc_password_incorrect_message (4676206571020946870) -->
-    <skip />
+    <string name="desc_password_incorrect_message" msgid="4676206571020946870">"Fjalëkalim i gabuar. Provo përsëri."</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"faqja <xliff:g id="PAGE">%1$d</xliff:g> nga <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"zmadho me <xliff:g id="FIRST">%1$d</xliff:g> për qind"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Shko te faqja <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"faqja <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <!-- no translation found for desc_empty_page (5041794048330057239) -->
-    <skip />
+    <string name="desc_empty_page" msgid="5041794048330057239">"Faqe bosh"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"Skedari PDF nuk mund të shfaqet (\"<xliff:g id="TITLE">%1$s</xliff:g>\" ka format të pavlefshëm)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Nuk mund të shfaqet faqja <xliff:g id="PAGE">%1$d</xliff:g> (gabim i skedarit)"</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Lidhja: faqe uebi te <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
