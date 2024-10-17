@@ -224,4 +224,16 @@ internal constructor(
      * @return `true` if the [SavedState] contains the [key], `false` otherwise.
      */
     public inline operator fun contains(key: String): Boolean
+
+    /**
+     * Checks if the two specified [SavedState] are *deeply* equal to one another.
+     *
+     * Two [SavedState] are considered deeply equal if they have the same size, and elements at
+     * corresponding keys are deeply equal. That is, if two corresponding elements are nested
+     * [SavedState], they are also compared deeply.
+     *
+     * @param other the object to compare deeply with this.
+     * @return `true` if the two are deeply equal, `false` otherwise.
+     */
+    public fun contentDeepEquals(other: SavedState): Boolean
 }

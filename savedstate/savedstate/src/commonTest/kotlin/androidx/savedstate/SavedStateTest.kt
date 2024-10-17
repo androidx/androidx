@@ -95,6 +95,89 @@ internal class SavedStateTest : RobolectricTest() {
         assertThat(underTest.read { isEmpty() }).isTrue()
     }
 
+    @Test
+    fun contentDeepEquals_withEqualContent_returnsTrue() {
+        val sharedState = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+        }
+        val state1 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+        val state2 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+
+        val contentDeepEquals = state1.read { contentDeepEquals(state2) }
+
+        assertThat(contentDeepEquals).isTrue()
+    }
+
+    @Test
+    fun contentDeepEquals_withMissingKey_returnsFalse() {
+        val sharedState = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+        }
+        val state1 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+        val state2 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+
+        val contentDeepEquals = state1.read { contentDeepEquals(state2) }
+
+        assertThat(contentDeepEquals).isFalse()
+    }
+
+    @Test
+    fun contentDeepEquals_withDifferentContent_returnsFalse() {
+        val sharedState = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+        }
+        val state1 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+        val state2 = savedState {
+            putFloat(KEY_1, Float.MAX_VALUE)
+            putFloat(KEY_2, Float.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+
+        val contentDeepEquals = state1.read { contentDeepEquals(state2) }
+
+        assertThat(contentDeepEquals).isFalse()
+    }
+
+    @Test
+    fun contentDeepEquals_withEmptyContent_returnsFalse() {
+        val sharedState = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+        }
+        val state1 = savedState {
+            putInt(KEY_1, Int.MAX_VALUE)
+            putInt(KEY_2, Int.MAX_VALUE)
+            putSavedState(KEY_3, sharedState)
+        }
+        val state2 = savedState()
+
+        val contentDeepEquals = state1.read { contentDeepEquals(state2) }
+
+        assertThat(contentDeepEquals).isFalse()
+    }
+
     // region getters and setters
     @Test
     fun getBoolean_whenSet_returns() {
@@ -400,6 +483,7 @@ internal class SavedStateTest : RobolectricTest() {
     private companion object {
         const val KEY_1 = "KEY_1"
         const val KEY_2 = "KEY_2"
+        const val KEY_3 = "KEY_3"
         const val STRING_VALUE = "string-value"
         val LIST_INT_VALUE = List(size = 5) { idx -> idx }
         val LIST_STRING_VALUE = List(size = 5) { idx -> "index=$idx" }
