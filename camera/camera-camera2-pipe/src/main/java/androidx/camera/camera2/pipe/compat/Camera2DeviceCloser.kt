@@ -96,9 +96,15 @@ constructor(
                 Log.debug { "Empty capture session quirk completed" }
             }
         }
-        Threading.runBlockingChecked(threads.backgroundDispatcher, 5000L) {
+        Threading.runBlockingCheckedOrNull(threads.backgroundDispatcher, CAMERA_CLOSE_TIMEOUT_MS) {
             cameraDevice.closeWithTrace()
         }
+            ?: run {
+                Log.error {
+                    "Camera device close timed out after ${CAMERA_CLOSE_TIMEOUT_MS}ms. " +
+                        "The camera is likely in a bad state."
+                }
+            }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
             Log.debug { "Waiting for OnClosed from $cameraId" }
             if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 5000)) {
@@ -157,5 +163,9 @@ constructor(
             }
         }
         sessionConfigured.await()
+    }
+
+    companion object {
+        const val CAMERA_CLOSE_TIMEOUT_MS = 8_000L // 8s
     }
 }
