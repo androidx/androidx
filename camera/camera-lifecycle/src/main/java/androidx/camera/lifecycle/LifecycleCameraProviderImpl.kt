@@ -55,7 +55,6 @@ import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.core.util.Preconditions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -88,37 +87,29 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             cameraXConfig?.let { configure(it) }
             val cameraX = CameraX(context, cameraXConfigProvider)
 
-            cameraXInitializeFuture =
-                CallbackToFutureAdapter.getFuture { completer ->
-                    synchronized(lock) {
-                        val future: ListenableFuture<Void> =
-                            FutureChain.from(cameraXShutdownFuture)
-                                .transformAsync(
-                                    { cameraX.initializeFuture },
-                                    CameraXExecutors.directExecutor()
-                                )
-                        Futures.addCallback(
-                            future,
-                            object : FutureCallback<Void?> {
-                                override fun onSuccess(result: Void?) {
-                                    this@LifecycleCameraProviderImpl.cameraX = cameraX
-                                    this@LifecycleCameraProviderImpl.context =
-                                        ContextUtil.getApplicationContext(context)
-                                    completer.set(null)
-                                }
+            val initFuture =
+                FutureChain.from(cameraXShutdownFuture)
+                    .transformAsync({ cameraX.initializeFuture }, CameraXExecutors.directExecutor())
 
-                                override fun onFailure(t: Throwable) {
-                                    completer.setException(t)
-                                }
-                            },
-                            CameraXExecutors.directExecutor()
-                        )
+            cameraXInitializeFuture = initFuture
+
+            Futures.addCallback(
+                initFuture,
+                object : FutureCallback<Void?> {
+                    override fun onSuccess(void: Void?) {
+                        this@LifecycleCameraProviderImpl.cameraX = cameraX
+                        this@LifecycleCameraProviderImpl.context =
+                            ContextUtil.getApplicationContext(context)
                     }
 
-                    "LifecycleCameraProvider-initialize"
-                }
+                    override fun onFailure(t: Throwable) {
+                        shutdownAsync()
+                    }
+                },
+                CameraXExecutors.directExecutor()
+            )
 
-            return cameraXInitializeFuture as ListenableFuture<Void>
+            return Futures.nonCancellationPropagating(initFuture)
         }
     }
 
