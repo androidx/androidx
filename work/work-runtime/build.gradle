@@ -60,8 +60,6 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
     }
     namespace "androidx.work"
-    // b/370769491
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 dependencies {
