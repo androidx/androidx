@@ -402,16 +402,44 @@ internal class TransformedTextFieldState(
 
     // TODO(b/296583846) Get rid of this.
     /**
-     * Adds [notifyImeListener] to the underlying [TextFieldState] and then suspends until
-     * cancelled, removing the listener before continuing.
+     * Adds a [TextFieldState.NotifyImeListener] to the underlying [TextFieldState] and then
+     * suspends until cancelled, removing the listener before continuing.
+     *
+     * This listener is responsible for updating the IME about the latest changes to the underlying
+     * [TextFieldState]. Please note that the IME should be aware of the [outputText], rather than
+     * [untransformedText] since users mainly interact with the output representation.
+     *
+     * The real challenge comes from the fact that IME doesn't need updates if its commands are not
+     * interfered with. That's why [TextFieldState.NotifyImeListener] actually sends the latest
+     * synced value from IME, rather than the previous value inside the [TextFieldState] before the
+     * changes are applied. In the existence of [OutputTransformation], we have to transform these
+     * values once more before updating the IME.
      */
     suspend fun collectImeNotifications(
         notifyImeListener: TextFieldState.NotifyImeListener
     ): Nothing {
+        val transformedNotifyImeListener =
+            if (outputTransformation != null) {
+                TextFieldState.NotifyImeListener { oldValue, _, restartIme ->
+                    notifyImeListener.onChange(
+                        oldValue =
+                            calculateTransformedText(
+                                    untransformedValue = oldValue,
+                                    outputTransformation = outputTransformation,
+                                    wedgeAffinity = selectionWedgeAffinity
+                                )
+                                ?.text ?: oldValue,
+                        newValue = visualText,
+                        restartIme = restartIme
+                    )
+                }
+            } else {
+                notifyImeListener
+            }
         suspendCancellableCoroutine<Nothing> { continuation ->
-            textFieldState.addNotifyImeListener(notifyImeListener)
+            textFieldState.addNotifyImeListener(transformedNotifyImeListener)
             continuation.invokeOnCancellation {
-                textFieldState.removeNotifyImeListener(notifyImeListener)
+                textFieldState.removeNotifyImeListener(transformedNotifyImeListener)
             }
         }
     }

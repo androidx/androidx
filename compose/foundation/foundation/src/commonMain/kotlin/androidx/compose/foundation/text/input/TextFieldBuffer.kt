@@ -448,7 +448,8 @@ internal constructor(
     internal fun toTextFieldCharSequence(
         selection: TextRange = this.selection,
         composition: TextRange? = this.composition,
-        composingAnnotations: List<PlacedAnnotation>? = this.composingAnnotations?.asMutableList(),
+        composingAnnotations: List<PlacedAnnotation>? =
+            this.composingAnnotations?.asMutableList()?.takeIf { it.isNotEmpty() },
     ): TextFieldCharSequence =
         TextFieldCharSequence(
             text = buffer.toString(),

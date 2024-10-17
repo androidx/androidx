@@ -83,22 +83,15 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
 ): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
-            state.collectImeNotifications { oldValue, newValue, restartImeIfContentChanges ->
+            state.collectImeNotifications { oldValue, newValue, restartIme ->
                 val oldSelection = oldValue.selection
-                val newSelection = newValue.selection
                 val oldComposition = oldValue.composition
+                val newSelection = newValue.selection
                 val newComposition = newValue.composition
 
-                // No need to restart the IME if there wasn't a composing region. This is useful
-                // to not unnecessarily restart filtered digit only, or password fields.
-                if (
-                    restartImeIfContentChanges &&
-                        oldValue.composition != null &&
-                        !oldValue.contentEquals(newValue)
-                ) {
+                if (restartIme) {
                     composeImm.restartInput()
                 } else if (oldSelection != newSelection || oldComposition != newComposition) {
-                    // Don't call updateSelection if input is going to be restarted anyway
                     composeImm.updateSelection(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,

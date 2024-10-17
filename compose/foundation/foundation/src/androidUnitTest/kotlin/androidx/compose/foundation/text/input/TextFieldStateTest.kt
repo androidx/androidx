@@ -17,6 +17,8 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.internal.DefaultImeEditCommandScope
+import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.setComposingText
 import androidx.compose.foundation.text.input.internal.withImeScope
 import androidx.compose.runtime.snapshotFlow
@@ -670,6 +672,145 @@ class TextFieldStateTest {
         assertThat(state.text).isEqualTo("")
         assertThat(state.selection).isEqualTo(TextRange.Zero)
         assertThat(state.composition).isNull()
+    }
+
+    @Test
+    fun notifyImeListener_firesAfterProgrammaticEdit() {
+        val state = TextFieldState("Hello")
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        state.edit { append(" World") }
+
+        assertThat(oldValueCalled.toString()).isEqualTo("Hello")
+        assertThat(newValueCalled.toString()).isEqualTo("Hello World")
+        assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun notifyImeListener_firesAfterProgrammaticEdit_restartsImeIfComposing() {
+        val state = TextFieldState("Hello")
+        // We need a composing region to fire restartIme
+        state.editAsUser(null) { setComposition(0, 5) }
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        state.edit { append(" World") }
+
+        assertThat(oldValueCalled.toString()).isEqualTo("Hello")
+        assertThat(newValueCalled.toString()).isEqualTo("Hello World")
+        assertThat(restartImeCalled).isTrue()
+    }
+
+    @Test
+    fun notifyImeListener_firesAfterProgrammaticEdit_doesNotRestartIfContentIsSame() {
+        val state = TextFieldState("Hello")
+        // We need a composing region to fire restartIme
+        state.editAsUser(null) { setComposition(0, 5) }
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        state.edit {
+            // this ends up being no-op
+            append(" World")
+            delete(5, length)
+        }
+
+        assertThat(oldValueCalled.toString()).isEqualTo("Hello")
+        assertThat(newValueCalled.toString()).isEqualTo("Hello")
+        assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun notifyImeListener_firesAfterUserEdit() {
+        val state = TextFieldState("Hello")
+        // We need a composing region for restartIme to be true. It's not going to be but let's
+        // cover all corners
+        state.editAsUser(null) { setComposition(0, 5) }
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).setComposingText("World", 1)
+
+        assertThat(oldValueCalled.toString()).isEqualTo("Hello")
+        assertThat(newValueCalled.toString()).isEqualTo("World")
+        // Even though content changes and there was a composing region, IME is not restarted
+        assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun notifyImeListener_firesAfterUndoRedo() {
+        val state = TextFieldState("Hello")
+        state.editAsUser(null) { append(" World") }
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        state.undoState.undo() // should remove " World"
+
+        assertThat(oldValueCalled.toString()).isEqualTo("Hello World")
+        assertThat(newValueCalled.toString()).isEqualTo("Hello")
+        assertThat(restartImeCalled).isFalse()
+    }
+
+    @Test
+    fun notifyImeListener_restartImeIsFalse_ifOnlySelectionIsChanged() {
+        val state = TextFieldState("Hello", TextRange(3))
+        var oldValueCalled: TextFieldCharSequence? = null
+        var newValueCalled: TextFieldCharSequence? = null
+        var restartImeCalled: Boolean? = null
+        val listener =
+            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+                oldValueCalled = oldValue
+                newValueCalled = newValue
+                restartImeCalled = restartIme
+            }
+        state.addNotifyImeListener(listener)
+
+        state.editAsUser(null, restartImeIfContentChanges = true) { selection = TextRange.Zero }
+
+        assertThat(oldValueCalled?.selection).isEqualTo(TextRange(3))
+        assertThat(newValueCalled?.selection).isEqualTo(TextRange(0))
+        assertThat(restartImeCalled).isFalse()
     }
 
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
