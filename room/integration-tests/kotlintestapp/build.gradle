@@ -96,8 +96,8 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.mockitoCore4)
     androidTestImplementation("androidx.collection:collection")
+    androidTestImplementation(project(":sqlite:sqlite-bundled"))
 }
 
 room {
