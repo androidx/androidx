@@ -32,6 +32,11 @@ open class WindowTestUtils {
                 )
         }
 
+        fun assumeVendorApiLevel(level: Int) {
+            val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
+            assumeTrue(apiLevel == level)
+        }
+
         fun assumeAtLeastVendorApiLevel(min: Int) {
             val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
             assumeTrue(apiLevel >= min)

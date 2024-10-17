@@ -190,6 +190,12 @@ private constructor(
              * Sets the divider width. It defaults to [WIDTH_SYSTEM_DEFAULT], which means the system
              * will choose a default value based on the display size and form factor.
              *
+             * When 0dp is used for a draggable divider, the drag handle is rendered without a
+             * divider line.
+             *
+             * Note: a known compatibility issue causes incorrect rendering of 0-width divider in
+             * extensions v7. In this case, the divider width is set to 1dp as a mitigation.
+             *
              * @throws IllegalArgumentException if the provided value is invalid.
              */
             @RequiresWindowSdkExtension(6)

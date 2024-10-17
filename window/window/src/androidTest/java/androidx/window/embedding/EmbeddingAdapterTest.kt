@@ -38,6 +38,7 @@ import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplit
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.extensions.embedding.SplitInfo.Token as OEMSplitInfoToken
 import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -438,6 +439,40 @@ class EmbeddingAdapterTest {
 
         assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
         assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_0width() {
+        val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
+        assumeTrue(apiLevel >= 8 || apiLevel == 6)
+        val dividerAttributes =
+            DraggableDividerAttributes.Builder().setWidthDp(0).setColor(Color.GRAY).build()
+
+        val oemDividerAttributes =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE)
+                .setWidthDp(0)
+                .setDividerColor(Color.GRAY)
+                .build()
+
+        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
+        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_0width_withApiLevel7() {
+        WindowTestUtils.assumeVendorApiLevel(7)
+        val dividerAttributes =
+            DraggableDividerAttributes.Builder().setWidthDp(0).setColor(Color.GRAY).build()
+
+        // A known compatibility issue causes incorrect rendering of 0-width divider in
+        // extensions v7. In this case, the divider width is set to 1dp as a mitigation.
+        val oemDividerAttributes =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE)
+                .setWidthDp(1)
+                .setDividerColor(Color.GRAY)
+                .build()
+
+        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
     }
 
     @Test
