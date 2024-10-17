@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Label component that will append a [label] to [content]. The positioning logic uses
- * [TooltipDefaults.rememberPlainTooltipPositionProvider].
+ * [TooltipDefaults.rememberTooltipPositionProvider].
  *
  * Label appended to thumbs of Slider:
  *
@@ -71,7 +71,7 @@ fun Label(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // Has the same positioning logic as PlainTooltips
-    val positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider()
+    val positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
     val state =
         if (isPersistent) remember { LabelStateImpl() }
         else rememberBasicTooltipState(mutatorMutex = MutatorMutex())

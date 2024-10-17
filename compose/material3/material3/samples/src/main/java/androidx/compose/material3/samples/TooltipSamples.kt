@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlainTooltipSample() {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text("Add to favorites") } },
         state = rememberTooltipState()
     ) {
@@ -69,7 +69,7 @@ fun PlainTooltipWithManualInvocationSample() {
     val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
             tooltip = { PlainTooltip { Text("Add to list") } },
             state = tooltipState
         ) {
@@ -87,7 +87,7 @@ fun PlainTooltipWithManualInvocationSample() {
 @Composable
 fun PlainTooltipWithCaret() {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = {
             PlainTooltip(caretSize = TooltipDefaults.caretSize) { Text("Add to favorites") }
         },
@@ -104,7 +104,7 @@ fun PlainTooltipWithCaret() {
 @Composable
 fun PlainTooltipWithCustomCaret() {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip(caretSize = DpSize(24.dp, 12.dp)) { Text("Add to favorites") } },
         state = rememberTooltipState()
     ) {
@@ -121,7 +121,7 @@ fun RichTooltipSample() {
     val tooltipState = rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = {
             RichTooltip(
                 title = { Text(richTooltipSubheadText) },
@@ -150,7 +150,7 @@ fun RichTooltipWithManualInvocationSample() {
     val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
             tooltip = {
                 RichTooltip(
                     title = { Text(richTooltipSubheadText) },
@@ -181,7 +181,7 @@ fun RichTooltipWithCaretSample() {
     val tooltipState = rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = {
             RichTooltip(
                 title = { Text(richTooltipSubheadText) },
@@ -210,7 +210,7 @@ fun RichTooltipWithCustomCaretSample() {
     val tooltipState = rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = {
             RichTooltip(
                 title = { Text(richTooltipSubheadText) },

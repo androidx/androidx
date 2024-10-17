@@ -125,7 +125,6 @@ actual fun TooltipScope.PlainTooltip(
             val configuration = LocalConfiguration.current
             Modifier.drawCaret { anchorLayoutCoordinates ->
                     drawCaretWithPath(
-                        CaretType.Plain,
                         density,
                         configuration,
                         containerColor,
@@ -253,7 +252,6 @@ actual fun TooltipScope.RichTooltip(
             val configuration = LocalConfiguration.current
             Modifier.drawCaret { anchorLayoutCoordinates ->
                     drawCaretWithPath(
-                        CaretType.Rich,
                         density,
                         configuration,
                         elevatedColor,
@@ -315,7 +313,6 @@ actual fun TooltipScope.RichTooltip(
 
 @ExperimentalMaterial3Api
 private fun CacheDrawScope.drawCaretWithPath(
-    caretType: CaretType,
     density: Density,
     configuration: Configuration,
     containerColor: Color,
@@ -351,42 +348,27 @@ private fun CacheDrawScope.drawCaretWithPath(
                 tooltipHeight
             }
 
-        val position: Offset
-        if (caretType == CaretType.Plain) {
-            position =
-                if (anchorMid + tooltipWidth / 2 > screenWidthPx) {
-                    // Caret needs to be near the right
-                    val anchorMidFromRightScreenEdge = screenWidthPx - anchorMid
-                    val caretX = tooltipWidth - anchorMidFromRightScreenEdge
-                    Offset(caretX, caretY)
-                } else {
-                    // Caret needs to be near the left
-                    val tooltipLeft = anchorLeft - (this.size.width / 2 - anchorWidth / 2)
-                    val caretX = anchorMid - maxOf(tooltipLeft, 0f)
-                    Offset(caretX, caretY)
-                }
-        } else {
-            // Default the caret to the left
-            var preferredPosition = Offset(anchorMid - anchorLeft, caretY)
-            if (anchorLeft + tooltipWidth > screenWidthPx) {
-                // Need to move the caret to the right
-                preferredPosition = Offset(anchorMid - (anchorRight - tooltipWidth), caretY)
-                if (anchorRight - tooltipWidth < 0) {
-                    // Need to center the caret
-                    // Caret might need to be offset depending on where
-                    // the tooltip is placed relative to the anchor
-                    if (anchorLeft - tooltipWidth / 2 + anchorWidth / 2 <= 0) {
-                        preferredPosition = Offset(anchorMid, caretY)
-                    } else if (anchorRight + tooltipWidth / 2 - anchorWidth / 2 >= screenWidthPx) {
-                        val anchorMidFromRightScreenEdge = screenWidthPx - anchorMid
-                        val caretX = tooltipWidth - anchorMidFromRightScreenEdge
-                        preferredPosition = Offset(caretX, caretY)
-                    } else {
-                        preferredPosition = Offset(tooltipWidth / 2, caretY)
-                    }
-                }
+        // Default the caret to be in the middle
+        // caret might need to be offset depending on where
+        // the tooltip is placed relative to the anchor
+        var position: Offset =
+            if (anchorLeft - tooltipWidth / 2 + anchorWidth / 2 <= 0) {
+                Offset(anchorMid, caretY)
+            } else if (anchorRight + tooltipWidth / 2 - anchorWidth / 2 >= screenWidthPx) {
+                val anchorMidFromRightScreenEdge = screenWidthPx - anchorMid
+                val caretX = tooltipWidth - anchorMidFromRightScreenEdge
+                Offset(caretX, caretY)
+            } else {
+                Offset(tooltipWidth / 2, caretY)
             }
-            position = preferredPosition
+        if (anchorMid - tooltipWidth / 2 < 0) {
+            // The tooltip needs to be start aligned if it would collide with the left side of
+            // screen.
+            position = Offset(anchorMid - anchorLeft, caretY)
+        } else if (anchorMid + tooltipWidth / 2 > screenWidthPx) {
+            // The tooltip needs to be end aligned if it would collide with the right side of the
+            // screen.
+            position = Offset(anchorMid - (anchorRight - tooltipWidth), caretY)
         }
 
         if (isCaretTop) {
@@ -414,10 +396,4 @@ private fun CacheDrawScope.drawCaretWithPath(
             drawPath(path = path, color = containerColor)
         }
     }
-}
-
-@ExperimentalMaterial3Api
-private enum class CaretType {
-    Plain,
-    Rich
 }

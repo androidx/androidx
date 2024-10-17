@@ -89,11 +89,11 @@ private class TooltipTestCase(val tooltipType: TooltipType) :
         when (tooltipType) {
             TooltipType.Plain -> {
                 tooltip = { PlainTooltipTest() }
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider()
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
             }
             TooltipType.Rich -> {
                 tooltip = { RichTooltipTest() }
-                positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider()
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
             }
         }
 

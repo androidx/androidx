@@ -65,7 +65,7 @@ fun TooltipDemo() {
             val textFieldTooltipState = rememberTooltipState()
             val scope = rememberCoroutineScope()
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = { PlainTooltip { Text(textFieldTooltipText) } },
                 state = textFieldTooltipState
             ) {
@@ -96,7 +96,7 @@ fun TooltipDemo() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(listData) { item ->
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text("${item.itemName} added to list") } },
                     state = item.addedTooltipState
                 ) {
@@ -115,7 +115,7 @@ fun ListItemCard(itemName: String, onDelete: () -> Unit) {
             headlineContent = { Text(itemName) },
             trailingContent = {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text("Delete $itemName") } },
                     state = rememberTooltipState(),
                     enableUserInput = true

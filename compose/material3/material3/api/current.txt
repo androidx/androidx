@@ -2691,8 +2691,9 @@ package androidx.compose.material3 {
     method public float getPlainTooltipMaxWidth();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRichTooltipContainerShape();
     method public float getRichTooltipMaxWidth();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberPlainTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberRichTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberPlainTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberRichTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.RichTooltipColors richTooltipColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.RichTooltipColors richTooltipColors(optional long containerColor, optional long contentColor, optional long titleContentColor, optional long actionContentColor);
     property public final long caretSize;
