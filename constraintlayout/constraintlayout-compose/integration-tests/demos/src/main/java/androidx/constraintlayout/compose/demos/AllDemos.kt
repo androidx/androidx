@@ -16,8 +16,8 @@
 
 package androidx.constraintlayout.compose.demos
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -159,7 +158,7 @@ fun ComposeConstraintLayoutDemos() {
         }
     }
 
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
     // If there's a demo being displayed, return to demo list, otherwise, exit app
     BackHandler {
         if (displayedDemoIndex >= 0) {
