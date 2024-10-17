@@ -53,6 +53,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
+    updateSelectionState: (() -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
     viewConfiguration: ViewConfiguration?
 ): Nothing {
@@ -62,6 +63,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
         imeOptions = imeOptions,
         receiveContentConfiguration = receiveContentConfiguration,
         onImeAction = onImeAction,
+        updateSelectionState = updateSelectionState,
         composeImm = ComposeInputMethodManager(view),
         stylusHandwritingTrigger = stylusHandwritingTrigger,
         viewConfiguration = viewConfiguration
@@ -75,6 +77,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
+    updateSelectionState: (() -> Unit)?,
     composeImm: ComposeInputMethodManager,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
     viewConfiguration: ViewConfiguration?
@@ -165,6 +168,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                             return state.performHandwritingGesture(
                                 gesture,
                                 layoutState,
+                                updateSelectionState,
                                 viewConfiguration
                             )
                         }

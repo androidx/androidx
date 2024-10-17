@@ -740,6 +740,11 @@ internal class TextFieldDecoratorModifierNode(
                         imeOptions = keyboardOptions.toImeOptions(singleLine),
                         receiveContentConfiguration = receiveContentConfiguration,
                         onImeAction = ::onImeActionPerformed,
+                        updateSelectionState = {
+                            textFieldSelectionState.updateTextToolbarState(
+                                TextToolbarState.Selection
+                            )
+                        },
                         stylusHandwritingTrigger = stylusHandwritingTrigger,
                         viewConfiguration = currentValueOf(LocalViewConfiguration)
                     )
@@ -788,6 +793,7 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
+    updateSelectionState: (() -> Unit)? = null,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null,
     viewConfiguration: ViewConfiguration? = null
 ): Nothing
