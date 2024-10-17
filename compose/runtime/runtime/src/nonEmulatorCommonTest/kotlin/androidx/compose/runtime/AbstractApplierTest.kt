@@ -30,7 +30,7 @@ class AbstractApplierTest {
         try {
             applier.up()
             fail()
-        } catch (_: IllegalStateException) {}
+        } catch (_: IndexOutOfBoundsException) {}
     }
 
     @Test
