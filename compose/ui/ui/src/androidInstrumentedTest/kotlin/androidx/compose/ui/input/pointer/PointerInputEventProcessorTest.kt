@@ -21,7 +21,6 @@ package androidx.compose.ui.input.pointer
 import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -2874,7 +2873,6 @@ private class TestOwner : Owner {
     override val autofill: Autofill?
         get() = null
 
-    @ExperimentalComposeUiApi
     override val autofillManager: AutofillManager?
         get() = null
 

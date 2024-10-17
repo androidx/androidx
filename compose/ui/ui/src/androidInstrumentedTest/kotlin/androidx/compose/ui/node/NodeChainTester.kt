@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -438,7 +437,6 @@ private class MockOwner(
     override val autofill: Autofill?
         get() = TODO("Not yet implemented")
 
-    @ExperimentalComposeUiApi
     override val autofillManager: AutofillManager?
         get() = TODO("Not yet implemented")
 

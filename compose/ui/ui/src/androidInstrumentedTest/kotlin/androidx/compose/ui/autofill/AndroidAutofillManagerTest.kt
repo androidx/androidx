@@ -281,7 +281,6 @@ class AndroidAutofillManagerTest {
         rule.runOnIdle { verify(autofillManagerMock).notifyViewVisibilityChanged(any(), any()) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
@@ -304,7 +303,6 @@ class AndroidAutofillManagerTest {
         rule.runOnIdle { verify(autofillManagerMock).commit() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
@@ -324,6 +322,40 @@ class AndroidAutofillManagerTest {
         rule.onNodeWithTag(backTag).performClick()
 
         rule.runOnIdle { verify(autofillManagerMock).cancel() }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_requestAutofillAfterFocus() {
+        val contextMenuTag = "menu_tag"
+        var autofillManager: AutofillManager?
+        var hasFocus by mutableStateOf(false)
+
+        rule.setContentWithAutofillEnabled {
+            autofillManager = LocalAutofillManager.current
+            Box(
+                modifier =
+                    if (hasFocus)
+                        Modifier.semantics {
+                                contentType = ContentType.Username
+                                contentDataType = ContentDataType.Text
+                                focused = hasFocus
+                            }
+                            .clickable { autofillManager?.requestAutofill() }
+                            .size(height, width)
+                            .testTag(contextMenuTag)
+                    else plainVisibleModifier(contextMenuTag)
+            )
+        }
+
+        // `requestAutofill` is always called after an element is focused
+        rule.runOnIdle { hasFocus = true }
+        rule.runOnIdle { verify(autofillManagerMock).notifyViewEntered(any(), any()) }
+
+        // then `requestAutofill` is called on that same previously focused element
+        rule.onNodeWithTag(contextMenuTag).performClick()
+        rule.runOnIdle { verify(autofillManagerMock).requestAutofill(any(), any()) }
     }
 
     // ============================================================================================

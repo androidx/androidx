@@ -16,23 +16,13 @@
 
 package androidx.compose.ui.autofill
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-
-/**
- * The class that hosts autofill.
- *
- * Platform-specific data can be conveyed to autofill framework via the [PlatformAutofillHost].
- */
-internal expect class PlatformAutofillHost
-
 /**
  * Autofill API.
  *
  * This interface is available to all composables via a CompositionLocal. The composable can then
  * notify the Autofill framework that user values have been committed as required.
  */
-@ExperimentalComposeUiApi
-expect class AutofillManager internal constructor(platformType: PlatformAutofillHost) {
+expect class AutofillManager {
 
     /**
      * Indicate the autofill context should be committed.

@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -406,7 +405,6 @@ class ModifierLocalConsumerEntityTest {
         override val autofill: Autofill
             get() = TODO("Not yet implemented")
 
-        @ExperimentalComposeUiApi
         override val autofillManager: AutofillManager
             get() = TODO("Not yet implemented")
 

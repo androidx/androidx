@@ -71,8 +71,7 @@ val LocalAutofillTree =
  * [LocalAutofillManager.commit].
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 val LocalAutofillManager =
     staticCompositionLocalOf<AutofillManager?> { noLocalProvidedFor("LocalAutofillManager") }
 
