@@ -1242,6 +1242,17 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId.Builder setResourceId(@DrawableRes int);
   }
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public static final class ResourceBuilders.AndroidLottieResourceByResId {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getProgress();
+    method @RawRes public int getRawResourceId();
+  }
+
+  public static final class ResourceBuilders.AndroidLottieResourceByResId.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public ResourceBuilders.AndroidLottieResourceByResId.Builder(@RawRes int);
+    method public androidx.wear.protolayout.ResourceBuilders.AndroidLottieResourceByResId build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.ResourceBuilders.AndroidLottieResourceByResId.Builder setProgress(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+  }
+
   @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId {
     method public int getAnimatedImageFormat();
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat? getProgress();
@@ -1258,6 +1269,7 @@ package androidx.wear.protolayout {
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ResourceBuilders.ImageResource {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId? getAndroidAnimatedResourceByResId();
+    method public androidx.wear.protolayout.ResourceBuilders.AndroidLottieResourceByResId? getAndroidLottieResourceByResId();
     method public androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId? getAndroidResourceByResId();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId? getAndroidSeekableAnimatedResourceByResId();
     method public androidx.wear.protolayout.ResourceBuilders.InlineImageResource? getInlineResource();
@@ -1267,6 +1279,7 @@ package androidx.wear.protolayout {
     ctor public ResourceBuilders.ImageResource.Builder();
     method public androidx.wear.protolayout.ResourceBuilders.ImageResource build();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidAnimatedImageResourceByResId);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidLottieResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidLottieResourceByResId);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setAndroidSeekableAnimatedResourceByResId(androidx.wear.protolayout.ResourceBuilders.AndroidSeekableAnimatedImageResourceByResId);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ResourceBuilders.ImageResource.Builder setInlineResource(androidx.wear.protolayout.ResourceBuilders.InlineImageResource);
