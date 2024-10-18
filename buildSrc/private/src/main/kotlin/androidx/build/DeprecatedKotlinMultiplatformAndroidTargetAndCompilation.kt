@@ -19,5 +19,13 @@
 package androidx.build
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 
 typealias DeprecatedKotlinMultiplatformAndroidTarget = KotlinMultiplatformAndroidTarget
+
+typealias DeprecatedKotlinMultiplatformAndroidTestOnDeviceCompilation =
+    KotlinMultiplatformAndroidTestOnDeviceCompilation
+
+typealias DeprecatedKotlinMultiplatformAndroidTestOnJvmCompilation =
+    KotlinMultiplatformAndroidTestOnJvmCompilation

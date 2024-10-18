@@ -49,8 +49,6 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.PrivacySandboxSdkExtension
 import com.android.build.api.dsl.TestBuildType
@@ -1177,13 +1175,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         lint.targetSdk = project.defaultAndroidConfig.targetSdk
         compilations
-            .withType(KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java)
+            .withType(DeprecatedKotlinMultiplatformAndroidTestOnDeviceCompilation::class.java)
             .configureEach {
                 it.instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 it.animationsDisabled = true
             }
         compilations
-            .withType(KotlinMultiplatformAndroidTestOnJvmCompilation::class.java)
+            .withType(DeprecatedKotlinMultiplatformAndroidTestOnJvmCompilation::class.java)
             .configureEach {
                 it.isReturnDefaultValues = true
                 // Include resources in Robolectric tests as a workaround for b/184641296
