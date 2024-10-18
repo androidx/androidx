@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,39 @@
  * limitations under the License.
  */
 
-// VERSION: v0_87
+// VERSION: v0_96
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
 internal object SplitCheckboxButtonTokens {
     val CheckedBoxColor = ColorSchemeKeyTokens.Primary
-    val CheckedCheckmarkColor = ColorSchemeKeyTokens.OnPrimary
+    val CheckedCheckmarkColor = ColorSchemeKeyTokens.PrimaryContainer
     val CheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val CheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val CheckedSecondaryLabelOpacity = 0.8f
-    val CheckedSplitContainerColor = ColorSchemeKeyTokens.Primary
-    val CheckedSplitContainerOpacity = 0.15f
+    val CheckedSecondaryLabelOpacity = 0.9f
+    val CheckedSplitContainerColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val CheckedSplitContainerOpacity = 0.12f
     val ContainerShape = ShapeKeyTokens.CornerLarge
     val DisabledCheckedBoxColor = ColorSchemeKeyTokens.OnSurface
     val DisabledCheckedBoxOpacity = 0.12f
     val DisabledCheckedCheckmarkColor = ColorSchemeKeyTokens.Background
     val DisabledCheckedCheckmarkOpacity = 0.38f
-    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledCheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledCheckedSecondaryLabelOpacity = 0.8f
-    val DisabledCheckedSplitContainerColor = ColorSchemeKeyTokens.Primary
-    val DisabledCheckedSplitContainerOpacity = 0.15f
+    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedContainerOpacity = 0.12f
+    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedSplitContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedSplitContainerOpacity = 0.16f
     val DisabledOpacity = 0.38f
     val DisabledUncheckedBoxColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedBoxOpacity = 0.12f
-    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
+    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedContainerOpacity = 0.12f
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledUncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
+    val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedSplitContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedSplitContainerOpacity = 0.16f
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val UncheckedBoxColor = ColorSchemeKeyTokens.Outline

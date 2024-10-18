@@ -318,7 +318,8 @@ fun SplitCheckboxButton(
 
         Spacer(modifier = Modifier.size(2.dp))
 
-        val splitBackground = colors.splitContainerColor(enabled, checked).value
+        val splitBackground = if (enabled) containerColor else Color.Black
+        val splitBackgroundOverlay = colors.splitContainerColor(enabled, checked).value
         Box(
             contentAlignment = Alignment.Center,
             modifier =
@@ -331,10 +332,10 @@ fun SplitCheckboxButton(
                     )
                     .fillMaxHeight()
                     .clip(SPLIT_SECTIONS_SHAPE)
-                    .background(containerColor)
+                    .background(splitBackground)
                     .drawWithCache {
                         onDrawWithContent {
-                            drawRect(color = splitBackground)
+                            drawRect(color = splitBackgroundOverlay)
                             drawContent()
                         }
                     }
@@ -696,8 +697,9 @@ object CheckboxButtonDefaults {
                         uncheckedBoxColor = fromToken(SplitCheckboxButtonTokens.UncheckedBoxColor),
                         disabledCheckedContainerColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledCheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitCheckboxButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitCheckboxButtonTokens.DisabledCheckedContainerOpacity
                                 ),
                         disabledCheckedContentColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledCheckedContentColor)
@@ -706,11 +708,6 @@ object CheckboxButtonDefaults {
                                 ),
                         disabledCheckedSecondaryContentColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledCheckedSecondaryLabelColor)
-                                .copy(
-                                    alpha =
-                                        SplitCheckboxButtonTokens
-                                            .DisabledCheckedSecondaryLabelOpacity
-                                )
                                 .toDisabledColor(
                                     disabledAlpha = SplitCheckboxButtonTokens.DisabledOpacity
                                 ),
@@ -720,9 +717,6 @@ object CheckboxButtonDefaults {
                                     alpha =
                                         SplitCheckboxButtonTokens
                                             .DisabledCheckedSplitContainerOpacity
-                                )
-                                .toDisabledColor(
-                                    disabledAlpha = SplitCheckboxButtonTokens.DisabledOpacity
                                 ),
                         disabledCheckedBoxColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledCheckedBoxColor)
@@ -738,8 +732,9 @@ object CheckboxButtonDefaults {
                                 ),
                         disabledUncheckedContainerColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledUncheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitCheckboxButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitCheckboxButtonTokens.DisabledUncheckedContainerOpacity
                                 ),
                         disabledUncheckedContentColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledUncheckedContentColor)
@@ -757,8 +752,10 @@ object CheckboxButtonDefaults {
                             fromToken(
                                     SplitCheckboxButtonTokens.DisabledUncheckedSplitContainerColor
                                 )
-                                .toDisabledColor(
-                                    disabledAlpha = SplitCheckboxButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitCheckboxButtonTokens
+                                            .DisabledUncheckedSplitContainerOpacity
                                 ),
                         disabledUncheckedBoxColor =
                             fromToken(SplitCheckboxButtonTokens.DisabledUncheckedBoxColor)

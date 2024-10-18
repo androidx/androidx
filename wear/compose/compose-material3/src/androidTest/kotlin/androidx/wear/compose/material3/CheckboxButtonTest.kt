@@ -870,14 +870,11 @@ private fun ComposeContentTestRule.verifySplitCheckboxButtonColors(
     var actualSecondaryLabelColor = Color.Transparent
     setContentWithTheme {
         expectedContainerColor =
-            split_checkbox_button_container_color(checked)
-                .withDisabledAlphaApplied(enabled = enabled)
+            split_checkbox_button_container_color(checked, enabled)
                 .compositeOver(testBackgroundColor)
         expectedLabelColor =
             split_checkbox_button_content_color(checked).withDisabledAlphaApplied(enabled = enabled)
-        expectedSecondaryLabelColor =
-            split_checkbox_button_secondary_label_color(checked)
-                .withDisabledAlphaApplied(enabled = enabled)
+        expectedSecondaryLabelColor = split_checkbox_button_secondary_label_color(checked, enabled)
         Box(Modifier.fillMaxSize().background(testBackgroundColor)) {
             SplitCheckboxButton(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -933,8 +930,9 @@ private fun checkbox_button_icon_color(enabled: Boolean): Color {
 }
 
 @Composable
-private fun split_checkbox_button_container_color(checked: Boolean): Color {
-    return if (checked) MaterialTheme.colorScheme.primaryContainer
+private fun split_checkbox_button_container_color(checked: Boolean, enabled: Boolean): Color {
+    return if (!enabled) MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f)
+    else if (checked) MaterialTheme.colorScheme.primaryContainer
     else MaterialTheme.colorScheme.surfaceContainer
 }
 
@@ -945,8 +943,9 @@ private fun split_checkbox_button_content_color(checked: Boolean): Color {
 }
 
 @Composable
-private fun split_checkbox_button_secondary_label_color(checked: Boolean): Color {
-    return if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+private fun split_checkbox_button_secondary_label_color(checked: Boolean, enabled: Boolean): Color {
+    return if (!enabled) MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
+    else if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
     else MaterialTheme.colorScheme.onSurfaceVariant
 }
 

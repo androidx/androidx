@@ -336,7 +336,8 @@ fun SplitRadioButton(
 
         Spacer(modifier = Modifier.size(2.dp))
 
-        val splitContainerColor =
+        val splitBackground = if (enabled) containerColor else Color.Black
+        val splitBackgroundOverlay =
             colors.splitContainerColor(enabled = enabled, selected = selected).value
         Box(
             contentAlignment = Alignment.Center,
@@ -350,10 +351,10 @@ fun SplitRadioButton(
                     )
                     .fillMaxHeight()
                     .clip(SPLIT_SECTIONS_SHAPE)
-                    .background(containerColor)
+                    .background(splitBackground)
                     .drawWithCache {
                         onDrawWithContent {
-                            drawRect(color = splitContainerColor)
+                            drawRect(color = splitBackgroundOverlay)
                             drawContent()
                         }
                     }
@@ -680,8 +681,8 @@ object RadioButtonDefaults {
                             fromToken(SplitRadioButtonTokens.UnselectedControlColor),
                         disabledSelectedContainerColor =
                             fromToken(SplitRadioButtonTokens.DisabledSelectedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitRadioButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha = SplitRadioButtonTokens.DisabledSelectedContainerOpacity
                                 ),
                         disabledSelectedContentColor =
                             fromToken(SplitRadioButtonTokens.DisabledSelectedContentColor)
@@ -690,10 +691,6 @@ object RadioButtonDefaults {
                                 ),
                         disabledSelectedSecondaryContentColor =
                             fromToken(SplitRadioButtonTokens.DisabledSelectedSecondaryLabelColor)
-                                .copy(
-                                    alpha =
-                                        SplitRadioButtonTokens.DisabledSelectedSecondaryLabelOpacity
-                                )
                                 .toDisabledColor(
                                     disabledAlpha = SplitRadioButtonTokens.DisabledOpacity
                                 ),
@@ -702,9 +699,6 @@ object RadioButtonDefaults {
                                 .copy(
                                     alpha =
                                         SplitRadioButtonTokens.DisabledSelectedSplitContainerOpacity
-                                )
-                                .toDisabledColor(
-                                    disabledAlpha = SplitRadioButtonTokens.DisabledOpacity
                                 ),
                         disabledSelectedControlColor =
                             fromToken(SplitRadioButtonTokens.DisabledSelectedControlColor)
@@ -714,8 +708,9 @@ object RadioButtonDefaults {
                                 ),
                         disabledUnselectedContainerColor =
                             fromToken(SplitRadioButtonTokens.DisabledUnselectedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitRadioButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitRadioButtonTokens.DisabledUnselectedContainerOpacity
                                 ),
                         disabledUnselectedContentColor =
                             fromToken(SplitRadioButtonTokens.DisabledUnselectedContentColor)
@@ -729,8 +724,10 @@ object RadioButtonDefaults {
                                 ),
                         disabledUnselectedSplitContainerColor =
                             fromToken(SplitRadioButtonTokens.DisabledUnselectedSplitContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitRadioButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitRadioButtonTokens
+                                            .DisabledUnselectedSplitContainerOpacity
                                 ),
                         disabledUnselectedControlColor =
                             fromToken(SplitRadioButtonTokens.DisabledUnselectedControlColor)
