@@ -37,9 +37,6 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  *   propagated to the provider if the provider requested for
  *   [androidx.credentials.CredentialManager] to handle the authentication flow
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
- *
- * Note : Credential providers are not expected to utilize the constructor in this class for any
- * production flow. This constructor must only be used for testing purposes.
  */
 class ProviderCreateCredentialRequest
 @JvmOverloads

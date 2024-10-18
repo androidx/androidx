@@ -32,9 +32,6 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * set on the [CredentialEntry] that the user selected. The request must be extracted using the
  * [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper API.
  *
- * Note : Credential providers are not expected to utilize the constructor in this class for any
- * production flow. This constructor must only be used for testing purposes.
- *
  * @property credentialOptions the list of credential retrieval options containing the required
  *   parameters, expected to contain a single [CredentialOption] when this request is retrieved from
  *   the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
