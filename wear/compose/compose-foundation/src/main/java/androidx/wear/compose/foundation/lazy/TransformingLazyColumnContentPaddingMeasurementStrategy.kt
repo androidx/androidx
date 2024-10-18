@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
@@ -52,6 +53,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
         coroutineScope: CoroutineScope,
+        density: Density,
         scrollToBeConsumed: Float,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
     ): TransformingLazyColumnMeasureResult {
@@ -150,6 +152,8 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             canScrollForward = canScrollForward,
             canScrollBackward = canScrollBackward,
             coroutineScope = coroutineScope,
+            density = density,
+            itemSpacing = itemSpacing,
             measureResult =
                 layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                     visibleItems.fastForEach { it.place(this) }

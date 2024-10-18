@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -38,7 +39,7 @@ import org.junit.runner.RunWith
 class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
     private val screenHeight = 100
     private val screenWidth = 120
-
+    private val density = 1f
     private val containerConstraints =
         Constraints(
             minWidth = screenWidth,
@@ -278,6 +279,7 @@ class TransformingLazyColumnCenterBoundsMeasurementStrategyTest {
             lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
             scrollToBeConsumed = scrollToBeConsumed,
             coroutineScope = CoroutineScope(EmptyCoroutineContext),
+            density = Density(density),
             layout = { width, height, _ -> EmptyMeasureResult(width, height) },
         )
 

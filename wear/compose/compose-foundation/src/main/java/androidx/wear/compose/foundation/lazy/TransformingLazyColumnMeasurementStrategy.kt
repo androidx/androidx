@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
 import kotlin.coroutines.EmptyCoroutineContext
@@ -51,6 +52,7 @@ internal interface TransformingLazyColumnMeasurementStrategy {
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
         coroutineScope: CoroutineScope,
+        density: Density,
         scrollToBeConsumed: Float,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
     ): TransformingLazyColumnMeasureResult
@@ -83,5 +85,7 @@ internal fun emptyMeasureResult(
         canScrollForward = false,
         canScrollBackward = false,
         coroutineScope = CoroutineScope(EmptyCoroutineContext),
+        density = Density(1f),
+        itemSpacing = 0,
         measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
     )
