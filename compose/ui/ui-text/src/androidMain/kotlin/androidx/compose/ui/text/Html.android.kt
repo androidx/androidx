@@ -53,8 +53,8 @@ import org.xml.sax.XMLReader
 /**
  * Converts a string with HTML tags into [AnnotatedString].
  *
- * If you define your string in the resources, make sure to use HTML-escaped opening brackets "&lt;"
- * instead of "<".
+ * If you define your string in the resources, make sure to use HTML-escaped opening brackets
+ * <code>&amp;lt;</code> instead of <code><</code>.
  *
  * For a list of supported tags go check
  * [Styling with HTML markup](https://developer.android.com/guide/topics/resources/string-resource#StylingWithHTML)
