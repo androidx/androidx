@@ -114,10 +114,17 @@ public class FindInFileView extends LinearLayout {
                         newMatchCount.mSelectedIndex + 1,
                         // Zero-based - change to one-based for user.
                         newMatchCount.mTotalMatches);
+
+                String matchStatusDescription =
+                        getContext().getString(R.string.match_status_description,
+                        newMatchCount.mSelectedIndex + 1,
+                        //Zero-based - change to one-based for user.
+                        newMatchCount.mTotalMatches);
+
                 if (newMatchCount.mIsAllPagesCounted) {
                     if (newMatchCount.mSelectedIndex >= 0) {
                         Accessibility.get().announce(getContext(), FindInFileView.this,
-                                matchStatusText);
+                                matchStatusDescription);
                     }
                     else {
                         Accessibility.get().announce(getContext(), FindInFileView.this,
