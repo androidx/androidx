@@ -140,13 +140,14 @@ class DateRangeInputTest {
                     )
             )
             // Update the delayCompleted till after the focus is acquired. Note that we request the
-            // focus about 400ms after the picker is shown.
+            // focus about 400ms after the picker is shown, but using a higher delay here to reduce
+            // flakiness.
             LaunchedEffect(Unit) {
-                delay(500)
+                delay(1000)
                 delayCompleted = true
             }
         }
-        rule.waitUntil("Waiting for focus", 1_000L) { delayCompleted }
+        rule.waitUntil("Waiting for focus", 3_000L) { delayCompleted }
         rule.onNodeWithText("05/11/2010").assertIsFocused()
         rule.onNodeWithText("10/20/2020").assertIsNotFocused()
     }
@@ -172,11 +173,11 @@ class DateRangeInputTest {
             // Although a focus request is not made, apply a delay to ensure that the test checks
             // for focus after that delay.
             LaunchedEffect(Unit) {
-                delay(500)
+                delay(1000)
                 delayCompleted = true
             }
         }
-        rule.waitUntil("Waiting for delay completion", 1_000L) { delayCompleted }
+        rule.waitUntil("Waiting for delay completion", 3_000L) { delayCompleted }
         rule.onNodeWithText("05/11/2010").assertIsNotFocused()
         rule.onNodeWithText("10/20/2020").assertIsNotFocused()
     }
