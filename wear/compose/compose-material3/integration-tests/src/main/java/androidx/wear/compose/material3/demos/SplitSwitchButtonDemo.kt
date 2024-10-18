@@ -75,7 +75,7 @@ fun SplitSwitchButtonDemo() {
         for (initiallyChecked in booleanArrayOf(true, false)) {
             item {
                 DemoSplitSwitchButton(
-                    enabled = true,
+                    enabled = false,
                     initiallyChecked = initiallyChecked,
                     primary = "Primary label",
                     secondary = "Secondary label"
