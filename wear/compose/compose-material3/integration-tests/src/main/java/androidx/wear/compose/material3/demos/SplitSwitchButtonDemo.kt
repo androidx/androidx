@@ -52,14 +52,14 @@ fun SplitSwitchButtonDemo() {
             DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with at most three lines of content"
+                primary = "Primary label with at most three lines of content"
             )
         }
         item {
             DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with at most three lines of content",
+                primary = "Primary label with at most three lines of content",
                 secondary = "Secondary label with at most two lines of text"
             )
         }
@@ -70,6 +70,17 @@ fun SplitSwitchButtonDemo() {
                 primary = "Override the maximum number of primary label content to be four",
                 primaryMaxLines = 4,
             )
+        }
+        item { ListHeader { Text("Disabled Multi-line") } }
+        for (initiallyChecked in booleanArrayOf(true, false)) {
+            item {
+                DemoSplitSwitchButton(
+                    enabled = true,
+                    initiallyChecked = initiallyChecked,
+                    primary = "Primary label",
+                    secondary = "Secondary label"
+                )
+            }
         }
     }
 }
