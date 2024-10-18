@@ -325,3 +325,5 @@ private fun KotlinMultiplatformExtension.nativeTargets() =
 
 private fun KotlinNativeTarget.klibTargetName(): String =
     KlibTarget(targetName, konanTargetNameMapping[konanTarget.name]!!).toString()
+
+const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"

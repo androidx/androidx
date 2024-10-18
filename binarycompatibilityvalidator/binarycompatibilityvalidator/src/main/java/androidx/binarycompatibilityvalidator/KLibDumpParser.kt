@@ -21,6 +21,7 @@
 
 package androidx.binarycompatibilityvalidator
 
+import java.io.File
 import org.jetbrains.kotlin.library.abi.AbiClass
 import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiDeclaration
@@ -50,6 +51,8 @@ class MutableAbiInfo(
 
 @OptIn(ExperimentalLibraryAbiReader::class)
 class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+
+    constructor(file: File) : this(file.readText(), file.path)
 
     /** Cursor to keep track of current location within the dump */
     private val cursor = Cursor(klibDump)

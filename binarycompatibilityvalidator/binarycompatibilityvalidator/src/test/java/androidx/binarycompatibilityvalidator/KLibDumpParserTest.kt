@@ -33,6 +33,7 @@ class KlibDumpParserTest {
     private val collectionDump = getJavaResource("collection.txt").readText()
     private val datastoreCoreDump = getJavaResource("datastore.txt").readText()
     private val annotationDump = getJavaResource("annotation.txt").readText()
+    private val datastorePreferencesDump = getJavaResource("datastore-preferences.txt").readText()
     private val uniqueTargetDump = getJavaResource("unique_targets.txt").readText()
 
     @Test
@@ -271,6 +272,12 @@ class KlibDumpParserTest {
     @Test
     fun parseFullAnnotationKlibDumpSucceeds() {
         val parsed = KlibDumpParser(annotationDump).parse()
+        assertThat(parsed).isNotNull()
+    }
+
+    @Test
+    fun parseFullDatastorePreferencesKlibDumpSucceeds() {
+        val parsed = KlibDumpParser(datastorePreferencesDump).parse()
         assertThat(parsed).isNotNull()
     }
 
