@@ -59,6 +59,14 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
             source.map[key] as? Int ?: SavedStateUtils.DEFAULT_INT
         }
 
+    actual inline fun getLong(key: String): Long =
+        getSingleResultOrThrow(key) { source.map[key] as? Long ?: SavedStateUtils.DEFAULT_LONG }
+
+    actual inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long =
+        getSingleResultOrElse(key, defaultValue) {
+            source.map[key] as? Long ?: SavedStateUtils.DEFAULT_LONG
+        }
+
     actual inline fun getString(key: String): String =
         getSingleResultOrThrow(key) { source.map[key] as? String }
 

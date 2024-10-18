@@ -60,6 +60,14 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
         return getSingleResultOrElse(key, defaultValue) { source.getInt(key) }
     }
 
+    actual inline fun getLong(key: String): Long {
+        return getSingleResultOrThrow(key) { source.getLong(key) }
+    }
+
+    actual inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long {
+        return getSingleResultOrElse(key, defaultValue) { source.getLong(key) }
+    }
+
     /**
      * Retrieves a [Parcelable] object associated with the specified key. Throws an
      * [IllegalStateException] if the key doesn't exist.

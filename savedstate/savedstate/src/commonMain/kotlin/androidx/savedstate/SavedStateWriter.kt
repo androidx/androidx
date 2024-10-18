@@ -63,6 +63,14 @@ internal constructor(
     public inline fun putInt(key: String, value: Int)
 
     /**
+     * Stores an int value associated with the specified key in the [SavedState].
+     *
+     * @param key The key to associate the value with.
+     * @param value The [Long] value to store.
+     */
+    public inline fun putLong(key: String, value: Long)
+
+    /**
      * Stores a string value associated with the specified key in the [SavedState].
      *
      * @param key The key to associate the value with.

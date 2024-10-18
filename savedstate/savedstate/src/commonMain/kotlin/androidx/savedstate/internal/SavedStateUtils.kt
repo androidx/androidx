@@ -20,9 +20,10 @@ package androidx.savedstate.internal
 internal object SavedStateUtils {
 
     const val DEFAULT_BOOLEAN = false
-    const val DEFAULT_FLOAT = 0f
+    const val DEFAULT_FLOAT = 0F
     const val DEFAULT_DOUBLE = 0.0
     const val DEFAULT_INT = 0
+    const val DEFAULT_LONG = 0L
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun keyNotFoundError(key: String): Nothing =

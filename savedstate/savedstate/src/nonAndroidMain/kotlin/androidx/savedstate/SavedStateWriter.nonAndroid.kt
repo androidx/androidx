@@ -38,6 +38,10 @@ actual value class SavedStateWriter actual constructor(actual val source: SavedS
         source.map[key] = value
     }
 
+    actual inline fun putLong(key: String, value: Long) {
+        source.map[key] = value
+    }
+
     actual inline fun putString(key: String, value: String) {
         source.map[key] = value
     }
