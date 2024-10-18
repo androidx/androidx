@@ -20,6 +20,7 @@ package androidx.savedstate.internal
 internal object SavedStateUtils {
 
     const val DEFAULT_BOOLEAN = false
+    const val DEFAULT_CHAR: Char = 0.toChar()
     const val DEFAULT_FLOAT = 0F
     const val DEFAULT_DOUBLE = 0.0
     const val DEFAULT_INT = 0

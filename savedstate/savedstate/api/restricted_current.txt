@@ -16,6 +16,8 @@ package androidx.savedstate {
     method public boolean contentDeepEquals(android.os.Bundle other);
     method public inline boolean getBoolean(String key);
     method public inline boolean getBooleanOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
+    method public inline char getChar(String key);
+    method public inline char getCharOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Character> defaultValue);
     method public inline double getDouble(String key);
     method public inline double getDoubleOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Double> defaultValue);
     method public inline float getFloat(String key);
@@ -93,6 +95,7 @@ package androidx.savedstate {
     method public android.os.Bundle getSource();
     method public inline void putAll(android.os.Bundle values);
     method public inline void putBoolean(String key, boolean value);
+    method public inline void putChar(String key, char value);
     method public inline void putDouble(String key, double value);
     method public inline void putFloat(String key, float value);
     method public inline void putInt(String key, int value);
@@ -129,6 +132,7 @@ package androidx.savedstate.internal {
     method public inline <reified T> T getValueFromSavedState(String key, kotlin.jvm.functions.Function0<? extends T?> currentValue, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> contains, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public inline Void keyNotFoundError(String key);
     field public static final boolean DEFAULT_BOOLEAN = false;
+    field public static final char DEFAULT_CHAR = 0; // 0x0000 '\u0000'
     field public static final double DEFAULT_DOUBLE = 0.0;
     field public static final float DEFAULT_FLOAT = 0.0f;
     field public static final int DEFAULT_INT = 0; // 0x0

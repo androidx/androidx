@@ -26,6 +26,10 @@ actual value class SavedStateWriter actual constructor(actual val source: SavedS
         source.map[key] = value
     }
 
+    actual inline fun putChar(key: String, value: Char) {
+        source.map[key] = value
+    }
+
     actual inline fun putDouble(key: String, value: Double) {
         source.map[key] = value
     }
