@@ -24,7 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.layout.AlignmentLine
@@ -44,7 +46,9 @@ import kotlinx.coroutines.CoroutineScope
 fun rememberLazyColumnState() = rememberTransformingLazyColumnState()
 
 /** Creates a [TransformingLazyColumnState] that is remembered across compositions. */
-@Composable fun rememberTransformingLazyColumnState() = remember { TransformingLazyColumnState() }
+@Composable
+fun rememberTransformingLazyColumnState() =
+    rememberSaveable(saver = TransformingLazyColumnState.Saver) { TransformingLazyColumnState() }
 
 @Deprecated("Use TransformingLazyColumnState instead", ReplaceWith("TransformingLazyColumnState"))
 typealias LazyColumnState = TransformingLazyColumnState
@@ -54,9 +58,14 @@ typealias LazyColumnState = TransformingLazyColumnState
  *
  * In most cases, this will be created via [rememberTransformingLazyColumnState].
  */
-class TransformingLazyColumnState : ScrollableState {
+class TransformingLazyColumnState() : ScrollableState {
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
+
+    internal constructor(initialAnchorItemIndex: Int, initialAnchorItemScrollOffset: Int) : this() {
+        anchorItemIndex = initialAnchorItemIndex
+        anchorItemScrollOffset = initialAnchorItemScrollOffset
+    }
 
     override fun dispatchRawDelta(delta: Float): Float = scrollableState.dispatchRawDelta(delta)
 
@@ -65,7 +74,7 @@ class TransformingLazyColumnState : ScrollableState {
         block: suspend ScrollScope.() -> Unit
     ) = scrollableState.scroll(scrollPriority, block)
 
-    private val layoutInfoState =
+    internal val layoutInfoState =
         mutableStateOf(EmptyTransformingLazyColumnMeasureResult, neverEqualPolicy())
 
     /**
@@ -128,7 +137,7 @@ class TransformingLazyColumnState : ScrollableState {
         nearestRange = calculateNearestItemsRange(anchorItemIndex)
     }
 
-    private companion object {
+    internal companion object {
         /**
          * We use the idea of sliding window as an optimization, so user can scroll up to this
          * number of items until we have to regenerate the key to index map.
@@ -150,6 +159,23 @@ class TransformingLazyColumnState : ScrollableState {
                 slidingWindowStart + NearestItemsSlidingWindowSize + NearestItemsExtraItemCount
             return start until end
         }
+
+        /** The default [Saver] implementation for [TransformingLazyColumnState]. */
+        internal val Saver =
+            listSaver<TransformingLazyColumnState, Int>(
+                save = {
+                    listOf(
+                        it.anchorItemIndex,
+                        it.anchorItemScrollOffset,
+                    )
+                },
+                restore = {
+                    val scalingLazyColumnState = TransformingLazyColumnState()
+                    scalingLazyColumnState.anchorItemIndex = it[0]
+                    scalingLazyColumnState.anchorItemScrollOffset = it[1]
+                    scalingLazyColumnState
+                }
+            )
     }
 
     private val scrollableState = ScrollableState { -onScroll(-it) }
