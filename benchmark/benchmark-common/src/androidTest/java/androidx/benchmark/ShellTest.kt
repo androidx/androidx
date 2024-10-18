@@ -429,6 +429,79 @@ class ShellTest {
         )
     }
 
+    @Test
+    fun parseCompilationMode() {
+        // Captured on API 26 emulator
+        assertEquals(
+            expected = "quicken",
+            actual =
+                Shell.parseCompilationMode(
+                    26,
+                    """
+                      Dexopt state:
+                          [androidx.benchmark.test]
+                            Instruction Set: x86
+                              path: /data/app/androidx.benchmark.test-C3VDUG1iLystEGyQTxcspA==/base.apk
+                              status: /data/app/androidx.benchmark.test-C3VDUG1iLystEGyQTxcspA==/oat/x86/base.odex[status=kOatUpToDate, compilat
+                              ion_filter=quicken]
+        """
+                        .trimIndent()
+                )
+        )
+
+        // Captured on API 26 sailfish
+        assertEquals(
+            expected = "speed",
+            actual =
+                Shell.parseCompilationMode(
+                    26,
+                    """
+                    Dexopt state:
+                      [androidx.compose.foundation.layout.benchmark.test]
+                        path: /data/app/androidx.compose.foundation.layout.benchmark.test-pBhSh_spHfjDL-5jgzu_Jg==/base.apk
+                          arm64: /data/app/androidx.compose.foundation.layout.benchmark.test-pBhSh_spHfjDL-5jgzu_Jg==/oat/arm64/base.odex[status=kOatUpToDate, compilation_filter=speed]
+        """
+                        .trimIndent()
+                )
+        )
+
+        // Captured on API 28 or higher device, duplicated from comment, specifics not known
+        assertEquals(
+            expected = "verify",
+            actual =
+                Shell.parseCompilationMode(
+                    29,
+                    """
+                Dexopt state:
+                 [com.android.settings]
+                   path: .../SettingsGoogle.apk
+                     arm64: [status=verify] [reason=vdex] [primary-abi]
+                       [location is .../SettingsGoogle.vdex]
+
+                ## These lines added for test purposes
+                ## status=0 []
+        """
+                        .trimIndent()
+                )
+        )
+
+        // Captured on API 32 emulator
+        assertEquals(
+            expected = "run-from-apk",
+            actual =
+                Shell.parseCompilationMode(
+                    32,
+                    """
+                Dexopt state:
+                  [androidx.benchmark.test]
+                    path: /data/app/~~coMYW_NCkevOuZyH32n5Ag==/androidx.benchmark.test-kcNBMDGJ58lezaNWmNyTzQ==/base.apk
+                      x86_64: [status=run-from-apk] [reason=unknown]
+                """
+                        .trimIndent()
+                )
+        )
+    }
+
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
         return Shell.getPidsForProcess(packageName).firstOrNull()

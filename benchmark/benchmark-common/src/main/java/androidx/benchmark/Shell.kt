@@ -330,60 +330,42 @@ object Shell {
         return output.stdout
     }
 
+    internal fun parseCompilationMode(apiLevel: Int, dump: String): String {
+        require(apiLevel >= 24)
+
+        /**
+         * Note that the actual string can take several forms, depending on API level and
+         * potentially ABI as well.
+         *
+         * Emulators are known to have different structure than physical devices on the same API
+         * level, this is potentially due to ABI.
+         *
+         * For this reason, we use a relatively lax matching system (only relying on prefix, equals,
+         * and trailing bracket), and rely on tests to validate.
+         */
+        val modePrefix =
+            when (apiLevel) {
+                // lower API levels will sometimes have newlines within the compilation_filter=...
+                // so we're happy to accept any whitespace within. whitespace in the capture is
+                // filtered below
+                in 24..27 -> ", compilation_filter=".toCharArray().joinToString("\\s*?")
+                // haven't observed this on higher APIs :shrug:
+                else -> "\\[status="
+            }
+        return "Dexopt state:.*?$modePrefix([^]]+?)]"
+            .toRegex(RegexOption.DOT_MATCHES_ALL)
+            .find(dump)
+            ?.groups
+            ?.get(1)
+            ?.value
+            ?.filter { !it.isWhitespace() } ?: COMPILATION_PROFILE_UNKNOWN
+    }
+
     @CheckResult
     fun getCompilationMode(packageName: String): String {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) return "speed"
         val dump = executeScriptCaptureStdout("cmd package dump $packageName").trim()
-        return when (Build.VERSION.SDK_INT) {
-            in 24..27 -> {
-
-                // Example output (shortened for lint):
-                // Dexopt state:
-                //  [com.android.settings]
-                //    path: /system/priv-app/Settings/Settings.apk
-                //      arm64: .../Settings.odex[status=kOatUpToDate, compilation_filter=quicken]
-                //
-                // We want to extract compilation_filter=`quicken`
-
-                val keyValues =
-                    "Dexopt state:.*status:[^\\[]+\\[([^\\]]+)\\]"
-                        .toRegex(RegexOption.DOT_MATCHES_ALL)
-                        .find(dump)
-                        ?.groups
-                        ?.get(1)
-                        ?.value ?: COMPILATION_PROFILE_UNKNOWN
-                val dexOptStatus =
-                    keyValues
-                        .replace("\n", "")
-                        .replace(" ", "")
-                        .split(",")
-                        .mapNotNull {
-                            val kv = it.split("=")
-                            if (kv.size != 2) return@mapNotNull null
-                            kv[0] to kv[1]
-                        }
-                        .toMap()
-                dexOptStatus["compilation_filter"] ?: COMPILATION_PROFILE_UNKNOWN
-            }
-            else -> {
-
-                // Example output (shortened for lint):
-                // Dexopt state:
-                //  [com.android.settings]
-                //    path: .../SettingsGoogle.apk
-                //      arm64: [status=verify] [reason=vdex] [primary-abi]
-                //        [location is .../SettingsGoogle.vdex]
-                //
-                // We want to extract status=`verify`
-
-                "Dexopt state:.*\\[status=([^\\]]+)\\]"
-                    .toRegex(RegexOption.DOT_MATCHES_ALL)
-                    .find(dump)
-                    ?.groups
-                    ?.get(1)
-                    ?.value ?: COMPILATION_PROFILE_UNKNOWN
-            }
-        }
+        return parseCompilationMode(Build.VERSION.SDK_INT, dump)
     }
 
     /**
