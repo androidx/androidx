@@ -17,10 +17,11 @@
 package androidx.wear.compose.material3.macrobenchmark
 
 import android.content.Intent
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
-import androidx.test.uiautomator.UiDevice
-import androidx.wear.compose.material3.macrobenchmark.common.BaselineProfileScreens
+import androidx.wear.compose.material3.macrobenchmark.common.baselineprofile.BaselineProfileScreens
+import java.lang.Thread.sleep
 import org.junit.Rule
 import org.junit.Test
 
@@ -55,23 +56,24 @@ class BaselineProfile {
                 intent.action = BASELINE_ACTIVITY
                 startActivityAndWait(intent)
                 device.waitForIdle()
-                device.iterateAllPages(pageCount = BaselineProfileScreens.size)
+                iterateAllPages(pageCount = BaselineProfileScreens.size)
             }
         )
     }
 
-    private fun UiDevice.iterateAllPages(pageCount: Int) {
-        // Get screen dimensions
-        val screenWidth = displayWidth
-        val screenHeight = displayHeight
-        // Calculate swipe start and end points (adjust these as needed)
-        val startX = (screenWidth * 0.8).toInt() // 80% of screen width
-        val startY = screenHeight / 2 // Middle of the screen
-        val endX = (screenWidth * 0.2).toInt() // 20% of screen width
-        val endY = startY
-        for (i in 1 until pageCount) {
-            swipe(startX, startY, endX, endY, 10)
-            waitForIdle()
+    private fun MacrobenchmarkScope.iterateAllPages(pageCount: Int) {
+        val screenWidth = device.displayWidth
+        val screenHeight = device.displayHeight
+        val startX = (screenWidth * 0.9).toInt()
+        val y = (screenHeight * 0.9).toInt()
+        val endX = (screenWidth * 0.1).toInt()
+        for (i in 0 until pageCount) {
+            BaselineProfileScreens[i].exercise.invoke(this)
+            device.waitForIdle()
+            sleep(1_000L)
+            device.swipe(startX, y, endX, y, 10)
+            device.waitForIdle()
+            sleep(1_000L)
         }
     }
 

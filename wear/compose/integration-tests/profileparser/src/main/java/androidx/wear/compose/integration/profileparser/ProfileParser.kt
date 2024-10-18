@@ -43,7 +43,9 @@ class ProfileParser {
                     it.toList()
                         .map { it.truncatedAt(';') }
                         .map { it.truncatedAt('$') }
-                        .filter { it.contains(parse) && !it.contains("/material3/macrobenchmark/") }
+                        .filter {
+                            it.contains(parse) && ExcludePaths.none { path -> it.contains(path) }
+                        }
                         .fold(mutableMapOf()) {
                             acc: MutableMap<String, MutableList<String>>,
                             item: String ->
@@ -79,5 +81,7 @@ class ProfileParser {
             val idx = this.indexOf(c)
             return if (idx == -1) this else this.substring(0, idx)
         }
+
+        private val ExcludePaths = listOf("/material3/macrobenchmark/", "/material3/samples/")
     }
 }
