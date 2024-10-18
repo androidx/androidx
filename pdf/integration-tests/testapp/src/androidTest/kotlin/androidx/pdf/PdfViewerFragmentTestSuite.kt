@@ -160,7 +160,6 @@ class PdfViewerFragmentTestSuite {
         onView(withId(R.id.search_container)).check(matches(isDisplayed()))
 
         onView(withId(R.id.find_query_box)).perform(typeText(SEARCH_QUERY))
-        Thread.sleep(DELAY_TIME_MS)
         onView(withId(R.id.match_status_textview)).check(matches(isDisplayed()))
         onView(withId(R.id.match_status_textview)).check(searchViewAssertion.extractAndMatch())
 
