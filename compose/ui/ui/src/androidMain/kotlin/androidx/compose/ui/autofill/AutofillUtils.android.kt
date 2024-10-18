@@ -30,6 +30,19 @@ import androidx.compose.ui.semantics.Role
  * compiled. It is expected that this class will soft-fail verification, but the classes which use
  * this method will pass.
  */
+@RequiresApi(33)
+internal object AutofillApi33Helper {
+    @RequiresApi(33)
+    fun showAutofillDialog(view: View, autofillManager: AutofillManager, semanticsId: Int) {
+        autofillManager.showAutofillDialog(view, semanticsId)
+    }
+}
+
+/**
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
+ */
 @RequiresApi(28)
 internal object AutofillApi28Helper {
     @RequiresApi(28)
