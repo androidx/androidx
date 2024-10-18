@@ -684,6 +684,25 @@ class DialogTest {
         }
     }
 
+    @Test
+    fun dialogDefaultGravityIsCenter() {
+        lateinit var view: View
+        rule.setContent {
+            Dialog(onDismissRequest = {}) {
+                view = LocalView.current
+                Box(Modifier.size(10.dp))
+            }
+        }
+        rule.runOnIdle {
+            var provider = view
+            while (provider !is DialogWindowProvider) {
+                provider = view.parent as View
+            }
+            val window = provider.window
+            assertThat(window.attributes.gravity).isEqualTo(Gravity.CENTER)
+        }
+    }
+
     private fun setupDialogTest(
         closeDialogOnDismiss: Boolean = true,
         dialogProperties: DialogProperties = DialogProperties(),
