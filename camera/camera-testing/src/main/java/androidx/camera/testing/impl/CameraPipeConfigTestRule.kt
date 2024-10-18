@@ -60,9 +60,9 @@ public class CameraPipeConfigTestRule(
             override fun evaluate() {
                 if (active) {
                     if (Log.isLoggable(CAMERA_PIPE_MH_FLAG, Log.DEBUG)) {
-                        testInLab()
+                        testInPipeLab()
                     } else {
-                        testNotInLab()
+                        testNotInPipeLab()
                     }
                 } else {
                     if (Log.isLoggable(CAMERA2_TEST_DISABLE, Log.DEBUG)) {
@@ -74,7 +74,7 @@ public class CameraPipeConfigTestRule(
                 }
             }
 
-            private fun testInLab() {
+            private fun testInPipeLab() {
                 try {
                     log("started: ${description.displayName}")
                     logUncaughtExceptions()
@@ -91,9 +91,9 @@ public class CameraPipeConfigTestRule(
                 }
             }
 
-            private fun testNotInLab() {
-                if (testInAllowList()) {
-                    // Run the test
+            private fun testNotInPipeLab() {
+                if (testInAllowList() && !Log.isLoggable(CAMERA_MH_FLAG, Log.DEBUG)) {
+                    // Run the test when (1) In the allow list && (2) It is not MH daily test.
                     base.evaluate()
                 } else {
                     throw AssumptionViolatedException(
@@ -130,6 +130,7 @@ public class CameraPipeConfigTestRule(
         private const val CAMERA2_TEST_DISABLE = "CAMERA2_TEST_DISABLE"
         private const val CAMERA_PIPE_TEST_FLAG = "CAMERA_PIPE_TESTING"
         private const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
+        private const val CAMERA_MH_FLAG = "MH"
         private const val LOG_TAG = "CameraPipeTest"
 
         private val allowPresubmitTests =
