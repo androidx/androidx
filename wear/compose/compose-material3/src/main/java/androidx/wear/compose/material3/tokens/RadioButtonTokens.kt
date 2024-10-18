@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_87
+// VERSION: v0_97
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -41,7 +41,7 @@ internal object RadioButtonTokens {
     val SelectedControlColor = ColorSchemeKeyTokens.Primary
     val SelectedIconColor = ColorSchemeKeyTokens.Primary
     val SelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val SelectedSecondaryLabelOpacity = 0.8f
+    val SelectedSecondaryLabelOpacity = 0.9f
     val Shape = ShapeKeyTokens.CornerLarge
     val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UnselectedContentColor = ColorSchemeKeyTokens.OnSurface
