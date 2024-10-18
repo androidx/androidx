@@ -488,6 +488,11 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                 .setPrimaryMinRatio(dividerAttributes.dragRange.minRatio)
                 .setPrimaryMaxRatio(dividerAttributes.dragRange.maxRatio)
         }
+        if (extensionVersion == 7 && dividerAttributes.widthDp == 0) {
+            // A known compatibility issue causes incorrect rendering of 0-width divider in
+            // extensions v7. In this case, the divider width is set to 1dp as a mitigation.
+            builder.setWidthDp(1)
+        }
         return builder.build()
     }
 
