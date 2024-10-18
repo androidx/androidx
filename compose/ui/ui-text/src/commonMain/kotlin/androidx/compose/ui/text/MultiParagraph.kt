@@ -72,12 +72,15 @@ class MultiParagraph(
      * @param maxLines the maximum number of lines that the text can have
      * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
      */
-    @Deprecated("Constructor with `ellipsis: Boolean` is deprecated, pass TextOverflow instead ")
+    @Deprecated(
+        "Constructor with `ellipsis: Boolean` is deprecated, pass TextOverflow instead",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         intrinsics: MultiParagraphIntrinsics,
         constraints: Constraints,
         maxLines: Int = DefaultMaxLines,
-        ellipsis: Boolean,
+        ellipsis: Boolean = false,
     ) : this(
         intrinsics = intrinsics,
         constraints = constraints,
@@ -162,7 +165,7 @@ class MultiParagraph(
                 fontFamilyResolver = createFontFamilyResolver(resourceLoader)
             ),
         maxLines = maxLines,
-        ellipsis = ellipsis,
+        overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
         constraints = Constraints(maxWidth = width.ceilToInt())
     )
 
@@ -239,7 +242,10 @@ class MultiParagraph(
      *   [placeholders] crosses paragraph boundary.
      * @see Placeholder
      */
-    @Deprecated("Constructor with `ellipsis: Boolean` is deprecated, pass TextOverflow instead")
+    @Deprecated(
+        "Constructor with `ellipsis: Boolean` is deprecated, pass TextOverflow instead",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
@@ -248,7 +254,7 @@ class MultiParagraph(
         fontFamilyResolver: FontFamily.Resolver,
         placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         maxLines: Int = Int.MAX_VALUE,
-        ellipsis: Boolean
+        ellipsis: Boolean = false
     ) : this(
         intrinsics =
             MultiParagraphIntrinsics(
