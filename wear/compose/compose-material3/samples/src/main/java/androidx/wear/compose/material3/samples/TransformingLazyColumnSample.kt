@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,9 +37,11 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.ScreenScaffoldDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.scrollTransform
 import androidx.wear.compose.material3.lazy.targetMorphingHeight
@@ -51,14 +54,11 @@ fun TransformingLazyColumnScrollingSample() {
     val coroutineScope = rememberCoroutineScope()
     TransformingLazyColumn(
         state = state,
-        modifier =
-            Modifier.background(MaterialTheme.colorScheme.background).padding(horizontal = 10.dp)
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        items(20) {
-            Text(
-                "Item $it",
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge,
+        items(20) { idx ->
+            Column(
                 modifier =
                     Modifier.fillMaxWidth()
                         .scrollTransform(
@@ -67,8 +67,14 @@ fun TransformingLazyColumnScrollingSample() {
                             shape = MaterialTheme.shapes.medium
                         )
                         .padding(10.dp)
-                        .clickable { coroutineScope.launch { state.scrollToItem(it) } }
-            )
+                        .clickable { coroutineScope.launch { state.scrollToItem(idx) } }
+            ) {
+                Text(
+                    "Item $idx",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
         }
         item {
             Button(onClick = { coroutineScope.launch { state.scrollToItem(0) } }) { Text("To top") }
@@ -94,9 +100,15 @@ fun TransformingLazyColumnScalingMorphingEffectSample() {
         ) {
             TransformingLazyColumn(
                 state = state,
-                modifier =
-                    Modifier.background(MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 10.dp)
+                contentPadding =
+                    ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
+                        EdgeButtonSize.Small,
+                        start = 10.dp,
+                        end = 10.dp,
+                        top = 20.dp,
+                        extraBottom = 20.dp
+                    ),
+                modifier = Modifier.background(MaterialTheme.colorScheme.background)
             ) {
                 item(contentType = "header") {
                     // No modifier is applied - no Material 3 Motion.
@@ -159,9 +171,10 @@ fun TransformingLazyColumnTargetMorphingHeightSample() {
         ) {
             TransformingLazyColumn(
                 state = state,
+                contentPadding = PaddingValues(horizontal = 10.dp),
                 modifier =
                     Modifier.background(MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 10.dp),
+                        .padding(horizontal = 10.dp)
             ) {
                 item(contentType = "header") {
                     // No modifier is applied - no Material 3 Motion transformations.
