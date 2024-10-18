@@ -24,7 +24,6 @@ package androidx.compose.ui.text
  * Note: this is now deprecated. In order to display a link in the text, add a [LinkAnnotation] to
  * the AnnotatedString and pass it to the Text composable function
  */
-@ExperimentalTextApi
 @Deprecated("Use LinkAnnotatation.Url(url) instead", ReplaceWith("LinkAnnotation.Url(url)"))
 @Suppress("Deprecation")
 class UrlAnnotation(val url: String) : AnnotatedString.Annotation {
