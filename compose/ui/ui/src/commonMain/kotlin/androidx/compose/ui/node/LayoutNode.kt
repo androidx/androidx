@@ -19,6 +19,8 @@ import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -54,6 +56,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.semantics.generateSemanticsId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -88,6 +91,7 @@ internal class LayoutNode(
     Remeasurement,
     OwnerScope,
     LayoutInfo,
+    SemanticsInfo,
     ComposeUiNode,
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
@@ -394,42 +398,61 @@ internal class LayoutNode(
         invalidateMeasurements()
     }
 
-    private var _collapsedSemantics: SemanticsConfiguration? = null
+    private var _semanticsConfiguration: SemanticsConfiguration? = null
+    override val semanticsConfiguration: SemanticsConfiguration?
+        get() {
+            // This is needed until we completely move to the new world where we always pre-compute
+            // the semantics configuration. At that point, this can be replaced by
+            // check(!isSemanticsInvalidated) or remove this custom getter.
+            if (isSemanticsInvalidated) {
+                _semanticsConfiguration = calculateSemanticsConfiguration()
+            }
+            return _semanticsConfiguration
+        }
+
+    private fun calculateSemanticsConfiguration(): SemanticsConfiguration? {
+        if (!nodes.has(Nodes.Semantics)) return null
+
+        var config = SemanticsConfiguration()
+        requireOwner().snapshotObserver.observeSemanticsReads(this) {
+            nodes.tailToHead(Nodes.Semantics) {
+                if (it.shouldClearDescendantSemantics) {
+                    config = SemanticsConfiguration()
+                    config.isClearingSemantics = true
+                }
+                if (it.shouldMergeDescendantSemantics) {
+                    config.isMergingSemanticsOfDescendants = true
+                }
+                with(config) { with(it) { applySemantics() } }
+            }
+        }
+        return config
+    }
+
+    private var isSemanticsInvalidated = false
 
     internal fun invalidateSemantics() {
-        _collapsedSemantics = null
+        if (
+            @OptIn(ExperimentalComposeUiApi::class) !ComposeUiFlags.isSemanticAutofillEnabled ||
+                nodes.isUpdating ||
+                applyingModifierOnAttach
+        ) {
+            // We are currently updating the modifier, so just schedule an invalidation. After
+            // applying the modifier, we will notify listeners of semantics changes.
+            isSemanticsInvalidated = true
+        } else {
+            // We are not currently updating the modifier, so instead of scheduling invalidation,
+            // we update the semantics configuration and send the notification event right away.
+            val prev = _semanticsConfiguration
+            _semanticsConfiguration = calculateSemanticsConfiguration()
+            requireOwner().semanticsOwner.notifySemanticsChange(this, prev)
+        }
+
         // TODO(lmr): this ends up scheduling work that diffs the entire tree, but we should
         //  eventually move to marking just this node as invalidated since we are invalidating
         //  on a per-node level. This should preserve current behavior for now.
         requireOwner().onSemanticsChange()
     }
-
-    internal val collapsedSemantics: SemanticsConfiguration?
-        get() {
-            // TODO: investigate if there's a better way to approach "half attached" state and
-            // whether or not deactivated nodes should be considered removed or not.
-            if (!isAttached || isDeactivated) return null
-
-            if (!nodes.has(Nodes.Semantics) || _collapsedSemantics != null) {
-                return _collapsedSemantics
-            }
-
-            var config = SemanticsConfiguration()
-            requireOwner().snapshotObserver.observeSemanticsReads(this) {
-                nodes.tailToHead(Nodes.Semantics) {
-                    if (it.shouldClearDescendantSemantics) {
-                        config = SemanticsConfiguration()
-                        config.isClearingSemantics = true
-                    }
-                    if (it.shouldMergeDescendantSemantics) {
-                        config.isMergingSemanticsOfDescendants = true
-                    }
-                    with(config) { with(it) { applySemantics() } }
-                }
-            }
-            _collapsedSemantics = config
-            return config
-        }
 
     /**
      * Set the [Owner] of this LayoutNode. This LayoutNode must not already be attached. [owner]
@@ -463,9 +486,7 @@ internal class LayoutNode(
         pendingModifier?.let { applyModifier(it) }
         pendingModifier = null
 
-        if (nodes.has(Nodes.Semantics)) {
-            invalidateSemantics()
-        }
+        if (nodes.has(Nodes.Semantics)) invalidateSemantics()
         owner.onAttach(this)
 
         // Update lookahead root when attached. For nested cases, we'll always use the
@@ -517,9 +538,9 @@ internal class LayoutNode(
         }
         layoutDelegate.resetAlignmentLines()
         onDetach?.invoke(owner)
-
         if (nodes.has(Nodes.Semantics)) {
-            invalidateSemantics()
+            _semanticsConfiguration = null
+            requireOwner().onSemanticsChange()
         }
         nodes.runDetachLifecycle()
         ignoreRemeasureRequests { _foldedChildren.forEach { child -> child.detach() } }
@@ -554,6 +575,10 @@ internal class LayoutNode(
             }
             return _zSortedChildren
         }
+
+    @Suppress("UNCHECKED_CAST")
+    override val childrenInfo: MutableVector<SemanticsInfo>
+        get() = zSortedChildren as MutableVector<SemanticsInfo>
 
     override val isValidOwnerScope: Boolean
         get() = isAttached
@@ -865,6 +890,14 @@ internal class LayoutNode(
         layoutDelegate.updateParentData()
         if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
             lookaheadRoot = this
+        }
+        // Notify semantics listeners if semantics was invalidated.
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isSemanticAutofillEnabled && isSemanticsInvalidated) {
+            val prev = _semanticsConfiguration
+            _semanticsConfiguration = calculateSemanticsConfiguration()
+            isSemanticsInvalidated = false
+            requireOwner().semanticsOwner.notifySemanticsChange(this, prev)
         }
     }
 
@@ -1270,7 +1303,7 @@ internal class LayoutNode(
         }
     }
 
-    override val parentInfo: LayoutInfo?
+    override val parentInfo: SemanticsInfo?
         get() = parent
 
     override var isDeactivated = false
