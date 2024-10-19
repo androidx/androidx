@@ -220,13 +220,14 @@ object Errors {
             """
                     .trimMarginWrapNewlines()
         }
-        if (Arguments.requireAot && PackageInfo.compilationMode != "speed") {
+        val compilationMode = PackageInfo.compilationMode
+        if (Arguments.requireAot && compilationMode != "speed") {
             warningPrefix += "NOT-AOT-COMPILED_"
             warningString +=
                 """
                 |WARNING: Benchmark running without full AOT compilation.
                 |    Benchmarks should be speed compiled to reduce noise. This is enabled by default
-                |    in the benchmark plugin.
+                |    in the benchmark plugin. Observed compilation state = $compilationMode.
             """
                     .trimMarginWrapNewlines()
         }
