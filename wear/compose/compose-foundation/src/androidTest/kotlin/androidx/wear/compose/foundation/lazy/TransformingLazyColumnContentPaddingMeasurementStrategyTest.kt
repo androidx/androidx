@@ -283,10 +283,79 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
                 transformedHeight = { measuredHeight, _ -> measuredHeight / 2 }
             )
 
+        assertThat(result.canScrollForward).isFalse()
+        assertThat(result.canScrollBackward).isFalse()
         assertThat(result.visibleItems.size).isEqualTo(1)
         assertThat(result.visibleItems.first().offset).isEqualTo(0)
         assertThat(result.visibleItems.first().measuredHeight).isEqualTo(screenHeight)
         assertThat(result.visibleItems.first().transformedHeight).isEqualTo(screenHeight / 2)
+    }
+
+    @Test
+    fun renderContentSmallerThanTheScreen_hasNoScrolling() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
+        val result =
+            strategy.measure(
+                listOf(
+                    // Centered item.
+                    screenHeight / 5,
+                    screenHeight / 5,
+                    screenHeight / 5,
+                )
+            )
+
+        assertThat(result.canScrollForward).isFalse()
+        assertThat(result.canScrollBackward).isFalse()
+        assertThat(result.visibleItems.size).isEqualTo(3)
+    }
+
+    @Test
+    fun renderContentOnTopOfList_hasNoBackwardScrolling() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
+        val result =
+            strategy.measure(
+                listOf(
+                    // Centered item.
+                    screenHeight / 2,
+                    screenHeight / 2,
+                    screenHeight / 2,
+                )
+            )
+
+        assertThat(result.canScrollForward).isTrue()
+        assertThat(result.canScrollBackward).isFalse()
+        assertThat(result.visibleItems.size).isEqualTo(2)
+    }
+
+    @Test
+    fun renderContentOnBottomOfList_hasNoForwardScrolling() {
+        val strategy =
+            TransformingLazyColumnContentPaddingMeasurementStrategy(
+                PaddingValues(0.dp),
+                measureScope
+            )
+        val result =
+            strategy.measure(
+                listOf(
+                    screenHeight / 2,
+                    screenHeight / 2,
+                    // Centered item.
+                    screenHeight / 2,
+                ),
+                anchorItemIndex = 2
+            )
+
+        assertThat(result.canScrollForward).isFalse()
+        assertThat(result.canScrollBackward).isTrue()
+        assertThat(result.visibleItems.size).isEqualTo(2)
     }
 
     @Test
