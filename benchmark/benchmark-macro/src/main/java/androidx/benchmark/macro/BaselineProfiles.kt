@@ -28,6 +28,7 @@ import androidx.benchmark.Markdown
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.UserInfo
+import androidx.benchmark.VirtualFile
 import androidx.tracing.trace
 import java.io.File
 
@@ -216,6 +217,10 @@ private fun extractProfile(packageName: String): String {
     // Output of profman was empty in previous version and can be `expected` on newer versions.
     check(stdout.isBlank() || stdout == expected) {
         "Expected `pm dump-profiles` stdout to be either black or `$expected` but was $stdout"
+    }
+
+    if (UserInfo.isAdditionalUser) {
+        return VirtualFile.fromPath("/data/misc/profman/$packageName-primary.prof.txt").readText()
     }
 
     val fileName = "$packageName-primary.prof.txt"

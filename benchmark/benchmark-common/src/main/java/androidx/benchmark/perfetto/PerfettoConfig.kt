@@ -21,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.Shell
-import java.io.File
+import androidx.benchmark.VirtualFile
 import perfetto.protos.AndroidPowerConfig
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
@@ -43,7 +43,7 @@ import perfetto.protos.TrackEventConfig
  */
 @ExperimentalPerfettoCaptureApi
 sealed class PerfettoConfig(internal val isTextProto: Boolean) {
-    @RequiresApi(23) internal abstract fun writeTo(file: File)
+    @RequiresApi(23) internal abstract fun writeTo(virtualFile: VirtualFile)
 
     /**
      * Binary representation of a Perfetto config proto.
@@ -52,8 +52,8 @@ sealed class PerfettoConfig(internal val isTextProto: Boolean) {
      */
     class Binary(val bytes: ByteArray) : PerfettoConfig(isTextProto = false) {
         @RequiresApi(23)
-        override fun writeTo(file: File) {
-            file.writeBytes(bytes)
+        override fun writeTo(virtualFile: VirtualFile) {
+            virtualFile.writeBytes(bytes)
         }
     }
 
@@ -69,8 +69,8 @@ sealed class PerfettoConfig(internal val isTextProto: Boolean) {
      */
     class Text(val text: String) : PerfettoConfig(isTextProto = true) {
         @RequiresApi(23)
-        override fun writeTo(file: File) {
-            file.writeText(text)
+        override fun writeTo(virtualFile: VirtualFile) {
+            virtualFile.writeText(text)
         }
     }
 
@@ -81,14 +81,14 @@ sealed class PerfettoConfig(internal val isTextProto: Boolean) {
         private val useStackSamplingConfig: Boolean,
     ) : PerfettoConfig(isTextProto = false) {
         @RequiresApi(23)
-        override fun writeTo(file: File) {
+        override fun writeTo(virtualFile: VirtualFile) {
             val stackSamplingConfig =
                 if (useStackSamplingConfig) {
                     Arguments.profiler?.config(appTagPackages)
                 } else {
                     null
                 }
-            file.writeBytes(
+            virtualFile.writeBytes(
                 perfettoConfig(
                         atraceApps =
                             if (Build.VERSION.SDK_INT <= 28 || appTagPackages.isEmpty()) {
@@ -112,8 +112,8 @@ sealed class PerfettoConfig(internal val isTextProto: Boolean) {
     class MinimalTest(private val appTagPackages: List<String>) :
         PerfettoConfig(isTextProto = false) {
         @RequiresApi(23)
-        override fun writeTo(file: File) {
-            file.writeBytes(
+        override fun writeTo(virtualFile: VirtualFile) {
+            virtualFile.writeBytes(
                 configOf(listOf(minimalAtraceDataSource(atraceApps = appTagPackages)))
                     .validateAndEncode()
             )
@@ -430,7 +430,6 @@ internal fun perfettoConfig(
     return configOf(dataSources)
 }
 
-@RequiresApi(21) // needed for shell access
 internal fun TraceConfig.validateAndEncode(): ByteArray {
     val ftraceConfig = data_sources.firstNotNullOf { it.config?.ftrace_config }
 

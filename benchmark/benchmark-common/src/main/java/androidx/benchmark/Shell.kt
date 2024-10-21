@@ -32,6 +32,8 @@ import java.io.Closeable
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 /**
  * Wrappers for UiAutomation.executeShellCommand to handle compat behavior, and add additional
@@ -115,7 +117,7 @@ object Shell {
     internal fun getChecksum(path: String): String {
         val sum =
             if (Build.VERSION.SDK_INT >= 23) {
-                ShellImpl.executeCommandUnsafe("md5sum $path").substringBefore(" ")
+                md5sum(path)
             } else {
                 // this isn't good, but it's good enough for API 22
                 return getFileSizeLsUnsafe(path) ?: ""
@@ -215,7 +217,15 @@ object Shell {
      * shell script used to capture stderr, so stderr isn't available.
      */
     private fun moveToTmpAndMakeExecutable(src: String, dst: String) {
-        ShellImpl.executeCommandUnsafe("cp $src $dst")
+        if (UserInfo.isAdditionalUser) {
+            val dstFile = ShellFile(dst).also { it.delete() }
+            val srcFile = UserFile(src)
+            srcFile.copyTo(dstFile)
+        } else {
+            ShellImpl.executeCommandUnsafe("cp $src $dst")
+        }
+
+        // Sets execution permissions on the script
         if (Build.VERSION.SDK_INT >= 23) {
             ShellImpl.executeCommandUnsafe("chmod +x $dst")
         } else {
@@ -228,8 +238,8 @@ object Shell {
         // validate checksums instead of checking stderr, since it's not yet safe to
         // read from stderr. This detects the problem where root left a stale executable
         // that can't be modified by shell at the dst path
-        val srcSum = getChecksum(src)
-        val dstSum = getChecksum(dst)
+        val srcSum = getChecksum(path = src)
+        val dstSum = getChecksum(path = dst)
         if (srcSum != dstSum) {
             throw IllegalStateException(
                 "Failed to verify copied executable $dst, " +
@@ -608,9 +618,12 @@ object Shell {
         throw IllegalStateException("Failed to stop $runningProcesses")
     }
 
-    fun pathExists(absoluteFilePath: String): Boolean {
-        return ShellImpl.executeCommandUnsafe("ls $absoluteFilePath").trim() == absoluteFilePath
-    }
+    fun pathExists(absoluteFilePath: String) =
+        if (UserInfo.isAdditionalUser) {
+            VirtualFile.fromPath(absoluteFilePath).ls().first() == absoluteFilePath
+        } else {
+            ShellImpl.executeCommandUnsafe("ls $absoluteFilePath").trim() == absoluteFilePath
+        }
 
     fun amBroadcast(broadcastArguments: String): Int? {
         // unsafe here for perf, since we validate the return value so we don't need to check stderr
@@ -659,6 +672,60 @@ object Shell {
             else -> throw IllegalStateException("unexpected result from getenforce: $value")
         }
     }
+
+    fun cp(from: String, to: String) {
+        if (UserInfo.isAdditionalUser) {
+            val fromFile = VirtualFile.fromPath(from)
+            val toFile = VirtualFile.fromPath(to)
+            toFile.delete()
+            fromFile.copyTo(toFile)
+        } else {
+            executeScriptSilent("cp $from $to")
+        }
+    }
+
+    fun mv(from: String, to: String) {
+        if (UserInfo.isAdditionalUser) {
+            val fromFile = VirtualFile.fromPath(from)
+            val toFile = VirtualFile.fromPath(to)
+            toFile.delete()
+            fromFile.moveTo(toFile)
+        } else {
+            executeScriptSilent("mv $from $to")
+        }
+    }
+
+    fun rm(path: String) {
+        if (UserInfo.isAdditionalUser) {
+            VirtualFile.fromPath(path).delete()
+        } else {
+            executeScriptSilent("rm -f $path")
+        }
+    }
+
+    fun chmod(path: String, args: String) {
+        if (UserInfo.isAdditionalUser) {
+            VirtualFile.fromPath(path).chmod(args)
+        } else {
+            executeScriptSilent("chmod $args $path")
+        }
+    }
+
+    fun mkdir(path: String) {
+        if (UserInfo.isAdditionalUser) {
+            VirtualFile.fromPath(path).mkdir()
+        } else {
+            executeScriptSilent("mkdir -p $path")
+        }
+    }
+
+    private fun md5sum(path: String): String {
+        return if (UserInfo.isAdditionalUser) {
+            VirtualFile.fromPath(path).md5sum()
+        } else {
+            ShellImpl.executeCommandUnsafe("md5sum $path").substringBefore(" ")
+        }
+    }
 }
 
 private object ShellImpl {
@@ -681,11 +748,11 @@ private object ShellImpl {
         // b/268107648: UiAutomation always runs on user 0 so shell cannot access other user data.
         // This behavior was introduced with FUSE on api 30. Before then, shell could access any
         // user data.
-        if (UserInfo.currentUserId > 0 && Build.VERSION.SDK_INT >= 30) {
+        if (UserInfo.currentUserId > 0 && Build.VERSION.SDK_INT in 30 until 31) {
             throw IllegalStateException(
                 "Benchmark and Baseline Profile generation are not currently " +
                     "supported on AAOS and multiuser environment when a secondary user is " +
-                    "selected."
+                    "selected, on api 30"
             )
         }
         // These variables are used in executeCommand and executeScript, so we keep them as var
@@ -729,27 +796,33 @@ private object ShellImpl {
 
             // dirUsableByAppAndShell is writable, but we can't execute there (as of Q),
             // so we copy to /data/local/tmp
-            val externalDir = Outputs.dirUsableByAppAndShell
-            val scriptContentFile = File.createTempFile("temporaryScript", null, externalDir)
+            val scriptName = "temporaryScript_${Random.nextUInt()}.sh"
 
-            if (Outputs.forceFilesForShellAccessible) {
-                // script content must be readable by shell, and for some reason doesn't
-                // inherit shell readability from dirUsableByAppAndShell
-                scriptContentFile.setReadable(true, false)
-            }
+            val (scriptContentFile, stdInFile) =
+                if (UserInfo.isAdditionalUser) {
+                    Pair(
+                        ShellFile.inTempDir(scriptName).apply { writeText(script) },
+                        stdin?.let {
+                            ShellFile.inTempDir("${scriptName}_stdin").apply { writeText(it) }
+                        }
+                    )
+                } else {
+                    Pair(
+                        UserFile.inOutputsDir(scriptName).apply { writeText(script) },
+                        stdin?.let { input ->
+                            UserFile.inOutputsDir("${scriptName}_stdin").apply { writeText(input) }
+                        }
+                    )
+                }
 
-            // only create/read/delete stdin/stderr files if they are needed
-            val stdinFile = stdin?.run { File.createTempFile("temporaryStdin", null, externalDir) }
             // we use a path on /data/local/tmp (as opposed to externalDir) because some shell
             // commands fail to redirect stderr to externalDir (notably, `am start`).
             // This also means we need to `cat` the file to read it, and `rm` to remove it.
-            val stderrPath = "/data/local/tmp/" + scriptContentFile.name + "_stderr"
+            val stderrPath = "/data/local/tmp/${scriptName}_stderr"
 
             try {
-                stdinFile?.writeText(stdin)
-                scriptContentFile.writeText(script)
                 return@trace ShellScript(
-                    stdinFile = stdinFile,
+                    stdinFile = stdInFile,
                     scriptContentFile = scriptContentFile,
                     stderrPath = stderrPath
                 )
@@ -762,8 +835,8 @@ private object ShellImpl {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ShellScript
 internal constructor(
-    private val stdinFile: File?,
-    private val scriptContentFile: File,
+    private val stdinFile: VirtualFile?,
+    private val scriptContentFile: VirtualFile,
     private val stderrPath: String
 ) {
     private var cleanedUp: Boolean = false

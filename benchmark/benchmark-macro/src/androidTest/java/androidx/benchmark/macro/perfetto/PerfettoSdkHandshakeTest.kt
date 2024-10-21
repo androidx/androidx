@@ -494,8 +494,8 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assertThat(Shell.isPackageAlive(targetPackage)).isEqualTo(expected)
 
     private fun createShellFileMover() = { tmpFile: File, dstFile: File ->
-        Shell.executeScriptSilent("mkdir -p ${dstFile.parentFile!!.path}")
-        Shell.executeScriptSilent("mv ${tmpFile.path} ${dstFile.path}")
+        Shell.mkdir(dstFile.parentFile!!.path)
+        Shell.mv(from = tmpFile.path, to = dstFile.path)
     }
 
     private fun constructPerfettoHandshake(): PerfettoSdkHandshake =

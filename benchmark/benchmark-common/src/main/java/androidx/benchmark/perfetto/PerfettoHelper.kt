@@ -89,7 +89,7 @@ public class PerfettoHelper(
                 if (unbundled) {
                     val path = "$UNBUNDLED_PERFETTO_ROOT_DIR/config.pb"
                     // Move the config to a directory that unbundled perfetto has permissions for.
-                    Shell.executeScriptSilent("rm -f $path")
+                    Shell.rm(path)
                     if (Build.VERSION.SDK_INT == 23) {
                         // Observed stderr output (though command still completes successfully) on:
                         // google/shamu/shamu:6.0.1/MOB31T/3671974:userdebug/dev-keys
@@ -103,7 +103,7 @@ public class PerfettoHelper(
                             }
                         }
                     } else {
-                        Shell.executeScriptSilent("cp $configFilePath $path")
+                        Shell.cp(from = configFilePath, to = path)
                     }
                     path
                 } else {
@@ -117,7 +117,7 @@ public class PerfettoHelper(
                 val output = Shell.executeScriptCaptureStdoutStderr("rm -f $outputPath")
                 Log.d(LOG_TAG, "Attempted to remove $outputPath, result = $output")
             } else {
-                Shell.executeScriptSilent("rm -f $outputPath")
+                Shell.rm(outputPath)
             }
             // Remove already existing temporary output trace file if any.
 
@@ -343,19 +343,7 @@ public class PerfettoHelper(
         // Copy the collected trace from /data/misc/perfetto-traces/trace_output.pb to
         // destinationFile
         try {
-            val copyResult =
-                Shell.executeScriptCaptureStdoutStderr("cp $sourceFile $destinationFile")
-            if (!copyResult.isBlank()) {
-                Log.e(
-                    LOG_TAG,
-                    """
-                        Unable to copy perfetto output file from $sourceFile
-                        to $destinationFile due to $copyResult.
-                    """
-                        .trimIndent()
-                )
-                return false
-            }
+            Shell.cp(sourceFile, destinationFile)
         } catch (ioe: IOException) {
             Log.e(LOG_TAG, "Unable to move the perfetto trace file to destination file.", ioe)
             return false
