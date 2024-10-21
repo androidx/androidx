@@ -17,6 +17,8 @@
 package androidx.compose.ui.demos.autofill
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -52,6 +54,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
@@ -86,6 +89,7 @@ fun BTFResetCredentialsDemo() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
@@ -121,6 +125,7 @@ fun BasicTextFieldAutofill() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
@@ -175,6 +180,7 @@ fun BasicSecureTextFieldAutofillDemo() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
@@ -207,6 +213,7 @@ fun LegacyTextFieldAutofillDemo() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview

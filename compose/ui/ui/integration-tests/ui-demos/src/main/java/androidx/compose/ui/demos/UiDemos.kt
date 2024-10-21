@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.demos
 
+import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.O
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
@@ -270,6 +274,7 @@ private val ModifierDemos =
         )
     )
 
+@RequiresApi(Build.VERSION_CODES.O)
 private val AutofillDemos =
     DemoCategory(
         "Autofill",
@@ -301,9 +306,9 @@ val AccessibilityDemos =
 val CoreDemos =
     DemoCategory(
         "Framework",
-        listOf(
+        listOfNotNull(
             ModifierDemos,
-            AutofillDemos,
+            if (SDK_INT >= 26) AutofillDemos else null,
             ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
             FocusDemos,
             KeyInputDemos,

@@ -64,6 +64,9 @@ import androidx.compose.ui.state.ToggleableState.On
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 
+/** In Android, the platform host type is of `AndroidComposeView`. */
+internal actual typealias PlatformAutofillHost = AndroidComposeView
+
 /**
  * Semantic autofill implementation for Android.
  *
@@ -71,7 +74,8 @@ import androidx.compose.ui.util.fastForEach
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillManager {
+actual class AutofillManager internal actual constructor(platformType: PlatformAutofillHost) {
+    internal val view: AndroidComposeView = platformType
     internal var autofillManager: AutofillManagerWrapper = AutofillManagerWrapperImpl(view)
 
     init {
@@ -216,11 +220,11 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
     }
 
     @ExperimentalComposeUiApi
-    override fun commit() {
+    actual fun commit() {
         autofillManager.commit()
     }
 
-    override fun cancel() {
+    actual fun cancel() {
         autofillManager.cancel()
     }
 
@@ -270,12 +274,12 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
             }
 
             /** Registers the autofill debug callback. */
-            fun register(androidAutofillManager: AndroidAutofillManager) {
+            fun register(androidAutofillManager: AutofillManager) {
                 androidAutofillManager.autofillManager.autofillManager.registerCallback(this)
             }
 
             /** Unregisters the autofill debug callback. */
-            fun unregister(androidAutofillManager: AndroidAutofillManager) {
+            fun unregister(androidAutofillManager: AutofillManager) {
                 androidAutofillManager.autofillManager.autofillManager.unregisterCallback(this)
             }
         }
@@ -283,7 +287,7 @@ internal class AndroidAutofillManager(val view: AndroidComposeView) : AutofillMa
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun AndroidAutofillManager.populateViewStructure(root: ViewStructure) {
+internal fun AutofillManager.populateViewStructure(root: ViewStructure) {
     // Add child nodes. The function returns the index to the first item.
     val count =
         currentSemanticsNodes.count { _, semanticsNodeWithAdjustedBounds ->
@@ -437,7 +441,7 @@ internal fun SemanticsNode.populateViewStructure(child: ViewStructure) {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-internal fun AndroidAutofillManager.performAutofill(values: SparseArray<AutofillValue>) {
+internal fun AutofillManager.performAutofill(values: SparseArray<AutofillValue>) {
     for (index in 0 until values.size()) {
         val itemId = values.keyAt(index)
         val value = values[itemId]

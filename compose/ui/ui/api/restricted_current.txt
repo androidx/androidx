@@ -218,9 +218,13 @@ package androidx.compose.ui.autofill {
     method public void requestAutofillForNode(androidx.compose.ui.autofill.AutofillNode autofillNode);
   }
 
-  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public interface AutofillManager {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class AutofillManager {
     method public void cancel();
-    method public void commit();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void commit();
+    field public static final androidx.compose.ui.autofill.AutofillManager.Companion Companion;
+  }
+
+  public static final class AutofillManager.Companion {
   }
 
   public final class AutofillNode {

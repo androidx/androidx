@@ -79,9 +79,9 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
-import androidx.compose.ui.autofill.AndroidAutofillManager
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillCallback
+import androidx.compose.ui.autofill.AutofillManager as AndroidAutofillManager
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
