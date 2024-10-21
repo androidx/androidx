@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
@@ -147,8 +146,6 @@ private class ScrollAwayModifierNode(
                         // Scale, fade and scroll the content to scroll it away.
                         (offsetPx / maxScrollOut.toPx()).coerceIn(0f, 1f) to 1f
                     }
-
-                Log.d("SCROLL", "OffsetPx = $offsetPx, TargetProgress=$targetProgress")
 
                 val screenStage = screenStage()
 
