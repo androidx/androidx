@@ -2,5 +2,6 @@
     <string name="app_name">PDF Viewer Sample App</string>
     <string name="launch_string">Open Pdf</string>
     <string name="search_string">Search</string>
-    <string name="double_pdf_string">Open two pdfs</string>
+    <string name="tab_view_string">Tab View</string>
+    <string name="single_pdf_string">Single Pdf</string>
 </resources>
