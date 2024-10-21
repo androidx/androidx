@@ -18,12 +18,7 @@ package androidx.compose.ui.autofill
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 
-/**
- * The class that hosts autofill.
- *
- * Platform-specific data can be conveyed to autofill framework via the [PlatformAutofillHost].
- */
-internal expect class PlatformAutofillHost
+internal actual class PlatformAutofillHost
 
 /**
  * Autofill API.
@@ -32,8 +27,7 @@ internal expect class PlatformAutofillHost
  * notify the Autofill framework that user values have been committed as required.
  */
 @ExperimentalComposeUiApi
-expect class AutofillManager internal constructor(platformType: PlatformAutofillHost) {
-
+actual class AutofillManager internal actual constructor(platformType: PlatformAutofillHost) {
     /**
      * Indicate the autofill context should be committed.
      *
@@ -41,7 +35,7 @@ expect class AutofillManager internal constructor(platformType: PlatformAutofill
      * committed. After calling this function, the framework considers the form submitted, and the
      * credentials entered will be processed.
      */
-    fun commit()
+    actual fun commit() {}
 
     /**
      * Indicate the autofill context should be canceled.
@@ -50,5 +44,5 @@ expect class AutofillManager internal constructor(platformType: PlatformAutofill
      * canceled. After calling this function, the framework will stop the current autofill session
      * without processing any information entered in the autofillable field.
      */
-    fun cancel()
+    actual fun cancel() {}
 }
