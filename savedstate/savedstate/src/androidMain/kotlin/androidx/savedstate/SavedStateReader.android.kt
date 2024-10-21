@@ -33,7 +33,7 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     }
 
     actual inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean {
-        return getSingleResultOrElse(key, defaultValue) { source.getBoolean(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getBoolean(key, defaultValue()) }
     }
 
     actual inline fun getDouble(key: String): Double {
@@ -41,7 +41,7 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     }
 
     actual inline fun getDoubleOrElse(key: String, defaultValue: () -> Double): Double {
-        return getSingleResultOrElse(key, defaultValue) { source.getDouble(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getDouble(key, defaultValue()) }
     }
 
     actual inline fun getFloat(key: String): Float {
@@ -49,7 +49,7 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     }
 
     actual inline fun getFloatOrElse(key: String, defaultValue: () -> Float): Float {
-        return getSingleResultOrElse(key, defaultValue) { source.getFloat(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getFloat(key, defaultValue()) }
     }
 
     actual inline fun getInt(key: String): Int {
@@ -57,15 +57,15 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     }
 
     actual inline fun getIntOrElse(key: String, defaultValue: () -> Int): Int {
-        return getSingleResultOrElse(key, defaultValue) { source.getInt(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getInt(key, defaultValue()) }
     }
 
     actual inline fun getLong(key: String): Long {
-        return getSingleResultOrThrow(key) { source.getLong(key) }
+        return getSingleResultOrThrow(key) { source.getLong(key, SavedStateUtils.DEFAULT_LONG) }
     }
 
     actual inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long {
-        return getSingleResultOrElse(key, defaultValue) { source.getLong(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getLong(key, defaultValue()) }
     }
 
     /**
@@ -102,7 +102,7 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     }
 
     actual inline fun getStringOrElse(key: String, defaultValue: () -> String): String {
-        return getSingleResultOrElse(key, defaultValue) { source.getString(key) }
+        return getSingleResultOrElse(key, defaultValue) { source.getString(key, defaultValue()) }
     }
 
     actual inline fun getIntList(key: String): List<Int> {

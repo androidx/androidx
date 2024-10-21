@@ -31,41 +31,31 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
         }
 
     actual inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean =
-        getSingleResultOrElse(key, defaultValue) {
-            source.map[key] as? Boolean ?: SavedStateUtils.DEFAULT_BOOLEAN
-        }
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Boolean }
 
     actual inline fun getDouble(key: String): Double =
         getSingleResultOrThrow(key) { source.map[key] as? Double ?: SavedStateUtils.DEFAULT_DOUBLE }
 
     actual inline fun getDoubleOrElse(key: String, defaultValue: () -> Double): Double =
-        getSingleResultOrElse(key, defaultValue) {
-            source.map[key] as? Double ?: SavedStateUtils.DEFAULT_DOUBLE
-        }
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Double }
 
     actual inline fun getFloat(key: String): Float =
         getSingleResultOrThrow(key) { source.map[key] as? Float ?: SavedStateUtils.DEFAULT_FLOAT }
 
     actual inline fun getFloatOrElse(key: String, defaultValue: () -> Float): Float =
-        getSingleResultOrElse(key, defaultValue) {
-            source.map[key] as? Float ?: SavedStateUtils.DEFAULT_FLOAT
-        }
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Float }
 
     actual inline fun getInt(key: String): Int =
         getSingleResultOrThrow(key) { source.map[key] as? Int ?: SavedStateUtils.DEFAULT_INT }
 
     actual inline fun getIntOrElse(key: String, defaultValue: () -> Int): Int =
-        getSingleResultOrElse(key, defaultValue) {
-            source.map[key] as? Int ?: SavedStateUtils.DEFAULT_INT
-        }
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Int }
 
     actual inline fun getLong(key: String): Long =
         getSingleResultOrThrow(key) { source.map[key] as? Long ?: SavedStateUtils.DEFAULT_LONG }
 
     actual inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long =
-        getSingleResultOrElse(key, defaultValue) {
-            source.map[key] as? Long ?: SavedStateUtils.DEFAULT_LONG
-        }
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Long }
 
     actual inline fun getString(key: String): String =
         getSingleResultOrThrow(key) { source.map[key] as? String }
