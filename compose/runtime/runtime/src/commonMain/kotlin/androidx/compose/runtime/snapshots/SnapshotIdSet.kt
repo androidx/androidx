@@ -92,7 +92,10 @@ private constructor(
                 var newLowerSet = lowerSet
                 var newLowerBound = lowerBound
                 var newBelowBound: MutableList<Int>? = null
-                val targetLowerBound = (bit + 1) / Long.SIZE_BITS * Long.SIZE_BITS
+                val targetLowerBound =
+                    ((bit + 1) / Long.SIZE_BITS * Long.SIZE_BITS).let {
+                        if (it < 0) Int.MAX_VALUE - Long.SIZE_BITS * 2 + 1 else it
+                    }
                 while (newLowerBound < targetLowerBound) {
                     // Shift the lower set into the array
                     if (newLowerSet != 0L) {

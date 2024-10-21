@@ -19,6 +19,7 @@ package androidx.compose.runtime.snapshots
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SnapshotIdSetTests {
@@ -254,6 +255,14 @@ class SnapshotIdSetTests {
         }
 
         repeat(64) { test(it) }
+    }
+
+    @Test
+    fun shouldOverflowGracefully() {
+        val s = SnapshotIdSet.EMPTY.set(0).set(Int.MAX_VALUE)
+        assertTrue(s.get(0))
+        assertTrue(s.get(Int.MAX_VALUE))
+        assertFalse(s.get(1))
     }
 
     @Test // Regression: b/147836978
