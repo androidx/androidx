@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.setComposingText
+import androidx.compose.foundation.text.input.internal.withImeScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
@@ -665,7 +666,7 @@ class TextFieldStateTest {
     fun inputTransformationRejectsChanges_removesComposition() {
         val state = TextFieldState()
         val inputTransformation = InputTransformation { revertAllChanges() }
-        state.editAsUser(inputTransformation) { setComposingText("hello", 1) }
+        state.withImeScope(inputTransformation) { setComposingText("hello", 1) }
         assertThat(state.text).isEqualTo("")
         assertThat(state.selection).isEqualTo(TextRange.Zero)
         assertThat(state.composition).isNull()

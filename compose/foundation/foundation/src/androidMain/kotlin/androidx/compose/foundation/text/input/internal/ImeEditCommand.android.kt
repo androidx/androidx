@@ -18,12 +18,114 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.internal.requirePrecondition
-import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.adjustTextRange
 import androidx.compose.foundation.text.input.delete
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.util.fastCoerceIn
+
+/**
+ * IME ideally knows about the visual/presented text and not the raw state of [TextFieldState], so
+ * the edit commands are sent according to what's seen by the user. This scope enables edit appliers
+ * to convert text ranges from transformed space to original space before applying them. It is sort
+ * of a reverse output transformation.
+ *
+ * This scope also carries batch editing capabilities so any edit op called on this scope can be
+ * wrapped in a batch for various purposes.
+ */
+internal interface ImeEditCommandScope {
+    /**
+     * Transforms given [range] from transformed space to original space. Please note that this
+     * function runs in the current TextFieldState. This means that the ongoing edits are not
+     * visible to this transform function yet.
+     */
+    fun mapFromTransformed(range: TextRange): TextRange
+
+    /**
+     * Transforms given [range] from original space to transformed space. Please note that this
+     * function runs in the current TextFieldState. This means that the ongoing edits are not
+     * visible to this transform function yet.
+     */
+    fun mapToTransformed(range: TextRange): TextRange
+
+    /**
+     * Start a batch edit. All [edit] calls coming after [beginBatchEdit] are only executed after
+     * corresponding [endBatchEdit] call comes. Returns true if a successful new batch is started.
+     */
+    fun beginBatchEdit(): Boolean
+
+    /**
+     * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that batch
+     * editing will be used for every operation. Instead, [ImeEditCommandScope] should create its
+     * own mini batch for every edit op. These batches are only applied when batch depth reaches 0,
+     * meaning that artificial batches won't be applied until the real batches are completed.
+     */
+    fun edit(block: TextFieldBuffer.() -> Unit)
+
+    /** End an ongoing batch edit. Returns true if there's still a batch ongoing. */
+    fun endBatchEdit(): Boolean
+}
+
+internal class DefaultImeEditCommandScope(
+    private val transformedTextFieldState: TransformedTextFieldState
+) : ImeEditCommandScope {
+
+    /**
+     * The depth of the batch session. 0 means no session.
+     *
+     * Sometimes InputConnection does not call begin/endBatchEdit functions before calling other
+     * edit functions like commitText or setComposingText. StatelessInputConnection starts and
+     * finishes a new artificial batch for every EditCommand to make sure that there is always an
+     * ongoing batch. EditCommands are only applied when batchDepth reaches 0.
+     */
+    private var batchDepth: Int = 0
+
+    /**
+     * Transforms given [range] from transformed space to original space. Please note that this
+     * function runs in the current TextFieldState. This means that the ongoing edits are not
+     * visible to this transform function yet.
+     */
+    override fun mapFromTransformed(range: TextRange) =
+        transformedTextFieldState.mapFromTransformed(range)
+
+    /**
+     * Transforms given [range] from original space to transformed space. Please note that this
+     * function runs in the current TextFieldState. This means that the ongoing edits are not
+     * visible to this transform function yet.
+     */
+    override fun mapToTransformed(range: TextRange) =
+        transformedTextFieldState.mapToTransformed(range)
+
+    private val editCommands = mutableVectorOf<TextFieldBuffer.() -> Unit>()
+
+    override fun beginBatchEdit(): Boolean {
+        batchDepth++
+        return true
+    }
+
+    override fun edit(block: TextFieldBuffer.() -> Unit) {
+        beginBatchEdit()
+        editCommands.add(block)
+        endBatchEdit()
+    }
+
+    override fun endBatchEdit(): Boolean {
+        batchDepth--
+        if (batchDepth == 0 && editCommands.isNotEmpty()) {
+            // apply the changes to active input session in order.
+            transformedTextFieldState.editUntransformedTextAsUser(
+                restartImeIfContentChanges = false
+            ) {
+                editCommands.forEach { it.invoke(this) }
+            }
+            editCommands.clear()
+        }
+        return batchDepth > 0
+    }
+}
 
 /**
  * Commit final [text] to the text box and set the new cursor position.
@@ -34,9 +136,9 @@ import androidx.compose.ui.text.TextRange
  * @param text The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
  */
-internal fun TextFieldBuffer.commitText(text: String, newCursorPosition: Int) {
-    // API description says replace ongoing composition text if there. Then, if there is no
-    // composition text, insert text into cursor position or replace selection.
+internal fun ImeEditCommandScope.commitText(text: String, newCursorPosition: Int) = edit {
+    // API description says to replace the ongoing composition text if there is any. Then, if
+    // there is no composition text, insert text into cursor position or replace selection.
     val compositionRange = composition
     if (compositionRange != null) {
         imeReplace(compositionRange.start, compositionRange.end, text)
@@ -45,7 +147,7 @@ internal fun TextFieldBuffer.commitText(text: String, newCursorPosition: Int) {
         imeReplace(selection.start, selection.end, text)
     }
 
-    // After replace function is called, the editing buffer places the cursor at the end of the
+    // After replace function is called, the buffer places the cursor at the end of the
     // modified range.
     val newCursor = selection.start
 
@@ -69,7 +171,7 @@ internal fun TextFieldBuffer.commitText(text: String, newCursorPosition: Int) {
  * @param start The inclusive start offset of the composing region.
  * @param end The exclusive end offset of the composing region
  */
-internal fun TextFieldBuffer.setComposingRegion(start: Int, end: Int) {
+internal fun ImeEditCommandScope.setComposingRegion(start: Int, end: Int) = edit {
     // The API description says, different from SetComposingText, SetComposingRegion must
     // preserve the ongoing composition text and set new composition.
     if (hasComposition()) {
@@ -100,11 +202,11 @@ internal fun TextFieldBuffer.setComposingRegion(start: Int, end: Int) {
  * @param annotations Text annotations that IME attaches to the composing region. e.g. background
  *   color or underline styling.
  */
-internal fun TextFieldBuffer.setComposingText(
+internal fun ImeEditCommandScope.setComposingText(
     text: String,
     newCursorPosition: Int,
     annotations: List<PlacedAnnotation>? = null
-) {
+) = edit {
     val compositionRange = composition
     if (compositionRange != null) {
         // API doc says, if there is ongoing composing text, replace it with new text.
@@ -157,10 +259,10 @@ internal fun TextFieldBuffer.setComposingText(
  * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted. Must
  *   be non-negative.
  */
-internal fun TextFieldBuffer.deleteSurroundingText(
+internal fun ImeEditCommandScope.deleteSurroundingText(
     lengthBeforeCursor: Int,
     lengthAfterCursor: Int
-) {
+) = edit {
     requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
@@ -191,10 +293,10 @@ internal fun TextFieldBuffer.deleteSurroundingText(
  * @param lengthAfterCursor The number of characters in Unicode code points after the cursor to be
  *   deleted. Must be non-negative.
  */
-internal fun TextFieldBuffer.deleteSurroundingTextInCodePoints(
+internal fun ImeEditCommandScope.deleteSurroundingTextInCodePoints(
     lengthBeforeCursor: Int,
     lengthAfterCursor: Int
-) {
+) = edit {
     requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
@@ -248,43 +350,19 @@ internal fun TextFieldBuffer.deleteSurroundingTextInCodePoints(
  * See
  * [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
  */
-internal fun TextFieldBuffer.finishComposingText() {
-    commitComposition()
-}
+internal fun ImeEditCommandScope.finishComposingText() = edit { commitComposition() }
 
 /**
- * Represents a backspace operation at the cursor position.
- *
- * If there is composition, delete the text in the composition range. If there is no composition but
- * there is selection, delete whole selected range. If there is no composition and selection,
- * perform backspace key event at the cursor position.
+ * Sets selection while converting the given range from transformed space to original space and
+ * coercing to the buffer range.
  */
-internal fun TextFieldBuffer.backspace() {
-    val compositionRange = composition
-    if (compositionRange != null) {
-        imeDelete(compositionRange.start, compositionRange.end)
-    } else if (hasSelection) {
-        val delStart = selection.start
-        val delEnd = selection.end
-        selection = TextRange(selection.start)
-        imeDelete(delStart, delEnd)
-    } else if (selection.collapsed && selection.start > 0) {
-        val prevCursorPos = toString().findPrecedingBreak(selection.start)
-        imeDelete(prevCursorPos, selection.start)
-    }
-}
+internal fun ImeEditCommandScope.setSelection(start: Int, end: Int) = edit {
+    // First we need to find the length of transformed space so we can clamp [start] and [end]
+    val transformedSpaceLength = mapToTransformed(TextRange(0, length))
 
-/** Deletes all the text in the buffer. */
-internal fun TextFieldBuffer.deleteAll() {
-    imeReplace(0, length, "")
-}
-
-/** Sets selection while coercing the given parameters to the buffer range. */
-internal fun TextFieldBuffer.setSelection(start: Int, end: Int) {
-    val clampedStart = start.coerceIn(0, length)
-    val clampedEnd = end.coerceIn(0, length)
-
-    selection = TextRange(clampedStart, clampedEnd)
+    val clampedStart = start.fastCoerceIn(transformedSpaceLength.min, transformedSpaceLength.max)
+    val clampedEnd = end.fastCoerceIn(transformedSpaceLength.min, transformedSpaceLength.max)
+    selection = mapFromTransformed(TextRange(clampedStart, clampedEnd))
 }
 
 /**

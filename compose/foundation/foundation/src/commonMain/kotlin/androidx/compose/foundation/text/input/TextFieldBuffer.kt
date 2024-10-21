@@ -26,6 +26,7 @@ import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmName
 
@@ -705,4 +706,14 @@ internal inline fun findCommonPrefixAndSuffix(
     }
 
     onFound(aStart, aEnd, bStart, bEnd)
+}
+
+/**
+ * Normally [TextFieldBuffer] throws an [IllegalArgumentException] when an invalid selection change
+ * is attempted. However internally and especially for selection ranges coming from the IME we
+ * coerce the given numbers to a valid range to not crash. Also, IMEs sometimes send values like
+ * `Int.MAX_VALUE` to move selection to end.
+ */
+internal fun TextFieldBuffer.setSelectionCoerced(start: Int, end: Int = start) {
+    selection = TextRange(start.coerceIn(0, length), end.coerceIn(0, length))
 }

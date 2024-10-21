@@ -23,31 +23,31 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class FinishComposingTextCommandTest {
+internal class FinishComposingTextCommandTest : ImeEditCommandTest() {
 
     @Test
     fun test_set() {
-        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
+        initialize("ABCDE", TextRange.Zero)
 
-        eb.setComposition(1, 4)
-        eb.finishComposingText()
+        imeScope.setComposingRegion(1, 4)
+        imeScope.finishComposingText()
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(0)
-        assertThat(eb.selection.end).isEqualTo(0)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
     }
 
     @Test
     fun test_preserve_selection() {
-        val eb = TextFieldBuffer("ABCDE", TextRange(1, 4))
+        initialize("ABCDE", TextRange(1, 4))
 
-        eb.setComposition(2, 5)
-        eb.finishComposingText()
+        imeScope.setComposingRegion(2, 5)
+        imeScope.finishComposingText()
 
-        assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selection.start).isEqualTo(1)
-        assertThat(eb.selection.end).isEqualTo(4)
-        assertThat(eb.hasComposition()).isFalse()
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(1)
+        assertThat(state.selection.end).isEqualTo(4)
+        assertThat(state.composition).isNull()
     }
 }

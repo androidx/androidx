@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.input.internal.IndexTransformationType.I
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Replacement
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Untransformed
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
+import androidx.compose.foundation.text.input.setSelectionCoerced
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -196,7 +197,7 @@ internal class TransformedTextFieldState(
 
     fun selectUntransformedCharsIn(untransformedRange: TextRange) {
         textFieldState.editAsUser(inputTransformation) {
-            setSelection(untransformedRange.start, untransformedRange.end)
+            setSelectionCoerced(untransformedRange.start, untransformedRange.end)
         }
     }
 
@@ -209,13 +210,13 @@ internal class TransformedTextFieldState(
 
     fun replaceAll(newText: CharSequence) {
         textFieldState.editAsUser(inputTransformation) {
-            deleteAll()
-            commitText(newText.toString(), 1)
+            delete(0, length)
+            append(newText.toString())
         }
     }
 
     fun selectAll() {
-        textFieldState.editAsUser(inputTransformation) { setSelection(0, length) }
+        textFieldState.editAsUser(inputTransformation) { setSelectionCoerced(0, length) }
     }
 
     fun deleteSelectedText() {
@@ -225,7 +226,7 @@ internal class TransformedTextFieldState(
         ) {
             // `selection` is read from the buffer, so we don't need to transform it.
             delete(selection.min, selection.max)
-            setSelection(selection.min, selection.min)
+            setSelectionCoerced(selection.min)
         }
     }
 
@@ -247,16 +248,21 @@ internal class TransformedTextFieldState(
             val selection = mapFromTransformed(range)
             replace(selection.min, selection.max, newText)
             val cursor = selection.min + newText.length
-            setSelection(cursor, cursor)
+            setSelectionCoerced(cursor)
         }
     }
 
     fun replaceSelectedText(
         newText: CharSequence,
         clearComposition: Boolean = false,
-        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
+        restartImeIfContentChanges: Boolean = true
     ) {
-        textFieldState.editAsUser(inputTransformation, undoBehavior = undoBehavior) {
+        textFieldState.editAsUser(
+            inputTransformation = inputTransformation,
+            restartImeIfContentChanges = restartImeIfContentChanges,
+            undoBehavior = undoBehavior
+        ) {
             if (clearComposition) {
                 commitComposition()
             }
@@ -265,21 +271,21 @@ internal class TransformedTextFieldState(
             val selection = selection
             replace(selection.min, selection.max, newText)
             val cursor = selection.min + newText.length
-            setSelection(cursor, cursor)
+            setSelectionCoerced(cursor)
         }
     }
 
     fun collapseSelectionToMax() {
         textFieldState.editAsUser(inputTransformation) {
             // `selection` is read from the buffer, so we don't need to transform it.
-            setSelection(selection.max, selection.max)
+            setSelectionCoerced(selection.max)
         }
     }
 
     fun collapseSelectionToEnd() {
         textFieldState.editAsUser(inputTransformation) {
             // `selection` is read from the buffer, so we don't need to transform it.
-            setSelection(selection.end, selection.end)
+            setSelectionCoerced(selection.end)
         }
     }
 

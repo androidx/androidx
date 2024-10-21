@@ -41,6 +41,8 @@ import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.firstUriOrNull
@@ -84,8 +86,36 @@ class StatelessInputConnectionTest {
                 this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
             }
 
-            override fun requestEdit(block: TextFieldBuffer.() -> Unit) {
-                onRequestEdit?.invoke(block)
+            override fun mapFromTransformed(range: TextRange): TextRange {
+                mapFromTransformedCalled = range
+                return state.mapFromTransformed(range)
+            }
+
+            override fun mapToTransformed(range: TextRange): TextRange {
+                mapToTransformedCalled = range
+                return state.mapToTransformed(range)
+            }
+
+            override fun beginBatchEdit(): Boolean {
+                beginBatchEditCalls++
+                batchDepth++
+                return true
+            }
+
+            override fun edit(block: TextFieldBuffer.() -> Unit) {
+                beginBatchEdit()
+                edits.add(block)
+                endBatchEdit()
+            }
+
+            override fun endBatchEdit(): Boolean {
+                endBatchEditCalls++
+                batchDepth--
+                if (batchDepth == 0 && edits.isNotEmpty()) {
+                    onRequestEdit?.invoke { edits.forEach { it.invoke(this) } }
+                    edits.clear()
+                }
+                return batchDepth > 0
             }
 
             override fun sendKeyEvent(keyEvent: KeyEvent) {
@@ -112,17 +142,25 @@ class StatelessInputConnectionTest {
             }
         }
 
-    private var state: TextFieldState = TextFieldState()
+    private var edits = mutableVectorOf<TextFieldBuffer.() -> Unit>()
+    private var state: TransformedTextFieldState = TransformedTextFieldState(TextFieldState())
     private var value: TextFieldCharSequence = TextFieldCharSequence()
         set(value) {
             field = value
-            state = TextFieldState(value.toString(), value.selection)
+            state = TransformedTextFieldState(TextFieldState(value.toString(), value.selection))
         }
 
     private var onRequestEdit: ((TextFieldBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
     private var onCommitContent: ((TransferableContent) -> Boolean)? = null
+
+    private var beginBatchEditCalls = 0
+    private var endBatchEditCalls = 0
+    private var mapFromTransformedCalled: TextRange? = null
+    private var mapToTransformedCalled: TextRange? = null
+
+    private var batchDepth = 0
 
     @Before
     fun setup() {
@@ -197,7 +235,7 @@ class StatelessInputConnectionTest {
         var requestEditsCalled = 0
         onRequestEdit = { block ->
             requestEditsCalled++
-            state.mainBuffer.block()
+            state.editUntransformedTextAsUser { block() }
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -214,8 +252,8 @@ class StatelessInputConnectionTest {
         ic.endBatchEdit()
 
         assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(state.mainBuffer.toString()).isEqualTo("Hello, World.")
-        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(13))
+        assertThat(state.untransformedText.toString()).isEqualTo("Hello, World.")
+        assertThat(state.untransformedText.selection).isEqualTo(TextRange(13))
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -325,14 +363,10 @@ class StatelessInputConnectionTest {
     @Test
     fun setComposingText_appliesComposingSpans() {
         var requestEditsCalled = 0
-        state = TextFieldState("hello ")
+        state = TransformedTextFieldState(TextFieldState("hello "))
         onRequestEdit = { block ->
             requestEditsCalled++
-            state.editAsUser(
-                inputTransformation = null,
-                restartImeIfContentChanges = false,
-                block = block
-            )
+            state.editUntransformedTextAsUser { block() }
         }
 
         ic.setComposingText(
@@ -345,9 +379,9 @@ class StatelessInputConnectionTest {
         )
 
         assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(state.composition).isEqualTo(TextRange(6, 11))
-        assertThat(state.value.composingAnnotations).isNotNull()
-        assertThat(state.value.composingAnnotations)
+        assertThat(state.untransformedText.composition).isEqualTo(TextRange(6, 11))
+        assertThat(state.untransformedText.composingAnnotations).isNotNull()
+        assertThat(state.untransformedText.composingAnnotations)
             .containsExactlyElementsIn(
                 listOf(
                     AnnotatedString.Range(
@@ -458,7 +492,7 @@ class StatelessInputConnectionTest {
         var requestEditsCalled = 0
         onRequestEdit = { block ->
             requestEditsCalled++
-            state.mainBuffer.block()
+            state.editUntransformedTextAsUser { block() }
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -483,8 +517,54 @@ class StatelessInputConnectionTest {
         ic.endBatchEdit()
 
         assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(state.mainBuffer.toString()).isEqualTo(".")
-        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0))
+        assertThat(state.untransformedText.toString()).isEqualTo(".")
+        assertThat(state.untransformedText.selection).isEqualTo(TextRange(0))
+    }
+
+    @Test
+    fun setSelection_respectsOutputTransformation() {
+        state =
+            TransformedTextFieldState(
+                textFieldState = TextFieldState("abc def"),
+                outputTransformation = { insert(4, "ghi ") }
+            )
+        var requestEditsCalled = 0
+        onRequestEdit = { block ->
+            requestEditsCalled++
+            state.editUntransformedTextAsUser { block() }
+        }
+
+        ic.beginBatchEdit()
+
+        assertThat(ic.setSelection(5, 5)).isTrue()
+        assertThat(requestEditsCalled).isEqualTo(0)
+
+        ic.endBatchEdit()
+        assertThat(requestEditsCalled).isEqualTo(1)
+        assertThat(mapFromTransformedCalled).isEqualTo(TextRange(5))
+        assertThat(state.untransformedText.selection).isEqualTo(TextRange(4))
+        assertThat(state.visualText.selection).isEqualTo(TextRange(4))
+        assertThat(state.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
+    }
+
+    @Test
+    fun setSelection_coercesRange() {
+        state = TransformedTextFieldState(textFieldState = TextFieldState("abc def"))
+        var requestEditsCalled = 0
+        onRequestEdit = { block ->
+            requestEditsCalled++
+            state.editUntransformedTextAsUser { block() }
+        }
+
+        ic.beginBatchEdit()
+
+        assertThat(ic.setSelection(Int.MIN_VALUE, Int.MAX_VALUE)).isTrue()
+        assertThat(requestEditsCalled).isEqualTo(0)
+
+        ic.endBatchEdit()
+        assertThat(requestEditsCalled).isEqualTo(1)
+        assertThat(state.untransformedText.selection).isEqualTo(TextRange(0, 7))
     }
 
     @Test
@@ -554,13 +634,13 @@ class StatelessInputConnectionTest {
         var callCount = 0
         onRequestEdit = { block ->
             callCount++
-            state.mainBuffer.block()
+            state.editUntransformedTextAsUser { block() }
         }
 
         ic.performContextMenuAction(android.R.id.selectAll)
 
         assertThat(callCount).isEqualTo(1)
-        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0, 5))
+        assertThat(state.untransformedText.selection).isEqualTo(TextRange(0, 5))
     }
 
     @Test

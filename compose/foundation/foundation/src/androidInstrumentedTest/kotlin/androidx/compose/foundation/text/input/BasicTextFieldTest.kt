@@ -1367,7 +1367,7 @@ internal class BasicTextFieldTest {
     fun composingRegion_changesInvalidateLayout() {
         val state = TextFieldState("Hello, World")
         var textLayoutProvider: (() -> TextLayoutResult?)? by mutableStateOf(null)
-        state.editAsUser(inputTransformation = null) { setComposingRegion(0, 5) }
+        state.editAsUser(inputTransformation = null) { setComposition(0, 5) }
 
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(

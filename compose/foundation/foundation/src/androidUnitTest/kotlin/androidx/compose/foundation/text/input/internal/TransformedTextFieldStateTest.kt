@@ -51,17 +51,16 @@ class TransformedTextFieldStateTest {
     @Test
     fun outputTransformationDoesNotRemoveComposingAnnotations() {
         val state = TextFieldState()
-        val annotations: List<PlacedAnnotation> =
-            listOf(AnnotatedString.Range(SpanStyle(background = Color.Blue), 0, 5))
-        state.editAsUser(inputTransformation = null) {
-            setComposingText(text = "hello", newCursorPosition = 1, annotations = annotations)
-        }
         val outputTransformation = OutputTransformation { append(" world") }
         val transformedState =
             TransformedTextFieldState(
                 textFieldState = state,
                 outputTransformation = outputTransformation
             )
+        val annotations: List<PlacedAnnotation> =
+            listOf(AnnotatedString.Range(SpanStyle(background = Color.Blue), 0, 5))
+        DefaultImeEditCommandScope(transformedState)
+            .setComposingText(text = "hello", newCursorPosition = 1, annotations = annotations)
 
         assertThat(transformedState.visualText.composingAnnotations).isEqualTo(annotations)
     }
