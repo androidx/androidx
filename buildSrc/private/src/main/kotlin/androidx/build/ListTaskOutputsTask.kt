@@ -126,7 +126,7 @@ val taskNamesKnownToDuplicateOutputs =
         "updateGoldenDebugUnitTest",
 
         // The following tasks have the same output file:
-        // ../../prebuilts/androidx/external/wasm/yarn-offline-mirror/yarn.lock
+        // ../../prebuilts/androidx/javascript-for-kotlin/yarn.lock
         "kotlinRestoreYarnLock",
         "kotlinNpmInstall",
         "kotlinUpgradePackageLock",
