@@ -28,7 +28,7 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.macrobenchmark.common.BaselineProfileScreens
+import androidx.wear.compose.material3.macrobenchmark.common.baselineprofile.BaselineProfileScreens
 
 class BaselineActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,13 +37,14 @@ class BaselineActivity : ComponentActivity() {
             MaterialTheme {
                 AppScaffold {
                     val pagerState = rememberPagerState(pageCount = { BaselineProfileScreens.size })
+
                     HorizontalPagerScaffold(pagerState = pagerState) { page ->
                         ScreenScaffold {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                BaselineProfileScreens[page].content()
+                                BaselineProfileScreens[page].content.invoke(this)
                             }
                         }
                     }
