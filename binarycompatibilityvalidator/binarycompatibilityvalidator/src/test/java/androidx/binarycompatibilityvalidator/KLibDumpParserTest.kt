@@ -21,6 +21,7 @@ import kotlin.test.assertFailsWith
 import org.jetbrains.kotlin.library.abi.AbiClassKind
 import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiModality
+import org.jetbrains.kotlin.library.abi.AbiProperty
 import org.jetbrains.kotlin.library.abi.AbiQualifiedName
 import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
@@ -85,6 +86,24 @@ class KlibDumpParserTest {
         assertThat(parsed.superTypes).hasSize(1)
         val superType = parsed.superTypes.single()
         assertThat(superType.arguments?.single()?.type?.classNameOrTag).isEqualTo("kotlin/Int")
+    }
+
+    @Test
+    fun parseAClassBug() {
+        val input =
+            """
+            abstract interface androidx.graphics.shapes/MutablePoint { // androidx.graphics.shapes/MutablePoint|null[0]
+                abstract var x // androidx.graphics.shapes/MutablePoint.x|{}x[0]
+                    abstract fun <get-x>(): kotlin/Float // androidx.graphics.shapes/MutablePoint.x.<get-x>|<get-x>(){}[0]
+                    abstract fun <set-x>(kotlin/Float) // androidx.graphics.shapes/MutablePoint.x.<set-x>|<set-x>(kotlin.Float){}[0]
+                abstract var y // androidx.graphics.shapes/MutablePoint.y|{}y[0]
+                    abstract fun <get-y>(): kotlin/Float // androidx.graphics.shapes/MutablePoint.y.<get-y>|<get-y>(){}[0]
+                    abstract fun <set-y>(kotlin/Float) // androidx.graphics.shapes/MutablePoint.y.<set-y>|<set-y>(kotlin.Float){}[0]
+            }
+        """
+                .trimIndent()
+        val parsed = KlibDumpParser(input).parseClass()
+        assertThat(parsed.declarations.filterIsInstance<AbiProperty>()).hasSize(2)
     }
 
     @Test
