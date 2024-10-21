@@ -22,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import org.jetbrains.kotlin.library.abi.AbiClassKind
 import org.jetbrains.kotlin.library.abi.AbiModality
 import org.jetbrains.kotlin.library.abi.AbiPropertyKind
+import org.jetbrains.kotlin.library.abi.AbiTypeArgument
 import org.jetbrains.kotlin.library.abi.AbiTypeNullability
 import org.jetbrains.kotlin.library.abi.AbiValueParameter
 import org.jetbrains.kotlin.library.abi.AbiVariance
@@ -428,6 +429,21 @@ class KlibParsingCursorExtensionsTest {
         assertThat(valueParams.single().isVararg).isTrue()
         val type = valueParams.single().type
         assertThat(type.className.toString()).isEqualTo("kotlin/Array")
+    }
+
+    @Test
+    fun parseValueParamsWithStarTypeParam() {
+        val input = "(androidx.datastore.preferences.core/Preferences.Key<*>)"
+        val cursor = Cursor(input)
+        val valueParams = cursor.parseValueParameters()!!
+        assertThat(valueParams).hasSize(1)
+        val valueParam = valueParams.single()
+        val type = valueParam.type
+        assertThat(type.className.toString())
+            .isEqualTo("androidx.datastore.preferences.core/Preferences.Key")
+        assertThat(type.arguments).hasSize(1)
+        assertThat(type.arguments?.single())
+            .isInstanceOf(AbiTypeArgument.StarProjection::class.java)
     }
 
     @Test

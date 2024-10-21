@@ -83,8 +83,4 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
         "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
             "permission from Android API Council. " +
             summarizeDiff(previousApiDump.get().asFile, currentApiDump.get().asFile)
-
-    private companion object {
-        const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"
-    }
 }

@@ -16,6 +16,8 @@
 
 package androidx.build.binarycompatibilityvalidator
 
+import androidx.binarycompatibilityvalidator.KlibDumpParser
+import androidx.binarycompatibilityvalidator.ParseException
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -31,7 +33,9 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 
+@OptIn(ExperimentalLibraryAbiReader::class)
 @CacheableTask
 abstract class UpdateAbiTask : DefaultTask() {
 
@@ -71,6 +75,15 @@ abstract class UpdateAbiTask : DefaultTask() {
                 it.into(outputDir)
                 it.rename(CURRENT_API_FILE_NAME, "${version.get()}.txt")
             }
+        }
+        try {
+            KlibDumpParser(outputDir.file("current.txt").get().asFile).parse()
+        } catch (e: ParseException) {
+            logger.warn(
+                "Successfully updated API file but parser was unable to parse the generated output. " +
+                    "This is a bug in the parser and should be filed to $NEW_ISSUE_URL",
+                e
+            )
         }
     }
 }
