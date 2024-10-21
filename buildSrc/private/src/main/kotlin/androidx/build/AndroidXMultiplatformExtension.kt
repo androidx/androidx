@@ -749,8 +749,7 @@ private fun Project.configureNode() {
 
     rootProject.extensions.findByType(YarnRootExtension::class.java)?.let {
         it.version = getVersionByName("yarn")
-        it.lockFileDirectory =
-            File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+        it.lockFileDirectory = File(project.getPrebuiltsRoot(), "androidx/javascript-for-kotlin")
         it.yarnLockMismatchReport = YarnLockMismatchReport.FAIL
     }
 }
