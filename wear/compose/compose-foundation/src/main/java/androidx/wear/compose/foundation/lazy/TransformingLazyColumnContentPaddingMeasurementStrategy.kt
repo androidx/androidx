@@ -120,8 +120,16 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         }
 
         val totalHeight =
-            visibleItems.sumOf { it.transformedHeight } + itemSpacing * (itemsCount - 1)
-        if (totalHeight < containerConstraints.maxHeight) {
+            visibleItems.sumOf { it.transformedHeight } +
+                itemSpacing * (itemsCount - 1) +
+                beforeContentPadding +
+                afterContentPadding
+
+        if (
+            totalHeight < containerConstraints.maxHeight &&
+                visibleItems.first().index == 0 &&
+                visibleItems.last().index == itemsCount - 1
+        ) {
             restoreLayoutTopToBottom(visibleItems, itemSpacing, containerConstraints)
             canScrollBackward = false
             canScrollForward = false
