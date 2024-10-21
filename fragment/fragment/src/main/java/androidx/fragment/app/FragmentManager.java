@@ -1061,6 +1061,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         if (mTransitioningOp != null) {
             mTransitioningOp.mCommitted = false;
+            mTransitioningOp.collapseOps();
             mTransitioningOp.runOnCommitInternal(true, () -> {
                 for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
                     listener.onBackStackChangeCancelled();
@@ -1980,6 +1981,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // to the records about to be executed.
         if (mTransitioningOp != null) {
             mTransitioningOp.mCommitted = false;
+            mTransitioningOp.collapseOps();
             if (isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "Reversing mTransitioningOp " + mTransitioningOp
                         + " as part of execSingleAction for action " + action);
@@ -2030,6 +2032,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // as the first pending action.
         if (!mHandlingTransitioningOp && mTransitioningOp != null) {
             mTransitioningOp.mCommitted = false;
+            mTransitioningOp.collapseOps();
             if (isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "Reversing mTransitioningOp " + mTransitioningOp
                         + " as part of execPendingActions for actions " + mPendingActions);
