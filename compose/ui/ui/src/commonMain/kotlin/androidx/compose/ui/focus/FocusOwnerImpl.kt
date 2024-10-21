@@ -310,7 +310,10 @@ internal class FocusOwnerImpl(
     }
 
     /** Dispatches a rotary scroll event through the compose hierarchy. */
-    override fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean {
+    override fun dispatchRotaryEvent(
+        event: RotaryScrollEvent,
+        onFocusedItem: () -> Boolean
+    ): Boolean {
         check(!focusInvalidationManager.hasPendingInvalidation()) {
             "Dispatching rotary event while focus system is invalidated."
         }
@@ -321,7 +324,7 @@ internal class FocusOwnerImpl(
         focusedRotaryInputNode?.traverseAncestorsIncludingSelf(
             type = Nodes.RotaryInput,
             onPreVisit = { if (it.onPreRotaryScrollEvent(event)) return true },
-            onVisit = { /* TODO(b/320510084): dispatch rotary events to embedded views. */ },
+            onVisit = { if (onFocusedItem()) return true },
             onPostVisit = { if (it.onRotaryScrollEvent(event)) return true }
         )
 
