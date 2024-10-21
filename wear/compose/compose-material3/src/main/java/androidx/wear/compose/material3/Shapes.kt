@@ -48,12 +48,12 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  *   4dp [CornerSize] (used by bundled Cards).
  * @param small By default, provides [ShapeDefaults.Small], a [RoundedCornerShape] with 8dp
  *   [CornerSize].
- * @param medium By default, provides [ShapeDefaults.Medium], a [RoundedCornerShape] with 16dp
+ * @param medium By default, provides [ShapeDefaults.Medium], a [RoundedCornerShape] with 18dp
  *   [CornerSize] (used by shape-shifting Buttons and rounded rectangle buttons).
- * @param large By default, provides [ShapeDefaults.Large], a [RoundedCornerShape] with 24dp
+ * @param large By default, provides [ShapeDefaults.Large], a [RoundedCornerShape] with 26dp
  *   [CornerSize] (used by Cards).
  * @param extraLarge By default, provides [ShapeDefaults.ExtraLarge], a [RoundedCornerShape] with
- *   32dp [CornerSize].
+ *   36dp [CornerSize].
  */
 // TODO(b/273226734) Review documentation with references to components that use the shape themes.
 @Immutable
