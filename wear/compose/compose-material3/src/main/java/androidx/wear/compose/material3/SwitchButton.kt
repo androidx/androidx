@@ -333,7 +333,8 @@ fun SplitSwitchButton(
 
         Spacer(modifier = Modifier.size(2.dp))
 
-        val splitBackground = colors.splitContainerColor(enabled, checked).value
+        val splitBackground = if (enabled) containerColor else Color.Black
+        val splitBackgroundOverlay = colors.splitContainerColor(enabled, checked).value
         Box(
             contentAlignment = Alignment.Center,
             modifier =
@@ -346,10 +347,10 @@ fun SplitSwitchButton(
                     )
                     .fillMaxHeight()
                     .clip(SPLIT_SECTIONS_SHAPE)
-                    .background(containerColor)
+                    .background(splitBackground)
                     .drawWithCache {
                         onDrawWithContent {
-                            drawRect(color = splitBackground)
+                            drawRect(color = splitBackgroundOverlay)
                             drawContent()
                         }
                     }
@@ -796,8 +797,8 @@ object SwitchButtonDefaults {
                             fromToken(SplitSwitchButtonTokens.UncheckedTrackBorderColor),
                         disabledCheckedContainerColor =
                             fromToken(SplitSwitchButtonTokens.DisabledCheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitSwitchButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha = SplitSwitchButtonTokens.DisabledCheckedContainerOpacity
                                 ),
                         disabledCheckedContentColor =
                             fromToken(SplitSwitchButtonTokens.DisabledCheckedContentColor)
@@ -806,10 +807,6 @@ object SwitchButtonDefaults {
                                 ),
                         disabledCheckedSecondaryContentColor =
                             fromToken(SplitSwitchButtonTokens.DisabledCheckedSecondaryLabelColor)
-                                .copy(
-                                    alpha =
-                                        SplitSwitchButtonTokens.DisabledCheckedSecondaryLabelOpacity
-                                )
                                 .toDisabledColor(
                                     disabledAlpha = SplitSwitchButtonTokens.DisabledOpacity
                                 ),
@@ -818,9 +815,6 @@ object SwitchButtonDefaults {
                                 .copy(
                                     alpha =
                                         SplitSwitchButtonTokens.DisabledCheckedSplitContainerOpacity
-                                )
-                                .toDisabledColor(
-                                    disabledAlpha = SplitSwitchButtonTokens.DisabledOpacity
                                 ),
                         disabledCheckedThumbColor =
                             fromToken(SplitSwitchButtonTokens.DisabledCheckedThumbColor)
@@ -848,8 +842,9 @@ object SwitchButtonDefaults {
                                 ),
                         disabledUncheckedContainerColor =
                             fromToken(SplitSwitchButtonTokens.DisabledUncheckedContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitSwitchButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitSwitchButtonTokens.DisabledUncheckedContainerOpacity
                                 ),
                         disabledUncheckedContentColor =
                             fromToken(SplitSwitchButtonTokens.DisabledUncheckedContentColor)
@@ -863,8 +858,10 @@ object SwitchButtonDefaults {
                                 ),
                         disabledUncheckedSplitContainerColor =
                             fromToken(SplitSwitchButtonTokens.DisabledUncheckedSplitContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = SplitSwitchButtonTokens.DisabledOpacity
+                                .copy(
+                                    alpha =
+                                        SplitSwitchButtonTokens
+                                            .DisabledUncheckedSplitContainerOpacity
                                 ),
                         disabledUncheckedThumbColor =
                             fromToken(SplitSwitchButtonTokens.DisabledUncheckedThumbColor)
