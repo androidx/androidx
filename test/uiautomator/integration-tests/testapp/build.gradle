@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation(project(":lifecycle:lifecycle-common"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.7")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testMonitor)
 }
