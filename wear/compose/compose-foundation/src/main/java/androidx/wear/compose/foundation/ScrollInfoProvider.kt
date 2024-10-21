@@ -163,12 +163,13 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
         get() {
             val screenHeightPx = state.config.value?.viewportHeightPx ?: 0
             val layoutInfo = state.layoutInfo
-            return layoutInfo.visibleItemsInfo
-                .fastFirstOrNull { ii -> ii.index == layoutInfo.totalItemsCount - 1 }
-                ?.let {
-                    val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
-                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-                } ?: 0f
+            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                if (it.index != layoutInfo.totalItemsCount - 1) {
+                    return@let 0f
+                }
+                val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
+                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+            } ?: 0f
         }
 
     override fun toString(): String {
@@ -195,20 +196,24 @@ private class LazyListStateScrollInfoProvider(val state: LazyListState) : Scroll
 
     override val anchorItemOffset
         get() =
-            state.layoutInfo.visibleItemsInfo
-                .fastFirstOrNull { it.index == 0 }
-                ?.let { -it.offset.toFloat() } ?: Float.NaN
+            state.layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                if (it.index != 0) {
+                    return@let Float.NaN
+                }
+                -it.offset.toFloat()
+            } ?: Float.NaN
 
     override val lastItemOffset: Float
         get() {
             val layoutInfo = state.layoutInfo
             val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItemsInfo
-                .fastFirstOrNull { ii -> ii.index == layoutInfo.totalItemsCount - 1 }
-                ?.let {
-                    val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
-                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-                } ?: 0f
+            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                if (it.index != layoutInfo.totalItemsCount - 1) {
+                    return@let 0f
+                }
+                val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
+                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+            } ?: 0f
         }
 
     override fun toString(): String {
@@ -270,7 +275,11 @@ private class TransformingLazyColumnStateScrollInfoProvider(
 
     override val anchorItemOffset: Float
         get() =
-            state.layoutInfo.visibleItems.firstOrNull()?.offset?.toFloat()?.let { newOffset ->
+            state.layoutInfo.visibleItems.firstOrNull()?.let { item ->
+                if (item.index != 0) {
+                    return@let Float.NaN
+                }
+                val newOffset = item.offset.toFloat()
                 if (initialStartOffset.isNaN()) {
                     initialStartOffset = newOffset
                 }
@@ -281,13 +290,12 @@ private class TransformingLazyColumnStateScrollInfoProvider(
         get() {
             val layoutInfo = state.layoutInfo
             val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItems
-                .fastFirstOrNull { ii ->
-                    return@fastFirstOrNull ii.index == layoutInfo.totalItemsCount - 1
+            return layoutInfo.visibleItems.lastOrNull()?.let {
+                if (it.index != layoutInfo.totalItemsCount - 1) {
+                    return@let 0f
                 }
-                ?.let {
-                    (screenHeightPx - it.offset - it.transformedHeight).toFloat().coerceAtLeast(0f)
-                } ?: 0f
+                (screenHeightPx - it.offset - it.transformedHeight).toFloat().coerceAtLeast(0f)
+            } ?: 0f
         }
 
     override fun toString(): String {
