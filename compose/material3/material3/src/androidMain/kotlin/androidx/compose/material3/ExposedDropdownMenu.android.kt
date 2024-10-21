@@ -68,6 +68,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -167,6 +169,13 @@ fun ExposedDropdownMenuBox(
                     enabled: Boolean
                 ): Modifier =
                     this.focusRequester(focusRequester)
+                        .then(
+                            ExposedDropdownMenuAnchorElement {
+                                if (type.hasGreaterOrEqualPriorityThan(anchorTypeState.value)) {
+                                    anchorTypeState.value = type
+                                }
+                            }
+                        )
                         .then(
                             if (!enabled) Modifier
                             else
@@ -515,6 +524,17 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
 
     override fun toString(): String = name
 }
+
+private fun ExposedDropdownMenuAnchorType.hasGreaterOrEqualPriorityThan(
+    that: ExposedDropdownMenuAnchorType
+): Boolean =
+    when (this) {
+        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+        ExposedDropdownMenuAnchorType.PrimaryEditable -> true
+        ExposedDropdownMenuAnchorType.SecondaryEditable ->
+            that == ExposedDropdownMenuAnchorType.SecondaryEditable
+        else -> false
+    }
 
 @Deprecated(
     message = "Renamed to ExposedDropdownMenuAnchorType",
@@ -1431,6 +1451,29 @@ internal class ExposedDropdownMenuPositionProvider(
             /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize)
         )
         return menuOffset
+    }
+}
+
+private data class ExposedDropdownMenuAnchorElement(
+    val updateStateOnAttach: () -> Unit,
+) : ModifierNodeElement<ExposedDropdownMenuAnchorNode>() {
+    override fun create() = ExposedDropdownMenuAnchorNode(updateStateOnAttach)
+
+    override fun update(node: ExposedDropdownMenuAnchorNode) {
+        node.updateStateOnAttach = updateStateOnAttach
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "exposedDropdownMenuAnchorType"
+        properties["updateStateOnAttach"] = updateStateOnAttach
+    }
+}
+
+private class ExposedDropdownMenuAnchorNode(
+    var updateStateOnAttach: () -> Unit,
+) : Modifier.Node() {
+    override fun onAttach() {
+        updateStateOnAttach()
     }
 }
 
