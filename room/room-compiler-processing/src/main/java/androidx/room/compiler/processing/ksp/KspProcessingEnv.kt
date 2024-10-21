@@ -319,10 +319,6 @@ internal class KspProcessingEnv(
             if (javaPrimitive != null) {
                 return KspPrimitiveType(this, ksType, originalAnnotations)
             }
-            // special case for void
-            if (qName == "kotlin.Unit") {
-                return voidType
-            }
         }
         return arrayTypeFactory.createIfArray(ksType)
             ?: DefaultKspType(this, ksType, originalAnnotations)

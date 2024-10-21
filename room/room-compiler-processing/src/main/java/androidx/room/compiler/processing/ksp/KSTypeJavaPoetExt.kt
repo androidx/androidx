@@ -94,7 +94,11 @@ private fun KSDeclaration.asJTypeName(
     // type args of another type, (e.g. List<MyInlineType>).
     val isInline = isValueClass()
     val isKotlinType = pkg == "kotlin" || pkg.startsWith("kotlin.")
-    if ((isInline && isUsedDirectly(typeResolutionContext)) || (!isInline && isKotlinType)) {
+    val isKotlinUnitType = qualified == "kotlin.Unit"
+    if (
+        !isKotlinUnitType &&
+            ((isInline && isUsedDirectly(typeResolutionContext)) || (!isInline && isKotlinType))
+    ) {
         val jvmSignature = resolver.mapToJvmSignature(this)
         if (!jvmSignature.isNullOrBlank()) {
             return jvmSignature.typeNameFromJvmSignature()

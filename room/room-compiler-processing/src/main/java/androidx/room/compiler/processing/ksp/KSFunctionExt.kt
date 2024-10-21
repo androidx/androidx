@@ -21,6 +21,8 @@ import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.Origin
 
 internal fun KSFunctionDeclaration.hasOverloads() =
     this.annotations.any {
@@ -36,6 +38,19 @@ internal fun KSFunctionDeclaration.returnKspType(
     env: KspProcessingEnv,
     containing: KspType?
 ): KspType {
+    val returnTypeReference = returnType
+    returnTypeReference?.resolve()?.let { type ->
+        if (type == env.resolver.builtIns.unitType) {
+            val isKotlin =
+                returnTypeReference.origin == Origin.KOTLIN ||
+                    returnTypeReference.origin == Origin.KOTLIN_LIB
+            // It's Nullability.PLATFORM if using `kotlin.Unit` directly in Java.
+            val isVoid = type.nullability == Nullability.NOT_NULL
+            if (isKotlin || isVoid) {
+                return env.voidType
+            }
+        }
+    }
     return env.wrap(
         originatingReference = checkNotNull(getOriginatingReference()),
         ksType = returnTypeAsMemberOf(ksType = containing?.ksType)
