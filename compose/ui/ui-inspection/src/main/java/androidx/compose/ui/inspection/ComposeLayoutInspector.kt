@@ -18,7 +18,6 @@ package androidx.compose.ui.inspection
 
 import android.util.Log
 import android.view.View
-import android.view.inspector.WindowInspector
 import androidx.collection.LongList
 import androidx.collection.LongObjectMap
 import androidx.collection.MutableLongObjectMap
@@ -116,6 +115,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
         val viewsToSkip: LongList
     )
 
+    private val rootsDetector = RootsDetector(environment)
     private val layoutInspectorTree = LayoutInspectorTree()
     private val recompositionHandler = RecompositionHandler(environment.artTooling())
     private var delayParameterExtractions = false
@@ -472,7 +472,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
         ThreadUtils.assertOnMainThread()
 
         val roots =
-            WindowInspector.getGlobalWindowViews().asSequence().filter { root ->
+            rootsDetector.getRoots().asSequence().filter { root ->
                 root.visibility == View.VISIBLE &&
                     root.isAttachedToWindow &&
                     (generation > 0 || root.uniqueDrawingId == rootViewId)
@@ -516,7 +516,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
     /** Add a slot table to all AndroidComposeViews that doesn't already have one. */
     private fun addSlotTableToComposeViews() =
         ThreadUtils.runOnMainThread {
-                val roots = WindowInspector.getGlobalWindowViews()
+                val roots = rootsDetector.getRoots()
                 val composeViews =
                     roots.flatMap { it.flatten() }.filter { it.isAndroidComposeView() }
 
@@ -524,8 +524,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                     val slotTablesAdded = composeViews.sumOf { it.addSlotTable() }
                     if (slotTablesAdded > 0) {
                         // The slot tables added to existing views will be empty until the
-                        // composables
-                        // are reloaded. Do that now:
+                        // composables are reloaded. Do that now:
                         hotReload()
                     }
                 }
