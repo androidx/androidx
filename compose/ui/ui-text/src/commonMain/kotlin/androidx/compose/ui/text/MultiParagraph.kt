@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
 
 /**
@@ -1013,13 +1014,19 @@ class MultiParagraph(
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
 internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index: Int): Int {
-    return paragraphInfoList.fastBinarySearch { paragraphInfo ->
-        when {
-            paragraphInfo.startIndex > index -> 1
-            paragraphInfo.endIndex <= index -> -1
-            else -> 0
+    val paragraphIndex =
+        paragraphInfoList.fastBinarySearch { paragraphInfo ->
+            when {
+                paragraphInfo.startIndex > index -> 1
+                paragraphInfo.endIndex <= index -> -1
+                else -> 0
+            }
         }
+    requirePrecondition(paragraphIndex in paragraphInfoList.indices) {
+        "Found paragraph index $paragraphIndex should be in range [0, ${paragraphInfoList.size}).\n" +
+            "Debug info: index=$index, paragraphs=[${paragraphInfoList.fastJoinToString { "[${it.startIndex}, ${it.endIndex})" }}]"
     }
+    return paragraphIndex
 }
 
 /**
