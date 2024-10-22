@@ -86,7 +86,6 @@ class SecurityStateManagerTest {
     fun testGetGlobalSecurityState_sdkAbove29() {
         val bundle = securityStateManager.getGlobalSecurityState()
         assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
-        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertTrue(containsModuleMetadataPackage(bundle))
         assertTrue(containsWebViewPackage(bundle))
@@ -97,7 +96,6 @@ class SecurityStateManagerTest {
     fun testGetGlobalSecurityState_sdkAbove25Below29_doesNotContainModuleMetadata() {
         val bundle = securityStateManager.getGlobalSecurityState()
         assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
-        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertTrue(containsWebViewPackage(bundle))
         assertFalse(containsModuleMetadataPackage(bundle))
@@ -108,7 +106,6 @@ class SecurityStateManagerTest {
     fun testGetGlobalSecurityState_sdkAbove22Below26_doesNotContainModuleMetadataOrWebView() {
         val bundle = securityStateManager.getGlobalSecurityState()
         assertTrue(matchesDateFormat(bundle.getString("system_spl")!!))
-        assertTrue(matchesDateFormat(bundle.getString("vendor_spl")!!))
         assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
         assertFalse(containsModuleMetadataPackage(bundle))
         assertFalse(containsWebViewPackage(bundle))
@@ -126,5 +123,21 @@ class SecurityStateManagerTest {
         assertFalse(bundle.containsKey("vendor_spl"))
         assertFalse(containsModuleMetadataPackage(bundle))
         assertFalse(containsWebViewPackage(bundle))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun testGetGlobalSecurityState_whenVendorIsEnabled_containsVendorSpl() {
+        SecurityPatchState.Companion.USE_VENDOR_SPL = true
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertTrue(bundle.containsKey("vendor_spl"))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun testGetGlobalSecurityState_whenVendorIsDisabled_doesNotContainVendorSpl() {
+        SecurityPatchState.Companion.USE_VENDOR_SPL = false
+        val bundle = securityStateManager.getGlobalSecurityState()
+        assertFalse(bundle.containsKey("vendor_spl"))
     }
 }

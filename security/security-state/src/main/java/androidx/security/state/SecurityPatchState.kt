@@ -91,16 +91,19 @@ constructor(
         /** System modules component providing DateBasedSpl of system modules patch level. */
         public const val COMPONENT_SYSTEM_MODULES: String = "SYSTEM_MODULES"
 
-        /**
-         * Vendor component providing ro.vendor.build.security_patch property value as DateBasedSpl.
-         */
-        public const val COMPONENT_VENDOR: String = "VENDOR"
-
         /** Kernel component providing kernel version as VersionedSpl. */
         public const val COMPONENT_KERNEL: String = "KERNEL"
 
         /** WebView component providing default WebView provider version as VersionedSpl. */
         internal const val COMPONENT_WEBVIEW: String = "WEBVIEW"
+
+        /**
+         * Vendor component providing ro.vendor.build.security_patch property value as DateBasedSpl.
+         */
+        internal const val COMPONENT_VENDOR: String = "VENDOR"
+
+        /** Disabled until Android provides sufficient guidelines for the usage of Vendor SPL. */
+        internal var USE_VENDOR_SPL = false
     }
 
     /** Annotation for defining the component to use. */
@@ -598,9 +601,13 @@ constructor(
             COMPONENT_SYSTEM_MODULES -> listOf(getSystemModulesPublishedSecurityPatchLevel())
             COMPONENT_SYSTEM,
             COMPONENT_VENDOR -> {
+                val exception = IllegalStateException("SPL data not available: $component")
+                if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) {
+                    throw exception
+                }
                 listOf(
                     getMaxComponentSecurityPatchLevel(componentToString(component))
-                        ?: throw IllegalStateException("SPL data not available.")
+                        ?: throw exception
                 )
             }
             COMPONENT_KERNEL -> getPublishedKernelVersions()
@@ -691,8 +698,16 @@ constructor(
         spl: SecurityPatchLevel
     ): Map<Severity, Set<String>> {
         // Check if the component is valid for this operation
-        if (component !in listOf(COMPONENT_SYSTEM, COMPONENT_VENDOR, COMPONENT_SYSTEM_MODULES)) {
-            throw IllegalArgumentException("Component must be SYSTEM, VENDOR, or SYSTEM_MODULES")
+        val validComponents =
+            listOfNotNull(
+                COMPONENT_SYSTEM,
+                if (USE_VENDOR_SPL) COMPONENT_VENDOR else null,
+                COMPONENT_SYSTEM_MODULES
+            )
+        if (component !in validComponents) {
+            throw IllegalArgumentException(
+                "Component must be one of $validComponents but was $component"
+            )
         }
         checkVulnerabilityReport()
 
@@ -736,10 +751,14 @@ constructor(
         @Component component: String,
         securityPatchLevel: String
     ): SecurityPatchLevel {
+        val exception = IllegalArgumentException("Unknown component: $component")
         return when (component) {
             COMPONENT_SYSTEM,
             COMPONENT_SYSTEM_MODULES,
             COMPONENT_VENDOR -> {
+                if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) {
+                    throw exception
+                }
                 // These components are expected to use DateBasedSpl
                 DateBasedSecurityPatchLevel.fromString(securityPatchLevel)
             }
@@ -748,7 +767,7 @@ constructor(
                 // These components are expected to use VersionedSpl
                 VersionedSecurityPatchLevel.fromString(securityPatchLevel)
             }
-            else -> throw IllegalArgumentException("Unknown component: $component")
+            else -> throw exception
         }
     }
 
@@ -826,6 +845,7 @@ constructor(
             )
 
         components.forEach { component ->
+            if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) return@forEach
             // TODO(musashi): Unblock once support for WebView is present.
             if (component == COMPONENT_WEBVIEW) return@forEach
             val deviceSpl =
@@ -877,7 +897,12 @@ constructor(
      * @return true if all provided CVEs are patched, false otherwise.
      */
     public fun areCvesPatched(cveList: List<String>): Boolean {
-        val componentsToCheck = listOf(COMPONENT_SYSTEM, COMPONENT_VENDOR, COMPONENT_SYSTEM_MODULES)
+        val componentsToCheck =
+            listOfNotNull(
+                COMPONENT_SYSTEM,
+                if (USE_VENDOR_SPL) COMPONENT_VENDOR else null,
+                COMPONENT_SYSTEM_MODULES
+            )
         val allPatchedCves = mutableSetOf<String>()
 
         // Aggregate all CVEs from security fixes across necessary components

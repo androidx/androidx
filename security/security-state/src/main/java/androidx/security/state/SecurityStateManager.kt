@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import android.system.Os
 import androidx.annotation.RequiresApi
+import androidx.security.state.SecurityPatchState.Companion.USE_VENDOR_SPL
 import androidx.webkit.WebViewCompat
 import java.util.regex.Pattern
 
@@ -87,13 +88,8 @@ public open class SecurityStateManager(private val context: Context) {
         return Bundle().apply {
             if (getAndroidSdkInt() >= Build.VERSION_CODES.M) {
                 putString(KEY_SYSTEM_SPL, Build.VERSION.SECURITY_PATCH)
-
-                val vendorSpl = getVendorSpl()
-                if (vendorSpl.isNotEmpty()) {
-                    putString(KEY_VENDOR_SPL, vendorSpl)
-                } else {
-                    // Assume vendor SPL == system SPL
-                    putString(KEY_VENDOR_SPL, Build.VERSION.SECURITY_PATCH)
+                if (USE_VENDOR_SPL) {
+                    putString(KEY_VENDOR_SPL, getVendorSpl())
                 }
             }
             if (getAndroidSdkInt() >= Build.VERSION_CODES.Q) {
@@ -128,13 +124,8 @@ public open class SecurityStateManager(private val context: Context) {
             context.getSystemService(Context.SECURITY_STATE_SERVICE)
                 as android.os.SecurityStateManager
         val globalSecurityState = securityStateManagerService.globalSecurityState
-        val vendorSpl = globalSecurityState.getString(KEY_VENDOR_SPL, "")
-        if (vendorSpl.isEmpty()) {
-            // Assume vendor SPL == system SPL
-            globalSecurityState.putString(
-                KEY_VENDOR_SPL,
-                globalSecurityState.getString(KEY_SYSTEM_SPL)
-            )
+        if (!USE_VENDOR_SPL) {
+            globalSecurityState.remove(KEY_VENDOR_SPL)
         }
         return globalSecurityState
     }

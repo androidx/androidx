@@ -19,7 +19,6 @@ package androidx.security.state {
     field public static final String COMPONENT_KERNEL = "KERNEL";
     field public static final String COMPONENT_SYSTEM = "SYSTEM";
     field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";
-    field public static final String COMPONENT_VENDOR = "VENDOR";
     field public static final androidx.security.state.SecurityPatchState.Companion Companion;
     field public static final java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
     field public static final String DEFAULT_VULNERABILITY_REPORTS_URL = "https://storage.googleapis.com/osv-android-api";
