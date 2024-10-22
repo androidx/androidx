@@ -246,3 +246,29 @@ fun SwipeToRevealInList() {
         }
     }
 }
+
+@Composable
+fun SwipeToRevealSingleButtonWithAnchoring() {
+    SwipeToReveal(
+        revealState =
+            rememberRevealState(
+                swipeDirection = SwipeDirection.RightToLeft,
+                anchorWidth = SwipeToRevealDefaults.SingleActionAnchorWidth,
+            ),
+        actions = {
+            primaryAction(
+                onClick = { /* This block is called when the primary action is executed. */ },
+                icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
+                label = "Delete"
+            )
+            undoPrimaryAction(
+                onClick = { /* This block is called when the undo primary action is executed. */ },
+                label = "Undo Delete"
+            )
+        }
+    ) {
+        Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Text("This Button has only one action", modifier = Modifier.fillMaxSize())
+        }
+    }
+}

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
@@ -32,7 +31,6 @@ import androidx.wear.compose.material3.VerticalPageIndicator
 
 @Sampled
 @Composable
-@OptIn(ExperimentalWearFoundationApi::class)
 fun HorizontalPageIndicatorWithPagerSample() {
     val pageCount = 9
     val pagerState = rememberPagerState { pageCount }
@@ -51,7 +49,6 @@ fun HorizontalPageIndicatorWithPagerSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalWearFoundationApi::class)
 fun VerticalPageIndicatorWithPagerSample() {
     val pageCount = 9
     val pagerState = rememberPagerState { pageCount }

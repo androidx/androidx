@@ -30,7 +30,6 @@ import androidx.wear.compose.material3.samples.EdgeButtonListSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
-import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
 import androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
 import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
@@ -40,7 +39,6 @@ import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
 import androidx.wear.compose.material3.samples.TransformingLazyColumnScalingMorphingEffectSample
 import androidx.wear.compose.material3.samples.TransformingLazyColumnTargetMorphingHeightSample
-import androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
 import androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
 
 val WearMaterial3Demos =
@@ -147,20 +145,13 @@ val WearMaterial3Demos =
                         },
                     )
                 ),
-                Material3DemoCategory(
-                    title = "Page Indicator",
-                    listOf(
-                        ComposableDemo("HorizontalPageIndicator") {
-                            HorizontalPageIndicatorWithPagerSample()
-                        },
-                        ComposableDemo("VerticalPageIndicator") {
-                            VerticalPageIndicatorWithPagerSample()
-                        },
-                    )
-                ),
+                Material3DemoCategory(title = "Page Indicator", PageIndicatorDemos),
                 Material3DemoCategory(
                     title = "Swipe to Reveal",
                     listOf(
+                        ComposableDemo("Single Action with Anchoring") {
+                            Centralize { SwipeToRevealSingleButtonWithAnchoring() }
+                        },
                         ComposableDemo("Bi-directional / Non-anchoring") {
                             Centralize { SwipeToRevealBothDirectionsNonAnchoring() }
                         },
