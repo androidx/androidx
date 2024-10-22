@@ -47,6 +47,8 @@
     <string name="next_button_description" msgid="4702699322249103693">"Siguiente"</string>
     <string name="close_button_description" msgid="7379823906921067675">"Cerrar"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <!-- no translation found for match_status_description (4996847358326345288) -->
+    <skip />
     <string name="message_no_match_status" msgid="5929387004361286433">"No hay coincidencias"</string>
     <string name="action_edit" msgid="5882082700509010966">"Editar archivo"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Introduce la contraseña para desbloquear"</string>
