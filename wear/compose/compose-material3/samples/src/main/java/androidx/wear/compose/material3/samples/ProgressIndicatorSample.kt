@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.ArcProgressIndicator
+import androidx.wear.compose.material3.ArcProgressIndicatorDefaults
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
 import androidx.wear.compose.material3.Icon
@@ -156,6 +158,18 @@ fun SmallValuesProgressIndicatorSample() {
 fun IndeterminateProgressIndicatorSample() {
     Box(modifier = Modifier.fillMaxSize()) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+@Sampled
+@Composable
+fun IndeterminateProgressArcSample() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        ArcProgressIndicator(
+            modifier =
+                Modifier.align(Alignment.Center)
+                    .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter),
+        )
     }
 }
 

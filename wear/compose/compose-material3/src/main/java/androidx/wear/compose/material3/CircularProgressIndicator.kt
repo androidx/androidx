@@ -37,11 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalDensity
@@ -150,7 +146,7 @@ fun CircularProgressIndicator(
  *
  * Indeterminate progress indicator expresses an unspecified wait time and spins indefinitely.
  *
- * Example of indeterminate progress indicator:
+ * Example of indeterminate circular progress indicator:
  *
  * @sample androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
  * @param modifier Modifier to be applied to the CircularProgressIndicator.
@@ -462,27 +458,6 @@ object CircularProgressIndicatorDefaults {
     val IndeterminateStrokeWidth = 3.dp
 }
 
-private fun DrawScope.drawCircularIndicator(
-    startAngle: Float,
-    sweep: Float,
-    brush: Brush,
-    stroke: Stroke
-) {
-    // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
-    // To do this we need to remove half the stroke width from the total diameter for both sides.
-    val diameterOffset = stroke.width / 2
-    val arcDimen = size.width - 2 * diameterOffset
-    drawArc(
-        brush = brush,
-        startAngle = startAngle,
-        sweepAngle = sweep,
-        useCenter = false,
-        topLeft = Offset(diameterOffset, diameterOffset),
-        size = Size(arcDimen, arcDimen),
-        style = stroke
-    )
-}
-
 private fun coercedProgressWithGap(progress: Float, isFullCircle: Boolean): Float {
     val coercedProgress = progress.coerceIn(0f, 1f)
     return if (isFullCircle && coercedProgress == 1f) {
@@ -492,57 +467,6 @@ private fun coercedProgressWithGap(progress: Float, isFullCircle: Boolean): Floa
         coercedProgress
     }
 }
-
-/** A global animation spec for indeterminate circular progress indicator. */
-internal val circularIndeterminateGlobalRotationAnimationSpec
-    get() =
-        infiniteRepeatable<Float>(
-            animation = tween(CircularAnimationProgressDuration, easing = LinearEasing)
-        )
-
-/**
- * An animation spec for indeterminate circular progress indicators that infinitely rotates a 360
- * degrees.
- */
-internal val circularIndeterminateRotationAnimationSpec
-    get() =
-        infiniteRepeatable(
-            animation =
-                keyframes {
-                    durationMillis = CircularAnimationProgressDuration // 6000ms
-                    90f at
-                        CircularAnimationAdditionalRotationDuration using
-                        MotionTokens
-                            .EasingEmphasizedDecelerate // MotionTokens.EasingEmphasizedDecelerateCubicBezier // 300ms
-                    90f at CircularAnimationAdditionalRotationDelay // hold till 1500ms
-                    180f at
-                        CircularAnimationAdditionalRotationDuration +
-                            CircularAnimationAdditionalRotationDelay // 1800ms
-                    180f at CircularAnimationAdditionalRotationDelay * 2 // hold till 3000ms
-                    270f at
-                        CircularAnimationAdditionalRotationDuration +
-                            CircularAnimationAdditionalRotationDelay * 2 // 3300ms
-                    270f at CircularAnimationAdditionalRotationDelay * 3 // hold till 4500ms
-                    360f at
-                        CircularAnimationAdditionalRotationDuration +
-                            CircularAnimationAdditionalRotationDelay * 3 // 4800ms
-                    360f at CircularAnimationProgressDuration // hold till 6000ms
-                }
-        )
-
-/** An animation spec for indeterminate circular progress indicators progress motion. */
-internal val circularIndeterminateProgressAnimationSpec
-    get() =
-        infiniteRepeatable(
-            animation =
-                keyframes {
-                    durationMillis = CircularAnimationProgressDuration // 6000ms
-                    CircularIndeterminateMaxProgress at
-                        CircularAnimationProgressDuration / 2 using
-                        CircularProgressEasing // 3000ms
-                    CircularIndeterminateMinProgress at CircularAnimationProgressDuration
-                }
-        )
 
 // The indeterminate circular indicator easing constants for its motion
 internal val CircularProgressEasing = MotionTokens.EasingStandard
@@ -554,6 +478,54 @@ internal const val CircularAnimationAdditionalRotationDelay = 1500
 internal const val CircularAnimationAdditionalRotationDuration = 300
 internal const val CircularAdditionalRotationDegreesTarget = 360f
 internal const val CircularGlobalRotationDegreesTarget = 1080f
+
+/** A global animation spec for indeterminate circular progress indicator. */
+internal val circularIndeterminateGlobalRotationAnimationSpec =
+    infiniteRepeatable<Float>(
+        animation = tween(CircularAnimationProgressDuration, easing = LinearEasing)
+    )
+
+/**
+ * An animation spec for indeterminate circular progress indicators that infinitely rotates a 360
+ * degrees.
+ */
+internal val circularIndeterminateRotationAnimationSpec =
+    infiniteRepeatable(
+        animation =
+            keyframes {
+                durationMillis = CircularAnimationProgressDuration // 6000ms
+                90f at
+                    CircularAnimationAdditionalRotationDuration using
+                    MotionTokens
+                        .EasingEmphasizedDecelerate // MotionTokens.EasingEmphasizedDecelerateCubicBezier // 300ms
+                90f at CircularAnimationAdditionalRotationDelay // hold till 1500ms
+                180f at
+                    CircularAnimationAdditionalRotationDuration +
+                        CircularAnimationAdditionalRotationDelay // 1800ms
+                180f at CircularAnimationAdditionalRotationDelay * 2 // hold till 3000ms
+                270f at
+                    CircularAnimationAdditionalRotationDuration +
+                        CircularAnimationAdditionalRotationDelay * 2 // 3300ms
+                270f at CircularAnimationAdditionalRotationDelay * 3 // hold till 4500ms
+                360f at
+                    CircularAnimationAdditionalRotationDuration +
+                        CircularAnimationAdditionalRotationDelay * 3 // 4800ms
+                360f at CircularAnimationProgressDuration // hold till 6000ms
+            }
+    )
+
+/** An animation spec for indeterminate circular progress indicators progress motion. */
+internal val circularIndeterminateProgressAnimationSpec =
+    infiniteRepeatable(
+        animation =
+            keyframes {
+                durationMillis = CircularAnimationProgressDuration // 6000ms
+                CircularIndeterminateMaxProgress at
+                    CircularAnimationProgressDuration / 2 using
+                    CircularProgressEasing // 3000ms
+                CircularIndeterminateMinProgress at CircularAnimationProgressDuration
+            }
+    )
 
 // extra progress added for the gap merge animation
 internal const val GapExtraProgress = 0.05f
