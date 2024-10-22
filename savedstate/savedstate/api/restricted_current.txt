@@ -104,7 +104,7 @@ package androidx.savedstate {
   }
 
   public final class SavedState_androidKt {
-    method public static inline android.os.Bundle savedState(optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> block);
+    method public static inline android.os.Bundle savedState(optional java.util.Map<java.lang.String,?> initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
   }
 
   public final class ViewKt {

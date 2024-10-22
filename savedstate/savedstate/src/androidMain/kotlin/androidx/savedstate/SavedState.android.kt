@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.savedstate
+
+import androidx.core.os.bundleOf
 
 public actual typealias SavedState = android.os.Bundle
 
-public actual inline fun savedState(block: SavedStateWriter.() -> Unit): SavedState =
-    SavedState().apply { write(block) }
+public actual inline fun savedState(
+    initialState: Map<String, Any>,
+    builderAction: SavedStateWriter.() -> Unit,
+): SavedState {
+    val pairs =
+        if (initialState.isEmpty()) {
+            emptyArray()
+        } else {
+            initialState.map { (key, value) -> key to value }.toTypedArray()
+        }
+    return bundleOf(*pairs).apply { write(builderAction) }
+}
