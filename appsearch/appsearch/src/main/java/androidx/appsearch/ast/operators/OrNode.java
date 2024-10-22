@@ -16,6 +16,8 @@
 
 package androidx.appsearch.ast.operators;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.ast.Node;
@@ -119,5 +121,17 @@ public final class OrNode implements Node{
         Preconditions.checkArgumentInRange(index, /*lower=*/ 0, /*upper=*/ mChildren.size() - 1,
                 /*valueName=*/ "Index");
         mChildren.remove(index);
+    }
+
+    /**
+     * Gets the string representation of {@link OrNode}.
+     *
+     * <p>The string representation of {@link OrNode} is the string representation of
+     * {@link OrNode}'s child nodes joined with "OR", all surrounded by parentheses.
+     */
+    @NonNull
+    @Override
+    public String toString() {
+        return "(" + TextUtils.join(" OR ", mChildren) + ")";
     }
 }

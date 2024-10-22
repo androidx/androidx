@@ -88,4 +88,12 @@ public class NegationNodeCtsTest {
 
         assertThat(negationText.getChild()).isEqualTo(textNode);
     }
+
+    @Test
+    public void testToString_appendsChildNodeStringWithNegation() {
+        TextNode textNode = new TextNode("foo");
+        NegationNode negationNode = new NegationNode(textNode);
+
+        assertThat(negationNode.toString()).isEqualTo("NOT (foo)");
+    }
 }

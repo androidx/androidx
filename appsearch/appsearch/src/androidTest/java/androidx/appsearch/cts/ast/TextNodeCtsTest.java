@@ -92,4 +92,63 @@ public class TextNodeCtsTest {
         TextNode nullTextNode = null;
         assertThrows(NullPointerException.class, () -> new TextNode(nullTextNode));
     }
+
+    @Test
+    public void testToString_noFlagsSetReturnPlainValue() {
+        TextNode node = new TextNode("foo");
+        assertThat(node.getValue()).isEqualTo("foo");
+        assertThat(node.toString()).isEqualTo("(foo)");
+    }
+
+    @Test
+    public void testToString_prefixFlagSetReturnPrefixedString() {
+        TextNode node = new TextNode("foo");
+        node.setPrefix(true);
+
+        assertThat(node.toString()).isEqualTo("(foo*)");
+    }
+
+    @Test
+    public void testToString_verbatimFlagSetReturnQuotedString() {
+        TextNode node = new TextNode("foo");
+        node.setVerbatim(true);
+
+        assertThat(node.toString()).isEqualTo("(\"foo\")");
+    }
+
+    @Test
+    public void testToString_prefixVerbatimFlagsSetReturnPrefixedQuotedString() {
+        TextNode node = new TextNode("foo");
+        node.setPrefix(true);
+        node.setVerbatim(true);
+
+        assertThat(node.toString()).isEqualTo("(\"foo\"*)");
+    }
+
+    @Test
+    public void testToString_handlesEscaping() {
+        TextNode node = new TextNode("(NOT \"foo\" OR bar:-baz) AND (property.path > 0)");
+
+        assertThat(node.toString()).isEqualTo("(\\(not \\\"foo\\\" or bar\\:\\-baz\\) "
+                        + "and \\(property\\.path \\> 0\\))");
+    }
+
+    @Test
+    public void testToString_verbatimEscapesOnlyQuotes() {
+        TextNode node = new TextNode("(NOT \"foo\" OR bar:-baz) AND (property.path > 0)");
+        node.setVerbatim(true);
+
+        assertThat(node.toString()).isEqualTo("(\"(NOT \\\"foo\\\" OR bar:-baz) AND "
+                + "(property.path > 0)\")");
+    }
+
+
+    @Test
+    public void testToString_handlesEscaping_specialCharacters() {
+        TextNode germanNode = new TextNode("Straße");
+        assertThat(germanNode.toString()).isEqualTo("(straße)");
+        // Ideographs like CJKT characters should remain unchanged.
+        TextNode chineseNode = new TextNode("我每天走路去上班");
+        assertThat(chineseNode.toString()).isEqualTo("(我每天走路去上班)");
+    }
 }

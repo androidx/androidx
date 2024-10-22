@@ -16,6 +16,8 @@
 
 package androidx.appsearch.ast.operators;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.ast.Node;
@@ -120,5 +122,17 @@ public final class AndNode implements Node {
         Preconditions.checkArgumentInRange(index, /*lower=*/ 0, /*upper=*/ mChildren.size() - 1,
                 /*valueName=*/ "Index");
         mChildren.remove(index);
+    }
+
+    /**
+     * Gets the string representation of {@link AndNode}.
+     *
+     * <p>The string representation of {@link AndNode} is the string representation of
+     * {@link AndNode}'s child nodes joined with "AND", all surrounded by parentheses.
+     */
+    @NonNull
+    @Override
+    public String toString() {
+        return "(" + TextUtils.join(" AND ", mChildren) + ")";
     }
 }

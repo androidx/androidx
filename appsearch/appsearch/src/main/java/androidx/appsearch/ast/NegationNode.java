@@ -106,4 +106,16 @@ public final class NegationNode implements Node{
     public void setChild(@NonNull Node child) {
         mChildren.set(0, Preconditions.checkNotNull(child));
     }
+
+    /**
+     * Get the string representation of {@link NegationNode}.
+     *
+     * <p>The string representation of {@link NegationNode} is "NOT" prepended to the string
+     * representation of the child {@link Node}.
+     */
+    @NonNull
+    @Override
+    public String toString() {
+        return "NOT " + getChild();
+    }
 }
