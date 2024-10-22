@@ -41,9 +41,11 @@ import androidx.wear.compose.material3.MotionScheme.Companion.standard
 import kotlinx.coroutines.flow.collectLatest
 
 /**
- * This is a base dialog component used by [AlertDialog] and [Confirmation] variations. Dialogs
- * provide important prompts in a user flow. They can require an action, communicate information, or
- * help users accomplish a task.
+ * A base dialog component used by [AlertDialog] and [Confirmation] variations. This dialog provides
+ * a full-screen experience with custom entry/exit animations.
+ *
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task.
  *
  * @param show A boolean value that determines whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
@@ -53,7 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
  * @param content A composable function that defines the content of the dialog.
  */
 @Composable
-internal fun Dialog(
+fun Dialog(
     show: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
