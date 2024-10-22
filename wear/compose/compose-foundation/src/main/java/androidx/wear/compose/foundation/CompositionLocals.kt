@@ -44,9 +44,6 @@ import kotlinx.coroutines.launch
  * CompositionLocal for global reduce-motion setting, which turns off animations and screen
  * movements. To use, call LocalReduceMotion.current.enabled(), which returns a Boolean.
  */
-@get:ExperimentalWearFoundationApi
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalWearFoundationApi
 val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticCompositionLocalOf {
     ReduceMotion {
         val context = LocalContext.current.applicationContext
@@ -78,7 +75,6 @@ val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> = co
  * ReduceMotion provides a means for callers to determine whether an app should turn off animations
  * and screen movement.
  */
-@ExperimentalWearFoundationApi
 fun interface ReduceMotion {
     @Composable fun enabled(): Boolean
 }

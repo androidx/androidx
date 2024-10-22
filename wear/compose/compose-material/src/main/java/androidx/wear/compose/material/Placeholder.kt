@@ -59,7 +59,6 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.materialcore.screenHeightDp
 import androidx.wear.compose.materialcore.screenWidthDp
@@ -362,7 +361,6 @@ internal constructor(
  * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
  *   given component and is ready to be displayed.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @ExperimentalWearMaterialApi
 @Composable
 public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
@@ -452,7 +450,6 @@ public fun Modifier.placeholder(
  * @param color the color to use in the shimmer.
  */
 @ExperimentalWearMaterialApi
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
