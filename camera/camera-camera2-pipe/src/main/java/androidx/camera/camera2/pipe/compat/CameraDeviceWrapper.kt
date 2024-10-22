@@ -122,14 +122,15 @@ internal class AndroidCameraDevice(
     private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null,
     private val threads: Threads
 ) : CameraDeviceWrapper {
+    private val closed = atomic(false)
     private val _lastStateCallback = atomic<OnSessionFinalized?>(null)
 
     override fun createCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean {
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createCaptureSession") {
                 // This function was deprecated in Android Q, but is required for some
@@ -162,14 +163,15 @@ internal class AndroidCameraDevice(
 
     @RequiresApi(31)
     override fun createExtensionSession(config: ExtensionSessionConfigData): Boolean {
-        checkNotNull(config.extensionStateCallback) {
+        val stateCallback = config.extensionStateCallback
+        checkNotNull(stateCallback) {
             "extensionStateCallback must be set to create Extension session"
         }
         checkNotNull(config.extensionMode) {
             "extensionMode must be set to create Extension session"
         }
-        val stateCallback = config.extensionStateCallback
-        val previousStateCallback = _lastStateCallback.getAndSet(stateCallback)
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createExtensionSession") {
                 val sessionConfig =
@@ -217,8 +219,8 @@ internal class AndroidCameraDevice(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean {
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createReprocessableCaptureSession") {
                 // This function was deprecated in Android Q, but is required for some
@@ -255,8 +257,8 @@ internal class AndroidCameraDevice(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean {
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createConstrainedHighSpeedCaptureSession") {
                 // This function was deprecated in Android Q, but is required for some
@@ -293,8 +295,8 @@ internal class AndroidCameraDevice(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean {
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createCaptureSessionByOutputConfigurations") {
                 // This function was deprecated in Android Q, but is required for some
@@ -332,8 +334,8 @@ internal class AndroidCameraDevice(
         outputs: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean {
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createReprocessableCaptureSessionByConfigurations") {
                 // This function was deprecated in Android Q, but is required for some
@@ -371,9 +373,8 @@ internal class AndroidCameraDevice(
 
     @RequiresApi(28)
     override fun createCaptureSession(config: SessionConfigData): Boolean {
-        val stateCallback = config.stateCallback
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+        val (success, previousStateCallback) = checkAndSetStateCallback(config.stateCallback)
+        if (!success) return false
         val result =
             instrumentAndCatch("createCaptureSession") {
                 val sessionConfig =
@@ -383,7 +384,7 @@ internal class AndroidCameraDevice(
                         config.executor,
                         AndroidCaptureSessionStateCallback(
                             this,
-                            stateCallback,
+                            config.stateCallback,
                             previousStateCallback,
                             cameraErrorListener,
                             interopSessionStateCallback,
@@ -476,8 +477,10 @@ internal class AndroidCameraDevice(
     }
 
     override fun onDeviceClosed() {
-        val lastStateCallback = _lastStateCallback.getAndSet(null)
-        lastStateCallback?.onSessionFinalized()
+        if (closed.compareAndSet(expect = false, update = true)) {
+            val lastStateCallback = _lastStateCallback.getAndSet(null)
+            lastStateCallback?.onSessionFinalized()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -495,6 +498,16 @@ internal class AndroidCameraDevice(
         Debug.instrument("CXCP#$fnName-${cameraId.value}") {
             catchAndReportCameraExceptions(cameraId, cameraErrorListener, block)
         }
+
+    private fun checkAndSetStateCallback(
+        stateCallback: OnSessionFinalized
+    ): Pair<Boolean, OnSessionFinalized?> {
+        if (closed.value) {
+            stateCallback.onSessionFinalized()
+            return Pair(false, null)
+        }
+        return Pair(true, _lastStateCallback.getAndSet(stateCallback))
+    }
 }
 
 /**
