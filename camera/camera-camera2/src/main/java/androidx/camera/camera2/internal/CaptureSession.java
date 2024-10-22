@@ -57,6 +57,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
+import androidx.tracing.Trace;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -106,6 +107,9 @@ final class CaptureSession implements CaptureSessionInterface {
     /** The list of DeferrableSurface used to notify surface detach events */
     @GuardedBy("mSessionLock")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
+    /** Maximum state this session achieved (for debugging) */
+    @GuardedBy("mSessionLock")
+    State mHighestState = State.UNINITIALIZED;
     /** Tracks the current state of the session. */
     @GuardedBy("mSessionLock")
     State mState = State.UNINITIALIZED;
@@ -136,7 +140,7 @@ final class CaptureSession implements CaptureSessionInterface {
      */
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
             @NonNull Quirks cameraQuirks) {
-        mState = State.INITIALIZED;
+        setState(State.INITIALIZED);
         mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
         mRequestMonitor = new RequestMonitor(cameraQuirks.contains(CaptureNoResponseQuirk.class));
@@ -211,7 +215,7 @@ final class CaptureSession implements CaptureSessionInterface {
         synchronized (mSessionLock) {
             switch (mState) {
                 case INITIALIZED:
-                    mState = State.GET_SURFACE;
+                    setState(State.GET_SURFACE);
                     mConfiguredDeferrableSurfaces = new ArrayList<>(sessionConfig.getSurfaces());
                     mSessionOpener = opener;
                     ListenableFuture<Void> openFuture = FutureChain.from(
@@ -283,7 +287,7 @@ final class CaptureSession implements CaptureSessionInterface {
                                 configuredSurfaces.get(i));
                     }
 
-                    mState = State.OPENING;
+                    setState(State.OPENING);
                     Logger.d(TAG, "Opening capture session.");
                     SynchronizedCaptureSession.StateCallback callbacks =
                             SynchronizedCaptureSessionStateCallbacks.createComboCallback(
@@ -451,7 +455,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     mSessionOpener.stop();
                     // Fall through
                 case INITIALIZED:
-                    mState = State.RELEASED;
+                    setState(State.RELEASED);
                     break;
                 case OPENED:
                     // Not break close flow. Fall through
@@ -459,7 +463,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     Preconditions.checkNotNull(mSessionOpener,
                             "The Opener shouldn't null in state:" + mState);
                     mSessionOpener.stop();
-                    mState = State.CLOSED;
+                    setState(State.CLOSED);
                     mRequestMonitor.stop();
                     mSessionConfig = null;
 
@@ -500,7 +504,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     }
                     // Fall through
                 case OPENING:
-                    mState = State.RELEASING;
+                    setState(State.RELEASING);
                     mRequestMonitor.stop();
                     Preconditions.checkNotNull(mSessionOpener,
                             "The Opener shouldn't null in state:" + mState);
@@ -531,7 +535,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     mSessionOpener.stop();
                     // Fall through
                 case INITIALIZED:
-                    mState = State.RELEASED;
+                    setState(State.RELEASED);
                     // Fall through
                 case RELEASED:
                     break;
@@ -604,7 +608,7 @@ final class CaptureSession implements CaptureSessionInterface {
             return;
         }
 
-        mState = State.RELEASED;
+        setState(State.RELEASED);
         mSynchronizedCaptureSession = null;
 
         if (mReleaseCompleter != null) {
@@ -887,6 +891,22 @@ final class CaptureSession implements CaptureSessionInterface {
     }
 
     @GuardedBy("mSessionLock")
+    private void setState(@NonNull State state) {
+        if (state.ordinal() > mHighestState.ordinal()) {
+            mHighestState = state;
+        }
+        mState = state;
+        // Some sessions are created and immediately destroyed, so only trace those sessions
+        // that are actually used, which we distinguish by capture sessions that have gone to
+        // at least a GET_SURFACE state.
+        if (Trace.isEnabled() && mHighestState.ordinal() >= State.GET_SURFACE.ordinal()) {
+            String counterName = "CX:C2State[" + String.format("CaptureSession@%x", hashCode())
+                    + "]";
+            Trace.setCounter(counterName, state.ordinal());
+        }
+    }
+
+    @GuardedBy("mSessionLock")
     private CameraCaptureSession.CaptureCallback createCamera2CaptureCallback(
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             CameraCaptureSession.CaptureCallback... additionalCallbacks) {
@@ -899,9 +919,17 @@ final class CaptureSession implements CaptureSessionInterface {
         return Camera2CaptureCallbacks.createComboCallback(camera2Callbacks);
     }
 
+    // Debugging note: these states are kept in ordinal order. Any additions or changes should try
+    // to maintain the same order such that the highest ordinal is the state of largest resource
+    // utilization.
     enum State {
         /** The default state of the session before construction. */
         UNINITIALIZED,
+        /**
+         * Terminal state where the session has been cleaned up. At this point the session should
+         * not be used as nothing will happen in this state.
+         */
+        RELEASED,
         /**
          * Stable state once the session has been constructed, but prior to the {@link
          * CameraCaptureSession} being opened.
@@ -912,6 +940,15 @@ final class CaptureSession implements CaptureSessionInterface {
          * surfaces is ready, we can create the {@link CameraCaptureSession}.
          */
         GET_SURFACE,
+        /** Transitional state where the resources are being cleaned up. */
+        RELEASING,
+        /**
+         * Stable state where the session has been closed. However the {@link CameraCaptureSession}
+         * is still valid. It will remain valid until a new instance is opened at which point {@link
+         * CameraCaptureSession.StateCallback#onClosed(CameraCaptureSession)} will be called to do
+         * final cleanup.
+         */
+        CLOSED,
         /**
          * Transitional state when the {@link CameraCaptureSession} is in the process of being
          * opened.
@@ -922,21 +959,7 @@ final class CaptureSession implements CaptureSessionInterface {
          * this state if a valid {@link SessionConfig} has been set then the {@link
          * CaptureRequest} will be issued.
          */
-        OPENED,
-        /**
-         * Stable state where the session has been closed. However the {@link CameraCaptureSession}
-         * is still valid. It will remain valid until a new instance is opened at which point {@link
-         * CameraCaptureSession.StateCallback#onClosed(CameraCaptureSession)} will be called to do
-         * final cleanup.
-         */
-        CLOSED,
-        /** Transitional state where the resources are being cleaned up. */
-        RELEASING,
-        /**
-         * Terminal state where the session has been cleaned up. At this point the session should
-         * not be used as nothing will happen in this state.
-         */
-        RELEASED
+        OPENED
     }
 
     /**
@@ -964,7 +987,7 @@ final class CaptureSession implements CaptureSessionInterface {
                         throw new IllegalStateException(
                                 "onConfigured() should not be possible in state: " + mState);
                     case OPENING:
-                        mState = State.OPENED;
+                        setState(State.OPENED);
                         mSynchronizedCaptureSession = session;
                         Logger.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests(mSessionConfig);
