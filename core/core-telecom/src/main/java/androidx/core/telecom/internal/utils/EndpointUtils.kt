@@ -166,11 +166,26 @@ internal class EndpointUtils {
 
         fun toCallEndpointCompat(state: CallAudioState, sessionId: Int): CallEndpointCompat {
             val type: Int = mapRouteToType(state.route)
-            return if (type == CallEndpointCompat.TYPE_BLUETOOTH && SDK_INT >= P) {
+            return if (
+                isBluetoothType(type) && buildIsAtLeastP() && hasActiveBluetoothDevice(state)
+            ) {
                 BluetoothApi28PlusImpl.getCallEndpointFromAudioState(state, sessionId)
             } else {
                 CallEndpointCompat(endpointTypeToString(type), type, getUuid(sessionId, type))
             }
+        }
+
+        private fun isBluetoothType(type: Int): Boolean {
+            return type == CallEndpointCompat.TYPE_BLUETOOTH
+        }
+
+        private fun buildIsAtLeastP(): Boolean {
+            return SDK_INT >= P
+        }
+
+        @RequiresApi(P)
+        private fun hasActiveBluetoothDevice(state: CallAudioState): Boolean {
+            return state.activeBluetoothDevice != null
         }
 
         fun toCallEndpointsCompat(state: CallAudioState, sessionId: Int): List<CallEndpointCompat> {
@@ -278,7 +293,7 @@ internal class EndpointUtils {
         fun endpointTypeToString(endpointType: Int): String {
             return when (endpointType) {
                 CallEndpointCompat.TYPE_EARPIECE -> "EARPIECE"
-                CallEndpointCompat.TYPE_BLUETOOTH -> "BLUETOOTH"
+                CallEndpointCompat.TYPE_BLUETOOTH -> BLUETOOTH_DEVICE_DEFAULT_NAME
                 CallEndpointCompat.TYPE_WIRED_HEADSET -> "WIRED_HEADSET"
                 CallEndpointCompat.TYPE_SPEAKER -> "SPEAKER"
                 CallEndpointCompat.TYPE_STREAMING -> "EXTERNAL"

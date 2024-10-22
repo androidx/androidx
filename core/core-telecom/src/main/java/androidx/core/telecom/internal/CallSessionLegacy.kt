@@ -83,6 +83,10 @@ internal class CallSessionLegacy(
         }
     }
 
+    fun getCurrentCallEndpointForSession(): CallEndpointCompat? {
+        return mCurrentCallEndpoint
+    }
+
     companion object {
         private const val WAIT_FOR_BT_TO_CONNECT_TIMEOUT: Long = 1000L
         // TODO:: b/369153472 , remove delay and instead wait until onCallEndpointChanged
@@ -158,26 +162,34 @@ internal class CallSessionLegacy(
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             Api28PlusImpl.refreshBluetoothDeviceCache(mCachedBluetoothDevices, state)
         }
-        setCurrentCallEndpoint(state)
-        setAvailableCallEndpoints(state)
-        callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
-        CoroutineScope(coroutineContext).launch {
-            if (state.isMuted) {
-                onStateChangedCallback.emit(CallStateEvent.GLOBAL_MUTED)
-            } else {
-                onStateChangedCallback.emit(CallStateEvent.GLOBAL_UNMUTE)
+        try {
+            setCurrentCallEndpoint(state)
+            setAvailableCallEndpoints(state)
+            callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
+            CoroutineScope(coroutineContext).launch {
+                if (state.isMuted) {
+                    onStateChangedCallback.emit(CallStateEvent.GLOBAL_MUTED)
+                } else {
+                    onStateChangedCallback.emit(CallStateEvent.GLOBAL_UNMUTE)
+                }
             }
+            // On the first call audio state change, determine if the platform started on the
+            // correct audio route.  Otherwise, request an endpoint switch.
+            if (mAvailableCallEndpoints != null) {
+                switchStartingCallEndpointOnCallStart(mAvailableCallEndpoints!!)
+            }
+            // In the event the users headset disconnects, they will likely want to continue the
+            // call via the speakerphone
+            if (mCurrentCallEndpoint != null && mAvailableCallEndpoints != null) {
+                maybeSwitchToSpeakerOnHeadsetDisconnect(
+                    mCurrentCallEndpoint!!,
+                    mPreviousCallEndpoint,
+                    mAvailableCallEndpoints!!,
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "onCallAudioStateChanged: caught=[${e.stackTraceToString()}", e)
         }
-        // On the first call audio state change, determine if the platform started on the correct
-        // audio route.  Otherwise, request an endpoint switch.
-        switchStartingCallEndpointOnCallStart(mAvailableCallEndpoints!!)
-        // In the event the users headset disconnects, they will likely want to continue the call
-        // via the speakerphone
-        maybeSwitchToSpeakerOnHeadsetDisconnect(
-            mCurrentCallEndpoint!!,
-            mPreviousCallEndpoint,
-            mAvailableCallEndpoints!!,
-        )
         // clear out the last user requested CallEndpoint. It's only used to determine if the
         // change in current endpoints was intentional.
         if (mLastClientRequestedEndpoint?.type == mCurrentCallEndpoint?.type) {
