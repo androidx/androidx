@@ -335,8 +335,17 @@ internal constructor(
             return
         }
 
-        // There's a meaningful change to the buffer, let's run the full logic.
-        // first take a _snapshot_ of current state of the mainBuffer after changes are applied.
+        // Eventually we may need to run a string equality check between old value and the new value
+        // This is an O(n) operation, meaning that it gets as expensive as the text length.
+        // Therefore we create this flag to remind ourselves whether the original changes may have
+        // caused a content difference. This value being false is a strong indicator that the
+        // content definitely hasn't changed. However this being true only introduces a possibility.
+        // The content change may have been an exact string replacement like "ab" => "ab".
+        val contentMayHaveChanged = mainBuffer.changeTracker.changeCount != 0
+
+        // There's a meaningful change to the buffer, either content or selection. We need to run
+        // the full logic including InputTransformation. But F=first take a _snapshot_ of current
+        // state of the mainBuffer after changes are applied.
         val afterEditValue =
             TextFieldCharSequence(
                 text = mainBuffer.toString(),
@@ -355,7 +364,11 @@ internal constructor(
             updateValueAndNotifyListeners(
                 oldValue = beforeEditValue,
                 newValue = afterEditValue,
-                restartImeIfContentChanges = restartImeIfContentChanges
+                // updateValueAndNotifyListeners use restartImeIfContentChanges flag to possibly
+                // skip doing string equality check. Here we add our own flag to indicate the
+                // possibility of content changing. Since false value is a string indicator,
+                // this added logic works.
+                restartImeIfContentChanges = contentMayHaveChanged && restartImeIfContentChanges
             )
             recordEditForUndo(
                 previousValue = beforeEditValue,
@@ -431,7 +444,19 @@ internal constructor(
         value = newValue
         finishEditing()
 
-        notifyImeListeners.forEach { it.onChange(oldValue, newValue, restartImeIfContentChanges) }
+        notifyImeListeners.forEach {
+            it.onChange(
+                oldValue = oldValue,
+                newValue = newValue,
+                restartIme =
+                    restartImeIfContentChanges &&
+                        !oldValue.contentEquals(newValue)
+                        // No need to restart the IME if there wasn't a composing region. This is
+                        // useful to not unnecessarily restart digit only, or password fields.
+                        &&
+                        oldValue.composition != null
+            )
+        }
     }
 
     /**
@@ -481,23 +506,31 @@ internal constructor(
      *
      * State in [TextFieldState] can change through various means but categorically there are two
      * sources; Developer([TextFieldState.edit]) and User([TextFieldState.editAsUser]). Only
-     * non-InputTransformed IME sourced changes can skip updating the IME. Otherwise, all changes
+     * non-InputTransformed, IME sourced changes can skip updating the IME. Otherwise, all changes
      * must be sent to the IME to let it synchronize its state with the [TextFieldState]. Such a
-     * communication channel is established by the IME registering a [NotifyImeListener] on a
-     * [TextFieldState].
+     * communication channel is established by the text input session registering a
+     * [NotifyImeListener] on a [TextFieldState].
      */
     internal fun interface NotifyImeListener {
 
         /**
-         * Called when the value in [TextFieldState] changes via any source. The
-         * [restartImeIfContentChanges] flag determines whether a text change between [oldValue] and
-         * [newValue] should restart the ongoing input connection. Selection changes never require a
-         * restart.
+         * Called when the value in [TextFieldState] changes via any source. The [restartIme] flag
+         * determines whether the ongoing input connection should be restarted. Selection or
+         * Composition range changes never require a restart.
+         *
+         * @param oldValue The previous value of the [TextFieldState] before the latest changes are
+         *   applied with one exception. If an [InputTransformation] is applied on the changes
+         *   coming from the IME, we use the value after user changes are applied but before
+         *   [InputTransformation]. This is essentially the last known state to the IME.
+         * @param newValue Current state of the [TextFieldState]. This is always equal to the
+         *   [TextFieldState.value] at the time of calling this function.
+         * @param restartIme Whether to ignore other parameters and basically restart the input
+         *   session with new configuration.
          */
         fun onChange(
             oldValue: TextFieldCharSequence,
             newValue: TextFieldCharSequence,
-            restartImeIfContentChanges: Boolean
+            restartIme: Boolean
         )
     }
 

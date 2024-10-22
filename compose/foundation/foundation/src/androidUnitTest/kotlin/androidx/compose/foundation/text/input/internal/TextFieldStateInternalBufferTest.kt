@@ -89,9 +89,6 @@ class TextFieldStateInternalBufferTest {
 
         var resetCalled = 0
         var selectionCalled = 0
-        state.addImeContentListener { _, _, restart ->
-            if (restart) resetCalled++ else selectionCalled++
-        }
 
         val initialBuffer = state.mainBuffer
         state.syncMainBufferToTemporaryBuffer(
@@ -100,13 +97,17 @@ class TextFieldStateInternalBufferTest {
         assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
 
         val updatedBuffer = state.mainBuffer
+
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
         state.syncMainBufferToTemporaryBuffer(
             TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
         )
         assertThat(state.mainBuffer).isSameInstanceAs(updatedBuffer)
 
-        assertThat(resetCalled).isEqualTo(2)
-        assertThat(selectionCalled).isEqualTo(0)
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
@@ -127,8 +128,9 @@ class TextFieldStateInternalBufferTest {
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
-        assertThat(resetCalled).isEqualTo(2)
-        assertThat(selectionCalled).isEqualTo(0)
+        // no composing region, reset shouldn't be called
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(2)
     }
 
     @Test
@@ -137,22 +139,22 @@ class TextFieldStateInternalBufferTest {
 
         var resetCalled = 0
         var selectionCalled = 0
-        state.addImeContentListener { _, _, restart ->
-            if (restart) resetCalled++ else selectionCalled++
-        }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
         state.syncMainBufferToTemporaryBuffer(textFieldValue)
         val initialBuffer = state.mainBuffer
 
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
         val newTextFieldValue = TextFieldCharSequence(textFieldValue, selection = TextRange(1))
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
         assertThat(newTextFieldValue.selection.start).isEqualTo(state.mainBuffer.selection.start)
         assertThat(newTextFieldValue.selection.end).isEqualTo(state.mainBuffer.selection.end)
-        assertThat(resetCalled).isEqualTo(2)
-        assertThat(selectionCalled).isEqualTo(0)
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
@@ -161,25 +163,24 @@ class TextFieldStateInternalBufferTest {
 
         var resetCalled = 0
         var selectionCalled = 0
-        state.addImeContentListener { _, _, restart ->
-            if (restart) resetCalled++ else selectionCalled++
-        }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange(1))
         state.syncMainBufferToTemporaryBuffer(textFieldValue)
         val initialBuffer = state.mainBuffer
 
+        state.addImeContentListener { _, _, restart ->
+            if (restart) resetCalled++ else selectionCalled++
+        }
         // composition can not be set from app, IME owns it.
         assertThat(initialBuffer.composition).isNull()
 
-        val newTextFieldValue =
-            TextFieldCharSequence(textFieldValue, textFieldValue.selection, composition = null)
+        val newTextFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, composition = null)
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
         assertThat(state.mainBuffer.composition).isNull()
-        assertThat(resetCalled).isEqualTo(2)
-        assertThat(selectionCalled).isEqualTo(0)
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
@@ -207,8 +208,9 @@ class TextFieldStateInternalBufferTest {
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
         assertThat(updatedSelection.start).isEqualTo(initialBuffer.selection.start)
         assertThat(updatedSelection.end).isEqualTo(initialBuffer.selection.end)
-        assertThat(resetCalled).isEqualTo(1)
-        assertThat(selectionCalled).isEqualTo(0)
+        // content does not change so restart input is unexpected
+        assertThat(resetCalled).isEqualTo(0)
+        assertThat(selectionCalled).isEqualTo(1)
     }
 
     @Test
