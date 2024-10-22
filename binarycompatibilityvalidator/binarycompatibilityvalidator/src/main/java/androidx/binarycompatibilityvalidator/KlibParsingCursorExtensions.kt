@@ -260,14 +260,13 @@ internal fun Cursor.parseTypeParam(peek: Boolean = false): AbiTypeParameter? {
 }
 
 internal fun Cursor.parseValueParameters(): List<AbiValueParameter>? {
-    val valueParamString = parseValueParametersString() ?: return null
-    val subCursor = Cursor(valueParamString)
     val valueParams = mutableListOf<AbiValueParameter>()
-    subCursor.parseSymbol(openParenRegex)
-    while (null != subCursor.parseValueParameter(peek = true)) {
-        valueParams.add(subCursor.parseValueParameter()!!)
-        subCursor.parseSymbol(commaRegex)
+    parseSymbol(openParenRegex)
+    while (null != parseValueParameter(peek = true)) {
+        valueParams.add(parseValueParameter()!!)
+        parseSymbol(commaRegex)
     }
+    parseSymbol(closeParenRegex)
     return valueParams
 }
 
@@ -411,8 +410,6 @@ private fun Cursor.parseTypeParamsString(peek: Boolean = false): String? {
 
 private fun Cursor.parseFunctionReceiverString() = parseSymbol(functionReceiverStringRegex)
 
-private fun Cursor.parseValueParametersString() = parseSymbol(valueParameterStringRegex)
-
 private fun Cursor.parseAbiModalityString(peek: Boolean = false) =
     parseSymbol(abiModalityRegex, peek)?.uppercase()
 
@@ -439,6 +436,7 @@ private val targetsRegex = Regex("^Targets:")
 private val defaultArgSymbolRegex = Regex("^=(\\s)?\\.\\.\\.")
 private val varargSymbolRegex = Regex("^\\.\\.\\.")
 private val openParenRegex = Regex("\\(")
+private val closeParenRegex = Regex("\\)")
 private val reifiedRegex = Regex("reified")
 private val colonRegex = Regex(":")
 private val commaRegex = Regex("^,")
@@ -460,7 +458,6 @@ private val valueParameterModifierRegex = Regex("^(crossinline|noinline)")
 private val abiModalityRegex = Regex("^(final|open|abstract|sealed)")
 private val classKindRegex = Regex("^(class|interface|object|enum\\sclass|annotation\\sclass)")
 private val propertyKindRegex = Regex("^(const\\sval|val|var)")
-private val valueParameterStringRegex = Regex("^\\(([a-zA-Z0-9,\\/<>,#\\.\\s\\?=\\*]+)?\\)")
 private val functionReceiverStringRegex = Regex("^\\([a-zA-Z0-9,\\/<>,#\\.\\s]+?\\)\\.")
 private val getterOrSetterSignalRegex = Regex("^<(get|set)\\-")
 private val enumNameRegex = Regex("^[A-Z_]+")
