@@ -35,8 +35,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MultipleFragmentsActivity" />
-
     </application>
 
 </manifest>

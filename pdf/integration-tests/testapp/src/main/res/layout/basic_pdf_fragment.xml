@@ -18,25 +18,23 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pdf_container_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/fragment_container_view"
+        android:id="@+id/pdf_fragment_container_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/launch_button"/>
+        app:layout_constraintBottom_toTopOf="@+id/open_pdf"/>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/launch_button"
+        android:id="@+id/open_pdf"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/launch_string"
@@ -56,19 +54,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/launch_button"
-        app:layout_constraintEnd_toEndOf="@id/double_pdf" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/double_pdf"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/double_pdf_string"
-        app:strokeWidth="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/search_button"
+        app:layout_constraintStart_toEndOf="@id/open_pdf"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

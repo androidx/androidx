@@ -18,6 +18,7 @@ package androidx.pdf.testapp
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.Lifecycle
+import androidx.pdf.testapp.ui.BasicPdfFragment
 import androidx.test.core.app.ActivityScenario.launch
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,18 +46,38 @@ class MainActivityTest {
     }
 
     @Test
-    fun testGetContentButtonClickLaunchesFilePicker() {
+    fun testOpenPdfButtonClickLaunchesFilePicker() {
         val mockFilePicker: ActivityResultLauncher<String> =
             mock(ActivityResultLauncher::class.java) as ActivityResultLauncher<String>
 
         launch(MainActivity::class.java).use { scenario ->
             scenario.moveToState(Lifecycle.State.CREATED)
             scenario.onActivity { activity ->
-                activity.filePicker = mockFilePicker
-                val getContentButton: MaterialButton = activity.findViewById(R.id.launch_button)
+                // Step 1: Click the button that launches the Fragment
+                val singlePdfButton: MaterialButton = activity.findViewById(R.id.single_pdf)
+                Assert.assertNotNull(singlePdfButton)
+                singlePdfButton.performClick()
 
-                Assert.assertNotNull(getContentButton)
-                getContentButton.performClick()
+                // Step 2: Find the Fragment that was launched
+                val fragmentManager = activity.supportFragmentManager
+                val fragment = fragmentManager.findFragmentByTag("pdf_interaction_fragment_tag")
+                Assert.assertNotNull(fragment)
+
+                // Step 3: Find Single Pdf Fragment
+                val singlePdfFragmentManager = fragment?.childFragmentManager
+                val singlePdfFragment =
+                    singlePdfFragmentManager?.findFragmentByTag("single_pdf_fragment_tag")
+                Assert.assertNotNull(singlePdfFragment)
+
+                // Step 3: Inject the mock into the Fragment
+                (singlePdfFragment as BasicPdfFragment).filePicker = mockFilePicker
+
+                // Step 4: Find OpenPdf Button and performClick
+                val openPdfButton: MaterialButton? =
+                    singlePdfFragment.view?.findViewById(R.id.open_pdf)
+                Assert.assertNotNull(openPdfButton)
+                openPdfButton?.performClick()
+
                 verify(mockFilePicker).launch("application/pdf")
             }
         }
