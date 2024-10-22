@@ -44,11 +44,12 @@ fun newStringBuilder(): StringBuilder = StringBuilder()
  * @param count Number of placeholders
  */
 fun appendPlaceholders(builder: StringBuilder, count: Int) {
-    for (i in 0 until count) {
-        builder.append("?")
-        if (i < count - 1) {
-            builder.append(",")
-        }
+    if (count == 0) {
+        return
+    }
+    builder.append("?")
+    for (i in 1 until count) {
+        builder.append(",?")
     }
 }
 
