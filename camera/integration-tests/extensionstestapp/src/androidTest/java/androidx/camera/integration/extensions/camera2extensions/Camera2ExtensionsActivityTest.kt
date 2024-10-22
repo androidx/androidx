@@ -42,6 +42,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
@@ -199,5 +200,22 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         activityScenario.waitForCaptureSessionConfiguredIdle()
 
         return activityScenario
+    }
+
+    @Test
+    fun checkPreviewUpdated_afterSwitchCamera() {
+        val activityScenario =
+            launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
+        with(activityScenario) { // Launches activity
+            use { // Ensures that ActivityScenario is cleaned up properly
+                // Waits for preview to receive enough frames for its IdlingResource to idle.
+                waitForPreviewIdle()
+
+                withActivity { switchCamera() }
+
+                // Waits for preview to receive enough frames again after switching camera
+                waitForPreviewIdle()
+            }
+        }
     }
 }
