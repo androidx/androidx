@@ -30,7 +30,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.internal.IncreaseVerticalSemanticsBounds
@@ -185,7 +184,6 @@ fun LinearWavyProgressIndicator(
             .semantics(mergeDescendants = true) {
                 progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
             }
-            .requiredSizeIn(minWidth = LinearContainerMinWidth)
             .size(
                 width = WavyProgressIndicatorDefaults.LinearContainerWidth,
                 height = WavyProgressIndicatorDefaults.LinearContainerHeight
@@ -373,7 +371,6 @@ fun LinearWavyProgressIndicator(
         modifier
             .then(IncreaseVerticalSemanticsBounds)
             .progressSemantics()
-            .requiredSizeIn(minWidth = LinearContainerMinWidth)
             .size(
                 WavyProgressIndicatorDefaults.LinearContainerWidth,
                 WavyProgressIndicatorDefaults.LinearContainerHeight
