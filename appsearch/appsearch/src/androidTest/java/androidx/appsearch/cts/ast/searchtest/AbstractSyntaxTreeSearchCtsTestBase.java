@@ -23,10 +23,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
@@ -34,7 +36,9 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.ast.NegationNode;
 import androidx.appsearch.ast.TextNode;
 import androidx.appsearch.ast.operators.AndNode;
+import androidx.appsearch.ast.operators.ComparatorNode;
 import androidx.appsearch.ast.operators.OrNode;
+import androidx.appsearch.ast.operators.PropertyRestrictNode;
 import androidx.appsearch.flags.CheckFlagsRule;
 import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
@@ -452,5 +456,92 @@ public abstract class AbstractSyntaxTreeSearchCtsTestBase {
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(fooBarEmail, fooBazEmail, bazEmail);
+    }
+
+    @Test
+    public void testComparatorNode_toString_doesNumericSearch() throws Exception {
+        // Schema registration
+        AppSearchSchema transactionSchema =
+                new AppSearchSchema.Builder("transaction")
+                        .addProperty(
+                                new LongPropertyConfig.Builder("price")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                                        .build())
+                        .addProperty(
+                                new LongPropertyConfig.Builder("cost")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
+                                        .build())
+                        .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(transactionSchema)
+                .build()
+            ).get();
+
+        // Index some documents
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "transaction")
+                        .setPropertyLong("price", 10)
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "transaction")
+                        .setPropertyLong("price", 25)
+                        .build();
+        GenericDocument doc3 =
+                new GenericDocument.Builder<>("namespace", "id3", "transaction")
+                        .setPropertyLong("cost", 2)
+                        .build();
+        checkIsBatchResultSuccess(
+                mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(doc1, doc2, doc3)
+                                .build()));
+
+        // Query for the document.
+        PropertyPath pricePath = new PropertyPath("price");
+        ComparatorNode comparatorNode = new ComparatorNode(ComparatorNode.LESS_THAN, pricePath, 20);
+
+        SearchResults searchResults = mDb1.search(comparatorNode.toString(),
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setNumericSearchEnabled(true)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(doc1);
+    }
+
+    @Test
+    public void testPropertyRestrict_toString_restrictsByProperty() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail fooFromEmail = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("foo")
+                .setBody("bar")
+                .build();
+        AppSearchEmail fooBodyEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("foo")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(fooFromEmail, fooBodyEmail)
+                        .build()
+            )
+        );
+
+        // Query for the document.
+        TextNode foo = new TextNode("foo");
+        PropertyRestrictNode propertyRestrictNode = new PropertyRestrictNode(
+                new PropertyPath("body"), foo);
+
+        SearchResults searchResults = mDb1.search(propertyRestrictNode.toString(),
+                new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooBodyEmail);
     }
 }
