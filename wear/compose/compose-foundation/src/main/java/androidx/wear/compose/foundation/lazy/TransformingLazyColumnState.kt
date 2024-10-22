@@ -223,6 +223,23 @@ class TransformingLazyColumnState() : ScrollableState {
         snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
     }
 
+    /**
+     * Animate (smooth scroll) to the given item.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset The offset between the center of the screen and item's center. Positive
+     *   offset means the item will be scrolled up.
+     */
+    suspend fun animateScrollToItem(
+        @androidx.annotation.IntRange(from = 0) index: Int,
+        scrollOffset: Int = 0
+    ) {
+        scroll {
+            TransformingLazyColumnScrollScope(this@TransformingLazyColumnState, this)
+                .animateScrollToItem(index, scrollOffset, density, this)
+        }
+    }
+
     internal fun snapToItemIndexInternal(
         index: Int,
         scrollOffset: Int,

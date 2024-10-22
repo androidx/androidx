@@ -88,6 +88,7 @@ private class ItemFoundInScroll(
 private val TargetDistance = 500.dp
 private val BoundDistance = 300.dp
 private val MinimumDistance = 10.dp
+private const val NumberOfItemsToTeleport = 20
 
 private const val DEBUG = false
 
@@ -100,7 +101,6 @@ private inline fun debugLog(generateMsg: () -> String) {
 internal suspend fun TransformingLazyColumnScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
-    numOfItemsForTeleport: Int,
     density: Density,
     scrollScope: ScrollScope
 ) {
@@ -194,20 +194,20 @@ internal suspend fun TransformingLazyColumnScrollScope.animateScrollToItem(
                             if (forward) {
                                 if (
                                     loops >= 2 &&
-                                        index - lastVisibleItemIndex > numOfItemsForTeleport
+                                        index - lastVisibleItemIndex > NumberOfItemsToTeleport
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport forward" }
-                                    snapToItem(index = index - numOfItemsForTeleport, offset = 0)
+                                    snapToItem(index = index - NumberOfItemsToTeleport, offset = 0)
                                 }
                             } else {
                                 if (
                                     loops >= 2 &&
-                                        firstVisibleItemIndex - index > numOfItemsForTeleport
+                                        firstVisibleItemIndex - index > NumberOfItemsToTeleport
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport backward" }
-                                    snapToItem(index = index + numOfItemsForTeleport, offset = 0)
+                                    snapToItem(index = index + NumberOfItemsToTeleport, offset = 0)
                                 }
                             }
                         }
