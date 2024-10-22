@@ -164,7 +164,7 @@ class UserFile(private val file: File) : VirtualFile() {
 
     override fun executeCommand(block: (String) -> String): String {
         val cmd = block(absolutePath)
-        return trace("UserFile#executeCommand $cmd") {
+        return trace("UserFile#executeCommand $cmd".take(127)) {
             DataInputStream(Runtime.getRuntime().exec(cmd).inputStream)
                 .bufferedReader()
                 .use { it.readText() }
@@ -222,7 +222,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
         var counterOs: CounterOutputStream? = null
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            trace("ShellFile#useOutputStream $cmd") {
+            trace("ShellFile#useOutputStream $cmd".take(127)) {
                 val (_, inDescriptor, errDescriptor) = uiAutomation.executeShellCommandRwe(cmd)
                 ParcelFileDescriptor.AutoCloseOutputStream(inDescriptor).use {
                     counterOs = CounterOutputStream(it)
@@ -231,7 +231,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
                 checkErr(errDescriptor)
             }
         } else {
-            trace("ShellFile#useOutputStream $cmd") {
+            trace("ShellFile#useOutputStream $cmd".take(127)) {
                 val (_, inDescriptor) = uiAutomation.executeShellCommandRw(cmd)
                 ParcelFileDescriptor.AutoCloseOutputStream(inDescriptor).use {
                     counterOs = CounterOutputStream(it)
@@ -268,7 +268,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
     override fun executeCommand(block: (String) -> String): String {
         val cmd = rootState.maybeRootify(block(absolutePath))
         val output =
-            trace("ShellFile#executeCommand $cmd") {
+            trace("ShellFile#executeCommand $cmd".take(127)) {
                 uiAutomation.executeShellCommand(cmd).fullyReadInputStream()
             }
         return output.trim()

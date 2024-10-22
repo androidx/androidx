@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro.junit4
 
-import android.Manifest
 import androidx.annotation.IntRange
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
@@ -27,9 +26,7 @@ import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.macrobenchmarkWithStartupMode
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.test.rule.GrantPermissionRule
 import org.junit.Assume.assumeTrue
-import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -226,16 +223,7 @@ public class MacrobenchmarkRule : TestRule {
             measureBlock
         )
 
-    override fun apply(base: Statement, description: Description): Statement {
-        // Grant external storage, as it may be needed for test output directory.
-        return RuleChain.outerRule(
-                GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            )
-            .around(::applyInternal)
-            .apply(base, description)
-    }
-
-    private fun applyInternal(base: Statement, description: Description) =
+    override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
             override fun evaluate() {
                 assumeTrue(Arguments.RuleType.Macrobenchmark in Arguments.enabledRules)
