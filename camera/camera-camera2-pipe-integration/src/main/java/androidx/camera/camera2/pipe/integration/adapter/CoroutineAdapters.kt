@@ -20,9 +20,11 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -71,6 +73,21 @@ public fun <T> Deferred<T>.asListenableFuture(
             }
             tag
         }
+    return CallbackToFutureAdapter.getFuture(resolver)
+}
+
+/**
+ * Converts a [suspend] function `block` into a [ListenableFuture].
+ *
+ * @param block The suspend function to be converted.
+ * @return A [ListenableFuture] which is completed with the result of the `block`.
+ * @receiver The [CoroutineScope] used to execute the provided `block`.
+ */
+public inline fun <T> CoroutineScope.future(
+    crossinline block: suspend () -> T
+): ListenableFuture<T> {
+    val resolver: CallbackToFutureAdapter.Resolver<T> =
+        CallbackToFutureAdapter.Resolver<T> { completer -> this.launch { completer.set(block()) } }
     return CallbackToFutureAdapter.getFuture(resolver)
 }
 

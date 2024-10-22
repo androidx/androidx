@@ -74,7 +74,6 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.AttachedSurfaceInfo
-import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
@@ -134,7 +133,6 @@ constructor(
     private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
     private val builder: UseCaseCameraComponent.Builder,
-    private val cameraControl: CameraControlInternal,
     private val zslControl: ZslControl,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
@@ -288,7 +286,7 @@ constructor(
                 }
 
                 if (attachedUseCases.isEmpty()) {
-                    cameraControl.setZslDisabledByUserCaseConfig(false)
+                    zslControl.setZslDisabledByUserCaseConfig(false)
                 } else {
                     updateZslDisabledByUseCaseConfigStatus()
                 }
@@ -852,7 +850,7 @@ constructor(
 
     private fun updateZslDisabledByUseCaseConfigStatus() {
         val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
-        cameraControl.setZslDisabledByUserCaseConfig(disableZsl)
+        zslControl.setZslDisabledByUserCaseConfig(disableZsl)
     }
 
     /**

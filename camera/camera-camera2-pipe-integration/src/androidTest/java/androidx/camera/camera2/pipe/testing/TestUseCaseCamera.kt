@@ -49,9 +49,11 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.toMap
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.testing.impl.FakeCameraCapturePipeline
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -134,6 +136,12 @@ class TestUseCaseCamera(
                         ): List<Deferred<Void?>> {
                             throw NotImplementedError("Not implemented")
                         }
+
+                        override suspend fun getCameraCapturePipeline(
+                            captureMode: Int,
+                            flashMode: Int,
+                            flashType: Int
+                        ): CameraCapturePipeline = FakeCameraCapturePipeline()
                     },
                 state =
                     UseCaseCameraState(
@@ -168,6 +176,12 @@ class TestUseCaseCamera(
                     )
                 }
             }
+
+    override suspend fun getCameraCapturePipeline(
+        captureMode: Int,
+        flashMode: Int,
+        flashType: Int
+    ): CameraCapturePipeline = FakeCameraCapturePipeline()
 
     override fun close(): Job {
         return threads.scope.launch {

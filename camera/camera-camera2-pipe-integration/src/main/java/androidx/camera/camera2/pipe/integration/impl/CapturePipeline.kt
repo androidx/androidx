@@ -49,12 +49,16 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.future
 import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl.PipelineTask.MAIN_CAPTURE
+import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl.PipelineTask.POST_CAPTURE
+import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl.PipelineTask.PRE_CAPTURE
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CaptureMode
 import androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED
@@ -68,12 +72,14 @@ import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
+import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionProcessor.CaptureCallback
+import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -98,6 +104,13 @@ public interface CapturePipeline {
         @FlashType flashType: Int,
         @FlashMode flashMode: Int,
     ): List<Deferred<Void?>>
+
+    /** Gets the [CameraCapturePipeline] instance corresponding to a [CapturePipeline] instance. */
+    public suspend fun getCameraCapturePipeline(
+        @CaptureMode captureMode: Int,
+        @FlashMode flashMode: Int,
+        @FlashType flashType: Int
+    ): CameraCapturePipeline
 }
 
 /** Implementations for the single capture. */
@@ -124,6 +137,62 @@ constructor(
 
     override var template: Int = CameraDevice.TEMPLATE_PREVIEW
 
+    private enum class PipelineTask {
+        PRE_CAPTURE,
+        MAIN_CAPTURE,
+        POST_CAPTURE,
+    }
+
+    private data class MainCaptureParams(
+        val configs: List<CaptureConfig>,
+        val requestTemplate: RequestTemplate,
+        val sessionConfigOptions: Config,
+    )
+
+    /**
+     * Invokes various capture pipelines (e.g. pre-capture or main capture or post-capture).
+     *
+     * @param pipelineTasks List of [PipelineTask] to invoke.
+     * @param captureMode [CaptureMode] integer for the capture.
+     * @param flashMode [FlashMode] integer for the capture.
+     * @param flashType [FlashType] integer for the capture.
+     * @param mainCaptureParams Parameters required for the main capture, must not be null if
+     *   [pipelineTasks] contain [PipelineTask.MAIN_CAPTURE].
+     */
+    private suspend fun invokeCaptureTasks(
+        pipelineTasks: List<PipelineTask>,
+        @CaptureMode captureMode: Int,
+        @FlashMode flashMode: Int,
+        @FlashType flashType: Int,
+        mainCaptureParams: MainCaptureParams?,
+    ): List<Deferred<Void?>> {
+        if (pipelineTasks.contains(MAIN_CAPTURE)) {
+            checkNotNull(mainCaptureParams) { "Must not be null for PipelineType.MAIN_CAPTURE" }
+        }
+
+        return if (flashMode == FLASH_MODE_SCREEN) {
+            screenFlashCapture(
+                mainCaptureParams,
+                captureMode,
+                pipelineTasks,
+            )
+        } else if (isTorchAsFlash(flashType)) {
+            torchAsFlashCapture(
+                mainCaptureParams,
+                captureMode,
+                flashMode,
+                pipelineTasks,
+            )
+        } else {
+            defaultCapture(
+                mainCaptureParams,
+                captureMode,
+                flashMode,
+                pipelineTasks,
+            )
+        }
+    }
+
     override suspend fun submitStillCaptures(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
@@ -131,49 +200,118 @@ constructor(
         @CaptureMode captureMode: Int,
         @FlashType flashType: Int,
         @FlashMode flashMode: Int,
-    ): List<Deferred<Void?>> {
-        return if (flashMode == FLASH_MODE_SCREEN) {
-            screenFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
-        } else if (isTorchAsFlash(flashType)) {
-            torchAsFlashCapture(
-                configs,
-                requestTemplate,
-                sessionConfigOptions,
-                captureMode,
-                flashMode
-            )
-        } else {
-            defaultCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
+    ): List<Deferred<Void?>> =
+        invokeCaptureTasks(
+            pipelineTasks = listOf(PRE_CAPTURE, MAIN_CAPTURE, POST_CAPTURE),
+            captureMode = captureMode,
+            flashMode = flashMode,
+            flashType = flashType,
+            mainCaptureParams = MainCaptureParams(configs, requestTemplate, sessionConfigOptions),
+        )
+
+    override suspend fun getCameraCapturePipeline(
+        captureMode: Int,
+        flashMode: Int,
+        flashType: Int
+    ): CameraCapturePipeline {
+        return object : CameraCapturePipeline {
+            override fun invokePreCapture(): ListenableFuture<Void?> {
+                return threads.scope.future {
+                    invokeCaptureTasks(
+                            pipelineTasks = listOf(PRE_CAPTURE),
+                            captureMode = captureMode,
+                            flashMode = flashMode,
+                            flashType = flashType,
+                            mainCaptureParams = null,
+                        )
+                        .joinAll()
+                    null // Since the joinAll earlier returns Unit type mismatching with Void? type
+                }
+            }
+
+            override fun invokePostCapture(): ListenableFuture<Void?> {
+                return threads.scope.future {
+                    invokeCaptureTasks(
+                            pipelineTasks = listOf(POST_CAPTURE),
+                            captureMode = captureMode,
+                            flashMode = flashMode,
+                            flashType = flashType,
+                            mainCaptureParams = null,
+                        )
+                        .joinAll()
+                    null // Since the joinAll earlier returns Unit type mismatching with Void? type
+                }
+            }
         }
     }
 
+    /**
+     * Invokes a capture pipeline with the sequence of pre-capture -> main capture -> post-capture
+     * based on the pipeline tasks in the receiver list.
+     *
+     * @param mainCaptureParams Parameters required for the main capture, must not be null if the
+     *   receiver list contains [PipelineTask.MAIN_CAPTURE].
+     * @param preCapture A function invoked during pre-capture.
+     * @param postCapture A function invoked during post-capture.
+     * @receiver A list of [PipelineTask].
+     */
+    private suspend inline fun List<PipelineTask>.invoke(
+        mainCaptureParams: MainCaptureParams?,
+        crossinline preCapture: suspend () -> Unit,
+        crossinline postCapture: suspend () -> Unit,
+    ): List<Deferred<Void?>> {
+        debug { "CapturePipeline#List<PipelineTask>.invoke: tasks = $this" }
+        if (contains(PRE_CAPTURE)) {
+            preCapture()
+        }
+        return if (contains(MAIN_CAPTURE)) {
+                submitRequestInternal(
+                    checkNotNull(mainCaptureParams),
+                )
+            } else {
+                listOf(CompletableDeferred(null))
+            }
+            .also { captureSignal ->
+                if (contains(POST_CAPTURE)) {
+                    threads.sequentialScope.launch {
+                        debug {
+                            "CapturePipeline#List<PipelineTask>.invoke: Waiting for capture signal"
+                        }
+                        captureSignal.joinAll()
+                        debug {
+                            "CapturePipeline#List<PipelineTask>.invoke:" +
+                                " Waiting for capture signal done"
+                        }
+                        postCapture()
+                    }
+                }
+            }
+    }
+
     private suspend fun torchAsFlashCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
+        mainCaptureParams: MainCaptureParams?,
         @CaptureMode captureMode: Int,
         @FlashMode flashMode: Int,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchAsFlashCapture" }
         return if (hasFlashUnit && isPhysicalFlashRequired(flashMode)) {
             torchApplyCapture(
-                configs,
-                requestTemplate,
-                sessionConfigOptions,
+                mainCaptureParams,
                 captureMode,
-                CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS
+                CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS,
+                pipelineTasks,
             )
         } else {
-            defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
+            defaultNoFlashCapture(mainCaptureParams, captureMode, pipelineTasks)
         }
     }
 
     private suspend fun defaultCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
+        mainCaptureParams: MainCaptureParams?,
         @CaptureMode captureMode: Int,
         @FlashMode flashMode: Int,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         return if (hasFlashUnit) {
             val isFlashRequired = isPhysicalFlashRequired(flashMode)
@@ -182,122 +320,120 @@ constructor(
 
             if (isFlashRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
                 aePreCaptureApplyCapture(
-                    configs,
-                    requestTemplate,
-                    sessionConfigOptions,
+                    mainCaptureParams,
                     timeout,
-                    captureMode
+                    captureMode,
+                    pipelineTasks,
                 )
             } else {
-                defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
+                defaultNoFlashCapture(
+                    mainCaptureParams,
+                    captureMode,
+                    pipelineTasks,
+                )
             }
         } else {
-            defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
+            defaultNoFlashCapture(
+                mainCaptureParams,
+                captureMode,
+                pipelineTasks,
+            )
         }
     }
 
     private suspend fun defaultNoFlashCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
-        @CaptureMode captureMode: Int
+        mainCaptureParams: MainCaptureParams?,
+        @CaptureMode captureMode: Int,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#defaultNoFlashCapture" }
         val lock3ARequired = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
-        if (lock3ARequired) {
-            debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A" }
-            lock3A(CHECK_3A_TIMEOUT_IN_NS)
-            debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A done" }
-        }
-        return submitRequestInternal(configs, requestTemplate, sessionConfigOptions).also {
-            captureSignal ->
-            if (lock3ARequired) {
-                threads.sequentialScope.launch {
-                    debug { "CapturePipeline#defaultNoFlashCapture: Waiting for capture signal" }
-                    captureSignal.joinAll()
-                    debug {
-                        "CapturePipeline#defaultNoFlashCapture: Waiting for capture signal done"
-                    }
+        return pipelineTasks.invoke(
+            mainCaptureParams = mainCaptureParams,
+            preCapture = {
+                if (lock3ARequired) {
+                    debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A" }
+                    lock3A(CHECK_3A_TIMEOUT_IN_NS)
+                    debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A done" }
+                }
+            },
+            postCapture = {
+                if (lock3ARequired) {
                     debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A" }
                     unlock3A(CHECK_3A_TIMEOUT_IN_NS)
                     debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A done" }
                 }
             }
-        }
+        )
     }
 
     private suspend fun torchApplyCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
+        mainCaptureParams: MainCaptureParams?,
         @CaptureMode captureMode: Int,
         timeLimitNs: Long,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchApplyCapture" }
         val torchOnRequired = torchControl.torchStateLiveData.value == TorchState.OFF
-        if (torchOnRequired) {
-            debug { "CapturePipeline#torchApplyCapture: Setting torch" }
-            torchControl.setTorchAsync(true).join()
-            debug { "CapturePipeline#torchApplyCapture: Setting torch done" }
-        }
-
         val lock3ARequired = torchOnRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
-        if (lock3ARequired) {
-            debug { "CapturePipeline#torchApplyCapture: Locking 3A" }
-            lock3A(timeLimitNs)
-            debug { "CapturePipeline#torchApplyCapture: Locking 3A done" }
-        }
 
-        return submitRequestInternal(configs, requestTemplate, sessionConfigOptions).also {
-            captureSignal ->
-            if (torchOnRequired) {
-                threads.sequentialScope.launch {
-                    debug { "CapturePipeline#torchApplyCapture: Waiting for capture signal" }
-                    captureSignal.joinAll()
+        return pipelineTasks.invoke(
+            mainCaptureParams = mainCaptureParams,
+            preCapture = {
+                if (torchOnRequired) {
+                    debug { "CapturePipeline#torchApplyCapture: Setting torch" }
+                    torchControl.setTorchAsync(true).join()
+                    debug { "CapturePipeline#torchApplyCapture: Setting torch done" }
+                }
+
+                if (lock3ARequired) {
+                    debug { "CapturePipeline#torchApplyCapture: Locking 3A" }
+                    lock3A(timeLimitNs)
+                    debug { "CapturePipeline#torchApplyCapture: Locking 3A done" }
+                }
+            },
+            postCapture = {
+                if (torchOnRequired) {
                     debug { "CapturePipeline#torchApplyCapture: Unsetting torch" }
                     @Suppress("DeferredResultUnused") torchControl.setTorchAsync(false)
                     debug { "CapturePipeline#torchApplyCapture: Unsetting torch done" }
                 }
-            }
-            if (lock3ARequired) {
-                threads.sequentialScope.launch {
-                    debug { "CapturePipeline#torchApplyCapture: Waiting for capture signal" }
-                    captureSignal.joinAll()
+                if (lock3ARequired) {
                     debug { "CapturePipeline#torchApplyCapture: Unlocking 3A" }
                     unlock3A(CHECK_3A_TIMEOUT_IN_NS)
                     debug { "CapturePipeline#torchApplyCapture: Unlocking 3A done" }
                 }
             }
-        }
+        )
     }
 
     private suspend fun aePreCaptureApplyCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
+        mainCaptureParams: MainCaptureParams?,
         timeLimitNs: Long,
         @CaptureMode captureMode: Int,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#aePreCaptureApplyCapture" }
-        debug { "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for locking 3A" }
-        graph.acquireSession().use {
-            debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture" }
-            it.lock3AForCapture(
-                    timeLimitNs = timeLimitNs,
-                    triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
-                )
-                .join()
-            debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture done" }
-        }
 
-        return submitRequestInternal(configs, requestTemplate, sessionConfigOptions).also {
-            captureSignal ->
-            threads.sequentialScope.launch {
-                debug { "CapturePipeline#aePreCaptureApplyCapture: Waiting for capture signal" }
-                captureSignal.joinAll()
+        return pipelineTasks.invoke(
+            mainCaptureParams = mainCaptureParams,
+            preCapture = {
                 debug {
-                    "CapturePipeline#aePreCaptureApplyCapture: Waiting for capture signal done"
+                    "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for locking 3A"
                 }
+                graph.acquireSession().use {
+                    debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture" }
+                    it.lock3AForCapture(
+                            timeLimitNs = timeLimitNs,
+                            triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
+                        )
+                        .join()
+                    debug {
+                        "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture done"
+                    }
+                }
+            },
+            postCapture = {
                 debug {
                     "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for unlocking 3A"
                 }
@@ -308,30 +444,21 @@ constructor(
                     debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A done" }
                 }
             }
-        }
+        )
     }
 
     private suspend fun screenFlashCapture(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config,
+        mainCaptureParams: MainCaptureParams?,
         @CaptureMode captureMode: Int,
+        pipelineTasks: List<PipelineTask>,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#screenFlashCapture" }
 
-        invokeScreenFlashPreCaptureTasks(captureMode)
-
-        return submitRequestInternal(configs, requestTemplate, sessionConfigOptions).also {
-            captureSignal ->
-            // new coroutine launch to return the submitRequestInternal deferred early
-            threads.sequentialScope.launch {
-                debug { "CapturePipeline#screenFlashCapture: Waiting for capture signal" }
-                captureSignal.joinAll()
-                debug { "CapturePipeline#screenFlashCapture: Done waiting for capture signal" }
-
-                invokeScreenFlashPostCaptureTasks(captureMode)
-            }
-        }
+        return pipelineTasks.invoke(
+            mainCaptureParams = mainCaptureParams,
+            preCapture = { invokeScreenFlashPreCaptureTasks(captureMode) },
+            postCapture = { invokeScreenFlashPostCaptureTasks(captureMode) }
+        )
     }
 
     /**
@@ -410,23 +537,23 @@ constructor(
             .await()
 
     private fun submitRequestInternal(
-        configs: List<CaptureConfig>,
-        requestTemplate: RequestTemplate,
-        sessionConfigOptions: Config
+        params: MainCaptureParams,
     ): List<Deferred<Void?>> {
         if (sessionProcessorManager != null) {
-            return submitRequestInternalWithSessionProcessor(configs)
+            return submitRequestInternalWithSessionProcessor(params.configs)
         }
-        debug { "CapturePipeline#submitRequestInternal; Submitting $configs with CameraPipe" }
+        debug {
+            "CapturePipeline#submitRequestInternal; Submitting ${params.configs} with CameraPipe"
+        }
         val deferredList = mutableListOf<CompletableDeferred<Void?>>()
         val requests =
-            configs.mapNotNull {
+            params.configs.mapNotNull {
                 val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
                 try {
                     configAdapter.mapToRequest(
                         it,
-                        requestTemplate,
-                        sessionConfigOptions,
+                        params.requestTemplate,
+                        params.sessionConfigOptions,
                         listOf(
                             object : Request.Listener {
                                 override fun onAborted(request: Request) {
