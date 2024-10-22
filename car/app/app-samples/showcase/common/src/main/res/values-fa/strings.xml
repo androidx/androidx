@@ -94,7 +94,7 @@
     <string name="no_energy_profile_permission" msgid="4662285713731308888">"اجازه نمایه سوخت اعطا نشده است."</string>
     <string name="fuel_types" msgid="6811375173343218212">"انواع سوخت"</string>
     <string name="unavailable" msgid="3636401138255192934">"دردسترس نیست"</string>
-    <string name="ev_connector_types" msgid="735458637011996125">"انواع رابط‌های خودروی برقی"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"انواع رابط‌های خودرو برقی"</string>
     <string name="example_title" msgid="530257630320010494">"‏نمونه %d"</string>
     <string name="example_1_text" msgid="8631503055894800688">"رنگ این نوشتار "<annotation color="red">"قرمز"</annotation>" است"</string>
     <string name="example_2_text" msgid="1359373957397219102">"رنگ این نوشتار "<annotation color="green">"سبز"</annotation>" است"</string>
@@ -181,7 +181,7 @@
     <string name="no_energy_level_permission" msgid="1684773185095107825">"اجازه میزان سوخت اعطا نشده است."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"اجازه سرعت اعطا نشده است."</string>
     <string name="no_mileage_permission" msgid="4074779840599589847">"اجازه مسافت طی‌شده اعطا نشده است."</string>
-    <string name="no_ev_status_permission" msgid="933075402821938973">"اجازه وضعیت خودروی برقی اعطا نشده است."</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"اجازه وضعیت خودرو برقی اعطا نشده است."</string>
     <string name="no_accelerometer_permission" msgid="896914448469117234">"اجازه شتاب‌سنج اعطا نشده است."</string>
     <string name="no_gyroscope_permission" msgid="665293140266771569">"اجازه ژیروسکوپ اعطا نشده است."</string>
     <string name="no_compass_permission" msgid="5162304489577567125">"اجازه قطب‌نما اعطا نشده است."</string>
@@ -190,7 +190,7 @@
     <string name="fetch_energy_level" msgid="1773415471137542832">"درحال واکشی میزان سوخت."</string>
     <string name="fetch_speed" msgid="7333830984597189627">"درحال واکشی سرعت."</string>
     <string name="fetch_mileage" msgid="7490131687788025123">"درحال واکشی مسافت طی‌شده."</string>
-    <string name="fetch_ev_status" msgid="2798910410830567052">"درحال واکشی وضعیت خودروی برقی."</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"درحال واکشی وضعیت خودرو برقی."</string>
     <string name="fetch_accelerometer" msgid="697750041126810911">"درحال واکشی شتاب‌سنج."</string>
     <string name="fetch_gyroscope" msgid="7153155318827188539">"درحال واکشی ژیروسکوپ."</string>
     <string name="fetch_compass" msgid="7316188117590056717">"درحال واکشی قطب‌نما."</string>
@@ -204,8 +204,8 @@
     <string name="raw_speed" msgid="7295910214088983967">"سرعت اولیه"</string>
     <string name="unit" msgid="7697521583928135171">"واحد"</string>
     <string name="odometer" msgid="3925174645651546591">"مسافت‌شمار"</string>
-    <string name="ev_connected" msgid="2277845607662494696">"درگاه شارژ خودروی برقی متصل شد"</string>
-    <string name="ev_open" msgid="4916704450914519643">"درگاه شارژ خودروی برقی باز است"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"درگاه شارژ خودرو برقی متصل شد"</string>
+    <string name="ev_open" msgid="4916704450914519643">"درگاه شارژ خودرو برقی باز است"</string>
     <string name="accelerometer" msgid="2084026313768299185">"شتاب‌سنج"</string>
     <string name="gyroscope" msgid="3428075828014504651">"ژیروسکوپ"</string>
     <string name="compass" msgid="7037367764762441245">"قطب‌نما"</string>

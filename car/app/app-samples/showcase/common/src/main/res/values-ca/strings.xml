@@ -81,8 +81,8 @@
     <string name="dial" msgid="3145707439707628311">"Marca"</string>
     <string name="address" msgid="9010635942573581302">"Adreça"</string>
     <string name="phone" msgid="2504766809811627577">"Telèfon"</string>
-    <string name="fail_start_nav" msgid="6921321606009212189">"S\'ha produït un error en iniciar la navegació"</string>
-    <string name="fail_start_dialer" msgid="1471602619507306261">"S\'ha produït un error en iniciar el telèfon"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"Hi ha hagut un error en iniciar la navegació"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"Hi ha hagut un error en iniciar el telèfon"</string>
     <string name="car_hardware_demo_title" msgid="3679106197233262689">"Demostració del maquinari del cotxe"</string>
     <string name="car_hardware_info" msgid="1244783247616395012">"Informació sobre el maquinari del cotxe"</string>
     <string name="model_info" msgid="494224423025683030">"Informació del model"</string>
