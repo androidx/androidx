@@ -65,4 +65,18 @@ public class ResourceBuildersTest {
         assertThat(avdProto.getAnimatedImageFormat().getNumber()).isEqualTo(FORMAT);
         assertThat(avdProto.getProgress().getStateSource().getSourceKey()).isEqualTo(stateKey);
     }
+
+    @Test
+    public void lottieAnimation() {
+        String stateKey = "state-key";
+        ResourceBuilders.AndroidLottieResourceByResId lottieResource =
+                new ResourceBuilders.AndroidLottieResourceByResId.Builder(RESOURCE_ID)
+                        .setProgress(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(stateKey)))
+                        .build();
+
+        ResourceProto.AndroidLottieResourceByResId avdProto = lottieResource.toProto();
+
+        assertThat(avdProto.getRawResourceId()).isEqualTo(RESOURCE_ID);
+        assertThat(avdProto.getProgress().getStateSource().getSourceKey()).isEqualTo(stateKey);
+    }
 }

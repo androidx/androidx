@@ -3,6 +3,7 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "animation_parameters.proto";
 import "dynamic.proto";
 import "trigger.proto";
 
@@ -137,6 +138,25 @@ message AndroidSeekableAnimatedImageResourceByResId {
   androidx.wear.protolayout.expression.proto.DynamicFloat progress = 3;
 }
 
+// A Lottie resource that is read from a raw Android resource ID.
+message AndroidLottieResourceByResId {
+  // The Android resource ID, e.g. R.raw.foo
+  int32 raw_resource_id = 1;
+
+  // A DynamicFloat, normally transformed from certain states with the data
+  // binding pipeline to control the progress of the animation.
+  //
+  // <setter>Its value is required to fall in the range of [0.0, 1.0]. Any
+  // values outside this range would be clamped.
+  //
+  // When the first value of the DynamicFloat arrives, the animation starts from
+  // progress 0 to that value. After that it plays from current progress to the
+  // new value on subsequent updates.
+  //
+  // If not set, the animation will play on load.</setter>
+  androidx.wear.protolayout.expression.proto.DynamicFloat progress = 2;
+}
+
 // An image resource, which can be used by layouts. This holds multiple
 // underlying resource types, which the underlying runtime will pick according
 // to what it thinks is appropriate.
@@ -164,6 +184,9 @@ message ImageResource {
   // resource ID. The animation progress is bound to the provided dynamic float.
   AndroidSeekableAnimatedImageResourceByResId
       android_seekable_animated_resource_by_res_id = 7;
+
+  // A Lottie resource that is read from a raw Android resource ID.
+  AndroidLottieResourceByResId android_lottie_resource_by_res_id = 8;
 }
 
 // The resources for a layout.

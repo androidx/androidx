@@ -26,6 +26,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RawRes;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.TriggerBuilders.Trigger;
@@ -518,6 +519,118 @@ public final class ResourceBuilders {
         }
     }
 
+    /** A Lottie resource that is read from a raw Android resource ID. */
+    @RequiresSchemaVersion(major = 1, minor = 500)
+    public static final class AndroidLottieResourceByResId {
+        private final ResourceProto.AndroidLottieResourceByResId mImpl;
+
+        AndroidLottieResourceByResId(ResourceProto.AndroidLottieResourceByResId impl) {
+            this.mImpl = impl;
+        }
+
+        /** Gets the Android resource ID, e.g. R.raw.foo. */
+        @RawRes
+        public int getRawResourceId() {
+            return mImpl.getRawResourceId();
+        }
+
+        /**
+         * Gets a {@link androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat},
+         * normally transformed from certain states with the data binding pipeline to control the
+         * progress of the animation.
+         */
+        @Nullable
+        public DynamicFloat getProgress() {
+            if (mImpl.hasProgress()) {
+                return DynamicBuilders.dynamicFloatFromProto(mImpl.getProgress());
+            } else {
+                return null;
+            }
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidLottieResourceByResId fromProto(
+                @NonNull ResourceProto.AndroidLottieResourceByResId proto) {
+            return new AndroidLottieResourceByResId(proto);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ResourceProto.AndroidLottieResourceByResId toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidLottieResourceByResId{"
+                    + "rawResourceId="
+                    + getRawResourceId()
+                    + ", progress="
+                    + getProgress()
+                    + "}";
+        }
+
+        /** Builder for {@link AndroidLottieResourceByResId} */
+        public static final class Builder {
+            private final ResourceProto.AndroidLottieResourceByResId.Builder mImpl =
+                    ResourceProto.AndroidLottieResourceByResId.newBuilder();
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @param resourceId the Android resource ID, e.g. R.raw.foo.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @SuppressLint("CheckResult") // (b/247804720)
+            public Builder(@RawRes int resourceId) {
+                setRawResourceId(resourceId);
+            }
+
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            Builder() {}
+
+            /** Sets the Android resource ID, e.g. R.raw.foo. */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            Builder setRawResourceId(@RawRes int rawResourceId) {
+                mImpl.setRawResourceId(rawResourceId);
+                return this;
+            }
+
+            /**
+             * Sets a {@link androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat},
+             * normally transformed from certain states with the data binding pipeline to control
+             * the progress of the animation.
+             *
+             * <p>Its value is required to fall in the range of [0.0, 1.0]. Any values outside this
+             * range would be clamped.
+             *
+             * <p>When the first value of the {@link
+             * androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat} arrives, the
+             * animation starts from progress 0 to that value. After that it plays from current
+             * progress to the new value on subsequent updates.
+             *
+             * <p>If not set, the animation will play on load.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setProgress(@NonNull DynamicFloat progress) {
+                mImpl.setProgress(progress.toDynamicFloatProto());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public AndroidLottieResourceByResId build() {
+                return AndroidLottieResourceByResId.fromProto(mImpl.build());
+            }
+        }
+    }
+
     /**
      * An image resource, which can be used by layouts. This holds multiple underlying resource
      * types, which the underlying runtime will pick according to what it thinks is appropriate.
@@ -581,6 +694,17 @@ public final class ResourceBuilders {
             }
         }
 
+        /** Gets a Lottie resource that is read from a raw Android resource ID. */
+        @Nullable
+        public AndroidLottieResourceByResId getAndroidLottieResourceByResId() {
+            if (mImpl.hasAndroidLottieResourceByResId()) {
+                return AndroidLottieResourceByResId.fromProto(
+                        mImpl.getAndroidLottieResourceByResId());
+            } else {
+                return null;
+            }
+        }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -608,6 +732,8 @@ public final class ResourceBuilders {
                     + getAndroidAnimatedResourceByResId()
                     + ", androidSeekableAnimatedResourceByResId="
                     + getAndroidSeekableAnimatedResourceByResId()
+                    + ", androidLottieResourceByResId="
+                    + getAndroidLottieResourceByResId()
                     + "}";
         }
 
@@ -662,6 +788,15 @@ public final class ResourceBuilders {
                                     androidSeekableAnimatedResourceByResId) {
                 mImpl.setAndroidSeekableAnimatedResourceByResId(
                         androidSeekableAnimatedResourceByResId.toProto());
+                return this;
+            }
+
+            /** sets a Lottie resource that is read from a raw Android resource ID. */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setAndroidLottieResourceByResId(
+                    @NonNull AndroidLottieResourceByResId androidLottieResourceByResId) {
+                mImpl.setAndroidLottieResourceByResId(androidLottieResourceByResId.toProto());
                 return this;
             }
 
