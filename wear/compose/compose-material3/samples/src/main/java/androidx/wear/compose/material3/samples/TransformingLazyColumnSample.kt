@@ -21,7 +21,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -200,7 +199,12 @@ fun TransformingLazyColumnTargetMorphingHeightSample() {
         ) {
             TransformingLazyColumn(
                 state = state,
-                contentPadding = PaddingValues(horizontal = 10.dp),
+                contentPadding =
+                    ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
+                        EdgeButtonSize.Medium,
+                        start = 10.dp,
+                        end = 10.dp
+                    ),
                 modifier = Modifier.background(MaterialTheme.colorScheme.background),
             ) {
                 item(contentType = "header") {

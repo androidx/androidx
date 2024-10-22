@@ -48,7 +48,6 @@ val WearMaterial3Demos =
         "Material 3",
         listOf(
                 ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
-                Material3DemoCategory(title = "Typography", TypographyDemos),
                 Material3DemoCategory(
                     "Button",
                     listOf(
