@@ -191,29 +191,31 @@ public class GenericDocument {
     public static GenericDocument createFromParcel(@NonNull Parcel parcel) {
         Objects.requireNonNull(parcel);
         GenericDocumentParcel documentParcel;
+        // @exportToFramework:startStrip()
         if (AppSearchEnvironmentFactory.getEnvironmentInstance().getEnvironment()
-                == AppSearchEnvironment.FRAMEWORK_ENVIRONMENT) {
-            // Code built in Framework cannot depend on Androidx libraries. Therefore, we must call
-            // Parcel#readParcelable directly.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                documentParcel =
-                        parcel.readParcelable(
-                                GenericDocumentParcel.class.getClassLoader(),
-                                GenericDocumentParcel.class);
-            } else {
-                // The Parcel#readParcelable(ClassLoader, Class) function has a known issue on
-                // Android T. This was fixed on Android U. When on Android T, call the older version
-                // of Parcel#readParcelable.
-                documentParcel =
-                        parcel.readParcelable(GenericDocumentParcel.class.getClassLoader());
-            }
-            // @exportToFramework:startStrip()
-        } else {
+                != AppSearchEnvironment.FRAMEWORK_ENVIRONMENT) {
+            // Non-Framework code should use ParcelCompat.
             documentParcel =
                     ParcelCompat.readParcelable(
                             parcel, GenericDocumentParcel.class.getClassLoader(),
                             GenericDocumentParcel.class);
-            // @exportToFramework:endStrip()
+            return new GenericDocument(documentParcel);
+        }
+        // @exportToFramework:endStrip()
+
+        // Code built in Framework cannot depend on Androidx libraries. Therefore, we must call
+        // Parcel#readParcelable directly.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            documentParcel =
+                    parcel.readParcelable(
+                            GenericDocumentParcel.class.getClassLoader(),
+                            GenericDocumentParcel.class);
+        } else {
+            // The Parcel#readParcelable(ClassLoader, Class) function has a known issue on Android
+            // T. This was fixed on Android U. When on Android T, call the older version of
+            // Parcel#readParcelable.
+            documentParcel =
+                    parcel.readParcelable(GenericDocumentParcel.class.getClassLoader());
         }
         return new GenericDocument(documentParcel);
     }
