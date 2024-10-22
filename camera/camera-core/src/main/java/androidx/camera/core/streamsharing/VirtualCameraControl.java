@@ -15,6 +15,7 @@
  */
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Collections.singletonList;
@@ -58,8 +59,14 @@ public class VirtualCameraControl extends ForwardingCameraControl {
             @ImageCapture.FlashType int flashType) {
         checkArgument(captureConfigs.size() == 1, "Only support one capture config.");
 
+        // FLASH_TYPE_USE_TORCH_AS_FLASH is used to ensure the flash is always on when capturing.
+        // Since we are using JPEG snapshot here, there is no way for the framework to know exactly
+        // when capture is invoked and thus torch as flash workaround is required. Note that this
+        // becomes an issue only when TEMPLATE_PREVIEW is used, usually due to quirk like
+        // PreviewUnderExposureQuirk right now, since TEMPLATE_RECORD would use torch as flash
+        // capture workaround anyway.
         ListenableFuture<CameraCapturePipeline> capturePipeline = getCameraCapturePipelineAsync(
-                captureMode, flashType);
+                captureMode, FLASH_TYPE_USE_TORCH_AS_FLASH);
 
         ListenableFuture<Void> captureFuture = FutureChain.from(
                 capturePipeline
