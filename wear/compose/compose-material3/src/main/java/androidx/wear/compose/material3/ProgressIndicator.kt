@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -25,8 +26,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.lerp
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.materialcore.toRadians
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.round
@@ -224,18 +227,32 @@ class ProgressIndicatorColors(
     }
 
     /**
-     * Represents the track color, depending on [enabled] and [hasOverflow] parameters.
+     * Represents the track color, depending on [enabled].
      *
      * @param enabled whether the component is enabled.
-     * @param enabled whether the progress has overflow.
      */
-    internal fun trackBrush(enabled: Boolean, hasOverflow: Boolean = false): Brush {
-        return if (enabled) {
-            if (hasOverflow) overflowTrackBrush else trackBrush
-        } else {
-            if (hasOverflow) disabledOverflowTrackBrush else disabledTrackBrush
-        }
+    internal fun trackBrush(enabled: Boolean): Brush {
+        return if (enabled) trackBrush else disabledTrackBrush
     }
+
+    /**
+     * Represents the animated overflow track color. The animated color will be a combination of
+     * [indicatorBrush] and [overflowTrackBrush] depending on the [fraction].
+     *
+     * @param enabled whether the component is enabled.
+     * @param fraction the fraction of indicator to overflow color, should be between 0 and 1,
+     *   inclusive.
+     */
+    internal fun animatedOverflowTrackBrush(enabled: Boolean, fraction: Float = 1f): Brush =
+        if (enabled) {
+            if (overflowTrackBrush is SolidColor && indicatorBrush is SolidColor && fraction < 1f) {
+                SolidColor(lerp(indicatorBrush.value, overflowTrackBrush.value, fraction))
+            } else {
+                overflowTrackBrush
+            }
+        } else {
+            disabledOverflowTrackBrush
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -282,7 +299,7 @@ internal fun DrawScope.drawIndicatorSegment(
         val alpha = (circleRadius / stroke.width * 2f).coerceAtMost(1f)
         val brushWithAlpha =
             if (brush is SolidColor && alpha < 1f) {
-                SolidColor(brush.value.copy(alpha = alpha))
+                SolidColor(brush.value.copy(alpha = brush.value.alpha * alpha))
             } else {
                 brush
             }
@@ -320,17 +337,17 @@ internal fun DrawScope.drawIndicatorSegment(
 }
 
 /**
- * Coerce a [Float] progress value to [0.0..1.0] range.
+ * Wrap a [Float] progress value to [0.0..1.0] range.
  *
  * If overflow is enabled, truncate overflow values larger than 1.0 to only the fractional part.
- * Integer values larger than 0.0 always return 1.0 (full progress) and negative values are coerced
+ * Integer values larger than 1.0 always return 1.0 (full progress) and negative values are coerced
  * to 0.0. For example: 1.2 will be return 0.2, and 2.0 will return 1.0. If overflow is disabled,
  * simply coerce all values to [0.0..1.0] range. For example, 1.2 and 2.0 will both return 1.0.
  *
- * @param progress The progress value to be coerced to [0.0..1.0] range.
+ * @param progress The progress value to be wrapped to [0.0..1.0] range.
  * @param allowProgressOverflow If overflow is allowed.
  */
-internal fun coerceProgress(progress: Float, allowProgressOverflow: Boolean): Float {
+internal fun wrapProgress(progress: Float, allowProgressOverflow: Boolean): Float {
     if (!allowProgressOverflow) return progress.coerceIn(0f, 1f)
     if (progress <= 0.0f) return 0.0f
     if (progress <= 1.0f) return progress
@@ -340,3 +357,16 @@ internal fun coerceProgress(progress: Float, allowProgressOverflow: Boolean): Fl
     val roundedFraction = round(fraction * 100000f) / 100000f
     return if (roundedFraction == 0.0f) 1.0f else roundedFraction
 }
+
+internal fun Float.isFullInt(): Boolean = (round(this) == this)
+
+internal fun Float.equalsWithTolerance(number: Float, tolerance: Float = 0.1f) =
+    (this - number).absoluteValue < tolerance
+
+/** Progress animation spec for determinate [CircularProgressIndicator] */
+internal val determinateCircularProgressAnimationSpec: AnimationSpec<Float>
+    @Composable get() = MaterialTheme.motionScheme.slowEffectsSpec()
+
+/** Progress overflow color animation spec for determinate [CircularProgressIndicator] */
+internal val progressOverflowColorAnimationSpec: AnimationSpec<Float>
+    @Composable get() = MaterialTheme.motionScheme.fastEffectsSpec()

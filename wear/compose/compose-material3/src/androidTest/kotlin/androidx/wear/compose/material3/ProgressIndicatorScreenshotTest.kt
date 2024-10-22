@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -114,6 +115,31 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
+    fun progress_indicator_animated_progress(@TestParameter screenSize: ScreenSize) {
+        rule.mainClock.autoAdvance = false
+        val progress = mutableFloatStateOf(0f)
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(screenSize.size) {
+                CircularProgressIndicator(
+                    progress = { progress.value },
+                    modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                    startAngle = 120f,
+                    endAngle = 60f,
+                )
+            }
+        }
+
+        rule.runOnIdle { progress.value = 1f }
+        rule.mainClock.advanceTimeBy(150)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+    }
+
+    @Test
     fun progress_indicator_overflow(@TestParameter screenSize: ScreenSize) =
         verifyProgressIndicatorScreenshot(screenSize = screenSize) {
             CircularProgressIndicator(
@@ -161,6 +187,32 @@ class ProgressIndicatorScreenshotTest {
                 endAngle = 60f,
             )
         }
+
+    @Test
+    fun segmented_progress_indicator_animated_progress(@TestParameter screenSize: ScreenSize) {
+        rule.mainClock.autoAdvance = false
+        val progress = mutableFloatStateOf(0f)
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(screenSize.size) {
+                SegmentedCircularProgressIndicator(
+                    progress = { progress.value },
+                    segmentCount = 5,
+                    modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                    startAngle = 120f,
+                    endAngle = 60f,
+                )
+            }
+        }
+
+        rule.runOnIdle { progress.value = 1f }
+        rule.mainClock.advanceTimeBy(150)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+    }
 
     @Test
     fun segmented_progress_indicator_overflow(@TestParameter screenSize: ScreenSize) =

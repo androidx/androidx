@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -28,6 +29,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -44,9 +51,14 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.isSmallScreen
 import kotlin.math.PI
+import kotlin.math.absoluteValue
 import kotlin.math.asin
-import kotlin.math.max
+import kotlin.math.floor
 import kotlin.math.min
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * Material Design circular progress indicator.
@@ -71,7 +83,7 @@ import kotlin.math.min
  * Progress indicators express the proportion of completion of an ongoing task.
  *
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion.
+ *   represents completion. Progress changes will be animated.
  * @param modifier Modifier to be applied to the CircularProgressIndicator.
  * @param allowProgressOverflow When progress overflow is allowed, values smaller than 0.0 will be
  *   coerced to 0, while values larger than 1.0 will be wrapped around and shown as overflow with a
@@ -108,51 +120,29 @@ fun CircularProgressIndicator(
     gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
     enabled: Boolean = true,
 ) {
-    // Canvas internally uses Spacer.drawBehind.
-    // Using Spacer.drawWithCache to optimize the stroke allocations.
-    Spacer(
-        modifier
-            .clearAndSetSemantics {}
-            .fillMaxSize()
-            .focusable()
-            .drawWithCache {
-                val currentProgress = progress()
-                val coercedProgress = coerceProgress(currentProgress, allowProgressOverflow)
-                val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
-                var progressSweep = fullSweep * coercedProgress
-                val hasOverflow = allowProgressOverflow && currentProgress > 1.0f
-                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-                val minSize = min(size.height, size.width)
-                // Sweep angle between two progress indicator segments.
-                val gapSweep =
-                    asin((stroke.width + gapSize.toPx()) / (minSize - stroke.width)).toDegrees() *
-                        2f
-
-                if (progressSweep > 0) {
-                    progressSweep = max(progressSweep, gapSweep)
-                }
-
-                onDrawWithContent {
-                    // Draw an indicator.
-                    drawIndicatorSegment(
-                        startAngle = startAngle,
-                        sweep = progressSweep,
-                        gapSweep = gapSweep,
-                        brush = colors.indicatorBrush(enabled),
-                        stroke = stroke
-                    )
-
-                    // Draw a background.
-                    drawIndicatorSegment(
-                        startAngle = startAngle + progressSweep,
-                        sweep = fullSweep - progressSweep,
-                        gapSweep = gapSweep,
-                        brush = colors.trackBrush(enabled, hasOverflow),
-                        stroke = stroke
-                    )
-                }
-            }
-    )
+    if (allowProgressOverflow) {
+        CircularProgressIndicatorWithOverflowImpl(
+            progress,
+            modifier,
+            startAngle,
+            endAngle,
+            colors,
+            strokeWidth,
+            gapSize,
+            enabled
+        )
+    } else {
+        CircularProgressIndicatorImpl(
+            progress,
+            modifier,
+            startAngle,
+            endAngle,
+            colors,
+            strokeWidth,
+            gapSize,
+            enabled
+        )
+    }
 }
 
 /**
@@ -226,6 +216,218 @@ fun CircularProgressIndicator(
     }
 }
 
+/** Circular progress indicator implementation without overflow support. */
+@Composable
+private fun CircularProgressIndicatorImpl(
+    progress: () -> Float,
+    modifier: Modifier,
+    startAngle: Float,
+    endAngle: Float,
+    colors: ProgressIndicatorColors,
+    strokeWidth: Dp,
+    gapSize: Dp,
+    enabled: Boolean = true,
+) {
+    val progressAnimationSpec = determinateCircularProgressAnimationSpec
+    val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
+    val animatedProgress = remember {
+        Animatable(coercedProgressWithGap(progress(), startAngle == endAngle))
+    }
+
+    LaunchedEffect(progress) {
+        snapshotFlow(progress).collectLatest {
+            val targetProgress = coercedProgressWithGap(it, startAngle == endAngle)
+
+            // Animate the progress arc.
+            animatedProgress.animateTo(targetProgress, animationSpec = progressAnimationSpec)
+        }
+    }
+
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
+        modifier
+            .clearAndSetSemantics {}
+            .fillMaxSize()
+            .focusable()
+            .drawWithCache {
+                onDrawWithContent {
+                    val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+                    val gapSizePx = gapSize.toPx()
+                    val minSize = min(size.height, size.width)
+                    // Sweep angle between two progress indicator segments.
+                    val gapSweep =
+                        asin((stroke.width + gapSizePx) / (minSize - stroke.width)).toDegrees() * 2f
+                    val currentProgress = animatedProgress.value
+                    var progressSweep = fullSweep * currentProgress
+
+                    // If progress sweep or remaining track sweep is smaller than gap sweep, it
+                    // will be shown as a small dot. This dot should never be shown as
+                    // static value, only in progress animation transitions.
+                    val isValidTarget =
+                        animatedProgress.targetValue.isFullInt() ||
+                            animatedProgress.targetValue == 1 + GapExtraProgress ||
+                            animatedProgress.targetValue * fullSweep in
+                                gapSweep..fullSweep - gapSweep
+                    if (!currentProgress.isFullInt() && !isValidTarget) {
+                        progressSweep = progressSweep.coerceIn(gapSweep, fullSweep - gapSweep)
+                    }
+
+                    if (startAngle == endAngle && currentProgress == 1f) {
+                        // Draw the full circle with animated gap merging.
+                        val animatedGapFraction =
+                            (1f + GapExtraProgress - animatedProgress.value).absoluteValue /
+                                GapExtraProgress
+                        drawIndicatorSegment(
+                            startAngle = startAngle,
+                            sweep = progressSweep,
+                            gapSweep = gapSweep * animatedGapFraction,
+                            brush = colors.indicatorBrush(enabled),
+                            stroke = stroke,
+                        )
+                    } else {
+                        // Draw the track background.
+                        drawIndicatorSegment(
+                            startAngle = startAngle + progressSweep,
+                            sweep = fullSweep - progressSweep,
+                            gapSweep = gapSweep,
+                            brush = colors.trackBrush(enabled),
+                            stroke = stroke,
+                        )
+
+                        // Draw the indicator.
+                        drawIndicatorSegment(
+                            startAngle = startAngle,
+                            sweep = progressSweep,
+                            gapSweep = gapSweep,
+                            brush = colors.indicatorBrush(enabled),
+                            stroke = stroke,
+                        )
+                    }
+                }
+            }
+    )
+}
+
+/** Circular progress indicator implementation with overflow support. */
+@Composable
+private fun CircularProgressIndicatorWithOverflowImpl(
+    progress: () -> Float,
+    modifier: Modifier,
+    startAngle: Float,
+    endAngle: Float = startAngle,
+    colors: ProgressIndicatorColors,
+    strokeWidth: Dp,
+    gapSize: Dp,
+    enabled: Boolean = true,
+) {
+    var currentProgress by remember { mutableFloatStateOf(progress()) }
+    val progressAnimationSpec = determinateCircularProgressAnimationSpec
+    val colorAnimationSpec = progressOverflowColorAnimationSpec
+    val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
+
+    val animatedProgress = remember { Animatable(progress()) }
+    val animatedOverflowColor = remember { Animatable(if (progress() > 1f) 1f else 0f) }
+
+    LaunchedEffect(progress) {
+        snapshotFlow(progress).collectLatest {
+            val newProgress = it
+            if (newProgress <= 1f && currentProgress > 1f) {
+                // Reverse overflow color transition - animate the progress and color at the
+                // same time.
+                launch {
+                    awaitAll(
+                        async { animatedProgress.animateTo(newProgress, progressAnimationSpec) },
+                        async { animatedOverflowColor.animateTo(0f, colorAnimationSpec) }
+                    )
+                }
+            } else if (newProgress > 1f && currentProgress <= 1f) {
+                // Animate the progress arc.
+                animatedProgress.animateTo(newProgress, progressAnimationSpec) {
+                    // Start overflow color transition when progress crosses 1 (full circle).
+                    if (animatedProgress.value.equalsWithTolerance(1f)) {
+                        launch { animatedOverflowColor.animateTo(1f, colorAnimationSpec) }
+                    }
+                }
+                animatedOverflowColor.snapTo(1f)
+            } else {
+                animatedProgress.animateTo(newProgress, progressAnimationSpec)
+            }
+
+            currentProgress = newProgress
+        }
+    }
+
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
+        modifier
+            .clearAndSetSemantics {}
+            .fillMaxSize()
+            .focusable()
+            .drawWithCache {
+                onDrawWithContent {
+                    val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+                    val gapSizePx = gapSize.toPx()
+                    val minSize = min(size.height, size.width)
+                    // Sweep angle between two progress indicator segments.
+                    val gapSweep =
+                        asin((stroke.width + gapSizePx) / (minSize - stroke.width)).toDegrees() * 2f
+                    val hasOverflow = animatedProgress.value > 1f
+                    val wrappedProgress = wrapProgress(animatedProgress.value, true)
+                    var progressSweep = fullSweep * wrappedProgress
+
+                    // If progress sweep or remaining track sweep is smaller than gap sweep, it
+                    // will be shown as a small dot. This dot should never be shown as
+                    // static value, only in progress animation transitions.
+                    val wrappedTargetProgress = wrapProgress(animatedProgress.targetValue, true)
+                    val isValidTarget =
+                        wrappedTargetProgress.isFullInt() ||
+                            wrappedTargetProgress * fullSweep in gapSweep..fullSweep - gapSweep
+                    if (
+                        !wrappedProgress.isFullInt() &&
+                            !isValidTarget &&
+                            floor(animatedProgress.value) == floor(animatedProgress.targetValue)
+                    ) {
+                        progressSweep = progressSweep.coerceIn(gapSweep, fullSweep - gapSweep)
+                    }
+
+                    // Draw the indicator.
+                    drawIndicatorSegment(
+                        startAngle = startAngle,
+                        sweep = progressSweep,
+                        gapSweep = gapSweep,
+                        brush = colors.indicatorBrush(enabled),
+                        stroke = stroke,
+                    )
+
+                    if (hasOverflow) {
+                        drawIndicatorSegment(
+                            startAngle = startAngle + progressSweep,
+                            sweep = fullSweep - progressSweep,
+                            gapSweep = gapSweep,
+                            brush =
+                                colors.animatedOverflowTrackBrush(
+                                    enabled,
+                                    animatedOverflowColor.value
+                                ),
+                            stroke = stroke,
+                        )
+                    } else {
+                        // Draw the track background.
+                        drawIndicatorSegment(
+                            startAngle = startAngle + progressSweep,
+                            sweep = fullSweep - progressSweep,
+                            gapSweep = gapSweep,
+                            brush = colors.trackBrush(enabled),
+                            stroke = stroke,
+                        )
+                    }
+                }
+            }
+    )
+}
+
 /** Contains default values for [CircularProgressIndicator]. */
 object CircularProgressIndicatorDefaults {
     /** Large stroke width for circular progress indicator. */
@@ -279,6 +481,16 @@ private fun DrawScope.drawCircularIndicator(
         size = Size(arcDimen, arcDimen),
         style = stroke
     )
+}
+
+private fun coercedProgressWithGap(progress: Float, isFullCircle: Boolean): Float {
+    val coercedProgress = progress.coerceIn(0f, 1f)
+    return if (isFullCircle && coercedProgress == 1f) {
+        // Add extra value to progress for full circle merge animation
+        1f + GapExtraProgress
+    } else {
+        coercedProgress
+    }
 }
 
 /** A global animation spec for indeterminate circular progress indicator. */
@@ -342,3 +554,6 @@ internal const val CircularAnimationAdditionalRotationDelay = 1500
 internal const val CircularAnimationAdditionalRotationDuration = 300
 internal const val CircularAdditionalRotationDegreesTarget = 360f
 internal const val CircularGlobalRotationDegreesTarget = 1080f
+
+// extra progress added for the gap merge animation
+internal const val GapExtraProgress = 0.05f
