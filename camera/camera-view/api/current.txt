@@ -85,9 +85,6 @@ package androidx.camera.view {
     field @Deprecated public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
   }
 
-  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPreviewViewScreenFlash {
-  }
-
   public final class LifecycleCameraController extends androidx.camera.view.CameraController {
     ctor public LifecycleCameraController(android.content.Context);
     method @MainThread public void bindToLifecycle(androidx.lifecycle.LifecycleOwner);
@@ -106,7 +103,7 @@ package androidx.camera.view {
     method @SuppressCompatibility public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
-    method @SuppressCompatibility @UiThread @androidx.camera.view.ExperimentalPreviewViewScreenFlash public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
     method @UiThread public android.graphics.Matrix? getSensorToViewTransform();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
     method @UiThread public androidx.camera.core.ViewPort? getViewPort();
@@ -114,7 +111,7 @@ package androidx.camera.view {
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
-    method @SuppressCompatibility @androidx.camera.view.ExperimentalPreviewViewScreenFlash public void setScreenFlashOverlayColor(@ColorInt int);
+    method public void setScreenFlashOverlayColor(@ColorInt int);
     method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
