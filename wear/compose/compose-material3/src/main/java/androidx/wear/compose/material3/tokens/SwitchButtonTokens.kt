@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_87
+// VERSION: v0_97
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -23,7 +23,7 @@ internal object SwitchButtonTokens {
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val CheckedIconColor = ColorSchemeKeyTokens.Primary
     val CheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val CheckedSecondaryLabelOpacity = 0.8f
+    val CheckedSecondaryLabelOpacity = 0.9f
     val CheckedThumbColor = ColorSchemeKeyTokens.OnPrimary
     val CheckedThumbIconColor = ColorSchemeKeyTokens.Primary
     val CheckedTrackBorderColor = ColorSchemeKeyTokens.Primary

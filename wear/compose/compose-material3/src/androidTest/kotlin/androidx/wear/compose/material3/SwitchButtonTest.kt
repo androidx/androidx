@@ -934,7 +934,7 @@ private fun switch_button_content_color(checked: Boolean, enabled: Boolean): Col
 
 @Composable
 private fun switch_button_secondary_label_color(checked: Boolean, enabled: Boolean): Color {
-    return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+    return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
     else if (!checked && enabled) MaterialTheme.colorScheme.onSurfaceVariant
     else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
 }
