@@ -27,12 +27,31 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.lifecycle.runtime.compose"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+
+        compileSdk = 35
+        aarMetadata.minCompileSdk = 35
+
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(
+                new File(project.projectDir, "proguard-rules.pro")
+            )
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -94,12 +113,3 @@ androidx {
     samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
-android {
-    compileSdk 35
-    
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
-    namespace "androidx.lifecycle.runtime.compose"
-}

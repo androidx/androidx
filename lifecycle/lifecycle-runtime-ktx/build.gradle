@@ -27,11 +27,20 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.lifecycle.ktx"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -60,6 +69,3 @@ androidx {
     description = "Kotlin extensions for 'lifecycle' artifact"
 }
 
-android {
-    namespace "androidx.lifecycle.ktx"
-}

@@ -28,12 +28,8 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
-android{
-    namespace "androidx.datastore.preferences"
-}
 androidXMultiplatform {
     jvm()
     mac()
@@ -41,7 +37,17 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
-    android()
+    androidLibrary {
+        namespace = "androidx.datastore.preferences"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -92,7 +98,6 @@ androidXMultiplatform {
         }
     }
 }
-
 
 androidx {
     name = "Preferences DataStore"

@@ -26,12 +26,20 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.graphics.shapes"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     desktop()
     linux()
     ios()
@@ -99,9 +107,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace "androidx.graphics.shapes"
-}
 
 androidx {
     name = "Graphics Shapes"

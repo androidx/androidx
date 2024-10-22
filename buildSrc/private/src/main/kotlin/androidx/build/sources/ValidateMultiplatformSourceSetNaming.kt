@@ -91,8 +91,8 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
             project.files(
                 target.compilations
                     .filterNot { compilation ->
-                        // Don't enforce suffixes for test source sets.
-                        compilation.name == "test" || compilation.name.endsWith("Test")
+                        // Don't enforce suffixes for test source sets. Names can be e.g. testOnJvm
+                        compilation.name.startsWith("test") || compilation.name.endsWith("Test")
                     }
                     .flatMap { compilation -> compilation.kotlinSourceSets }
                     .map { kotlinSourceSet -> kotlinSourceSet.kotlin.sourceDirectories }

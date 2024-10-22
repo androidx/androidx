@@ -28,13 +28,21 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.compose.ui.geometry"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -103,6 +111,3 @@ androidx {
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
-android {
-    namespace "androidx.compose.ui.geometry"
-}

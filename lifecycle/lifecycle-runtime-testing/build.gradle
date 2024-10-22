@@ -27,11 +27,20 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.lifecycle.testing"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     desktop()
     mac()
     linux()
@@ -73,13 +82,10 @@ dependencies {
 
 androidx {
     name = "Lifecycle Runtime Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
 }
 
-android {
-    namespace "androidx.lifecycle.testing"
-}

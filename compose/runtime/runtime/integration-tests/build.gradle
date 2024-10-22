@@ -25,12 +25,24 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.compose.runtime.integrationtests"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+
+        compileSdk = 35
+        aarMetadata.minCompileSdk = 35
+    }
 
     sourceSets {
         commonMain {
@@ -92,10 +104,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    compileSdk 35
-    namespace "androidx.compose.runtime.integrationtests"
-}
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
@@ -109,7 +117,7 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 public File findFile() {
-    project.file("src/androidAndroidTest/kotlin/androidx/compose/runtime/GroupSizeTests.kt")
+    project.file("src/androidInstrumentedTest/kotlin/androidx/compose/runtime/GroupSizeTests.kt")
 }
 
 class UpdateExpectedGroupSizes extends DefaultTask {

@@ -19,12 +19,21 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.compose.runtime.testutils"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -73,6 +82,3 @@ androidx {
     description = "Compose runtime test utils shared between runtime and compiler tests."
 }
 
-android {
-    namespace "androidx.compose.runtime.testutils"
-}
