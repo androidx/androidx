@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraFilter;
 import androidx.core.util.Preconditions;
@@ -41,6 +42,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A set of requirements and priorities used to select a camera or return a filtered set of
@@ -104,8 +106,34 @@ public final class CameraSelector {
         if (cameraInternalIterator.hasNext()) {
             return cameraInternalIterator.next();
         } else {
-            throw new IllegalArgumentException("No available camera can be found");
+            String errorMessage = String.format(
+                    "No available camera can be found. %s %s", logCameras(cameras), logSelector());
+            throw new IllegalArgumentException(errorMessage);
         }
+    }
+
+    private String logCameras(@NonNull Set<CameraInternal> cameras) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Cams:").append(cameras.size());
+        for (CameraInternal camera : cameras) {
+            CameraInfoInternal info = camera.getCameraInfoInternal();
+            sb.append(String.format(" Id:%s  Lens:%s", info.getCameraId(), info.getLensFacing()));
+        }
+        return sb.toString();
+    }
+
+    private String logSelector() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(
+                String.format("PhyId:%s  Filters:%s", mPhysicalCameraId, mCameraFilterSet.size()));
+        for (CameraFilter filter : mCameraFilterSet) {
+            sb.append(" Id:").append(filter.getIdentifier());
+            if (filter instanceof LensFacingCameraFilter) {
+                sb.append(" LensFilter:").append(
+                        ((LensFacingCameraFilter) filter).getLensFacing());
+            }
+        }
+        return sb.toString();
     }
 
     /**
