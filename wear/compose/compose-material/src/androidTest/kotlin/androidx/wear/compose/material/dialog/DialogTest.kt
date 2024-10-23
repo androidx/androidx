@@ -424,10 +424,11 @@ class DialogBehaviourTest {
                         dismissCounter++
                         show.value = false
                     },
-                    durationMillis = 100
+                    durationMillis = 300
                 )
             }
         }
+        rule.waitForIdle()
         rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
         assertEquals(1, dismissCounter)
     }
