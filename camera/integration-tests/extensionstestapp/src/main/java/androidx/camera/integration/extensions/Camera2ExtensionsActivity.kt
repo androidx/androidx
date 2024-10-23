@@ -620,24 +620,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
 
         val cameraSwitchButton = findViewById<Button>(R.id.Switch)
-        cameraSwitchButton.setOnClickListener {
-            val newCameraId = if (currentCameraId == backCameraId) frontCameraId else backCameraId
-
-            if (!isCameraSupportExtensions(newCameraId)) {
-                Toast.makeText(
-                        this,
-                        "Camera of the other lens facing doesn't support Camera2 extensions.",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-                return@setOnClickListener
-            }
-
-            enableUiControl(false)
-            currentCameraId = newCameraId
-            restartCamera = true
-            closeCaptureSessionAndCameraAsync()
-        }
+        cameraSwitchButton.setOnClickListener { switchCamera() }
 
         val captureButton = findViewById<Button>(R.id.Picture)
         captureButton.setOnClickListener {
@@ -645,6 +628,26 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             resetImageSavedIdlingResource()
             takePicture()
         }
+    }
+
+    @VisibleForTesting
+    fun switchCamera() {
+        val newCameraId = if (currentCameraId == backCameraId) frontCameraId else backCameraId
+
+        if (!isCameraSupportExtensions(newCameraId)) {
+            Toast.makeText(
+                    this,
+                    "Camera of the other lens facing doesn't support Camera2 extensions.",
+                    Toast.LENGTH_SHORT
+                )
+                .show()
+            return
+        }
+
+        enableUiControl(false)
+        currentCameraId = newCameraId
+        restartCamera = true
+        closeCaptureSessionAndCameraAsync()
     }
 
     override fun onStart() {
@@ -769,7 +772,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         if (!oldCaptureSessionClosedDeferred.isCompleted) {
                             oldCaptureSessionClosedDeferred.complete(Unit)
                         }
-                        if (!keepCamera && synchronized(lock) { activityStopped }) {
+                        if (!keepCamera || synchronized(lock) { activityStopped }) {
                             Log.d(TAG, "Close camera++")
                             cameraDevice?.close()
                             cameraDevice = null
