@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -149,7 +151,8 @@ class AndroidGraphicsLayerTest {
                     .toImageBitmap()
                     .toPixelMap()
                     .verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            }
+            },
+            verifySoftwareRender = false // Only supported in hardware accelerated use cases
         )
     }
 
@@ -216,9 +219,6 @@ class AndroidGraphicsLayerTest {
         )
     }
 
-    // this test is failing on API 21 as there toImageBitmap() is using software rendering
-    // and we reverted the software rendering b/333866398
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
         // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
@@ -235,7 +235,8 @@ class AndroidGraphicsLayerTest {
                     }
                 drawIntoCanvas { layer.drawForPersistence(it) }
             },
-            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) },
+            verifySoftwareRender = false
         )
     }
 
@@ -763,7 +764,8 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -840,6 +842,7 @@ class AndroidGraphicsLayerTest {
                 }
             },
             usePixelCopy = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -897,7 +900,8 @@ class AndroidGraphicsLayerTest {
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -1151,7 +1155,8 @@ class AndroidGraphicsLayerTest {
                     )
                 }
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -1187,7 +1192,8 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(nonPureRedCount > 0)
             },
-            entireScene = false
+            entireScene = false,
+            verifySoftwareRender = false // RenderEffect only supported with hardware acceleration
         )
     }
 
@@ -1300,7 +1306,8 @@ class AndroidGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            }
+            },
+            verifySoftwareRender = false // ModulateAlpha only supported with hardware acceleration
         )
     }
 
@@ -1692,6 +1699,76 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testCanvasTransformStateRestore() {
+        val bg = Color.White
+        val layerColor1 = Color.Red
+        val layerColor2 = Color.Green
+        val layerColor3 = Color.Blue
+        val layerColor4 = Color.Black
+        var layerSize = IntSize.Zero
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layerWidth = size.width / 4
+                val layerHeight = size.height / 4
+                layerSize = IntSize(layerWidth.toInt(), layerHeight.toInt())
+                val layer1 =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) { drawRect(layerColor1) }
+                    }
+                val layer2 =
+                    graphicsContext.createGraphicsLayer().apply {
+                        topLeft = IntOffset(layerWidth.toInt(), layerHeight.toInt())
+                        record(size = layerSize) { drawRect(layerColor2) }
+                    }
+                val layer3 =
+                    graphicsContext.createGraphicsLayer().apply {
+                        topLeft = IntOffset((layerWidth * 2).toInt(), (layerHeight * 2).toInt())
+                        record(size = layerSize) { drawRect(layerColor3) }
+                    }
+                val layer4 =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) { drawRect(layerColor4) }
+                    }
+                drawRect(bg)
+                translate(layerWidth / 2, layerHeight / 2) {
+                    translate(layerWidth / 2, layerHeight / 2) {
+                        drawLayer(layer1)
+                        translate(layerWidth / 2, layerHeight / 2) { drawLayer(layer2) }
+                        drawLayer(layer3)
+                    }
+                }
+
+                drawLayer(layer4)
+            },
+            verify = {
+                val row1centerX = layerSize.width + layerSize.width / 2
+                val row1centerY = layerSize.height + layerSize.height / 2
+
+                val row2centerX = layerSize.width + row1centerX
+                val row2centerY = layerSize.height + row1centerY
+
+                val row3centerX = layerSize.width + row2centerX
+                val row3centerY = layerSize.height + row2centerY
+
+                val row4centerX = layerSize.width + row3centerX
+
+                it.assertPixelColor(layerColor1, row1centerX, row1centerY)
+                it.assertPixelColor(bg, row2centerX, row1centerY)
+
+                it.assertPixelColor(bg, row1centerX, row2centerY)
+                it.assertPixelColor(layerColor2, row2centerX, row2centerY)
+                it.assertPixelColor(bg, row3centerX, row2centerY)
+
+                it.assertPixelColor(bg, row2centerX, row3centerY)
+                it.assertPixelColor(layerColor3, row3centerX, row3centerY)
+                it.assertPixelColor(bg, row4centerX, row3centerY)
+
+                it.assertPixelColor(layerColor4, layerSize.width / 2, layerSize.height / 2)
+            }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
@@ -1712,7 +1789,8 @@ class AndroidGraphicsLayerTest {
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
-        usePixelCopy: Boolean = false
+        usePixelCopy: Boolean = false,
+        verifySoftwareRender: Boolean = true
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
         var androidGraphicsContext: GraphicsContext? = null
@@ -1808,6 +1886,16 @@ class AndroidGraphicsLayerTest {
                         bitmap.toPixelMap()
                     }
                 runBlocking { verify(pixelMap) }
+                if (verifySoftwareRender) {
+                    val softwareRenderLatch = CountDownLatch(1)
+                    var softwareBitmap: Bitmap? = null
+                    testActivity!!.runOnUiThread {
+                        softwareBitmap = doSoftwareRender(target)
+                        softwareRenderLatch.countDown()
+                    }
+                    assertTrue(softwareRenderLatch.await(300, TimeUnit.MILLISECONDS))
+                    runBlocking { verify(softwareBitmap!!.asImageBitmap().toPixelMap()) }
+                }
             }
         } finally {
             val detachLatch = CountDownLatch(1)
@@ -1869,6 +1957,13 @@ class AndroidGraphicsLayerTest {
                 }
             }
         )
+    }
+
+    private fun doSoftwareRender(target: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(target.width, target.height, Bitmap.Config.ARGB_8888)
+        val softwareCanvas = Canvas(bitmap)
+        target.draw(softwareCanvas)
+        return bitmap
     }
 
     private class GraphicsContextHostDrawable(
