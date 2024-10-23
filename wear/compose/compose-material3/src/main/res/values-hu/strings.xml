@@ -42,6 +42,10 @@
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Növelés"</string>
     <string name="wear_m3c_stepper_decrease_content_description" msgid="6939134411425530620">"Csökkentés"</string>
     <string name="wear_m3c_stepper_increase_content_description" msgid="6513575827514139918">"Növelés"</string>
+    <!-- no translation found for wear_m3c_alert_dialog_content_description_confirm_button (7776845597891182382) -->
+    <skip />
+    <!-- no translation found for wear_m3c_alert_dialog_content_description_dismiss_button (3572467833850785688) -->
+    <skip />
     <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Sikertelen"</string>
     <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Sikerült"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Nyissa meg mobilon"</string>
