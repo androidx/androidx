@@ -793,7 +793,8 @@ class VideoRecordingTest(
     @Test
     fun updateVideoUsage_whenRecordingStartedPausedResumedStopped(): Unit = runBlocking {
         implName.ignoreTestForCameraPipe(
-            "TODO: b/339615736 - Enable when implemented at camera-pipe"
+            "TODO: b/339615736 - Enable when implemented at camera-pipe",
+            evenInLab = true,
         )
 
         checkAndBindUseCases(videoCapture, preview)
@@ -832,7 +833,8 @@ class VideoRecordingTest(
             assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
 
             implName.ignoreTestForCameraPipe(
-                "TODO: b/339615736 - Enable when implemented at camera-pipe"
+                "TODO: b/339615736 - Enable when implemented at camera-pipe",
+                evenInLab = true,
             )
 
             checkAndBindUseCases(preview, videoCapture)
@@ -864,7 +866,8 @@ class VideoRecordingTest(
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
 
         implName.ignoreTestForCameraPipe(
-            "TODO: b/339615736 - Enable when implemented at camera-pipe"
+            "TODO: b/339615736 - Enable when implemented at camera-pipe",
+            evenInLab = true,
         )
 
         checkAndBindUseCases(preview, videoCapture)
@@ -888,7 +891,8 @@ class VideoRecordingTest(
         )
 
         implName.ignoreTestForCameraPipe(
-            "TODO: b/339615736 - Enable when implemented at camera-pipe"
+            "TODO: b/339615736 - Enable when implemented at camera-pipe",
+            evenInLab = true,
         )
 
         checkAndBindUseCases(preview, videoCapture)
@@ -922,7 +926,8 @@ class VideoRecordingTest(
         )
 
         implName.ignoreTestForCameraPipe(
-            "TODO: b/339615736 - Enable when implemented at camera-pipe"
+            "TODO: b/339615736 - Enable when implemented at camera-pipe",
+            evenInLab = true,
         )
 
         checkAndBindUseCases(preview, videoCapture)
@@ -956,7 +961,8 @@ class VideoRecordingTest(
         )
 
         implName.ignoreTestForCameraPipe(
-            "TODO: b/339615736 - Enable when implemented at camera-pipe"
+            "TODO: b/339615736 - Enable when implemented at camera-pipe",
+            evenInLab = true,
         )
 
         checkAndBindUseCases(preview, videoCapture)
