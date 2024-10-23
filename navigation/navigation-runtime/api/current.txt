@@ -113,6 +113,7 @@ package androidx.navigation {
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int navGraphId);
     method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getVisibleEntries();
     method @MainThread public boolean handleDeepLink(android.content.Intent? intent);
+    method @MainThread public final boolean handleDeepLink(androidx.navigation.NavDeepLinkRequest request);
     method @MainThread public void navigate(android.net.Uri deepLink);
     method @MainThread public void navigate(android.net.Uri deepLink, androidx.navigation.NavOptions? navOptions);
     method @MainThread public void navigate(android.net.Uri deepLink, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
