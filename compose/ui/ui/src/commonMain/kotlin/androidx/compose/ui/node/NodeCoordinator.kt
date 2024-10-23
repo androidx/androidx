@@ -1512,7 +1512,7 @@ internal abstract class NodeCoordinator(
                 override fun interceptOutOfBoundsChildEvents(node: Modifier.Node) = false
 
                 override fun shouldHitTestChildren(parentLayoutNode: LayoutNode) =
-                    parentLayoutNode.semanticsConfiguration?.isClearingSemantics != true
+                    parentLayoutNode.collapsedSemantics?.isClearingSemantics != true
 
                 override fun childHitTest(
                     layoutNode: LayoutNode,
