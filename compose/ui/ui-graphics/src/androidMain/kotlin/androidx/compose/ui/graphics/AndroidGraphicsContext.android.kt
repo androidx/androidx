@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.layer.GraphicsViewLayer
 import androidx.compose.ui.graphics.layer.LayerManager
 import androidx.compose.ui.graphics.layer.view.DrawChildContainer
 import androidx.compose.ui.graphics.layer.view.ViewLayerContainer
-import java.util.Locale
 
 /**
  * Create a new [GraphicsContext] with the provided [ViewGroup] to contain [View] based layers.
@@ -202,7 +201,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
         }
 
     internal companion object {
-        var isRenderNodeCompatible: Boolean = supportsV23RenderNode(Build.MANUFACTURER)
+        var isRenderNodeCompatible: Boolean = true
 
         const val enableLayerPersistence = false
     }
@@ -218,10 +217,3 @@ internal fun GraphicsContext.isLayerManagerInitialized(): Boolean =
 
 internal val isLayerPersistenceEnabled: Boolean
     get() = AndroidGraphicsContext.enableLayerPersistence
-
-internal fun supportsV23RenderNode(manufacturer: String): Boolean =
-    // See b/371012452. Some Android devices don't support the reflective stub implementation
-    // of RenderNode. More specifically the cast of android.graphics.Canvas to
-    // android.view.DisplayListCanvas fails when trying to draw the layer itself.
-    // In these cases we should fallback to using the View based layer implementation instead
-    !manufacturer.lowercase(Locale.ENGLISH).contains("vivo")
