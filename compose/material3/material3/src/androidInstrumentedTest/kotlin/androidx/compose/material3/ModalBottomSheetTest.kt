@@ -125,9 +125,20 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_isDismissedOnTapOutside() {
         var showBottomSheet by mutableStateOf(true)
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
+        lateinit var sheetState: SheetState
 
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = false,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             if (showBottomSheet) {
                 ModalBottomSheet(
                     sheetState = sheetState,
@@ -160,8 +171,16 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_isDismissedOnSwipeDown() {
         var showBottomSheet by mutableStateOf(true)
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
-
+        val sheetState =
+            SheetState(
+                skipPartiallyExpanded = false,
+                positionalThreshold = {
+                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                },
+            )
         rule.setContent {
             if (showBottomSheet) {
                 ModalBottomSheet(
@@ -362,9 +381,20 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_shortSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
-        val sheetState = SheetState(skipPartiallyExpanded = true, density = rule.density)
+        lateinit var sheetState: SheetState
 
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = true,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             if (showBottomSheet) {
                 ModalBottomSheet(
@@ -395,9 +425,20 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_tallSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
+        lateinit var sheetState: SheetState
 
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = false,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             if (showBottomSheet) {
                 ModalBottomSheet(
@@ -611,10 +652,21 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_missingAnchors_findsClosest() {
         val topTag = "ModalBottomSheetLayout"
         var showShortContent by mutableStateOf(false)
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
+        lateinit var sheetState: SheetState
         lateinit var scope: CoroutineScope
 
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = false,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             scope = rememberCoroutineScope()
             ModalBottomSheet(
                 onDismissRequest = {},
@@ -790,8 +842,20 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_testParialExpandReturnsIllegalStateException_whenSkipPartialExpanded() {
         lateinit var scope: CoroutineScope
-        val bottomSheetState = SheetState(skipPartiallyExpanded = true, density = rule.density)
+        lateinit var bottomSheetState: SheetState
+
         rule.setContent {
+            val density = LocalDensity.current
+            bottomSheetState =
+                SheetState(
+                    skipPartiallyExpanded = true,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             scope = rememberCoroutineScope()
             ModalBottomSheet(
                 onDismissRequest = {},
@@ -931,10 +995,22 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_shortSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
+        lateinit var sheetState: SheetState
+
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = false,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             scope = rememberCoroutineScope()
 
             ModalBottomSheet(
@@ -968,10 +1044,22 @@ class ModalBottomSheetTest {
 
     @Test
     fun modalBottomSheet_tallSheet_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
-        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
         var hasSheetContent by mutableStateOf(false) // Start out with empty sheet content
         lateinit var scope: CoroutineScope
+        lateinit var sheetState: SheetState
+
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = false,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             scope = rememberCoroutineScope()
             ModalBottomSheet(
                 onDismissRequest = {},
@@ -1006,8 +1094,6 @@ class ModalBottomSheetTest {
     fun modalBottomSheet_callsOnDismissRequest_onNestedScrollFling() {
         var callCount by mutableStateOf(0)
         val expectedCallCount = 1
-        val sheetState = SheetState(skipPartiallyExpanded = true, density = rule.density)
-
         val nestedScrollDispatcher = NestedScrollDispatcher()
         val nestedScrollConnection =
             object : NestedScrollConnection {
@@ -1015,7 +1101,20 @@ class ModalBottomSheetTest {
             }
         lateinit var scope: CoroutineScope
 
+        lateinit var sheetState: SheetState
+
         rule.setContent {
+            val density = LocalDensity.current
+            sheetState =
+                SheetState(
+                    skipPartiallyExpanded = true,
+                    positionalThreshold = {
+                        with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                    },
+                    velocityThreshold = {
+                        with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                    },
+                )
             scope = rememberCoroutineScope()
             ModalBottomSheet(
                 onDismissRequest = { callCount += 1 },

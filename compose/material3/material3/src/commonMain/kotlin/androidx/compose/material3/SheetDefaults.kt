@@ -69,8 +69,15 @@ import kotlinx.coroutines.CancellationException
  *   should be skipped. If true, the sheet will always expand to the [Expanded] state and move to
  *   the [Hidden] state if available when hiding the sheet, either programmatically or by user
  *   interaction.
+ * @param positionalThreshold The positional threshold, in px, to be used when calculating the
+ *   target state while a drag is in progress and when settling after the drag ends. This is the
+ *   distance from the start of a transition. It will be, depending on the direction of the
+ *   interaction, added or subtracted from/to the origin offset. It should always be a positive
+ *   value.
+ * @param velocityThreshold The velocity threshold (in px per second) that the end velocity has to
+ *   exceed in order to animate to the next state, even if the [positionalThreshold] has not been
+ *   reached.
  * @param initialValue The initial value of the state.
- * @param density The density that this state can use to convert values to and from dp.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
  *   expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
@@ -80,11 +87,13 @@ import kotlinx.coroutines.CancellationException
 @ExperimentalMaterial3Api
 class SheetState(
     internal val skipPartiallyExpanded: Boolean,
-    density: Density,
+    positionalThreshold: () -> Float,
+    velocityThreshold: () -> Float,
     initialValue: SheetValue = Hidden,
     confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
+
     init {
         if (skipPartiallyExpanded) {
             require(initialValue != PartiallyExpanded) {
@@ -270,8 +279,8 @@ class SheetState(
             initialValue = initialValue,
             animationSpec = { anchoredDraggableMotionSpec },
             confirmValueChange = confirmValueChange,
-            positionalThreshold = { with(density) { 56.dp.toPx() } },
-            velocityThreshold = { with(density) { 125.dp.toPx() } },
+            positionalThreshold = { positionalThreshold() },
+            velocityThreshold = velocityThreshold,
         )
 
     internal val offset: Float
@@ -285,8 +294,9 @@ class SheetState(
         /** The default [Saver] implementation for [SheetState]. */
         fun Saver(
             skipPartiallyExpanded: Boolean,
+            positionalThreshold: () -> Float,
+            velocityThreshold: () -> Float,
             confirmValueChange: (SheetValue) -> Boolean,
-            density: Density,
             skipHiddenState: Boolean,
         ) =
             Saver<SheetState, SheetValue>(
@@ -294,14 +304,53 @@ class SheetState(
                 restore = { savedValue ->
                     SheetState(
                         skipPartiallyExpanded,
-                        density,
+                        positionalThreshold,
+                        velocityThreshold,
                         savedValue,
                         confirmValueChange,
                         skipHiddenState,
                     )
                 }
             )
+
+        @Deprecated(
+            level = DeprecationLevel.HIDDEN,
+            message = "Maintained for binary compatibility."
+        )
+        fun Saver(
+            skipPartiallyExpanded: Boolean,
+            confirmValueChange: (SheetValue) -> Boolean,
+            density: Density,
+            skipHiddenState: Boolean,
+        ) =
+            Saver(
+                skipPartiallyExpanded = skipPartiallyExpanded,
+                confirmValueChange = confirmValueChange,
+                skipHiddenState = skipHiddenState,
+                positionalThreshold = {
+                    with(density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                }
+            )
     }
+
+    @Deprecated(level = DeprecationLevel.HIDDEN, message = "Maintained for binary compatibility.")
+    constructor(
+        skipPartiallyExpanded: Boolean,
+        density: Density,
+        initialValue: SheetValue = Hidden,
+        confirmValueChange: (SheetValue) -> Boolean = { true },
+        skipHiddenState: Boolean = false,
+    ) : this(
+        skipPartiallyExpanded = skipPartiallyExpanded,
+        positionalThreshold = { with(density) { BottomSheetDefaults.PositionalThreshold.toPx() } },
+        velocityThreshold = { with(density) { BottomSheetDefaults.VelocityThreshold.toPx() } },
+        initialValue = initialValue,
+        confirmValueChange = confirmValueChange,
+        skipHiddenState = skipHiddenState,
+    )
 }
 
 /** Possible values of [SheetState]. */
@@ -349,6 +398,10 @@ object BottomSheetDefaults {
     /** Default insets to be used and consumed by the [ModalBottomSheet]'s content. */
     val windowInsets: WindowInsets
         @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+
+    internal val PositionalThreshold = 56.dp
+
+    internal val VelocityThreshold = 125.dp
 
     /** The optional visual marker placed on top of a bottom sheet to indicate it may be dragged. */
     @Composable
@@ -439,8 +492,12 @@ internal fun rememberSheetState(
     confirmValueChange: (SheetValue) -> Boolean = { true },
     initialValue: SheetValue = Hidden,
     skipHiddenState: Boolean = false,
+    positionalThreshold: Dp = BottomSheetDefaults.PositionalThreshold,
+    velocityThreshold: Dp = BottomSheetDefaults.VelocityThreshold,
 ): SheetState {
     val density = LocalDensity.current
+    val positionalThresholdToPx = { with(density) { positionalThreshold.toPx() } }
+    val velocityThresholdToPx = { with(density) { velocityThreshold.toPx() } }
     return rememberSaveable(
         skipPartiallyExpanded,
         confirmValueChange,
@@ -448,14 +505,16 @@ internal fun rememberSheetState(
         saver =
             SheetState.Saver(
                 skipPartiallyExpanded = skipPartiallyExpanded,
+                positionalThreshold = positionalThresholdToPx,
+                velocityThreshold = velocityThresholdToPx,
                 confirmValueChange = confirmValueChange,
-                density = density,
                 skipHiddenState = skipHiddenState,
             )
     ) {
         SheetState(
             skipPartiallyExpanded,
-            density,
+            positionalThresholdToPx,
+            velocityThresholdToPx,
             initialValue,
             confirmValueChange,
             skipHiddenState,

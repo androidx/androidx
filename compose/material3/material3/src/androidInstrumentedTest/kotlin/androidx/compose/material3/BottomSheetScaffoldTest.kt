@@ -252,7 +252,12 @@ class BottomSheetScaffoldTest {
                 skipPartiallyExpanded = false,
                 skipHiddenState = true,
                 initialValue = SheetValue.PartiallyExpanded,
-                density = rule.density
+                positionalThreshold = {
+                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                },
             )
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -923,7 +928,16 @@ class BottomSheetScaffoldTest {
             )
         var sheetCoords: LayoutCoordinates? = null
         var rootCoords: LayoutCoordinates? = null
-        val state = SheetState(false, density = Density(1f))
+        val state =
+            SheetState(
+                skipPartiallyExpanded = false,
+                positionalThreshold = {
+                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                },
+            )
         var sheetValue by mutableStateOf(SheetValue.Hidden)
         rule.setContent {
             Box(Modifier.onGloballyPositioned { rootCoords = it }.offset { offset }) {
@@ -983,7 +997,16 @@ class BottomSheetScaffoldTest {
                 IntOffset(100, 10),
             )
         var sheetCoords: LayoutCoordinates? = null
-        val state = SheetState(false, density = Density(1f))
+        val state =
+            SheetState(
+                skipPartiallyExpanded = false,
+                positionalThreshold = {
+                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                },
+            )
         var sheetValue by mutableStateOf(SheetValue.Hidden)
         rule.setContent {
             LaunchedEffect(sheetValue) {
