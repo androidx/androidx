@@ -28,7 +28,7 @@ import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaTypeNames
-import androidx.room.ext.getValueClassUnderlyingInfo
+import androidx.room.ext.getValueClassUnderlyingElement
 import androidx.room.ext.isByteBuffer
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
@@ -377,15 +377,12 @@ private constructor(
         val typeElement = type.typeElement
         if (typeElement?.isValueClass() == true) {
             // Extract the type value of the Value class element
-            val underlyingInfo = typeElement.getValueClassUnderlyingInfo()
-            if (underlyingInfo.constructor.isPrivate() || underlyingInfo.field.getter == null) {
-                return null
-            }
+            val underlyingProperty = typeElement.getValueClassUnderlyingElement()
             val underlyingTypeColumnAdapter =
                 findColumnTypeAdapter(
                     // Find an adapter for the non-null underlying type, nullability will be handled
                     // by the value class adapter.
-                    out = underlyingInfo.parameter.asMemberOf(type).makeNonNullable(),
+                    out = underlyingProperty.asMemberOf(type).makeNonNullable(),
                     affinity = affinity,
                     skipDefaultConverter = false
                 ) ?: return null
@@ -394,7 +391,7 @@ private constructor(
                 valueTypeColumnAdapter = underlyingTypeColumnAdapter,
                 affinity = underlyingTypeColumnAdapter.typeAffinity,
                 out = type,
-                valuePropertyName = underlyingInfo.parameter.name
+                valuePropertyName = underlyingProperty.name
             )
         }
         return when {

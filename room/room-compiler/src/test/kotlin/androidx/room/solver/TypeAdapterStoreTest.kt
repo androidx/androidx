@@ -30,7 +30,6 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
@@ -196,6 +195,7 @@ class TypeAdapterStoreTest {
             Source.java(
                 "foo.bar.Fruit",
                 """ package foo.bar;
+                import androidx.room.*;
                 enum Fruit {
                     APPLE,
                     BANANA,
@@ -222,6 +222,7 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
+            import androidx.room.*
             @JvmInline
             value class IntValueClass(val data: Int)
             @JvmInline
@@ -281,6 +282,7 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
+            import androidx.room.*
             @JvmInline
             value class Foo(val value : Int) {
                 val double
@@ -290,78 +292,15 @@ class TypeAdapterStoreTest {
                     .trimIndent()
             )
 
-        runKspTest(sources = listOf(source)) { invocation ->
-            val store =
-                TypeAdapterStore.create(
-                    context = invocation.context,
-                    builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-                )
-            val typeElement = invocation.processingEnv.requireTypeElement("Foo")
-            val result =
-                store.findColumnTypeAdapter(
-                    out = typeElement.type,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )
-            assertThat(result).isInstanceOf<ValueClassConverterWrapper>()
-        }
-    }
-
-    @Test
-    fun testValueClassWithPrivateVal() {
-        val source =
-            Source.kotlin(
-                "Foo.kt",
-                """
-            @JvmInline
-            value class Foo(private val value : Int)
-            """
-                    .trimIndent()
+        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
+            TypeAdapterStore.create(
+                context = invocation.context,
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
             )
-
-        runKspTest(sources = listOf(source)) { invocation ->
-            val store =
-                TypeAdapterStore.create(
-                    context = invocation.context,
-                    builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-                )
             val typeElement = invocation.processingEnv.requireTypeElement("Foo")
-            val result =
-                store.findColumnTypeAdapter(
-                    out = typeElement.type,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )
-            assertThat(result).isNull()
-        }
-    }
-
-    @Test
-    fun testValueClassWithPrivateConstructor() {
-        val source =
-            Source.kotlin(
-                "Foo.kt",
-                """
-            @JvmInline
-            value class Foo private constructor(val value : Int)
-            """
-                    .trimIndent()
-            )
-
-        runKspTest(sources = listOf(source)) { invocation ->
-            val store =
-                TypeAdapterStore.create(
-                    context = invocation.context,
-                    builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-                )
-            val typeElement = invocation.processingEnv.requireTypeElement("Foo")
-            val result =
-                store.findColumnTypeAdapter(
-                    out = typeElement.type,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )
-            assertThat(result).isNull()
+            assertThat(typeElement.getDeclaredFields()).hasSize(1)
+            assertThat(typeElement.getDeclaredFields().single().type.asTypeName())
+                .isEqualTo(PRIMITIVE_INT)
         }
     }
 
