@@ -3961,6 +3961,10 @@ public final class ProtoLayoutInflater {
                                 parentViewWrapper, element.getText(), nodePosId, pipelineMaker);
                 break;
 
+            case DASHED_LINE:
+                // TODO: b/360314390 - inflate a dashed arc here with WearDashedArcLineView
+                break;
+
             case INNER_NOT_SET:
                 break;
         }

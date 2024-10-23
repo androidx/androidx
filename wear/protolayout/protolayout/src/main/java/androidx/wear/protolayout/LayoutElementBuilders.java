@@ -16,6 +16,9 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.annotation.Dimension.DP;
+import static androidx.wear.protolayout.DimensionBuilders.degrees;
+import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
@@ -5170,6 +5173,457 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /**
+     * A dashed arc line that can be placed in an {@link Arc} container. It is an arc line made up
+     * of arc line segments separated by gaps.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 500)
+    public static final class DashedArcLine implements ArcLayoutElement {
+        private final LayoutElementProto.DashedArcLine mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        DashedArcLine(LayoutElementProto.DashedArcLine impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the length of this line in degrees, including gaps.
+         *
+         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+         * affected layout element through {@code setLayoutConstraintsForDynamicLength
+         * (AngularLayoutConstraint)}, otherwise {@code build()} fails.
+         */
+        @Nullable
+        public DegreesProp getLength() {
+            if (mImpl.hasLength()) {
+                return DegreesProp.fromProto(mImpl.getLength());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the thickness of this line. */
+        @Dimension(unit = DP)
+        public float getThickness() {
+            if (mImpl.hasThickness()) {
+                return DpProp.fromProto(mImpl.getThickness()).getValue();
+            } else {
+                return 0;
+            }
+        }
+
+        /** Gets the color of this line. */
+        @Nullable
+        public ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
+        @Nullable
+        public ArcModifiers getModifiers() {
+            if (mImpl.hasModifiers()) {
+                return ArcModifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the direction in which this line is drawn. */
+        @Nullable
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the dashed line pattern which describes how the arc line is segmented by gaps. */
+        @Nullable
+        public DashedLinePattern getLinePattern() {
+            if (mImpl.hasLinePattern()) {
+                return DashedLinePattern.fromProto(mImpl.getLinePattern());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getLength()}.
+         */
+        @Nullable
+        public AngularLayoutConstraint getLayoutConstraintsForDynamicLength() {
+            if (mImpl.hasLength()) {
+                return AngularLayoutConstraint.fromProto(mImpl.getLength());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static DashedArcLine fromProto(
+                @NonNull LayoutElementProto.DashedArcLine proto,
+                @Nullable Fingerprint fingerprint) {
+            return new DashedArcLine(proto, fingerprint);
+        }
+
+        @NonNull
+        static DashedArcLine fromProto(@NonNull LayoutElementProto.DashedArcLine proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @NonNull
+        LayoutElementProto.DashedArcLine toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcLayoutElement toArcLayoutElementProto() {
+            return LayoutElementProto.ArcLayoutElement.newBuilder().setDashedLine(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "DashedArcLine{"
+                    + "length="
+                    + getLength()
+                    + ", thickness="
+                    + getThickness()
+                    + ", color="
+                    + getColor()
+                    + ", modifiers="
+                    + getModifiers()
+                    + ", arcDirection="
+                    + getArcDirection()
+                    + ", linePattern="
+                    + getLinePattern()
+                    + "}";
+        }
+
+        /** Builder for {@link DashedArcLine}. */
+        @SuppressWarnings("HiddenSuperclass")
+        public static final class Builder implements ArcLayoutElement.Builder {
+            private final LayoutElementProto.DashedArcLine.Builder mImpl =
+                    LayoutElementProto.DashedArcLine.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1152963772);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            public Builder() {}
+
+            /**
+             * Sets the length of this line, in degrees. If not defined, defaults to 0.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@code setLayoutConstraintsForDynamicLength
+             * (AngularLayoutConstraint)} otherwise {@code build()} fails.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setLength(@NonNull DegreesProp length) {
+                mImpl.mergeLength(length.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(length.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the thickness of this line. If not defined, defaults to 0.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setThickness(@Dimension(unit = DP) float thickness) {
+                DpProp thicknessProp = dp(thickness);
+                mImpl.setThickness(thicknessProp.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(thicknessProp.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color of this line.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setColor(@NonNull ColorProp color) {
+                mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+                mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
+            }
+
+            /**
+             * Sets the dashed line pattern which describes how the arc line is segmented by gaps.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setLinePattern(@NonNull DashedLinePattern linePattern) {
+                mImpl.setLinePattern(linePattern.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(linePattern.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setLength(DegreesProp)}.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicLength(
+                    @NonNull AngularLayoutConstraint angularLayoutConstraint) {
+                mImpl.mergeLength(angularLayoutConstraint.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1,
+                        checkNotNull(angularLayoutConstraint.getFingerprint())
+                                .aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance with the values accumulated in this Builder. */
+            @SuppressLint("ProtoLayoutMinSchema")
+            @Override
+            @NonNull
+            public DashedArcLine build() {
+                DimensionProto.DegreesProp length = mImpl.getLength();
+                if (length.hasDynamicValue() && !length.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "length with dynamic value requires "
+                                    + "layoutConstraintsForDynamicLength to be present.");
+                }
+
+                return new DashedArcLine(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /** A dashed line pattern which describes how the dashed arc line is segmented by gaps. */
+    @RequiresSchemaVersion(major = 1, minor = 500)
+    public static final class DashedLinePattern {
+        private final LayoutElementProto.DashedLinePattern mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        DashedLinePattern(
+                LayoutElementProto.DashedLinePattern impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /** Gets the size in dp of the gap between the arc line segments. */
+        @Nullable
+        public DpProp getGapSize() {
+            if (mImpl.hasGapSize()) {
+                return DpProp.fromProto(mImpl.getGapSize());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the list of each gap's center location in degrees. */
+        @NonNull
+        public List<DegreesProp> getGapLocations() {
+            List<DegreesProp> list = new ArrayList<>();
+            for (DimensionProto.DegreesProp item : mImpl.getGapLocationsList()) {
+                list.add(DegreesProp.fromProto(item));
+            }
+            return Collections.unmodifiableList(list);
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static DashedLinePattern fromProto(
+                @NonNull LayoutElementProto.DashedLinePattern proto,
+                @Nullable Fingerprint fingerprint) {
+            return new DashedLinePattern(proto, fingerprint);
+        }
+
+        @NonNull
+        static DashedLinePattern fromProto(@NonNull LayoutElementProto.DashedLinePattern proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.DashedLinePattern toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "DashedLinePattern{"
+                    + "gapSize="
+                    + getGapSize()
+                    + ", gapLocations="
+                    + getGapLocations()
+                    + "}";
+        }
+
+        /** Builder for {@link DashedLinePattern} */
+        public static final class Builder {
+            private final LayoutElementProto.DashedLinePattern.Builder mImpl =
+                    LayoutElementProto.DashedLinePattern.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1050989205);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            public Builder() {}
+
+            /**
+             * Sets the size in dp of the gap between the segments. If not defined, defaults to 0.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setGapSize(@Dimension(unit = DP) float gapSizeInDp) {
+                DpProp gapSizeProp = dp(gapSizeInDp);
+                mImpl.setGapSize(gapSizeProp.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(gapSizeProp.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Adds one item to the list of each gap's center location in degrees.
+             *
+             * <p>Note that this field only supports static values.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            private Builder addGapLocation(@NonNull DegreesProp gapLocation) {
+                if (gapLocation.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "DashedLinePattern.Builder.addGapLocation doesn't support dynamic "
+                                    + "values.");
+                }
+                mImpl.addGapLocations(gapLocation.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(gapLocation.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the list of each gap's center location in degrees.
+             *
+             * <p>The interval between any two locations could not be shorter than thickness plus
+             * gap size.
+             *
+             * <p>Note that calling this method will invalidate the previous call of {@link
+             * #setGapInterval}
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            public Builder setGapLocations(@NonNull float... gapLocationsInDegrees) {
+                mImpl.clearGapLocations();
+
+                for (float gapLocation: gapLocationsInDegrees) {
+                    addGapLocation(degrees(gapLocation));
+                }
+
+                return this;
+            }
+
+            /**
+             * Sets the interval length in degrees between two consecutive gap center locations. The
+             * arc line will have arc line segments with equal length.
+             *
+             * <p>The interval could not be shorter than thickness plus gap size.
+             *
+             * <p>Note that calling this method will remove all the gap locations set previously
+             * with {@link #setGapLocations}
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            @NonNull
+            @SuppressLint("MissingGetterMatchingBuilder")
+            public Builder setGapInterval(float gapIntervalInDegrees) {
+                mImpl.clearGapLocations();
+
+                float gapLocation = gapIntervalInDegrees;
+                while (gapLocation <= 360F) {
+                    addGapLocation(degrees(gapLocation));
+                    gapLocation += gapIntervalInDegrees;
+                }
+
+                return this;
+            }
+
+            private static final int GAP_COUNTS_LIMIT = 100;
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public DashedLinePattern build() {
+                if (mImpl.getGapLocationsList().size() > GAP_COUNTS_LIMIT) {
+                    throw new IllegalArgumentException(
+                            "Number of gaps can't be larger than " + GAP_COUNTS_LIMIT + ".");
+                }
+                return new DashedLinePattern(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+
     /** A simple spacer used to provide padding between adjacent elements in an {@link Arc}. */
     @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcSpacer implements ArcLayoutElement {
@@ -5870,6 +6324,9 @@ public final class LayoutElementBuilders {
         }
         if (proto.hasAdapter()) {
             return ArcAdapter.fromProto(proto.getAdapter(), fingerprint);
+        }
+        if (proto.hasDashedLine()) {
+            return DashedArcLine.fromProto(proto.getDashedLine(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of ArcLayoutElement");
     }

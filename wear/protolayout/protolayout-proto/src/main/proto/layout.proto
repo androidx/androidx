@@ -736,6 +736,45 @@ message StrokeCapProp {
   Shadow shadow = 2;
 }
 
+// A dashed arc line that can be placed in an Arc container. It is an arc line made up of arc line
+// segments separated by gaps.
+message DashedArcLine {
+  // The length of this line in degrees, including gaps. <setter> If not defined,
+  // defaults to 0.</setter>
+  //
+  // When using a dynamic value, make sure to specify the bounding constraints
+  // for the affected layout element through {@code
+  // setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise
+  // {@code build()} fails.
+  DegreesProp length = 1;
+
+  // The thickness of this line. <setter> If not defined, defaults to 0.</setter>
+  DpProp thickness = 2;
+
+  // The color of this line.
+  ColorProp color = 3;
+
+  // Modifiers for this element.
+  ArcModifiers modifiers = 4;
+
+  // The direction in which this line is drawn.<setter> If not set, defaults to
+  // ARC_DIRECTION_CLOCKWISE.</setter>
+  ArcDirectionProp arc_direction = 5;
+
+  // The dashed line pattern which describes how the arc line is segmented by gaps.
+  DashedLinePattern line_pattern = 6;
+}
+
+// A dashed line pattern which describes how the dashed arc line is segmented by gaps.
+message DashedLinePattern {
+  // The size in dp of the gap between the line segments.<setter> If not
+  // defined, defaults to 0.</setter>
+  DpProp gap_size = 1;
+
+  // The list of each gap's center location in degrees.
+  repeated DegreesProp gap_locations = 2;
+}
+
 // A simple spacer used to provide padding between adjacent elements in an Arc.
 message ArcSpacer {
   // The length of this spacer, in degrees. If not defined, defaults to 0.
@@ -837,6 +876,7 @@ message ArcLayoutElement {
     ArcLine line = 2;
     ArcSpacer spacer = 3;
     ArcAdapter adapter = 4;
+    DashedArcLine dashed_line = 5;
   }
 }
 

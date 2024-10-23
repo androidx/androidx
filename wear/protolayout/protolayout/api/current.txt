@@ -558,6 +558,42 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ContentScaleModeProp.Builder setValue(int);
   }
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public static final class LayoutElementBuilders.DashedArcLine implements androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement {
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp? getArcDirection();
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicLength();
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getLength();
+    method public androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern? getLinePattern();
+    method public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers? getModifiers();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getThickness();
+  }
+
+  public static final class LayoutElementBuilders.DashedArcLine.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public LayoutElementBuilders.DashedArcLine.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setArcDirection(androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setArcDirection(int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setLayoutConstraintsForDynamicLength(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setLength(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setLinePattern(androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.ArcModifiers);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine.Builder setThickness(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public static final class LayoutElementBuilders.DashedLinePattern {
+    method public java.util.List<androidx.wear.protolayout.DimensionBuilders.DegreesProp!> getGapLocations();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp? getGapSize();
+  }
+
+  public static final class LayoutElementBuilders.DashedLinePattern.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public LayoutElementBuilders.DashedLinePattern.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern.Builder setGapInterval(float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern.Builder setGapLocations(float...);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern.Builder setGapSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
   @SuppressCompatibility @androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class LayoutElementBuilders.ExtensionLayoutElement implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public String getExtensionId();
     method public androidx.wear.protolayout.DimensionBuilders.ExtensionDimension? getHeight();
