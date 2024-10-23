@@ -31,8 +31,24 @@ package androidx.savedstate
  */
 public expect class SavedState
 
-/** Constructs an empty [SavedState] instance. */
-public expect inline fun savedState(block: SavedStateWriter.() -> Unit = {}): SavedState
+/**
+ * Builds a new [SavedState] with the specified [initialState], given as a [Map] of [String] keys
+ * and [Any] value.
+ *
+ * Allows further modification of the state using the [builderAction].
+ *
+ * **IMPORTANT:** The [SavedStateWriter] passed as a receiver to the [builderAction] is valid only
+ * inside that function. Using it outside of the function may produce an unspecified behavior.
+ *
+ * @param initialState An initial map of key-value pairs to populate the state. Defaults to an empty
+ *   map.
+ * @param builderAction A lambda function with a [SavedStateWriter] receiver to modify the state.
+ * @return A [SavedState] instance containing the initialized key-value pairs.
+ */
+public expect inline fun savedState(
+    initialState: Map<String, Any> = emptyMap(),
+    builderAction: SavedStateWriter.() -> Unit = {},
+): SavedState
 
 /** Creates a new [SavedStateReader] for the [SavedState]. */
 public fun SavedState.reader(): SavedStateReader = SavedStateReader(source = this)

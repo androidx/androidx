@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.savedstate
 
 public actual class SavedState
 @PublishedApi
 internal constructor(@PublishedApi internal val map: MutableMap<String, Any> = mutableMapOf())
 
-actual inline fun savedState(block: SavedStateWriter.() -> Unit): SavedState =
-    SavedState().apply { write(block) }
+actual inline fun savedState(
+    initialState: Map<String, Any>,
+    builderAction: SavedStateWriter.() -> Unit,
+): SavedState = SavedState(initialState.toMutableMap()).apply { write(builderAction) }
