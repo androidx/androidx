@@ -14,8 +14,4 @@
  * limitations under the License.
  */
 
-// TODO(b/371013214): Make protolayout-testing library public.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.wear.protolayout.testing;
-
-import androidx.annotation.RestrictTo;

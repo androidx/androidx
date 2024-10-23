@@ -31,16 +31,32 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.truth)
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 26
+    }
     namespace "androidx.wear.protolayout.testing"
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 androidx {
     name = "androidx.wear.protolayout:protolayout-testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Testing framework for protolayout element tree."
 }
