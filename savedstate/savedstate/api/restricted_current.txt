@@ -42,6 +42,7 @@ package androidx.savedstate {
     method public inline java.util.List<java.lang.String> getStringListOrElse(String key, kotlin.jvm.functions.Function0<? extends java.util.List<java.lang.String>> defaultValue);
     method public inline String getStringOrElse(String key, kotlin.jvm.functions.Function0<java.lang.String> defaultValue);
     method public inline boolean isEmpty();
+    method public inline boolean isNull(String key);
     method public inline int size();
     property public final android.os.Bundle source;
   }
@@ -98,6 +99,7 @@ package androidx.savedstate {
     method public inline void putInt(String key, int value);
     method public inline void putIntList(String key, java.util.List<java.lang.Integer> values);
     method public inline void putLong(String key, long value);
+    method public inline void putNull(String key);
     method public inline <reified T extends android.os.Parcelable> void putParcelable(String key, T value);
     method public inline <reified T extends android.os.Parcelable> void putParcelableList(String key, java.util.List<? extends T> values);
     method public inline void putSavedState(String key, android.os.Bundle value);
@@ -109,7 +111,7 @@ package androidx.savedstate {
   }
 
   public final class SavedState_androidKt {
-    method public static inline android.os.Bundle savedState(optional java.util.Map<java.lang.String,?> initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
+    method public static inline android.os.Bundle savedState(optional java.util.Map<java.lang.String,? extends java.lang.Object?> initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
   }
 
   public final class ViewKt {

@@ -71,6 +71,13 @@ internal constructor(
     public inline fun putLong(key: String, value: Long)
 
     /**
+     * Stores a null reference associated with the specified key in the [SavedState].
+     *
+     * @param key The key to associate the null reference.
+     */
+    public inline fun putNull(key: String)
+
+    /**
      * Stores a string value associated with the specified key in the [SavedState].
      *
      * @param key The key to associate the value with.

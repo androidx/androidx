@@ -42,6 +42,10 @@ actual value class SavedStateWriter actual constructor(actual val source: SavedS
         source.putLong(key, value)
     }
 
+    actual inline fun putNull(key: String) {
+        source.putString(key, null)
+    }
+
     /**
      * Stores an [Parcelable] value associated with the specified key in the [SavedState].
      *

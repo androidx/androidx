@@ -169,6 +169,13 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
 
     actual inline fun isEmpty(): Boolean = source.isEmpty
 
+    actual inline fun isNull(key: String): Boolean {
+        // Using `getString` to check for `null` is unreliable as it returns null for type
+        // mismatches. To reliably determine if the value is actually `null`, we use the
+        // deprecated `Bundle.get`.
+        @Suppress("DEPRECATION") return contains(key) && source[key] == null
+    }
+
     actual inline operator fun contains(key: String): Boolean = source.containsKey(key)
 
     actual fun contentDeepEquals(other: SavedState): Boolean = source.contentDeepEquals(other)

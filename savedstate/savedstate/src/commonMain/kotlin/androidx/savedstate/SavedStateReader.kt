@@ -239,6 +239,15 @@ internal constructor(
     public inline fun isEmpty(): Boolean
 
     /**
+     * Checks if the [SavedState] contains a null reference for the specified [key].
+     *
+     * @param key The [key] to check for.
+     * @return `true` if the [SavedState] contains a null reference for the [key], `false`
+     *   otherwise.
+     */
+    public inline fun isNull(key: String): Boolean
+
+    /**
      * Checks if the [SavedState] contains the specified [key].
      *
      * @param key The [key] to check for.
