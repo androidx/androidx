@@ -38,6 +38,8 @@ internal constructor(
      */
     public inline fun putBoolean(key: String, value: Boolean)
 
+    public inline fun putChar(key: String, value: Char)
+
     /**
      * Stores a double value associated with the specified key in the [SavedState].
      *

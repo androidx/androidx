@@ -33,6 +33,12 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
     actual inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean =
         getSingleResultOrElse(key, defaultValue) { source.map[key] as? Boolean }
 
+    actual inline fun getChar(key: String): Char =
+        getSingleResultOrThrow(key) { source.map[key] as? Char ?: SavedStateUtils.DEFAULT_CHAR }
+
+    actual inline fun getCharOrElse(key: String, defaultValue: () -> Char): Char =
+        getSingleResultOrElse(key, defaultValue) { source.map[key] as? Char }
+
     actual inline fun getDouble(key: String): Double =
         getSingleResultOrThrow(key) { source.map[key] as? Double ?: SavedStateUtils.DEFAULT_DOUBLE }
 

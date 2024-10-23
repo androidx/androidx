@@ -16,6 +16,8 @@ package androidx.savedstate {
     method public boolean contentDeepEquals(android.os.Bundle other);
     method public inline boolean getBoolean(String key);
     method public inline boolean getBooleanOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
+    method public inline char getChar(String key);
+    method public inline char getCharOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Character> defaultValue);
     method public inline double getDouble(String key);
     method public inline double getDoubleOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Double> defaultValue);
     method public inline float getFloat(String key);
@@ -86,6 +88,7 @@ package androidx.savedstate {
     method public android.os.Bundle getSource();
     method public inline void putAll(android.os.Bundle values);
     method public inline void putBoolean(String key, boolean value);
+    method public inline void putChar(String key, char value);
     method public inline void putDouble(String key, double value);
     method public inline void putFloat(String key, float value);
     method public inline void putInt(String key, int value);

@@ -228,6 +228,50 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getChar_whenSet_returns() {
+        val underTest = savedState { putChar(KEY_1, Char.MAX_VALUE) }
+        val actual = underTest.read { getChar(KEY_1) }
+
+        assertThat(actual).isEqualTo(Char.MAX_VALUE)
+    }
+
+    @Test
+    fun getChar_whenNotSet_throws() {
+        assertThrows<IllegalStateException> { savedState().read { getChar(KEY_1) } }
+    }
+
+    @Test
+    fun getChar_whenSet_differentType_returnsDefault() {
+        val underTest = savedState { putInt(KEY_1, Int.MIN_VALUE) }
+        val actual = underTest.read { getChar(KEY_1) }
+
+        assertThat(actual).isEqualTo(SavedStateUtils.DEFAULT_CHAR)
+    }
+
+    @Test
+    fun getCharOrElse_whenSet_returns() {
+        val underTest = savedState { putChar(KEY_1, Char.MAX_VALUE) }
+        val actual = underTest.read { getCharOrElse(KEY_1) { Char.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Char.MAX_VALUE)
+    }
+
+    @Test
+    fun getCharOrElse_whenNotSet_returnsElse() {
+        val actual = savedState().read { getCharOrElse(KEY_1) { Char.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Char.MIN_VALUE)
+    }
+
+    @Test
+    fun getCharOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getCharOrElse(KEY_1) { Char.MAX_VALUE } }
+
+        assertThat(actual).isEqualTo(Char.MAX_VALUE)
+    }
+
+    @Test
     fun getDouble_whenSet_returns() {
         val underTest = savedState { putDouble(KEY_1, Double.MAX_VALUE) }
         val actual = underTest.read { getDouble(KEY_1) }

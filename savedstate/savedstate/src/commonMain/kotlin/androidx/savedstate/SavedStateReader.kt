@@ -52,6 +52,27 @@ internal constructor(
     public inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean
 
     /**
+     * Retrieves a [Char] value associated with the specified [key]. Throws an
+     * [IllegalStateException] if the [key] doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The [Char] value associated with the [key].
+     * @throws IllegalStateException If the [key] is not found.
+     */
+    public inline fun getChar(key: String): Char
+
+    /**
+     * Retrieves a [Char] value associated with the specified [key], or a default value if the [key]
+     * doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param defaultValue A function providing the default value if the [key] is not found.
+     * @return The [Char] value associated with the [key], or the default value if the [key] is not
+     *   found.
+     */
+    public inline fun getCharOrElse(key: String, defaultValue: () -> Char): Char
+
+    /**
      * Retrieves a [Double] value associated with the specified [key]. Throws an
      * [IllegalStateException] if the [key] doesn't exist.
      *

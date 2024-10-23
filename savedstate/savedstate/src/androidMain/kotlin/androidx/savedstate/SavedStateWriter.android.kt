@@ -26,6 +26,10 @@ actual value class SavedStateWriter actual constructor(actual val source: SavedS
         source.putBoolean(key, value)
     }
 
+    actual inline fun putChar(key: String, value: Char) {
+        source.putChar(key, value)
+    }
+
     actual inline fun putDouble(key: String, value: Double) {
         source.putDouble(key, value)
     }
