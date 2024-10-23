@@ -17,7 +17,7 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -57,7 +57,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.material3.tokens.RadioButtonTokens
 import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitRadioButtonTokens
@@ -1418,12 +1417,8 @@ internal fun RadioControl(
         dotColor = color,
         onClick = null,
         interactionSource = null,
-        dotRadiusProgressDuration = { isSelected ->
-            if (isSelected) MotionTokens.DurationMedium1 else MotionTokens.DurationShort3
-        },
-        dotAlphaProgressDuration = MotionTokens.DurationShort3,
-        dotAlphaProgressDelay = MotionTokens.DurationShort2,
-        easing = MotionTokens.EasingStandardDecelerate,
+        dotRadiusAnimationSpec = PROGRESS_ANIMATION_SPEC,
+        dotAlphaAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = CONTROL_WIDTH,
         height = CONTROL_HEIGHT,
         ripple = ripple()
@@ -1443,8 +1438,10 @@ private fun RowScope.Labels(
     }
 }
 
-private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
-    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
+private val COLOR_ANIMATION_SPEC: AnimationSpec<Color>
+    @Composable get() = MaterialTheme.motionScheme.slowEffectsSpec()
+private val PROGRESS_ANIMATION_SPEC: FiniteAnimationSpec<Float>
+    @Composable get() = MaterialTheme.motionScheme.fastEffectsSpec()
 private val SELECTION_CONTROL_WIDTH = 32.dp
 private val SELECTION_CONTROL_HEIGHT = 24.dp
 private val SELECTION_CONTROL_SPACING = 6.dp

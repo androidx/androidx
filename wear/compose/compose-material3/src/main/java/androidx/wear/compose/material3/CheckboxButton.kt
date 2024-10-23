@@ -17,8 +17,7 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.TweenSpec
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -63,7 +62,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
-import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitCheckboxButtonTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
@@ -1526,7 +1524,7 @@ private val BOX_SIZE = 18.dp
 private val SPLIT_MIN_WIDTH = 48.dp
 private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
-private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
-    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
-private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
-    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
+private val COLOR_ANIMATION_SPEC: AnimationSpec<Color>
+    @Composable get() = MaterialTheme.motionScheme.slowEffectsSpec()
+private val PROGRESS_ANIMATION_SPEC: FiniteAnimationSpec<Float>
+    @Composable get() = MaterialTheme.motionScheme.fastEffectsSpec()
