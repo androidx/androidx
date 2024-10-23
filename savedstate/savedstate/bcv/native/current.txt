@@ -123,8 +123,6 @@ final object androidx.savedstate.internal/SavedStateUtils { // androidx.savedsta
     final inline fun keyNotFoundError(kotlin/String): kotlin/Nothing // androidx.savedstate.internal/SavedStateUtils.keyNotFoundError|keyNotFoundError(kotlin.String){}[0]
 }
 
-final fun (androidx.savedstate/SavedState).androidx.savedstate/reader(): androidx.savedstate/SavedStateReader // androidx.savedstate/reader|reader@androidx.savedstate.SavedState(){}[0]
-final fun (androidx.savedstate/SavedState).androidx.savedstate/writer(): androidx.savedstate/SavedStateWriter // androidx.savedstate/writer|writer@androidx.savedstate.SavedState(){}[0]
 final inline fun <#A: kotlin/Any?> (androidx.savedstate/SavedState).androidx.savedstate/read(kotlin/Function1<androidx.savedstate/SavedStateReader, #A>): #A // androidx.savedstate/read|read@androidx.savedstate.SavedState(kotlin.Function1<androidx.savedstate.SavedStateReader,0:0>){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> (androidx.savedstate/SavedState).androidx.savedstate/write(kotlin/Function1<androidx.savedstate/SavedStateWriter, #A>): #A // androidx.savedstate/write|write@androidx.savedstate.SavedState(kotlin.Function1<androidx.savedstate.SavedStateWriter,0:0>){0§<kotlin.Any?>}[0]
 final inline fun androidx.savedstate/savedState(kotlin.collections/Map<kotlin/String, kotlin/Any?> = ..., kotlin/Function1<androidx.savedstate/SavedStateWriter, kotlin/Unit> = ...): androidx.savedstate/SavedState // androidx.savedstate/savedState|savedState(kotlin.collections.Map<kotlin.String,kotlin.Any?>;kotlin.Function1<androidx.savedstate.SavedStateWriter,kotlin.Unit>){}[0]

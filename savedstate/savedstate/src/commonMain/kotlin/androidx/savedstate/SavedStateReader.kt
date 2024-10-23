@@ -26,6 +26,7 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 public expect value class SavedStateReader
+@PublishedApi
 internal constructor(
     @PublishedApi internal val source: SavedState,
 ) {

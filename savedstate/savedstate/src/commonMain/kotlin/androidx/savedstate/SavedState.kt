@@ -50,15 +50,12 @@ public expect inline fun savedState(
     builderAction: SavedStateWriter.() -> Unit = {},
 ): SavedState
 
-/** Creates a new [SavedStateReader] for the [SavedState]. */
-public fun SavedState.reader(): SavedStateReader = SavedStateReader(source = this)
-
-/** Creates a new [SavedStateWriter] for the [SavedState]. */
-public fun SavedState.writer(): SavedStateWriter = SavedStateWriter(source = this)
-
 /**
  * Calls the specified function [block] with a [SavedStateReader] value as its receiver and returns
  * the [block] value.
+ *
+ * **IMPORTANT:** The [SavedStateReader] passed as a receiver to the [block] is valid only inside
+ * that function. Using it outside of the function may produce an unspecified behavior.
  *
  * @param block A lambda function that performs read operations using the [SavedStateReader].
  * @return The result of the lambda function's execution.
@@ -66,12 +63,15 @@ public fun SavedState.writer(): SavedStateWriter = SavedStateWriter(source = thi
  * @see [SavedStateWriter]
  */
 public inline fun <T> SavedState.read(block: SavedStateReader.() -> T): T {
-    return block(reader())
+    return block(SavedStateReader(source = this))
 }
 
 /**
  * Calls the specified function [block] with a [SavedStateWriter] value as its receiver and returns
  * the [block] value.
+ *
+ * **IMPORTANT:** The [SavedStateWriter] passed as a receiver to the [block] is valid only inside
+ * that function. Using it outside of the function may produce an unspecified behavior.
  *
  * @param block A lambda function that performs write operations using the [SavedStateWriter].
  * @return The result of the lambda function's execution.
@@ -79,5 +79,5 @@ public inline fun <T> SavedState.read(block: SavedStateReader.() -> T): T {
  * @see [SavedStateWriter]
  */
 public inline fun <T> SavedState.write(block: SavedStateWriter.() -> T): T {
-    return block(writer())
+    return block(SavedStateWriter(source = this))
 }
