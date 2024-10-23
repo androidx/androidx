@@ -70,19 +70,6 @@ public inline fun <T> SavedState.read(block: SavedStateReader.() -> T): T {
 }
 
 /**
- * Calls the specified function [block] with a [SavedStateReader] value as its receiver and returns
- * the [block] value.
- *
- * @param block A lambda function that performs read operations using the [SavedStateReader].
- * @return The result of the lambda function's execution.
- * @see [SavedStateReader]
- * @see [SavedStateWriter]
- */
-public inline fun <T> SavedStateWriter.read(block: SavedStateReader.() -> T): T {
-    return source.read(block)
-}
-
-/**
  * Calls the specified function [block] with a [SavedStateWriter] value as its receiver and returns
  * the [block] value.
  *
@@ -93,17 +80,4 @@ public inline fun <T> SavedStateWriter.read(block: SavedStateReader.() -> T): T 
  */
 public inline fun <T> SavedState.write(block: SavedStateWriter.() -> T): T {
     return block(writer())
-}
-
-/**
- * Calls the specified function [block] with a [SavedStateWriter] value as its receiver and returns
- * the [block] value.
- *
- * @param block A lambda function that performs write operations using the [SavedStateWriter].
- * @return The result of the lambda function's execution.
- * @see [SavedStateReader]
- * @see [SavedStateWriter]
- */
-public inline fun <T> SavedStateReader.write(block: SavedStateWriter.() -> T): T {
-    return source.write(block)
 }
