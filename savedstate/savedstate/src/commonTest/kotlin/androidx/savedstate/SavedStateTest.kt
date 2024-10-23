@@ -214,9 +214,17 @@ internal class SavedStateTest : RobolectricTest() {
 
     @Test
     fun getBooleanOrElse_whenNotSet_returnsElse() {
-        val actual = savedState().read { getBooleanOrElse(KEY_1) { false } }
+        val actual = savedState().read { getBooleanOrElse(KEY_1) { true } }
 
-        assertThat(actual).isFalse()
+        assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun getBooleanOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getBooleanOrElse(KEY_1) { true } }
+
+        assertThat(actual).isTrue()
     }
 
     @Test
@@ -251,6 +259,14 @@ internal class SavedStateTest : RobolectricTest() {
     @Test
     fun getDoubleOrElse_whenNotSet_returnsElse() {
         val actual = savedState().read { getDoubleOrElse(KEY_1) { Double.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Double.MIN_VALUE)
+    }
+
+    @Test
+    fun getDoubleOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getDoubleOrElse(KEY_1) { Double.MIN_VALUE } }
 
         assertThat(actual).isEqualTo(Double.MIN_VALUE)
     }
@@ -292,6 +308,14 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getFloatOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getFloatOrElse(KEY_1) { Float.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Float.MIN_VALUE)
+    }
+
+    @Test
     fun getInt_whenSet_returns() {
         val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
         val actual = underTest.read { getInt(KEY_1) }
@@ -323,6 +347,14 @@ internal class SavedStateTest : RobolectricTest() {
     @Test
     fun getIntOrElse_whenNotSet_returnsElse() {
         val actual = savedState().read { getIntOrElse(KEY_1) { Int.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Int.MIN_VALUE)
+    }
+
+    @Test
+    fun getIntOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putBoolean(KEY_1, false) }
+        val actual = underTest.read { getIntOrElse(KEY_1) { Int.MIN_VALUE } }
 
         assertThat(actual).isEqualTo(Int.MIN_VALUE)
     }
@@ -364,6 +396,14 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getLongOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putBoolean(KEY_1, false) }
+        val actual = underTest.read { getLongOrElse(KEY_1) { Long.MIN_VALUE } }
+
+        assertThat(actual).isEqualTo(Long.MIN_VALUE)
+    }
+
+    @Test
     fun getString_whenSet_returns() {
         val underTest = savedState { putString(KEY_1, STRING_VALUE) }
         val actual = underTest.read { getString(KEY_1) }
@@ -394,6 +434,15 @@ internal class SavedStateTest : RobolectricTest() {
     @Test
     fun getStringOrElse_whenNotSet_returnsElse() {
         val actual = savedState().read { getStringOrElse(KEY_1) { STRING_VALUE } }
+
+        assertThat(actual).isEqualTo(STRING_VALUE)
+    }
+
+    @Test
+    fun getStringOrElse_whenSet_differentType_returnsElse() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+
+        val actual = underTest.read { getStringOrElse(KEY_1) { STRING_VALUE } }
 
         assertThat(actual).isEqualTo(STRING_VALUE)
     }
@@ -438,6 +487,16 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getIntOrElseList_whenSet_differentType_returnsElse() {
+        val expected = Int.MAX_VALUE
+
+        val underTest = savedState { putInt(KEY_1, expected) }
+        val actual = underTest.read { getIntListOrElse(KEY_1) { emptyList() } }
+
+        assertThat(actual).isEqualTo(emptyList<Int>())
+    }
+
+    @Test
     fun getStringList_whenSet_returns() {
         val underTest = savedState { putStringList(KEY_1, LIST_STRING_VALUE) }
         val actual = underTest.read { getStringList(KEY_1) }
@@ -475,6 +534,16 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getStringListOrElse_whenSet_differentType_returnsElse() {
+        val expected = Int.MAX_VALUE
+
+        val underTest = savedState { putInt(KEY_1, expected) }
+        val actual = underTest.read { getStringListOrElse(KEY_1) { emptyList() } }
+
+        assertThat(actual).isEqualTo(emptyList<String>())
+    }
+
+    @Test
     fun getSavedState_whenSet_returns() {
         val underTest = savedState { putSavedState(KEY_1, SAVED_STATE_VALUE) }
         val actual = underTest.read { getSavedState(KEY_1) }
@@ -485,6 +554,13 @@ internal class SavedStateTest : RobolectricTest() {
     @Test
     fun getSavedState_whenNotSet_throws() {
         assertThrows<IllegalStateException> { savedState().read { getSavedState(KEY_1) } }
+    }
+
+    @Test
+    fun getSavedState_whenSet_differentType_throws() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+
+        assertThrows<IllegalStateException> { underTest.read { getSavedState(KEY_1) } }
     }
 
     @Test
@@ -500,6 +576,16 @@ internal class SavedStateTest : RobolectricTest() {
         val expected = savedState()
 
         val actual = savedState().read { getSavedStateOrElse(KEY_1) { expected } }
+
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @Test
+    fun getSavedStateOrElse_whenSet_differentType_returnsElse() {
+        val expected = savedState()
+
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getSavedStateOrElse(KEY_1) { expected } }
 
         assertThat(actual).isEqualTo(expected)
     }

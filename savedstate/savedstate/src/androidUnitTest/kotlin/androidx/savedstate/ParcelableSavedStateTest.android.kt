@@ -64,6 +64,14 @@ internal class ParcelableSavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun getParcelableOrElse_whenSet_differentType_returnsDefault() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getParcelableOrElse(KEY_1) { PARCELABLE_VALUE_1 } }
+
+        assertThat(actual).isEqualTo(PARCELABLE_VALUE_1)
+    }
+
+    @Test
     fun getParcelableList_whenSet_returns() {
         val expected = List(size = 5) { idx -> TestParcelable(idx) }
 
@@ -81,7 +89,7 @@ internal class ParcelableSavedStateTest : RobolectricTest() {
     }
 
     @Test
-    fun getListofParcelable_whenSet_differentType_throws() {
+    fun getList_whenSet_differentType_throws() {
         val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
 
         assertThrows<IllegalStateException> {
@@ -106,6 +114,14 @@ internal class ParcelableSavedStateTest : RobolectricTest() {
             savedState().read { getParcelableListOrElse<TestParcelable>(KEY_1) { emptyList() } }
 
         assertThat(actual).isEqualTo(emptyList<TestParcelable>())
+    }
+
+    @Test
+    fun getListOrElse_whenSet_differentType_throws() {
+        val underTest = savedState { putInt(KEY_1, Int.MAX_VALUE) }
+        val actual = underTest.read { getParcelableListOrElse(KEY_1) { emptyList() } }
+
+        assertThat(actual).isEqualTo(emptyList<Parcelable>())
     }
 
     private companion object {
