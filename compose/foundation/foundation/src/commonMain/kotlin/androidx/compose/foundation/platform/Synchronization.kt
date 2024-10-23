@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+package androidx.compose.foundation.platform
 
-internal actual inline fun <T> synchronized(lock: Any, block: () -> T) =
-    kotlin.synchronized(lock, block)
+internal expect class SynchronizedObject
+
+/**
+ * Returns [ref] as a [SynchronizedObject] on platforms where [Any] is a valid [SynchronizedObject],
+ * or a new [SynchronizedObject] instance if [ref] is null or this is not supported on the current
+ * platform.
+ */
+internal expect inline fun makeSynchronizedObject(ref: Any? = null): SynchronizedObject
+
+internal expect inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R

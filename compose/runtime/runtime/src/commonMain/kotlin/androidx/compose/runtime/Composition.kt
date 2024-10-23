@@ -25,6 +25,8 @@ import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
 import androidx.compose.runtime.internal.trace
+import androidx.compose.runtime.platform.makeSynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
@@ -446,7 +448,7 @@ internal class CompositionImpl(
     private val pendingModifications = AtomicReference<Any?>(null)
 
     // Held when making changes to self or composer
-    private val lock = SynchronizedObject()
+    private val lock = makeSynchronizedObject()
 
     /**
      * A set of remember observers that were potentially abandoned between [composeContent] or

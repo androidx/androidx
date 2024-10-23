@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.platform
 
 import androidx.compose.runtime.internal.currentThreadId
 import kotlin.native.ref.createCleaner
@@ -62,7 +62,7 @@ internal expect val PTHREAD_MUTEX_ERRORCHECK: Int
  * On the other hand, it does not just spin lock in case of contention,
  * protecting from an occasional battery drain.
  */
-internal actual class SynchronizedObject actual constructor() {
+internal actual class SynchronizedObject {
 
     companion object {
         private const val NO_OWNER = -1L
@@ -155,6 +155,8 @@ internal actual class SynchronizedObject actual constructor() {
         }
     }
 }
+
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
 
 @PublishedApi
 @Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")

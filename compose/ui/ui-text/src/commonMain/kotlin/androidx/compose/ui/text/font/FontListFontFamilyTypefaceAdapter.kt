@@ -23,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.platform.FontCacheManagementDispatcher
-import androidx.compose.ui.text.platform.createSynchronizedObject
+import androidx.compose.ui.text.platform.makeSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
 import androidx.compose.ui.util.fastDistinctBy
 import androidx.compose.ui.util.fastFilter
@@ -367,7 +367,7 @@ internal class AsyncTypefaceCache {
     // @GuardedBy("cacheLock")
     private val permanentCache = mutableScatterMapOf<Key, AsyncTypefaceResult>()
 
-    private val cacheLock = createSynchronizedObject()
+    private val cacheLock = makeSynchronizedObject()
 
     fun put(
         font: Font,

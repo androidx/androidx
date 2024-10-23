@@ -22,6 +22,8 @@ import androidx.collection.emptyScatterSet
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.internal.RememberEventDispatcher
+import androidx.compose.runtime.platform.SynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 
 /**
  * A [PausableComposition] is a sub-composition that can be composed incrementally as it supports

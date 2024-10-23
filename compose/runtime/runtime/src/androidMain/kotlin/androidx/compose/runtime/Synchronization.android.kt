@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+@file:JvmName("ActualJvm_jvmKt")
+@file:JvmMultifileClass
 
-internal actual inline fun <T> synchronized(lock: Any, block: () -> T) = block()
+package androidx.compose.runtime
+
+import androidx.compose.runtime.platform.SynchronizedObject
+import kotlin.DeprecationLevel.HIDDEN
+
+@PublishedApi
+@JvmName("synchronized")
+@Deprecated(level = HIDDEN, message = "should not be used")
+internal inline fun <R> oldSynchronized(lock: SynchronizedObject, block: () -> R): R =
+    androidx.compose.runtime.platform.synchronized(lock, block)

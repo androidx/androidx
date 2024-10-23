@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.test.platform.makeSynchronizedObject
+import androidx.compose.ui.test.platform.synchronized
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -188,6 +190,7 @@ class SkikoComposeUiTest @InternalTestApi constructor(
     private val testContext = TestContext(testOwner)
 
     private val idlingResources = mutableSetOf<IdlingResource>()
+    private val idlingResourcesLock = makeSynchronizedObject(idlingResources)
 
     fun <R> runTest(block: SkikoComposeUiTest.() -> R): R {
         return composeRootRegistry.withRegistry {
@@ -330,18 +333,18 @@ class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     override fun registerIdlingResource(idlingResource: IdlingResource) {
-        synchronized(idlingResources) {
+        synchronized(idlingResourcesLock) {
             idlingResources.add(idlingResource)
         }
     }
 
     override fun unregisterIdlingResource(idlingResource: IdlingResource) {
-        synchronized(idlingResources) {
+        synchronized(idlingResourcesLock) {
             idlingResources.remove(idlingResource)
         }
     }
 
-    private fun areAllResourcesIdle() = synchronized(idlingResources) {
+    private fun areAllResourcesIdle() = synchronized(idlingResourcesLock) {
         idlingResources.all { it.isIdleNow }
     }
 

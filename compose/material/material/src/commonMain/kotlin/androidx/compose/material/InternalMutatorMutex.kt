@@ -28,7 +28,7 @@ import kotlinx.coroutines.sync.withLock
  * This is an internal copy of androidx.compose.foundation.MutatorMutex with an additional tryMutate
  * method. Do not modify, except for tryMutate. **
  */
-internal expect class AtomicReference<V>(value: V) {
+internal expect class InternalAtomicReference<V>(value: V) {
     fun get(): V
 
     fun set(value: V)
@@ -60,7 +60,7 @@ internal class InternalMutatorMutex {
         fun cancel() = job.cancel()
     }
 
-    private val currentMutator = AtomicReference<Mutator?>(null)
+    private val currentMutator = InternalAtomicReference<Mutator?>(null)
     private val mutex = Mutex()
 
     private fun tryMutateOrCancel(mutator: Mutator) {

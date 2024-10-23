@@ -150,6 +150,9 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             skikoMain {
                 dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
             }
 
             desktopMain.dependsOn(skikoMain)

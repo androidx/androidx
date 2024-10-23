@@ -27,7 +27,7 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewConfiguration
-import androidx.compose.ui.platform.createSynchronizedObject
+import androidx.compose.ui.platform.makeSynchronizedObject
 import androidx.compose.ui.platform.synchronized
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -546,7 +546,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
     private val pointerHandlers =
         mutableVectorOf<SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>>()
 
-    private val pointerHandlersLock = createSynchronizedObject()
+    private val pointerHandlersLock = makeSynchronizedObject(pointerHandlers)
 
     /**
      * Scratch list for dispatching to handlers for a particular phase. Used to hold a copy of the

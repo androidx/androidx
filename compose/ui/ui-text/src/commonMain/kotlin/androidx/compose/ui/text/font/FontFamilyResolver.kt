@@ -18,7 +18,7 @@ package androidx.compose.ui.text.font
 
 import androidx.collection.SieveCache
 import androidx.compose.runtime.State
-import androidx.compose.ui.text.platform.createSynchronizedObject
+import androidx.compose.ui.text.platform.makeSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
 import androidx.compose.ui.util.fastMap
 
@@ -165,7 +165,7 @@ internal sealed interface TypefaceResult : State<Any> {
 }
 
 internal class TypefaceRequestCache {
-    internal val lock = createSynchronizedObject()
+    internal val lock = makeSynchronizedObject()
     // @GuardedBy("lock")
     private val resultCache = SieveCache<TypefaceRequest, TypefaceResult>(16, 16)
 

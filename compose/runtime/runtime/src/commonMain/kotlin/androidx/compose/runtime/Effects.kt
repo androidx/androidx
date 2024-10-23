@@ -17,6 +17,8 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
+import androidx.compose.runtime.platform.makeSynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -426,7 +428,7 @@ internal class RememberedCoroutineScope(
     private val parentContext: CoroutineContext,
     private val overlayContext: CoroutineContext,
 ) : CoroutineScope, RememberObserver {
-    private val lock = SynchronizedObject()
+    private val lock = makeSynchronizedObject(this)
 
     // The goal of this implementation is to make cancellation as cheap as possible if the
     // coroutineContext property was never accessed, consisting only of taking a monitor lock and

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.platform
 
-internal actual val PTHREAD_MUTEX_ERRORCHECK: Int = platform.posix.PTHREAD_MUTEX_ERRORCHECK.toInt()
+internal actual val PTHREAD_MUTEX_ERRORCHECK: Int = platform.posix.PTHREAD_MUTEX_ERRORCHECK

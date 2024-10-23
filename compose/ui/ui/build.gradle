@@ -159,7 +159,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":collection:collection"))
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.atomicFu)
 
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation(project(":compose:runtime:runtime"))
@@ -205,6 +204,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     api(project(":compose:ui:ui-graphics"))
                     api(project(":compose:ui:ui-text"))
                     api(libs.skikoCommon)
+                    implementation(libs.atomicFu)
                 }
             }
             uikitMain {

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.runtime
+package androidx.compose.runtime.platform
 
 import androidx.compose.runtime.internal.currentThreadId
 import kotlinx.atomicfu.*
+
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
 
 @PublishedApi
 @Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
@@ -42,7 +44,7 @@ internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () 
  * Using a posix mutex is [problematic for mingwX64](https://youtrack.jetbrains.com/issue/KT-70449/Posix-declarations-differ-much-for-mingwX64-and-LinuxDarwin-targets),
  * so we just use a simple spin lock for mingwX64 (maybe reconsidered in case of problems).
  */
-internal actual class SynchronizedObject actual constructor() {
+internal actual class SynchronizedObject {
 
     companion object {
         private const val NO_OWNER = -1L

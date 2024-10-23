@@ -25,10 +25,9 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.platform.makeSynchronizedObject
 import androidx.compose.ui.platform.synchronized
 import androidx.compose.ui.unit.Dp
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
 
 /**
  * Vector graphics object that is generated as a result of [ImageVector.Builder] It can be composed
@@ -379,10 +378,10 @@ internal constructor(
 
     companion object {
         private var imageVectorCount = 0
-        private val sync = SynchronizedObject()
+        private val lock = makeSynchronizedObject(this)
 
         internal fun generateImageVectorId(): Int {
-            synchronized(sync) {
+            synchronized(lock) {
                 return imageVectorCount++
             }
         }

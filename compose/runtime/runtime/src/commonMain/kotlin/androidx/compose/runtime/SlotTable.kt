@@ -19,6 +19,8 @@ package androidx.compose.runtime
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectList
+import androidx.compose.runtime.platform.makeSynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastFilterIndexed
 import androidx.compose.runtime.snapshots.fastForEach
@@ -112,7 +114,7 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
      */
     private var readers = 0
 
-    private val lock = SynchronizedObject()
+    private val lock = makeSynchronizedObject()
 
     /** Tracks whether there is an active writer. */
     internal var writer = false

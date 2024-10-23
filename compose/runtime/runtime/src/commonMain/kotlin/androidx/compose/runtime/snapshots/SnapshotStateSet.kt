@@ -17,10 +17,10 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
-import androidx.compose.runtime.synchronized
+import androidx.compose.runtime.platform.makeSynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 import kotlin.jvm.JvmName
 
 /**
@@ -222,7 +222,7 @@ class SnapshotStateSet<T> : StateObject, MutableSet<T>, RandomAccess {
  * In code that requires this lock and calls `writable` (or other operation that acquires the
  * snapshot global lock), this lock *MUST* be acquired first to avoid deadlocks.
  */
-private val sync = SynchronizedObject()
+private val sync = makeSynchronizedObject()
 
 private class StateSetIterator<T>(val set: SnapshotStateSet<T>, val iterator: Iterator<T>) :
     MutableIterator<T> {

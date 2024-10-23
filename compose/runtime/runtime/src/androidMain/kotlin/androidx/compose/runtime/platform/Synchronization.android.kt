@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.material
+package androidx.compose.runtime.platform
 
-import kotlinx.atomicfu.atomic
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+internal actual typealias SynchronizedObject = Any
 
-internal actual class InternalAtomicReference<V> actual constructor(value: V) {
-    private val delegate = atomic(value)
-    actual fun get() = delegate.value
-    actual fun set(value: V) {
-        delegate.value = value
-    }
-    actual fun getAndSet(value: V) = delegate.getAndSet(value)
-    actual fun compareAndSet(expect: V, newValue: V) = delegate.compareAndSet(expect, newValue)
-}
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun makeSynchronizedObject(ref: Any?) = ref ?: SynchronizedObject()
+
+@PublishedApi
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R =
+    kotlin.synchronized(lock, block)

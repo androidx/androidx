@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.platform.makeSynchronizedObject
+import androidx.compose.foundation.platform.synchronized
 import androidx.compose.foundation.text.getLineHeight
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -25,15 +27,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import kotlin.math.max
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
 
 internal class MultiWidgetSelectionDelegate(
     override val selectableId: Long,
     private val coordinatesCallback: () -> LayoutCoordinates?,
     private val layoutResultCallback: () -> TextLayoutResult?
 ) : Selectable {
-    private val lock = SynchronizedObject()
+    private val lock = makeSynchronizedObject(this)
 
     private var _previousTextLayoutResult: TextLayoutResult? = null
 
@@ -48,30 +48,33 @@ internal class MultiWidgetSelectionDelegate(
      * instance check is enough to accomplish whether a text layout has changed in a meaningful way.
      */
     private val TextLayoutResult.lastVisibleOffset: Int
-        get() = synchronized(lock) {
-            if (_previousTextLayoutResult !== this) {
-                val lastVisibleLine =
-                    when {
-                        !didOverflowHeight || multiParagraph.didExceedMaxLines -> lineCount - 1
-                        else -> { // size.height < multiParagraph.height
-                            var finalVisibleLine =
-                                getLineForVerticalPosition(size.height.toFloat())
-                                    .coerceAtMost(lineCount - 1)
-                            // if final visible line's top is equal to or larger than text layout
-                            // result's height, we need to check above lines one by one until we
-                            // find
-                            // a line that fits in boundaries.
-                            while (
-                                finalVisibleLine >= 0 && getLineTop(finalVisibleLine) >= size.height
-                            ) finalVisibleLine--
-                            finalVisibleLine.coerceAtLeast(0)
+        get() =
+            synchronized(lock) {
+                if (_previousTextLayoutResult !== this) {
+                    val lastVisibleLine =
+                        when {
+                            !didOverflowHeight || multiParagraph.didExceedMaxLines -> lineCount - 1
+                            else -> { // size.height < multiParagraph.height
+                                var finalVisibleLine =
+                                    getLineForVerticalPosition(size.height.toFloat())
+                                        .coerceAtMost(lineCount - 1)
+                                // if final visible line's top is equal to or larger than text
+                                // layout
+                                // result's height, we need to check above lines one by one until we
+                                // find
+                                // a line that fits in boundaries.
+                                while (
+                                    finalVisibleLine >= 0 &&
+                                        getLineTop(finalVisibleLine) >= size.height
+                                ) finalVisibleLine--
+                                finalVisibleLine.coerceAtLeast(0)
+                            }
                         }
-                    }
-                _previousLastVisibleOffset = getLineEnd(lastVisibleLine, true)
-                _previousTextLayoutResult = this
+                    _previousLastVisibleOffset = getLineEnd(lastVisibleLine, true)
+                    _previousTextLayoutResult = this
+                }
+                _previousLastVisibleOffset
             }
-            _previousLastVisibleOffset
-        }
 
     override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
         val layoutCoordinates = getLayoutCoordinates() ?: return

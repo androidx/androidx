@@ -16,4 +16,18 @@
 
 package androidx.compose.runtime
 
-internal actual val PTHREAD_MUTEX_ERRORCHECK: Int = platform.posix.PTHREAD_MUTEX_ERRORCHECK
+import kotlin.DeprecationLevel.HIDDEN
+
+// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
+@InternalComposeApi
+@Deprecated("Made internal. It wasn't supposed to be public")
+fun identityHashCode(instance: Any?): Int =
+    androidx.compose.runtime.internal.identityHashCode(instance)
+
+internal class SynchronizedObject
+
+@PublishedApi
+@JvmName("synchronized")
+@Deprecated(level = HIDDEN, message = "should not be used")
+internal inline fun <R> oldSynchronized2(lock: SynchronizedObject, block: () -> R): R =
+    androidx.compose.runtime.platform.synchronized(lock, block)

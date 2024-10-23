@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.ui.test.platform
 
-@file:JvmName("ActualJvm_jvmKt")
-@file:JvmMultifileClass
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-package androidx.compose.runtime
+internal actual class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
 
-internal actual class SynchronizedObject
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
 
-@PublishedApi
-internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R =
-    kotlin.synchronized(lock, block)
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    return kotlinx.atomicfu.locks.synchronized(lock, block)
+}

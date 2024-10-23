@@ -19,6 +19,8 @@ package androidx.compose.ui.test
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
+import androidx.compose.ui.test.platform.makeSynchronizedObject
+import androidx.compose.ui.test.platform.synchronized
 
 /**
  * Registry where all views implementing [PlatformRootForTest] should be registered while they
@@ -27,7 +29,7 @@ import androidx.compose.ui.platform.PlatformRootForTest
  */
 @OptIn(InternalComposeUiApi::class)
 internal class ComposeRootRegistry : PlatformContext.RootForTestListener {
-    private val lock = Any()
+    private val lock = makeSynchronizedObject()
     private val roots = mutableSetOf<PlatformRootForTest>()
 
     /**

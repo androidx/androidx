@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.platform
 
 import kotlin.concurrent.AtomicInt
 import kotlin.native.concurrent.*

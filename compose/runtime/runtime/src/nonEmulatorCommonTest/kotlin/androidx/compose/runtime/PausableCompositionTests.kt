@@ -25,6 +25,8 @@ import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.mock.view
+import androidx.compose.runtime.platform.SynchronizedObject
+import androidx.compose.runtime.platform.synchronized
 import kotlin.coroutines.resume
 import kotlin.test.Ignore
 import kotlin.test.Test

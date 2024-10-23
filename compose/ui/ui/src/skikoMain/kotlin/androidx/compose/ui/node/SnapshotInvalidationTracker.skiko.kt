@@ -17,7 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.platform.createSynchronizedObject
+import androidx.compose.ui.platform.makeSynchronizedObject
 import androidx.compose.ui.getCurrentThreadId
 import androidx.compose.ui.platform.synchronized
 import kotlinx.atomicfu.atomic
@@ -105,7 +105,7 @@ internal class SnapshotInvalidationTracker(
 private class CommandList(
     private var onNewCommand: () -> Unit
 ) {
-    private val sync = createSynchronizedObject()
+    private val lock = makeSynchronizedObject()
     private val list = mutableListOf<() -> Unit>()
     private val listCopy = mutableListOf<() -> Unit>()
 
@@ -114,7 +114,7 @@ private class CommandList(
      *
      * Can be called concurrently from multiple threads.
      */
-    val hasCommands: Boolean get() = synchronized(sync) {
+    val hasCommands: Boolean get() = synchronized(lock) {
         list.isNotEmpty()
     }
 
@@ -124,7 +124,7 @@ private class CommandList(
      * Can be called concurrently from multiple threads.
      */
     fun add(command: () -> Unit) {
-        synchronized(sync) {
+        synchronized(lock) {
             list.add(command)
         }
         onNewCommand()
@@ -137,7 +137,7 @@ private class CommandList(
      * and concurrent [add].
      */
     fun perform() {
-        synchronized(sync) {
+        synchronized(lock) {
             listCopy.addAll(list)
             list.clear()
         }

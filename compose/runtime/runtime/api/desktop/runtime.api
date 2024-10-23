@@ -18,7 +18,7 @@ public final class androidx/compose/runtime/ActualDesktop_desktopKt {
 
 public final class androidx/compose/runtime/ActualJvm_jvmKt {
 	public static final fun identityHashCode (Ljava/lang/Object;)I
-	public static final fun synchronized (Landroidx/compose/runtime/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final synthetic fun synchronized (Landroidx/compose/runtime/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
 public abstract interface class androidx/compose/runtime/Applier {
@@ -902,6 +902,10 @@ public final class androidx/compose/runtime/internal/LiveLiteralKt {
 
 public abstract interface annotation class androidx/compose/runtime/internal/StabilityInferred : java/lang/annotation/Annotation {
 	public abstract fun parameters ()I
+}
+
+public final class androidx/compose/runtime/platform/Synchronization_desktopKt {
+	public static final fun synchronized (Landroidx/compose/runtime/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/runtime/reflect/ComposableMethod {

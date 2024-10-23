@@ -17,6 +17,8 @@
 package androidx.compose.ui.test
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.test.platform.makeSynchronizedObject
+import androidx.compose.ui.test.platform.synchronized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,7 +33,7 @@ internal constructor(private val pollScopeOverride: CoroutineScope?) : IdlingRes
     // Publicly facing constructor, that doesn't override the poll scope
     @OptIn(InternalTestApi::class) constructor() : this(null)
 
-    private val lock = Any()
+    private val lock = makeSynchronizedObject()
 
     // All registered IdlingResources, both idle and busy ones
     private val idlingResources = mutableSetOf<IdlingResource>()

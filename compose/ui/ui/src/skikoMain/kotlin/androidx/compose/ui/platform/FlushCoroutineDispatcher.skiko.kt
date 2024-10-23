@@ -42,12 +42,12 @@ internal class FlushCoroutineDispatcher(
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
     private var immediateTasks = ArrayDeque<Runnable>()
     private val delayedTasks = ArrayDeque<Runnable>()
-    private val immediateTasksLock = createSynchronizedObject()
-    private val delayedTasksLock = createSynchronizedObject()
+    private val immediateTasksLock = makeSynchronizedObject()
+    private val delayedTasksLock = makeSynchronizedObject()
     private var immediateTasksSwap = ArrayDeque<Runnable>()
     @Volatile
     private var isPerformingRun = false
-    private val runLock = createSynchronizedObject()
+    private val runLock = makeSynchronizedObject()
     
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(immediateTasksLock) {

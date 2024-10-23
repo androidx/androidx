@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.platform.SynchronizedObject
-import androidx.compose.ui.text.platform.createSynchronizedObject
+import androidx.compose.ui.text.platform.makeSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -272,7 +272,7 @@ private constructor(private val fontFamilyResolver: FontFamily.Resolver) : Font.
         // call getFontResourceLoader, and evaluate if FontFamily.Resolver is being correctly cached
         // (via e.g. remember)
         var cache = mutableMapOf<FontFamily.Resolver, Font.ResourceLoader>()
-        val lock: SynchronizedObject = createSynchronizedObject()
+        val lock: SynchronizedObject = makeSynchronizedObject()
 
         fun from(fontFamilyResolver: FontFamily.Resolver): Font.ResourceLoader {
             synchronized(lock) {
