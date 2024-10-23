@@ -46,7 +46,7 @@ public expect class SavedState
  * @return A [SavedState] instance containing the initialized key-value pairs.
  */
 public expect inline fun savedState(
-    initialState: Map<String, Any> = emptyMap(),
+    initialState: Map<String, Any?> = emptyMap(),
     builderAction: SavedStateWriter.() -> Unit = {},
 ): SavedState
 

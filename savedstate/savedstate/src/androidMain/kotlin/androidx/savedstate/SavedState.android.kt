@@ -23,7 +23,7 @@ import androidx.core.os.bundleOf
 public actual typealias SavedState = android.os.Bundle
 
 public actual inline fun savedState(
-    initialState: Map<String, Any>,
+    initialState: Map<String, Any?>,
     builderAction: SavedStateWriter.() -> Unit,
 ): SavedState {
     val pairs =

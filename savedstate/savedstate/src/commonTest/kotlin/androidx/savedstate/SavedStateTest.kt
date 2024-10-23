@@ -404,6 +404,30 @@ internal class SavedStateTest : RobolectricTest() {
     }
 
     @Test
+    fun putNull_whenSet_returnsTrue() {
+        val underTest = savedState { putNull(KEY_1) }
+        val actual = underTest.read { isNull(KEY_1) }
+
+        assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun getNull_whenSet_nonNull_returnsFalse() {
+        val underTest = savedState { putBoolean(KEY_1, true) }
+        val actual = underTest.read { isNull(KEY_1) }
+
+        assertThat(actual).isFalse()
+    }
+
+    @Test
+    fun putNull_whenNotSet_returnsFalse() {
+        val underTest = savedState()
+        val actual = underTest.read { isNull(KEY_1) }
+
+        assertThat(actual).isFalse()
+    }
+
+    @Test
     fun getString_whenSet_returns() {
         val underTest = savedState { putString(KEY_1, STRING_VALUE) }
         val actual = underTest.read { getString(KEY_1) }

@@ -100,6 +100,10 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
         return source.map.isEmpty()
     }
 
+    actual inline fun isNull(key: String): Boolean {
+        return contains(key) && source.map[key] == null
+    }
+
     actual inline operator fun contains(key: String): Boolean {
         return source.map.containsKey(key)
     }
