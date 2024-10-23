@@ -37,7 +37,7 @@ class TooltipActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip(caretSize = TooltipDefaults.caretSize) {
                         Text("Tooltip Description")

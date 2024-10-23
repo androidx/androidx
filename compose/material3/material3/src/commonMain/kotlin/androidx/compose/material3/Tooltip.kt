@@ -374,6 +374,12 @@ object TooltipDefaults {
      *
      * @param spacingBetweenTooltipAndAnchor the spacing between the tooltip and the anchor content.
      */
+    @Deprecated(
+        "Deprecated in favor of rememberTooltipPositionProvider API.",
+        replaceWith =
+            ReplaceWith("rememberTooltipPositionProvider(spacingBetweenTooltipAndAnchor)"),
+        level = DeprecationLevel.HIDDEN
+    )
     @Composable
     fun rememberPlainTooltipPositionProvider(
         spacingBetweenTooltipAndAnchor: Dp = SpacingBetweenTooltipAndAnchor
@@ -407,6 +413,12 @@ object TooltipDefaults {
      *
      * @param spacingBetweenTooltipAndAnchor the spacing between the tooltip and the anchor content.
      */
+    @Deprecated(
+        "Deprecated in favor of rememberTooltipPositionProvider API.",
+        replaceWith =
+            ReplaceWith("rememberTooltipPositionProvider(spacingBetweenTooltipAndAnchor)"),
+        level = DeprecationLevel.HIDDEN
+    )
     @Composable
     fun rememberRichTooltipPositionProvider(
         spacingBetweenTooltipAndAnchor: Dp = SpacingBetweenTooltipAndAnchor
@@ -431,6 +443,53 @@ object TooltipDefaults {
                             x =
                                 anchorBounds.left +
                                     (anchorBounds.width - popupContentSize.width) / 2
+                    }
+
+                    // Tooltip prefers to be above the anchor,
+                    // but if this causes the tooltip to overlap with the anchor
+                    // then we place it below the anchor
+                    var y = anchorBounds.top - popupContentSize.height - tooltipAnchorSpacing
+                    if (y < 0) y = anchorBounds.bottom + tooltipAnchorSpacing
+                    return IntOffset(x, y)
+                }
+            }
+        }
+    }
+
+    /**
+     * [PopupPositionProvider] that should be used with either [RichTooltip] or [PlainTooltip]. It
+     * correctly positions the tooltip in respect to the anchor content.
+     *
+     * @param spacingBetweenTooltipAndAnchor the spacing between the tooltip and the anchor content.
+     */
+    @Composable
+    fun rememberTooltipPositionProvider(
+        spacingBetweenTooltipAndAnchor: Dp = SpacingBetweenTooltipAndAnchor
+    ): PopupPositionProvider {
+        val tooltipAnchorSpacing =
+            with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
+        return remember(tooltipAnchorSpacing) {
+            object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset {
+                    // Horizontal alignment preference: middle -> start -> end
+                    // Vertical preference: above -> below
+
+                    // Tooltip prefers to be center aligned horizontally.
+                    var x = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+
+                    if (x < 0) {
+                        // Make tooltip start aligned if colliding with the
+                        // left side of the screen
+                        x = anchorBounds.left
+                    } else if (x + popupContentSize.width > windowSize.width) {
+                        // Make tooltip end aligned if colliding with the
+                        // right side of the screen
+                        x = anchorBounds.right - popupContentSize.width
                     }
 
                     // Tooltip prefers to be above the anchor,
