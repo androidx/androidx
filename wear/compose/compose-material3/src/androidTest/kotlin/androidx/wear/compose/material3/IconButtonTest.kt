@@ -317,6 +317,7 @@ class IconButtonTest {
             baseShape,
             pressedShape,
             0.75f,
+            8,
             color = { IconButtonDefaults.filledIconButtonColors().containerColor }
         ) { modifier ->
             FilledIconButton(

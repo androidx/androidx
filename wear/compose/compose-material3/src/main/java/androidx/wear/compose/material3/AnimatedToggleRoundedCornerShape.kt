@@ -16,49 +16,53 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import kotlinx.coroutines.launch
 
 /**
- * A animated [RoundedCornerShape]. Animation is driven by changes to the [cornerSize] lambda.
- * [currentShapeSize] is provided as Size is received here, but must affect the animation.
+ * An implementation similar to RoundedCornerShape, but based on linear interpolation between a
+ * start and stop CornerSize, and an observable progress between 0.0 and 1.0.
  *
- * @param currentShapeSize MutableState coordinating the current size.
- * @param cornerSize a lambda resolving to the current Corner size.
+ * @param startCornerSize the corner size when progress is 0.0
+ * @param endCornerSize the corner size when progress is 1.0
+ * @param progress returns the current progress from start to stop.
  */
 @Stable
-internal class AnimatedToggleRoundedCornerShape(
-    private val currentShapeSize: MutableState<Size?>,
-    private val cornerSize: () -> CornerSize,
+private class AnimatedToggleRoundedCornerShape(
+    var startCornerSize: CornerSize,
+    var endCornerSize: CornerSize,
+    var progress: () -> Float,
 ) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
     ): Outline {
-        val cornerRadius = cornerSize().toPx(size, density)
-
-        currentShapeSize.value = size
+        val animatedCornerSize = AnimatedCornerSize(startCornerSize, endCornerSize, progress)
+        val animatedCornerSizePx = animatedCornerSize.toPx(size, density)
 
         return Outline.Rounded(
             roundRect =
-                RoundRect(rect = size.toRect(), radiusX = cornerRadius, radiusY = cornerRadius)
+                RoundRect(
+                    rect = size.toRect(),
+                    radiusX = animatedCornerSizePx,
+                    radiusY = animatedCornerSizePx
+                )
         )
     }
 }
@@ -84,49 +88,41 @@ internal fun rememberAnimatedToggleRoundedCornerShape(
             else -> ToggleState.Unchecked
         }
 
-    val transition = updateTransition(toggleState, label = "Toggle State")
-    val density = LocalDensity.current
+    val previous = remember { mutableStateOf(toggleState) }
+    val scope = rememberCoroutineScope()
+    val progress = remember { Animatable(1f) }
 
-    val currentShapeSize = remember { mutableStateOf<Size?>(null) }
+    val toggledCornerSize =
+        toggleState.cornerSize(uncheckedCornerSize, checkedCornerSize, pressedCornerSize)
+    val animationSpec = if (pressed) onPressAnimationSpec else onReleaseAnimationSpec
 
-    val observedSize = currentShapeSize.value
+    val animatedShape = remember {
+        AnimatedToggleRoundedCornerShape(
+            startCornerSize = toggledCornerSize,
+            endCornerSize = toggledCornerSize,
+            progress = { progress.value },
+        )
+    }
 
-    if (observedSize != null) {
-        val sizePx =
-            transition.animateFloat(
-                label = "Corner Size",
-                transitionSpec = {
-                    when {
-                        targetState isTransitioningTo ToggleState.Pressed -> onPressAnimationSpec
-                        else -> onReleaseAnimationSpec
-                    }
-                },
-            ) { newState ->
-                newState
-                    .cornerSize(uncheckedCornerSize, checkedCornerSize, pressedCornerSize)
-                    .toPx(observedSize, density)
-            }
-
-        return remember(sizePx) {
-            AnimatedToggleRoundedCornerShape(
-                currentShapeSize = currentShapeSize,
-            ) {
-                CornerSize(sizePx.value)
-            }
+    LaunchedEffect(toggleState) {
+        // Allow the press up animation to finish its minimum duration before starting the next
+        if (!pressed) {
+            waitUntil { !progress.isRunning || progress.value > MIN_REQUIRED_ANIMATION_PROGRESS }
         }
-    } else {
-        return remember(toggleState, uncheckedCornerSize, checkedCornerSize, pressedCornerSize) {
-            AnimatedToggleRoundedCornerShape(
-                currentShapeSize = currentShapeSize,
-            ) {
-                toggleState.cornerSize(
-                    uncheckedCornerSize,
-                    checkedCornerSize,
-                    pressedCornerSize,
-                )
+
+        if (toggleState != previous.value) {
+            animatedShape.startCornerSize = animatedShape.endCornerSize
+            animatedShape.endCornerSize = toggledCornerSize
+            previous.value = toggleState
+
+            scope.launch {
+                progress.snapTo(1f - progress.value)
+                progress.animateTo(1f, animationSpec = animationSpec)
             }
         }
     }
+
+    return animatedShape
 }
 
 private fun ToggleState.cornerSize(
@@ -145,3 +141,5 @@ internal enum class ToggleState {
     Checked,
     Pressed,
 }
+
+private const val MIN_REQUIRED_ANIMATION_PROGRESS = 0.75f

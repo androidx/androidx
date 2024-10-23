@@ -26,6 +26,7 @@ import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.runtime.withFrameMillis
 
 /**
  * Returns a new [AnimationSpec] that is a faster version of this one.
@@ -129,3 +130,14 @@ internal operator fun <T : AnimationVector> T.times(k: Float): T {
     }
         as T
 }
+
+internal suspend fun waitUntil(condition: () -> Boolean) {
+    val initialTimeMillis = withFrameMillis { it }
+    while (!condition()) {
+        val timeMillis = withFrameMillis { it }
+        if (timeMillis - initialTimeMillis > MAX_WAIT_TIME_MILLIS) return
+    }
+    return
+}
+
+private const val MAX_WAIT_TIME_MILLIS = 1_000L

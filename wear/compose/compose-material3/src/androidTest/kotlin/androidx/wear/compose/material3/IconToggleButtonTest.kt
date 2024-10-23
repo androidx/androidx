@@ -23,10 +23,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
@@ -618,6 +621,90 @@ class IconToggleButtonTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, overrideRole))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun animates_corners_to_75_percent_on_click() {
+        val uncheckedShape = RoundedCornerShape(20.dp)
+        val checkedShape = RoundedCornerShape(10.dp)
+        val pressedShape = RoundedCornerShape(0.dp)
+        // Ignore the color transition from unchecked to checked color
+        val colors =
+            IconToggleButtonColors(
+                Color.Black,
+                Color.Black,
+                Color.Black,
+                Color.Black,
+                Color.Black,
+                Color.Black,
+                Color.Black,
+                Color.Black
+            )
+
+        rule.verifyRoundedButtonTapAnimationEnd(
+            uncheckedShape,
+            pressedShape,
+            0.75f,
+            8,
+            color = { colors.checkedContainerColor }
+        ) { modifier ->
+            IconToggleButton(
+                checked = false,
+                onCheckedChange = {},
+                modifier = modifier,
+                shapes = IconToggleButtonShapes(uncheckedShape, checkedShape, pressedShape),
+                colors = colors
+            ) {}
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun changes_unchecked_to_checked_shape_on_click() {
+        val uncheckedShape = RoundedCornerShape(20.dp)
+        val checkedShape = RoundedCornerShape(10.dp)
+        val pressedShape = RoundedCornerShape(0.dp)
+        rule.verifyRoundedButtonTapAnimationEnd(
+            uncheckedShape,
+            checkedShape,
+            1f,
+            100,
+            color = { IconToggleButtonDefaults.iconToggleButtonColors().checkedContainerColor },
+            antiAliasingGap = 4f,
+        ) { modifier ->
+            var checked by remember { mutableStateOf(false) }
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = !checked },
+                modifier = modifier,
+                shapes = IconToggleButtonShapes(uncheckedShape, checkedShape, pressedShape)
+            ) {}
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun changes_checked_to_unchecked_shape_on_click() {
+        val uncheckedShape = RoundedCornerShape(10.dp)
+        val checkedShape = RoundedCornerShape(20.dp)
+        val pressedShape = RoundedCornerShape(0.dp)
+        rule.verifyRoundedButtonTapAnimationEnd(
+            checkedShape,
+            uncheckedShape,
+            1f,
+            100,
+            color = { IconToggleButtonDefaults.iconToggleButtonColors().uncheckedContainerColor },
+            antiAliasingGap = 4f,
+        ) { modifier ->
+            var checked by remember { mutableStateOf(true) }
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = !checked },
+                modifier = modifier,
+                shapes = IconToggleButtonShapes(uncheckedShape, checkedShape, pressedShape)
+            ) {}
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
