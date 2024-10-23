@@ -351,14 +351,13 @@ class SwipeToDismissBoxState(
             edgeSwipeState: State<EdgeSwipeState>
         ): NestedScrollConnection =
             object : NestedScrollConnection {
-                @Suppress("DEPRECATION") // b/327155912
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
                     // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss
                     // drag and consume everything
                     return if (
                         edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss &&
-                            source == NestedScrollSource.Drag
+                            source == NestedScrollSource.UserInput
                     ) {
                         dispatchRawDelta(delta)
                         available

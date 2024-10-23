@@ -477,7 +477,6 @@ public class SwipeableV2State<T>(
      *
      * @return The delta the consumed by the [SwipeableV2State]
      */
-    @Suppress("DEPRECATION") // b/327155912
     fun dispatchRawDelta(delta: Float): Float {
         var remainingDelta = delta
 
@@ -486,7 +485,7 @@ public class SwipeableV2State<T>(
             val consumedByParent =
                 nestedScrollDispatcher.dispatchPreScroll(
                     available = offsetWithOrientation(remainingDelta),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
             remainingDelta -= (consumedByParent.x + consumedByParent.y)
         }
@@ -503,7 +502,7 @@ public class SwipeableV2State<T>(
                 nestedScrollDispatcher.dispatchPostScroll(
                     consumed = offsetWithOrientation(deltaToConsume),
                     available = offsetWithOrientation(delta - deltaToConsume),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
             remainingDelta -= (deltaToConsume + consumedDelta.x + consumedDelta.y)
         }
