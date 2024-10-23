@@ -536,6 +536,7 @@ class TextButtonTest {
             baseShape,
             pressedShape,
             0.75f,
+            8,
             color = { TextButtonDefaults.filledTextButtonColors().containerColor }
         ) { modifier ->
             TextButton(

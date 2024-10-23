@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -210,16 +209,5 @@ internal fun animateToggleButtonShape(
         Pair(uncheckedShape, interactionSource)
     }
 }
-
-private suspend fun waitUntil(condition: () -> Boolean) {
-    val initialTimeMillis = withFrameMillis { it }
-    while (!condition()) {
-        val timeMillis = withFrameMillis { it }
-        if (timeMillis - initialTimeMillis > MAX_WAIT_TIME_MILLIS) return
-    }
-    return
-}
-
-private const val MAX_WAIT_TIME_MILLIS = 1_000L
 
 private const val MIN_REQUIRED_ANIMATION_PROGRESS = 0.75f

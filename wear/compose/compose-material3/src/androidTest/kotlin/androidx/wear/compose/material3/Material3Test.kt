@@ -403,7 +403,9 @@ fun ComposeContentTestRule.verifyRoundedButtonTapAnimationEnd(
     baseShape: RoundedCornerShape,
     pressedShape: RoundedCornerShape,
     targetProgress: Float,
+    expectedFramesUntilTarget: Int,
     color: @Composable () -> Color,
+    antiAliasingGap: Float = 2f,
     content: @Composable (Modifier) -> Unit
 ) {
     val expectedAnimationEnd =
@@ -426,7 +428,7 @@ fun ComposeContentTestRule.verifyRoundedButtonTapAnimationEnd(
      * 2) rule.mainClock.waitUntil expects a condition. However, the shape validations for
      *    ImageBitMap only includes of assets
      */
-    repeat(8) { mainClock.advanceTimeByFrame() }
+    repeat(expectedFramesUntilTarget) { mainClock.advanceTimeByFrame() }
 
     onNodeWithTag(TEST_TAG)
         .captureToImage()
@@ -436,7 +438,7 @@ fun ComposeContentTestRule.verifyRoundedButtonTapAnimationEnd(
             verticalPadding = 0.dp,
             shapeColor = fillColor,
             backgroundColor = Color.Transparent,
-            antiAliasingGap = 2.0f,
+            antiAliasingGap = antiAliasingGap,
             shape = expectedAnimationEnd,
         )
 }
