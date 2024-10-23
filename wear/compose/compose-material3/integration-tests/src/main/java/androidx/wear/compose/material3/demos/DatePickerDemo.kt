@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.DatePicker
@@ -40,6 +41,7 @@ import androidx.wear.compose.material3.samples.DatePickerSample
 import androidx.wear.compose.material3.samples.DatePickerYearMonthDaySample
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 val DatePickerDemos =
@@ -49,6 +51,7 @@ val DatePickerDemos =
         ComposableDemo("Date Day-Month-Year") { DatePickerDemo(DatePickerType.DayMonthYear) },
         ComposableDemo("Date System date format") { DatePickerSample() },
         ComposableDemo("Date Range") { DatePickerMinDateMaxDateSample() },
+        ComposableDemo("Past only") { DatePickerPastOnlyDemo() },
     )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -70,6 +73,40 @@ fun DatePickerDemo(datePickerType: DatePickerType) {
                 showDatePicker = false
             },
             datePickerType = datePickerType
+        )
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Button(
+                onClick = { showDatePicker = true },
+                label = { Text("Selected Date") },
+                secondaryLabel = { Text(datePickerDate.format(formatter)) },
+                icon = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit") },
+            )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DatePickerPastOnlyDemo() {
+    val currentDate = LocalDate.now()
+    var showDatePicker by remember { mutableStateOf(true) }
+    var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+    val formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+            .withLocale(LocalConfiguration.current.locales[0])
+    if (showDatePicker) {
+        DatePicker(
+            initialDate = datePickerDate, // Initialize with last picked date on reopen
+            onDatePicked = {
+                datePickerDate = it
+                showDatePicker = false
+            },
+            datePickerType = DatePickerType.YearMonthDay,
+            maxDate = currentDate
         )
     } else {
         Box(
