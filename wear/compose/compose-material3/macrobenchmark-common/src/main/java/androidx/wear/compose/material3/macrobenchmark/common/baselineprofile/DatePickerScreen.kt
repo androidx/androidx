@@ -21,10 +21,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.DatePicker
 import androidx.wear.compose.material3.DatePickerType
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import java.time.LocalDate
 
 val DatePickerScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 if (Build.VERSION.SDK_INT >= 26) {

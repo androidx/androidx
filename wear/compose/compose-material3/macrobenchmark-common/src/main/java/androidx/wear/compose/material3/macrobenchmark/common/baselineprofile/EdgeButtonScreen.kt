@@ -19,11 +19,12 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 
 val EdgeButtonScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = { EdgeButtonSample() }
 

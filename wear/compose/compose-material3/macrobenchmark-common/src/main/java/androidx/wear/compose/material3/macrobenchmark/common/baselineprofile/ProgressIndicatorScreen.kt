@@ -18,6 +18,7 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
 import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
@@ -28,7 +29,7 @@ import androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSa
 import androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
 
 val ProgressIndicatorScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 FullScreenProgressIndicatorSample()

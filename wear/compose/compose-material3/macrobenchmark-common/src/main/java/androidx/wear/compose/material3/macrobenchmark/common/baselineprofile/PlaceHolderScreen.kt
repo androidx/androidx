@@ -22,12 +22,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
 import androidx.wear.compose.material3.samples.ButtonWithIconAndLabelsAndOverlaidPlaceholder
 import androidx.wear.compose.material3.samples.TextPlaceholder
 
 val PlaceHolderScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

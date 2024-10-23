@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
+package androidx.wear.compose.material3.macrobenchmark.common
 
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
-import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
-import androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
 
-val ScrollIndicatorScreen =
-    object : MacrobenchmarkScreen {
-        override val content: @Composable BoxScope.() -> Unit
-            get() = { ScrollIndicatorWithColumnSample() }
-    }
+/** Represents a screen that can be used in Macrobenchmark tests. */
+interface MacrobenchmarkScreen {
+    val content: @Composable BoxScope.() -> Unit
+    val exercise: MacrobenchmarkScope.() -> Unit
+        get() = { device.waitForIdle() }
+}

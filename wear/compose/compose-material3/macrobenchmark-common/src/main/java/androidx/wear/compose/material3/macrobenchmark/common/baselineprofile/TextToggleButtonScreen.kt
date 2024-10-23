@@ -35,12 +35,13 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextToggleButton
 import androidx.wear.compose.material3.TextToggleButtonDefaults
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.LargeTextToggleButtonSample
 import androidx.wear.compose.material3.samples.TextToggleButtonSample
 
 @OptIn(ExperimentalLayoutApi::class)
 val TextToggleButtonScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable (BoxScope.() -> Unit)
             get() = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

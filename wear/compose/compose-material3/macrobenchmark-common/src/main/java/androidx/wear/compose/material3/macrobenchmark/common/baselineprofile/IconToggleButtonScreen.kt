@@ -36,13 +36,14 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
 import androidx.wear.compose.material3.samples.IconToggleButtonSample
 import androidx.wear.compose.material3.samples.IconToggleButtonVariantSample
 
 @OptIn(ExperimentalLayoutApi::class)
 val IconToggleButtonScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable (BoxScope.() -> Unit)
             get() = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

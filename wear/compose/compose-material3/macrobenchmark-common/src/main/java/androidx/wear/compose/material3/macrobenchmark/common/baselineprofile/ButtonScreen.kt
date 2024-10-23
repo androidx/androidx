@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.wear.compose.material3.IconButtonDefaults
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
 import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
 import androidx.wear.compose.material3.samples.ButtonSample
@@ -38,7 +39,7 @@ import androidx.wear.compose.material3.samples.OutlinedButtonSample
 import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 
 val ButtonScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {

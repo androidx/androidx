@@ -49,12 +49,13 @@ import androidx.test.uiautomator.Until
 import androidx.wear.compose.material3.AnimatedText
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
 import androidx.wear.compose.material3.rememberAnimatedTextFontRegistry
 import kotlinx.coroutines.launch
 
 val AnimatedTextScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

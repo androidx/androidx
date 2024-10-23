@@ -18,7 +18,9 @@ package androidx.wear.compose.material3.macrobenchmark.common
 
 import androidx.test.uiautomator.UiDevice
 
-internal fun numberedContentDescription(n: Int) = "find-me-$n"
+internal val CONTENT_DESCRIPTION = "find-me"
+
+internal fun numberedContentDescription(n: Int) = "$CONTENT_DESCRIPTION-$n"
 
 internal fun UiDevice.scrollDown() {
     swipe(
