@@ -2355,11 +2355,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             if (layoutNode.nodes.has(Nodes.Semantics)) layoutNode
             else layoutNode.findClosestParentNode { it.nodes.has(Nodes.Semantics) }
 
-        val config = semanticsNode?.semanticsConfiguration ?: return
+        val config = semanticsNode?.collapsedSemantics ?: return
         if (!config.isMergingSemanticsOfDescendants) {
             semanticsNode
                 .findClosestParentNode {
-                    it.semanticsConfiguration?.isMergingSemanticsOfDescendants == true
+                    it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
                 }
                 ?.let { semanticsNode = it }
         }
@@ -3264,12 +3264,12 @@ private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
     val ancestor =
         layoutNode.findClosestParentNode {
             // looking for text field merging node
-            val ancestorSemanticsConfiguration = it.semanticsConfiguration
+            val ancestorSemanticsConfiguration = it.collapsedSemantics
             ancestorSemanticsConfiguration?.isMergingSemanticsOfDescendants == true &&
                 ancestorSemanticsConfiguration.contains(SemanticsProperties.EditableText)
         }
     return ancestor != null &&
-        ancestor.semanticsConfiguration?.getOrNull(SemanticsProperties.Focused) != true
+        ancestor.collapsedSemantics?.getOrNull(SemanticsProperties.Focused) != true
 }
 
 private fun AccessibilityAction<*>.accessibilityEquals(other: Any?): Boolean {

@@ -40,8 +40,8 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     internal var head: Modifier.Node = tail
         private set
 
-    internal val isUpdating: Boolean
-        get() = head.parent != null
+    private val isUpdating: Boolean
+        get() = head === SentinelHead
 
     private val aggregateChildKindSet: Int
         get() = head.aggregateChildKindSet
