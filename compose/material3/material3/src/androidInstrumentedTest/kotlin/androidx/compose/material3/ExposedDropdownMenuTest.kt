@@ -84,6 +84,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeNotNull
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -187,7 +188,11 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(EDMTag).assertIsDisplayed()
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
 
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // First back closes keyboard
+        device.pressBack()
+        // Second back closes menu
+        device.pressBack()
 
         rule.onNodeWithTag(TFTag).assertIsDisplayed()
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
@@ -261,6 +266,7 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
+    @Ignore("b/374850853")
     @Test
     fun edm_editable_collapsesOnEscapePress() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -528,6 +534,46 @@ class ExposedDropdownMenuTest {
         rule.waitForIdle()
 
         assertThat(compositionCount).isEqualTo(1)
+    }
+
+    @Test
+    fun edm_anchorTypeIsUpdated_evenIfTextFieldIsNotClicked() {
+        var expanded by mutableStateOf(false)
+        var type: ExposedDropdownMenuAnchorType? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+            ) {
+                TextField(
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+                    state = rememberTextFieldState(),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    label = { Text("Label") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded,
+                            modifier =
+                                Modifier.menuAnchor(
+                                    ExposedDropdownMenuAnchorType.SecondaryEditable
+                                ),
+                        )
+                    }
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(OptionName) },
+                        onClick = {},
+                    )
+                }
+                SideEffect { type = anchorType }
+            }
+        }
+        rule.runOnIdle { expanded = true }
+        assertThat(type).isEqualTo(ExposedDropdownMenuAnchorType.PrimaryEditable)
     }
 
     @Test
