@@ -18,11 +18,12 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.CurvedTextBottom
 import androidx.wear.compose.material3.samples.CurvedTextTop
 
 val CurvedTextScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 CurvedTextTop()

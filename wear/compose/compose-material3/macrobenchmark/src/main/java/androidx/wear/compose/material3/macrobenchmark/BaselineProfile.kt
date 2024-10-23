@@ -78,7 +78,6 @@ class BaselineProfile {
     }
 
     companion object {
-        private const val PACKAGE_NAME = "androidx.wear.compose.material3.macrobenchmark.target"
         private const val BASELINE_ACTIVITY = "$PACKAGE_NAME.BASELINE_ACTIVITY"
     }
 }

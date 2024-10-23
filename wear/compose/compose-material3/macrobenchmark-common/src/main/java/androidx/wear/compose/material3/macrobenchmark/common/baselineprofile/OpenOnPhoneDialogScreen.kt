@@ -35,9 +35,10 @@ import androidx.test.uiautomator.Until
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.OpenOnPhoneDialog
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 
 val OpenOnPhoneDialogScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = {
                 Column {

@@ -16,10 +16,6 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
-import androidx.benchmark.macro.MacrobenchmarkScope
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.runtime.Composable
-
 val BaselineProfileScreens =
     listOf(
         AlertDialogScreen,
@@ -56,10 +52,3 @@ val BaselineProfileScreens =
         TimePickerScreen,
         TransformingLazyColumnScreen,
     )
-
-/** Represents a screen used for generating a baseline profile. */
-interface BaselineProfileScreen {
-    val content: @Composable BoxScope.() -> Unit
-    val exercise: MacrobenchmarkScope.() -> Unit
-        get() = { device.waitForIdle() }
-}

@@ -46,10 +46,11 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
+import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
 
 val AlertDialogScreen =
-    object : BaselineProfileScreen {
+    object : MacrobenchmarkScreen {
 
         override val content: @Composable BoxScope.() -> Unit
             get() = {
