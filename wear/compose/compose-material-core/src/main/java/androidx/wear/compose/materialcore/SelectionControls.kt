@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
@@ -87,7 +88,7 @@ fun Checkbox(
     enabled: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     interactionSource: MutableInteractionSource?,
-    progressAnimationSpec: TweenSpec<Float>,
+    progressAnimationSpec: FiniteAnimationSpec<Float>,
     drawBox: FunctionDrawBox,
     width: Dp,
     height: Dp,
@@ -274,6 +275,59 @@ fun RadioButton(
     width: Dp,
     height: Dp,
     ripple: Indication
+) =
+    RadioButton(
+        modifier = modifier,
+        selected = selected,
+        enabled = enabled,
+        ringColor = ringColor,
+        dotColor = dotColor,
+        onClick = onClick,
+        interactionSource = interactionSource,
+        dotRadiusAnimationSpec = tween(dotRadiusProgressDuration(selected), 0, easing),
+        dotAlphaAnimationSpec = tween(dotAlphaProgressDuration, dotAlphaProgressDelay, easing),
+        width = width,
+        height = height,
+        ripple = ripple
+    )
+
+/**
+ * [RadioButton] provides an animated radio button for use in material APIs.
+ *
+ * @param modifier Modifier to be applied to the radio button. This can be used to provide a content
+ *   description for accessibility.
+ * @param selected Boolean flag indicating whether this radio button is currently toggled on.
+ * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects the
+ *   color).
+ * @param ringColor Composable lambda from which the ring color of the radio button will be
+ *   obtained.
+ * @param dotColor Composable lambda from which the dot color of the radio button will be obtained.
+ * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is passive
+ *   and relies entirely on a higher-level component to control the state.
+ * @param interactionSource When also providing [onClick], the [MutableInteractionSource]
+ *   representing the stream of [Interaction]s for the "toggleable" tap area - can be used to
+ *   customise the appearance / behavior of the RadioButton.
+ * @param dotRadiusAnimationSpec Animation spec of the dot radius progress animation.
+ * @param dotAlphaAnimationSpec Animation spec of the dot alpha progress animation.
+ * @param width Width of the radio button.
+ * @param height Height of the radio button.
+ * @param ripple Ripple used for the radio button.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun RadioButton(
+    modifier: Modifier,
+    selected: Boolean,
+    enabled: Boolean,
+    ringColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
+    dotColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
+    onClick: (() -> Unit)?,
+    interactionSource: MutableInteractionSource?,
+    dotRadiusAnimationSpec: FiniteAnimationSpec<Float>,
+    dotAlphaAnimationSpec: FiniteAnimationSpec<Float>,
+    width: Dp,
+    height: Dp,
+    ripple: Indication
 ) {
     val targetState = if (selected) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState)
@@ -286,7 +340,7 @@ fun RadioButton(
         animateProgress(
             transition = transition,
             label = "dot-radius",
-            animationSpec = tween(dotRadiusProgressDuration(selected), 0, easing)
+            animationSpec = dotRadiusAnimationSpec
         )
     // Animation of the dot alpha only happens when toggling On to Off.
     val dotAlphaProgress =
@@ -294,7 +348,7 @@ fun RadioButton(
             animateProgress(
                 transition = transition,
                 label = "dot-alpha",
-                animationSpec = tween(dotAlphaProgressDuration, dotAlphaProgressDelay, easing)
+                animationSpec = dotAlphaAnimationSpec
             )
         else null
 
@@ -426,7 +480,7 @@ fun DrawScope.animateTick(
 private fun animateProgress(
     transition: Transition<SelectionStage>,
     label: String,
-    animationSpec: TweenSpec<Float>,
+    animationSpec: FiniteAnimationSpec<Float>,
 ) =
     transition.animateFloat(transitionSpec = { animationSpec }, label = label) {
         when (it) {
