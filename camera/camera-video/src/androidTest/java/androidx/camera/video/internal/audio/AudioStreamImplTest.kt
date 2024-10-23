@@ -19,8 +19,10 @@ package androidx.camera.video.internal.audio
 import android.Manifest
 import android.media.AudioFormat
 import android.media.MediaRecorder
+import android.os.Build
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.AudioUtil
 import androidx.camera.testing.impl.RequiresDevice
 import androidx.camera.testing.impl.mocks.MockConsumer
@@ -36,6 +38,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -68,6 +71,12 @@ class AudioStreamImplTest {
 
     @Before
     fun setUp() {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
+
         assumeTrue(AudioStreamImpl.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
         assumeTrue(AudioUtil.canStartAudioRecord(AUDIO_SOURCE))
 

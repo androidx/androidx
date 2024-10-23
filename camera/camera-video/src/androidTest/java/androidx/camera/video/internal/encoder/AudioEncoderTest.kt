@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.BufferProvider.State
 import androidx.concurrent.futures.await
@@ -75,6 +76,12 @@ class AudioEncoderTest {
 
     @Before
     fun setup() {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
+
         encoderCallback = Mockito.mock(EncoderCallback::class.java)
         Mockito.doAnswer { args: InvocationOnMock ->
                 val encodedData: EncodedData = args.getArgument(0)

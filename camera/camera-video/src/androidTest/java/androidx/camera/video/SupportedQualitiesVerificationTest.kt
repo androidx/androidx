@@ -165,6 +165,12 @@ class SupportedQualitiesVerificationTest(
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
 
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
+
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
         lifecycleOwner = FakeLifecycleOwner()

@@ -25,6 +25,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.RequiresDevice
 import androidx.camera.video.internal.audio.AudioUtils.computeInterpolatedTimeNs
 import androidx.camera.video.internal.audio.AudioUtils.getBytesPerFrame
@@ -88,6 +89,11 @@ class AudioRecordCompatibilityTest {
 
     @Before
     fun setUp() {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
         audioRecord = createAudioRecordFromGlobalVariables()
         assumeNotNull(audioRecord)
     }
