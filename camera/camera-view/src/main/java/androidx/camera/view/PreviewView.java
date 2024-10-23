@@ -1179,7 +1179,6 @@ public final class PreviewView extends FrameLayout {
      * @see ScreenFlashView#getScreenFlash()
      * @see ImageCapture#FLASH_MODE_SCREEN
      */
-    @ExperimentalPreviewViewScreenFlash
     @UiThread
     @Nullable
     public ImageCapture.ScreenFlash getScreenFlash() {
@@ -1194,7 +1193,6 @@ public final class PreviewView extends FrameLayout {
      * @see #getScreenFlash()
      * @see ImageCapture#FLASH_MODE_SCREEN
      */
-    @ExperimentalPreviewViewScreenFlash
     public void setScreenFlashOverlayColor(@ColorInt int color) {
         mScreenFlashView.setBackgroundColor(color);
     }
