@@ -26,7 +26,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.ExternalCameraController
@@ -35,8 +34,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 @CameraGraphScope
 @Subcomponent(modules = [SharedCameraGraphModules::class, ExternalCameraGraphConfigModule::class])
@@ -61,9 +58,6 @@ internal class ExternalCameraGraphConfigModule(
         object : CameraBackend {
             override val id: CameraBackendId
                 get() = CameraBackendId("External")
-
-            override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
-                get() = MutableSharedFlow()
 
             override suspend fun getCameraIds(): List<CameraId>? {
                 throwUnsupportedOperationException()

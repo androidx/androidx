@@ -137,7 +137,7 @@ class CameraPipeActivity : CameraPermissionActivity() {
         var cameras = currentCameras
         cameras?.let {
             for (camera in it) {
-                camera.stop()
+                camera.close()
             }
         }
         Trace.endSection()

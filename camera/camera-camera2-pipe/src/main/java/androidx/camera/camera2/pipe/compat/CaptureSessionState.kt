@@ -367,7 +367,7 @@ internal class CaptureSessionState(
         }
     }
 
-    private fun finalizeSession(delayMs: Long = 0L) {
+    internal fun finalizeSession(delayMs: Long = 0L) {
         if (delayMs != 0L) {
             scope.launch {
                 Log.debug { "Finalizing $this in $delayMs ms" }

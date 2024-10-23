@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
@@ -71,11 +70,6 @@ public class ExternalCameraController(
         if (started.compareAndSet(expect = true, update = false)) {
             graphListener.onGraphStopped(graphProcessor)
         }
-    }
-
-    override fun onCameraStatusChanged(cameraStatus: CameraStatusMonitor.CameraStatus) {
-        // This is intentionally made a no-op for now as CameraPipe external doesn't support
-        // camera status monitoring and camera controller restart.
     }
 
     override fun close() {
