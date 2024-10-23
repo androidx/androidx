@@ -28,6 +28,7 @@ val Material3Demos =
             ComposableDemo("Pull To Refresh") { PullToRefreshDemo() },
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
             ComposableDemo("Tooltip") { TooltipDemo() },
+            ComposableDemo("Toggle Buttons") { ToggleButtonDemos() },
             ComposableDemo("Text fields") { MaterialTextFieldDemo() },
             DemoCategory(
                 "Icon Buttons",
