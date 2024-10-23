@@ -13,6 +13,7 @@ package androidx.savedstate {
   @kotlin.jvm.JvmInline public final value class SavedStateReader {
     ctor public SavedStateReader(android.os.Bundle source);
     method public inline operator boolean contains(String key);
+    method public boolean contentDeepEquals(android.os.Bundle other);
     method public inline boolean getBoolean(String key);
     method public inline boolean getBooleanOrElse(String key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
     method public inline double getDouble(String key);
@@ -43,6 +44,10 @@ package androidx.savedstate {
     method public inline boolean isEmpty();
     method public inline int size();
     property public final android.os.Bundle source;
+  }
+
+  public final class SavedStateReader_androidKt {
+    method @kotlin.PublishedApi internal static boolean contentDeepEquals(android.os.Bundle, android.os.Bundle other);
   }
 
   public final class SavedStateRegistry {

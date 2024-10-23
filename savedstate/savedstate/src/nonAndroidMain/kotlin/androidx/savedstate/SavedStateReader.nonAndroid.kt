@@ -163,4 +163,9 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
             currentValue = { currentValue() },
             defaultValue = { defaultValue() },
         )
+
+    actual fun contentDeepEquals(other: SavedState): Boolean {
+        // Map implements `equals` as a content deep, there is no need to do anything else.
+        return source.map == other.map
+    }
 }

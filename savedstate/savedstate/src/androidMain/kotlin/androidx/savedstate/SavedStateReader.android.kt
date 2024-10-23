@@ -171,6 +171,8 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
 
     actual inline operator fun contains(key: String): Boolean = source.containsKey(key)
 
+    actual fun contentDeepEquals(other: SavedState): Boolean = source.contentDeepEquals(other)
+
     @PublishedApi
     internal inline fun <reified T> getSingleResultOrThrow(
         key: String,
@@ -220,4 +222,24 @@ actual value class SavedStateReader actual constructor(actual val source: SavedS
             currentValue = { currentValue() },
             defaultValue = { defaultValue() },
         )
+}
+
+@PublishedApi
+internal fun SavedState.contentDeepEquals(other: SavedState): Boolean {
+    if (this === other) return true
+    if (this.size() != other.size()) return false
+
+    for (k in this.keySet()) {
+        @Suppress("DEPRECATION") val v1 = this[k]
+        @Suppress("DEPRECATION") val v2 = other[k]
+
+        when {
+            v1 === v2 -> continue
+            v1 == null || v2 == null -> return false
+            v1 is SavedState && v2 is SavedState -> if (!v1.contentDeepEquals(v2)) return false
+            v1 is Array<*> && v2 is Array<*> -> if (!v1.contentDeepEquals(v2)) return false
+            else -> if (v1 != v2) return false
+        }
+    }
+    return true
 }

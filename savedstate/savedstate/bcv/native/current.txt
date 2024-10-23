@@ -51,6 +51,7 @@ final value class androidx.savedstate/SavedStateReader { // androidx.savedstate/
     final val source // androidx.savedstate/SavedStateReader.source|{}source[0]
         final fun <get-source>(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateReader.source.<get-source>|<get-source>(){}[0]
 
+    final fun contentDeepEquals(androidx.savedstate/SavedState): kotlin/Boolean // androidx.savedstate/SavedStateReader.contentDeepEquals|contentDeepEquals(androidx.savedstate.SavedState){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.savedstate/SavedStateReader.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.savedstate/SavedStateReader.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.savedstate/SavedStateReader.toString|toString(){}[0]
