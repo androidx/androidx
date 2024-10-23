@@ -57,12 +57,12 @@ class PlaceholderTest {
         }
 
         // For testing we need to manually manage the frame clock for the placeholder animation
-        placeholderState.initializeTestFrameMillis(PlaceholderStage.ShowContent)
+        placeholderState.initializeTestFrameMillis(PlaceholderStage.HidePlaceholder)
 
         // Advance placeholder clock without changing the content ready and confirm still in
         // ShowPlaceholder
         placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
     }
 
@@ -92,7 +92,7 @@ class PlaceholderTest {
         // Advance the clock by one cycle and check we have moved to ShowContent
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
     }
 
@@ -112,12 +112,12 @@ class PlaceholderTest {
         }
 
         // For testing we need to manually manage the frame clock for the placeholder animation
-        placeholderState.initializeTestFrameMillis(PlaceholderStage.ShowContent)
+        placeholderState.initializeTestFrameMillis(PlaceholderStage.HidePlaceholder)
 
         // Advance placeholder clock without changing the content ready and confirm still in
         // ShowPlaceholder
         placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
 
         contentReady.value = false
@@ -182,7 +182,7 @@ class PlaceholderTest {
         // Advance the clock by one cycle and check we have moved to ShowContent
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedBackgroundColor)
@@ -240,7 +240,7 @@ class PlaceholderTest {
         // Advance the clock by one cycle and check we have moved to ShowContent
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
 
         // Check that the shimmer is no longer visible
@@ -317,7 +317,7 @@ class PlaceholderTest {
         // Now move the end of the wipe-off and confirm that the proper button background is visible
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
 
         // Check that normal button background is now visible
@@ -338,7 +338,7 @@ class PlaceholderTest {
                     placeholderState = placeholderState,
                 ),
         )
-        LaunchedEffect(placeholderState) { placeholderState.startPlaceholderAnimation() }
+        LaunchedEffect(placeholderState) { placeholderState.animatePlaceholder() }
     }
 
     @Test
@@ -366,7 +366,7 @@ class PlaceholderTest {
 
         placeholderState.value?.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
     }
 
@@ -392,7 +392,7 @@ class PlaceholderTest {
                         placeholderState = placeholderState,
                     ),
             )
-            LaunchedEffect(placeholderState) { placeholderState.startPlaceholderAnimation() }
+            LaunchedEffect(placeholderState) { placeholderState.animatePlaceholder() }
         }
 
         placeholderState.initializeTestFrameMillis()
@@ -408,7 +408,7 @@ class PlaceholderTest {
 
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            PlaceholderStage.HidePlaceholder
         )
 
         // Check the placeholder background has gone and that we can see the buttons background

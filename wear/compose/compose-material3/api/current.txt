@@ -851,11 +851,11 @@ package androidx.wear.compose.material3 {
 
   public final class PlaceholderDefaults {
     method public androidx.compose.ui.graphics.Shape getShape();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter painterWithPlaceholderOverlayBackgroundBrush(androidx.wear.compose.material3.PlaceholderState placeholderState, androidx.compose.ui.graphics.painter.Painter painter, optional long color);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter painterWithPlaceholderOverlayBackgroundBrush(androidx.wear.compose.material3.PlaceholderState placeholderState, androidx.compose.ui.graphics.painter.Painter originalPainter, optional long color);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter placeholderBackgroundBrush(androidx.wear.compose.material3.PlaceholderState placeholderState, optional long color);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors placeholderButtonColors(androidx.wear.compose.material3.ButtonColors originalButtonColors, androidx.wear.compose.material3.PlaceholderState placeholderState, optional long color);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors placeholderButtonColors(androidx.wear.compose.material3.PlaceholderState placeholderState, optional long color);
-    property public final androidx.compose.ui.graphics.Shape shape;
+    property public final androidx.compose.ui.graphics.Shape Shape;
     field public static final androidx.wear.compose.material3.PlaceholderDefaults INSTANCE;
   }
 
@@ -866,13 +866,11 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public final class PlaceholderState {
-    method public float getPlaceholderProgression();
-    method public boolean isShowContent();
-    method public boolean isWipeOff();
-    method public suspend Object? startPlaceholderAnimation(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final boolean isShowContent;
-    property public final boolean isWipeOff;
-    property public final float placeholderProgression;
+    method public suspend Object? animatePlaceholder(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public boolean isHidden();
+    method public boolean isWipingOff();
+    property public final boolean isHidden;
+    property public final boolean isWipingOff;
   }
 
   public final class ProgressIndicatorColors {
