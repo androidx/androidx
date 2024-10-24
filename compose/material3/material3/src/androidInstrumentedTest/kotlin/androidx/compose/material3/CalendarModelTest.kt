@@ -116,7 +116,15 @@ internal class CalendarModelTest(private val model: CalendarModel) {
     fun parseDate() {
         val expectedDate =
             CalendarDate(year = 2022, month = 1, dayOfMonth = 1, utcTimeMillis = January2022Millis)
-        val parsedDate = model.parse("1/1/2022", "M/d/yyyy")
+        val parsedDate = model.parse("1/1/2022", "M/d/yyyy", Locale.ENGLISH)
+        assertThat(parsedDate).isEqualTo(expectedDate)
+    }
+
+    @Test
+    fun parseDate_Arabic() {
+        val expectedDate =
+            CalendarDate(year = 2022, month = 1, dayOfMonth = 1, utcTimeMillis = January2022Millis)
+        val parsedDate = model.parse("٠١/٠١/٢٠٢٢", "d/MM/yyyy", Locale.forLanguageTag("ar"))
         assertThat(parsedDate).isEqualTo(expectedDate)
     }
 

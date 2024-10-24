@@ -136,7 +136,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
         locale: CalendarLocale
     ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
-    override fun parse(date: String, pattern: String): CalendarDate? {
+    override fun parse(date: String, pattern: String, locale: CalendarLocale): CalendarDate? {
         val dateFormat = SimpleDateFormat(pattern)
         dateFormat.timeZone = utcTimeZone
         dateFormat.isLenient = false

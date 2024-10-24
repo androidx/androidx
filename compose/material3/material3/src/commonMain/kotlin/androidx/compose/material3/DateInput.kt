@@ -159,7 +159,11 @@ internal fun DateInputTextField(
             initialError =
                 dateInputValidator.validate(
                     dateToValidate =
-                        calendarModel.parse(text.text, dateInputFormat.patternWithoutDelimiters),
+                        calendarModel.parse(
+                            date = text.text,
+                            pattern = dateInputFormat.patternWithoutDelimiters,
+                            locale = locale
+                        ),
                     inputIdentifier = inputIdentifier,
                     locale = locale
                 )
@@ -196,7 +200,11 @@ internal fun DateInputTextField(
                     onDateSelectionChange(null)
                 } else {
                     val parsedDate =
-                        calendarModel.parse(trimmedText, dateInputFormat.patternWithoutDelimiters)
+                        calendarModel.parse(
+                            date = trimmedText,
+                            pattern = dateInputFormat.patternWithoutDelimiters,
+                            locale = locale
+                        )
                     errorText.value =
                         dateInputValidator.validate(
                             dateToValidate = parsedDate,

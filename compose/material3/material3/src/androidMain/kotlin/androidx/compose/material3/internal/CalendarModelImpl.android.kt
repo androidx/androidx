@@ -132,9 +132,8 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
         locale: CalendarLocale
     ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
-    override fun parse(date: String, pattern: String): CalendarDate? {
-        // TODO: A DateTimeFormatter can be reused.
-        val formatter = DateTimeFormatter.ofPattern(pattern)
+    override fun parse(date: String, pattern: String, locale: CalendarLocale): CalendarDate? {
+        val formatter = getCachedDateTimeFormatter(pattern, locale, formatterCache)
         return try {
             val localDate = LocalDate.parse(date, formatter)
             CalendarDate(
