@@ -38,6 +38,7 @@ import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.impl.AndroidUtil
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
@@ -154,6 +155,12 @@ class VideoEncoderTest(
         assumeFalse(
             "Emulator API 28 crashes running this test.",
             Build.VERSION.SDK_INT == 28 && AndroidUtil.isEmulator()
+        )
+
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
         )
 
         CameraXUtil.initialize(context, cameraConfig).get()

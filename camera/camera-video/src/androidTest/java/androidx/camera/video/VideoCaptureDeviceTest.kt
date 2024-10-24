@@ -37,6 +37,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
@@ -126,6 +127,12 @@ class VideoCaptureDeviceTest(
 
     @Before
     fun setUp() {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
+
         CameraXUtil.initialize(context, cameraConfig).get()
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)

@@ -16,6 +16,8 @@
 
 package androidx.camera.video
 
+import android.os.Build
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.asFlow
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -23,6 +25,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -33,6 +36,11 @@ class VideoOutputTest {
 
     @Test
     fun getStreamState_defaultsToActive(): Unit = runBlocking {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
         // Create an anonymous subclass of VideoOutput. Don't override
         // VideoOutput#getStreamState() so the default implementation is used.
         val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
@@ -43,6 +51,12 @@ class VideoOutputTest {
 
     @Test
     fun getMediaSpec_defaultsToNull(): Unit = runBlocking {
+        // Skip for b/264902324
+        assumeFalse(
+            "Emulator API 30 crashes running this test.",
+            Build.VERSION.SDK_INT == 30 && isEmulator()
+        )
+
         // Create an anonymous subclass of VideoOutput. Don't override
         // VideoOutput#getMediaSpec() so the default implementation is used.
         val videoOutput = VideoOutput { request -> request.willNotProvideSurface() }
