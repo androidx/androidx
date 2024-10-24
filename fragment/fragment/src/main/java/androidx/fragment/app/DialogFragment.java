@@ -38,8 +38,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.lifecycle.LifecycleOwner;
@@ -47,6 +45,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -402,8 +403,7 @@ public class DialogFragment extends Fragment
         }
     };
 
-    @Nullable
-    private Dialog mDialog;
+    private @Nullable Dialog mDialog;
     private boolean mViewDestroyed;
     private boolean mDismissed;
     private boolean mShownByMe;
@@ -623,8 +623,7 @@ public class DialogFragment extends Fragment
      *
      * @see #requireDialog()
      */
-    @Nullable
-    public Dialog getDialog() {
+    public @Nullable Dialog getDialog() {
         return mDialog;
     }
 
@@ -635,8 +634,7 @@ public class DialogFragment extends Fragment
      * {@link #onCreateDialog(Bundle)}) or has been destroyed (after {@link #onDestroyView()}.
      * @see #getDialog()
      */
-    @NonNull
-    public final Dialog requireDialog() {
+    public final @NonNull Dialog requireDialog() {
         Dialog dialog = getDialog();
         if (dialog == null) {
             throw new IllegalStateException("DialogFragment " + this + " does not have a Dialog.");
@@ -653,8 +651,7 @@ public class DialogFragment extends Fragment
      *
      * @see #requireDialog()
      */
-    @NonNull
-    public final ComponentDialog requireComponentDialog() {
+    public final @NonNull ComponentDialog requireComponentDialog() {
         Dialog dialog = requireDialog();
         if (!(dialog instanceof ComponentDialog)) {
             throw new IllegalStateException("DialogFragment " + this
@@ -780,14 +777,12 @@ public class DialogFragment extends Fragment
         }
     }
 
-    @NonNull
     @Override
-    FragmentContainer createFragmentContainer() {
+    @NonNull FragmentContainer createFragmentContainer() {
         final FragmentContainer fragmentContainer = super.createFragmentContainer();
         return new FragmentContainer() {
-            @Nullable
             @Override
-            public View onFindViewById(int id) {
+            public @Nullable View onFindViewById(int id) {
                 if (fragmentContainer.onHasView()) {
                     return fragmentContainer.onFindViewById(id);
                 }
@@ -801,8 +796,7 @@ public class DialogFragment extends Fragment
         };
     }
 
-    @Nullable
-    View onFindViewById(int id) {
+    @Nullable View onFindViewById(int id) {
         if (mDialog != null) {
             return mDialog.findViewById(id);
         }
@@ -821,8 +815,7 @@ public class DialogFragment extends Fragment
      * {@link Fragment#onGetLayoutInflater(Bundle)}, without the dialog theme, will be returned.
      */
     @Override
-    @NonNull
-    public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
+    public @NonNull LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         LayoutInflater layoutInflater = super.onGetLayoutInflater(savedInstanceState);
         if (!mShowsDialog || mCreatingDialog) {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -887,8 +880,7 @@ public class DialogFragment extends Fragment
      * @return Return a new Dialog instance to be displayed by the Fragment.
      */
     @MainThread
-    @NonNull
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public @NonNull Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "onCreateDialog called for DialogFragment " + this);
         }

@@ -18,7 +18,7 @@ package androidx.fragment.app;
 
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Factory for constructing instances of {@link SpecialEffectsController} on demand.
@@ -30,6 +30,5 @@ interface SpecialEffectsControllerFactory {
      * @param container The ViewGroup the created SpecialEffectsController should control.
      * @return a new instance of SpecialEffectsController
      */
-    @NonNull
-    SpecialEffectsController createController(@NonNull ViewGroup container);
+    @NonNull SpecialEffectsController createController(@NonNull ViewGroup container);
 }

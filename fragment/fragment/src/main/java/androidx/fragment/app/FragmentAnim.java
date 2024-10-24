@@ -31,9 +31,10 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 
 import androidx.annotation.AnimRes;
-import androidx.annotation.NonNull;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.R;
+
+import org.jspecify.annotations.NonNull;
 
 class FragmentAnim {
     /**

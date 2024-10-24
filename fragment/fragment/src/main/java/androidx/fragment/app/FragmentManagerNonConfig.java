@@ -19,8 +19,9 @@ package androidx.fragment.app;
 
 import android.os.Parcelable;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelStore;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -63,24 +64,21 @@ public class FragmentManagerNonConfig {
     /**
      * @return the retained instance fragments returned by a FragmentManager
      */
-    @Nullable
-    Collection<Fragment> getFragments() {
+    @Nullable Collection<Fragment> getFragments() {
         return mFragments;
     }
 
     /**
      * @return the FragmentManagerNonConfigs from any applicable fragment's child FragmentManager
      */
-    @Nullable
-    Map<String, FragmentManagerNonConfig> getChildNonConfigs() {
+    @Nullable Map<String, FragmentManagerNonConfig> getChildNonConfigs() {
         return mChildNonConfigs;
     }
 
     /**
      * @return the ViewModelStores for all fragments associated with the FragmentManager
      */
-    @Nullable
-    Map<String, ViewModelStore> getViewModelStores() {
+    @Nullable Map<String, ViewModelStore> getViewModelStores() {
         return mViewModelStores;
     }
 }

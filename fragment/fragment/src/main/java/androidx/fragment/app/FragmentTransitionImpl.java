@@ -26,16 +26,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 
 /**
  */
@@ -171,8 +171,7 @@ public abstract class FragmentTransitionImpl {
     /**
      * Allows for controlling a seekable transition
      */
-    @Nullable
-    public Object controlDelayedTransition(@NonNull ViewGroup sceneRoot,
+    public @Nullable Object controlDelayedTransition(@NonNull ViewGroup sceneRoot,
             @NonNull Object transition) {
         return null;
     }
@@ -274,8 +273,8 @@ public abstract class FragmentTransitionImpl {
      *                                   complete
      */
     @SuppressWarnings("deprecation") // TODO(b/309499026): Migrate to platform-provided class.
-    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
+    public void setListenerForTransitionEnd(final @NonNull Fragment outFragment,
+            @NonNull Object transition, androidx.core.os.@NonNull CancellationSignal signal,
             @NonNull Runnable transitionCompleteRunnable) {
         setListenerForTransitionEnd(
                 outFragment, transition, signal, null, transitionCompleteRunnable
@@ -300,8 +299,8 @@ public abstract class FragmentTransitionImpl {
      *                                   complete
      */
     @SuppressWarnings("deprecation")
-    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
+    public void setListenerForTransitionEnd(final @NonNull Fragment outFragment,
+            @NonNull Object transition, androidx.core.os.@NonNull CancellationSignal signal,
             @Nullable Runnable cancelRunnable,
             @NonNull Runnable transitionCompleteRunnable) {
         transitionCompleteRunnable.run();

@@ -16,8 +16,9 @@
 
 package androidx.fragment.app.testing;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentFactory;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A minimum example fragment which doesn't have default constructor. You have to use
@@ -25,14 +26,13 @@ import androidx.fragment.app.FragmentFactory;
  */
 public class NoDefaultConstructorFragment extends StateRecordingFragment {
 
-    @NonNull private final String mConstructorArg;
+    private final @NonNull String mConstructorArg;
 
     public NoDefaultConstructorFragment(@NonNull String arg) {
         this.mConstructorArg = arg;
     }
 
-    @NonNull
-    public String getConstructorArg() {
+    public @NonNull String getConstructorArg() {
         return mConstructorArg;
     }
 }

@@ -57,8 +57,6 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.core.app.MultiWindowModeChangedInfo;
@@ -79,6 +77,9 @@ import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -185,8 +186,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
          * {@link FragmentTransaction#addToBackStack(String)
          * FragmentTransaction.addToBackStack(String)} when creating this entry.
          */
-        @Nullable
-        String getName();
+        @Nullable String getName();
 
         /**
          * Return the full bread crumb title resource identifier for the entry,
@@ -215,8 +215,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
          *          * by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
-        @Nullable
-        CharSequence getBreadCrumbTitle();
+        @Nullable CharSequence getBreadCrumbTitle();
 
         /**
          * Return the short bread crumb title for the entry, or null if it
@@ -225,8 +224,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
          * example, by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
-        @Nullable
-        CharSequence getBreadCrumbShortTitle();
+        @Nullable CharSequence getBreadCrumbShortTitle();
     }
 
     /**
@@ -652,23 +650,22 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private FragmentContainer mContainer;
     private Fragment mParent;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable
-    Fragment mPrimaryNav;
+    @Nullable Fragment mPrimaryNav;
     private FragmentFactory mFragmentFactory = null;
     private FragmentFactory mHostFragmentFactory = new FragmentFactory() {
         @SuppressWarnings("deprecation")
-        @NonNull
         @Override
-        public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
+        public @NonNull Fragment instantiate(@NonNull ClassLoader classLoader,
+                @NonNull String className) {
             return getHost().instantiate(getHost().getContext(), className, null);
         }
     };
     private SpecialEffectsControllerFactory mSpecialEffectsControllerFactory = null;
     private SpecialEffectsControllerFactory mDefaultSpecialEffectsControllerFactory =
             new SpecialEffectsControllerFactory() {
-                @NonNull
                 @Override
-                public SpecialEffectsController createController(@NonNull ViewGroup container) {
+                public @NonNull SpecialEffectsController createController(
+                        @NonNull ViewGroup container) {
                     return new DefaultSpecialEffectsController(container);
                 }
             };
@@ -730,8 +727,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
-    @NonNull
-    public FragmentTransaction openTransaction() {
+    public @NonNull FragmentTransaction openTransaction() {
         return beginTransaction();
     }
 
@@ -748,8 +744,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * in the state, and if changes are made after the state is saved then they
      * will be lost.</p>
      */
-    @NonNull
-    public FragmentTransaction beginTransaction() {
+    public @NonNull FragmentTransaction beginTransaction() {
         return new BackStackRecord(this);
     }
 
@@ -1011,7 +1006,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * the named state itself is popped. If null, only the top state is popped.
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
-    public void popBackStack(@Nullable final String name, final int flags) {
+    public void popBackStack(final @Nullable String name, final int flags) {
         enqueueAction(new PopBackStackState(name, -1, flags), false);
     }
 
@@ -1136,8 +1131,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Return the BackStackEntry at index <var>index</var> in the back stack;
      * entries start index 0 being the bottom of the stack.
      */
-    @NonNull
-    public BackStackEntry getBackStackEntryAt(int index) {
+    public @NonNull BackStackEntry getBackStackEntryAt(int index) {
         if (index == mBackStack.size()) {
             if (mTransitioningOp == null) {
                 throw new IndexOutOfBoundsException();
@@ -1188,9 +1182,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @Override
-    public final void setFragmentResultListener(@NonNull final String requestKey,
-            @NonNull final LifecycleOwner lifecycleOwner,
-            @NonNull final FragmentResultListener listener) {
+    public final void setFragmentResultListener(final @NonNull String requestKey,
+            final @NonNull LifecycleOwner lifecycleOwner,
+            final @NonNull FragmentResultListener listener) {
         final Lifecycle lifecycle = lifecycleOwner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
             return;
@@ -1199,7 +1193,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         LifecycleEventObserver observer = new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source,
-                    @NonNull Lifecycle.Event event) {
+                    Lifecycle.@NonNull Event event) {
                 if (event == Lifecycle.Event.ON_START) {
                     // once we are started, check for any stored results
                     Bundle storedResult = mResults.get(requestKey);
@@ -1270,8 +1264,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return Returns the current Fragment instance that is associated with
      * the given reference.
      */
-    @Nullable
-    public Fragment getFragment(@NonNull Bundle bundle, @NonNull String key) {
+    public @Nullable Fragment getFragment(@NonNull Bundle bundle, @NonNull String key) {
         String who = bundle.getString(key);
         if (who == null) {
             return null;
@@ -1295,10 +1288,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @throws IllegalStateException if the given view does not correspond with a
      * {@link Fragment}.
      */
-    @NonNull
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"}) // We should throw a ClassCast
     // exception if the type is wrong
-    public static <F extends Fragment> F findFragment(@NonNull View view) {
+    public static <F extends Fragment> @NonNull F findFragment(@NonNull View view) {
         Fragment fragment = findViewFragment(view);
         if (fragment == null) {
             throw new IllegalStateException("View " + view + " does not have a Fragment set");
@@ -1311,8 +1303,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param view the view to search from
      * @return the locally scoped {@link Fragment} to the given view, if found
      */
-    @Nullable
-    static Fragment findViewFragment(@NonNull View view) {
+    static @Nullable Fragment findViewFragment(@NonNull View view) {
         while (view != null) {
             Fragment fragment = getViewFragment(view);
             if (fragment != null) {
@@ -1329,8 +1320,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param view the view to search from
      * @return the locally scoped {@link Fragment} to the given view, if found
      */
-    @Nullable
-    static Fragment getViewFragment(@NonNull View view) {
+    static @Nullable Fragment getViewFragment(@NonNull View view) {
         Object tag = view.getTag(R.id.fragment_container_view_tag);
         if (tag instanceof Fragment) {
             return (Fragment) tag;
@@ -1366,8 +1356,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @throws IllegalStateException if there no Fragment associated with the view and the
      * view's context is not a {@link FragmentActivity}.
      */
-    @NonNull
-    public static FragmentManager findFragmentManager(@NonNull View view) {
+    public static @NonNull FragmentManager findFragmentManager(@NonNull View view) {
         // Search the view ancestors for a Fragment
         Fragment fragment = findViewFragment(view);
         FragmentManager fm;
@@ -1412,19 +1401,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @return A list of all fragments that are added to the FragmentManager.
      */
-    @NonNull
     @SuppressWarnings("unchecked")
-    public List<Fragment> getFragments() {
+    public @NonNull List<Fragment> getFragments() {
         return mFragmentStore.getFragments();
     }
 
-    @NonNull
-    ViewModelStore getViewModelStore(@NonNull Fragment f) {
+    @NonNull ViewModelStore getViewModelStore(@NonNull Fragment f) {
         return mNonConfig.getViewModelStore(f);
     }
 
-    @NonNull
-    private FragmentManagerViewModel getChildNonConfig(@NonNull Fragment f) {
+    private @NonNull FragmentManagerViewModel getChildNonConfig(@NonNull Fragment f) {
         return mNonConfig.getChildNonConfig(f);
     }
 
@@ -1442,8 +1428,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return A list of active fragments in the fragment manager, including those that are in the
      * back stack.
      */
-    @NonNull
-    List<Fragment> getActiveFragments() {
+    @NonNull List<Fragment> getActiveFragments() {
         return mFragmentStore.getActiveFragments();
     }
 
@@ -1478,8 +1463,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return The generated state.  This will be null if there was no
      * interesting state created by the fragment.
      */
-    @Nullable
-    public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
+    public Fragment.@Nullable SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
         FragmentStateManager fragmentStateManager = mFragmentStore.getFragmentStateManager(
                 fragment.mWho);
         if (fragmentStateManager == null || !fragmentStateManager.getFragment().equals(fragment)) {
@@ -1516,9 +1500,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return mDestroyed;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         StringBuilder sb = new StringBuilder(128);
         sb.append("FragmentManager{");
         sb.append(Integer.toHexString(System.identityHashCode(this)));
@@ -1551,7 +1534,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param args Additional arguments to the dump request.
      */
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
-            @NonNull PrintWriter writer, @Nullable String[] args) {
+            @NonNull PrintWriter writer, String @Nullable [] args) {
         String innerPrefix = prefix + "    ";
 
         mFragmentStore.dump(prefix, fd, writer, args);
@@ -1706,8 +1689,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param f The Fragment to create a FragmentStateManager for
      * @return A valid FragmentStateManager
      */
-    @NonNull
-    FragmentStateManager createOrGetFragmentStateManager(@NonNull Fragment f) {
+    @NonNull FragmentStateManager createOrGetFragmentStateManager(@NonNull Fragment f) {
         FragmentStateManager existing = mFragmentStore.getFragmentStateManager(f.mWho);
         if (existing != null) {
             return existing;
@@ -1826,8 +1808,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * on the back stack associated with this ID are searched.
      * @return The fragment if found or null otherwise.
      */
-    @Nullable
-    public Fragment findFragmentById(@IdRes int id) {
+    public @Nullable Fragment findFragmentById(@IdRes int id) {
         return mFragmentStore.findFragmentById(id);
     }
 
@@ -1843,8 +1824,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param tag the tag used to search for the fragment
      * @return The fragment if found or null otherwise.
      */
-    @Nullable
-    public Fragment findFragmentByTag(@Nullable String tag) {
+    public @Nullable Fragment findFragmentByTag(@Nullable String tag) {
         return mFragmentStore.findFragmentByTag(tag);
     }
 
@@ -1852,8 +1832,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return mFragmentStore.findFragmentByWho(who);
     }
 
-    @Nullable
-    Fragment findActiveFragment(@NonNull String who) {
+    @Nullable Fragment findActiveFragment(@NonNull String who) {
         return mFragmentStore.findActiveFragment(who);
     }
 
@@ -2708,8 +2687,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return savedState.isEmpty() ? null : savedState;
     }
 
-    @NonNull
-    Bundle saveAllStateInternal() {
+    @NonNull Bundle saveAllStateInternal() {
         Bundle bundle = new Bundle();
         // Make sure all pending operations have now been executed to get
         // our state update-to-date.
@@ -2924,29 +2902,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @NonNull
-    public FragmentHostCallback<?> getHost() {
+    public @NonNull FragmentHostCallback<?> getHost() {
         return mHost;
     }
 
-    @Nullable
-    Fragment getParent() {
+    @Nullable Fragment getParent() {
         return mParent;
     }
 
-    @NonNull
-    FragmentContainer getContainer() {
+    @NonNull FragmentContainer getContainer() {
         return mContainer;
     }
 
-    @NonNull
-    FragmentStore getFragmentStore() {
+    @NonNull FragmentStore getFragmentStore() {
         return mFragmentStore;
     }
 
     @SuppressWarnings("deprecation")
     void attachController(@NonNull FragmentHostCallback<?> host,
-            @NonNull FragmentContainer container, @Nullable final Fragment parent) {
+            @NonNull FragmentContainer container, final @Nullable Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
         mContainer = container;
@@ -3201,7 +3175,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @SuppressWarnings("deprecation")
-    void launchRequestPermissions(@NonNull Fragment f, @NonNull String[] permissions,
+    void launchRequestPermissions(@NonNull Fragment f, String @NonNull [] permissions,
             int requestCode) {
         if (mRequestPermissions != null) {
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
@@ -3519,12 +3493,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @return the fragment designated as the primary navigation fragment
      */
-    @Nullable
-    public Fragment getPrimaryNavigationFragment() {
+    public @Nullable Fragment getPrimaryNavigationFragment() {
         return mPrimaryNav;
     }
 
-    void setMaxLifecycle(@NonNull Fragment f, @NonNull Lifecycle.State state) {
+    void setMaxLifecycle(@NonNull Fragment f, Lifecycle.@NonNull State state) {
         if (!f.equals(findActiveFragment(f.mWho))
                 || (f.mHost != null && f.mFragmentManager != this)) {
             throw new IllegalArgumentException("Fragment " + f
@@ -3556,8 +3529,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @return the current FragmentFactory
      */
-    @NonNull
-    public FragmentFactory getFragmentFactory() {
+    public @NonNull FragmentFactory getFragmentFactory() {
         if (mFragmentFactory != null) {
             return mFragmentFactory;
         }
@@ -3589,8 +3561,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @return the current SpecialEffectsControllerFactory
      */
-    @NonNull
-    SpecialEffectsControllerFactory getSpecialEffectsControllerFactory() {
+    @NonNull SpecialEffectsControllerFactory getSpecialEffectsControllerFactory() {
         if (mSpecialEffectsControllerFactory != null) {
             return mSpecialEffectsControllerFactory;
         }
@@ -3604,8 +3575,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return mDefaultSpecialEffectsControllerFactory;
     }
 
-    @NonNull
-    FragmentLifecycleCallbacksDispatcher getLifecycleCallbacksDispatcher() {
+    @NonNull FragmentLifecycleCallbacksDispatcher getLifecycleCallbacksDispatcher() {
         return mLifecycleCallbacksDispatcher;
     }
 
@@ -3732,14 +3702,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     }
 
-    @NonNull
-    LayoutInflater.Factory2 getLayoutInflaterFactory() {
+    LayoutInflater.@NonNull Factory2 getLayoutInflaterFactory() {
         return mLayoutInflaterFactory;
     }
 
     /** Returns the current policy for this FragmentManager. If no policy is set, returns null. */
-    @Nullable
-    public FragmentStrictMode.Policy getStrictModePolicy() {
+    public FragmentStrictMode.@Nullable Policy getStrictModePolicy() {
         return mStrictModePolicy;
     }
 
@@ -3751,7 +3719,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *
      * @param policy the policy to put into place
      */
-    public void setStrictModePolicy(@Nullable FragmentStrictMode.Policy policy) {
+    public void setStrictModePolicy(FragmentStrictMode.@Nullable Policy policy) {
         mStrictModePolicy = policy;
     }
 
@@ -3923,9 +3891,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static class FragmentIntentSenderContract extends ActivityResultContract<IntentSenderRequest,
             ActivityResult> {
 
-        @NonNull
         @Override
-        public Intent createIntent(@NonNull Context context, IntentSenderRequest input) {
+        public @NonNull Intent createIntent(@NonNull Context context, IntentSenderRequest input) {
             Intent result = new Intent(ACTION_INTENT_SENDER_REQUEST);
             Intent fillInIntent = input.getFillInIntent();
             if (fillInIntent != null) {
@@ -3948,9 +3915,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
             return result;
         }
 
-        @NonNull
         @Override
-        public ActivityResult parseResult(int resultCode, @Nullable Intent intent) {
+        public @NonNull ActivityResult parseResult(int resultCode, @Nullable Intent intent) {
             return new ActivityResult(resultCode, intent);
         }
     }

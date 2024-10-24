@@ -42,8 +42,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.MultiWindowModeChangedInfo;
 import androidx.core.app.OnMultiWindowModeChangedProvider;
@@ -63,6 +61,9 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -220,9 +221,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     @Override
-    @Nullable
-    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
-            @NonNull AttributeSet attrs) {
+    public @Nullable View onCreateView(@Nullable View parent, @NonNull String name,
+            @NonNull Context context, @NonNull AttributeSet attrs) {
         final View v = dispatchFragmentsOnCreateView(parent, name, context, attrs);
         if (v == null) {
             return super.onCreateView(parent, name, context, attrs);
@@ -231,8 +231,7 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     @Override
-    @Nullable
-    public View onCreateView(@NonNull String name, @NonNull Context context,
+    public @Nullable View onCreateView(@NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
         final View v = dispatchFragmentsOnCreateView(null, name, context, attrs);
         if (v == null) {
@@ -241,8 +240,7 @@ public class FragmentActivity extends ComponentActivity implements
         return v;
     }
 
-    @Nullable
-    final View dispatchFragmentsOnCreateView(@Nullable View parent, @NonNull String name,
+    final @Nullable View dispatchFragmentsOnCreateView(@Nullable View parent, @NonNull String name,
             @NonNull Context context, @NonNull AttributeSet attrs) {
         return mFragments.onCreateView(parent, name, context, attrs);
     }
@@ -406,7 +404,7 @@ public class FragmentActivity extends ComponentActivity implements
     @SuppressWarnings("deprecation")
     @Override
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
-            @NonNull PrintWriter writer, @Nullable String[] args) {
+            @NonNull PrintWriter writer, String @Nullable [] args) {
         super.dump(prefix, fd, writer, args);
 
         if (!shouldDumpInternalState(args)) {
@@ -456,8 +454,7 @@ public class FragmentActivity extends ComponentActivity implements
      * Return the FragmentManager for interacting with fragments associated
      * with this activity.
      */
-    @NonNull
-    public FragmentManager getSupportFragmentManager() {
+    public @NonNull FragmentManager getSupportFragmentManager() {
         return mFragments.getSupportFragmentManager();
     }
 
@@ -466,8 +463,7 @@ public class FragmentActivity extends ComponentActivity implements
      * {@link LoaderManager#getInstance(LifecycleOwner) LoaderManager.getInstance(this)}.
      */
     @Deprecated
-    @NonNull
-    public LoaderManager getSupportLoaderManager() {
+    public @NonNull LoaderManager getSupportLoaderManager() {
         return LoaderManager.getInstance(this);
     }
 
@@ -483,8 +479,8 @@ public class FragmentActivity extends ComponentActivity implements
     @SuppressWarnings("deprecation")
     @CallSuper
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String @NonNull [] permissions,
+            int @NonNull [] grantResults) {
         mFragments.noteStateNotSaved();
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -585,9 +581,8 @@ public class FragmentActivity extends ComponentActivity implements
             super(FragmentActivity.this /*fragmentActivity*/);
         }
 
-        @NonNull
         @Override
-        public Lifecycle getLifecycle() {
+        public @NonNull Lifecycle getLifecycle() {
             // Instead of directly using the Activity's Lifecycle, we
             // use a LifecycleRegistry that is nested exactly outside of
             // when Fragments get their lifecycle changed
@@ -595,21 +590,19 @@ public class FragmentActivity extends ComponentActivity implements
             return mFragmentLifecycleRegistry;
         }
 
-        @NonNull
         @Override
-        public ViewModelStore getViewModelStore() {
+        public @NonNull ViewModelStore getViewModelStore() {
             return FragmentActivity.this.getViewModelStore();
         }
 
-        @NonNull
         @Override
-        public OnBackPressedDispatcher getOnBackPressedDispatcher() {
+        public @NonNull OnBackPressedDispatcher getOnBackPressedDispatcher() {
             return FragmentActivity.this.getOnBackPressedDispatcher();
         }
 
         @Override
         public void onDump(@NonNull String prefix, @Nullable FileDescriptor fd,
-                @NonNull PrintWriter writer, @Nullable String[] args) {
+                @NonNull PrintWriter writer, String @Nullable [] args) {
             FragmentActivity.this.dump(prefix, fd, writer, args);
         }
 
@@ -619,8 +612,7 @@ public class FragmentActivity extends ComponentActivity implements
         }
 
         @Override
-        @NonNull
-        public LayoutInflater onGetLayoutInflater() {
+        public @NonNull LayoutInflater onGetLayoutInflater() {
             return FragmentActivity.this.getLayoutInflater().cloneInContext(FragmentActivity.this);
         }
 
@@ -658,9 +650,8 @@ public class FragmentActivity extends ComponentActivity implements
             FragmentActivity.this.onAttachFragment(fragment);
         }
 
-        @Nullable
         @Override
-        public View onFindViewById(int id) {
+        public @Nullable View onFindViewById(int id) {
             return FragmentActivity.this.findViewById(id);
         }
 
@@ -670,15 +661,13 @@ public class FragmentActivity extends ComponentActivity implements
             return (w != null && w.peekDecorView() != null);
         }
 
-        @NonNull
         @Override
-        public ActivityResultRegistry getActivityResultRegistry() {
+        public @NonNull ActivityResultRegistry getActivityResultRegistry() {
             return FragmentActivity.this.getActivityResultRegistry();
         }
 
-        @NonNull
         @Override
-        public SavedStateRegistry getSavedStateRegistry() {
+        public @NonNull SavedStateRegistry getSavedStateRegistry() {
             return FragmentActivity.this.getSavedStateRegistry();
         }
 
@@ -742,7 +731,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         @Override
         public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,
-                @NonNull Lifecycle.State state) {
+                Lifecycle.@NonNull State state) {
             FragmentActivity.this.addMenuProvider(provider, owner, state);
         }
 

@@ -22,8 +22,9 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -106,8 +107,7 @@ final class BackStackRecordState implements Parcelable {
      * assumes that all fragments included in this transactions are already
      * added as active fragments to the FragmentManager.
      */
-    @NonNull
-    public BackStackRecord instantiate(@NonNull FragmentManager fm) {
+    public @NonNull BackStackRecord instantiate(@NonNull FragmentManager fm) {
         BackStackRecord bse = new BackStackRecord(fm);
         fillInBackStackRecord(bse);
         bse.mIndex = mIndex;
@@ -127,8 +127,7 @@ final class BackStackRecordState implements Parcelable {
      * as if it was a new transaction. Any fragments in the transactions will
      * be pulled from the provided fragments map.
      */
-    @NonNull
-    public BackStackRecord instantiate(@NonNull FragmentManager fm,
+    public @NonNull BackStackRecord instantiate(@NonNull FragmentManager fm,
             @NonNull Map<String, Fragment> fragments) {
         BackStackRecord bse = new BackStackRecord(fm);
         fillInBackStackRecord(bse);

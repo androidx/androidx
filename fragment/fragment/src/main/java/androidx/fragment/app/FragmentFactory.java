@@ -16,8 +16,9 @@
 
 package androidx.fragment.app;
 
-import androidx.annotation.NonNull;
 import androidx.collection.SimpleArrayMap;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -39,8 +40,7 @@ public class FragmentFactory {
      * @param className Class name of the fragment to load
      * @return Returns the parsed Class
      */
-    @NonNull
-    private static Class<?> loadClass(@NonNull ClassLoader classLoader,
+    private static @NonNull Class<?> loadClass(@NonNull ClassLoader classLoader,
             @NonNull String className) throws ClassNotFoundException {
         SimpleArrayMap<String, Class<?>> classMap = sClassCacheMap.get(classLoader);
         if (classMap == null) {
@@ -87,9 +87,8 @@ public class FragmentFactory {
      * normally expected to happen.
      */
     @SuppressWarnings("unchecked")
-    @NonNull
-    public static Class<? extends Fragment> loadFragmentClass(@NonNull ClassLoader classLoader,
-            @NonNull String className) {
+    public static @NonNull Class<? extends Fragment> loadFragmentClass(
+            @NonNull ClassLoader classLoader, @NonNull String className) {
         try {
             Class<?> clazz = loadClass(classLoader, className);
             return (Class<? extends Fragment>) clazz;
@@ -114,8 +113,8 @@ public class FragmentFactory {
      * the given fragment class.  This is a runtime exception; it is not
      * normally expected to happen.
      */
-    @NonNull
-    public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
+    public @NonNull Fragment instantiate(@NonNull ClassLoader classLoader,
+            @NonNull String className) {
         try {
             Class<? extends Fragment> cls = loadFragmentClass(classLoader, className);
             return cls.getConstructor().newInstance();
