@@ -51,6 +51,8 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.RotarySnapSensitivity
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
+import kotlin.math.absoluteValue
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Assert
@@ -260,6 +262,33 @@ class PagerTest {
         }
 
         verifyScrollsToEachPage(pageCount, pagerState, scrollScope)
+    }
+
+    @Test
+    fun pager_settles_quickly_after_swipe() {
+        val pageCount = 5
+        lateinit var pagerState: PagerState
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            pagerState = rememberPagerState { pageCount }
+
+            HorizontalPager(state = pagerState, modifier = Modifier.testTag(pagerTestTag)) { page ->
+                BasicText("Page $page")
+            }
+        }
+
+        rule.onNodeWithTag(pagerTestTag).performTouchInput { swipeLeft(durationMillis = 1) }
+
+        // Wait until first move from drag
+        rule.mainClock.advanceTimeUntil { pagerState.currentPageOffsetFraction != 0.0f }
+
+        // Pager should settle within 150ms
+        rule.mainClock.advanceTimeBy(150)
+
+        // Ensure Pager has settled
+        assertTrue { pagerState.currentPageOffsetFraction.absoluteValue < 0.00001 }
     }
 
     @OptIn(ExperimentalTestApi::class)

@@ -19,7 +19,8 @@ package androidx.wear.compose.foundation.pager
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -285,6 +286,8 @@ object PagerDefaults {
      *   animation will be often used in 2 cases: 1) There was enough space to an approach
      *   animation, the Pager will use [snapAnimationSpec] in the last step of the animation to
      *   settle the page into position. 2) There was not enough space to run the approach animation.
+     *   By default a Spring animation with no bounciness and high stiffness is used to ensure the
+     *   Pager settles quickly so that contents are focused and clickable.
      * @param snapPositionalThreshold If the fling has a low velocity (e.g. slow scroll), this fling
      *   behavior will use this snap threshold in order to determine if the pager should snap back
      *   or move forward. Use a number between 0 and 1 as a fraction of the page size that needs to
@@ -299,7 +302,7 @@ object PagerDefaults {
         state: PagerState,
         pagerSnapDistance: PagerSnapDistance = PagerSnapDistance.atMost(1),
         decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
-        snapAnimationSpec: AnimationSpec<Float> = tween(150, 0),
+        snapAnimationSpec: AnimationSpec<Float> = spring(Spring.DampingRatioNoBouncy, 2000f),
         @FloatRange(from = 0.0, to = 1.0) snapPositionalThreshold: Float = 0.5f
     ): TargetedFlingBehavior {
         return ComposePagerDefaults.flingBehavior(
