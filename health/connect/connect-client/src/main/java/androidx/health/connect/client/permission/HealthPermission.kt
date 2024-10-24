@@ -75,7 +75,7 @@ internal constructor(
 ) {
     companion object {
         /**
-         * Creates [HealthPermission] to read provided [recordType], such as `Steps::class`.
+         * Creates [HealthPermission] to read provided [recordType], such as `StepsRecord::class`.
          *
          * @return Permission object to use with
          *   [androidx.health.connect.client.PermissionController].
@@ -88,7 +88,7 @@ internal constructor(
 
         /**
          * Returns a permission defined in [HealthPermission] to read provided [recordType], such as
-         * `Steps::class`.
+         * `StepsRecord::class`.
          *
          * @return Permission to use with [androidx.health.connect.client.PermissionController].
          * @throws IllegalArgumentException if the given record type is invalid.
@@ -104,7 +104,7 @@ internal constructor(
         }
 
         /**
-         * Creates [HealthPermission] to write provided [recordType], such as `Steps::class`.
+         * Creates [HealthPermission] to write provided [recordType], such as `StepsRecord::class`.
          *
          * @return Permission to use with [androidx.health.connect.client.PermissionController].
          */
@@ -116,7 +116,7 @@ internal constructor(
 
         /**
          * Returns a permission defined in [HealthPermission] to read provided [recordType], such as
-         * `Steps::class`.
+         * `StepsRecord::class`.
          *
          * @return Permission object to use with
          *   [androidx.health.connect.client.PermissionController].
