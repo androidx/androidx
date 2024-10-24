@@ -19,13 +19,18 @@ package androidx.compose.material3.adaptive.layout
 import androidx.annotation.FloatRange
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableLongList
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.PaneExpansionState.Companion.DefaultAnchoringAnimationSpec
 import androidx.compose.material3.adaptive.layout.PaneExpansionState.Companion.Unspecified
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -105,15 +110,27 @@ sealed interface PaneExpansionStateKey {
  *   initial layout of the associated scaffold; it has to be a valid index of the provided [anchors]
  *   otherwise the function throws; by default the value will be -1 and no initial anchor will be
  *   used.
+ * @param anchoringAnimationSpec the animation spec used to perform anchoring animation; by default
+ *   it will be a spring motion.
+ * @param flingBehavior the fling behavior used to handle flings; by default
+ *   [ScrollableDefaults.flingBehavior] will be applied.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberPaneExpansionState(
     keyProvider: PaneExpansionStateKeyProvider,
     anchors: List<PaneExpansionAnchor> = emptyList(),
-    initialAnchoredIndex: Int = -1
+    initialAnchoredIndex: Int = -1,
+    anchoringAnimationSpec: FiniteAnimationSpec<Float> = DefaultAnchoringAnimationSpec,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior()
 ): PaneExpansionState =
-    rememberPaneExpansionState(keyProvider.paneExpansionStateKey, anchors, initialAnchoredIndex)
+    rememberPaneExpansionState(
+        keyProvider.paneExpansionStateKey,
+        anchors,
+        initialAnchoredIndex,
+        anchoringAnimationSpec,
+        flingBehavior
+    )
 
 /**
  * Remembers and returns a [PaneExpansionState] associated to a given [PaneExpansionStateKey].
@@ -127,13 +144,19 @@ fun rememberPaneExpansionState(
  *   initial layout of the associated scaffold; it has to be a valid index of the provided [anchors]
  *   otherwise the function throws; by default the value will be -1 and no initial anchor will be
  *   used.
+ * @param anchoringAnimationSpec the animation spec used to perform anchoring animation; by default
+ *   it will be a spring motion.
+ * @param flingBehavior the fling behavior used to handle flings; by default
+ *   [ScrollableDefaults.flingBehavior] will be applied.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberPaneExpansionState(
     key: PaneExpansionStateKey = PaneExpansionStateKey.Default,
     anchors: List<PaneExpansionAnchor> = emptyList(),
-    initialAnchoredIndex: Int = -1
+    initialAnchoredIndex: Int = -1,
+    anchoringAnimationSpec: FiniteAnimationSpec<Float> = DefaultAnchoringAnimationSpec,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior()
 ): PaneExpansionState {
     val dataMap = rememberSaveable(saver = PaneExpansionStateSaver()) { mutableStateMapOf() }
     val initialAnchor =
@@ -150,7 +173,9 @@ fun rememberPaneExpansionState(
         restore(
             dataMap[key]
                 ?: PaneExpansionStateData(currentAnchor = initialAnchor).also { dataMap[key] = it },
-            anchors
+            anchors,
+            anchoringAnimationSpec,
+            flingBehavior
         )
     }
 }
@@ -226,11 +251,22 @@ internal constructor(
 
     private var anchors: List<PaneExpansionAnchor> by mutableStateOf(anchors)
 
+    private lateinit var anchoringAnimationSpec: FiniteAnimationSpec<Float>
+
+    private lateinit var flingBehavior: FlingBehavior
+
     private lateinit var measuredDensity: Density
 
-    private val dragScope: DragScope =
-        object : DragScope {
+    private val dragScope =
+        object : DragScope, ScrollScope {
             override fun dragBy(pixels: Float): Unit = dispatchRawDelta(pixels)
+
+            override fun scrollBy(pixels: Float): Float { // To support fling
+                val offsetBeforeDrag = currentDraggingOffset
+                dragBy(pixels)
+                val consumed = currentDraggingOffset - offsetBeforeDrag
+                return consumed.toFloat()
+            }
         }
 
     private val dragMutex = MutatorMutex()
@@ -296,12 +332,19 @@ internal constructor(
         data.currentDraggingOffsetState = Unspecified
     }
 
-    internal fun restore(data: PaneExpansionStateData, anchors: List<PaneExpansionAnchor>) {
+    internal fun restore(
+        data: PaneExpansionStateData,
+        anchors: List<PaneExpansionAnchor>,
+        anchoringAnimationSpec: FiniteAnimationSpec<Float>,
+        flingBehavior: FlingBehavior
+    ) {
         this.data = data
         this.anchors = anchors
         if (!anchors.contains(Snapshot.withoutReadObservation { currentAnchor })) {
             currentAnchor = null
         }
+        this.anchoringAnimationSpec = anchoringAnimationSpec
+        this.flingBehavior = flingBehavior
     }
 
     internal fun onMeasured(measuredWidth: Int, density: Density) {
@@ -334,17 +377,18 @@ internal constructor(
 
         dragMutex.mutate(MutatePriority.PreventUserInput) {
             isSettling = true
+            val leftVelocity = flingBehavior.run { dragScope.performFling(velocity) }
             val anchorPosition =
                 currentAnchorPositions.getPositionOfTheClosestAnchor(
                     currentMeasuredDraggingOffset,
-                    velocity
+                    leftVelocity
                 )
             currentAnchor = anchors[anchorPosition.index]
             animate(
                 currentMeasuredDraggingOffset.toFloat(),
                 anchorPosition.position.toFloat(),
-                velocity,
-                PaneSnapAnimationSpec,
+                leftVelocity,
+                anchoringAnimationSpec,
             ) { value, _ ->
                 currentDraggingOffset = value.toInt()
             }
@@ -356,7 +400,6 @@ internal constructor(
         currentPosition: Int,
         velocity: Float
     ): IndexedAnchorPosition =
-        // TODO(conradchen): Add fling support
         minBy(
             when {
                 velocity >= AnchoringVelocityThreshold -> {
@@ -383,7 +426,7 @@ internal constructor(
 
         private const val AnchoringVelocityThreshold = 200F
 
-        private val PaneSnapAnimationSpec =
+        internal val DefaultAnchoringAnimationSpec =
             spring(dampingRatio = 0.8f, stiffness = 380f, visibilityThreshold = 1f)
     }
 }
@@ -401,23 +444,29 @@ internal class PaneExpansionStateData(
     var currentDraggingOffsetState by mutableIntStateOf(currentDraggingOffset)
     var currentAnchorState by mutableStateOf(currentAnchor)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PaneExpansionStateData) return false
-        if (firstPaneWidthState != other.firstPaneWidthState) return false
-        if (firstPaneProportionState != other.firstPaneProportionState) return false
-        if (currentDraggingOffsetState != other.currentDraggingOffsetState) return false
-        if (currentAnchorState != other.currentAnchorState) return false
-        return true
-    }
+    override fun equals(other: Any?): Boolean =
+        // TODO(conradchen): Check if we can remove this by directly reading/writing states in
+        //                   PaneExpansionState
+        Snapshot.withoutReadObservation {
+            if (this === other) return true
+            if (other !is PaneExpansionStateData) return false
+            if (firstPaneWidthState != other.firstPaneWidthState) return false
+            if (firstPaneProportionState != other.firstPaneProportionState) return false
+            if (currentDraggingOffsetState != other.currentDraggingOffsetState) return false
+            if (currentAnchorState != other.currentAnchorState) return false
+            return true
+        }
 
-    override fun hashCode(): Int {
-        var result = firstPaneWidthState
-        result = 31 * result + firstPaneProportionState.hashCode()
-        result = 31 * result + currentDraggingOffsetState
-        result = 31 * result + currentAnchorState.hashCode()
-        return result
-    }
+    override fun hashCode(): Int =
+        // TODO(conradchen): Check if we can remove this by directly reading/writing states in
+        //                   PaneExpansionState
+        Snapshot.withoutReadObservation {
+            var result = firstPaneWidthState
+            result = 31 * result + firstPaneProportionState.hashCode()
+            result = 31 * result + currentDraggingOffsetState
+            result = 31 * result + currentAnchorState.hashCode()
+            return result
+        }
 }
 
 /**
