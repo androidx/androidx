@@ -141,25 +141,16 @@ constructor(
         public const val CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR: Int = 7
 
         /**
-         * When the screen is on, the reporting interval is hundreds of milliseconds. When the
-         * screen is off, the reporting interval is a few seconds.
+         * The update rate that differs across different config id. It is 240 millisecond for
+         * [CONFIG_UNICAST_DS_TWR] and [CONFIG_PROVISIONED_UNICAST_DS_TWR], and is 200 millisecond
+         * for other config ids.
          */
         public const val RANGING_UPDATE_RATE_AUTOMATIC: Int = 1
 
-        /**
-         * The reporting interval is the same as in the AUTOMATIC screen-off case. The The power
-         * consumption is optimized by turning off the radio between ranging reports. (The
-         * implementation is hardware and software dependent and it may change between different
-         * versions.)
-         */
+        /** 120 millisecond update rate for all config ids. */
         public const val RANGING_UPDATE_RATE_INFREQUENT: Int = 2
 
-        /**
-         * The reporting interval is the same as in the AUTOMATIC screen-on case.
-         *
-         * The actual reporting interval is UwbConfigId related. Different configuration may use
-         * different values. (The default reporting interval at INFREQUENT mode is 4 seconds)
-         */
+        /** 600 millisecond update rate for all config ids. */
         public const val RANGING_UPDATE_RATE_FREQUENT: Int = 3
 
         /** 1 millisecond slot duration */
