@@ -167,8 +167,14 @@ internal constructor(
         /**
          * A permission that allows to read the entire history of health data (of any type).
          *
-         * An attempt to read data older than 30 days without this permission will result in an
-         * error. This applies for the following api methods: [HealthConnectClient.readRecord],
+         * Without this permission:
+         * 1. Any attempt to read a single data point, via [HealthConnectClient.readRecord], older
+         *    than 30 days from before the first HealthConnect permission was granted to the calling
+         *    app, will result in an error.
+         * 2. Any other read attempts will not return data points older than 30 days from before the
+         *    first HealthConnect permission was granted to the calling app.
+         *
+         * This permission applies for the following api methods: [HealthConnectClient.readRecord],
          * [HealthConnectClient.readRecords], [HealthConnectClient.aggregate],
          * [HealthConnectClient.aggregateGroupByPeriod],
          * [HealthConnectClient.aggregateGroupByDuration] and [HealthConnectClient.getChanges].
