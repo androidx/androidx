@@ -39,7 +39,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 class AnimatedTextBenchmark {
-
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Before
@@ -62,7 +61,7 @@ class AnimatedTextBenchmark {
                     FrameTimingGfxInfoMetric(),
                     MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
                 ),
-            compilationMode = CompilationMode.Full(),
+            compilationMode = CompilationMode.DEFAULT,
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
