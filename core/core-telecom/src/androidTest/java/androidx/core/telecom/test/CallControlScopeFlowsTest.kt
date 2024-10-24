@@ -75,7 +75,7 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
         assertWithinTimeout_addCall(
             CallAttributesCompat(
                 TestUtils.OUTGOING_NAME,
-                TestUtils.TEST_PHONE_NUMBER_8985,
+                TestUtils.TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
                 CallAttributesCompat.CALL_TYPE_VIDEO_CALL
             )

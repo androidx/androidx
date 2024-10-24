@@ -15,7 +15,9 @@
  */
 package androidx.core.telecom.internal
 
+import android.net.Uri
 import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.ParcelUuid
 import android.telecom.CallException
@@ -54,7 +56,7 @@ internal class JetpackConnectionService : ConnectionService() {
          * gets from the platform.
          */
         val requestIdMatcher: String,
-        val callAttributes: CallAttributesCompat,
+        var callAttributes: CallAttributesCompat,
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
         val completableDeferred: CompletableDeferred<AddCallResult>?,
@@ -73,6 +75,7 @@ internal class JetpackConnectionService : ConnectionService() {
         const val KEY_NOT_FOUND = "requestIdMatcher KEY NOT FOUND"
         const val TAG = "JetpackCS"
         const val CONNECTION_CREATION_TIMEOUT: Long = 5000 // time in milli-seconds
+        const val SDK_26_AND_27_ADDRESS_PREFIX = "sip:"
         var mPendingConnectionRequests: ArrayList<PendingConnectionRequest> = ArrayList()
     }
 
@@ -92,7 +95,7 @@ internal class JetpackConnectionService : ConnectionService() {
                 " requestIdMatcher=[${pendingConnectionRequest.requestIdMatcher}]" +
                 " phoneAccountHandle=[${pendingConnectionRequest.callAttributes.mHandle}]"
         )
-
+        maybeReplaceAddress(pendingConnectionRequest)
         mPendingConnectionRequests.add(pendingConnectionRequest)
 
         val extras =
@@ -115,6 +118,33 @@ internal class JetpackConnectionService : ConnectionService() {
                 extras
             )
         }
+    }
+
+    fun maybeReplaceAddress(
+        pendingConnectionRequest: PendingConnectionRequest
+    ): PendingConnectionRequest {
+        val attributes: CallAttributesCompat = pendingConnectionRequest.callAttributes
+        if (Build.VERSION.SDK_INT < VERSION_CODES.P && attributes.isOutgoingCall()) {
+            pendingConnectionRequest.callAttributes =
+                CallAttributesCompat(
+                    attributes.displayName,
+                    Uri.parse(
+                        SDK_26_AND_27_ADDRESS_PREFIX +
+                            attributes.mHandle!!.componentName.packageName
+                    ),
+                    attributes.direction,
+                    attributes.callType,
+                    attributes.callCapabilities,
+                    attributes.preferredStartingCallEndpoint
+                )
+            pendingConnectionRequest.callAttributes.mHandle = attributes.mHandle
+            Log.i(
+                TAG,
+                "maybeReplaceAddress: " +
+                    "address=[${pendingConnectionRequest.callAttributes.address}]"
+            )
+        }
+        return pendingConnectionRequest
     }
 
     /** Outgoing Connections */
