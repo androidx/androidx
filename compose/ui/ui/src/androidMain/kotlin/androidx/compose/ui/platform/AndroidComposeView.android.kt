@@ -486,7 +486,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         get() = _autofill
 
     // Used as a CompositionLocal for performing semantic autofill.
-    @OptIn(ExperimentalComposeUiApi::class)
     override val autofillManager: AutofillManager?
         get() = _autofillManager
 

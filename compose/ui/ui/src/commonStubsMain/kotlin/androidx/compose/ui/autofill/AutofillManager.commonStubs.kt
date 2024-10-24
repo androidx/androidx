@@ -18,8 +18,6 @@ package androidx.compose.ui.autofill
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 
-internal actual class PlatformAutofillHost
-
 /**
  * Autofill API.
  *
@@ -27,7 +25,7 @@ internal actual class PlatformAutofillHost
  * notify the Autofill framework that user values have been committed as required.
  */
 @ExperimentalComposeUiApi
-actual class AutofillManager internal actual constructor(platformType: PlatformAutofillHost) {
+actual class AutofillManager {
     /**
      * Indicate the autofill context should be committed.
      *

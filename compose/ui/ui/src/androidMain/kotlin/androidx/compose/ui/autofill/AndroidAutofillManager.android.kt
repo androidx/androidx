@@ -33,7 +33,6 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
@@ -64,18 +63,14 @@ import androidx.compose.ui.state.ToggleableState.On
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 
-/** In Android, the platform host type is of `AndroidComposeView`. */
-internal actual typealias PlatformAutofillHost = AndroidComposeView
-
 /**
  * Semantic autofill implementation for Android.
  *
  * @param view The parent compose view.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-actual class AutofillManager internal actual constructor(platformType: PlatformAutofillHost) {
-    internal val view: AndroidComposeView = platformType
+actual class AutofillManager internal constructor(view: AndroidComposeView) {
+    internal val view: AndroidComposeView = view
     internal var autofillManager: AutofillManagerWrapper = AutofillManagerWrapperImpl(view)
 
     init {
@@ -95,6 +90,9 @@ actual class AutofillManager internal actual constructor(platformType: PlatformA
     private var checkingForSemanticsChanges = false
 
     internal var currentSemanticsNodesInvalidated = true
+    // This will be used to request autofill when `AutofillManager.requestAutofill()` is called
+    // (e.g. from the text toolbar).
+    private var previouslyFocusedId = 0
 
     internal var currentSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds> =
         intObjectMapOf()
@@ -153,6 +151,7 @@ actual class AutofillManager internal actual constructor(platformType: PlatformA
             val currFocus = currNode.unmergedConfig.getOrNull(Focused)
             if (previousFocus != true && currFocus == true) {
                 notifyViewEntered(id)
+                previouslyFocusedId = id
             }
             if (previousFocus == true && currFocus != true) {
                 notifyViewExited(id)
@@ -219,13 +218,26 @@ actual class AutofillManager internal actual constructor(platformType: PlatformA
         autofillManager.notifyViewVisibilityChanged(semanticsId, !isInvisible)
     }
 
-    @ExperimentalComposeUiApi
     actual fun commit() {
         autofillManager.commit()
     }
 
     actual fun cancel() {
         autofillManager.cancel()
+    }
+
+    /**
+     * Request autofill for previously focused element.
+     *
+     * This may have no effect, and it is not required that any autofill service will be notified.
+     *
+     * Any component that can be autofilled should call this when it is active to allow autofill
+     * services to respond. This is typically called inside a context menu or text toolbar.
+     */
+    fun requestAutofill() {
+        currentSemanticsNodes[previouslyFocusedId]?.let {
+            autofillManager.requestAutofill(previouslyFocusedId, it.adjustedBounds)
+        }
     }
 
     internal fun onTextFillHelper(toFillId: Int, autofillValue: String) {
@@ -474,6 +486,8 @@ internal interface AutofillManagerWrapper {
     fun commit()
 
     fun cancel()
+
+    fun requestAutofill(semanticsId: Int, bounds: Rect)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -517,5 +531,9 @@ private class AutofillManagerWrapperImpl(val view: AndroidComposeView) : Autofil
 
     override fun cancel() {
         autofillManager.cancel()
+    }
+
+    override fun requestAutofill(semanticsId: Int, bounds: Rect) {
+        autofillManager.requestAutofill(view, semanticsId, bounds)
     }
 }
