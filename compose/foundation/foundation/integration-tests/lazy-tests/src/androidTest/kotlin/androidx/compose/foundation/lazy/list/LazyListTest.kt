@@ -80,6 +80,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -110,11 +111,10 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.test.espresso.action.ViewActions.swipeLeft
-import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.collect.Range
@@ -2020,6 +2020,79 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule
             .onNodeWithTag("2")
             .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 2 - scrollDeltaDp)
+    }
+
+    @Test
+    fun testLookaheadItemPlacementAnimatorTarget() {
+        var mutableSize by mutableStateOf(80)
+        var lastItemOffset by mutableStateOf(Offset.Zero)
+        val initialSize = IntSize(200, 200)
+        val largerCrossAxisSize = if (vertical) IntSize(300, 200) else IntSize(200, 300)
+        var containerSize by mutableStateOf(initialSize)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    LazyColumnOrRow(
+                        modifier =
+                            Modifier.requiredSize(containerSize.width.dp, containerSize.height.dp),
+                        beyondBoundsItemCount = 1
+                    ) {
+                        item { // item 0
+                            Box(Modifier.requiredSize(40.dp))
+                        }
+                        item { // item 1. Will change size from 80.dp to 160.dp
+                            Box(Modifier.requiredSize(mutableSize.dp))
+                        }
+                        item { // item 2
+                            Box(Modifier.requiredSize(40.dp))
+                        }
+                        item { // item 3
+                            Box(
+                                Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                        placementSpec = tween(160, easing = LinearEasing)
+                                    )
+                                    .onGloballyPositioned { lastItemOffset = it.positionInRoot() }
+                                    .requiredSize(80.dp)
+                            )
+                        }
+                        item { // item 4
+                            Box(Modifier.requiredSize(1.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        containerSize = largerCrossAxisSize
+        mutableSize = 160
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        containerSize = initialSize
+        rule.waitForIdle()
+
+        // Expect last item to move from 160 to 240 within 10 frames
+        while (lastItemOffset.mainAxisPosition == 160) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        repeat(9) {
+            val expected = (it + 1) * (240 - 160) / 10 + 160
+            if (expected <= 200) { // within the viewport
+                assertEquals((it + 1) * 8 + 160, lastItemOffset.mainAxisPosition)
+            } else {
+                // Once the item moves out of the viewport, we don't enforce the exact offset
+                assertTrue(lastItemOffset.mainAxisPosition >= 200)
+            }
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 
     @Test
