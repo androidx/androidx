@@ -3,11 +3,7 @@ package androidx.savedstate {
 
   public final class SavedStateKt {
     method public static inline <T> T read(androidx.savedstate.SavedState, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateReader,? extends T> block);
-    method public static inline <T> T read(androidx.savedstate.SavedState, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateReader,? extends T> block);
-    method public static androidx.savedstate.SavedState reader(androidx.savedstate.SavedState);
     method public static inline <T> T write(androidx.savedstate.SavedState, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,? extends T> block);
-    method public static inline <T> T write(androidx.savedstate.SavedState, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,? extends T> block);
-    method public static androidx.savedstate.SavedState writer(androidx.savedstate.SavedState);
   }
 
   @kotlin.jvm.JvmInline public final value class SavedStateReader {
