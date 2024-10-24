@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -35,6 +37,7 @@ public class UseCaseThreads(
     public val backgroundExecutor: Executor,
     public val backgroundDispatcher: CoroutineDispatcher,
 ) {
+    public val mainHandler: Handler = Handler(Looper.getMainLooper())
     public val sequentialExecutor: Executor =
         CameraXExecutors.newSequentialExecutor(backgroundExecutor)
     private val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()

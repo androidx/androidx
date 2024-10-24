@@ -348,9 +348,7 @@ constructor(
     public suspend fun close() {
         val closingJobs =
             synchronized(lock) {
-                if (attachedUseCases.isNotEmpty()) {
-                    detach(attachedUseCases.toList())
-                }
+                closeCurrentUseCases()
                 meteringRepeating.onUnbind()
                 closingCameraJobs.toList()
             }
@@ -427,31 +425,9 @@ constructor(
 
     @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
-        val useCases = newUseCases.toList()
+        closeCurrentUseCases()
 
-        // Close prior camera graph
-        camera.let { useCaseCamera ->
-            _activeComponent = null
-            useCaseCamera?.close()?.let { closingJob ->
-                if (sessionProcessorManager != null) {
-                    // If the current session was created for extensions. We need to make sure
-                    // the closing procedures are done. This is needed because the same
-                    // SessionProcessor instance may be reused in the next extensions session, and
-                    // we need to make sure we de-initialize the current SessionProcessor session.
-                    runBlocking { closingJob.join() }
-                } else {
-                    closingCameraJobs.add(closingJob)
-                    closingJob.invokeOnCompletion {
-                        synchronized(lock) { closingCameraJobs.remove(closingJob) }
-                    }
-                }
-            }
-        }
-        sessionProcessorManager?.let {
-            it.close()
-            sessionProcessorManager = null
-            pendingSessionProcessorInitialization = false
-        }
+        val useCases = newUseCases.toList()
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
@@ -516,6 +492,33 @@ constructor(
             val useCaseManagerConfig =
                 UseCaseManagerConfig(useCases, sessionConfigAdapter, graphConfig, streamConfigMap)
             this.tryResumeUseCaseManager(useCaseManagerConfig)
+        }
+    }
+
+    @GuardedBy("lock")
+    private fun closeCurrentUseCases() {
+        // Close prior camera graph
+        camera.let { useCaseCamera ->
+            _activeComponent = null
+            useCaseCamera?.close()?.let { closingJob ->
+                if (sessionProcessorManager != null) {
+                    // If the current session was created for extensions. We need to make sure
+                    // the closing procedures are done. This is needed because the same
+                    // SessionProcessor instance may be reused in the next extensions session, and
+                    // we need to make sure we de-initialize the current SessionProcessor session.
+                    runBlocking { closingJob.join() }
+                } else {
+                    closingCameraJobs.add(closingJob)
+                    closingJob.invokeOnCompletion {
+                        synchronized(lock) { closingCameraJobs.remove(closingJob) }
+                    }
+                }
+            }
+        }
+        sessionProcessorManager?.let {
+            it.close()
+            sessionProcessorManager = null
+            pendingSessionProcessorInitialization = false
         }
     }
 
