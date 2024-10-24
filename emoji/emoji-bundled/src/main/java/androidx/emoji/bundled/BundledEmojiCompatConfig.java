@@ -19,10 +19,11 @@ package androidx.emoji.bundled;
 import android.content.Context;
 import android.content.res.AssetManager;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.MetadataRepo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link EmojiCompat.Config} implementation that loads the metadata using AssetManager and
@@ -51,7 +52,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "loaderCallback cannot be null");
             final InitRunnable runnable = new InitRunnable(mContext, loaderCallback);
             final Thread thread = new Thread(runnable);

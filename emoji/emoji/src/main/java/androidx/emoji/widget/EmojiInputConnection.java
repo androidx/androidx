@@ -23,9 +23,10 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * InputConnectionWrapper for EditText delete operations. Keyboard does not have knowledge about
@@ -40,9 +41,9 @@ final class EmojiInputConnection extends InputConnectionWrapper {
     private final TextView mTextView;
 
     EmojiInputConnection(
-            @NonNull final TextView textView,
-            @NonNull final InputConnection inputConnection,
-            @NonNull final EditorInfo outAttrs) {
+            final @NonNull TextView textView,
+            final @NonNull InputConnection inputConnection,
+            final @NonNull EditorInfo outAttrs) {
         super(inputConnection, false);
         mTextView = textView;
         EmojiCompat.get().updateEditorInfoAttrs(outAttrs);

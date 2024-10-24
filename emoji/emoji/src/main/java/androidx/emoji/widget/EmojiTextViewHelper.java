@@ -20,10 +20,11 @@ import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.emoji.text.EmojiCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class to enhance custom TextView widgets with {@link EmojiCompat}.
@@ -93,8 +94,7 @@ public final class EmojiTextViewHelper {
      * @return same copy if the array already contains EmojiCompat InputFilter. A new array copy if
      * not.
      */
-    @NonNull
-    public InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
+    public InputFilter @NonNull [] getFilters(final InputFilter @NonNull [] filters) {
         return mHelper.getFilters(filters);
     }
 
@@ -105,8 +105,7 @@ public final class EmojiTextViewHelper {
      *
      * @param transformationMethod instance to be wrapped
      */
-    @Nullable
-    public TransformationMethod wrapTransformationMethod(
+    public @Nullable TransformationMethod wrapTransformationMethod(
             @Nullable TransformationMethod transformationMethod) {
         return mHelper.wrapTransformationMethod(transformationMethod);
     }
@@ -137,7 +136,7 @@ public final class EmojiTextViewHelper {
             }
         }
 
-        InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
+        InputFilter[] getFilters(final InputFilter @NonNull [] filters) {
             final int count = filters.length;
             for (int i = 0; i < count; i++) {
                 if (filters[i] instanceof EmojiInputFilter) {

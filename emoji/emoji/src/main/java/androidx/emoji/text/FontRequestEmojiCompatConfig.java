@@ -27,14 +27,15 @@ import android.os.Process;
 import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.TypefaceCompatUtil;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.util.Preconditions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 
@@ -201,7 +202,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
-        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(final EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
                 if (mHandler == null) {
@@ -333,7 +334,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
         /** Calls FontsContractCompat.buildTypeface. */
         public Typeface buildTypeface(@NonNull Context context,
-                @NonNull FontsContractCompat.FontInfo font) throws NameNotFoundException {
+                FontsContractCompat.@NonNull FontInfo font) throws NameNotFoundException {
             return FontsContractCompat.buildTypeface(context, null /* cancellation signal */,
                 new FontsContractCompat.FontInfo[] { font });
         }

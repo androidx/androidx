@@ -22,11 +22,12 @@ import android.graphics.Typeface;
 import android.util.SparseArray;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 import androidx.text.emoji.flatbuffer.MetadataList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,8 +82,8 @@ public final class MetadataRepo {
      * @param typeface Typeface to be used to render emojis
      * @param metadataList MetadataList that contains the emoji metadata
      */
-    private MetadataRepo(@NonNull final Typeface typeface,
-            @NonNull final MetadataList metadataList) {
+    private MetadataRepo(final @NonNull Typeface typeface,
+            final @NonNull MetadataList metadataList) {
         mTypeface = typeface;
         mMetadataList = metadataList;
         mRootNode = new Node(DEFAULT_ROOT_SIZE);
@@ -97,8 +98,8 @@ public final class MetadataRepo {
      * @param typeface Typeface to be used to render emojis
      * @param inputStream InputStream to read emoji metadata from
      */
-    public static MetadataRepo create(@NonNull final Typeface typeface,
-            @NonNull final InputStream inputStream) throws IOException {
+    public static MetadataRepo create(final @NonNull Typeface typeface,
+            final @NonNull InputStream inputStream) throws IOException {
         return new MetadataRepo(typeface, MetadataListReader.read(inputStream));
     }
 
@@ -109,8 +110,8 @@ public final class MetadataRepo {
      * @param typeface Typeface to be used to render emojis
      * @param byteBuffer ByteBuffer to read emoji metadata from
      */
-    public static MetadataRepo create(@NonNull final Typeface typeface,
-            @NonNull final ByteBuffer byteBuffer) throws IOException {
+    public static MetadataRepo create(final @NonNull Typeface typeface,
+            final @NonNull ByteBuffer byteBuffer) throws IOException {
         return new MetadataRepo(typeface, MetadataListReader.read(byteBuffer));
     }
 
@@ -121,7 +122,7 @@ public final class MetadataRepo {
      * @param assetPath asset manager path of the file that the Typeface and metadata will be
      *                  created from
      */
-    public static MetadataRepo create(@NonNull final AssetManager assetManager,
+    public static MetadataRepo create(final @NonNull AssetManager assetManager,
             final String assetPath) throws IOException {
         final Typeface typeface = Typeface.createFromAsset(assetManager, assetPath);
         return new MetadataRepo(typeface, MetadataListReader.read(assetManager, assetPath));
@@ -183,7 +184,7 @@ public final class MetadataRepo {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
-    void put(@NonNull final EmojiMetadata data) {
+    void put(final @NonNull EmojiMetadata data) {
         Preconditions.checkNotNull(data, "emoji metadata cannot be null");
         Preconditions.checkArgument(data.getCodepointsLength() > 0,
                 "invalid metadata codepoint length");
@@ -219,7 +220,7 @@ public final class MetadataRepo {
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        void put(@NonNull final EmojiMetadata data, final int start, final int end) {
+        void put(final @NonNull EmojiMetadata data, final int start, final int end) {
             Node node = get(data.getCodepointAt(start));
             if (node == null) {
                 node = new Node();

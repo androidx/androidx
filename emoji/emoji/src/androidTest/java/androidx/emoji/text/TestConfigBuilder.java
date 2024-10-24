@@ -21,8 +21,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -78,7 +79,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(final EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -109,7 +110,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             if (sMetadataRepo == null) {
                 synchronized (sMetadataRepoLock) {
                     if (sMetadataRepo == null) {
@@ -136,7 +137,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
+        public void load(EmojiCompat.@NonNull MetadataRepoLoaderCallback loaderCallback) {
             if (mMetadataRepo == null) {
                 try {
                     final Context context = ApplicationProvider.getApplicationContext();

@@ -25,10 +25,11 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji.text.EmojiCompat;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used

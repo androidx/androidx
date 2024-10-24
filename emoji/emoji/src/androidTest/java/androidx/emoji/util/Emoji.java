@@ -16,7 +16,7 @@
 
 package androidx.emoji.util;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 public class Emoji {
 
@@ -86,7 +86,7 @@ public class Emoji {
         private final int[] mCodepoints;
         private final int mId;
 
-        private EmojiMapping(@NonNull final int[] codepoints, final int id) {
+        private EmojiMapping(final int @NonNull [] codepoints, final int id) {
             mCodepoints = codepoints;
             mId = id;
         }

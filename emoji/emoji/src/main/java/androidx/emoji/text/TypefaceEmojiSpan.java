@@ -22,8 +22,9 @@ import android.graphics.Paint;
 import android.text.TextPaint;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * EmojiSpan subclass used to render emojis using Typeface.
@@ -47,9 +48,9 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
     }
 
     @Override
-    public void draw(@NonNull final Canvas canvas, final CharSequence text,
+    public void draw(final @NonNull Canvas canvas, final CharSequence text,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end, final float x,
-            final int top, final int y, final int bottom, @NonNull final Paint paint) {
+            final int top, final int y, final int bottom, final @NonNull Paint paint) {
         if (EmojiCompat.get().isEmojiSpanIndicatorEnabled()) {
             canvas.drawRect(x, top , x + getWidth(), bottom, getDebugPaint());
         }
