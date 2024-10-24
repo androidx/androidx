@@ -53,7 +53,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -1820,6 +1822,7 @@ private fun ButtonImpl(
 ) {
     val borderModifier =
         if (border != null) modifier.border(border = border, shape = shape) else modifier
+    val hapticFeedback = LocalHapticFeedback.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         // Fill the container height but not its width as buttons have fixed size height but we
@@ -1836,7 +1839,14 @@ private fun ButtonImpl(
                 .combinedClickable(
                     enabled = enabled,
                     onClick = onClick,
-                    onLongClick = onLongClick,
+                    onLongClick =
+                        onLongClick?.let {
+                            {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+
+                                it()
+                            }
+                        },
                     onLongClickLabel = onLongClickLabel,
                     role = Role.Button,
                     indication = ripple(),

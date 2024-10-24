@@ -1157,11 +1157,31 @@ package androidx.compose.ui.hapticfeedback {
   }
 
   public static final class HapticFeedbackType.Companion {
+    method public int getConfirm();
+    method public int getContextClick();
+    method public int getGestureEnd();
+    method public int getGestureThresholdActivate();
     method public int getLongPress();
+    method public int getReject();
+    method public int getSegmentFrequentTick();
+    method public int getSegmentTick();
     method public int getTextHandleMove();
+    method public int getToggleOff();
+    method public int getToggleOn();
+    method public int getVirtualKey();
     method public java.util.List<androidx.compose.ui.hapticfeedback.HapticFeedbackType> values();
+    property public final int Confirm;
+    property public final int ContextClick;
+    property public final int GestureEnd;
+    property public final int GestureThresholdActivate;
     property public final int LongPress;
+    property public final int Reject;
+    property public final int SegmentFrequentTick;
+    property public final int SegmentTick;
     property public final int TextHandleMove;
+    property public final int ToggleOff;
+    property public final int ToggleOn;
+    property public final int VirtualKey;
   }
 
 }

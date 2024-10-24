@@ -19,6 +19,16 @@ package androidx.compose.ui.hapticfeedback
 import androidx.compose.ui.implementedInJetBrainsFork
 
 internal actual object PlatformHapticFeedbackType {
+    actual val Confirm: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val ContextClick: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val GestureEnd: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val GestureThresholdActivate: HapticFeedbackType = implementedInJetBrainsFork()
     actual val LongPress: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val Reject: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val SegmentFrequentTick: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val SegmentTick: HapticFeedbackType = implementedInJetBrainsFork()
     actual val TextHandleMove: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val ToggleOn: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val ToggleOff: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val VirtualKey: HapticFeedbackType = implementedInJetBrainsFork()
 }

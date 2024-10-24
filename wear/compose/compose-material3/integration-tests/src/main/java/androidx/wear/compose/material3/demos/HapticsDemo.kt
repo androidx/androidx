@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -44,8 +45,6 @@ import androidx.wear.compose.material3.Text
 
 @Composable
 fun HapticsDemos() {
-    val haptics = HapticFeedbackProvider(LocalView.current)
-
     // Show a Button to trigger each haptic constant when clicked:
     // https://developer.android.com/reference/android/view/HapticFeedbackConstants
     val hapticConstants =
@@ -78,7 +77,8 @@ fun HapticsDemos() {
             Pair(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE, "Virtual Key Release"),
         )
 
-    val premiumVibratorEnabled = isPremiumVibratorEnabled()
+    val premiumVibratorEnabled = isPremiumVibratorEnabled(LocalContext.current)
+    val hapticFeedbackProvider = HapticFeedbackProvider(LocalView.current)
 
     ScalingLazyDemo {
         item { ListHeader { Text("Premium Haptics") } }
@@ -101,7 +101,7 @@ fun HapticsDemos() {
         item { ListHeader { Text("Haptic Constants") } }
         items(hapticConstants.size) { index ->
             val (constant, name) = hapticConstants[index]
-            HapticsDemo(haptics, constant, name)
+            HapticsDemo(hapticFeedbackProvider, constant, name)
         }
     }
 }
@@ -127,12 +127,13 @@ private class HapticFeedbackProvider(private val view: View) {
     }
 }
 
-@Composable
-fun isPremiumVibratorEnabled(): Boolean {
+/** Returns whether the device supports premium haptic feedback. */
+private fun isPremiumVibratorEnabled(context: Context): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibrator = context.getSystemService(Vibrator::class.java)
+
         // NB whilst the 'areAllPrimitivesSupported' API needs R (API 30), we need S (API
         // 31) so that PRIMITIVE_THUD is available.
-        val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
         if (
             vibrator.areAllPrimitivesSupported(
                 VibrationEffect.Composition.PRIMITIVE_CLICK,
