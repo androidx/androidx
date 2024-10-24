@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.handwriting.stylusHandwriting
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
@@ -77,6 +78,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 private object BasicTextFieldDefaults {
     val CursorBrush = SolidColor(Color.Black)
@@ -243,6 +246,9 @@ internal fun BasicTextField(
     val isFocused = interactionSource.collectIsFocusedAsState().value
     val isDragHovered = interactionSource.collectIsHoveredAsState().value
     val isWindowFocused = windowInfo.isWindowFocused
+    val stylusHandwritingTrigger = remember {
+        MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    }
 
     val transformedState =
         remember(state, codepointTransformation, outputTransformation) {
@@ -318,9 +324,35 @@ internal fun BasicTextField(
                     keyboardActionHandler = onKeyboardAction,
                     singleLine = singleLine,
                     interactionSource = interactionSource,
-                    isPassword = isPassword
+                    isPassword = isPassword,
+                    stylusHandwritingTrigger = stylusHandwritingTrigger
                 )
             )
+            .stylusHandwriting(enabled) {
+                // If this is a password field, we can't trigger handwriting.
+                // The expected behavior is 1) request focus 2) show software keyboard.
+                // Note: TextField will show software keyboard automatically when it
+                // gain focus. 3) show a toast message telling that handwriting is not
+                // supported for password fields. TODO(b/335294152)
+                if (
+                    !isPassword &&
+                        keyboardOptions.keyboardType != KeyboardType.Password &&
+                        keyboardOptions.keyboardType != KeyboardType.NumberPassword
+                ) {
+                    // Send the handwriting start signal to platform.
+                    // The editor should send the signal when it is focused or is about
+                    // to gain focus, Here are more details:
+                    //   1) if the editor already has an active input session, the
+                    //   platform handwriting service should already listen to this flow
+                    //   and it'll start handwriting right away.
+                    //
+                    //   2) if the editor is not focused, but it'll be focused and
+                    //   create a new input session, one handwriting signal will be
+                    //   replayed when the platform collect this flow. And the platform
+                    //   should trigger handwriting accordingly.
+                    stylusHandwritingTrigger.tryEmit(Unit)
+                }
+            }
             .focusable(interactionSource = interactionSource, enabled = enabled)
             .scrollable(
                 state = scrollState,

@@ -30,8 +30,6 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.LocalAutofillHighlight
-import androidx.compose.foundation.text.handwriting.StylusHandwritingNode
-import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
@@ -100,12 +98,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.drop
@@ -134,7 +130,8 @@ internal data class TextFieldDecoratorModifier(
     private val keyboardActionHandler: KeyboardActionHandler?,
     private val singleLine: Boolean,
     private val interactionSource: MutableInteractionSource,
-    private val isPassword: Boolean
+    private val isPassword: Boolean,
+    private val stylusHandwritingTrigger: MutableSharedFlow<Unit>?
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
     override fun create(): TextFieldDecoratorModifierNode =
         TextFieldDecoratorModifierNode(
@@ -148,7 +145,8 @@ internal data class TextFieldDecoratorModifier(
             keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
-            isPassword = isPassword
+            isPassword = isPassword,
+            stylusHandwritingTrigger = stylusHandwritingTrigger
         )
 
     override fun update(node: TextFieldDecoratorModifierNode) {
@@ -163,7 +161,8 @@ internal data class TextFieldDecoratorModifier(
             keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
-            isPassword = isPassword
+            isPassword = isPassword,
+            stylusHandwritingTrigger = stylusHandwritingTrigger
         )
     }
 
@@ -185,7 +184,8 @@ internal class TextFieldDecoratorModifierNode(
     var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
     var interactionSource: MutableInteractionSource,
-    var isPassword: Boolean
+    var isPassword: Boolean,
+    var stylusHandwritingTrigger: MutableSharedFlow<Unit>?
 ) :
     DelegatingNode(),
     DrawModifierNode,
@@ -203,19 +203,6 @@ internal class TextFieldDecoratorModifierNode(
 
     private val editable
         get() = enabled && !readOnly
-
-    private var backingStylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
-    private val stylusHandwritingTrigger: MutableSharedFlow<Unit>?
-        get() {
-            val finalStylusHandwritingTrigger = backingStylusHandwritingTrigger
-            if (finalStylusHandwritingTrigger != null) return finalStylusHandwritingTrigger
-            if (!isStylusHandwritingSupported) return null
-            return MutableSharedFlow<Unit>(
-                    replay = 1,
-                    onBufferOverflow = BufferOverflow.DROP_LATEST
-                )
-                .also { backingStylusHandwritingTrigger = it }
-        }
 
     private val pointerInputNode =
         delegate(
@@ -244,39 +231,6 @@ internal class TextFieldDecoratorModifierNode(
                         }
                     }
                 }
-            }
-        )
-
-    private val stylusHandwritingNode =
-        delegate(
-            StylusHandwritingNode {
-                if (!isFocused) {
-                    requestFocus()
-                }
-
-                // If this is a password field, we can't trigger handwriting.
-                // The expected behavior is 1) request focus 2) show software keyboard.
-                // Note: TextField will show software keyboard automatically when it
-                // gain focus. 3) show a toast message telling that handwriting is not
-                // supported for password fields. TODO(b/335294152)
-                if (
-                    keyboardOptions.keyboardType != KeyboardType.Password &&
-                        keyboardOptions.keyboardType != KeyboardType.NumberPassword
-                ) {
-                    // Send the handwriting start signal to platform.
-                    // The editor should send the signal when it is focused or is about
-                    // to gain focus, Here are more details:
-                    //   1) if the editor already has an active input session, the
-                    //   platform handwriting service should already listen to this flow
-                    //   and it'll start handwriting right away.
-                    //
-                    //   2) if the editor is not focused, but it'll be focused and
-                    //   create a new input session, one handwriting signal will be
-                    //   replayed when the platform collect this flow. And the platform
-                    //   should trigger handwriting accordingly.
-                    stylusHandwritingTrigger?.tryEmit(Unit)
-                }
-                return@StylusHandwritingNode true
             }
         )
 
@@ -455,7 +409,8 @@ internal class TextFieldDecoratorModifierNode(
         keyboardActionHandler: KeyboardActionHandler?,
         singleLine: Boolean,
         interactionSource: MutableInteractionSource,
-        isPassword: Boolean
+        isPassword: Boolean,
+        stylusHandwritingTrigger: MutableSharedFlow<Unit>?
     ) {
         // Find the diff: current previous and new values before updating current.
         val previousEditable = this.editable
@@ -467,6 +422,7 @@ internal class TextFieldDecoratorModifierNode(
         val previousTextFieldSelectionState = this.textFieldSelectionState
         val previousInteractionSource = this.interactionSource
         val previousIsPassword = this.isPassword
+        val previousStylusHandwritingTrigger = this.stylusHandwritingTrigger
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -480,13 +436,15 @@ internal class TextFieldDecoratorModifierNode(
         this.singleLine = singleLine
         this.interactionSource = interactionSource
         this.isPassword = isPassword
+        this.stylusHandwritingTrigger = stylusHandwritingTrigger
 
         // React to diff.
         // Something about the session changed, restart the session.
         if (
             editable != previousEditable ||
                 textFieldState != previousTextFieldState ||
-                keyboardOptions != previousKeyboardOptions
+                keyboardOptions != previousKeyboardOptions ||
+                stylusHandwritingTrigger != previousStylusHandwritingTrigger
         ) {
             if (editable && isFocused) {
                 // The old session will be implicitly disposed.
@@ -508,7 +466,6 @@ internal class TextFieldDecoratorModifierNode(
 
         if (textFieldSelectionState != previousTextFieldSelectionState) {
             pointerInputNode.resetPointerInputHandler()
-            stylusHandwritingNode.resetPointerInputHandler()
             if (isAttached) {
                 textFieldSelectionState.receiveContentConfiguration =
                     receiveContentConfigurationProvider
@@ -517,7 +474,6 @@ internal class TextFieldDecoratorModifierNode(
 
         if (interactionSource != previousInteractionSource) {
             pointerInputNode.resetPointerInputHandler()
-            stylusHandwritingNode.resetPointerInputHandler()
         }
     }
 
@@ -669,7 +625,6 @@ internal class TextFieldDecoratorModifierNode(
             textFieldState.editUntransformedTextAsUser { commitComposition() }
             textFieldState.collapseSelectionToMax()
         }
-        stylusHandwritingNode.onFocusEvent(focusState)
     }
 
     /**
@@ -706,12 +661,10 @@ internal class TextFieldDecoratorModifierNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
-        stylusHandwritingNode.onPointerEvent(pointerEvent, pass, bounds)
         pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }
 
     override fun onCancelPointerInput() {
-        stylusHandwritingNode.onCancelPointerInput()
         pointerInputNode.onCancelPointerInput()
     }
 

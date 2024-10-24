@@ -99,7 +99,6 @@ private class HandwritingDetectorNode(var callback: () -> Unit) :
             StylusHandwritingNode {
                 callback()
                 composeImm.prepareStylusHandwritingDelegation()
-                return@StylusHandwritingNode true
             }
         )
 

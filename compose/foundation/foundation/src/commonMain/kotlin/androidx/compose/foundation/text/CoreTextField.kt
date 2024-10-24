@@ -641,9 +641,6 @@ internal fun CoreTextField(
 
     val stylusHandwritingModifier =
         Modifier.stylusHandwriting(writeable) {
-            if (!state.hasFocus) {
-                focusRequester.requestFocus()
-            }
             // If this is a password field, we can't trigger handwriting.
             // The expected behavior is 1) request focus 2) show software keyboard.
             // Note: TextField will show software keyboard automatically when it
@@ -661,7 +658,6 @@ internal fun CoreTextField(
                 // internally by the LegacyTextInputServiceAdapter.
                 legacyTextInputServiceAdapter.startStylusHandwriting()
             }
-            true
         }
 
     val autofillHighlight = LocalAutofillHighlight.current
