@@ -212,8 +212,6 @@ internal constructor(
 
         // Read permissions for CYCLE_TRACKING.
         internal const val READ_CERVICAL_MUCUS = PERMISSION_PREFIX + "READ_CERVICAL_MUCUS"
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val READ_INTERMENSTRUAL_BLEEDING =
             PERMISSION_PREFIX + "READ_INTERMENSTRUAL_BLEEDING"
         internal const val READ_MENSTRUATION = PERMISSION_PREFIX + "READ_MENSTRUATION"
@@ -271,8 +269,6 @@ internal constructor(
 
         // Write permissions for CYCLE_TRACKING.
         internal const val WRITE_CERVICAL_MUCUS = PERMISSION_PREFIX + "WRITE_CERVICAL_MUCUS"
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val WRITE_INTERMENSTRUAL_BLEEDING =
             PERMISSION_PREFIX + "WRITE_INTERMENSTRUAL_BLEEDING"
         internal const val WRITE_MENSTRUATION = PERMISSION_PREFIX + "WRITE_MENSTRUATION"
