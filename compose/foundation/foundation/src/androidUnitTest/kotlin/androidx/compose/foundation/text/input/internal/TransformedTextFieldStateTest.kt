@@ -315,7 +315,7 @@ class TransformedTextFieldStateTest {
                 TextFieldCharSequence(
                     "ahelloa",
                     selection = TextRange(6),
-                    composition = TextRange(0, 7)
+                    composition = TextRange(0, 6)
                 )
             )
         assertThat(collectedNewValues)
@@ -328,5 +328,105 @@ class TransformedTextFieldStateTest {
             )
         assertThat(collectedRestartImes).containsExactly(true)
         job.cancel()
+    }
+
+    @Test
+    fun wedgeAffinity_resetsBackToStartAffinity_afterEditUntransformedTextAsUser() {
+        val state = TextFieldState("hello")
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        transformedState.selectCharsIn(TextRange(0, 4))
+        transformedState.selectionWedgeAffinity =
+            SelectionWedgeAffinity(WedgeAffinity.Start, WedgeAffinity.End)
+
+        transformedState.editUntransformedTextAsUser { delete(0, 2) }
+
+        assertThat(transformedState.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
+    }
+
+    @Test
+    fun wedgeAffinity_resetsBackToStartAffinity_afterReplaceAll() {
+        val state = TextFieldState("hello")
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        transformedState.selectCharsIn(TextRange(0, 4))
+        transformedState.selectionWedgeAffinity =
+            SelectionWedgeAffinity(WedgeAffinity.Start, WedgeAffinity.End)
+
+        transformedState.replaceAll("world")
+
+        assertThat(transformedState.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
+    }
+
+    @Test
+    fun wedgeAffinity_resetsBackToStartAffinity_afterDeleteSelectedText() {
+        val state = TextFieldState("hello")
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        transformedState.selectCharsIn(TextRange(0, 4))
+        transformedState.selectionWedgeAffinity =
+            SelectionWedgeAffinity(WedgeAffinity.Start, WedgeAffinity.End)
+
+        transformedState.deleteSelectedText()
+
+        assertThat(transformedState.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
+    }
+
+    @Test
+    fun wedgeAffinity_resetsBackToStartAffinity_afterReplaceText() {
+        val state = TextFieldState("hello")
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        transformedState.selectCharsIn(TextRange(0, 4))
+        transformedState.selectionWedgeAffinity =
+            SelectionWedgeAffinity(WedgeAffinity.Start, WedgeAffinity.End)
+
+        transformedState.replaceText("world", TextRange(0, 3))
+
+        assertThat(transformedState.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
+    }
+
+    @Test
+    fun wedgeAffinity_resetsBackToStartAffinity_afterReplaceSelectedText() {
+        val state = TextFieldState("hello")
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
+
+        transformedState.selectCharsIn(TextRange(0, 4))
+        transformedState.selectionWedgeAffinity =
+            SelectionWedgeAffinity(WedgeAffinity.Start, WedgeAffinity.End)
+
+        transformedState.replaceSelectedText("world")
+
+        assertThat(transformedState.selectionWedgeAffinity)
+            .isEqualTo(SelectionWedgeAffinity(WedgeAffinity.Start))
     }
 }
