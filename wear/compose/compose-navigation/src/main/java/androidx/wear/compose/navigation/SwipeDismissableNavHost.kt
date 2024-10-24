@@ -57,7 +57,6 @@ import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import androidx.wear.compose.foundation.BasicSwipeToDismissBox
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
@@ -145,7 +144,6 @@ public fun SwipeDismissableNavHost(
  * @param state State containing information about ongoing swipe and animation.
  * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun SwipeDismissableNavHost(
     navController: NavHostController,

@@ -60,7 +60,6 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.material3.tokens.ShapeTokens
@@ -148,7 +147,6 @@ fun Modifier.placeholder(
  * @param shape the shape of the component.
  * @param color the color to use in the shimmer.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
@@ -199,7 +197,6 @@ fun Modifier.placeholderShimmer(
  * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
  *   given component and is ready to be displayed.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
     val maxScreenDimension =
