@@ -13844,7 +13844,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             // recycled.
             item.mShadowingHolder = null;
             if (!item.shouldBeKeptAsChild()) {
-                if (!removeAnimatingView(item.itemView) && item.isTmpDetached()) {
+                if (item.isTmpDetached()) {
+                    removeDetachedView(item.itemView, false);
+                    return;
+                }
+                if (!removeAnimatingView(item.itemView)) {
                     removeDetachedView(item.itemView, false);
                 }
             }
