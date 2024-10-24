@@ -19,8 +19,8 @@ package androidx.health.platform.client.impl.permission.token;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Class to store and retrieve the token was given by the service side. */
 public final class PermissionTokenManager {
@@ -30,8 +30,7 @@ public final class PermissionTokenManager {
     private PermissionTokenManager() {}
 
     /** Retrieves current token. */
-    @Nullable
-    public static String getCurrentToken(@NonNull Context context) {
+    public static @Nullable String getCurrentToken(@NonNull Context context) {
         return getSharedPreferences(context).getString(KEY_TOKEN, null);
     }
 

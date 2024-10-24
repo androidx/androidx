@@ -23,11 +23,11 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.BinderThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.health.platform.client.impl.permission.foregroundstate.ForegroundStateChecker;
 import androidx.health.platform.client.impl.permission.token.PermissionTokenManager;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -105,7 +105,6 @@ final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
 
     @BinderThread
     private void verifyPackageName(@NonNull String packageName) {
-        @Nullable
         String[] callingApp =
                 mContext.getPackageManager().getPackagesForUid(Binder.getCallingUid());
         if (packageName == null

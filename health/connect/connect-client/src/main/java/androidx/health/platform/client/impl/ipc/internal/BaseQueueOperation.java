@@ -21,9 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Abstract implementation of QueueOperation that accepts {@link ConnectionConfiguration} describing
@@ -45,15 +46,13 @@ public class BaseQueueOperation implements QueueOperation {
     public void setException(@NonNull Throwable exception) {}
 
     @Override
-    @NonNull
-    public QueueOperation trackExecution(@NonNull ExecutionTracker tracker) {
+    public @NonNull QueueOperation trackExecution(@NonNull ExecutionTracker tracker) {
         return this;
     }
 
     /** Configuration of the service connection on which the operation will be executed. */
     @Override
-    @NonNull
-    public ConnectionConfiguration getConnectionConfiguration() {
+    public @NonNull ConnectionConfiguration getConnectionConfiguration() {
         return mConnectionConfiguration;
     }
 }
