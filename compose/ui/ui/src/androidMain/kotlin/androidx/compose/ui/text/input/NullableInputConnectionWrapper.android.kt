@@ -109,12 +109,12 @@ private open class NullableInputConnectionWrapperApi21(
     override fun getTextAfterCursor(p0: Int, p1: Int): CharSequence? =
         delegate?.getTextAfterCursor(p0, p1)
 
-    override fun getSelectedText(p0: Int): CharSequence = delegate?.getSelectedText(p0) ?: ""
+    override fun getSelectedText(p0: Int): CharSequence? = delegate?.getSelectedText(p0)
 
     override fun getCursorCapsMode(p0: Int): Int = delegate?.getCursorCapsMode(p0) ?: 0
 
-    override fun getExtractedText(p0: ExtractedTextRequest?, p1: Int): ExtractedText =
-        delegate?.getExtractedText(p0, p1) ?: ExtractedText()
+    override fun getExtractedText(p0: ExtractedTextRequest?, p1: Int): ExtractedText? =
+        delegate?.getExtractedText(p0, p1)
 
     override fun deleteSurroundingText(p0: Int, p1: Int): Boolean =
         delegate?.deleteSurroundingText(p0, p1) ?: false

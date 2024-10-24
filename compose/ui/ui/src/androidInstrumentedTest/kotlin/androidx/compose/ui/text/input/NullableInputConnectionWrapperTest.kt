@@ -29,13 +29,14 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NullableInputConnectionWrapperTest {
 
-    private val delegate = mock<InputConnection>()
+    private var delegate = mock<InputConnection>()
 
     @Test
     fun delegatesToDelegate() {
@@ -102,5 +103,26 @@ class NullableInputConnectionWrapperTest {
         ic.setSelection(4, 2)
 
         verify(delegate, never()).setSelection(any(), any())
+    }
+
+    @Test
+    fun getSelectedTextReturnsNull_whenDelegateIsDisposed() {
+        val ic = NullableInputConnectionWrapper(delegate, onConnectionClosed = {})
+
+        ic.disposeDelegate()
+        val result = ic.getSelectedText(0)
+
+        verify(delegate, never()).getSelectedText(any())
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun getSelectedTextReturnsNull_whenDelegateReturnsNull() {
+        val ic = NullableInputConnectionWrapper(delegate, onConnectionClosed = {})
+
+        val result = ic.getSelectedText(0)
+
+        verify(delegate, times(1)).getSelectedText(any())
+        assertThat(result).isNull()
     }
 }
