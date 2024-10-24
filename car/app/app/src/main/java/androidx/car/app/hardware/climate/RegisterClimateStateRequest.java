@@ -33,10 +33,11 @@ import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_SE
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_SEAT_VENTILATION_LEVEL;
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_STEERING_WHEEL_HEAT;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,9 +83,8 @@ public final class RegisterClimateStateRequest {
     private final List<CarClimateFeature> mRequestFeatures;
 
     /** Returns a list of CarClimateFeatures which are included in this request. */
-    @NonNull
     @ClimateProfileRequest.ClimateProfileFeature
-    public List<CarClimateFeature> getClimateRegisterFeatures() {
+    public @NonNull List<CarClimateFeature> getClimateRegisterFeatures() {
         return mRequestFeatures;
     }
 
@@ -96,9 +96,8 @@ public final class RegisterClimateStateRequest {
         }
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "RegisterClimateStateRequest{"
                 + "mRequestFeatures=" + mRequestFeatures
                 + '}';
@@ -154,9 +153,8 @@ public final class RegisterClimateStateRequest {
          * @throws IllegalArgumentException if the feature flag is not one of
          *                                  ClimateProfileFeature
          */
-        @NonNull
-        public Builder addClimateRegisterFeatures(
-                @NonNull CarClimateFeature... features) {
+        public @NonNull Builder addClimateRegisterFeatures(
+                CarClimateFeature @NonNull ... features) {
             for (CarClimateFeature feature : features) {
                 if (!ALL_FEATURES.contains(feature.getFeature())) {
                     throw new IllegalArgumentException("Invalid flag for registering climate "
@@ -170,8 +168,7 @@ public final class RegisterClimateStateRequest {
         /**
          * Constructs the {@link RegisterClimateStateRequest} defined by this builder.
          */
-        @NonNull
-        public RegisterClimateStateRequest build() {
+        public @NonNull RegisterClimateStateRequest build() {
             return new RegisterClimateStateRequest(this);
         }
     }

@@ -27,13 +27,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarColor;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -60,10 +60,9 @@ public final class CarAppExtenderTest {
                                 // Simulate sending a notification that has the same bundle key
                                 // but no value is set.
                                 new NotificationCompat.Extender() {
-                                    @NonNull
                                     @Override
-                                    public NotificationCompat.Builder extend(
-                                            @NonNull NotificationCompat.Builder builder) {
+                                    public NotificationCompat.@NonNull Builder extend(
+                                            NotificationCompat.@NonNull Builder builder) {
                                         Bundle carExtensions = new Bundle();
 
                                         builder.getExtras().putBundle("androidx.car.app.EXTENSIONS",

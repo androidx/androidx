@@ -23,8 +23,6 @@ import static androidx.car.app.model.constraints.CarTextConstraints.CLICKABLE_TE
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
@@ -38,6 +36,9 @@ import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,19 +66,13 @@ public final class SignInTemplate implements Template {
     }
 
     private final boolean mIsLoading;
-    @Nullable
-    private final Action mHeaderAction;
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mInstructions;
-    @Nullable
-    private final CarText mAdditionalText;
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable Action mHeaderAction;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarText mInstructions;
+    private final @Nullable CarText mAdditionalText;
+    private final @Nullable ActionStrip mActionStrip;
     private final List<Action> mActionList;
-    @Nullable
-    private final SignInMethod mSignInMethod;
+    private final @Nullable SignInMethod mSignInMethod;
 
     /**
      * Returns whether the template is loading.
@@ -93,8 +88,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -104,8 +98,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#setHeaderAction(Action)
      */
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -114,8 +107,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#setInstructions(CharSequence)
      */
-    @Nullable
-    public CarText getInstructions() {
+    public @Nullable CarText getInstructions() {
         return mInstructions;
     }
 
@@ -125,8 +117,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#setAdditionalText(CharSequence)
      */
-    @Nullable
-    public CarText getAdditionalText() {
+    public @Nullable CarText getAdditionalText() {
         return mAdditionalText;
     }
 
@@ -135,8 +126,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -146,8 +136,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#addAction(Action)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActionList);
     }
 
@@ -156,8 +145,7 @@ public final class SignInTemplate implements Template {
      *
      * @see Builder#Builder(SignInMethod)
      */
-    @NonNull
-    public SignInMethod getSignInMethod() {
+    public @NonNull SignInMethod getSignInMethod() {
         return requireNonNull(mSignInMethod);
     }
 
@@ -195,9 +183,8 @@ public final class SignInTemplate implements Template {
                 mSignInMethod);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "SignInTemplate";
     }
 
@@ -229,16 +216,11 @@ public final class SignInTemplate implements Template {
     public static final class Builder {
         boolean mIsLoading;
         final SignInMethod mSignInMethod;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        CarText mInstructions;
-        @Nullable
-        CarText mAdditionalText;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable Action mHeaderAction;
+        @Nullable CarText mTitle;
+        @Nullable CarText mInstructions;
+        @Nullable CarText mAdditionalText;
+        @Nullable ActionStrip mActionStrip;
         List<Action> mActionList = new ArrayList<>();
 
         /**
@@ -248,8 +230,7 @@ public final class SignInTemplate implements Template {
          * {@link SignInMethod}. The caller is expected to call
          * {@link androidx.car.app.Screen#invalidate()} once loading is complete.
          */
-        @NonNull
-        public SignInTemplate.Builder setLoading(boolean isLoading) {
+        public SignInTemplate.@NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -268,8 +249,7 @@ public final class SignInTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -290,8 +270,7 @@ public final class SignInTemplate implements Template {
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -311,8 +290,7 @@ public final class SignInTemplate implements Template {
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             requireNonNull(action);
             if (!requireNonNull(action.getOnClickDelegate()).isParkedOnly()) {
                 throw new IllegalArgumentException("The action must use a "
@@ -335,8 +313,7 @@ public final class SignInTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -356,8 +333,7 @@ public final class SignInTemplate implements Template {
          * @throws IllegalArgumentException if {@code instructions} contains unsupported spans
          * @see CarText for details on text handling and span support.
          */
-        @NonNull
-        public Builder setInstructions(@NonNull CharSequence instructions) {
+        public @NonNull Builder setInstructions(@NonNull CharSequence instructions) {
             mInstructions = CarText.create(requireNonNull(instructions));
             CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mInstructions);
             return this;
@@ -377,8 +353,7 @@ public final class SignInTemplate implements Template {
          * @throws IllegalArgumentException if {@code additionalText} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setAdditionalText(@NonNull CharSequence additionalText) {
+        public @NonNull Builder setAdditionalText(@NonNull CharSequence additionalText) {
             mAdditionalText = CarText.create(requireNonNull(additionalText));
             CLICKABLE_TEXT_ONLY.validateOrThrow(mAdditionalText);
             return this;
@@ -395,8 +370,7 @@ public final class SignInTemplate implements Template {
          * @throws IllegalStateException if the template does not have either a title or header
          *                               {@link Action} set
          */
-        @NonNull
-        public SignInTemplate build() {
+        public @NonNull SignInTemplate build() {
             return new SignInTemplate(this);
         }
 

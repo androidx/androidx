@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
@@ -36,6 +34,9 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -121,28 +122,20 @@ public final class NavigationTemplate implements Template {
     public interface NavigationInfo {
     }
 
-    @Nullable
-    private final NavigationInfo mNavigationInfo;
-    @Nullable
-    private final CarColor mBackgroundColor;
-    @Nullable
-    private final TravelEstimate mDestinationTravelEstimate;
-    @Nullable
-    private final ActionStrip mActionStrip;
-    @Nullable
-    private final ActionStrip mMapActionStrip;
-    @Nullable
-    private final Toggle mPanModeToggle;
-    @Nullable
-    private final PanModeDelegate mPanModeDelegate;
+    private final @Nullable NavigationInfo mNavigationInfo;
+    private final @Nullable CarColor mBackgroundColor;
+    private final @Nullable TravelEstimate mDestinationTravelEstimate;
+    private final @Nullable ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mMapActionStrip;
+    private final @Nullable Toggle mPanModeToggle;
+    private final @Nullable PanModeDelegate mPanModeDelegate;
 
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return requireNonNull(mActionStrip);
     }
 
@@ -152,8 +145,7 @@ public final class NavigationTemplate implements Template {
      * @see Builder#setMapActionStrip(ActionStrip)
      */
     @RequiresCarApi(2)
-    @Nullable
-    public ActionStrip getMapActionStrip() {
+    public @Nullable ActionStrip getMapActionStrip() {
         return mMapActionStrip;
     }
 
@@ -165,8 +157,7 @@ public final class NavigationTemplate implements Template {
     // TODO(b/187989940): remove after hosts switch over to using getPanModeDelegate/
     @Deprecated
     @RequiresCarApi(2)
-    @Nullable
-    public Toggle getPanModeToggle() {
+    public @Nullable Toggle getPanModeToggle() {
         return mPanModeToggle;
     }
 
@@ -175,8 +166,7 @@ public final class NavigationTemplate implements Template {
      * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
      */
     @RequiresCarApi(2)
-    @Nullable
-    public PanModeDelegate getPanModeDelegate() {
+    public @Nullable PanModeDelegate getPanModeDelegate() {
         return mPanModeDelegate;
     }
 
@@ -184,8 +174,7 @@ public final class NavigationTemplate implements Template {
      * Returns the navigation information displayed on the template or {@code null} if there is no
      * navigation information on top of the map.
      */
-    @Nullable
-    public NavigationInfo getNavigationInfo() {
+    public @Nullable NavigationInfo getNavigationInfo() {
         return mNavigationInfo;
     }
 
@@ -193,8 +182,7 @@ public final class NavigationTemplate implements Template {
      * Returns the background color used for the navigation information or {@code null} if set to
      * the default value.
      */
-    @Nullable
-    public CarColor getBackgroundColor() {
+    public @Nullable CarColor getBackgroundColor() {
         return mBackgroundColor;
     }
 
@@ -202,14 +190,12 @@ public final class NavigationTemplate implements Template {
      * Returns the {@link TravelEstimate} to the final destination or {@code null} if there is no
      * travel estimate information.
      */
-    @Nullable
-    public TravelEstimate getDestinationTravelEstimate() {
+    public @Nullable TravelEstimate getDestinationTravelEstimate() {
         return mDestinationTravelEstimate;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "NavigationTemplate";
     }
 
@@ -262,20 +248,13 @@ public final class NavigationTemplate implements Template {
 
     /** A builder of {@link NavigationTemplate}. */
     public static final class Builder {
-        @Nullable
-        NavigationInfo mNavigationInfo;
-        @Nullable
-        CarColor mBackgroundColor;
-        @Nullable
-        TravelEstimate mDestinationTravelEstimate;
-        @Nullable
-        ActionStrip mActionStrip;
-        @Nullable
-        ActionStrip mMapActionStrip;
-        @Nullable
-        Toggle mPanModeToggle;
-        @Nullable
-        PanModeDelegate mPanModeDelegate;
+        @Nullable NavigationInfo mNavigationInfo;
+        @Nullable CarColor mBackgroundColor;
+        @Nullable TravelEstimate mDestinationTravelEstimate;
+        @Nullable ActionStrip mActionStrip;
+        @Nullable ActionStrip mMapActionStrip;
+        @Nullable Toggle mPanModeToggle;
+        @Nullable PanModeDelegate mPanModeDelegate;
 
         /**
          * Sets the navigation information to display on the template.
@@ -284,8 +263,7 @@ public final class NavigationTemplate implements Template {
          *
          * @throws NullPointerException if {@code navigationInfo} is {@code null}
          */
-        @NonNull
-        public Builder setNavigationInfo(@NonNull NavigationInfo navigationInfo) {
+        public @NonNull Builder setNavigationInfo(@NonNull NavigationInfo navigationInfo) {
             mNavigationInfo = requireNonNull(navigationInfo);
             return this;
         }
@@ -296,8 +274,7 @@ public final class NavigationTemplate implements Template {
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
          * factors, the color may be ignored by the host or overridden by the vehicle system.
          */
-        @NonNull
-        public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
+        public @NonNull Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
             UNCONSTRAINED.validateOrThrow(requireNonNull(backgroundColor));
             mBackgroundColor = backgroundColor;
             return this;
@@ -311,8 +288,7 @@ public final class NavigationTemplate implements Template {
          *                                  {@link TravelEstimate#REMAINING_TIME_UNKNOWN}
          * @throws NullPointerException     if {@code destinationTravelEstimate} is {@code null}
          */
-        @NonNull
-        public Builder setDestinationTravelEstimate(
+        public @NonNull Builder setDestinationTravelEstimate(
                 @NonNull TravelEstimate destinationTravelEstimate) {
             if (requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds() < 0
                     && requireNonNull(destinationTravelEstimate).getRemainingTimeSeconds()
@@ -345,8 +321,7 @@ public final class NavigationTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
@@ -374,8 +349,7 @@ public final class NavigationTemplate implements Template {
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @RequiresCarApi(2)
-        @NonNull
-        public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_MAP.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
             mMapActionStrip = actionStrip;
@@ -395,8 +369,7 @@ public final class NavigationTemplate implements Template {
          */
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         @RequiresCarApi(2)
-        @NonNull
-        public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
+        public @NonNull Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
             requireNonNull(panModeListener);
             mPanModeToggle =
                     new Toggle.Builder(
@@ -410,8 +383,7 @@ public final class NavigationTemplate implements Template {
          *
          * @throws IllegalStateException if an {@link ActionStrip} is not set on this template
          */
-        @NonNull
-        public NavigationTemplate build() {
+        public @NonNull NavigationTemplate build() {
             if (mActionStrip == null) {
                 throw new IllegalStateException("Action strip for this template must be set");
             }

@@ -16,10 +16,11 @@
 
 package androidx.car.app.model.constraints;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Tab;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +36,7 @@ public class TabsConstraints {
     private static final int MAXIMUM_ALLOWED_TABS = 4;
     private static final int MINIMUM_REQUIRED_TABS = 2;
 
-    @NonNull
-    public static final TabsConstraints DEFAULT =
+    public static final @NonNull TabsConstraints DEFAULT =
             new TabsConstraints.Builder()
                     .setMaxTabs(MAXIMUM_ALLOWED_TABS)
                     .setMinTabs(MINIMUM_REQUIRED_TABS)
@@ -96,15 +96,13 @@ public class TabsConstraints {
         int mMinTabs = 0;
 
         /** Sets the maximum number of tabs allowed to be added. */
-        @NonNull
-        public TabsConstraints.Builder setMaxTabs(int maxTabs) {
+        public TabsConstraints.@NonNull Builder setMaxTabs(int maxTabs) {
             mMaxTabs = maxTabs;
             return this;
         }
 
         /** Sets the minimum number of tabs required to be added. */
-        @NonNull
-        public TabsConstraints.Builder setMinTabs(int minTabs) {
+        public TabsConstraints.@NonNull Builder setMinTabs(int minTabs) {
             mMinTabs = minTabs;
             return this;
         }
@@ -112,8 +110,7 @@ public class TabsConstraints {
         /**
          * Constructs the {@link TabsConstraints} defined by this builder.
          */
-        @NonNull
-        public TabsConstraints build() {
+        public @NonNull TabsConstraints build() {
             return new TabsConstraints(this);
         }
 

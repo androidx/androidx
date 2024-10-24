@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -37,6 +36,8 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Manager for communicating Media Session Token the host.
@@ -57,7 +58,7 @@ public class MediaPlaybackManager implements Manager {
      * @throws IllegalStateException    if this is not called from the main thread.
      */
     @MainThread
-    public void registerMediaPlaybackToken(@NonNull MediaSessionCompat.Token token) {
+    public void registerMediaPlaybackToken(MediaSessionCompat.@NonNull Token token) {
         checkMainThread();
         Bundleable bundle;
         try {
@@ -79,8 +80,7 @@ public class MediaPlaybackManager implements Manager {
      * Creates an instance of {@link MediaPlaybackManager}.
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public static MediaPlaybackManager create(@NonNull CarContext carContext,
+    public static @NonNull MediaPlaybackManager create(@NonNull CarContext carContext,
             @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
         requireNonNull(carContext);
         requireNonNull(hostDispatcher);

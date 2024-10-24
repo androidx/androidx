@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
@@ -31,6 +30,7 @@ import androidx.car.app.serialization.Bundler;
 import androidx.car.app.serialization.BundlerException;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;

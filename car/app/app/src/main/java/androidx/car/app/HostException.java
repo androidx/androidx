@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /** Exceptions that happen on calls to the host. */
 public final class HostException extends RuntimeException {

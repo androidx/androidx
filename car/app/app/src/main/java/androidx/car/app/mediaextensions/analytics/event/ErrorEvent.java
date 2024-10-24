@@ -23,8 +23,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 
@@ -62,9 +63,8 @@ public class ErrorEvent extends AnalyticsEvent{
         return mErrorCode;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "ErrorEvent{"
                 + "mErrorCode="
                 + mErrorCode

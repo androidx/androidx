@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -32,6 +30,9 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link OnSelectedDelegate}.
@@ -41,8 +42,7 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @KeepFields
 public class OnSelectedDelegateImpl implements OnSelectedDelegate {
-    @Nullable
-    private final IOnSelectedListener mStub;
+    private final @Nullable IOnSelectedListener mStub;
 
     @Override
     public void sendSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
@@ -63,10 +63,9 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
         mStub = null;
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnSelectedDelegate create(@NonNull OnSelectedListener listener) {
+    public static @NonNull OnSelectedDelegate create(@NonNull OnSelectedListener listener) {
         return new OnSelectedDelegateImpl(listener);
     }
 

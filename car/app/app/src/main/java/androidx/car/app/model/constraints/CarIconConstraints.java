@@ -18,11 +18,12 @@ package androidx.car.app.model.constraints;
 
 import android.content.ContentResolver;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIcon;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarIcon} on a template.
@@ -31,8 +32,7 @@ import androidx.core.graphics.drawable.IconCompat;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class CarIconConstraints {
     /** Allow all custom icon types. */
-    @NonNull
-    public static final CarIconConstraints UNCONSTRAINED =
+    public static final @NonNull CarIconConstraints UNCONSTRAINED =
             CarIconConstraints.create(
                     new int[]{
                             IconCompat.TYPE_BITMAP,
@@ -41,8 +41,7 @@ public final class CarIconConstraints {
                     });
 
     /** By default, do not allow custom icon types that would load asynchronously in the host. */
-    @NonNull
-    public static final CarIconConstraints DEFAULT =
+    public static final @NonNull CarIconConstraints DEFAULT =
             CarIconConstraints.create(new int[]{IconCompat.TYPE_BITMAP, IconCompat.TYPE_RESOURCE});
 
     private final int[] mAllowedTypes;
@@ -76,8 +75,7 @@ public final class CarIconConstraints {
      *
      * @throws IllegalArgumentException if the given icon type is unsupported
      */
-    @NonNull
-    public IconCompat checkSupportedIcon(@NonNull IconCompat iconCompat) {
+    public @NonNull IconCompat checkSupportedIcon(@NonNull IconCompat iconCompat) {
         int type = iconCompat.getType();
         for (int allowedType : mAllowedTypes) {
             if (type == allowedType) {

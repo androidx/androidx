@@ -29,11 +29,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IStartCarApp;
 import androidx.car.app.utils.LogTags;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Internal only receiver to handle the broadcast sent when a notification action is taken in

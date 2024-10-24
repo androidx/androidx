@@ -25,9 +25,10 @@ import android.content.Context;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LiveData;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -106,8 +107,7 @@ public final class CarConnection {
      *     <li>{@link #CONNECTION_TYPE_PROJECTION}
      * </ol>
      */
-    @NonNull
-    public LiveData<@ConnectionType Integer> getType() {
+    public @NonNull LiveData<@ConnectionType Integer> getType() {
         return mConnectionTypeLiveData;
     }
 }

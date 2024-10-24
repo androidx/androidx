@@ -20,14 +20,15 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,12 +42,9 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class Header {
-    @NonNull
-    private final List<Action> mEndHeaderActions;
-    @Nullable
-    private final Action mStartHeaderAction;
-    @Nullable
-    private final CarText mTitle;
+    private final @NonNull List<Action> mEndHeaderActions;
+    private final @Nullable Action mStartHeaderAction;
+    private final @Nullable CarText mTitle;
 
     Header(Builder builder) {
         mTitle = builder.mTitle;
@@ -66,8 +64,7 @@ public final class Header {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -77,8 +74,7 @@ public final class Header {
      *
      * @see Builder#addEndHeaderAction(Action)
      */
-    @NonNull
-    public List<Action> getEndHeaderActions() {
+    public @NonNull List<Action> getEndHeaderActions() {
         return mEndHeaderActions;
     }
 
@@ -88,14 +84,12 @@ public final class Header {
      *
      * @see Builder#setStartHeaderAction(Action)
      */
-    @Nullable
-    public Action getStartHeaderAction() {
+    public @Nullable Action getStartHeaderAction() {
         return mStartHeaderAction;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "Header: " + mTitle;
     }
 
@@ -122,10 +116,8 @@ public final class Header {
     /** A builder of {@link Header}. */
     public static final class Builder {
         final List<Action> mEndHeaderActions = new ArrayList<>();
-        @Nullable
-        Action mStartHeaderAction;
-        @Nullable
-        CarText mTitle;
+        @Nullable Action mStartHeaderAction;
+        @Nullable CarText mTitle;
 
         /**
          * Adds an {@link Action} that will be displayed at the end of a header.
@@ -142,8 +134,7 @@ public final class Header {
          *      token. The background color on the primary action would also be removed.
          * </ul>
          */
-        @NonNull
-        public Builder addEndHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder addEndHeaderAction(@NonNull Action headerAction) {
             mEndHeaderActions.add(requireNonNull(headerAction));
             return this;
         }
@@ -161,8 +152,7 @@ public final class Header {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
-        @NonNull
-        public Builder setStartHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setStartHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mStartHeaderAction = headerAction;
@@ -179,8 +169,7 @@ public final class Header {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             return setTitle(CarText.create(title));
         }
 
@@ -194,8 +183,7 @@ public final class Header {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CarText title) {
+        public @NonNull Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -213,8 +201,7 @@ public final class Header {
          * @throws IllegalArgumentException if {@link Action}s towards the end of the header do not
          *                                  meet the template's requirements
          */
-        @NonNull
-        public Header build() {
+        public @NonNull Header build() {
             if (CarText.isNullOrEmpty(mTitle) && mStartHeaderAction == null) {
                 throw new IllegalStateException("Either the title or start header action must be "
                         + "set");

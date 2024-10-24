@@ -19,13 +19,14 @@ import static androidx.car.app.hardware.common.CarUnit.CarSpeedUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,14 +37,11 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class Speed {
-    @Nullable
-    private final CarValue<Float> mRawSpeedMetersPerSecond;
+    private final @Nullable CarValue<Float> mRawSpeedMetersPerSecond;
 
-    @Nullable
-    private final CarValue<Float> mDisplaySpeedMetersPerSecond;
+    private final @Nullable CarValue<Float> mDisplaySpeedMetersPerSecond;
 
-    @NonNull
-    private final CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit;
+    private final @NonNull CarValue<@CarSpeedUnit Integer> mSpeedDisplayUnit;
 
     /**
      * Returns the raw speed of the car in meters/second.
@@ -51,8 +49,7 @@ public final class Speed {
      * <p>The value is positive when the vehicle is moving forward, negative when moving
      * backwards and zero when stopped.
      */
-    @NonNull
-    public CarValue<Float> getRawSpeedMetersPerSecond() {
+    public @NonNull CarValue<Float> getRawSpeedMetersPerSecond() {
         return requireNonNull(mRawSpeedMetersPerSecond);
     }
 
@@ -65,8 +62,7 @@ public final class Speed {
      * <p>The value is positive when the vehicle is moving forward, negative when moving
      * backwards and zero when stopped.
      */
-    @NonNull
-    public CarValue<Float> getDisplaySpeedMetersPerSecond() {
+    public @NonNull CarValue<Float> getDisplaySpeedMetersPerSecond() {
         return requireNonNull(mDisplaySpeedMetersPerSecond);
     }
 
@@ -75,14 +71,12 @@ public final class Speed {
      *
      * <p>See {@link CarUnit} for valid speed units.
      */
-    @NonNull
-    public CarValue<@CarSpeedUnit Integer> getSpeedDisplayUnit() {
+    public @NonNull CarValue<@CarSpeedUnit Integer> getSpeedDisplayUnit() {
         return requireNonNull(mSpeedDisplayUnit);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ raw speed: "
                 + getRawSpeedMetersPerSecond()
                 + ", display speed: "
@@ -138,8 +132,7 @@ public final class Speed {
          *
          * @throws NullPointerException if {@code rawSpeedMetersPerSecond} is {@code null}
          */
-        @NonNull
-        public Builder setRawSpeedMetersPerSecond(
+        public @NonNull Builder setRawSpeedMetersPerSecond(
                 @NonNull CarValue<Float> rawSpeedMetersPerSecond) {
             mRawSpeedMetersPerSecond = requireNonNull(rawSpeedMetersPerSecond);
             return this;
@@ -150,8 +143,7 @@ public final class Speed {
          *
          * @throws NullPointerException if {@code displaySpeedMetersPerSecond} is {@code null}
          */
-        @NonNull
-        public Builder setDisplaySpeedMetersPerSecond(
+        public @NonNull Builder setDisplaySpeedMetersPerSecond(
                 @NonNull CarValue<Float> displaySpeedMetersPerSecond) {
             mDisplaySpeedMetersPerSecond = requireNonNull(displaySpeedMetersPerSecond);
             return this;
@@ -164,8 +156,7 @@ public final class Speed {
          *
          * @throws NullPointerException if {@code speedDisplayUnit} is {@code null}
          */
-        @NonNull
-        public Builder setSpeedDisplayUnit(
+        public @NonNull Builder setSpeedDisplayUnit(
                 @NonNull CarValue<@CarSpeedUnit Integer> speedDisplayUnit) {
             mSpeedDisplayUnit = requireNonNull(speedDisplayUnit);
             return this;
@@ -174,8 +165,7 @@ public final class Speed {
         /**
          * Constructs the {@link Speed} defined by this builder.
          */
-        @NonNull
-        public Speed build() {
+        public @NonNull Speed build() {
             return new Speed(this);
         }
     }

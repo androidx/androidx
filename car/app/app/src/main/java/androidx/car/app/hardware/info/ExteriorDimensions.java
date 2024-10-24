@@ -15,12 +15,13 @@
  */
 package androidx.car.app.hardware.info;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -46,8 +47,7 @@ public class ExteriorDimensions {
     /** The index for vehicle curb to curb turning radius in millimeters. */
     public static final int CURB_TO_CURB_TURNING_RADIUS_INDEX = 7;
 
-    @NonNull
-    private final CarValue<Integer[]> mExteriorDimensions;
+    private final @NonNull CarValue<Integer[]> mExteriorDimensions;
 
     /** Creates a default ExteriorDimensions instance that report "unknown" as the value. */
     public ExteriorDimensions() {
@@ -65,8 +65,7 @@ public class ExteriorDimensions {
      * documented in
      * <a href="https://developer.android.com/reference/android/car/VehiclePropertyIds#INFO_EXTERIOR_DIMENSIONS">VehiclePropertyIds#INFO_EXTERIOR_DIMENSIONS</a>.
      */
-    @NonNull
-    public CarValue<Integer[]> getExteriorDimensions() {
+    public @NonNull CarValue<Integer[]> getExteriorDimensions() {
         return mExteriorDimensions;
     }
 
@@ -88,9 +87,8 @@ public class ExteriorDimensions {
         return mExteriorDimensions.equals(otherDim.mExteriorDimensions);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "[ exteriorDimensions: " + mExteriorDimensions + " ]";
     }
 }

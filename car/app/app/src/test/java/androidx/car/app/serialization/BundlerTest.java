@@ -32,7 +32,6 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.annotations.CarProtocol;
@@ -54,6 +53,7 @@ import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -639,8 +639,7 @@ public class BundlerTest {
     @SuppressWarnings("unused")
     @CarProtocol
     private static class Clack {
-        @Nullable
-        private final Click mClick;
+        private final @Nullable Click mClick;
 
         private Clack(@Nullable Click click) {
             mClick = click;

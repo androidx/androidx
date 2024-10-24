@@ -28,8 +28,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.mediaextensions.analytics.Constants;
@@ -41,6 +39,9 @@ import androidx.car.app.mediaextensions.analytics.event.MediaClickedEvent;
 import androidx.car.app.mediaextensions.analytics.event.ViewChangeEvent;
 import androidx.car.app.mediaextensions.analytics.event.VisibleItemsEvent;
 import androidx.media.MediaBrowserServiceCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;

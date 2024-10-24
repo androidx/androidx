@@ -18,8 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemp
 
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostInfo;
 import androidx.car.app.Screen;
@@ -33,14 +31,16 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 /** Creates a screen that demonstrate the image loading in the library using a content provider. */
 public final class ContentProviderIconsDemoScreen extends Screen {
     private static final int[] ICON_DRAWABLES = {
             R.drawable.arrow_right_turn, R.drawable.arrow_straight, R.drawable.ic_i5,
             R.drawable.ic_520
     };
-    @Nullable
-    private final String mHostPackageName;
+    private final @Nullable String mHostPackageName;
 
     public ContentProviderIconsDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -49,9 +49,8 @@ public final class ContentProviderIconsDemoScreen extends Screen {
         mHostPackageName = hostInfo == null ? null : hostInfo.getPackageName();
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         String hostPackageName = mHostPackageName;

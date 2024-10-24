@@ -21,11 +21,12 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -44,8 +45,7 @@ public final class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
-    @Nullable
-    private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
+    private final @Nullable OnCheckedChangeDelegate mOnCheckedChangeDelegate;
     private final boolean mIsChecked;
     private final boolean mIsEnabled;
 
@@ -68,14 +68,12 @@ public final class Toggle {
      * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
      * the {@link Toggle} is changed.
      */
-    @NonNull
-    public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
+    public @NonNull OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
         return requireNonNull(mOnCheckedChangeDelegate);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ isChecked: " + mIsChecked + ", isEnabled: " + mIsEnabled + "]";
     }
 
@@ -122,8 +120,7 @@ public final class Toggle {
          *
          * <p>The default state of a {@link Toggle} is unchecked.
          */
-        @NonNull
-        public Builder setChecked(boolean checked) {
+        public @NonNull Builder setChecked(boolean checked) {
             mIsChecked = checked;
             return this;
         }
@@ -133,16 +130,14 @@ public final class Toggle {
          *
          * <p>The default state of a {@link Toggle} is enabled.
          */
-        @NonNull
         @RequiresCarApi(5)
-        public Builder setEnabled(boolean enabled) {
+        public @NonNull Builder setEnabled(boolean enabled) {
             mIsEnabled = enabled;
             return this;
         }
 
         /** Constructs the {@link Toggle} defined by this builder. */
-        @NonNull
-        public Toggle build() {
+        public @NonNull Toggle build() {
             return new Toggle(this);
         }
 

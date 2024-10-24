@@ -18,12 +18,13 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.hardware.common.CarValue;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -32,31 +33,26 @@ import java.util.Objects;
 @ExperimentalCarApi
 @KeepFields
 public class EvStatus {
-    @NonNull
-    private final CarValue<Boolean> mEvChargePortOpen;
+    private final @NonNull CarValue<Boolean> mEvChargePortOpen;
 
-    @NonNull
-    private final CarValue<Boolean> mEvChargePortConnected;
+    private final @NonNull CarValue<Boolean> mEvChargePortConnected;
 
     /**
      * Returns a {@link CarValue} to indicate if the EV charge port is open.
      */
-    @NonNull
-    public CarValue<Boolean> getEvChargePortOpen() {
+    public @NonNull CarValue<Boolean> getEvChargePortOpen() {
         return requireNonNull(mEvChargePortOpen);
     }
 
     /**
      * Returns a {@link CarValue} to indicate if the EV charge port is connected.
      */
-    @NonNull
-    public CarValue<Boolean> getEvChargePortConnected() {
+    public @NonNull CarValue<Boolean> getEvChargePortConnected() {
         return requireNonNull(mEvChargePortConnected);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ EV charge port open: " + mEvChargePortOpen + ", EV charge port connected: "
                 + mEvChargePortConnected + "]";
     }
@@ -105,8 +101,8 @@ public class EvStatus {
          *
          * @throws NullPointerException if {@code evChargePortOpen} is {@code null}
          */
-        @NonNull
-        public EvStatus.Builder setEvChargePortOpen(@NonNull CarValue<Boolean> evChargePortOpen) {
+        public EvStatus.@NonNull Builder setEvChargePortOpen(
+                @NonNull CarValue<Boolean> evChargePortOpen) {
             mEvChargePortOpen = requireNonNull(evChargePortOpen);
             return this;
         }
@@ -116,8 +112,7 @@ public class EvStatus {
          *
          * @throws NullPointerException if {@code evChargePortConnected} is {@code null}
          */
-        @NonNull
-        public EvStatus.Builder setEvChargePortConnected(
+        public EvStatus.@NonNull Builder setEvChargePortConnected(
                 @NonNull CarValue<Boolean> evChargePortConnected) {
             mEvChargePortConnected = requireNonNull(evChargePortConnected);
             return this;
@@ -126,8 +121,7 @@ public class EvStatus {
         /**
          * Constructs the {@link EvStatus} defined by this builder.
          */
-        @NonNull
-        public EvStatus build() {
+        public @NonNull EvStatus build() {
             return new EvStatus(this);
         }
     }

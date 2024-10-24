@@ -19,10 +19,11 @@ package androidx.car.app.activity;
 import android.content.ComponentName;
 import android.content.Intent;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.managers.ResultManager;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Automotive implementation of {@link ResultManager}
@@ -36,9 +37,8 @@ public class ResultManagerAutomotive implements ResultManager {
         CarAppViewModel.setActivityResult(resultCode, data);
     }
 
-    @Nullable
     @Override
-    public ComponentName getCallingComponent() {
+    public @Nullable ComponentName getCallingComponent() {
         return CarAppViewModel.getCallingActivity();
     }
 }

@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.mapdemos;
 
 import static androidx.car.app.model.Action.BACK;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Header;
@@ -34,6 +33,8 @@ import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.M
 import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.MapWithPaneTemplateDemoScreen;
 import androidx.car.app.versioning.CarAppApiLevels;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,9 +44,8 @@ public final class MapWithContentDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         List<Row> screenList = new ArrayList<>();
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_7) {
             screenList.add(buildRowForTemplate(new MapWithMessageTemplateDemoScreen(

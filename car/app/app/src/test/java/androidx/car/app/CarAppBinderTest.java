@@ -34,8 +34,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Template;
@@ -51,6 +49,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -115,14 +115,12 @@ public class CarAppBinderTest {
 
     private Session createTestSession() {
         return new Session() {
-            @NonNull
             @Override
-            public Screen onCreateScreen(@NonNull Intent intent) {
+            public @NonNull Screen onCreateScreen(@NonNull Intent intent) {
                 mIntentSet = intent;
                 return new Screen(getCarContext()) {
                     @Override
-                    @NonNull
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return TEST_TEMPLATE;
                     }
                 };
@@ -599,24 +597,18 @@ public class CarAppBinderTest {
 
     /** An implementation of {@link CarAppService} for testing. */
     private class TestCarAppService extends CarAppService {
-        @Nullable
-        public SessionController mSessionController;
-        @Nullable
-        public TestCarContext mCarContext;
-        @Nullable
-        public Session mSession;
-        @Nullable
-        public SessionInfo mSessionInfo;
+        public @Nullable SessionController mSessionController;
+        public @Nullable TestCarContext mCarContext;
+        public @Nullable Session mSession;
+        public @Nullable SessionInfo mSessionInfo;
 
         @Override
-        @NonNull
-        public HostValidator createHostValidator() {
+        public @NonNull HostValidator createHostValidator() {
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
         }
 
-        @NonNull
         @Override
-        public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
+        public @NonNull Session onCreateSession(@NonNull SessionInfo sessionInfo) {
             // Recreate a new CarContext, because the previous one would have been
             // destroyed in an unbind-rebind scenario.
             mCarContext = TestCarContext.createCarContext(mContext);
@@ -629,8 +621,7 @@ public class CarAppBinderTest {
 
         @SuppressWarnings("deprecation")
         @Override
-        @NonNull
-        public Session onCreateSession() {
+        public @NonNull Session onCreateSession() {
             throw new RuntimeException("This method should never be called");
         }
     }

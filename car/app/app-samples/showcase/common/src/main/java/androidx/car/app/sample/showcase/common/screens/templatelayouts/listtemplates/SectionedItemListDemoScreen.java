@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -28,6 +27,7 @@ import androidx.car.app.model.SectionedItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 
+import org.jspecify.annotations.NonNull;
 
 /** A screen demonstrating lists with sectioned item list */
 public class SectionedItemListDemoScreen extends Screen {
@@ -35,9 +35,8 @@ public class SectionedItemListDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
 
         ItemList.Builder listBuilderOne = new ItemList.Builder();
         listBuilderOne.addItem(buildRowForTemplate(R.string.sectioned_item_list_subtext));

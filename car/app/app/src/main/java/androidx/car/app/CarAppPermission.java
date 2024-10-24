@@ -24,9 +24,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -107,7 +108,7 @@ public final class CarAppPermission {
      */
     @SuppressWarnings("deprecation")
     public static void checkHasLibraryPermission(
-            @NonNull Context context, @NonNull @LibraryPermission String permission) {
+            @NonNull Context context, @LibraryPermission @NonNull String permission) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG,
                     "Checking to see if the car app requested the required library permission: "

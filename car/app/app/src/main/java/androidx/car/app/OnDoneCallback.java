@@ -16,10 +16,11 @@
 
 package androidx.car.app;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.serialization.Bundleable;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A host-side interface for handling success and failure scenarios on calls to the client.

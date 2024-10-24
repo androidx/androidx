@@ -37,8 +37,6 @@ import android.location.Location;
 import android.os.RemoteException;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Alert;
 import androidx.car.app.model.CarText;
@@ -49,6 +47,8 @@ import androidx.car.app.testing.TestCarContext;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -157,9 +157,8 @@ public final class AppManagerTest {
         mTestCarContext
                 .getCarService(ScreenManager.class)
                 .push(new Screen(mTestCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return new TestTemplate();
                     }
                 });
@@ -174,9 +173,8 @@ public final class AppManagerTest {
         mTestCarContext
                 .getCarService(ScreenManager.class)
                 .push(new Screen(mTestCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return new TestTemplate() {
                         };
                     }
@@ -194,9 +192,8 @@ public final class AppManagerTest {
         mTestCarContext
                 .getCarService(ScreenManager.class)
                 .push(new Screen(mTestCarContext) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return new NonBundleableTemplate("foo") {
                         };
                     }

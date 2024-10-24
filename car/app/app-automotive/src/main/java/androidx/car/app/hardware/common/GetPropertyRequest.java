@@ -18,13 +18,14 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +44,7 @@ public abstract class GetPropertyRequest {
      *
      * @param propertyId    one of the values in {@link android.car.VehiclePropertyIds}
      */
-    @NonNull
-    public static GetPropertyRequest create(int propertyId) {
+    public static @NonNull GetPropertyRequest create(int propertyId) {
         return builder().setPropertyId(propertyId).build();
     }
 
@@ -52,13 +52,11 @@ public abstract class GetPropertyRequest {
     public abstract int getPropertyId();
 
     /** Returns a list of {@link CarZone}s associated with this request.  */
-    @NonNull
-    public abstract ImmutableList<CarZone> getCarZones();
+    public abstract @NonNull ImmutableList<CarZone> getCarZones();
 
     /** Get a {@link Builder} for creating the {@link GetPropertyRequest}. */
-    @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static Builder builder() {
+    public static @NonNull Builder builder() {
         return new AutoValue_GetPropertyRequest.Builder()
                 .setCarZones(Collections.singletonList(CarZone.CAR_ZONE_GLOBAL));
     }
@@ -67,16 +65,13 @@ public abstract class GetPropertyRequest {
     @AutoValue.Builder
     public abstract static class Builder {
         /** Sets a property ID for the {@link GetPropertyRequest}. */
-        @NonNull
-        public abstract Builder setPropertyId(int propertyId);
+        public abstract @NonNull Builder setPropertyId(int propertyId);
 
         /** Sets a list of {@link CarZone}s for the {@link GetPropertyRequest}. */
-        @NonNull
-        public abstract Builder setCarZones(@NonNull List<CarZone> carZones);
+        public abstract @NonNull Builder setCarZones(@NonNull List<CarZone> carZones);
 
         /** Creates an instance of {@link GetPropertyRequest}. */
-        @NonNull
-        public abstract GetPropertyRequest build();
+        public abstract @NonNull GetPropertyRequest build();
     }
 
 }

@@ -18,13 +18,14 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -157,9 +158,8 @@ public final class CarZone {
         mColumn = builder.mColumn;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         String rowName;
         switch (mRow) {
             case CAR_ZONE_ROW_ALL:
@@ -262,8 +262,7 @@ public final class CarZone {
          * set using {@link Builder#setRow(int)}. {@link CarZoneColumn#CAR_ZONE_COLUMN_ALL} will be
          * used by default if the column value is not set {@link Builder#setColumn(int)}.
          */
-        @NonNull
-        public CarZone build() {
+        public @NonNull CarZone build() {
             return new CarZone(this);
         }
     }

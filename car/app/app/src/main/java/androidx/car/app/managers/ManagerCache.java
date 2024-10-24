@@ -18,9 +18,10 @@ package androidx.car.app.managers;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,8 +61,7 @@ public class ManagerCache {
      *
      * @throws IllegalArgumentException if the name is unknown
      */
-    @NonNull
-    public String getName(@NonNull Class<?> clazz) {
+    public @NonNull String getName(@NonNull Class<?> clazz) {
         String name = mNameByClass.get(clazz);
         if (name == null) {
             throw new IllegalArgumentException("The class does not correspond to a car service");
@@ -75,8 +75,7 @@ public class ManagerCache {
      * @throws IllegalArgumentException if the name is unknown
      * @throws IllegalStateException    if the given manager can not be instantiated
      */
-    @NonNull
-    public Object getOrCreate(@NonNull String name) throws IllegalArgumentException {
+    public @NonNull Object getOrCreate(@NonNull String name) throws IllegalArgumentException {
         Class<?> clazz = mClassByName.get(name);
         if (clazz == null) {
             throw new IllegalArgumentException(
@@ -92,8 +91,7 @@ public class ManagerCache {
      * @throws IllegalStateException    if the given manager can not be instantiated
      */
     @SuppressWarnings("unchecked")
-    @NonNull
-    public <T> T getOrCreate(@NonNull Class<T> clazz) {
+    public <T> @NonNull T getOrCreate(@NonNull Class<T> clazz) {
         RuntimeException exception = mExceptions.get(clazz);
         if (exception != null) {
             throw exception;

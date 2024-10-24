@@ -16,7 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.screens.navigationdemos;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -25,6 +24,8 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
 
+import org.jspecify.annotations.NonNull;
+
 /** Simple demo of how to present a navigation screen with only a map. */
 public final class NavigationMapOnlyScreen extends Screen {
 
@@ -32,9 +33,8 @@ public final class NavigationMapOnlyScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ActionStrip actionStrip =
                 new ActionStrip.Builder()
                         .addAction(

@@ -20,7 +20,6 @@ import static androidx.car.app.model.Action.BACK;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -30,15 +29,16 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.ShowcaseService;
 
+import org.jspecify.annotations.NonNull;
+
 /** A {@link Screen} that provides an action to exit the car app. */
 public class FinishAppScreen extends Screen {
     protected FinishAppScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         return new MessageTemplate.Builder(getCarContext().getString(R.string.finish_app_msg))
                 .setHeader(new Header.Builder().setTitle(getCarContext()
                                 .getString(R.string.finish_app_title))

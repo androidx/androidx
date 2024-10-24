@@ -18,14 +18,15 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,14 +37,10 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class RoutingInfo implements NavigationInfo {
-    @Nullable
-    private final Step mCurrentStep;
-    @Nullable
-    private final Distance mCurrentDistance;
-    @Nullable
-    private final Step mNextStep;
-    @Nullable
-    private final CarIcon mJunctionImage;
+    private final @Nullable Step mCurrentStep;
+    private final @Nullable Distance mCurrentDistance;
+    private final @Nullable Step mNextStep;
+    private final @Nullable CarIcon mJunctionImage;
     private final boolean mIsLoading;
 
     /**
@@ -60,8 +57,7 @@ public final class RoutingInfo implements NavigationInfo {
      *
      * @see Builder#setCurrentStep(Step, Distance)
      */
-    @Nullable
-    public Step getCurrentStep() {
+    public @Nullable Step getCurrentStep() {
         return mCurrentStep;
     }
 
@@ -70,13 +66,11 @@ public final class RoutingInfo implements NavigationInfo {
      *
      * @see Builder#setCurrentStep(Step, Distance)
      */
-    @Nullable
-    public Distance getCurrentDistance() {
+    public @Nullable Distance getCurrentDistance() {
         return mCurrentDistance;
     }
 
-    @Nullable
-    public Step getNextStep() {
+    public @Nullable Step getNextStep() {
         return mNextStep;
     }
 
@@ -86,14 +80,12 @@ public final class RoutingInfo implements NavigationInfo {
      *
      * @see Builder#setJunctionImage(CarIcon)
      */
-    @Nullable
-    public CarIcon getJunctionImage() {
+    public @Nullable CarIcon getJunctionImage() {
         return mJunctionImage;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "RoutingInfo";
     }
 
@@ -138,14 +130,10 @@ public final class RoutingInfo implements NavigationInfo {
 
     /** A builder of {@link RoutingInfo}. */
     public static final class Builder {
-        @Nullable
-        Step mCurrentStep;
-        @Nullable
-        Distance mCurrentDistance;
-        @Nullable
-        Step mNextStep;
-        @Nullable
-        CarIcon mJunctionImage;
+        @Nullable Step mCurrentStep;
+        @Nullable Distance mCurrentDistance;
+        @Nullable Step mNextStep;
+        @Nullable CarIcon mJunctionImage;
         boolean mIsLoading;
 
         /**
@@ -168,8 +156,7 @@ public final class RoutingInfo implements NavigationInfo {
          * @throws NullPointerException if {@code currentStep} is {@code null}
          * @throws NullPointerException if {@code currentDistance} is {@code null}
          */
-        @NonNull
-        public Builder setCurrentStep(@NonNull Step currentStep,
+        public @NonNull Builder setCurrentStep(@NonNull Step currentStep,
                 @NonNull Distance currentDistance) {
             mCurrentStep = requireNonNull(currentStep);
             mCurrentDistance = requireNonNull(currentDistance);
@@ -194,8 +181,7 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * @throws NullPointerException if {@code nextStep} is {@code null}
          */
-        @NonNull
-        public Builder setNextStep(@NonNull Step nextStep) {
+        public @NonNull Builder setNextStep(@NonNull Step nextStep) {
             mNextStep = requireNonNull(nextStep);
             return this;
         }
@@ -222,8 +208,7 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * @throws NullPointerException if {@code junctionImage} is {@code null}
          */
-        @NonNull
-        public Builder setJunctionImage(@NonNull CarIcon junctionImage) {
+        public @NonNull Builder setJunctionImage(@NonNull CarIcon junctionImage) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(junctionImage));
             mJunctionImage = junctionImage;
             return this;
@@ -238,8 +223,7 @@ public final class RoutingInfo implements NavigationInfo {
          * to the host once the data is ready. If set to {@code false}, the UI shows the actual
          * routing info.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -258,8 +242,7 @@ public final class RoutingInfo implements NavigationInfo {
          * @throws IllegalStateException if the {@link RoutingInfo} does not meet the template's
          *                               requirements
          */
-        @NonNull
-        public RoutingInfo build() {
+        public @NonNull RoutingInfo build() {
             Step current = mCurrentStep;
             Distance distance = mCurrentDistance;
 

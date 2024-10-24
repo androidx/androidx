@@ -18,10 +18,11 @@ package androidx.car.app;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A container for the information conveyed by the host after the handshake with the app is
@@ -30,8 +31,7 @@ import androidx.car.app.annotations.KeepFields;
 @CarProtocol
 @KeepFields
 public final class HandshakeInfo {
-    @Nullable
-    private final String mHostPackageName;
+    private final @Nullable String mHostPackageName;
     private final int mHostCarAppApiLevel;
 
     /**
@@ -54,8 +54,7 @@ public final class HandshakeInfo {
     /**
      * Returns the host package name.
      */
-    @NonNull
-    public String getHostPackageName() {
+    public @NonNull String getHostPackageName() {
         return requireNonNull(mHostPackageName);
     }
 

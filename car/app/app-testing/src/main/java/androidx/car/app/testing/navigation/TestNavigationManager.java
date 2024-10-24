@@ -16,14 +16,15 @@
 
 package androidx.car.app.testing.navigation;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
 import androidx.car.app.navigation.model.Trip;
 import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,7 @@ import java.util.concurrent.Executor;
  */
 public class TestNavigationManager extends NavigationManager {
     private final List<Trip> mTripsSent = new ArrayList<>();
-    @Nullable
-    private NavigationManagerCallback mCallback;
+    private @Nullable NavigationManagerCallback mCallback;
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;
 
@@ -67,8 +67,7 @@ public class TestNavigationManager extends NavigationManager {
      *
      * <p>The trips will be stored until {@link #reset} is called.
      */
-    @NonNull
-    public List<Trip> getTripsSent() {
+    public @NonNull List<Trip> getTripsSent() {
         return CollectionUtils.unmodifiableCopy(mTripsSent);
     }
 
@@ -78,8 +77,7 @@ public class TestNavigationManager extends NavigationManager {
      * <p>The listener will be {@code null} if one was never set, or if
      * {@link NavigationManager#clearNavigationManagerCallback()}  or {@link #reset} was called.
      */
-    @Nullable
-    public NavigationManagerCallback getNavigationManagerCallback() {
+    public @Nullable NavigationManagerCallback getNavigationManagerCallback() {
         return mCallback;
     }
 
@@ -106,7 +104,7 @@ public class TestNavigationManager extends NavigationManager {
     }
 
     @Override
-    public void setNavigationManagerCallback(@NonNull /* @CallbackExecutor */ Executor executor,
+    public void setNavigationManagerCallback(/* @CallbackExecutor */ @NonNull Executor executor,
             @NonNull NavigationManagerCallback callback) {
         mCallback = callback;
         super.setNavigationManagerCallback(executor, callback);

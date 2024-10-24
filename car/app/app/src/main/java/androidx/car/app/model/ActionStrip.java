@@ -18,13 +18,14 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,8 +54,7 @@ public final class ActionStrip {
      *
      * @see Builder#addAction(Action)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActions);
     }
 
@@ -62,8 +62,7 @@ public final class ActionStrip {
      * Returns the first {@link Action} associated with the input {@code actionType} or {@code
      * null} if no matching {@link Action} is found.
      */
-    @Nullable
-    public Action getFirstActionOfType(@ActionType int actionType) {
+    public @Nullable Action getFirstActionOfType(@ActionType int actionType) {
         for (Object object : mActions) {
             if (object instanceof Action) {
                 Action action = (Action) object;
@@ -77,8 +76,7 @@ public final class ActionStrip {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[action count: " + mActions.size() + "]";
     }
 
@@ -127,8 +125,7 @@ public final class ActionStrip {
          *                                  the {@code action}'s title contains unsupported spans.
          * @throws NullPointerException     if {@code action} is {@code null}
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             Action actionObj = requireNonNull(action);
             int actionType = actionObj.getType();
             if (actionType != Action.TYPE_CUSTOM && mAddedActionTypes.contains(actionType)) {
@@ -149,8 +146,7 @@ public final class ActionStrip {
          *
          * @throws IllegalStateException if the action strip is empty
          */
-        @NonNull
-        public ActionStrip build() {
+        public @NonNull ActionStrip build() {
             if (mActions.isEmpty()) {
                 throw new IllegalStateException("Action strip must contain at least one action");
             }

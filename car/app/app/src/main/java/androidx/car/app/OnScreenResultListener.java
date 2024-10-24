@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /** A listener to provide the result set by a {@link Screen}. */
 public interface OnScreenResultListener {

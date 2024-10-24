@@ -21,9 +21,10 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * An {@link OnClickListener} that wraps another one and executes its {@link #onClick} method only
@@ -66,9 +67,8 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
      *
      * @throws NullPointerException if {@code listener} is {@code null}
      */
-    @NonNull
     @SuppressLint("ExecutorRegistration")
-    public static ParkedOnlyOnClickListener create(@NonNull OnClickListener listener) {
+    public static @NonNull ParkedOnlyOnClickListener create(@NonNull OnClickListener listener) {
         return new ParkedOnlyOnClickListener(requireNonNull(listener));
     }
 

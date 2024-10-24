@@ -20,14 +20,15 @@ import static androidx.car.app.hardware.common.CarUnit.CarVolumeUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -36,45 +37,35 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class EnergyLevel {
-    @NonNull
-    private final CarValue<Float> mBatteryPercent;
+    private final @NonNull CarValue<Float> mBatteryPercent;
 
-    @NonNull
-    private final CarValue<Float> mFuelPercent;
+    private final @NonNull CarValue<Float> mFuelPercent;
 
-    @NonNull
-    private final CarValue<Boolean> mEnergyIsLow;
+    private final @NonNull CarValue<Boolean> mEnergyIsLow;
 
-    @Nullable
-    private final CarValue<Float> mRangeRemainingMeters;
+    private final @Nullable CarValue<Float> mRangeRemainingMeters;
 
-    @NonNull
-    private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
+    private final @NonNull CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
-    @NonNull
-    private final CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit;
+    private final @NonNull CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit;
 
     /** Returns the battery percentage remaining from the car hardware. */
-    @NonNull
-    public CarValue<Float> getBatteryPercent() {
+    public @NonNull CarValue<Float> getBatteryPercent() {
         return requireNonNull(mBatteryPercent);
     }
 
     /** Returns the fuel percentage remaining from the car hardware. */
-    @NonNull
-    public CarValue<Float> getFuelPercent() {
+    public @NonNull CarValue<Float> getFuelPercent() {
         return requireNonNull(mFuelPercent);
     }
 
     /** Returns if the remaining car energy is low from the car hardware. */
-    @NonNull
-    public CarValue<Boolean> getEnergyIsLow() {
+    public @NonNull CarValue<Boolean> getEnergyIsLow() {
         return requireNonNull(mEnergyIsLow);
     }
 
     /** Returns the range remaining from the car hardware in meters. */
-    @NonNull
-    public CarValue<Float> getRangeRemainingMeters() {
+    public @NonNull CarValue<Float> getRangeRemainingMeters() {
         return requireNonNull(mRangeRemainingMeters);
     }
 
@@ -83,8 +74,7 @@ public final class EnergyLevel {
      *
      * <p>See {@link CarUnit} for possible distance values.
      */
-    @NonNull
-    public CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
+    public @NonNull CarValue<@CarDistanceUnit Integer> getDistanceDisplayUnit() {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
@@ -95,14 +85,12 @@ public final class EnergyLevel {
      */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
     @ExperimentalCarApi
-    @NonNull
-    public CarValue<@CarVolumeUnit Integer> getFuelVolumeDisplayUnit() {
+    public @NonNull CarValue<@CarVolumeUnit Integer> getFuelVolumeDisplayUnit() {
         return requireNonNull(mFuelVolumeDisplayUnit);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ battery percent: "
                 + mBatteryPercent
                 + ", fuel percent: "
@@ -174,8 +162,7 @@ public final class EnergyLevel {
                 CarValue.UNKNOWN_INTEGER;
 
         /** Sets the remaining batter percentage. */
-        @NonNull
-        public Builder setBatteryPercent(@NonNull CarValue<Float> batteryPercent) {
+        public @NonNull Builder setBatteryPercent(@NonNull CarValue<Float> batteryPercent) {
             mBatteryPercent = requireNonNull(batteryPercent);
             return this;
         }
@@ -185,8 +172,7 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code fuelPercent} is {@code null}
          */
-        @NonNull
-        public Builder setFuelPercent(@NonNull CarValue<Float> fuelPercent) {
+        public @NonNull Builder setFuelPercent(@NonNull CarValue<Float> fuelPercent) {
             mFuelPercent = requireNonNull(fuelPercent);
             return this;
         }
@@ -196,8 +182,7 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code energyIsLow} is {@code null}
          */
-        @NonNull
-        public Builder setEnergyIsLow(@NonNull CarValue<Boolean> energyIsLow) {
+        public @NonNull Builder setEnergyIsLow(@NonNull CarValue<Boolean> energyIsLow) {
             mEnergyIsLow = requireNonNull(energyIsLow);
             return this;
         }
@@ -207,8 +192,8 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code rangeRemaining} is {@code null}
          */
-        @NonNull
-        public Builder setRangeRemainingMeters(@NonNull CarValue<Float> rangeRemainingMeters) {
+        public @NonNull Builder setRangeRemainingMeters(
+                @NonNull CarValue<Float> rangeRemainingMeters) {
             mRangeRemainingMeters = requireNonNull(rangeRemainingMeters);
             return this;
         }
@@ -220,8 +205,7 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code distanceDisplayUnit} is {@code null}
          */
-        @NonNull
-        public Builder setDistanceDisplayUnit(
+        public @NonNull Builder setDistanceDisplayUnit(
                 @NonNull CarValue<@CarDistanceUnit Integer> distanceDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(distanceDisplayUnit);
             return this;
@@ -234,8 +218,7 @@ public final class EnergyLevel {
          */
         // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
         @ExperimentalCarApi
-        @NonNull
-        public Builder setFuelVolumeDisplayUnit(@NonNull CarValue<@CarVolumeUnit Integer>
+        public @NonNull Builder setFuelVolumeDisplayUnit(@NonNull CarValue<@CarVolumeUnit Integer>
                 fuelVolumeDisplayUnit) {
             mFuelVolumeDisplayUnit = requireNonNull(fuelVolumeDisplayUnit);
             return this;
@@ -244,8 +227,7 @@ public final class EnergyLevel {
         /**
          * Constructs the {@link EnergyLevel} defined by this builder.
          */
-        @NonNull
-        public EnergyLevel build() {
+        public @NonNull EnergyLevel build() {
             return new EnergyLevel(this);
         }
     }

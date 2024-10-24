@@ -18,13 +18,14 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -32,20 +33,16 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class Destination {
-    @Nullable
-    private final CarText mName;
-    @Nullable
-    private final CarText mAddress;
-    @Nullable
-    private final CarIcon mImage;
+    private final @Nullable CarText mName;
+    private final @Nullable CarText mAddress;
+    private final @Nullable CarIcon mImage;
 
     /**
      * Returns the name of the destination or {@code null} if not set.
      *
      * @see Builder#setName(CharSequence)
      */
-    @Nullable
-    public CarText getName() {
+    public @Nullable CarText getName() {
         return mName;
     }
 
@@ -54,8 +51,7 @@ public final class Destination {
      *
      * @see Builder#setAddress(CharSequence)
      */
-    @Nullable
-    public CarText getAddress() {
+    public @Nullable CarText getAddress() {
         return mAddress;
     }
 
@@ -64,14 +60,12 @@ public final class Destination {
      *
      * @see Builder#setImage(CarIcon)
      */
-    @Nullable
-    public CarIcon getImage() {
+    public @Nullable CarIcon getImage() {
         return mImage;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[name: "
                 + CarText.toShortString(mName)
                 + ", address: "
@@ -117,12 +111,9 @@ public final class Destination {
 
     /** A builder of {@link Destination}. */
     public static final class Builder {
-        @Nullable
-        CarText mName;
-        @Nullable
-        CarText mAddress;
-        @Nullable
-        CarIcon mImage;
+        @Nullable CarText mName;
+        @Nullable CarText mAddress;
+        @Nullable CarIcon mImage;
 
         /**
          * Sets the destination name formatted for the user's current locale.
@@ -132,8 +123,7 @@ public final class Destination {
          * @throws NullPointerException if {@code name} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setName(@NonNull CharSequence name) {
+        public @NonNull Builder setName(@NonNull CharSequence name) {
             mName = CarText.create(requireNonNull(name));
             return this;
         }
@@ -146,8 +136,7 @@ public final class Destination {
          * @throws NullPointerException if {@code address} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setAddress(@NonNull CharSequence address) {
+        public @NonNull Builder setAddress(@NonNull CharSequence address) {
             mAddress = CarText.create(requireNonNull(address));
             return this;
         }
@@ -167,8 +156,7 @@ public final class Destination {
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
-        @NonNull
-        public Builder setImage(@NonNull CarIcon image) {
+        public @NonNull Builder setImage(@NonNull CarIcon image) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
             mImage = image;
             return this;
@@ -183,8 +171,7 @@ public final class Destination {
          * @see #setName(CharSequence)
          * @see #setAddress(CharSequence)
          */
-        @NonNull
-        public Destination build() {
+        public @NonNull Destination build() {
             if ((mName == null || mName.isEmpty()) && (mAddress == null || mAddress.isEmpty())) {
                 throw new IllegalStateException("Both name and address cannot be null or empty");
             }

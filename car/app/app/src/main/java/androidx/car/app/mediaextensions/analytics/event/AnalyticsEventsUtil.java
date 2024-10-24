@@ -32,8 +32,9 @@ import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent.VI
 import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent.VIEW_COMPONENT_QUEUE_LIST;
 import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent.VIEW_COMPONENT_SETTINGS_VIEW;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Utils for {@link AnalyticsEvent} and subclasses.
@@ -47,8 +48,8 @@ public class AnalyticsEventsUtil {
      * Convert {@link AnalyticsEvent.ViewComponent} to human readable text.
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public static String viewComponentToString(@AnalyticsEvent.ViewComponent int viewComponent) {
+    public static @NonNull String viewComponentToString(
+            @AnalyticsEvent.ViewComponent int viewComponent) {
         switch (viewComponent) {
             case VIEW_COMPONENT_BROWSE_ACTION_OVERFLOW:
                 return "BROWSE_ACTION_OVERFLOW";
@@ -79,8 +80,7 @@ public class AnalyticsEventsUtil {
      * Converts {@link AnalyticsEvent.ViewAction} to human readable text.
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public static String viewActionToString(@AnalyticsEvent.ViewAction int viewAction) {
+    public static @NonNull String viewActionToString(@AnalyticsEvent.ViewAction int viewAction) {
         switch (viewAction) {
             case VIEW_ACTION_HIDE:
                 return "HIDE";
@@ -92,8 +92,8 @@ public class AnalyticsEventsUtil {
     }
 
     /** converts view action flag to human readable text. */
-    @NonNull
-    public static String viewActionModeToString(@AnalyticsEvent.ViewActionMode int viewActionMode) {
+    public static @NonNull String viewActionModeToString(
+            @AnalyticsEvent.ViewActionMode int viewActionMode) {
         switch (viewActionMode) {
             case VIEW_ACTION_MODE_NONE:
                 return "NONE";
@@ -105,8 +105,7 @@ public class AnalyticsEventsUtil {
     }
 
     /**Converts browse mode to human readable text */
-    @NonNull
-    public static String browseModeToString(@BrowseChangeEvent.BrowseMode int browseMode) {
+    public static @NonNull String browseModeToString(@BrowseChangeEvent.BrowseMode int browseMode) {
         switch (browseMode) {
             case BrowseChangeEvent.BROWSE_MODE_LINK:
                 return "LINK";

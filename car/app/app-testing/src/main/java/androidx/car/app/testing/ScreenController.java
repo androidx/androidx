@@ -20,8 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -29,6 +27,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,7 @@ public class ScreenController {
     }
 
     /** Returns the {@link Screen} being controlled. */
-    @NonNull
-    public Screen getScreen() {
+    public @NonNull Screen getScreen() {
         return mScreen;
     }
 
@@ -91,8 +91,7 @@ public class ScreenController {
      *
      * <p>The templates will be stored until {@link #reset} is called.
      */
-    @NonNull
-    public List<Template> getTemplatesReturned() {
+    public @NonNull List<Template> getTemplatesReturned() {
         List<Template> templates = new ArrayList<>();
         for (Pair<Screen, Template> pair :
                 mTestCarContext.getCarService(TestAppManager.class).getTemplatesReturned()) {
@@ -114,8 +113,7 @@ public class ScreenController {
      *
      * @see Screen#getLifecycle
      */
-    @NonNull
-    public ScreenController moveToState(@NonNull Lifecycle.State state) {
+    public @NonNull ScreenController moveToState(Lifecycle.@NonNull State state) {
         mLifecycleOwner.getRegistry().setCurrentState(state);
         return this;
     }
@@ -124,8 +122,7 @@ public class ScreenController {
      * Returns the result that was set via {@link Screen#setResult(Object)}, or {@code null} if
      * one was not set.
      */
-    @Nullable
-    public Object getScreenResult() {
+    public @Nullable Object getScreenResult() {
         return mScreen.getResultInternal();
     }
 

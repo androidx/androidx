@@ -26,8 +26,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
 import androidx.car.app.constraints.IConstraintHost;
@@ -38,6 +36,9 @@ import androidx.car.app.utils.LogTags;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.security.InvalidParameterException;
 
 /**
@@ -45,18 +46,12 @@ import java.security.InvalidParameterException;
  */
 @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
 public final class HostDispatcher {
-    @Nullable
-    private ICarHost mCarHost;
-    @Nullable
-    private IAppHost mAppHost;
-    @Nullable
-    private IConstraintHost mConstraintHost;
-    @Nullable
-    private INavigationHost mNavigationHost;
-    @Nullable
-    private ISuggestionHost mSuggestionHost;
-    @Nullable
-    private IMediaPlaybackHost mPlaybackMediaHost;
+    private @Nullable ICarHost mCarHost;
+    private @Nullable IAppHost mAppHost;
+    private @Nullable IConstraintHost mConstraintHost;
+    private @Nullable INavigationHost mNavigationHost;
+    private @Nullable ISuggestionHost mSuggestionHost;
+    private @Nullable IMediaPlaybackHost mPlaybackMediaHost;
 
     /**
      * Dispatches the {@code call} to the host for the given {@code hostType}.
@@ -68,9 +63,8 @@ public final class HostDispatcher {
      * @throws HostException     if the host throws any exception other than
      *                           {@link SecurityException}
      */
-    @Nullable
     @SuppressWarnings({"unchecked", "cast.unsafe"}) // Cannot check if instanceof ServiceT
-    public <ServiceT, ReturnT> ReturnT dispatchForResult(
+    public <ServiceT, ReturnT> @Nullable ReturnT dispatchForResult(
             @CarServiceType @NonNull String hostType, @NonNull String callName,
             @NonNull HostCall<ServiceT, ReturnT> call) throws RemoteException {
         return RemoteUtils.dispatchCallToHostForResult(callName, () -> {
@@ -136,8 +130,7 @@ public final class HostDispatcher {
     @SuppressWarnings({
             "UnsafeOptInUsageError"})
     @RestrictTo(LIBRARY)
-    @Nullable
-    IInterface getHost(@CarServiceType String hostType) throws RemoteException {
+    @Nullable IInterface getHost(@CarServiceType String hostType) throws RemoteException {
         if (mCarHost == null) {
             Log.e(LogTags.TAG_DISPATCH, "Host is not bound when attempting to retrieve host "
                     + "service");

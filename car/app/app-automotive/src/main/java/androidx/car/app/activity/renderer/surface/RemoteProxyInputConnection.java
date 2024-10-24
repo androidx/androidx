@@ -33,13 +33,14 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputContentInfo;
 import android.view.inputmethod.SurroundingText;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Proxies input connection calls to the provided {@link IProxyInputConnection}. */
 final class RemoteProxyInputConnection implements InputConnection {
@@ -52,23 +53,20 @@ final class RemoteProxyInputConnection implements InputConnection {
         mProxyInputConnection = proxyInputConnection;
     }
 
-    @Nullable
     @Override
-    public CharSequence getTextBeforeCursor(int n, int flags) {
+    public @Nullable CharSequence getTextBeforeCursor(int n, int flags) {
         return mServiceDispatcher.fetch("getTextBeforeCursor", null, () ->
                 mProxyInputConnection.getTextBeforeCursor(n, flags));
     }
 
-    @Nullable
     @Override
-    public CharSequence getTextAfterCursor(int n, int flags) {
+    public @Nullable CharSequence getTextAfterCursor(int n, int flags) {
         return mServiceDispatcher.fetch("getTextAfterCursor", null, () ->
                 mProxyInputConnection.getTextAfterCursor(n, flags));
     }
 
-    @Nullable
     @Override
-    public CharSequence getSelectedText(int flags) {
+    public @Nullable CharSequence getSelectedText(int flags) {
         return mServiceDispatcher.fetch("getSelectedText", null, () ->
                 mProxyInputConnection.getSelectedText(flags));
     }
@@ -80,9 +78,9 @@ final class RemoteProxyInputConnection implements InputConnection {
         return res != null ? res : 0;
     }
 
-    @Nullable
     @Override
-    public ExtractedText getExtractedText(@NonNull ExtractedTextRequest request, int flags) {
+    public @Nullable ExtractedText getExtractedText(@NonNull ExtractedTextRequest request,
+            int flags) {
         requireNonNull(request);
         return mServiceDispatcher.fetch("getExtractedText", null, () ->
                 mProxyInputConnection.getExtractedText(request, flags));
@@ -242,10 +240,10 @@ final class RemoteProxyInputConnection implements InputConnection {
         }
     }
 
-    @Nullable
     @Override
     @RequiresApi(Build.VERSION_CODES.S)
-    public SurroundingText getSurroundingText(int beforeLength, int afterLength, int flags) {
+    public @Nullable SurroundingText getSurroundingText(int beforeLength, int afterLength,
+            int flags) {
         return mServiceDispatcher.fetch("getSurroundingText", null, () -> {
             try {
                 Bundleable bundleable = mProxyInputConnection.getSurroundingText(beforeLength,
@@ -258,9 +256,8 @@ final class RemoteProxyInputConnection implements InputConnection {
         });
     }
 
-    @Nullable
     @Override
-    public Handler getHandler() {
+    public @Nullable Handler getHandler() {
         return null;
     }
 }

@@ -27,8 +27,6 @@ import android.os.Binder;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
@@ -40,20 +38,19 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.security.InvalidParameterException;
 
 /** Implementation of the binder {@link ICarApp}. */
 final class CarAppBinder extends ICarApp.Stub {
     private final SessionInfo mCurrentSessionInfo;
 
-    @Nullable
-    private CarAppService mService;
-    @Nullable
-    private Session mCurrentSession;
-    @Nullable
-    private HostValidator mHostValidator;
-    @Nullable
-    private HandshakeInfo mHandshakeInfo;
+    private @Nullable CarAppService mService;
+    private @Nullable Session mCurrentSession;
+    private @Nullable HostValidator mHostValidator;
+    private @Nullable HandshakeInfo mHandshakeInfo;
 
     /**
      * Creates a new {@link CarAppBinder} instance for a {@link SessionInfo}. Once the Host
@@ -307,8 +304,7 @@ final class CarAppBinder extends ICarApp.Stub {
         }
     }
 
-    @Nullable
-    private Lifecycle getCurrentLifecycle() {
+    private @Nullable Lifecycle getCurrentLifecycle() {
         return mCurrentSession == null ? null : mCurrentSession.getLifecycle();
     }
 
@@ -364,24 +360,20 @@ final class CarAppBinder extends ICarApp.Stub {
     }
 
     @VisibleForTesting
-    @Nullable
-    HandshakeInfo getHandshakeInfo() {
+    @Nullable HandshakeInfo getHandshakeInfo() {
         return mHandshakeInfo;
     }
 
     @VisibleForTesting
-    @Nullable
-    CarAppService getCarAppService() {
+    @Nullable CarAppService getCarAppService() {
         return mService;
     }
 
-    @Nullable
-    Session getCurrentSession() {
+    @Nullable Session getCurrentSession() {
         return mCurrentSession;
     }
 
-    @NonNull
-    SessionInfo getCurrentSessionInfo() {
+    @NonNull SessionInfo getCurrentSessionInfo() {
         return mCurrentSessionInfo;
     }
 }

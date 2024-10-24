@@ -20,13 +20,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.Session;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link SessionController} provides API that allows testing of a {@link Session}.
@@ -67,8 +68,7 @@ public class SessionController {
     }
 
     /** Returns the {@link Session} that is being controlled. */
-    @NonNull
-    public Session getSession() {
+    public @NonNull Session getSession() {
         return mSession;
     }
 
@@ -80,8 +80,7 @@ public class SessionController {
      *
      * @see Session#getLifecycle
      */
-    @NonNull
-    public SessionController moveToState(@NonNull Lifecycle.State state) {
+    public @NonNull SessionController moveToState(Lifecycle.@NonNull State state) {
         mLifecycleOwner.getRegistry().setCurrentState(state);
         return this;
     }

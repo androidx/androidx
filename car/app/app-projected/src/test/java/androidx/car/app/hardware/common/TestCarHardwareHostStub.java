@@ -18,13 +18,13 @@ package androidx.car.app.hardware.common;
 
 import android.os.RemoteException;
 
-import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.hardware.ICarHardwareHost;
 import androidx.car.app.hardware.ICarHardwareResult;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Assert;
 
 import java.util.HashMap;
@@ -45,8 +45,7 @@ public class TestCarHardwareHostStub extends ICarHardwareHost.Stub {
 
     // Map of result type -> parameter -> callback.
     private final Map<Integer, Map<Object, ICarHardwareResult>> mCallbackMap = new HashMap<>();
-    @Nullable
-    private final ICarHardwareHost mMockCarHardwareHost;
+    private final @Nullable ICarHardwareHost mMockCarHardwareHost;
 
     IOnDoneCallback.Stub mDoneCallback = new IOnDoneCallback.Stub() {
         @Override

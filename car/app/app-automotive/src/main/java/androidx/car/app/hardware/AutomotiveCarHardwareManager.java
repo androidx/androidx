@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -34,6 +33,8 @@ import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.AutomotiveCarSensors;
 import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link CarHardwareManager} which uses Android Automotive OS APIs to access properties, sensors,
@@ -61,21 +62,18 @@ public final class AutomotiveCarHardwareManager implements CarHardwareManager {
         this(context);
     }
 
-    @NonNull
     @Override
-    public CarInfo getCarInfo() {
+    public @NonNull CarInfo getCarInfo() {
         return mCarInfo;
     }
 
-    @NonNull
     @Override
-    public CarSensors getCarSensors() {
+    public @NonNull CarSensors getCarSensors() {
         return mCarSensors;
     }
 
-    @NonNull
     @Override
-    public CarClimate getCarClimate() {
+    public @NonNull CarClimate getCarClimate() {
         return mCarClimate;
     }
 }

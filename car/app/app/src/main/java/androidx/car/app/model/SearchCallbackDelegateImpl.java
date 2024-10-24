@@ -24,14 +24,15 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation class for {@link SearchCallbackDelegate}.
@@ -41,8 +42,7 @@ import androidx.car.app.utils.RemoteUtils;
 @CarProtocol
 @KeepFields
 public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
-    @Nullable
-    private final ISearchCallback mStubCallback;
+    private final @Nullable ISearchCallback mStubCallback;
 
     @Override
     public void sendSearchTextChanged(@NonNull String searchText,
@@ -75,10 +75,9 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
         mStubCallback = null;
     }
 
-    @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static SearchCallbackDelegate create(@NonNull SearchCallback callback) {
+    public static @NonNull SearchCallbackDelegate create(@NonNull SearchCallback callback) {
         return new SearchCallbackDelegateImpl(callback);
     }
 

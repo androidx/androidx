@@ -18,18 +18,19 @@ package androidx.car.app;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
 
 import com.google.common.collect.ImmutableSet;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.util.Objects;
@@ -65,8 +66,7 @@ public class SessionInfo {
      * A default {@link SessionInfo} for the main display, used when the host is on a version
      * that doesn't support this new class.
      */
-    @NonNull
-    public static final SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
+    public static final @NonNull SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
             DISPLAY_TYPE_MAIN, "main");
 
     /**
@@ -85,8 +85,7 @@ public class SessionInfo {
     }
 
     /** A string identifier unique per physical display. */
-    @NonNull
-    private final String mSessionId;
+    private final @NonNull String mSessionId;
 
     /** The type of display the {@link Session} is rendering on. */
     @DisplayType
@@ -95,8 +94,7 @@ public class SessionInfo {
     /**
      * Returns a session-stable ID, unique to the display that the {@link Session} is rendering on.
      */
-    @NonNull
-    public String getSessionId() {
+    public @NonNull String getSessionId() {
         return mSessionId;
     }
 
@@ -110,9 +108,8 @@ public class SessionInfo {
      * Returns the set of templates that are allowed for this {@link Session}, or {@code null} if
      * there are no restrictions (ie. all templates are allowed).
      */
-    @Nullable
     @SuppressWarnings("NullableCollection") // Set does not contain nulls
-    public Set<Class<? extends Template>> getSupportedTemplates(
+    public @Nullable Set<Class<? extends Template>> getSupportedTemplates(
             @CarAppApiLevel int carAppApiLevel) {
         if (mDisplayType == DISPLAY_TYPE_CLUSTER) {
             if (carAppApiLevel >= CarAppApiLevels.LEVEL_6) {
@@ -125,9 +122,8 @@ public class SessionInfo {
         return null;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return String.valueOf(mDisplayType) + DIVIDER + mSessionId;
     }
 

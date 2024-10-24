@@ -28,9 +28,10 @@ import static androidx.car.app.mediaextensions.analytics.event.AnalyticsEventsUt
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -47,8 +48,7 @@ public class VisibleItemsEvent extends AnalyticsEvent {
     private final int mViewActionMode;
 
     private final String mNodeId;
-    @Nullable
-    private final List<String> mItemsIds;
+    private final @Nullable List<String> mItemsIds;
 
     @RestrictTo(LIBRARY)
     public VisibleItemsEvent(@NonNull Bundle eventBundle) {
@@ -72,20 +72,17 @@ public class VisibleItemsEvent extends AnalyticsEvent {
         return mViewActionMode;
     }
 
-    @Nullable
-    public String getNodeId() {
+    public @Nullable String getNodeId() {
         return mNodeId;
     }
 
-    @Nullable
     @SuppressWarnings("NullableCollection")
-    public List<String> getItemsIds() {
+    public @Nullable List<String> getItemsIds() {
         return mItemsIds;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder sb = new StringBuilder("VisibleItemsEvent{");
         sb.append("mViewComponent=").append(viewComponentToString(mViewComponent));
         sb.append(", mViewAction=").append(viewActionToString(mViewAction));

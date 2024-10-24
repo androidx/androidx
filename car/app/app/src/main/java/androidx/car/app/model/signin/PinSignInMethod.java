@@ -18,12 +18,13 @@ package androidx.car.app.model.signin;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -38,8 +39,7 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     /** Maximum length, in characters, for a PIN. */
     private static final int MAX_PIN_LENGTH = 12;
 
-    @Nullable
-    private final CarText mPinCode;
+    private final @Nullable CarText mPinCode;
 
     /**
      * Returns a {@link PinSignInMethod} instance.
@@ -70,8 +70,7 @@ public final class PinSignInMethod implements SignInTemplate.SignInMethod {
     }
 
     /** Returns the PIN or activation code to present to the user. */
-    @NonNull
-    public CarText getPinCode() {
+    public @NonNull CarText getPinCode() {
         return requireNonNull(mPinCode);
     }
 

@@ -16,9 +16,10 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -31,14 +32,12 @@ import java.util.Set;
 @ExperimentalCarApi
 public final class HvacRecirculationProfile {
 
-    @NonNull
-    private final List<Set<CarZone>> mSupportedCarZones;
+    private final @NonNull List<Set<CarZone>> mSupportedCarZones;
 
     /**
      * Returns a list of supported zones in a car for the feature.
      */
-    @NonNull
-    public List<Set<CarZone>> getSupportedCarZones() {
+    public @NonNull List<Set<CarZone>> getSupportedCarZones() {
         return mSupportedCarZones;
     }
 
@@ -61,8 +60,7 @@ public final class HvacRecirculationProfile {
         }
 
         /** Create a HvacRecirculationProfile. */
-        @NonNull
-        public HvacRecirculationProfile build() {
+        public @NonNull HvacRecirculationProfile build() {
             return new HvacRecirculationProfile(this);
         }
     }

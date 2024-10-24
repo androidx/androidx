@@ -23,8 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link BroadcastReceiver} used to detect host updates, and trigger automatic re-connection.

@@ -20,11 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The request for a call to open microphone.
@@ -36,8 +37,7 @@ import androidx.car.app.annotations.KeepFields;
 @RequiresCarApi(5)
 @KeepFields
 public final class OpenMicrophoneRequest {
-    @Nullable
-    private final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
+    private final @Nullable CarAudioCallbackDelegate mCarAudioCallbackDelegate;
 
     OpenMicrophoneRequest(@NonNull Builder builder) {
         mCarAudioCallbackDelegate = builder.mCarAudioCallbackDelegate;
@@ -48,8 +48,7 @@ public final class OpenMicrophoneRequest {
         mCarAudioCallbackDelegate = null;
     }
 
-    @NonNull
-    public CarAudioCallbackDelegate getCarAudioCallbackDelegate() {
+    public @NonNull CarAudioCallbackDelegate getCarAudioCallbackDelegate() {
         return requireNonNull(mCarAudioCallbackDelegate);
     }
 
@@ -57,8 +56,7 @@ public final class OpenMicrophoneRequest {
      * A builder for {@link OpenMicrophoneRequest}.
      */
     public static final class Builder {
-        @NonNull
-        final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
+        final @NonNull CarAudioCallbackDelegate mCarAudioCallbackDelegate;
 
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull CarAudioCallback callback) {
@@ -68,8 +66,7 @@ public final class OpenMicrophoneRequest {
         /**
          * Builds the {@link OpenMicrophoneRequest} for this builder.
          */
-        @NonNull
-        public OpenMicrophoneRequest build() {
+        public @NonNull OpenMicrophoneRequest build() {
             return new OpenMicrophoneRequest(this);
         }
     }

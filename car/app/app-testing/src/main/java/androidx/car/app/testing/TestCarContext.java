@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -34,6 +32,9 @@ import androidx.car.app.OnRequestPermissionsListener;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,8 +69,7 @@ public class TestCarContext extends CarContext {
     private final TestScreenManager mTestScreenManager;
 
     final List<Intent> mStartCarAppIntents = new ArrayList<>();
-    @Nullable
-    private PermissionRequestInfo mLastPermissionRequestInfo = null;
+    private @Nullable PermissionRequestInfo mLastPermissionRequestInfo = null;
     private boolean mHasCalledFinishCarApp;
 
     /** Resets the values tracked by this {@link TestCarContext}. */
@@ -77,9 +77,8 @@ public class TestCarContext extends CarContext {
         mStartCarAppIntents.clear();
     }
 
-    @NonNull
     @Override
-    public <T> T getCarService(@NonNull Class<T> serviceClass) {
+    public <T> @NonNull T getCarService(@NonNull Class<T> serviceClass) {
         String serviceName;
 
         if (serviceClass.isInstance(mTestAppManager)) {
@@ -96,8 +95,7 @@ public class TestCarContext extends CarContext {
     }
 
     @Override
-    @NonNull
-    public Object getCarService(@NonNull String name) {
+    public @NonNull Object getCarService(@NonNull String name) {
         Object service = mOverriddenService.get(name);
         if (service != null) {
             return service;
@@ -139,8 +137,7 @@ public class TestCarContext extends CarContext {
      *
      * @throws NullPointerException if {@code testContext} is null
      */
-    @NonNull
-    public static TestCarContext createCarContext(@NonNull Context testContext) {
+    public static @NonNull TestCarContext createCarContext(@NonNull Context testContext) {
         requireNonNull(testContext);
 
         TestCarContext carContext = new TestCarContext(new TestLifecycleOwner(),
@@ -159,8 +156,7 @@ public class TestCarContext extends CarContext {
      *
      * <p>The results will be stored until {@link #reset} is called.
      */
-    @NonNull
-    public List<Intent> getStartCarAppIntents() {
+    public @NonNull List<Intent> getStartCarAppIntents() {
         return CollectionUtils.unmodifiableCopy(mStartCarAppIntents);
     }
 
@@ -168,8 +164,7 @@ public class TestCarContext extends CarContext {
      * Returns a {@link PermissionRequestInfo} including the information with the last call made to
      * {@link CarContext#requestPermissions}, or {@code null} if no call was made.
      */
-    @Nullable
-    public PermissionRequestInfo getLastPermissionRequestInfo() {
+    public @Nullable PermissionRequestInfo getLastPermissionRequestInfo() {
         return mLastPermissionRequestInfo;
     }
 
@@ -181,8 +176,7 @@ public class TestCarContext extends CarContext {
     /**
      * Retrieve the {@link FakeHost} being used.
      */
-    @NonNull
-    public FakeHost getFakeHost() {
+    public @NonNull FakeHost getFakeHost() {
         return mFakeHost;
     }
 
@@ -211,8 +205,7 @@ public class TestCarContext extends CarContext {
      *
      */
     @RestrictTo(LIBRARY_GROUP)
-    @NonNull
-    public TestLifecycleOwner getLifecycleOwner() {
+    public @NonNull TestLifecycleOwner getLifecycleOwner() {
         return mTestLifecycleOwner;
     }
 
@@ -221,8 +214,7 @@ public class TestCarContext extends CarContext {
      *
      */
     @RestrictTo(LIBRARY_GROUP)
-    @NonNull
-    public IStartCarApp getStartCarAppStub() {
+    public @NonNull IStartCarApp getStartCarAppStub() {
         return mStartCarApp;
     }
 
@@ -256,16 +248,14 @@ public class TestCarContext extends CarContext {
         /**
          * Returns the listener that was provided in the permission request.
          */
-        @NonNull
-        public OnRequestPermissionsListener getListener() {
+        public @NonNull OnRequestPermissionsListener getListener() {
             return mListener;
         }
 
         /**
          * Returns the permissions that were requested.
          */
-        @NonNull
-        public List<String> getPermissionsRequested() {
+        public @NonNull List<String> getPermissionsRequested() {
             return mPermissionsRequested;
         }
     }

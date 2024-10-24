@@ -19,7 +19,6 @@ package androidx.car.app.annotations;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 
 /**
  * Common interface to be used by Proguard rules to keep the class names and

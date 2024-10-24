@@ -29,8 +29,6 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
@@ -45,6 +43,8 @@ import androidx.car.app.notification.CarAppNotificationBroadcastReceiver;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.robolectric.Shadows;
 
 import java.io.IOException;

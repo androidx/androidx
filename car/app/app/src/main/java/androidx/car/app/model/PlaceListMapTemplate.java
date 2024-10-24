@@ -24,13 +24,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,18 +62,12 @@ import java.util.Objects;
 public final class PlaceListMapTemplate implements Template {
     private final boolean mIsLoading;
     private final boolean mShowCurrentLocation;
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final ItemList mItemList;
-    @Nullable
-    private final Action mHeaderAction;
-    @Nullable
-    private final ActionStrip mActionStrip;
-    @Nullable
-    private final Place mAnchor;
-    @Nullable
-    private final OnContentRefreshDelegate mOnContentRefreshDelegate;
+    private final @Nullable CarText mTitle;
+    private final @Nullable ItemList mItemList;
+    private final @Nullable Action mHeaderAction;
+    private final @Nullable ActionStrip mActionStrip;
+    private final @Nullable Place mAnchor;
+    private final @Nullable OnContentRefreshDelegate mOnContentRefreshDelegate;
 
     public boolean isCurrentLocationEnabled() {
         return mShowCurrentLocation;
@@ -83,8 +78,7 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -94,8 +88,7 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setHeaderAction(Action)
      */
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -104,8 +97,7 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -124,8 +116,7 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setItemList(ItemList)
      */
-    @Nullable
-    public ItemList getItemList() {
+    public @Nullable ItemList getItemList() {
         return mItemList;
     }
 
@@ -134,8 +125,7 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setAnchor(Place)
      */
-    @Nullable
-    public Place getAnchor() {
+    public @Nullable Place getAnchor() {
         return mAnchor;
     }
 
@@ -145,15 +135,13 @@ public final class PlaceListMapTemplate implements Template {
      *
      * @see Builder#setOnContentRefreshListener
      */
-    @Nullable
     @RequiresCarApi(5)
-    public OnContentRefreshDelegate getOnContentRefreshDelegate() {
+    public @Nullable OnContentRefreshDelegate getOnContentRefreshDelegate() {
         return mOnContentRefreshDelegate;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "PlaceListMapTemplate";
     }
 
@@ -212,19 +200,13 @@ public final class PlaceListMapTemplate implements Template {
     public static final class Builder {
         boolean mShowCurrentLocation;
         boolean mIsLoading;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        ItemList mItemList;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
-        @Nullable
-        Place mAnchor;
-        @Nullable
+        @Nullable CarText mTitle;
+        @Nullable ItemList mItemList;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
+        @Nullable Place mAnchor;
         @RequiresCarApi(5)
-        OnContentRefreshDelegate mOnContentRefreshDelegate;
+        @Nullable OnContentRefreshDelegate mOnContentRefreshDelegate;
 
         /**
          * Sets whether to show the current location in the map.
@@ -236,8 +218,7 @@ public final class PlaceListMapTemplate implements Template {
          * host may receive location updates from the app in order to show the user's current
          * location.
          */
-        @NonNull
-        public Builder setCurrentLocationEnabled(boolean isEnabled) {
+        public @NonNull Builder setCurrentLocationEnabled(boolean isEnabled) {
             mShowCurrentLocation = isEnabled;
             return this;
         }
@@ -251,8 +232,7 @@ public final class PlaceListMapTemplate implements Template {
          * to the host once the data is ready. If set to {@code false}, the UI shows the {@link
          * ItemList} contents added via {@link #setItemList}.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -271,8 +251,7 @@ public final class PlaceListMapTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -289,8 +268,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -306,8 +284,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CarText title) {
+        public @NonNull Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -345,8 +322,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws NullPointerException     if {@code itemList} is {@code null}
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public Builder setItemList(@NonNull ItemList itemList) {
+        public @NonNull Builder setItemList(@NonNull ItemList itemList) {
             List<Item> items = requireNonNull(itemList).getItems();
             ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
             ModelUtils.validateAllNonBrowsableRowsHaveDistance(items);
@@ -377,8 +353,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION
                     .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
@@ -401,8 +376,7 @@ public final class PlaceListMapTemplate implements Template {
          *
          * @throws NullPointerException if {@code anchor} is {@code null}
          */
-        @NonNull
-        public Builder setAnchor(@NonNull Place anchor) {
+        public @NonNull Builder setAnchor(@NonNull Place anchor) {
             mAnchor = requireNonNull(anchor);
             return this;
         }
@@ -418,10 +392,9 @@ public final class PlaceListMapTemplate implements Template {
          *
          * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         @RequiresCarApi(5)
-        public Builder setOnContentRefreshListener(
+        public @NonNull Builder setOnContentRefreshListener(
                 @NonNull OnContentRefreshListener onContentRefreshListener) {
             mOnContentRefreshDelegate =
                     OnContentRefreshDelegateImpl.create(onContentRefreshListener);
@@ -439,8 +412,7 @@ public final class PlaceListMapTemplate implements Template {
          * @throws IllegalArgumentException if the template is in a loading state but the list is
          *                                  set, or vice versa
          */
-        @NonNull
-        public PlaceListMapTemplate build() {
+        public @NonNull PlaceListMapTemplate build() {
             boolean hasList = mItemList != null;
             if (mIsLoading == hasList) {
                 throw new IllegalArgumentException(

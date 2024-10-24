@@ -20,12 +20,13 @@ import static androidx.car.app.model.Action.APP_ICON;
 
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.TabTemplate;
 import androidx.car.app.model.Template;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Creates a screen that demonstrates usage of the full screen {@link TabTemplate} without tabs.
@@ -37,9 +38,8 @@ public final class TabTemplateNoTabsDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         mTabTemplateBuilder = new TabTemplate.Builder(new TabTemplate.TabCallback() {
             @Override
             public void onTabSelected(@NonNull String tabContentId) {

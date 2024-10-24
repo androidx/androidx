@@ -20,11 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
@@ -59,15 +60,13 @@ public final class DurationSpan extends CarSpan {
     private final long mDurationSeconds;
 
     /** Creates a {@link DurationSpan} with the given duration. */
-    @NonNull
-    public static DurationSpan create(long durationSeconds) {
+    public static @NonNull DurationSpan create(long durationSeconds) {
         return new DurationSpan(durationSeconds);
     }
 
     /** Creates a {@link DurationSpan} with the given duration. */
-    @NonNull
     @RequiresApi(26)
-    public static DurationSpan create(@NonNull Duration duration) {
+    public static @NonNull DurationSpan create(@NonNull Duration duration) {
         return Api26Impl.create(duration);
     }
 
@@ -78,8 +77,7 @@ public final class DurationSpan extends CarSpan {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[seconds: " + mDurationSeconds + "]";
     }
 
@@ -119,8 +117,7 @@ public final class DurationSpan extends CarSpan {
         private Api26Impl() {
         }
 
-        @NonNull
-        public static DurationSpan create(@NonNull Duration duration) {
+        public static @NonNull DurationSpan create(@NonNull Duration duration) {
             return new DurationSpan(requireNonNull(duration).getSeconds());
         }
     }

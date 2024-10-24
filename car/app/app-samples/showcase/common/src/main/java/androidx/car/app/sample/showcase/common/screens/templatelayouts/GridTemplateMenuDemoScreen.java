@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts;
 
 import static androidx.car.app.model.Action.BACK;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Header;
@@ -31,6 +30,8 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtempl
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtemplates.NotificationDemoScreen;
 import androidx.lifecycle.DefaultLifecycleObserver;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Creates a screen that demonstrates usage of the full screen {@link ListTemplate} to display a
  * full-screen list.
@@ -42,9 +43,8 @@ public final class GridTemplateMenuDemoScreen extends Screen implements DefaultL
         getLifecycle().addObserver(this);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         listBuilder.addItem(buildRowForTemplate(new GridTemplateDemoScreen(getCarContext()),

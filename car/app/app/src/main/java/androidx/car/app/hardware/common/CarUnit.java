@@ -19,12 +19,13 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -141,8 +142,7 @@ public final class CarUnit {
     /** Get a user friendly representation of the unit. */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
     @OptIn(markerClass = ExperimentalCarApi.class)
-    @NonNull
-    public static String toString(int unit) {
+    public static @NonNull String toString(int unit) {
         switch (unit) {
             case MILLIMETER:
                 return "MILLIMETER";

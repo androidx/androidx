@@ -16,17 +16,17 @@
 
 package androidx.car.app.hardware.common;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.jspecify.annotations.NonNull;
+
 /** CarZone to areaId converter for Global zones. */
 @ExperimentalCarApi
 public class GlobalCarZoneAreaIdConverter implements CarZoneAreaIdConverter {
-    @NonNull
     @Override
-    public ImmutableSet<CarZone> convertAreaIdToCarZones(int areaId) {
+    public @NonNull ImmutableSet<CarZone> convertAreaIdToCarZones(int areaId) {
         return ImmutableSet.of(CarZone.CAR_ZONE_GLOBAL);
     }
 }

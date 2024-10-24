@@ -42,8 +42,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StyleRes;
 import androidx.annotation.VisibleForTesting;
@@ -53,6 +51,9 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -65,30 +66,23 @@ import java.util.Set;
  * {@link Notification}.
  */
 public final class CarNotificationManager {
-    @NonNull
-    private final Context mContext;
-    @NonNull
-    private final NotificationManagerCompat mNotificationManagerCompat;
+    private final @NonNull Context mContext;
+    private final @NonNull NotificationManagerCompat mNotificationManagerCompat;
     @ColorInt
-    @Nullable
-    private final Integer mPrimaryColor;
+    private final @Nullable Integer mPrimaryColor;
     @ColorInt
-    @Nullable
-    private final Integer mPrimaryColorDark;
+    private final @Nullable Integer mPrimaryColorDark;
     @ColorInt
-    @Nullable
-    private final Integer mSecondaryColor;
+    private final @Nullable Integer mSecondaryColor;
     @ColorInt
-    @Nullable
-    private final Integer mSecondaryColorDark;
+    private final @Nullable Integer mSecondaryColorDark;
 
     /**
      * Returns a {@link CarNotificationManager} instance for a provided context.
      *
      * @throws NullPointerException if {@code context} is {@code null}
      */
-    @NonNull
-    public static CarNotificationManager from(@NonNull Context context) {
+    public static @NonNull CarNotificationManager from(@NonNull Context context) {
         return new CarNotificationManager(requireNonNull(context));
     }
 
@@ -130,7 +124,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#notify(int, Notification)
      */
-    public void notify(int id, @NonNull NotificationCompat.Builder notification) {
+    public void notify(int id, NotificationCompat.@NonNull Builder notification) {
         mNotificationManagerCompat.notify(id, updateForCar(requireNonNull(notification)));
     }
 
@@ -149,7 +143,7 @@ public final class CarNotificationManager {
      * @throws NullPointerException if notification is {@code null}
      */
     public void notify(@Nullable String tag, int id,
-            @NonNull NotificationCompat.Builder notification) {
+            NotificationCompat.@NonNull Builder notification) {
         mNotificationManagerCompat.notify(tag, id, updateForCar(requireNonNull(notification)));
     }
 
@@ -260,8 +254,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getNotificationChannelCompat(String)
      */
-    @Nullable
-    public NotificationChannelCompat getNotificationChannel(@NonNull String channelId) {
+    public @Nullable NotificationChannelCompat getNotificationChannel(@NonNull String channelId) {
         return mNotificationManagerCompat.getNotificationChannelCompat(requireNonNull(channelId));
     }
 
@@ -274,8 +267,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getNotificationChannelCompat(String, String)
      */
-    @Nullable
-    public NotificationChannelCompat getNotificationChannel(@NonNull String channelId,
+    public @Nullable NotificationChannelCompat getNotificationChannel(@NonNull String channelId,
             @NonNull String conversationId) {
         return mNotificationManagerCompat.getNotificationChannelCompat(requireNonNull(channelId),
                 requireNonNull(conversationId));
@@ -288,8 +280,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getNotificationChannelGroupCompat(String)
      */
-    @Nullable
-    public NotificationChannelGroupCompat getNotificationChannelGroup(
+    public @Nullable NotificationChannelGroupCompat getNotificationChannelGroup(
             @NonNull String channelGroupId) {
         return mNotificationManagerCompat.getNotificationChannelGroupCompat(
                 requireNonNull(channelGroupId));
@@ -301,8 +292,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getNotificationChannelsCompat()
      */
-    @NonNull
-    public List<NotificationChannelCompat> getNotificationChannels() {
+    public @NonNull List<NotificationChannelCompat> getNotificationChannels() {
         return mNotificationManagerCompat.getNotificationChannelsCompat();
     }
 
@@ -312,8 +302,7 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getNotificationChannelGroupsCompat()
      */
-    @NonNull
-    public List<NotificationChannelGroupCompat> getNotificationChannelGroups() {
+    public @NonNull List<NotificationChannelGroupCompat> getNotificationChannelGroups() {
         return mNotificationManagerCompat.getNotificationChannelGroupsCompat();
     }
 
@@ -324,14 +313,12 @@ public final class CarNotificationManager {
      *
      * @see NotificationManagerCompat#getEnabledListenerPackages(Context)
      */
-    @NonNull
-    public static Set<String> getEnabledListenerPackages(@NonNull Context context) {
+    public static @NonNull Set<String> getEnabledListenerPackages(@NonNull Context context) {
         return NotificationManagerCompat.getEnabledListenerPackages(requireNonNull(context));
     }
 
     @VisibleForTesting
-    @NonNull
-    Notification updateForCar(@NonNull NotificationCompat.Builder notification) {
+    @NonNull Notification updateForCar(NotificationCompat.@NonNull Builder notification) {
         if (isAutomotiveOS(mContext)) {
             return updateForAutomotive(notification);
         } else if (!CarAppExtender.isExtended(notification.build())) {
@@ -340,7 +327,7 @@ public final class CarNotificationManager {
         return notification.build();
     }
 
-    private Notification updateForAutomotive(@NonNull NotificationCompat.Builder notification) {
+    private Notification updateForAutomotive(NotificationCompat.@NonNull Builder notification) {
         if (Build.VERSION.SDK_INT < 29) {
             throw new UnsupportedOperationException(
                     "Not supported for Automotive OS before API 29.");
@@ -404,9 +391,8 @@ public final class CarNotificationManager {
 
     @VisibleForTesting
     @ColorInt
-    @Nullable
     @SuppressWarnings("deprecation") // getColor(int id)
-    Integer getColorInt(CarColor carColor) {
+    @Nullable Integer getColorInt(CarColor carColor) {
         boolean isDarkMode =
                 (mContext.getResources().getConfiguration().uiMode
                         & Configuration.UI_MODE_NIGHT_MASK)
@@ -453,8 +439,7 @@ public final class CarNotificationManager {
     }
 
     @ColorInt
-    @Nullable
-    private static Integer getColor(int resId, Resources.Theme appTheme) {
+    private static @Nullable Integer getColor(int resId, Resources.Theme appTheme) {
         @ColorInt Integer color = null;
         if (resId != Resources.ID_NULL) {
             int[] attr = {resId};
@@ -503,7 +488,7 @@ public final class CarNotificationManager {
          * Convert the list of {@link Notification.Action} to {@link NotificationCompat.Action} and
          * add them to the input {@code notification}.
          */
-        static void convertActionsToCompatActions(@NonNull NotificationCompat.Builder notification,
+        static void convertActionsToCompatActions(NotificationCompat.@NonNull Builder notification,
                 @NonNull List<Notification.Action> actions) {
             if (actions.isEmpty()) {
                 return;
@@ -522,7 +507,7 @@ public final class CarNotificationManager {
          * is not visible outside the package.
          */
         private static NotificationCompat.Action fromAndroidAction(
-                @NonNull Notification.Action action) {
+                Notification.@NonNull Action action) {
             return new NotificationCompat.Action(action.getIcon() == null ? 0 :
                     action.getIcon().getResId(),
                     action.title,

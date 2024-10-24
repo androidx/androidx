@@ -40,8 +40,6 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -67,6 +65,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -98,16 +99,11 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     // The handler used to take surface view snapshot.
     private final Handler mSnapshotHandler = new Handler(Looper.myLooper());
 
-    @Nullable
-    SurfaceHolderListener mSurfaceHolderListener;
-    @Nullable
-    ActivityLifecycleDelegate mActivityLifecycleDelegate;
-    @Nullable
-    CarAppViewModel mViewModel;
-    @Nullable
-    OnBackPressedListener mOnBackPressedListener;
-    @Nullable
-    HostUpdateReceiver mHostUpdateReceiver;
+    @Nullable SurfaceHolderListener mSurfaceHolderListener;
+    @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
+    @Nullable CarAppViewModel mViewModel;
+    @Nullable OnBackPressedListener mOnBackPressedListener;
+    @Nullable HostUpdateReceiver mHostUpdateReceiver;
 
     /**
      * A listener to conditionally send insets to the host, or handle them locally if the host
@@ -115,9 +111,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
      */
     private final View.OnApplyWindowInsetsListener mWindowInsetsListener =
             new View.OnApplyWindowInsetsListener() {
-                @Nullable
                 @Override
-                public WindowInsets onApplyWindowInsets(@NonNull View view,
+                public @Nullable WindowInsets onApplyWindowInsets(@NonNull View view,
                         @NonNull WindowInsets windowInsets) {
                     // Do not report inset changes if the activity is not in resumed state.
                     // Reporting the inset changes when the app is going away results in visible
@@ -409,11 +404,11 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         }
     }
 
-    private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
+    private void onErrorChanged(ErrorHandler.@Nullable ErrorType errorType) {
         ThreadUtils.runOnMain(() -> mErrorMessageView.setError(errorType));
     }
 
-    private void onStateChanged(@NonNull CarAppViewModel.State state) {
+    private void onStateChanged(CarAppViewModel.@NonNull State state) {
         ThreadUtils.runOnMain(() -> {
             requireNonNull(mSurfaceView);
             requireNonNull(mSurfaceSnapshotView);
@@ -489,9 +484,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     /**
      * @see #getServiceComponentName()
      */
-    @Nullable
     @ExperimentalCarApi
-    public ComponentName retrieveServiceComponentName() {
+    public @Nullable ComponentName retrieveServiceComponentName() {
         return getServiceComponentName();
     }
 
@@ -499,9 +493,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
      * Retrieves the {@link  ComponentName} to which the view model will talk
      * in order to render.
      */
-    @Nullable
     @SuppressWarnings("deprecation")
-    public ComponentName getServiceComponentName() {
+    public @Nullable ComponentName getServiceComponentName() {
         Intent intent = new Intent(SERVICE_INTERFACE);
         intent.setPackage(getPackageName());
         List<ResolveInfo> infos = getPackageManager().queryIntentServices(intent, 0);

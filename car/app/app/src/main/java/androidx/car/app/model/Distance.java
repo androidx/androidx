@@ -19,11 +19,12 @@ package androidx.car.app.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -119,8 +120,7 @@ public final class Distance {
      *                        constants defined in this class. See {@link #getDisplayUnit()}
      * @throws IllegalArgumentException if {@code displayDistance} is negative
      */
-    @NonNull
-    public static Distance create(double displayDistance, @Unit int displayUnit) {
+    public static @NonNull Distance create(double displayDistance, @Unit int displayUnit) {
         if (displayDistance < 0) {
             throw new IllegalArgumentException("displayDistance must be a positive value");
         }
@@ -155,9 +155,8 @@ public final class Distance {
         return mDisplayUnit;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return String.format(Locale.US, "%.04f%s", mDisplayDistance, unitToString(mDisplayUnit));
     }
 

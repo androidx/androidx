@@ -16,12 +16,13 @@
 
 package androidx.car.app.testing;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A {@link LifecycleOwner} that is used to represent the lifecycle of the car app for testing.
@@ -31,9 +32,8 @@ import androidx.lifecycle.LifecycleRegistry;
 public class TestLifecycleOwner implements LifecycleOwner {
     public final LifecycleRegistry mRegistry = new LifecycleRegistry(this);
 
-    @NonNull
     @Override
-    public Lifecycle getLifecycle() {
+    public @NonNull Lifecycle getLifecycle() {
         return mRegistry;
     }
 
@@ -46,8 +46,7 @@ public class TestLifecycleOwner implements LifecycleOwner {
      * androidx.car.app.ScreenManager} APIs, but don't want to setup the {@link
      * androidx.car.app.CarAppService} for testing.
      */
-    @NonNull
-    public LifecycleRegistry getRegistry() {
+    public @NonNull LifecycleRegistry getRegistry() {
         return mRegistry;
     }
 }

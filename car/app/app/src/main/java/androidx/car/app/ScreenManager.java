@@ -26,7 +26,6 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.model.TemplateInfo;
@@ -36,6 +35,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -63,8 +64,7 @@ public class ScreenManager implements Manager {
      *                               {@link Session#onCreateScreen}
      * @throws IllegalStateException if the current thread is not the main thread
      */
-    @NonNull
-    public Screen getTop() {
+    public @NonNull Screen getTop() {
         checkMainThread();
         return requireNonNull(mScreenStack.peek());
     }
@@ -276,8 +276,7 @@ public class ScreenManager implements Manager {
     }
 
     /** Returns the {@link TemplateWrapper} for the {@link Screen} that is on top of the stack. */
-    @NonNull
-    TemplateWrapper getTopTemplate() {
+    @NonNull TemplateWrapper getTopTemplate() {
         checkMainThread();
 
         Screen screen = getTop();
@@ -304,15 +303,13 @@ public class ScreenManager implements Manager {
         mScreenStack.clear();
     }
 
-    @NonNull
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-    protected Deque<Screen> getScreenStackInternal() {
+    protected @NonNull Deque<Screen> getScreenStackInternal() {
         return mScreenStack;
     }
 
     /** Returns the copy of the current screen stack as a type {@link Collection} */
-    @NonNull
-    public Collection<Screen> getScreenStack() {
+    public @NonNull Collection<Screen> getScreenStack() {
         return new ArrayList<>(mScreenStack);
     }
 

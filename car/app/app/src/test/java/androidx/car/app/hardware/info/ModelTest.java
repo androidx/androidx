@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ModelTest {

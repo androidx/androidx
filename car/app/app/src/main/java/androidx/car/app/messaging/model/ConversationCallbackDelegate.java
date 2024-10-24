@@ -18,10 +18,11 @@ package androidx.car.app.messaging.model;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 /** Used by the host to invoke {@link ConversationCallback} methods on the client */
 @CarProtocol

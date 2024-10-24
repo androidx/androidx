@@ -21,11 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.VisibleForTesting;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,8 +54,7 @@ public final class CarToast {
     public static final int LENGTH_LONG = 1;
 
     private final CarContext mCarContext;
-    @Nullable
-    private CharSequence mText;
+    private @Nullable CharSequence mText;
     private int mDuration;
 
     /**
@@ -78,8 +78,7 @@ public final class CarToast {
      *                  #LENGTH_LONG}
      * @throws NullPointerException if {@code carContext} is {@code null}
      */
-    @NonNull
-    public static CarToast makeText(
+    public static @NonNull CarToast makeText(
             @NonNull CarContext carContext, @StringRes int textResId, @Duration int duration) {
         return makeText(
                 requireNonNull(carContext),
@@ -96,8 +95,7 @@ public final class CarToast {
      * @throws NullPointerException if either the {@code carContext} or the {@code text} are {@code
      *                              null}
      */
-    @NonNull
-    public static CarToast makeText(
+    public static @NonNull CarToast makeText(
             @NonNull CarContext carContext, @NonNull CharSequence text, @Duration int duration) {
         CarToast carToast = new CarToast(requireNonNull(carContext));
         carToast.mText = requireNonNull(text);

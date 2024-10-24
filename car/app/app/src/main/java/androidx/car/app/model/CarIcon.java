@@ -26,8 +26,6 @@ import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
@@ -35,6 +33,9 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -170,47 +171,40 @@ public final class CarIcon {
      * Represents the app's icon, as defined in the app's manifest by the {@code android:icon}
      * attribute of the {@code application} element.
      */
-    @NonNull
-    public static final CarIcon APP_ICON = CarIcon.forStandardType(TYPE_APP_ICON);
+    public static final @NonNull CarIcon APP_ICON = CarIcon.forStandardType(TYPE_APP_ICON);
 
     /**
      * An icon representing a "back" action.
      */
-    @NonNull
-    public static final CarIcon BACK = CarIcon.forStandardType(TYPE_BACK);
+    public static final @NonNull CarIcon BACK = CarIcon.forStandardType(TYPE_BACK);
 
     /**
      * An icon representing an alert.
      */
-    @NonNull
-    public static final CarIcon ALERT = CarIcon.forStandardType(TYPE_ALERT);
+    public static final @NonNull CarIcon ALERT = CarIcon.forStandardType(TYPE_ALERT);
 
     /**
      * An icon representing an error.
      */
-    @NonNull
-    public static final CarIcon ERROR = CarIcon.forStandardType(TYPE_ERROR);
+    public static final @NonNull CarIcon ERROR = CarIcon.forStandardType(TYPE_ERROR);
 
     /**
      * An icon representing a pan action (for example, in a map surface).
      */
     @RequiresCarApi(2)
-    @NonNull
-    public static final CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
+    public static final @NonNull CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
 
     /**
      * An icon that represents the user's intent to send a message.
      */
     @RequiresCarApi(7)
-    @NonNull
-    public static final CarIcon COMPOSE_MESSAGE = CarIcon.forStandardType(TYPE_COMPOSE_MESSAGE);
+    public static final @NonNull CarIcon COMPOSE_MESSAGE =
+            CarIcon.forStandardType(TYPE_COMPOSE_MESSAGE);
 
     @CarIconType
     private final int mType;
-    @Nullable
-    private final IconCompat mIcon;
-    @Nullable
-    private final CarColor mTint;
+    private final @Nullable IconCompat mIcon;
+    private final @Nullable CarColor mTint;
 
     /**
      * Returns the {@link IconCompat} instance backing by this car icon or {@code null} if one
@@ -218,8 +212,7 @@ public final class CarIcon {
      *
      * @see Builder#Builder(IconCompat)
      */
-    @Nullable
-    public IconCompat getIcon() {
+    public @Nullable IconCompat getIcon() {
         return mIcon;
     }
 
@@ -228,8 +221,7 @@ public final class CarIcon {
      *
      * @see Builder#setTint(CarColor)
      */
-    @Nullable
-    public CarColor getTint() {
+    public @Nullable CarColor getTint() {
         return mTint;
     }
 
@@ -266,8 +258,7 @@ public final class CarIcon {
                 && iconCompatEquals(otherIcon.mIcon);
     }
 
-    @Nullable
-    private Object iconCompatHash() {
+    private @Nullable Object iconCompatHash() {
         // Use the same things being compared in iconCompatEquals for hashing.
         if (mIcon == null) {
             return null;
@@ -354,10 +345,8 @@ public final class CarIcon {
 
     /** A builder of {@link CarIcon}. */
     public static final class Builder {
-        @Nullable
-        private final IconCompat mIcon;
-        @Nullable
-        private CarColor mTint;
+        private final @Nullable IconCompat mIcon;
+        private @Nullable CarColor mTint;
         @CarIconType
         private final int mType;
 
@@ -378,16 +367,14 @@ public final class CarIcon {
          * @see CarColor
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
          */
-        @NonNull
-        public Builder setTint(@NonNull CarColor tint) {
+        public @NonNull Builder setTint(@NonNull CarColor tint) {
             CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
             mTint = tint;
             return this;
         }
 
         /** Constructs the {@link CarIcon} defined by this builder. */
-        @NonNull
-        public CarIcon build() {
+        public @NonNull CarIcon build() {
             return new CarIcon(mIcon, mTint, mType);
         }
 

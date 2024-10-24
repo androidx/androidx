@@ -18,12 +18,13 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.CarText;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.model.CarText;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,8 +60,7 @@ public final class Trip {
     private final List<Step> mSteps;
     private final List<TravelEstimate> mDestinationTravelEstimates;
     private final List<TravelEstimate> mStepTravelEstimates;
-    @Nullable
-    private final CarText mCurrentRoad;
+    private final @Nullable CarText mCurrentRoad;
     private final boolean mIsLoading;
 
     /**
@@ -77,8 +77,7 @@ public final class Trip {
      *
      * @see Builder#addDestination(Destination, TravelEstimate)
      */
-    @NonNull
-    public List<Destination> getDestinations() {
+    public @NonNull List<Destination> getDestinations() {
         return CollectionUtils.emptyIfNull(mDestinations);
     }
 
@@ -87,8 +86,7 @@ public final class Trip {
      *
      * @see Builder#addStep(Step, TravelEstimate)
      */
-    @NonNull
-    public List<Step> getSteps() {
+    public @NonNull List<Step> getSteps() {
         return CollectionUtils.emptyIfNull(mSteps);
     }
 
@@ -97,8 +95,7 @@ public final class Trip {
      *
      * @see Builder#addDestination(Destination, TravelEstimate)
      */
-    @NonNull
-    public List<TravelEstimate> getDestinationTravelEstimates() {
+    public @NonNull List<TravelEstimate> getDestinationTravelEstimates() {
         return CollectionUtils.emptyIfNull(mDestinationTravelEstimates);
     }
 
@@ -107,8 +104,7 @@ public final class Trip {
      *
      * @see Builder#addDestination(Destination, TravelEstimate)
      */
-    @NonNull
-    public List<TravelEstimate> getStepTravelEstimates() {
+    public @NonNull List<TravelEstimate> getStepTravelEstimates() {
         return CollectionUtils.emptyIfNull(mStepTravelEstimates);
     }
 
@@ -117,14 +113,12 @@ public final class Trip {
      *
      * @see Builder#setCurrentRoad(CharSequence)
      */
-    @Nullable
-    public CarText getCurrentRoad() {
+    public @Nullable CarText getCurrentRoad() {
         return mCurrentRoad;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ destinations : "
                 + mDestinations.toString()
                 + ", steps: "
@@ -192,8 +186,7 @@ public final class Trip {
         final List<Step> mSteps = new ArrayList<>();
         final List<TravelEstimate> mDestinationTravelEstimates = new ArrayList<>();
         final List<TravelEstimate> mStepTravelEstimates = new ArrayList<>();
-        @Nullable
-        CarText mCurrentRoad;
+        @Nullable CarText mCurrentRoad;
         boolean mIsLoading;
 
         /**
@@ -211,8 +204,7 @@ public final class Trip {
          * @throws NullPointerException if {@code step} or {@code stepTravelEstimate} are {@code
          *                              null}
          */
-        @NonNull
-        public Builder addDestination(@NonNull Destination destination,
+        public @NonNull Builder addDestination(@NonNull Destination destination,
                 @NonNull TravelEstimate destinationTravelEstimate) {
             mDestinations.add(requireNonNull(destination));
             mDestinationTravelEstimates.add(requireNonNull(destinationTravelEstimate));
@@ -234,8 +226,8 @@ public final class Trip {
          * @throws NullPointerException if {@code step} or {@code stepTravelEstimate} are {@code
          *                              null}
          */
-        @NonNull
-        public Builder addStep(@NonNull Step step, @NonNull TravelEstimate stepTravelEstimate) {
+        public @NonNull Builder addStep(@NonNull Step step,
+                @NonNull TravelEstimate stepTravelEstimate) {
             mSteps.add(requireNonNull(step));
             mStepTravelEstimates.add(requireNonNull(stepTravelEstimate));
             return this;
@@ -249,8 +241,7 @@ public final class Trip {
          * @throws NullPointerException if {@code currentRoad} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setCurrentRoad(@NonNull CharSequence currentRoad) {
+        public @NonNull Builder setCurrentRoad(@NonNull CharSequence currentRoad) {
             mCurrentRoad = CarText.create(requireNonNull(currentRoad));
             return this;
         }
@@ -261,8 +252,7 @@ public final class Trip {
          * <p>If set to {@code true}, the UI may show a loading indicator, and adding any steps
          * or step travel estimates will throw an {@link IllegalArgumentException}.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -270,8 +260,7 @@ public final class Trip {
         /**
          * Constructs the {@link Trip} defined by this builder.
          */
-        @NonNull
-        public Trip build() {
+        public @NonNull Trip build() {
             if (mDestinations.size() != mDestinationTravelEstimates.size()) {
                 throw new IllegalArgumentException(
                         "Destinations and destination travel estimates sizes must match");

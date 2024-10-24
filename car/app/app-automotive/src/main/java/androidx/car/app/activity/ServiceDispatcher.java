@@ -22,12 +22,13 @@ import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.serialization.BundlerException;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link IRendererService} messages dispatcher, responsible for IPC error handling.
@@ -60,8 +61,7 @@ public class ServiceDispatcher {
     // TODO(b/184697399): Remove blocking return callbacks.
     public interface ReturnCall<T> {
         /** Remote invocation to execute */
-        @Nullable
-        T invoke() throws RemoteException, BundlerException;
+        @Nullable T invoke() throws RemoteException, BundlerException;
     }
 
     public ServiceDispatcher(@NonNull ErrorHandler errorHandler,
@@ -103,8 +103,7 @@ public class ServiceDispatcher {
      * @return the value retrieved or the {@code fallbackValue} if the call failed
      */
     // TODO(b/184697399): Remove two-way calls as these are blocking.
-    @Nullable
-    public <T> T fetch(@NonNull String description, @Nullable T fallbackValue,
+    public <T> @Nullable T fetch(@NonNull String description, @Nullable T fallbackValue,
             @NonNull ReturnCall<T> call) {
         if (!mOnBindingListener.isBound()) {
             // Avoid dispatching messages if we are not bound to the service
@@ -140,8 +139,7 @@ public class ServiceDispatcher {
      * @param call code to execute to retrieve the value
      * @return the value retrieved or the {@code fallbackValue} if the call failed
      */
-    @Nullable
-    public <T> T fetchNoFail(@NonNull String description, @Nullable T fallbackValue,
+    public <T> @Nullable T fetchNoFail(@NonNull String description, @Nullable T fallbackValue,
             @NonNull ReturnCall<T> call) {
         if (!mOnBindingListener.isBound()) {
             // Avoid dispatching messages if we are not bound to the service

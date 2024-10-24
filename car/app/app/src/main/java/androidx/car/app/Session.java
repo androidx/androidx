@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -28,6 +27,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -79,8 +80,7 @@ public abstract class Session implements LifecycleOwner {
      *               call to {@link CarContext#startCarApp(Intent)}, this intent will be equal to
      *               the intent passed to that method
      */
-    @NonNull
-    public abstract Screen onCreateScreen(@NonNull Intent intent);
+    public abstract @NonNull Screen onCreateScreen(@NonNull Intent intent);
 
     /**
      * Notifies that the car app has received a new {@link Intent}.
@@ -161,9 +161,8 @@ public abstract class Session implements LifecycleOwner {
      *
      * @see androidx.lifecycle.LifecycleObserver
      */
-    @NonNull
     @Override
-    public Lifecycle getLifecycle() {
+    public @NonNull Lifecycle getLifecycle() {
         return mRegistryPublic;
     }
 
@@ -175,8 +174,7 @@ public abstract class Session implements LifecycleOwner {
      * order.
      */
     @VisibleForTesting
-    @NonNull
-    Lifecycle getLifecycleInternal() {
+    @NonNull Lifecycle getLifecycleInternal() {
         return mRegistry;
     }
 
@@ -205,8 +203,7 @@ public abstract class Session implements LifecycleOwner {
      *
      * @see #getLifecycle
      */
-    @NonNull
-    public final CarContext getCarContext() {
+    public final @NonNull CarContext getCarContext() {
         return Objects.requireNonNull(mCarContext);
     }
 

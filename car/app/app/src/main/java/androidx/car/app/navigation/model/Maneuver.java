@@ -22,13 +22,14 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -437,8 +438,7 @@ public final class Maneuver {
     private final int mType;
     private final int mRoundaboutExitNumber;
     private final int mRoundaboutExitAngle;
-    @Nullable
-    private final CarIcon mIcon;
+    private final @Nullable CarIcon mIcon;
 
     /**
      * Returns the maneuver type.
@@ -492,14 +492,12 @@ public final class Maneuver {
      * <p>Optional field that when not set may be shown in the target display by a generic image
      * representing the specific maneuver.
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[type: "
                 + mType
                 + ", exit #: "
@@ -578,8 +576,7 @@ public final class Maneuver {
         private int mRoundaboutExitNumber;
         private boolean mIsRoundaboutExitAngleSet;
         private int mRoundaboutExitAngle;
-        @Nullable
-        private CarIcon mIcon;
+        private @Nullable CarIcon mIcon;
 
         /**
          * Constructs a new instance of a {@link Builder}.
@@ -614,8 +611,7 @@ public final class Maneuver {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon) {
             mIcon = requireNonNull(icon);
             return this;
         }
@@ -639,8 +635,8 @@ public final class Maneuver {
          *                                  if {@code roundaboutExitNumber} is not greater than
          *                                  zero
          */
-        @NonNull
-        public Builder setRoundaboutExitNumber(@IntRange(from = 1) int roundaboutExitNumber) {
+        public @NonNull Builder setRoundaboutExitNumber(
+                @IntRange(from = 1) int roundaboutExitNumber) {
             if (!isValidTypeWithExitNumber(mType)) {
                 throw new IllegalArgumentException(
                         "Maneuver does not include roundaboutExitNumber");
@@ -668,8 +664,7 @@ public final class Maneuver {
          *                                  {@code roundaboutExitAngle} is not greater than zero
          *                                  and less than or equal to 360 degrees
          */
-        @NonNull
-        public Builder setRoundaboutExitAngle(
+        public @NonNull Builder setRoundaboutExitAngle(
                 @IntRange(from = 1, to = 360) int roundaboutExitAngle) {
             if (!isValidTypeWithExitAngle(mType)) {
                 throw new IllegalArgumentException("Maneuver does not include roundaboutExitAngle");
@@ -689,8 +684,7 @@ public final class Maneuver {
          *                                  not been set, or if it includes an exit angle and one
          *                                  has not been set
          */
-        @NonNull
-        public Maneuver build() {
+        public @NonNull Maneuver build() {
             if (isExitNumberRequired(mType) && !mIsRoundaboutExitNumberSet) {
                 throw new IllegalArgumentException("Maneuver missing roundaboutExitNumber");
             }

@@ -23,12 +23,13 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -57,33 +58,28 @@ public final class PaneTemplate implements Template {
      * for this field.
      */
     @Deprecated
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final Pane mPane;
+    private final @Nullable CarText mTitle;
+    private final @Nullable Pane mPane;
     /**
      * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
      * need for this field.
      */
     @Deprecated
-    @Nullable
-    private final Action mHeaderAction;
+    private final @Nullable Action mHeaderAction;
     /**
      * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
      * replaces the need for this field.
      */
     @Deprecated
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mActionStrip;
 
     /**
      * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
      *
      * @see MessageTemplate.Builder#setHeader(Header)
      */
-    @Nullable
     @RequiresCarApi(7)
-    private final Header mHeader;
+    private final @Nullable Header mHeader;
 
 
     /**
@@ -94,8 +90,7 @@ public final class PaneTemplate implements Template {
      * @deprecated use {@link Header#getTitle()} instead.
      */
     @Deprecated
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -108,8 +103,7 @@ public final class PaneTemplate implements Template {
      * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
     @Deprecated
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -121,8 +115,7 @@ public final class PaneTemplate implements Template {
      * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
     @Deprecated
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -131,8 +124,7 @@ public final class PaneTemplate implements Template {
      *
      * @see Builder#Builder(Pane)
      */
-    @NonNull
-    public Pane getPane() {
+    public @NonNull Pane getPane() {
         return requireNonNull(mPane);
     }
 
@@ -144,8 +136,7 @@ public final class PaneTemplate implements Template {
      *
      * @see PaneTemplate.Builder#setHeader(Header)
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         if (mHeader != null) {
             return mHeader;
         }
@@ -167,9 +158,8 @@ public final class PaneTemplate implements Template {
         return headerBuilder.build();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "PaneTemplate";
     }
 
@@ -214,15 +204,11 @@ public final class PaneTemplate implements Template {
 
     /** A builder of {@link PaneTemplate}. */
     public static final class Builder {
-        @Nullable
-        CarText mTitle;
+        @Nullable CarText mTitle;
         Pane mPane;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
-        @Nullable
-        Header mHeader;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
+        @Nullable Header mHeader;
 
         /**
          * Sets the title of the template.
@@ -239,8 +225,7 @@ public final class PaneTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
         @Deprecated
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mTitle);
             return this;
@@ -254,9 +239,8 @@ public final class PaneTemplate implements Template {
          *
          * @throws NullPointerException if {@code header} is null
          */
-        @NonNull
         @RequiresCarApi(7)
-        public Builder setHeader(@NonNull Header header) {
+        public @NonNull Builder setHeader(@NonNull Header header) {
             if (header.getStartHeaderAction() != null) {
                 mHeaderAction = header.getStartHeaderAction();
             }
@@ -291,8 +275,7 @@ public final class PaneTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
         @Deprecated
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -316,8 +299,7 @@ public final class PaneTemplate implements Template {
          * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
         @Deprecated
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -345,8 +327,7 @@ public final class PaneTemplate implements Template {
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public PaneTemplate build() {
+        public @NonNull PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
             ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mPane.getActions());
 

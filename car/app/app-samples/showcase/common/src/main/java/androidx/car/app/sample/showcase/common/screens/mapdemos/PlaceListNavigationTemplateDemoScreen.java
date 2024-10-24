@@ -21,7 +21,6 @@ import static androidx.car.app.CarToast.LENGTH_SHORT;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -38,6 +37,8 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
 
 /** Creates a screen using the new {@link MapWithContentTemplate} */
 public final class PlaceListNavigationTemplateDemoScreen extends Screen {
@@ -57,9 +58,8 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
         mRoutingDemoModelFactory = new RoutingDemoModelFactory(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         boolean isAppDrivenRefreshEnabled = this.getCarContext().getCarService(
                 ConstraintManager.class).isAppDrivenRefreshEnabled();
 

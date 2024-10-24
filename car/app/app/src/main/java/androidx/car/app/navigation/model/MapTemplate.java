@@ -23,8 +23,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
@@ -43,6 +41,9 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -90,16 +91,11 @@ import java.util.Objects;
 @KeepFields
 @Deprecated
 public final class MapTemplate implements Template {
-    @Nullable
-    private final MapController mMapController;
-    @Nullable
-    private final Pane mPane;
-    @Nullable
-    private final ItemList mItemList;
-    @Nullable
-    private final Header mHeader;
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable MapController mMapController;
+    private final @Nullable Pane mPane;
+    private final @Nullable ItemList mItemList;
+    private final @Nullable Header mHeader;
+    private final @Nullable ActionStrip mActionStrip;
 
     MapTemplate(Builder builder) {
         mMapController = builder.mMapController;
@@ -123,8 +119,7 @@ public final class MapTemplate implements Template {
      *
      * @see Builder#setMapController
      */
-    @Nullable
-    public MapController getMapController() {
+    public @Nullable MapController getMapController() {
         return mMapController;
     }
 
@@ -133,8 +128,7 @@ public final class MapTemplate implements Template {
      *
      * @see Builder#setPane(Pane)
      */
-    @Nullable
-    public Pane getPane() {
+    public @Nullable Pane getPane() {
         return mPane;
     }
 
@@ -144,8 +138,7 @@ public final class MapTemplate implements Template {
      *
      * @see Builder#setItemList(ItemList)
      */
-    @Nullable
-    public ItemList getItemList() {
+    public @Nullable ItemList getItemList() {
         return mItemList;
     }
 
@@ -154,8 +147,7 @@ public final class MapTemplate implements Template {
      *
      * @see Builder#setHeader(Header)
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         return mHeader;
     }
 
@@ -164,8 +156,7 @@ public final class MapTemplate implements Template {
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -193,16 +184,11 @@ public final class MapTemplate implements Template {
 
     /** A builder of {@link MapTemplate}. */
     public static final class Builder {
-        @Nullable
-        MapController mMapController;
-        @Nullable
-        Pane mPane;
-        @Nullable
-        ItemList mItemList;
-        @Nullable
-        Header mHeader;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable MapController mMapController;
+        @Nullable Pane mPane;
+        @Nullable ItemList mItemList;
+        @Nullable Header mHeader;
+        @Nullable ActionStrip mActionStrip;
 
         /**
          * Sets the {@link ActionStrip} for this template.
@@ -225,8 +211,7 @@ public final class MapTemplate implements Template {
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_NAVIGATION
                     .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
@@ -259,8 +244,7 @@ public final class MapTemplate implements Template {
          * @throws NullPointerException     if {@code pane} is null
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public Builder setPane(@NonNull Pane pane) {
+        public @NonNull Builder setPane(@NonNull Pane pane) {
             List<Action> actions = requireNonNull(pane).getActions();
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(pane);
             ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(actions);
@@ -295,8 +279,7 @@ public final class MapTemplate implements Template {
          * @throws NullPointerException     if {@code itemList} is {@code null}
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public Builder setItemList(@NonNull ItemList itemList) {
+        public @NonNull Builder setItemList(@NonNull ItemList itemList) {
             List<Item> items = requireNonNull(itemList).getItems();
             MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE.validateOrThrow(itemList);
             ModelUtils.validateAllRowsHaveOnlySmallImages(items);
@@ -310,8 +293,7 @@ public final class MapTemplate implements Template {
          *
          * @throws NullPointerException if {@code header} is null
          */
-        @NonNull
-        public Builder setHeader(@NonNull Header header) {
+        public @NonNull Builder setHeader(@NonNull Header header) {
             mHeader = requireNonNull(header);
             return this;
         }
@@ -319,8 +301,7 @@ public final class MapTemplate implements Template {
         /**
          * Sets the {@link MapController} for this template.
          */
-        @NonNull
-        public Builder setMapController(@NonNull MapController mapController) {
+        public @NonNull Builder setMapController(@NonNull MapController mapController) {
             mMapController = requireNonNull(mapController);
             return this;
         }
@@ -350,8 +331,7 @@ public final class MapTemplate implements Template {
          * @throws IllegalStateException    if both {@link Pane} and {@link ItemList} are set or
          *                                  are null.
          */
-        @NonNull
-        public MapTemplate build() {
+        public @NonNull MapTemplate build() {
             if ((mPane == null) == (mItemList == null)) {
                 throw new IllegalStateException("Either Pane or Item List must be set but not "
                         + "both");

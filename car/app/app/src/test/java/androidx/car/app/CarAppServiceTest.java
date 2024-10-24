@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Template;
@@ -35,6 +34,7 @@ import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +47,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ServiceController;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-
 
 /** Tests for {@link CarAppService} and related classes for establishing a host connection. */
 @RunWith(RobolectricTestRunner.class)
@@ -223,13 +222,11 @@ public final class CarAppServiceTest {
 
     private static Session createSession() {
         return new Session() {
-            @NonNull
             @Override
-            public Screen onCreateScreen(@NonNull Intent intent) {
+            public @NonNull Screen onCreateScreen(@NonNull Intent intent) {
                 return new Screen(getCarContext()) {
-                    @NonNull
                     @Override
-                    public Template onGetTemplate() {
+                    public @NonNull Template onGetTemplate() {
                         return TEST_RETURN_TEMPLATE;
                     }
                 };
@@ -254,38 +251,33 @@ public final class CarAppServiceTest {
     }
 
     private static class TestCarAppServiceNoOnCreateSession extends CarAppService {
-        @NonNull
         @Override
-        public HostValidator createHostValidator() {
+        public @NonNull HostValidator createHostValidator() {
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
         }
     }
 
     private static class TestCarAppServiceWithoutNewOnCreateSession extends CarAppService {
-        @NonNull
         @Override
-        public HostValidator createHostValidator() {
+        public @NonNull HostValidator createHostValidator() {
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
         }
 
-        @NonNull
         @Override
         @SuppressWarnings("deprecation")
-        public Session onCreateSession() {
+        public @NonNull Session onCreateSession() {
             return createSession();
         }
     }
 
     private static class TestCarAppService extends CarAppService {
-        @NonNull
         @Override
-        public HostValidator createHostValidator() {
+        public @NonNull HostValidator createHostValidator() {
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
         }
 
-        @NonNull
         @Override
-        public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
+        public @NonNull Session onCreateSession(@NonNull SessionInfo sessionInfo) {
             return createSession();
         }
     }

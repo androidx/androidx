@@ -18,10 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -31,16 +32,14 @@ import java.util.Objects;
 public final class Metadata {
     /** An empty {@link Metadata} instance. */
     public static final Metadata EMPTY_METADATA = new Builder().build();
-    @Nullable
-    private final Place mPlace;
+    private final @Nullable Place mPlace;
 
     /**
      * Returns a {@link Place} instance set in the metadata.
      *
      * @see Builder#setPlace(Place)
      */
-    @Nullable
-    public Place getPlace() {
+    public @Nullable Place getPlace() {
         return mPlace;
     }
 
@@ -73,8 +72,7 @@ public final class Metadata {
 
     /** A builder for {@link Metadata}. */
     public static final class Builder {
-        @Nullable
-        Place mPlace;
+        @Nullable Place mPlace;
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
@@ -82,8 +80,7 @@ public final class Metadata {
          *
          * @throws NullPointerException if {@code place} is {@code null}
          */
-        @NonNull
-        public Builder setPlace(@NonNull Place place) {
+        public @NonNull Builder setPlace(@NonNull Place place) {
             mPlace = requireNonNull(place);
             return this;
         }
@@ -91,8 +88,7 @@ public final class Metadata {
         /**
          * Returns a {@link Metadata} instance defined by this builder.
          */
-        @NonNull
-        public Metadata build() {
+        public @NonNull Metadata build() {
             return new Metadata(this);
         }
 

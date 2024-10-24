@@ -16,8 +16,9 @@
 
 package androidx.car.app.model;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
 
 /** A listener for handling text input completion event. */
 @RequiresCarApi(2)

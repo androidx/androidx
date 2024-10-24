@@ -23,8 +23,6 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
@@ -34,6 +32,9 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -144,26 +145,22 @@ public final class GridTemplate implements Template {
      * for this field.
      */
     @Deprecated
-    @Nullable
-    private final CarText mTitle;
+    private final @Nullable CarText mTitle;
 
     /**
      * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
      * need for this field.
      */
     @Deprecated
-    @Nullable
-    private final Action mHeaderAction;
-    @Nullable
-    private final ItemList mSingleList;
+    private final @Nullable Action mHeaderAction;
+    private final @Nullable ItemList mSingleList;
 
     /**
      * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
      * replaces the need for this field.
      */
     @Deprecated
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mActionStrip;
     private final List<Action> mActions;
     @ItemSize
     private final int mItemSize;
@@ -175,9 +172,8 @@ public final class GridTemplate implements Template {
      *
      * @see GridTemplate.Builder#setHeader(Header)
      */
-    @Nullable
     @RequiresCarApi(7)
-    private final Header mHeader;
+    private final @Nullable Header mHeader;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -187,8 +183,7 @@ public final class GridTemplate implements Template {
      * @deprecated use {@link Header#getTitle()} instead.
      */
     @Deprecated
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -201,8 +196,7 @@ public final class GridTemplate implements Template {
      * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
     @Deprecated
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -214,8 +208,7 @@ public final class GridTemplate implements Template {
      * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
     @Deprecated
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -234,8 +227,7 @@ public final class GridTemplate implements Template {
      *
      * @see Builder#setSingleList(ItemList)
      */
-    @Nullable
-    public ItemList getSingleList() {
+    public @Nullable ItemList getSingleList() {
         return mSingleList;
     }
 
@@ -245,9 +237,8 @@ public final class GridTemplate implements Template {
      * @see GridTemplate.Builder#addAction(Action)
      */
     @ExperimentalCarApi
-    @NonNull
     @RequiresCarApi(7)
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return mActions;
     }
 
@@ -283,8 +274,7 @@ public final class GridTemplate implements Template {
      *
      * @see GridTemplate.Builder#setHeader(Header)
      */
-    @Nullable
-    public Header getHeader() {
+    public @Nullable Header getHeader() {
         if (mHeader != null) {
             return mHeader;
         }
@@ -306,9 +296,8 @@ public final class GridTemplate implements Template {
         return headerBuilder.build();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "GridTemplate";
     }
 
@@ -369,20 +358,15 @@ public final class GridTemplate implements Template {
     @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         boolean mIsLoading;
-        @Nullable
-        ItemList mSingleList;
-        @Nullable
-        CarText mTitle;
-        @Nullable
-        Action mHeaderAction;
-        @Nullable
-        ActionStrip mActionStrip;
+        @Nullable ItemList mSingleList;
+        @Nullable CarText mTitle;
+        @Nullable Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
         final List<Action> mActions = new ArrayList<>();
         @ItemSize
         int mItemSize = ITEM_SIZE_SMALL;
         @ItemImageShape int mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
-        @Nullable
-        Header mHeader;
+        @Nullable Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -393,8 +377,7 @@ public final class GridTemplate implements Template {
          * host once the data is ready. If set to {@code false}, the UI shows the
          * {@link ItemList} contents added via {@link #setSingleList}.
          */
-        @NonNull
-        public Builder setLoading(boolean isLoading) {
+        public @NonNull Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
             return this;
         }
@@ -416,8 +399,7 @@ public final class GridTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
         @Deprecated
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(Collections.singletonList(headerAction));
             mHeaderAction = headerAction;
             return this;
@@ -437,8 +419,7 @@ public final class GridTemplate implements Template {
          * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
         @Deprecated
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -449,8 +430,7 @@ public final class GridTemplate implements Template {
          *
          * @throws NullPointerException if {@code list} is null
          */
-        @NonNull
-        public Builder setSingleList(@NonNull ItemList list) {
+        public @NonNull Builder setSingleList(@NonNull ItemList list) {
             mSingleList = requireNonNull(list);
             return this;
         }
@@ -472,8 +452,7 @@ public final class GridTemplate implements Template {
          * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
         @Deprecated
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -490,9 +469,8 @@ public final class GridTemplate implements Template {
          * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
         @ExperimentalCarApi
-        @NonNull
         @RequiresCarApi(7)
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));
             ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
@@ -513,8 +491,7 @@ public final class GridTemplate implements Template {
          * <p>If this is not called, the default value is {@link #ITEM_SIZE_SMALL}
          */
         @ExperimentalCarApi
-        @NonNull
-        public Builder setItemSize(@ItemSize int gridItemSize) {
+        public @NonNull Builder setItemSize(@ItemSize int gridItemSize) {
             mItemSize = gridItemSize;
             return this;
         }
@@ -528,8 +505,7 @@ public final class GridTemplate implements Template {
          * <p>If not set, default to ITEM_IMAGE_SHAPE_UNSET.
          */
         @ExperimentalCarApi
-        @NonNull
-        public Builder setItemImageShape(@ItemImageShape int itemImageShape) {
+        public @NonNull Builder setItemImageShape(@ItemImageShape int itemImageShape) {
             mItemImageShape = itemImageShape;
             return this;
         }
@@ -542,9 +518,8 @@ public final class GridTemplate implements Template {
          *
          * @throws NullPointerException if {@code header} is null
          */
-        @NonNull
         @RequiresCarApi(7)
-        public Builder setHeader(@NonNull Header header) {
+        public @NonNull Builder setHeader(@NonNull Header header) {
             if (header.getStartHeaderAction() != null) {
                 mHeaderAction = header.getStartHeaderAction();
             }
@@ -581,8 +556,7 @@ public final class GridTemplate implements Template {
          *                                  template's requirements.
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
-        @NonNull
-        public GridTemplate build() {
+        public @NonNull GridTemplate build() {
             boolean hasList = mSingleList != null;
             if (mIsLoading == hasList) {
                 throw new IllegalStateException(

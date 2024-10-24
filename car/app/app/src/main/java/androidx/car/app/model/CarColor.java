@@ -20,11 +20,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -177,40 +178,33 @@ public final class CarColor {
      * <p>This can be used for example to tell the host that the app has no preference for the
      * tint of an icon, and it should use whatever default it finds appropriate.
      */
-    @NonNull
-    public static final CarColor DEFAULT = create(TYPE_DEFAULT);
+    public static final @NonNull CarColor DEFAULT = create(TYPE_DEFAULT);
 
     /**
      * Indicates that the app primary color and its dark version should be used, as declared in the
      * app manifest through the {@code carColorPrimary} and {@code carColorPrimaryDark}
      * theme attributes.
      */
-    @NonNull
-    public static final CarColor PRIMARY = create(TYPE_PRIMARY);
+    public static final @NonNull CarColor PRIMARY = create(TYPE_PRIMARY);
 
     /**
      * Indicates that the app secondary color and its dark version should be used, as declared in
      * the app manifest through the <code>carColorSecondary</code> and {@code
      * carColorSecondaryDark} theme attributes.
      */
-    @NonNull
-    public static final CarColor SECONDARY = create(TYPE_SECONDARY);
+    public static final @NonNull CarColor SECONDARY = create(TYPE_SECONDARY);
 
     /** A standard red color. */
-    @NonNull
-    public static final CarColor RED = create(TYPE_RED);
+    public static final @NonNull CarColor RED = create(TYPE_RED);
 
     /** A standard green color. */
-    @NonNull
-    public static final CarColor GREEN = create(TYPE_GREEN);
+    public static final @NonNull CarColor GREEN = create(TYPE_GREEN);
 
     /** A standard blue color. */
-    @NonNull
-    public static final CarColor BLUE = create(TYPE_BLUE);
+    public static final @NonNull CarColor BLUE = create(TYPE_BLUE);
 
     /** A standard yellow color. */
-    @NonNull
-    public static final CarColor YELLOW = create(TYPE_YELLOW);
+    public static final @NonNull CarColor YELLOW = create(TYPE_YELLOW);
 
     @CarColorType
     private final int mType;
@@ -229,8 +223,7 @@ public final class CarColor {
      * <p>See the top-level documentation of {@link CarColor} for details about how the host
      * determines which variant is used.
      */
-    @NonNull
-    public static CarColor createCustom(@ColorInt int color, @ColorInt int colorDark) {
+    public static @NonNull CarColor createCustom(@ColorInt int color, @ColorInt int colorDark) {
         return new CarColor(TYPE_CUSTOM, color, colorDark);
     }
 

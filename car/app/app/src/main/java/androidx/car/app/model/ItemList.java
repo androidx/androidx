@@ -24,13 +24,14 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,12 +81,9 @@ public final class ItemList {
 
     private final int mSelectedIndex;
     private final List<Item> mItems;
-    @Nullable
-    private final OnSelectedDelegate mOnSelectedDelegate;
-    @Nullable
-    private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
-    @Nullable
-    private final CarText mNoItemsMessage;
+    private final @Nullable OnSelectedDelegate mOnSelectedDelegate;
+    private final @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
+    private final @Nullable CarText mNoItemsMessage;
 
     /**
      * Returns the index of the selected item of the list.
@@ -102,8 +100,7 @@ public final class ItemList {
      *
      * @see Builder#setOnSelectedListener(OnSelectedListener)
      */
-    @Nullable
-    public OnSelectedDelegate getOnSelectedDelegate() {
+    public @Nullable OnSelectedDelegate getOnSelectedDelegate() {
         return mOnSelectedDelegate;
     }
 
@@ -113,8 +110,7 @@ public final class ItemList {
      *
      * @see Builder#setNoItemsMessage(CharSequence)
      */
-    @Nullable
-    public CarText getNoItemsMessage() {
+    public @Nullable CarText getNoItemsMessage() {
         return mNoItemsMessage;
     }
 
@@ -124,8 +120,7 @@ public final class ItemList {
      *
      * @see Builder#setOnItemsVisibilityChangedListener(OnItemVisibilityChangedListener)
      */
-    @Nullable
-    public OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
+    public @Nullable OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
         return mOnItemVisibilityChangedDelegate;
     }
 
@@ -134,14 +129,12 @@ public final class ItemList {
      *
      * @see Builder#addItem(Item)
      */
-    @NonNull
-    public List<Item> getItems() {
+    public @NonNull List<Item> getItems() {
         return CollectionUtils.emptyIfNull(mItems);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ items: "
                 + (mItems != null ? mItems.toString() : null)
                 + ", selected: "
@@ -201,13 +194,11 @@ public final class ItemList {
      * Creates and returns a new {@link Builder} initialized with this {@link ItemList}'s data.
      */
     @ExperimentalCarApi
-    @NonNull
-    public Builder toBuilder() {
+    public @NonNull Builder toBuilder() {
         return new Builder(this);
     }
 
-    @Nullable
-    static OnClickDelegate getOnClickDelegate(Item item) {
+    static @Nullable OnClickDelegate getOnClickDelegate(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getOnClickDelegate();
         } else if (item instanceof GridItem) {
@@ -217,8 +208,7 @@ public final class ItemList {
         return null;
     }
 
-    @Nullable
-    static Toggle getToggle(Item item) {
+    static @Nullable Toggle getToggle(Item item) {
         if (item instanceof Row) {
             return ((Row) item).getToggle();
         }
@@ -230,12 +220,9 @@ public final class ItemList {
     public static final class Builder {
         final List<Item> mItems;
         int mSelectedIndex;
-        @Nullable
-        OnSelectedDelegate mOnSelectedDelegate;
-        @Nullable
-        OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
-        @Nullable
-        CarText mNoItemsMessage;
+        @Nullable OnSelectedDelegate mOnSelectedDelegate;
+        @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
+        @Nullable CarText mNoItemsMessage;
 
         /**
          * Sets the {@link OnItemVisibilityChangedListener} to call when the visible items in the
@@ -246,9 +233,8 @@ public final class ItemList {
          *
          * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setOnItemsVisibilityChangedListener(
+        public @NonNull Builder setOnItemsVisibilityChangedListener(
                 @NonNull OnItemVisibilityChangedListener itemVisibilityChangedListener) {
             mOnItemVisibilityChangedDelegate = OnItemVisibilityChangedDelegateImpl.create(
                     itemVisibilityChangedListener);
@@ -256,9 +242,8 @@ public final class ItemList {
         }
 
         /** @see #setOnItemsVisibilityChangedListener(OnItemVisibilityChangedListener) */
-        @NonNull
         @RestrictTo(LIBRARY)
-        public Builder setOnItemsVisibilityChangedDelegate(
+        public @NonNull Builder setOnItemsVisibilityChangedDelegate(
                 @Nullable OnItemVisibilityChangedDelegate onItemVisibilityChangedDelegate) {
             mOnItemVisibilityChangedDelegate = onItemVisibilityChangedDelegate;
             return this;
@@ -281,17 +266,17 @@ public final class ItemList {
          * @throws NullPointerException if {@code onSelectedListener} is {@code null}
          * @see #setSelectedIndex(int)
          */
-        @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setOnSelectedListener(@NonNull OnSelectedListener onSelectedListener) {
+        public @NonNull Builder setOnSelectedListener(
+                @NonNull OnSelectedListener onSelectedListener) {
             mOnSelectedDelegate = OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
 
         /** @see #setOnSelectedListener(OnSelectedListener)  */
-        @NonNull
         @RestrictTo(LIBRARY)
-        public Builder setOnSelectedDelegate(@Nullable OnSelectedDelegate onSelectedDelegate) {
+        public @NonNull Builder setOnSelectedDelegate(
+                @Nullable OnSelectedDelegate onSelectedDelegate) {
             mOnSelectedDelegate = onSelectedDelegate;
             return this;
         }
@@ -305,8 +290,7 @@ public final class ItemList {
          * <p>If the list is not a selectable list set with {@link #setOnSelectedListener}, this
          * value is ignored.
          */
-        @NonNull
-        public Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
+        public @NonNull Builder setSelectedIndex(@IntRange(from = 0) int selectedIndex) {
             if (selectedIndex < 0) {
                 throw new IllegalArgumentException(
                         "The item index must be larger than or equal to 0");
@@ -325,8 +309,7 @@ public final class ItemList {
          *
          * @throws NullPointerException if {@code noItemsMessage} is {@code null}
          */
-        @NonNull
-        public Builder setNoItemsMessage(@NonNull CharSequence noItemsMessage) {
+        public @NonNull Builder setNoItemsMessage(@NonNull CharSequence noItemsMessage) {
             mNoItemsMessage = CarText.create(requireNonNull(noItemsMessage));
             return this;
         }
@@ -336,16 +319,14 @@ public final class ItemList {
          *
          * @throws NullPointerException if {@code item} is {@code null}
          */
-        @NonNull
-        public Builder addItem(@NonNull Item item) {
+        public @NonNull Builder addItem(@NonNull Item item) {
             mItems.add(requireNonNull(item));
             return this;
         }
 
         /** Removes all {@link Item}s added via {@link #addItem(Item)} */
         @ExperimentalCarApi
-        @NonNull
-        public Builder clearItems() {
+        public @NonNull Builder clearItems() {
             mItems.clear();
             return this;
         }
@@ -359,8 +340,7 @@ public final class ItemList {
          *                               either one of their {@link OnClickListener} or
          *                               {@link Toggle} set
          */
-        @NonNull
-        public ItemList build() {
+        public @NonNull ItemList build() {
             if (mOnSelectedDelegate != null) {
                 int listSize = mItems.size();
                 if (listSize == 0) {

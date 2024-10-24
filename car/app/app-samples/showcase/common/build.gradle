@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    api(libs.jspecify)
     implementation(project(":car:app:app"))
     debugImplementation(libs.leakcanary)
 

@@ -18,8 +18,9 @@ package androidx.car.app.utils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Assorted string manipulation utilities.
@@ -36,8 +37,7 @@ public final class StringUtils {
      *
      * <p>For example, "Bananas are so yummy", may be shortened to "Banan~yummy".
      */
-    @NonNull
-    public static String shortenString(@NonNull String s) {
+    public static @NonNull String shortenString(@NonNull String s) {
         int length = s.length();
         if (length <= MAX_SHORT_STRING_LENGTH) {
             return s;

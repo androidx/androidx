@@ -21,8 +21,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Utility functions to handle running functions on the main thread.

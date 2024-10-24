@@ -19,7 +19,8 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts;
 import android.os.Bundle;
 
 import androidx.activity.ComponentActivity;
-import androidx.annotation.Nullable;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * An activity for use by the car app library to perform actions such as requesting permissions.

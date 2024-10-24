@@ -17,12 +17,13 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,8 +33,7 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class Compass {
-    @NonNull
-    private final CarValue<List<Float>> mOrientations;
+    private final @NonNull CarValue<List<Float>> mOrientations;
 
     /**
      * Returns the raw compass data from the car sensor.
@@ -46,14 +46,12 @@ public final class Compass {
      *     <li>[2]: Roll, rotation around x-axis (-180 to 180), where right door down is positive
      * </ul>
      */
-    @NonNull
-    public CarValue<List<Float>> getOrientations() {
+    public @NonNull CarValue<List<Float>> getOrientations() {
         return mOrientations;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ orientations: " + mOrientations + " ]";
     }
 

@@ -23,8 +23,9 @@ import static java.util.Objects.requireNonNull;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 

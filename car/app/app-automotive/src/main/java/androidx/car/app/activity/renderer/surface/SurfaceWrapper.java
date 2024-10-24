@@ -23,10 +23,11 @@ import android.view.Surface;
 import android.view.SurfaceView;
 
 import androidx.annotation.Dimension;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class holding the information needed to render the content on a surface.
@@ -34,16 +35,14 @@ import androidx.car.app.annotations.KeepFields;
 @CarProtocol
 @KeepFields
 public final class SurfaceWrapper {
-    @Nullable
-    private IBinder mHostToken;
+    private @Nullable IBinder mHostToken;
     @Dimension
     private int mWidth;
     @Dimension
     private int mHeight;
     private int mDisplayId;
     private int mDensityDpi;
-    @Nullable
-    private Surface mSurface;
+    private @Nullable Surface mSurface;
 
     /**
      * Creates a {@link SurfaceWrapper}.
@@ -73,8 +72,7 @@ public final class SurfaceWrapper {
     /**
      * Returns the host token corresponding to the {@link SurfaceView} contained in this class.
      */
-    @Nullable
-    public IBinder getHostToken() {
+    public @Nullable IBinder getHostToken() {
         return mHostToken;
     }
 
@@ -113,8 +111,7 @@ public final class SurfaceWrapper {
     /**
      * Returns the {@link Surface} of the contained {@link SurfaceView}.
      */
-    @NonNull
-    public Surface getSurface() {
+    public @NonNull Surface getSurface() {
         return requireNonNull(mSurface);
     }
 }

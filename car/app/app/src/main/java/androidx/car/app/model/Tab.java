@@ -18,13 +18,14 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -39,20 +40,16 @@ public final class Tab implements Content {
     /** Content ID for an empty Tab object. */
     private static final String EMPTY_TAB_CONTENT_ID = "EMPTY_TAB_CONTENT_ID";
 
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarIcon mIcon;
-    @NonNull
-    private final String mContentId;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarIcon mIcon;
+    private final @NonNull String mContentId;
 
     /**
      * Returns the title of the tab.
      *
      * @see Tab.Builder#setTitle(CharSequence)
      */
-    @NonNull
-    public CarText getTitle() {
+    public @NonNull CarText getTitle() {
         return requireNonNull(mTitle);
     }
 
@@ -61,9 +58,8 @@ public final class Tab implements Content {
      *
      * @see Tab.Builder#setContentId(String)
      */
-    @NonNull
     @Override
-    public String getContentId() {
+    public @NonNull String getContentId() {
         return requireNonNull(mContentId);
     }
 
@@ -72,14 +68,12 @@ public final class Tab implements Content {
      *
      * @see Tab.Builder#setIcon(CarIcon)
      */
-    @NonNull
-    public CarIcon getIcon() {
+    public @NonNull CarIcon getIcon() {
         return requireNonNull(mIcon);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[title: "
                 + CarText.toShortString(mTitle)
                 + ", contentId: "
@@ -132,14 +126,11 @@ public final class Tab implements Content {
 
     /** A builder of {@link Tab}. */
     public static final class Builder {
-        @Nullable
-        CarText mTitle;
+        @Nullable CarText mTitle;
 
-        @Nullable
-        CarIcon mIcon;
+        @Nullable CarIcon mIcon;
 
-        @Nullable
-        String mContentId;
+        @Nullable String mContentId;
 
         /**
          * Sets the title of the tab.
@@ -151,8 +142,7 @@ public final class Tab implements Content {
          * @throws IllegalArgumentException if {@code title} is empty, of if it contains
          *                                  unsupported spans
          */
-        @NonNull
-        public Tab.Builder setTitle(@NonNull CharSequence title) {
+        public Tab.@NonNull Builder setTitle(@NonNull CharSequence title) {
             CarText titleText = CarText.create(requireNonNull(title));
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
@@ -168,8 +158,7 @@ public final class Tab implements Content {
          * @throws NullPointerException     if {@code contentId} is {@code null}
          * @throws IllegalArgumentException if {@code contentId} is empty
          */
-        @NonNull
-        public Tab.Builder setContentId(@NonNull String contentId) {
+        public Tab.@NonNull Builder setContentId(@NonNull String contentId) {
             if (requireNonNull(contentId).isEmpty()) {
                 throw new IllegalArgumentException("The content ID cannot be null or empty");
             }
@@ -192,8 +181,7 @@ public final class Tab implements Content {
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
-        @NonNull
-        public Tab.Builder setIcon(@NonNull CarIcon icon) {
+        public Tab.@NonNull Builder setIcon(@NonNull CarIcon icon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             return this;
@@ -204,8 +192,7 @@ public final class Tab implements Content {
          *
          * @throws IllegalStateException if the tab's title, icon or content ID is not set.
          */
-        @NonNull
-        public Tab build() {
+        public @NonNull Tab build() {
             if (mTitle == null) {
                 throw new IllegalStateException("A title must be set for the tab");
             }

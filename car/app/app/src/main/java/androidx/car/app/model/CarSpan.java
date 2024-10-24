@@ -19,9 +19,10 @@ package androidx.car.app.model;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Base class for all span types allowed for a car app.

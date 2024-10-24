@@ -20,11 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.text.style.ForegroundColorSpan;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.model.constraints.CarColorConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -62,8 +63,7 @@ public final class ForegroundCarColorSpan extends CarSpan {
      * @throws IllegalArgumentException if {@code carColor} contains a custom color
      * @throws NullPointerException     if {@code carColor} is {@code null}
      */
-    @NonNull
-    public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
+    public static @NonNull ForegroundCarColorSpan create(@NonNull CarColor carColor) {
         // TODO(b/183750545): Create CarTextConstraints and check allowed spans in all places
         //  that take CharSequence or CarText
         CarColorConstraints.UNCONSTRAINED.validateOrThrow(carColor);
@@ -71,14 +71,12 @@ public final class ForegroundCarColorSpan extends CarSpan {
     }
 
     /** Returns the {@link CarColor} associated with this span. */
-    @NonNull
-    public CarColor getColor() {
+    public @NonNull CarColor getColor() {
         return mCarColor;
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[color: " + mCarColor + "]";
     }
 

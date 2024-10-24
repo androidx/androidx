@@ -23,13 +23,14 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import android.util.Pair;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -124,9 +125,8 @@ public abstract class CarPropertyProfile<T> {
      * <p>The set of car zones represent the zones in which the associated feature can be regulated
      * together.
      */
-    @Nullable
     @HvacFanDirection
-    public abstract ImmutableMap<Set<CarZone>, Set<Integer>> getHvacFanDirection();
+    public abstract @Nullable ImmutableMap<Set<CarZone>, Set<Integer>> getHvacFanDirection();
 
 
     /** Returns a map of min/max values for a property corresponding to a set of car zones.
@@ -134,8 +134,7 @@ public abstract class CarPropertyProfile<T> {
      * <p>The set of car zones represent the zones in which the associated feature can be regulated
      * together.
      */
-    @Nullable
-    public abstract ImmutableMap<Set<CarZone>, Pair<T, T>> getCarZoneSetsToMinMaxRange();
+    public abstract @Nullable ImmutableMap<Set<CarZone>, Pair<T, T>> getCarZoneSetsToMinMaxRange();
 
     /** Returns a pair of min and max values for the temperature set in Celsius.
      *
@@ -143,8 +142,7 @@ public abstract class CarPropertyProfile<T> {
      * If getCelsiusIncrement() returns a non-null value, then Min/Max values combined with the
      * Celsius increment can be used to determine the supported temperature values.</p>
      */
-    @Nullable
-    public abstract Pair<Float, Float> getCelsiusRange();
+    public abstract @Nullable Pair<Float, Float> getCelsiusRange();
 
     /** Returns a pair of min and max values for the temperature set in Fahrenheit.
      *
@@ -153,8 +151,7 @@ public abstract class CarPropertyProfile<T> {
      * Fahrenheit increment can be used to determine the supported temperature values.</p>
      */
 
-    @Nullable
-    public abstract Pair<Float, Float> getFahrenheitRange();
+    public abstract @Nullable Pair<Float, Float> getFahrenheitRange();
 
     /** Returns the increment value for the temperature set config in Celsius. */
     public abstract float getCelsiusIncrement();
@@ -163,15 +160,13 @@ public abstract class CarPropertyProfile<T> {
     public abstract float getFahrenheitIncrement();
 
     /** Returns a list of set of {@link CarZone}s controlled together. */
-    @NonNull
-    public abstract ImmutableList<Set<CarZone>> getCarZones();
+    public abstract @NonNull ImmutableList<Set<CarZone>> getCarZones();
 
     /** Returns one of the values in {@link CarValue.StatusCode}. */
     public abstract @CarValue.StatusCode int getStatus();
 
     /** Gets a builder class for {@link CarPropertyProfile}. */
-    @NonNull
-    public static <T> Builder<T> builder() {
+    public static <T> @NonNull Builder<T> builder() {
         return new AutoValue_CarPropertyProfile.Builder<T>()
                 .setCarZones(Collections.singletonList(
                         Collections.singleton(CarZone.CAR_ZONE_GLOBAL)))
@@ -191,55 +186,45 @@ public abstract class CarPropertyProfile<T> {
     @AutoValue.Builder
     public abstract static class Builder<T> {
         /** Sets a property ID for the {@link CarPropertyProfile}. */
-        @NonNull
-        public abstract Builder<T> setPropertyId(int propertyId);
+        public abstract @NonNull Builder<T> setPropertyId(int propertyId);
 
         /**
          * Sets the fan direction values grouped per car zone for the
          * {@link CarPropertyProfile}.
          */
-        @NonNull
-        public abstract Builder<T> setHvacFanDirection(@Nullable Map<Set<CarZone>,
+        public abstract @NonNull Builder<T> setHvacFanDirection(@Nullable Map<Set<CarZone>,
                 Set<@HvacFanDirection Integer>> hvacFanDirection);
 
         /**
          * Sets a status code for the {@link CarPropertyProfile}.
          */
-        @NonNull
-        public abstract Builder<T> setStatus(@CarValue.StatusCode int status);
+        public abstract @NonNull Builder<T> setStatus(@CarValue.StatusCode int status);
 
         /** Sets a min/max range pair value for the {@link CarPropertyProfile}. */
-        @NonNull
-        public abstract Builder<T> setCarZoneSetsToMinMaxRange(
+        public abstract @NonNull Builder<T> setCarZoneSetsToMinMaxRange(
                 @Nullable Map<Set<CarZone>, Pair<T, T>> minMaxRange);
 
         /** Sets a min/max range for temperature in Celsius. */
-        @NonNull
-        public abstract Builder<T> setCelsiusRange(
+        public abstract @NonNull Builder<T> setCelsiusRange(
                 @Nullable Pair<Float, Float> celsiusRange);
 
         /** Sets a min/max range for temperature in Fahrenheit. */
-        @NonNull
-        public abstract Builder<T> setFahrenheitRange(
+        public abstract @NonNull Builder<T> setFahrenheitRange(
                 @Nullable Pair<Float, Float> fahrenheitRange);
 
         /** Sets the value of increment for temperature set config in Celsius. */
-        @NonNull
-        public abstract Builder<T> setCelsiusIncrement(
+        public abstract @NonNull Builder<T> setCelsiusIncrement(
                 float celsiusIncrement);
 
         /** Sets the value of increment for temperature set config in Fahrenheit. */
-        @NonNull
-        public abstract Builder<T> setFahrenheitIncrement(
+        public abstract @NonNull Builder<T> setFahrenheitIncrement(
                 float fahrenheitIncrement);
 
         /** Sets the list of set of {@link CarZone}s for the {@link CarPropertyProfile}. */
-        @NonNull
-        public abstract Builder<T> setCarZones(
+        public abstract @NonNull Builder<T> setCarZones(
                 @NonNull List<Set<CarZone>> carZones);
 
         /** Creates an instance of {@link CarPropertyProfile}. */
-        @NonNull
-        public abstract CarPropertyProfile<T> build();
+        public abstract @NonNull CarPropertyProfile<T> build();
     }
 }

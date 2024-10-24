@@ -23,7 +23,6 @@ import static androidx.car.app.model.constraints.RowConstraints.ROW_CONSTRAINTS_
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.Action;
@@ -32,6 +31,8 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.SectionedItemList;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +44,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RowListConstraints {
     /** Conservative constraints for all types lists. */
-    @NonNull
-    public static final RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =
+    public static final @NonNull RowListConstraints ROW_LIST_CONSTRAINTS_CONSERVATIVE =
             new RowListConstraints.Builder()
                     .setMaxActions(0)
                     .setRowConstraints(ROW_CONSTRAINTS_CONSERVATIVE)
@@ -52,8 +52,7 @@ public final class RowListConstraints {
                     .build();
 
     /** Default constraints for heterogeneous pane of items, full width. */
-    @NonNull
-    public static final RowListConstraints ROW_LIST_CONSTRAINTS_PANE =
+    public static final @NonNull RowListConstraints ROW_LIST_CONSTRAINTS_PANE =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(2)
                     .setRowConstraints(ROW_CONSTRAINTS_PANE)
@@ -61,8 +60,7 @@ public final class RowListConstraints {
                     .build();
 
     /** Default constraints for uniform lists of items, no toggles. */
-    @NonNull
-    public static final RowListConstraints ROW_LIST_CONSTRAINTS_SIMPLE =
+    public static final @NonNull RowListConstraints ROW_LIST_CONSTRAINTS_SIMPLE =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .build();
@@ -77,17 +75,15 @@ public final class RowListConstraints {
      * too narrow for the only use case at route preview template. Use
      * {@link #MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE} for more general half sheet lists.
      */
-    @NonNull
     @Deprecated
-    public static final RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW =
+    public static final @NonNull RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .setAllowSelectableLists(true)
                     .build();
 
     /** Default constraints for half sheet template lists that allow selectable lists. */
-    @NonNull
-    public static final RowListConstraints MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE =
+    public static final @NonNull RowListConstraints MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .setAllowSelectableLists(true)
@@ -95,8 +91,7 @@ public final class RowListConstraints {
 
 
     /** Default constraints for uniform lists of items, full width (simple + toggle support). */
-    @NonNull
-    public static final RowListConstraints ROW_LIST_CONSTRAINTS_FULL_LIST =
+    public static final @NonNull RowListConstraints ROW_LIST_CONSTRAINTS_FULL_LIST =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_FULL_LIST)
                     .setAllowSelectableLists(true)
@@ -112,8 +107,7 @@ public final class RowListConstraints {
     }
 
     /** Returns the constraints to apply on individual rows. */
-    @NonNull
-    public RowConstraints getRowConstraints() {
+    public @NonNull RowConstraints getRowConstraints() {
         return mRowConstraints;
     }
 
@@ -204,22 +198,19 @@ public final class RowListConstraints {
         boolean mAllowSelectableLists;
 
         /** Sets the maximum number of actions allowed to be added alongside the list. */
-        @NonNull
-        public Builder setMaxActions(int maxActions) {
+        public @NonNull Builder setMaxActions(int maxActions) {
             mMaxActions = maxActions;
             return this;
         }
 
         /** Sets the constraints to apply on individual rows. */
-        @NonNull
-        public Builder setRowConstraints(@NonNull RowConstraints rowConstraints) {
+        public @NonNull Builder setRowConstraints(@NonNull RowConstraints rowConstraints) {
             mRowConstraints = rowConstraints;
             return this;
         }
 
         /** Sets whether selectable lists are allowed. */
-        @NonNull
-        public Builder setAllowSelectableLists(boolean allowSelectableLists) {
+        public @NonNull Builder setAllowSelectableLists(boolean allowSelectableLists) {
             mAllowSelectableLists = allowSelectableLists;
             return this;
         }
@@ -227,8 +218,7 @@ public final class RowListConstraints {
         /**
          * Constructs the {@link RowListConstraints} defined by this builder.
          */
-        @NonNull
-        public RowListConstraints build() {
+        public @NonNull RowListConstraints build() {
             return new RowListConstraints(this);
         }
 

@@ -23,7 +23,6 @@ import static androidx.car.app.utils.ThreadUtils.checkMainThread;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -37,6 +36,8 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -85,8 +86,7 @@ public class SuggestionManager implements Manager {
      *
      */
     @RestrictTo(LIBRARY)
-    @NonNull
-    public static SuggestionManager create(@NonNull CarContext carContext,
+    public static @NonNull SuggestionManager create(@NonNull CarContext carContext,
             @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
         requireNonNull(carContext);
         requireNonNull(hostDispatcher);

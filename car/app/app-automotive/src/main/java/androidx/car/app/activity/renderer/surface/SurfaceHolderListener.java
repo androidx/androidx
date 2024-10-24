@@ -22,11 +22,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.view.SurfaceHolder;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.activity.ServiceDispatcher;
 import androidx.car.app.serialization.Bundleable;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A listener of {@link SurfaceHolder}.
@@ -35,8 +36,7 @@ import androidx.car.app.serialization.Bundleable;
 @RestrictTo(LIBRARY)
 public class SurfaceHolderListener implements SurfaceHolder.Callback {
     private final ServiceDispatcher mServiceDispatcher;
-    @Nullable
-    private ISurfaceListener mSurfaceListener;
+    private @Nullable ISurfaceListener mSurfaceListener;
     private boolean mIsSurfaceAvailable;
     private final SurfaceWrapperProvider mSurfaceWrapperProvider;
 

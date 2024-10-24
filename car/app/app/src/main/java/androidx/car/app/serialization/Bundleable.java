@@ -22,7 +22,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A class that serializes and stores an object for sending over IPC.
@@ -36,8 +36,8 @@ public final class Bundleable implements Parcelable {
      *
      * @throws BundlerException if serialization fails
      */
-    @NonNull
-    public static Bundleable create(@NonNull Object objectToSerialize) throws BundlerException {
+    public static @NonNull Bundleable create(@NonNull Object objectToSerialize)
+            throws BundlerException {
         return new Bundleable(objectToSerialize);
     }
 
@@ -51,8 +51,7 @@ public final class Bundleable implements Parcelable {
      *
      * @throws BundlerException if deserialization fails
      */
-    @NonNull
-    public Object get() throws BundlerException {
+    public @NonNull Object get() throws BundlerException {
         return Bundler.fromBundle(mBundle);
     }
 
@@ -69,8 +68,7 @@ public final class Bundleable implements Parcelable {
         mBundle = bundle;
     }
 
-    @NonNull
-    public static final Creator<Bundleable> CREATOR =
+    public static final @NonNull Creator<Bundleable> CREATOR =
             new Creator<Bundleable>() {
                 @Override
                 public Bundleable createFromParcel(final Parcel source) {

@@ -17,7 +17,6 @@ package androidx.car.app.hardware;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
@@ -29,6 +28,8 @@ import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
 import androidx.car.app.hardware.info.ProjectedCarInfo;
 import androidx.car.app.hardware.info.ProjectedCarSensors;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link CarHardwareManager} which access projected vehicle specific properties, sensors, and
@@ -42,15 +43,13 @@ public class ProjectedCarHardwareManager implements CarHardwareManager {
     private final ProjectedCarInfo mVehicleInfo;
     private final ProjectedCarSensors mVehicleSensors;
 
-    @NonNull
     @Override
-    public CarInfo getCarInfo() {
+    public @NonNull CarInfo getCarInfo() {
         return mVehicleInfo;
     }
 
-    @NonNull
     @Override
-    public CarSensors getCarSensors() {
+    public @NonNull CarSensors getCarSensors() {
         return mVehicleSensors;
     }
 

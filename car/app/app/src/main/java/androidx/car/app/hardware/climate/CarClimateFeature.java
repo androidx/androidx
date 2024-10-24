@@ -17,12 +17,13 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,8 +44,7 @@ public final class CarClimateFeature {
     @ClimateProfileRequest.ClimateProfileFeature
     private final int mFeature;
 
-    @NonNull
-    private final List<CarZone> mCarZones;
+    private final @NonNull List<CarZone> mCarZones;
 
     /**
      * Returns a list of CarZones.
@@ -56,8 +56,7 @@ public final class CarClimateFeature {
      * will contain three individual CarZones. They are the left side seat of the second
      * row, the center seat of the second row and the right side seat of the second row.
      */
-    @NonNull
-    public List<CarZone> getCarZones() {
+    public @NonNull List<CarZone> getCarZones() {
         return mCarZones;
     }
 
@@ -85,9 +84,8 @@ public final class CarClimateFeature {
         return Objects.hash(mFeature, mCarZones);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "ClimateProfileFeature{"
                 + "mFeature='" + mFeature
                 + '\'' + ", mCarZones=" + mCarZones
@@ -123,15 +121,13 @@ public final class CarClimateFeature {
          *
          * @param carZones CarZones for this CarClimateFeature
          */
-        @NonNull
-        public Builder addCarZones(@NonNull CarZone... carZones) {
+        public @NonNull Builder addCarZones(CarZone @NonNull ... carZones) {
             mCarZones.addAll(Arrays.asList(carZones));
             return this;
         }
 
         /** Create a CarClimateFeature. */
-        @NonNull
-        public CarClimateFeature build() {
+        public @NonNull CarClimateFeature build() {
             return new CarClimateFeature(this);
         }
     }

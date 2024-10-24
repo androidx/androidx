@@ -32,11 +32,12 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.ArrayRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.CarAppService;
 import androidx.car.app.HostInfo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -69,8 +70,7 @@ public final class HostValidator {
     private final Map<String, List<String>> mAllowedHosts;
     private final boolean mAllowAllHosts;
     private final Map<String, Pair<Integer, Boolean>> mCallerChecked = new HashMap<>();
-    @Nullable
-    private final PackageManager mPackageManager;
+    private final @Nullable PackageManager mPackageManager;
 
     HostValidator(@Nullable PackageManager packageManager,
             @NonNull Map<String, List<String>> allowedHosts, boolean allowAllHosts) {
@@ -86,8 +86,7 @@ public final class HostValidator {
      *
      * @see CarAppService#createHostValidator()
      */
-    @NonNull
-    public static final HostValidator ALLOW_ALL_HOSTS_VALIDATOR = new HostValidator(null,
+    public static final @NonNull HostValidator ALLOW_ALL_HOSTS_VALIDATOR = new HostValidator(null,
             new HashMap<>(), true);
 
     /**
@@ -123,14 +122,12 @@ public final class HostValidator {
     /**
      * Returns a map from package name to signature digests of each of the allowed hosts.
      */
-    @NonNull
-    public Map<String, List<String>> getAllowedHosts() {
+    public @NonNull Map<String, List<String>> getAllowedHosts() {
         return Collections.unmodifiableMap(mAllowedHosts);
     }
 
-    @Nullable
     @SuppressWarnings("deprecation")
-    private PackageInfo getPackageInfo(String packageName) {
+    private @Nullable PackageInfo getPackageInfo(String packageName) {
         try {
             if (mPackageManager == null) {
                 Log.d(TAG_HOST_VALIDATION,
@@ -237,8 +234,7 @@ public final class HostValidator {
      * Returns {@code true} if the host was already approved, {@code false} if it was previously
      * rejected, and {@code null} if this is the first time this host is evaluated.
      */
-    @Nullable
-    private Boolean checkCache(HostInfo hostInfo) {
+    private @Nullable Boolean checkCache(HostInfo hostInfo) {
         Pair<Integer, Boolean> entry = mCallerChecked.get(hostInfo.getPackageName());
         if (entry == null) {
             return null;
@@ -255,8 +251,7 @@ public final class HostValidator {
         mCallerChecked.put(hostInfo.getPackageName(), Pair.create(hostInfo.getUid(), isValid));
     }
 
-    @Nullable
-    private static MessageDigest getMessageDigest() {
+    private static @Nullable MessageDigest getMessageDigest() {
         try {
             return MessageDigest.getInstance("SHA256");
         } catch (NoSuchAlgorithmException e) {
@@ -265,9 +260,8 @@ public final class HostValidator {
         }
     }
 
-    @Nullable
     @SuppressWarnings("deprecation")
-    private Signature[] getSignatures(PackageInfo packageInfo) {
+    private Signature @Nullable [] getSignatures(PackageInfo packageInfo) {
         if (Build.VERSION.SDK_INT >= 28) {
             // Implementation extracted to inner class to improve runtime performance.
             return Api28Impl.getSignatures(packageInfo);
@@ -281,8 +275,7 @@ public final class HostValidator {
         }
     }
 
-    @Nullable
-    private String getDigest(Signature signature) {
+    private @Nullable String getDigest(Signature signature) {
         byte[] data = signature.toByteArray();
         MessageDigest messageDigest = getMessageDigest();
         if (messageDigest == null) {
@@ -324,17 +317,15 @@ public final class HostValidator {
         private Api28Impl() {
         }
 
-        @Nullable
-        static Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
+        static Signature @Nullable [] getSignatures(@NonNull PackageInfo packageInfo) {
             if (packageInfo.signingInfo == null) {
                 return null;
             }
             return packageInfo.signingInfo.getSigningCertificateHistory();
         }
 
-        @NonNull
         @SuppressWarnings("deprecation")
-        static PackageInfo getPackageInfo(@NonNull PackageManager packageManager,
+        static @NonNull PackageInfo getPackageInfo(@NonNull PackageManager packageManager,
                 @NonNull String packageName) throws PackageManager.NameNotFoundException {
             return packageManager.getPackageInfo(packageName,
                     PackageManager.GET_SIGNING_CERTIFICATES | PackageManager.GET_PERMISSIONS);
@@ -368,8 +359,7 @@ public final class HostValidator {
          *                    rotation</a>, this digest should correspond to the initial signing
          *                    certificate
          */
-        @NonNull
-        public Builder addAllowedHost(@NonNull String packageName,
+        public @NonNull Builder addAllowedHost(@NonNull String packageName,
                 @NonNull String digest) {
             requireNonNull(packageName);
             requireNonNull(digest);
@@ -394,9 +384,8 @@ public final class HostValidator {
          * @throws IllegalArgumentException if the provided resource doesn't exist or if the entries
          *                                  in the given resource are not formatted as expected
          */
-        @NonNull
         @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder addAllowedHosts(@ArrayRes int allowListedHostsRes) {
+        public @NonNull Builder addAllowedHosts(@ArrayRes int allowListedHostsRes) {
             Resources resources = mContext.getResources();
             String[] entries = resources.getStringArray(allowListedHostsRes);
             if (entries == null) {
@@ -416,8 +405,7 @@ public final class HostValidator {
         }
 
         /** Returns a new {@link HostValidator} */
-        @NonNull
-        public HostValidator build() {
+        public @NonNull HostValidator build() {
             return new HostValidator(mContext.getPackageManager(), mAllowedHosts, false);
         }
 

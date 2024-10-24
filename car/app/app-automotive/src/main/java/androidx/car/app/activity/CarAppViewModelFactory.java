@@ -21,12 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.app.Application;
 import android.content.ComponentName;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.SessionInfo;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +59,7 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
      *
      * @return A valid {@link CarAppViewModelFactory}
      */
-    @NonNull
-    static CarAppViewModelFactory getInstance(Application application,
+    static @NonNull CarAppViewModelFactory getInstance(Application application,
             ComponentName componentName, SessionInfo sessionInfo) {
         Pair<ComponentName, SessionInfo> instanceCacheKey = new Pair<>(componentName, sessionInfo);
         CarAppViewModelFactory instance = sInstances.get(instanceCacheKey);
@@ -71,9 +71,8 @@ class CarAppViewModelFactory implements ViewModelProvider.Factory {
     }
 
     @SuppressWarnings("unchecked")
-    @NonNull
     @Override
-    public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+    public <T extends ViewModel> @NonNull T create(@NonNull Class<T> modelClass) {
         return (T) new CarAppViewModel(mApplication, mComponentName, mSessionInfo);
     }
 }

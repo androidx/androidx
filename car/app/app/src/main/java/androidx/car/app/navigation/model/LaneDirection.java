@@ -19,11 +19,12 @@ package androidx.car.app.navigation.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -119,8 +120,7 @@ public final class LaneDirection{
      * @param isRecommended indicates whether the {@link LaneDirection} is the one the driver should
      *                      take in order to stay on the navigation route
      */
-    @NonNull
-    public static LaneDirection create(@Shape int shape, boolean isRecommended) {
+    public static @NonNull LaneDirection create(@Shape int shape, boolean isRecommended) {
         return new LaneDirection(shape, isRecommended);
     }
 
@@ -139,8 +139,7 @@ public final class LaneDirection{
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[shape: " + mShape + ", isRecommended: " + mIsRecommended + "]";
     }
 

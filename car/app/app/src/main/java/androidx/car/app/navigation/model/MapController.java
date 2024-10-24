@@ -22,14 +22,15 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -40,10 +41,8 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class MapController {
-    @Nullable
-    private final PanModeDelegate mPanModeDelegate;
-    @Nullable
-    private final ActionStrip mMapActionStrip;
+    private final @Nullable PanModeDelegate mPanModeDelegate;
+    private final @Nullable ActionStrip mMapActionStrip;
 
     MapController(Builder builder) {
         mPanModeDelegate = builder.mPanModeDelegate;
@@ -62,8 +61,7 @@ public final class MapController {
      *
      * @see Builder#setMapActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getMapActionStrip() {
+    public @Nullable ActionStrip getMapActionStrip() {
         return mMapActionStrip;
     }
 
@@ -73,8 +71,7 @@ public final class MapController {
      *
      * @see Builder#setPanModeListener(PanModeListener)
      */
-    @Nullable
-    public PanModeDelegate getPanModeDelegate() {
+    public @Nullable PanModeDelegate getPanModeDelegate() {
         return mPanModeDelegate;
     }
 
@@ -99,10 +96,8 @@ public final class MapController {
 
     /** A builder of {@link MapController}. */
     public static final class Builder {
-        @Nullable
-        PanModeDelegate mPanModeDelegate;
-        @Nullable
-        ActionStrip mMapActionStrip;
+        @Nullable PanModeDelegate mPanModeDelegate;
+        @Nullable ActionStrip mMapActionStrip;
 
         /**
          * Sets a {@link PanModeListener} that notifies when the user enters and exits
@@ -116,8 +111,7 @@ public final class MapController {
          * @throws NullPointerException if {@code panModeListener} is {@code null}
          */
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @NonNull
-        public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
+        public @NonNull Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
             requireNonNull(panModeListener);
             mPanModeDelegate = PanModeDelegateImpl.create(panModeListener);
             return this;
@@ -143,8 +137,7 @@ public final class MapController {
          *                                  requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_MAP.validateOrThrow(requireNonNull(actionStrip).getActions());
             mMapActionStrip = actionStrip;
             return this;
@@ -153,8 +146,7 @@ public final class MapController {
         /**
          * Constructs the {@link MapController} defined by this builder.
          */
-        @NonNull
-        public MapController build() {
+        public @NonNull MapController build() {
             return new MapController(this);
         }
     }

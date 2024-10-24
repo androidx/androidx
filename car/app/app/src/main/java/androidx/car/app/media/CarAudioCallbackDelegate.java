@@ -21,11 +21,12 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An internal delegate for performing callbacks related to car audio between library and host.
@@ -37,8 +38,7 @@ import androidx.car.app.annotations.RequiresCarApi;
 @RequiresCarApi(5)
 @KeepFields
 public class CarAudioCallbackDelegate {
-    @Nullable
-    private final ICarAudioCallback mCallback;
+    private final @Nullable ICarAudioCallback mCallback;
 
     /**
      * Signifies to stop processing audio input.
@@ -51,10 +51,9 @@ public class CarAudioCallbackDelegate {
         }
     }
 
-    @NonNull
     // This callback relates to a background process and is owned by the library
     @SuppressLint("ExecutorRegistration")
-    static CarAudioCallbackDelegate create(@NonNull CarAudioCallback callback) {
+    static @NonNull CarAudioCallbackDelegate create(@NonNull CarAudioCallback callback) {
         return new CarAudioCallbackDelegate(callback);
     }
 
@@ -71,8 +70,7 @@ public class CarAudioCallbackDelegate {
     @CarProtocol
     @KeepFields
     private static class CarAudioCallbackStub extends ICarAudioCallback.Stub {
-        @Nullable
-        private final CarAudioCallback mCarAudioCallback;
+        private final @Nullable CarAudioCallback mCarAudioCallback;
 
         CarAudioCallbackStub(@NonNull CarAudioCallback callback) {
             mCarAudioCallback = callback;

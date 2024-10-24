@@ -18,7 +18,6 @@ package androidx.car.app.mediaextensions.analytics.client;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.mediaextensions.analytics.event.BrowseChangeEvent;
 import androidx.car.app.mediaextensions.analytics.event.ErrorEvent;
@@ -26,6 +25,7 @@ import androidx.car.app.mediaextensions.analytics.event.MediaClickedEvent;
 import androidx.car.app.mediaextensions.analytics.event.ViewChangeEvent;
 import androidx.car.app.mediaextensions.analytics.event.VisibleItemsEvent;
 
+import org.jspecify.annotations.NonNull;
 
 /**
  * Callback from {@link AnalyticsParser#parseAnalyticsBundle (Bundle, IAnalyticsCallback)}.

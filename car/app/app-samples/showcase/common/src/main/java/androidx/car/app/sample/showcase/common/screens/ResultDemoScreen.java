@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -28,6 +27,8 @@ import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A screen to demo the use of {@link CarContext#setCarAppResult(int, android.content.Intent)}
@@ -37,9 +38,8 @@ public class ResultDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ComponentName callingComponent = getCarContext().getCallingComponent();
         if (callingComponent == null) {
             return new MessageTemplate.Builder(

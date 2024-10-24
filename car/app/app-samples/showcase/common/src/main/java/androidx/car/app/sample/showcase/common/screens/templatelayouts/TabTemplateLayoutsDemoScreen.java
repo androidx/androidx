@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts;
 
 import static androidx.car.app.model.Action.BACK;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Header;
@@ -31,6 +30,8 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtempla
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateLoadingDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateNoTabsDemoScreen;
 
+import org.jspecify.annotations.NonNull;
+
 /** A screen demonstrating different tab template layouts. */
 public final class TabTemplateLayoutsDemoScreen extends Screen {
 
@@ -38,9 +39,8 @@ public final class TabTemplateLayoutsDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
         listBuilder.addItem(buildRowForTemplate(new TabTemplateDemoScreen(getCarContext()),
                 R.string.tab_template_demo_title));

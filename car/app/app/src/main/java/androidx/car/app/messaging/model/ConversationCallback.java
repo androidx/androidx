@@ -16,8 +16,9 @@
 
 package androidx.car.app.messaging.model;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
+
+import org.jspecify.annotations.NonNull;
 
 /** Host -> Client callbacks for a {@link ConversationItem} */
 @CarProtocol

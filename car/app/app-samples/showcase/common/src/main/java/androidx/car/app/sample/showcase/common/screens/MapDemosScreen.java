@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens;
 
 import static androidx.car.app.model.Action.BACK;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Header;
@@ -32,6 +31,8 @@ import androidx.car.app.sample.showcase.common.screens.mapdemos.PlaceListNavigat
 import androidx.car.app.sample.showcase.common.screens.mapdemos.PlaceListTemplateBrowseDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.mapdemos.RoutePreviewDemoScreen;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +43,8 @@ public final class MapDemosScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         List<Row> screenList = new ArrayList<>();
         screenList.add(buildBrowsableRow(new MapWithContentDemoScreen(getCarContext()),
                 R.string.map_with_content_demo_title));

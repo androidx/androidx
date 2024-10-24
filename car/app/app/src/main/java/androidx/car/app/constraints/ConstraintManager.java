@@ -25,7 +25,6 @@ import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntegerRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
@@ -34,6 +33,8 @@ import androidx.car.app.R;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.LogTags;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -103,10 +104,8 @@ public class ConstraintManager implements Manager {
      */
     public static final int CONTENT_LIMIT_TYPE_PANE = 4;
 
-    @NonNull
-    private final CarContext mCarContext;
-    @NonNull
-    private final HostDispatcher mHostDispatcher;
+    private final @NonNull CarContext mCarContext;
+    private final @NonNull HostDispatcher mHostDispatcher;
 
     /**
      * Requests for the limit associated with the {@code contentLimitType}.
@@ -186,9 +185,8 @@ public class ConstraintManager implements Manager {
      * Creates an instance of {@link ConstraintManager}.
      *
      */
-    @NonNull
     @RestrictTo(LIBRARY)
-    public static ConstraintManager create(@NonNull CarContext context,
+    public static @NonNull ConstraintManager create(@NonNull CarContext context,
             @NonNull HostDispatcher hostDispatcher) {
         return new ConstraintManager(requireNonNull(context), requireNonNull(hostDispatcher));
     }

@@ -20,7 +20,6 @@ import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
@@ -34,6 +33,8 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** A screen that demonstrates the message template. */
 public class ShortMessageTemplateDemoScreen extends Screen {
 
@@ -41,9 +42,8 @@ public class ShortMessageTemplateDemoScreen extends Screen {
         super(carContext);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setOnClickListener(() -> {
                     CarToast.makeText(

@@ -15,7 +15,6 @@
  */
 package androidx.car.app.sample.showcase.common;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -32,19 +31,19 @@ import androidx.car.app.sample.showcase.common.screens.TemplateLayoutsDemoScreen
 import androidx.car.app.sample.showcase.common.screens.UserInteractionsDemoScreen;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 /** The starting screen of the app. */
 public final class StartScreen extends Screen {
-    @NonNull
-    private final ShowcaseSession mShowcaseSession;
+    private final @NonNull ShowcaseSession mShowcaseSession;
 
     public StartScreen(@NonNull CarContext carContext, @NonNull ShowcaseSession showcaseSession) {
         super(carContext);
         mShowcaseSession = showcaseSession;
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         listBuilder.addItem(createRowForScreen(R.string.template_layouts_demo_title,
@@ -74,8 +73,7 @@ public final class StartScreen extends Screen {
     /**
      * Creates a new Settings Action button in the top right of the Home page
      */
-    @NonNull
-    public Action createSettingsActionButton() {
+    public @NonNull Action createSettingsActionButton() {
         return new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.settings_action_title))
                 .setOnClickListener(() -> getScreenManager().push(
@@ -86,8 +84,7 @@ public final class StartScreen extends Screen {
     /**
      * Creates new row given a title, and the next screen on clicking the row
      */
-    @NonNull
-    public Row createRowForScreen(int titleId, @NonNull Screen screen) {
+    public @NonNull Row createRowForScreen(int titleId, @NonNull Screen screen) {
         return new Row.Builder()
             .setTitle(getCarContext().getString(titleId))
             .setOnClickListener(() -> getScreenManager().push(screen))
@@ -98,8 +95,8 @@ public final class StartScreen extends Screen {
     /**
      * Creates new row given a title, CarIcon image and the next screen on clicking the row
      */
-    @NonNull
-    public Row createRowForScreen(int titleId, @NonNull CarIcon image, @NonNull Screen screen) {
+    public @NonNull Row createRowForScreen(int titleId, @NonNull CarIcon image,
+            @NonNull Screen screen) {
         return new Row.Builder()
                 .setImage(image, Row.IMAGE_TYPE_ICON)
                 .setTitle(getCarContext().getString(titleId))
@@ -111,8 +108,7 @@ public final class StartScreen extends Screen {
     /**
     * Given an imageId (as a drawable resource), this function outputs an CarIcon
     */
-    @NonNull
-    public CarIcon createCarIconForImage(int imageId) {
+    public @NonNull CarIcon createCarIconForImage(int imageId) {
         return new CarIcon.Builder(
                 IconCompat.createWithResource(
                         getCarContext(),

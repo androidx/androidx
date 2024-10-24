@@ -18,10 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,10 +35,8 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class TemplateInfo {
-    @Nullable
-    private final Class<? extends Template> mTemplateClass;
-    @Nullable
-    private final String mTemplateId;
+    private final @Nullable Class<? extends Template> mTemplateClass;
+    private final @Nullable String mTemplateId;
 
     /**
      * Constructs the info for the given template information provided.
@@ -56,8 +55,7 @@ public final class TemplateInfo {
      *
      * @see TemplateInfo#TemplateInfo(Class, String)
      */
-    @NonNull
-    public Class<? extends Template> getTemplateClass() {
+    public @NonNull Class<? extends Template> getTemplateClass() {
         // Intentionally kept as non-null because the library creates these classes internally after
         // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplateClass);
@@ -68,8 +66,7 @@ public final class TemplateInfo {
      *
      * @see TemplateInfo#TemplateInfo(Class, String)
      */
-    @NonNull
-    public String getTemplateId() {
+    public @NonNull String getTemplateId() {
         // Intentionally kept as non-null because the library creates these classes internally after
         // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplateId);

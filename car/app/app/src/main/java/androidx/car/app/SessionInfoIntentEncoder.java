@@ -20,8 +20,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import org.jspecify.annotations.NonNull;
 
 /** Helper to encode and decode a {@link SessionInfo} from an {@link Intent} */
 public class SessionInfoIntentEncoder {
@@ -61,8 +62,7 @@ public class SessionInfoIntentEncoder {
     /**
      * Decodes a new {@link SessionInfo} for a given {@code intent}
      */
-    @NonNull
-    public static SessionInfo decode(@NonNull Intent intent) {
+    public static @NonNull SessionInfo decode(@NonNull Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras == null) {
             throw new IllegalArgumentException(

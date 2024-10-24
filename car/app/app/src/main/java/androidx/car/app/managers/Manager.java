@@ -16,9 +16,10 @@
 
 package androidx.car.app.managers;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 
@@ -41,9 +42,8 @@ public interface Manager {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    static <U extends Manager> U create(@NonNull Class<U> clazz, @NonNull String className,
-            @NonNull Object ... args) {
+    static <U extends Manager> @Nullable U create(@NonNull Class<U> clazz,
+            @NonNull String className, Object  @NonNull ... args) {
         try { // Check for automotive library first.
             Class<?> c = Class.forName(className);
             Class<?>[] argsTypes = new Class<?>[args.length];

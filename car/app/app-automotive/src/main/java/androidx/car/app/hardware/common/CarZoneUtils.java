@@ -19,11 +19,12 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.common.collect.ImmutableSet;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,8 +54,7 @@ public final class CarZoneUtils {
      * Converts {@code areaId}, which is a bitmask of car areas, into a list of car zones.
      * Each object in the return list corresponds to an area in {@code areaId}.
      */
-    @NonNull
-    public static ImmutableSet<CarZone> convertAreaIdToCarZones(
+    public static @NonNull ImmutableSet<CarZone> convertAreaIdToCarZones(
             @AreaType int areaType, int areaId) {
         return getZoneAreaIdConverter(areaType).convertAreaIdToCarZones(areaId);
     }
@@ -63,8 +63,7 @@ public final class CarZoneUtils {
      * Gets an object of the converter classes based on the area type. Only Seat area
      * type is supported yet.
      */
-    @NonNull
-    public static CarZoneAreaIdConverter getZoneAreaIdConverter(
+    public static @NonNull CarZoneAreaIdConverter getZoneAreaIdConverter(
             @AreaType int areaType) {
         switch (areaType) {
             //TODO(b/241144091): Add support for other types of areas.

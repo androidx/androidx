@@ -28,8 +28,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 
@@ -95,8 +96,7 @@ public class BrowseChangeEvent extends AnalyticsEvent {
      * node.
      * @return String MediaItem ID.
      */
-    @NonNull
-    public String getBrowseNodeId() {
+    public @NonNull String getBrowseNodeId() {
         return mBrowseNodeId;
     }
 
@@ -109,8 +109,7 @@ public class BrowseChangeEvent extends AnalyticsEvent {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         final StringBuilder sb = new StringBuilder("BrowseChangeEvent{");
         sb.append("mBrowseMode=").append(browseModeToString(mBrowseMode));
         sb.append(", mViewAction=").append(viewActionToString(mViewAction));

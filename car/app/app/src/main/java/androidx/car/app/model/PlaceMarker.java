@@ -21,13 +21,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -70,20 +71,16 @@ public final class PlaceMarker {
 
     private static final int MAX_LABEL_LENGTH = 3;
 
-    @Nullable
-    private final CarIcon mIcon;
-    @Nullable
-    private final CarText mLabel;
-    @Nullable
-    private final CarColor mColor;
+    private final @Nullable CarIcon mIcon;
+    private final @Nullable CarText mLabel;
+    private final @Nullable CarColor mColor;
     @MarkerIconType
     private final int mIconType;
 
     /**
      * Returns the {@link CarIcon} associated with this marker or {@code null} if not set.
      */
-    @Nullable
-    public CarIcon getIcon() {
+    public @Nullable CarIcon getIcon() {
         return mIcon;
     }
 
@@ -102,8 +99,7 @@ public final class PlaceMarker {
      * <p>Note that a {@link PlaceMarker} can only display either an icon or a text label. If
      * both are set, then {@link #getIcon()} will take precedence.
      */
-    @Nullable
-    public CarText getLabel() {
+    public @Nullable CarText getLabel() {
         return mLabel;
     }
 
@@ -112,14 +108,12 @@ public final class PlaceMarker {
      *
      * <p>See {@link Builder#setColor} on rules related to how the color is applied.
      */
-    @Nullable
-    public CarColor getColor() {
+    public @Nullable CarColor getColor() {
         return mColor;
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "["
                 + (mIcon != null
                 ? mIcon.toString()
@@ -165,12 +159,9 @@ public final class PlaceMarker {
 
     /** A builder of {@link PlaceMarker}. */
     public static final class Builder {
-        @Nullable
-        CarIcon mIcon;
-        @Nullable
-        CarText mLabel;
-        @Nullable
-        CarColor mColor;
+        @Nullable CarIcon mIcon;
+        @Nullable CarText mLabel;
+        @Nullable CarColor mColor;
         @MarkerIconType
         int mIconType = TYPE_ICON;
 
@@ -194,8 +185,7 @@ public final class PlaceMarker {
          * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}
          * @throws NullPointerException if the {@code icon} is {@code null}
          */
-        @NonNull
-        public Builder setIcon(@NonNull CarIcon icon, @MarkerIconType int iconType) {
+        public @NonNull Builder setIcon(@NonNull CarIcon icon, @MarkerIconType int iconType) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
             mIcon = icon;
             mIconType = iconType;
@@ -217,8 +207,7 @@ public final class PlaceMarker {
          * @throws NullPointerException if the {@code label} is {@code null}
          * @see CarText
          */
-        @NonNull
-        public Builder setLabel(@NonNull CharSequence label) {
+        public @NonNull Builder setLabel(@NonNull CharSequence label) {
             if (requireNonNull(label).length() > MAX_LABEL_LENGTH) {
                 throw new IllegalArgumentException(
                         "Marker label cannot contain more than " + MAX_LABEL_LENGTH
@@ -251,8 +240,7 @@ public final class PlaceMarker {
          *
          * @throws NullPointerException if the {@code color} is {@code null}
          */
-        @NonNull
-        public Builder setColor(@NonNull CarColor color) {
+        public @NonNull Builder setColor(@NonNull CarColor color) {
             CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
             mColor = color;
             return this;
@@ -264,8 +252,7 @@ public final class PlaceMarker {
          * @throws IllegalStateException if the icon is of the type {@link #TYPE_IMAGE} and a a
          *                               color is set
          */
-        @NonNull
-        public PlaceMarker build() {
+        public @NonNull PlaceMarker build() {
             if (mColor != null && (mIcon != null && mIconType == TYPE_IMAGE)) {
                 throw new IllegalStateException("Color cannot be set for icon set with TYPE_IMAGE");
             }

@@ -21,12 +21,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.model.constraints.CarIconConstraints;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -98,8 +99,7 @@ public final class CarIconSpan extends CarSpan {
     @Alignment
     public static final int ALIGN_CENTER = 2;
 
-    @Nullable
-    private final CarIcon mIcon;
+    private final @Nullable CarIcon mIcon;
     @Alignment
     private final int mAlignment;
 
@@ -110,8 +110,7 @@ public final class CarIconSpan extends CarSpan {
      * @throws NullPointerException if {@code icon} is {@code null}
      * @see #create(CarIcon, int)
      */
-    @NonNull
-    public static CarIconSpan create(@NonNull CarIcon icon) {
+    public static @NonNull CarIconSpan create(@NonNull CarIcon icon) {
         return create(icon, ALIGN_BASELINE);
     }
 
@@ -129,8 +128,7 @@ public final class CarIconSpan extends CarSpan {
      * @see #ALIGN_BOTTOM
      * @see #ALIGN_CENTER
      */
-    @NonNull
-    public static CarIconSpan create(@NonNull CarIcon icon, @Alignment int alignment) {
+    public static @NonNull CarIconSpan create(@NonNull CarIcon icon, @Alignment int alignment) {
         CarIconConstraints.DEFAULT.validateOrThrow(icon);
         if (alignment != ALIGN_BASELINE && alignment != ALIGN_BOTTOM && alignment != ALIGN_CENTER) {
             throw new IllegalStateException("Invalid alignment value: " + alignment);
@@ -152,8 +150,7 @@ public final class CarIconSpan extends CarSpan {
     /**
      * Returns the {@link CarIcon} instance associated with this span.
      */
-    @NonNull
-    public CarIcon getIcon() {
+    public @NonNull CarIcon getIcon() {
         return requireNonNull(mIcon);
     }
 
@@ -166,8 +163,7 @@ public final class CarIconSpan extends CarSpan {
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[icon: " + mIcon + ", alignment: " + alignmentToString(mAlignment) + "]";
     }
 

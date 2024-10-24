@@ -21,7 +21,6 @@ import static androidx.car.app.CarToast.LENGTH_LONG;
 import android.content.Intent;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.HostException;
@@ -35,6 +34,8 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 
+import org.jspecify.annotations.NonNull;
+
 /** A screen that displays the details of a place. */
 public class PlaceDetailsScreen extends Screen {
     private final PlaceInfo mPlace;
@@ -45,15 +46,13 @@ public class PlaceDetailsScreen extends Screen {
     }
 
     /** Creates an instance of {@link PlaceDetailsScreen}. */
-    @NonNull
-    public static PlaceDetailsScreen create(
+    public static @NonNull PlaceDetailsScreen create(
             @NonNull CarContext carContext, @NonNull PlaceInfo place) {
         return new PlaceDetailsScreen(carContext, place);
     }
 
-    @NonNull
     @Override
-    public Template onGetTemplate() {
+    public @NonNull Template onGetTemplate() {
         Pane.Builder paneBuilder =
                 new Pane.Builder()
                         .addAction(

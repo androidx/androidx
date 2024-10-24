@@ -29,6 +29,7 @@ plugins {
     id("androidx.stableaidl")
 }
 dependencies {
+    api(libs.jspecify)
     api(project(":car:app:app"))
     api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation-experimental:1.4.1")

@@ -25,12 +25,8 @@ import android.location.Location;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.LogPrinter;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
@@ -49,6 +45,8 @@ import androidx.car.app.model.Row;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,8 +73,7 @@ public class SamplePlaces {
     }
 
     /** Create an instance of {@link SamplePlaces}. */
-    @NonNull
-    public static SamplePlaces create(@NonNull Screen demoScreen) {
+    public static @NonNull SamplePlaces create(@NonNull Screen demoScreen) {
         return new SamplePlaces(demoScreen);
     }
 
@@ -249,8 +246,7 @@ public class SamplePlaces {
     }
 
     /** Return the {@link ItemList} of the sample places. */
-    @NonNull
-    public ItemList getPlaceList(boolean randomOrder) {
+    public @NonNull ItemList getPlaceList(boolean randomOrder) {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         int listLimit = 6;

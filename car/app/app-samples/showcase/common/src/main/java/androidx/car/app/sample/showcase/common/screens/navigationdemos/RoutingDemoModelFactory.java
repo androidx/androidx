@@ -25,7 +25,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
@@ -50,21 +49,21 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /** A class that provides models for the routing demos. */
 public class RoutingDemoModelFactory {
-    @NonNull
-    private final CarContext mCarContext;
+    private final @NonNull CarContext mCarContext;
 
     public RoutingDemoModelFactory(@NonNull CarContext carContext) {
         mCarContext = carContext;
     }
 
     /** Returns a sample {@link Alert}. */
-    @NonNull
-    private Alert createAlert() {
+    private @NonNull Alert createAlert() {
         CarText title = createCarText(R.string.navigation_alert_title);
         CarText subtitle = createCarText(R.string.navigation_alert_subtitle);
         CarIcon icon = CarIcon.ALERT;
@@ -93,8 +92,7 @@ public class RoutingDemoModelFactory {
     }
 
     /** Returns the current {@link Step} with information such as the cue text and images. */
-    @NonNull
-    public Step getCurrentStep() {
+    public @NonNull Step getCurrentStep() {
         SpannableString currentStepCueWithImage =
                 createStringWithIcon(R.string.current_step_cue, R.drawable.ic_520, 7, 10);
 
@@ -125,8 +123,7 @@ public class RoutingDemoModelFactory {
     }
 
     /** Returns the next {@link Step} with information such as the cue text and images. */
-    @NonNull
-    public Step getNextStep() {
+    public @NonNull Step getNextStep() {
         SpannableString nextStepCueWithImage =
                 createStringWithIcon(R.string.next_step_cue, R.drawable.ic_i5, 0, 2);
 
@@ -140,8 +137,7 @@ public class RoutingDemoModelFactory {
     /**
      * Returns the action strip that contains a "bug report" button and "stop navigation" button.
      */
-    @NonNull
-    public ActionStrip getActionStrip(@NonNull OnClickListener onStopNavigation) {
+    public @NonNull ActionStrip getActionStrip(@NonNull OnClickListener onStopNavigation) {
         ActionStrip.Builder builder = new ActionStrip.Builder();
         if (mCarContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_5) {
             CarColor actionButtonRed = CarColor.createCustom(0xffb40404, 0xffb40404);
@@ -169,8 +165,7 @@ public class RoutingDemoModelFactory {
     /**
      * Returns the map action strip that contains pan and zoom buttons.
      */
-    @NonNull
-    public ActionStrip getMapActionStrip() {
+    public @NonNull ActionStrip getMapActionStrip() {
         return new ActionStrip.Builder()
                 .addAction(
                         createToastAction(R.drawable.ic_zoom_in_24, R.string.zoomed_in_toast_msg))
@@ -181,8 +176,7 @@ public class RoutingDemoModelFactory {
     }
 
     /** Returns the {@link TravelEstimate} with time and distance information. */
-    @NonNull
-    public TravelEstimate getTravelEstimate() {
+    public @NonNull TravelEstimate getTravelEstimate() {
         // Calculate the time to destination from the current time.
         long nowUtcMillis = System.currentTimeMillis();
         long timeToDestinationMillis = TimeUnit.HOURS.toMillis(1) + TimeUnit.MINUTES.toMillis(55);

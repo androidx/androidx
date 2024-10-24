@@ -20,13 +20,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.annotations.KeepFields;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -185,11 +186,9 @@ public final class EnergyProfile {
     @FuelType
     public static final int FUEL_TYPE_OTHER = 12;
 
-    @NonNull
-    private final CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes;
+    private final @NonNull CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes;
 
-    @NonNull
-    private final CarValue<List<@FuelType Integer>> mFuelTypes;
+    private final @NonNull CarValue<List<@FuelType Integer>> mFuelTypes;
 
     /**
      * Returns an array of the available EV connectors.
@@ -198,8 +197,7 @@ public final class EnergyProfile {
      * {@link #EVCONNECTOR_TYPE_UNKNOWN} or {@link CarValue#STATUS_UNIMPLEMENTED}. If the value
      * is known but not in the current list {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
-    @NonNull
-    public CarValue<List<@EvConnectorType Integer>> getEvConnectorTypes() {
+    public @NonNull CarValue<List<@EvConnectorType Integer>> getEvConnectorTypes() {
         return requireNonNull(mEvConnectorTypes);
     }
 
@@ -210,14 +208,12 @@ public final class EnergyProfile {
      * {@link CarValue#STATUS_UNIMPLEMENTED}. If the value is known but not in the current list
      * {@link #EVCONNECTOR_TYPE_UNKNOWN} will be returned.
      */
-    @NonNull
-    public CarValue<List<@FuelType Integer>> getFuelTypes() {
+    public @NonNull CarValue<List<@FuelType Integer>> getFuelTypes() {
         return requireNonNull(mFuelTypes);
     }
 
     @Override
-    @NonNull
-    public String toString() {
+    public @NonNull String toString() {
         return "[ evConnectorTypes: " + mEvConnectorTypes + ", fuelTypes: " + mFuelTypes + "]";
     }
 
@@ -262,8 +258,7 @@ public final class EnergyProfile {
          *
          * @throws NullPointerException if {@code evConnectorTypes} is {@code null}
          */
-        @NonNull
-        public Builder setEvConnectorTypes(
+        public @NonNull Builder setEvConnectorTypes(
                 @NonNull CarValue<List<@EvConnectorType Integer>> evConnectorTypes) {
             mEvConnectorTypes = requireNonNull(evConnectorTypes);
             return this;
@@ -274,8 +269,7 @@ public final class EnergyProfile {
          *
          * @throws NullPointerException if {@code fuelTypes} is {@code null}
          */
-        @NonNull
-        public Builder setFuelTypes(@NonNull CarValue<List<@FuelType Integer>> fuelTypes) {
+        public @NonNull Builder setFuelTypes(@NonNull CarValue<List<@FuelType Integer>> fuelTypes) {
             mFuelTypes = requireNonNull(fuelTypes);
             return this;
         }
@@ -286,8 +280,7 @@ public final class EnergyProfile {
          * <p>Any fields which have not been set are added with {@code null} value and
          * {@link CarValue#STATUS_UNIMPLEMENTED}.
          */
-        @NonNull
-        public EnergyProfile build() {
+        public @NonNull EnergyProfile build() {
             return new EnergyProfile(this);
         }
 

@@ -22,14 +22,15 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,23 +52,18 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class LongMessageTemplate implements Template {
-    @Nullable
-    private final CarText mTitle;
-    @Nullable
-    private final CarText mMessage;
-    @Nullable
-    private final Action mHeaderAction;
+    private final @Nullable CarText mTitle;
+    private final @Nullable CarText mMessage;
+    private final @Nullable Action mHeaderAction;
     private final List<Action> mActionList;
-    @Nullable
-    private final ActionStrip mActionStrip;
+    private final @Nullable ActionStrip mActionStrip;
 
     /**
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
      */
-    @Nullable
-    public CarText getTitle() {
+    public @Nullable CarText getTitle() {
         return mTitle;
     }
 
@@ -77,8 +73,7 @@ public final class LongMessageTemplate implements Template {
      *
      * @see Builder#setHeaderAction(Action)
      */
-    @Nullable
-    public Action getHeaderAction() {
+    public @Nullable Action getHeaderAction() {
         return mHeaderAction;
     }
 
@@ -87,8 +82,7 @@ public final class LongMessageTemplate implements Template {
      *
      * @see Builder#setActionStrip(ActionStrip)
      */
-    @Nullable
-    public ActionStrip getActionStrip() {
+    public @Nullable ActionStrip getActionStrip() {
         return mActionStrip;
     }
 
@@ -97,8 +91,7 @@ public final class LongMessageTemplate implements Template {
      *
      * @see Builder#Builder(CharSequence)
      */
-    @NonNull
-    public CarText getMessage() {
+    public @NonNull CarText getMessage() {
         return requireNonNull(mMessage);
     }
 
@@ -107,14 +100,12 @@ public final class LongMessageTemplate implements Template {
      *
      * @see Builder#addAction(Action)
      */
-    @NonNull
-    public List<Action> getActions() {
+    public @NonNull List<Action> getActions() {
         return CollectionUtils.emptyIfNull(mActionList);
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "LongMessageTemplate";
     }
 
@@ -160,13 +151,10 @@ public final class LongMessageTemplate implements Template {
     /** A builder of {@link LongMessageTemplate}. */
     @RequiresCarApi(2)
     public static final class Builder {
-        @Nullable
-        CarText mTitle;
+        @Nullable CarText mTitle;
         final CarText mMessage;
-        @Nullable
-        ActionStrip mActionStrip;
-        @Nullable
-        Action mHeaderAction;
+        @Nullable ActionStrip mActionStrip;
+        @Nullable Action mHeaderAction;
         List<Action> mActionList = new ArrayList<>();
 
         /**
@@ -181,8 +169,7 @@ public final class LongMessageTemplate implements Template {
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
-        @NonNull
-        public Builder setTitle(@NonNull CharSequence title) {
+        public @NonNull Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
@@ -202,8 +189,7 @@ public final class LongMessageTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
-        @NonNull
-        public Builder setHeaderAction(@NonNull Action headerAction) {
+        public @NonNull Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
             mHeaderAction = headerAction;
@@ -225,8 +211,7 @@ public final class LongMessageTemplate implements Template {
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @NonNull
-        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+        public @NonNull Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
@@ -247,8 +232,7 @@ public final class LongMessageTemplate implements Template {
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
          * @throws NullPointerException     if {@code action} is {@code null}
          */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
+        public @NonNull Builder addAction(@NonNull Action action) {
             requireNonNull(action);
             if (!requireNonNull(action.getOnClickDelegate()).isParkedOnly()) {
                 throw new IllegalArgumentException("The action must use a "
@@ -272,8 +256,7 @@ public final class LongMessageTemplate implements Template {
          *
          * @throws IllegalStateException if the message is empty
          */
-        @NonNull
-        public LongMessageTemplate build() {
+        public @NonNull LongMessageTemplate build() {
             if (mMessage.isEmpty()) {
                 throw new IllegalStateException("Message cannot be empty");
             }
