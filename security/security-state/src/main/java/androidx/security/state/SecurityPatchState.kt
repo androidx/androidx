@@ -625,19 +625,22 @@ constructor(
      *   list if no data is available.
      */
     private fun getPublishedKernelVersions(): List<VersionedSecurityPatchLevel> {
-        vulnerabilityReport?.let { report ->
+        vulnerabilityReport?.let { (_, kernelLtsVersions) ->
+            if (kernelLtsVersions.isEmpty()) {
+                return emptyList()
+            }
             // A map from a kernel LTS version (major.minor) to its latest published version.
             // For example, version 5.4 would map to 5.4.123 if that's the latest published version.
             val kernelVersionToLatest = mutableMapOf<String, VersionedSecurityPatchLevel>()
             // Reduce all the published kernel LTS versions from each SPL into one list.
-            val kernelLtsVersions =
-                report.kernelLtsVersions.values
+            val publishedKernelLtsVersions =
+                kernelLtsVersions.values
                     .reduce { versions, version -> versions + version }
                     .map { VersionedSecurityPatchLevel.fromString(it) }
 
             // Update the map so that each kernel LTS version maps to its latest (largest) published
             // version.
-            kernelLtsVersions.forEach { version ->
+            publishedKernelLtsVersions.forEach { version ->
                 val kernelVersion = "${version.getMajorVersion()}.${version.getMinorVersion()}"
 
                 kernelVersionToLatest[kernelVersion]?.let {
