@@ -161,13 +161,13 @@ class DateInputTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun dateInputWithInitialDate_alternateLocale() {
+    fun dateInputWithInitialDate_hebrewLocale() {
         lateinit var state: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
             state =
                 DatePickerState(
-                    locale = Locale.forLanguageTag("HE"),
+                    locale = Locale.forLanguageTag("he"),
                     initialSelectedDateMillis = initialDateMillis,
                     initialDisplayMode = DisplayMode.Input
                 )
@@ -182,6 +182,31 @@ class DateInputTest {
         // CompositionLocalProvider with a new Context Configuration, but this test does not cover
         // that.
         rule.onNodeWithText("May 11, 2010").assertExists()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun dateInputWithInitialDate_arabLocale() {
+        lateinit var state: DatePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val initialDateMillis = dayInUtcMilliseconds(year = 2022, month = 9, dayOfMonth = 10)
+            state =
+                DatePickerState(
+                    locale = Locale.forLanguageTag("ar"),
+                    initialSelectedDateMillis = initialDateMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
+            DatePicker(state = state)
+        }
+
+        // For Arabic Locale, the month precedes the date.
+        rule.onNodeWithText("١٠/٠٩/٢٠٢٢").assertExists()
+        // Setting the Locale at the state would not affect the displayed date at the headline, and
+        // it will still be displayed as "Sep 10, 2022" with the default locale. To ensure that the
+        // entire date picker UI is localized, there is a need to wrap the picker's code in a
+        // CompositionLocalProvider with a new Context Configuration, but this test does not cover
+        // that.
+        rule.onNodeWithText("Sep 10, 2022").assertExists()
     }
 
     @Test
