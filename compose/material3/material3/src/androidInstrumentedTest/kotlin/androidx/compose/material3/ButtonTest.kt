@@ -18,9 +18,14 @@ package androidx.compose.material3
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
@@ -32,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -46,7 +52,9 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -202,6 +210,7 @@ class ButtonTest {
             24.dp,
             "padding between the end of the text and the end of the button."
         )
+        buttonBounds.height.assertIsEqualTo(ButtonDefaults.MinHeight, "height of button.")
     }
 
     @Test
@@ -426,6 +435,239 @@ class ButtonTest {
                     )
                 )
         }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_xSmall_positioning() {
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding =
+                ButtonDefaults.XSmallContentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding =
+                ButtonDefaults.XSmallContentPadding.calculateEndPadding(layoutDirection)
+            Box {
+                Button(
+                    onClick = { /* Do something! */ },
+                    modifier =
+                        Modifier.heightIn(ButtonDefaults.XSmallContainerHeight)
+                            .testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.XSmallContentPadding
+                ) {
+                    Icon(
+                        Icons.Filled.Edit,
+                        contentDescription = "Localized description",
+                        modifier =
+                            Modifier.size(ButtonDefaults.XSmallIconSize)
+                                .testTag(IconTestTag)
+                                .semantics(mergeDescendants = true) {}
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.XSmallIconSpacing))
+                    Text(
+                        "Label",
+                        modifier =
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "padding between start of button and start of icon"
+        )
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.XSmallIconSpacing,
+            "spacing between icon and label"
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "padding between end of label and end of button"
+        )
+        buttonBounds.height.assertIsEqualTo(
+            ButtonDefaults.XSmallContainerHeight,
+            "height of button"
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_medium_positioning() {
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding =
+                ButtonDefaults.MediumContentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding =
+                ButtonDefaults.MediumContentPadding.calculateEndPadding(layoutDirection)
+            Box {
+                Button(
+                    onClick = { /* Do something! */ },
+                    modifier =
+                        Modifier.heightIn(ButtonDefaults.MediumContainerHeight)
+                            .testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.MediumContentPadding
+                ) {
+                    Icon(
+                        Icons.Filled.Edit,
+                        contentDescription = "Localized description",
+                        modifier =
+                            Modifier.size(ButtonDefaults.MediumIconSize)
+                                .testTag(IconTestTag)
+                                .semantics(mergeDescendants = true) {}
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.MediumIconSpacing))
+                    Text(
+                        "Label",
+                        modifier =
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "padding between start of button and start of icon"
+        )
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.MediumIconSpacing,
+            "spacing between icon and label"
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "padding between end of label and end of button"
+        )
+        buttonBounds.height.assertIsEqualTo(
+            ButtonDefaults.MediumContainerHeight,
+            "height of button"
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_large_positioning() {
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding =
+                ButtonDefaults.LargeContentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding =
+                ButtonDefaults.LargeContentPadding.calculateEndPadding(layoutDirection)
+            Box {
+                Button(
+                    onClick = { /* Do something! */ },
+                    modifier =
+                        Modifier.heightIn(ButtonDefaults.LargeContainerHeight)
+                            .testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.LargeContentPadding
+                ) {
+                    Icon(
+                        Icons.Filled.Edit,
+                        contentDescription = "Localized description",
+                        modifier =
+                            Modifier.size(ButtonDefaults.LargeIconSize)
+                                .testTag(IconTestTag)
+                                .semantics(mergeDescendants = true) {}
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.LargeIconSpacing))
+                    Text(
+                        "Label",
+                        modifier =
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "padding between start of button and start of icon"
+        )
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.LargeIconSpacing,
+            "spacing between icon and label"
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "padding between end of label and end of button"
+        )
+        buttonBounds.height.assertIsEqualTo(ButtonDefaults.LargeContainerHeight, "height of button")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_xLarge_positioning() {
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding =
+                ButtonDefaults.XLargeContentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding =
+                ButtonDefaults.XLargeContentPadding.calculateEndPadding(layoutDirection)
+            Box {
+                Button(
+                    onClick = { /* Do something! */ },
+                    modifier =
+                        Modifier.heightIn(ButtonDefaults.XLargeContainerHeight)
+                            .testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.XLargeContentPadding
+                ) {
+                    Icon(
+                        Icons.Filled.Edit,
+                        contentDescription = "Localized description",
+                        modifier =
+                            Modifier.size(ButtonDefaults.XLargeIconSize)
+                                .testTag(IconTestTag)
+                                .semantics(mergeDescendants = true) {}
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.XLargeIconSpacing))
+                    Text(
+                        "Label",
+                        modifier =
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "padding between start of button and start of icon"
+        )
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.XLargeIconSpacing,
+            "spacing between icon and label"
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "padding between end of label and end of button"
+        )
+        buttonBounds.height.assertIsEqualTo(
+            ButtonDefaults.XLargeContainerHeight,
+            "height of button"
+        )
     }
 }
 

@@ -31,7 +31,11 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.rememberAnimatedShape
+import androidx.compose.material3.tokens.ButtonLargeTokens
+import androidx.compose.material3.tokens.ButtonMediumTokens
 import androidx.compose.material3.tokens.ButtonSmallTokens
+import androidx.compose.material3.tokens.ButtonXLargeTokens
+import androidx.compose.material3.tokens.ButtonXSmallTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -72,6 +76,13 @@ import androidx.compose.ui.unit.dp
  *
  * For a [ToggleButton] that uses a round unchecked shape and morphs into a square checked shape:
  *
+ * [ToggleButton] uses the small button design as default. For a [ToggleButton] that uses the design
+ * for extra small, medium, large, or extra large buttons:
+ *
+ * @sample androidx.compose.material3.samples.XSmallToggleButtonWithIconSample
+ * @sample androidx.compose.material3.samples.MediumToggleButtonWithIconSample
+ * @sample androidx.compose.material3.samples.LargeToggleButtonWithIconSample
+ * @sample androidx.compose.material3.samples.XLargeToggleButtonWithIconSample
  * @sample androidx.compose.material3.samples.RoundToggleButtonSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
@@ -474,6 +485,54 @@ object ToggleButtonDefaults {
     /** The default checked shape for [ToggleButton] */
     val checkedShape: Shape
         @Composable get() = ButtonSmallTokens.SelectedContainerShapeRound.value
+
+    /** The default square shape for a extra small toggle button */
+    val XSmallSquareShape: Shape
+        @Composable get() = ButtonXSmallTokens.ContainerShapeSquare.value
+
+    /** The default square shape for a medium toggle button */
+    val MediumSquareShape: Shape
+        @Composable get() = ButtonMediumTokens.ContainerShapeSquare.value
+
+    /** The default square shape for a large toggle button */
+    val LargeSquareShape: Shape
+        @Composable get() = ButtonLargeTokens.ContainerShapeSquare.value
+
+    /** The default square shape for a extra large toggle button */
+    val XLargeSquareShape: Shape
+        @Composable get() = ButtonXLargeTokens.ContainerShapeSquare.value
+
+    /** The default pressed shape for a extra small toggle button */
+    val XSmallPressedShape: Shape
+        @Composable get() = ButtonXSmallTokens.PressedContainerShape.value
+
+    /** The default pressed shape for a medium toggle button */
+    val MediumPressedShape: Shape
+        @Composable get() = ButtonMediumTokens.PressedContainerShape.value
+
+    /** The default pressed shape for a large toggle button */
+    val LargePressedShape: Shape
+        @Composable get() = ButtonLargeTokens.PressedContainerShape.value
+
+    /** The default pressed shape for a extra large toggle button */
+    val XLargePressedShape: Shape
+        @Composable get() = ButtonXLargeTokens.PressedContainerShape.value
+
+    /** The default checked square shape for a extra small toggle button */
+    val XSmallCheckedSquareShape: Shape
+        @Composable get() = ButtonXSmallTokens.ContainerShapeSquare.value
+
+    /** The default checked square shape for a medium toggle button */
+    val MediumCheckedSquareShape: Shape
+        @Composable get() = ButtonMediumTokens.ContainerShapeSquare.value
+
+    /** The default checked square shape for a large toggle button */
+    val LargeCheckedSquareShape: Shape
+        @Composable get() = ButtonLargeTokens.ContainerShapeSquare.value
+
+    /** The default checked square shape for a extra large toggle button */
+    val XLargeCheckedSquareShape: Shape
+        @Composable get() = ButtonXLargeTokens.ContainerShapeSquare.value
 
     /**
      * Creates a [ToggleButtonColors] that represents the default container and content colors used
