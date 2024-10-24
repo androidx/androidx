@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -28,6 +27,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -96,21 +96,18 @@ public class RxDataStoreBuilderTest {
     @Test
     public void testMigrationsAreInstalledAndRun() throws Exception {
         RxDataMigration<Byte> plusOneMigration = new RxDataMigration<Byte>() {
-            @NonNull
             @Override
-            public Single<Boolean> shouldMigrate(@NonNull Byte currentData) {
+            public @NonNull Single<Boolean> shouldMigrate(@NonNull Byte currentData) {
                 return Single.just(true);
             }
 
-            @NonNull
             @Override
-            public Single<Byte> migrate(@NonNull Byte currentData) {
+            public @NonNull Single<Byte> migrate(@NonNull Byte currentData) {
                 return incrementByte(currentData);
             }
 
-            @NonNull
             @Override
-            public Completable cleanUp() {
+            public @NonNull Completable cleanUp() {
                 return Completable.complete();
             }
         };

@@ -16,11 +16,11 @@
 
 package androidx.datastore.rxjava2;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import io.reactivex.Completable;
 import io.reactivex.Single;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface for migrations to DataStore. Methods on this migration ([shouldMigrate], [migrate]
@@ -47,8 +47,7 @@ public interface RxDataMigration<T> {
      *                    this or other migrations). Only Nullable if the type used with DataStore
      *                    is Nullable.
      */
-    @NonNull
-    Single<Boolean> shouldMigrate(@Nullable T currentData);
+    @NonNull Single<Boolean> shouldMigrate(@Nullable T currentData);
 
     /**
      * Perform the migration. Implementations should be idempotent since this may be called
@@ -64,8 +63,7 @@ public interface RxDataMigration<T> {
      *                    Nullable if the type used with DataStore is Nullable.
      * @return The migrated data.
      */
-    @NonNull
-    Single<T> migrate(@Nullable T currentData);
+    @NonNull Single<T> migrate(@Nullable T currentData);
 
     /**
      * Clean up any old state/data that was migrated into the DataStore. This will not be called
@@ -74,6 +72,5 @@ public interface RxDataMigration<T> {
      * result in DataMigrations being attempted again. This method may be run multiple times when
      * any failure is encountered.
      */
-    @NonNull
-    Completable cleanUp();
+    @NonNull Completable cleanUp();
 }

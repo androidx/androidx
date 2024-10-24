@@ -27,6 +27,8 @@ import androidx.datastore.core.DataMigration;
 import androidx.datastore.migrations.SharedPreferencesView;
 import androidx.test.core.app.ApplicationProvider;
 
+import io.reactivex.rxjava3.core.Single;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,8 +36,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-
-import io.reactivex.rxjava3.core.Single;
 
 public class RxSharedPreferencesMigrationTest {
     @Rule

@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.datastore.preferences.core.MutablePreferences;
 import androidx.datastore.preferences.core.Preferences;
@@ -33,6 +32,7 @@ import androidx.test.core.app.ApplicationProvider;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -126,21 +126,18 @@ public class RxPreferencesDataStoreBuilderTest {
     @Test
     public void testMigrationsAreInstalledAndRun() throws Exception {
         RxDataMigration<Preferences> plusOneMigration = new RxDataMigration<Preferences>() {
-            @NonNull
             @Override
-            public Single<Boolean> shouldMigrate(@NonNull Preferences currentData) {
+            public @NonNull Single<Boolean> shouldMigrate(@NonNull Preferences currentData) {
                 return Single.just(true);
             }
 
-            @NonNull
             @Override
-            public Single<Preferences> migrate(@NonNull Preferences currentData) {
+            public @NonNull Single<Preferences> migrate(@NonNull Preferences currentData) {
                 return incrementInteger(currentData);
             }
 
-            @NonNull
             @Override
-            public Completable cleanUp() {
+            public @NonNull Completable cleanUp() {
                 return Completable.complete();
             }
         };
