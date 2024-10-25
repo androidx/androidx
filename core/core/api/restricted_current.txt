@@ -570,7 +570,8 @@ package androidx.core.app {
     method public String? getShortcutId();
     method public boolean isNotificationSuppressed();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setFlags(int);
-    method public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
+    method public static android.app.Notification.BubbleMetadata? toPlatform(android.content.Context, androidx.core.app.NotificationCompat.BubbleMetadata?);
+    method @Deprecated public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
   }
 
   public static final class NotificationCompat.BubbleMetadata.Builder {
@@ -1010,7 +1011,8 @@ package androidx.core.app {
     method public boolean isBot();
     method public boolean isImportant();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String resolveToLegacyUri();
-    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();
+    method @Deprecated @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson(android.content.Context);
     method public androidx.core.app.Person.Builder toBuilder();
     method public android.os.Bundle toBundle();
     method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.PersistableBundle toPersistableBundle();
@@ -1049,7 +1051,8 @@ package androidx.core.app {
     method public void setEnabled(boolean);
     method public void setShouldShowIcon(boolean);
     method public boolean shouldShowIcon();
-    method @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
+    method @Deprecated @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
+    method @RequiresApi(26) public android.app.RemoteAction toRemoteAction(android.content.Context);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(4) public android.app.PendingIntent mActionIntent;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(3) public CharSequence mContentDescription;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(5) public boolean mEnabled;

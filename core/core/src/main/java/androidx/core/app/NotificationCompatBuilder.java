@@ -120,11 +120,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     ((NotificationCompat.CallStyle) b.mStyle).getActionsListWithSystemActions();
             // Adds the actions to the builder in the proper order.
             for (NotificationCompat.Action action : actionsList) {
-                addAction(action);
+                addAction(mContext, action);
             }
         } else {
             for (NotificationCompat.Action action : b.mActions) {
-                addAction(action);
+                addAction(mContext, action);
             }
         }
 
@@ -366,13 +366,13 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         return n;
     }
 
-    private void addAction(NotificationCompat.Action action) {
+    private void addAction(Context context, NotificationCompat.Action action) {
         if (Build.VERSION.SDK_INT >= 20) {
             Notification.Action.Builder actionBuilder;
             IconCompat iconCompat = action.getIconCompat();
             if (Build.VERSION.SDK_INT >= 23) {
                 actionBuilder = Api23Impl.createBuilder(
-                        iconCompat != null ? iconCompat.toIcon() : null, action.getTitle(),
+                        iconCompat != null ? iconCompat.toIcon(context) : null, action.getTitle(),
                         action.getActionIntent());
             } else {
                 actionBuilder = Api20Impl.createBuilder(

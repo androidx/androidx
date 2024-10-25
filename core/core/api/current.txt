@@ -511,7 +511,8 @@ package androidx.core.app {
     method public android.app.PendingIntent? getIntent();
     method public String? getShortcutId();
     method public boolean isNotificationSuppressed();
-    method public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
+    method public static android.app.Notification.BubbleMetadata? toPlatform(android.content.Context, androidx.core.app.NotificationCompat.BubbleMetadata?);
+    method @Deprecated public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
   }
 
   public static final class NotificationCompat.BubbleMetadata.Builder {
@@ -941,7 +942,8 @@ package androidx.core.app {
     method public void setEnabled(boolean);
     method public void setShouldShowIcon(boolean);
     method public boolean shouldShowIcon();
-    method @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
+    method @Deprecated @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
+    method @RequiresApi(26) public android.app.RemoteAction toRemoteAction(android.content.Context);
   }
 
   public final class RemoteInput {
