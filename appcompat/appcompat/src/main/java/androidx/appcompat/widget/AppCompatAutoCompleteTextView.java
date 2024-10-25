@@ -374,4 +374,12 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
     }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        int threshold = getThreshold();
+        setThreshold(Integer.MAX_VALUE);
+        super.onRestoreInstanceState(state);
+        setThreshold(threshold);
+    }
 }
