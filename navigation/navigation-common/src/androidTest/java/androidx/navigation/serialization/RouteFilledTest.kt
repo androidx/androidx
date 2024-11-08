@@ -841,6 +841,32 @@ class RouteFilledTest {
             }
         assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo("$PATH_SERIAL_NAME")
     }
+
+    @Test
+    fun encodeEnumList() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: List<TestEnum>)
+
+        val clazz = TestClass(listOf(TestEnum.ONE, TestEnum.TWO))
+        val arg =
+            navArgument("arg") {
+                type = InternalNavType.EnumListType(TestEnum::class.java)
+                nullable = false
+            }
+        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo("$PATH_SERIAL_NAME?arg=ONE&arg=TWO")
+    }
+
+    @Test
+    fun encodeEnumListNullable() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: List<TestEnum>?)
+
+        val clazz = TestClass(null)
+        val arg =
+            navArgument("arg") {
+                type = InternalNavType.EnumListType(TestEnum::class.java)
+                nullable = true
+            }
+        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo(PATH_SERIAL_NAME)
+    }
 }
 
 private fun <T : Any> assertThatRouteFilledFrom(

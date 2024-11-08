@@ -653,6 +653,34 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToEnumList() {
+        @Serializable class TestClass(val arg: List<TestEnum>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.EnumListType(TestEnum::class.java)
+                nullable = false
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToEnumListNullable() {
+        @Serializable class TestClass(val arg: List<TestEnum>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.EnumListType(TestEnum::class.java)
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToParcelable() {
         @Serializable
         class TestParcelable : Parcelable {
