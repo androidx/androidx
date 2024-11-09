@@ -22,7 +22,7 @@ plugins {
     id "playground"
 }
 
-apply from: "../../buildSrc/ndk.gradle"
+apply from: "../../../buildSrc/ndk.gradle"
 
 rootProject.name = "compose-runtime"
 
