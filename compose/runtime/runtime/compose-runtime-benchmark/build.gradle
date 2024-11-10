@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation("androidx.activity:activity:1.2.0")
     androidTestImplementation(project(":activity:activity-compose"))
     // old version of common-java8 conflicts with newer version, because both have
