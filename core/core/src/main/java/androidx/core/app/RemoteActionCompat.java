@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
+import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 
@@ -189,12 +190,27 @@ public final class RemoteActionCompat implements VersionedParcelable {
      * Convert this compat object to {@link RemoteAction} object.
      *
      * @return {@link RemoteAction} object
+     *
+     * @deprecated Use {@link #toRemoteAction(Context)} instead.
      */
-    @SuppressWarnings("deprecation")
     @RequiresApi(26)
     @NonNull
+    @Deprecated
     public RemoteAction toRemoteAction() {
-        RemoteAction action = Api26Impl.createRemoteAction(mIcon.toIcon(), mTitle,
+        //noinspection DataFlowIssue
+        return toRemoteAction(null);
+    }
+
+    /**
+     * Convert this compat object to {@link RemoteAction} object.
+     *
+     * @param context A {@link Context} that will be used to get icon from mIcon.
+     * @return {@link RemoteAction} object
+     */
+    @RequiresApi(26)
+    @NonNull
+    public RemoteAction toRemoteAction(@NonNull Context context) {
+        RemoteAction action = Api26Impl.createRemoteAction(mIcon.toIcon(context), mTitle,
                 mContentDescription, mActionIntent);
         Api26Impl.setEnabled(action, isEnabled());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
