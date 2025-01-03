@@ -44,7 +44,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation(libs.kotlinCoroutinesCore)
+                api(libs.kotlinCoroutinesCore)
                 implementation(project(":collection:collection"))
             }
         }
@@ -78,7 +78,6 @@ androidXMultiplatform {
             dependsOn(nonEmulatorJvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
             }
         }
 
