@@ -38,9 +38,8 @@ import androidx.navigation.Navigator
  * @return a mutable state of the current back stack entry
  */
 @Composable
-public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
-    return currentBackStackEntryFlow.collectAsState(null)
-}
+public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> =
+    currentBackStackEntryFlow.collectAsState(null)
 
 /**
  * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
