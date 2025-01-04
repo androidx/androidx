@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
@@ -2954,6 +2955,15 @@ public open class NavController(
     public val currentBackStackEntryFlow: Flow<NavBackStackEntry> =
         _currentBackStackEntryFlow.asSharedFlow()
 
+    private fun List<NavBackStackEntry>.getPreviousBackStackEntry(): NavBackStackEntry? {
+        val iterator = reversed().iterator()
+        // throw the topmost destination away.
+        if (iterator.hasNext()) {
+            iterator.next()
+        }
+        return iterator.asSequence().firstOrNull { entry -> entry.destination !is NavGraph }
+    }
+
     /**
      * The previous visible [NavBackStackEntry].
      *
@@ -2963,14 +2973,17 @@ public open class NavController(
      *   two visible entries
      */
     public open val previousBackStackEntry: NavBackStackEntry?
-        get() {
-            val iterator = backQueue.reversed().iterator()
-            // throw the topmost destination away.
-            if (iterator.hasNext()) {
-                iterator.next()
-            }
-            return iterator.asSequence().firstOrNull { entry -> entry.destination !is NavGraph }
-        }
+        get() = backQueue.getPreviousBackStackEntry()
+
+    /**
+     * A [Flow] that will emit the previous visible [NavBackStackEntry] whenever it changes.
+     *
+     * This skips over any [NavBackStackEntry] that is associated with a [NavGraph].
+     *
+     * If the back stack has less than two visible entries, no item will be emitted.
+     */
+    public val previousBackStackEntryFlow: Flow<NavBackStackEntry?> =
+        currentBackStack.map { it.getPreviousBackStackEntry() }
 
     public companion object {
         private const val TAG = "NavController"
