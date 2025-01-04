@@ -2963,14 +2963,10 @@ public open class NavController(
      *   two visible entries
      */
     public open val previousBackStackEntry: NavBackStackEntry?
-        get() {
-            val iterator = backQueue.reversed().iterator()
+        get() = backQueue.asReversed().asSequence()
             // throw the topmost destination away.
-            if (iterator.hasNext()) {
-                iterator.next()
-            }
-            return iterator.asSequence().firstOrNull { entry -> entry.destination !is NavGraph }
-        }
+            .drop(1)
+            .firstOrNull { entry -> entry.destination !is NavGraph }
 
     public companion object {
         private const val TAG = "NavController"
