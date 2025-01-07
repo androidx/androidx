@@ -138,25 +138,25 @@ internal fun PredictiveBackNavHost(
 
     // Use PredictiveBackHandler instead of BackHandler on API >= 35
     var progress by remember { mutableFloatStateOf(0f) }
-    var inPredictiveBack by remember { mutableStateOf(false) }
+    var isPredictiveBack by remember { mutableStateOf(false) }
     val transitionState = remember { SeekableTransitionState(current) }
     PredictiveBackHandler(userSwipeEnabled && backStack.size > 1) { backEvent ->
-        inPredictiveBack = true
+        isPredictiveBack = true
         progress = 0f
         try {
             backEvent.collect { progress = it.progress }
             Animatable(progress).animateTo(1f, TRANSITION_ANIMATION_SPEC) { progress = value }
-            inPredictiveBack = false
+            isPredictiveBack = false
             navigateBack()
         } catch (e: CancellationException) {
-            inPredictiveBack = false
+            isPredictiveBack = false
         }
     }
 
     val zIndices = remember { mutableObjectFloatMapOf<String>() }
     val transition = rememberTransition(transitionState, label = "entry")
 
-    if (inPredictiveBack && previous != null) {
+    if (isPredictiveBack && previous != null) {
         LaunchedEffect(progress) { transitionState.seekTo(progress, previous) }
     } else {
         LaunchedEffect(current) {
@@ -188,17 +188,17 @@ internal fun PredictiveBackNavHost(
             val targetZIndex =
                 when {
                     targetState.id == initialState.id -> initialZIndex
-                    wearNavigator.isPop.value || inPredictiveBack ->
+                    wearNavigator.isPop.value || isPredictiveBack ->
                         initialZIndex - 1f // Going to the previous page, so zIndex - 1
                     else -> initialZIndex + 1f // Going to the next page, so zIndex + 1
                 }.also { zIndices[targetState.id] = it }
 
             ContentTransform(
                 targetContentEnter =
-                    if (wearNavigator.isPop.value || inPredictiveBack) POP_ENTER_TRANSITION
+                    if (wearNavigator.isPop.value || isPredictiveBack) POP_ENTER_TRANSITION
                     else ENTER_TRANSITION,
                 initialContentExit =
-                    if (wearNavigator.isPop.value || inPredictiveBack) POP_EXIT_TRANSITION
+                    if (wearNavigator.isPop.value || isPredictiveBack) POP_EXIT_TRANSITION
                     else EXIT_TRANSITION,
                 targetContentZIndex = targetZIndex,
                 sizeTransform = null
@@ -212,7 +212,7 @@ internal fun PredictiveBackNavHost(
         // part of visible entries since it was cleared from the back stack and is not
         // animating.
         val currentEntry =
-            if (wearNavigator.isPop.value || inPredictiveBack) {
+            if (wearNavigator.isPop.value || isPredictiveBack) {
                 // We have to do this because the previous entry might not show up in backStack
                 it
             } else {

@@ -510,7 +510,7 @@ public fun NavHost(
     val currentBackStack by composeNavigator.backStack.collectAsState()
 
     var progress by remember { mutableFloatStateOf(0f) }
-    var inPredictiveBack by remember { mutableStateOf(false) }
+    var isPredictiveBack by remember { mutableStateOf(false) }
     PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
         var currentBackStackEntry: NavBackStackEntry? = null
         if (currentBackStack.size > 1) {
@@ -523,17 +523,17 @@ public fun NavHost(
         try {
             backEvent.collect {
                 if (currentBackStack.size > 1) {
-                    inPredictiveBack = true
+                    isPredictiveBack = true
                     progress = it.progress
                 }
             }
             if (currentBackStack.size > 1) {
-                inPredictiveBack = false
+                isPredictiveBack = false
                 composeNavigator.popBackStack(currentBackStackEntry!!, false)
             }
         } catch (e: CancellationException) {
             if (currentBackStack.size > 1) {
-                inPredictiveBack = false
+                isPredictiveBack = false
             }
         }
     }
@@ -565,7 +565,7 @@ public fun NavHost(
         val finalEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
             val targetDestination = targetState.destination as ComposeNavigator.Destination
 
-            if (composeNavigator.isPop.value || inPredictiveBack) {
+            if (composeNavigator.isPop.value || isPredictiveBack) {
                 targetDestination.hierarchy.firstNotNullOfOrNull { destination ->
                     destination.createPopEnterTransition(this)
                 } ?: popEnterTransition.invoke(this)
@@ -579,7 +579,7 @@ public fun NavHost(
         val finalExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
             val initialDestination = initialState.destination as ComposeNavigator.Destination
 
-            if (composeNavigator.isPop.value || inPredictiveBack) {
+            if (composeNavigator.isPop.value || isPredictiveBack) {
                 initialDestination.hierarchy.firstNotNullOfOrNull { destination ->
                     destination.createPopExitTransition(this)
                 } ?: popExitTransition.invoke(this)
@@ -615,7 +615,7 @@ public fun NavHost(
 
         val transition = rememberTransition(transitionState, label = "entry")
 
-        if (inPredictiveBack) {
+        if (isPredictiveBack) {
             LaunchedEffect(progress) {
                 val previousEntry = currentBackStack[currentBackStack.size - 2]
                 transitionState.seekTo(progress, previousEntry)
@@ -664,7 +664,7 @@ public fun NavHost(
                     val targetZIndex =
                         when {
                             targetState.id == initialState.id -> initialZIndex
-                            composeNavigator.isPop.value || inPredictiveBack -> initialZIndex - 1f
+                            composeNavigator.isPop.value || isPredictiveBack -> initialZIndex - 1f
                             else -> initialZIndex + 1f
                         }.also { zIndices[targetState.id] = it }
 
@@ -688,7 +688,7 @@ public fun NavHost(
             // AnimatedContent will just skip attempting to transition the old entry.
             // See https://issuetracker.google.com/238686802
             val currentEntry =
-                if (inPredictiveBack) {
+                if (isPredictiveBack) {
                     // We have to do this because the previous entry does not show up in
                     // visibleEntries
                     // even if we prepare it above as part of onBackStackChangeStarted
