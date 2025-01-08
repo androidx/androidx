@@ -871,7 +871,7 @@ var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
 /**
  * Whether this semantics node is a traversal group.
  *
- * See https://developer.android.com/jetpack/compose/accessibility#modify-traversal-order
+ * See https://developer.android.com/develop/ui/compose/accessibility/traversal
  *
  * @see SemanticsProperties.IsTraversalGroup
  */
