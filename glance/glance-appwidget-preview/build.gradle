@@ -33,7 +33,6 @@ plugins {
 dependencies {
 
     api(libs.kotlinStdlib)
-    api(libs.kotlinReflect)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
