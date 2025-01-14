@@ -247,8 +247,9 @@ class LimitOffsetPagingSourceTest {
             dao.addAllItems(ITEMS_LIST)
             val result = pager.refresh(initialKey = 40) as LoadResult.Page
 
-            // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
-            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(40, 50))
+            // initial loadSize = 15, but limited by id < 50, should treat 50 as end and
+            // load items 35 - 50
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(35, 50))
             // should have 50 items fulfilling condition of id < 50 (TestItem id 0 - 49)
             assertThat(pagingSource.itemCount).isEqualTo(50)
         }
@@ -572,6 +573,36 @@ class LimitOffsetPagingSourceTest {
         assertThat(result.itemsAfter).isEqualTo(0)
         // no append can be triggered
         assertThat(result.prevKey).isEqualTo(25)
+        assertThat(result.nextKey).isEqualTo(null)
+    }
+
+    @Test
+    fun load_refreshKeyOnLastPage() = runPagingSourceTest { pager, _ ->
+        dao.addAllItems(ITEMS_LIST)
+        pager.refresh(initialKey = 70)
+        dao.deleteTestItems(80, 100)
+
+        // assume user was viewing last item of the refresh load with anchorPosition = 85,
+        // initialLoadSize = 15. This mimics how getRefreshKey() calculates refresh key.
+        val refreshKey = 85 - (15 / 2)
+
+        val pagingSource2 = LimitOffsetPagingSourceImpl(database)
+        val pager2 = TestPager(CONFIG, pagingSource2)
+        val result = pager2.refresh(initialKey = refreshKey) as LoadResult.Page
+
+        // database should only have 80 items left. Refresh key should be moved back at this point
+        // to ensure a full load. (greater than item count - loadSize after deletion)
+        assertThat(pagingSource2.itemCount).isEqualTo(80)
+        // ensure that paging source can handle invalid refresh key properly
+        // should load last page with items 65 - 80
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(65, 80))
+
+        // should account for updated item count to return correct itemsBefore, itemsAfter,
+        // prevKey, nextKey
+        assertThat(result.itemsBefore).isEqualTo(65)
+        assertThat(result.itemsAfter).isEqualTo(0)
+        // no append can be triggered
+        assertThat(result.prevKey).isEqualTo(65)
         assertThat(result.nextKey).isEqualTo(null)
     }
 

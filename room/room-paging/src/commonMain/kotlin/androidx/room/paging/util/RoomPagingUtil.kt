@@ -83,7 +83,7 @@ public fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
             }
         is Append -> key
         is Refresh ->
-            if (key >= itemCount) {
+            if (key >= itemCount - params.loadSize) {
                 maxOf(0, itemCount - params.loadSize)
             } else {
                 key
