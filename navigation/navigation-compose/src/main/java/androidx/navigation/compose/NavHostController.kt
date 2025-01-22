@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 
@@ -41,6 +42,21 @@ import androidx.navigation.Navigator
 public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
     return currentBackStackEntryFlow.collectAsState(null)
 }
+
+/**
+ * Gets the previous visible navigation back stack entry as a [MutableState]. When the given
+ * navController changes the back stack due to a [NavController.navigate] or
+ * [NavController.popBackStack] this will trigger a recompose and return the previous visible entry
+ * on the back stack.
+ *
+ * This skips over any [NavBackStackEntry] that is associated with a [NavGraph].
+ *
+ * @return a mutable state of the previous visible back stack entry or null if the back stack has
+ * less than two visible entries
+ */
+@Composable
+public fun NavController.previousBackStackEntryAsState(): State<NavBackStackEntry?> =
+    previousBackStackEntryFlow.collectAsState(null)
 
 /**
  * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
