@@ -67,11 +67,8 @@ public abstract class BaseActivityPose implements ActivityPose {
         // parent-child entity hierarchy.
 
         // Compute the inverse scale of the destination entity in the activity space.
-
-        // We assume that the world space root is the activity space root.
         BaseActivityPose baseDestination = (BaseActivityPose) destination;
-        Vector3 destinationScale = baseDestination.getWorldSpaceScale();
-
+        Vector3 destinationScale = baseDestination.getActivitySpaceScale();
         Vector3 inverseDestinationScale =
                 new Vector3(
                         1f / destinationScale.getX(),
@@ -98,7 +95,7 @@ public abstract class BaseActivityPose implements ActivityPose {
         return destinationToLocal.compose(
                 new Pose(
                         pose.getTranslation()
-                                .times(this.getWorldSpaceScale().times(inverseDestinationScale)),
+                                .times(this.getActivitySpaceScale().times(inverseDestinationScale)),
                         pose.getRotation()));
     }
 }

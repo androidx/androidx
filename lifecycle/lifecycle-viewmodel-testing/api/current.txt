@@ -10,7 +10,7 @@ package androidx.lifecycle.viewmodel.testing {
     method public void close();
     method public VM getViewModel();
     method public void recreate();
-    property public final VM viewModel;
+    property public VM viewModel;
   }
 
   public final class ViewModelScenarioKt {

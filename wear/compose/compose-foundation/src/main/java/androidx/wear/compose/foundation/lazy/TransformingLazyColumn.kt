@@ -26,10 +26,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.layout.LazyLayout
-import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
-import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.getDefaultLazyLayoutKey
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -49,7 +45,11 @@ import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.foundation.lazy.layout.LazyLayout
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
+import androidx.wear.compose.foundation.lazy.layout.getDefaultLazyLayoutKey
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
@@ -229,7 +229,9 @@ internal fun TransformingLazyColumnImpl(
             Orientation.Vertical,
             reverseScrolling = false
         )
-    val semanticState = remember(state) { TransformingLazyColumnSemanticState(state = state) }
+
+    val semanticState = remember(state) { TransformingLazyColumnSemanticState(state) }
+
     // TODO: b/388191915 - Migrate to use rememberOverscrollEffect when updated to 1.8.0.
     @Suppress("DEPRECATION") val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
@@ -237,6 +239,7 @@ internal fun TransformingLazyColumnImpl(
         itemProvider = itemProviderLambda,
         modifier =
             modifier
+                .then(state.remeasurementModifier)
                 .then(state.animator.modifier)
                 .then(
                     if (rotaryScrollableBehavior != null && userScrollEnabled)
@@ -246,7 +249,6 @@ internal fun TransformingLazyColumnImpl(
                         )
                     else Modifier
                 )
-                .then(state.remeasurementModifier)
                 .lazyLayoutSemantics(
                     itemProviderLambda = itemProviderLambda,
                     state = semanticState,
@@ -263,11 +265,11 @@ internal fun TransformingLazyColumnImpl(
                     flingBehavior = flingBehavior,
                     overscrollEffect = overscrollEffect,
                 ),
-        measurePolicy = measurePolicy
+        measurePolicy = measurePolicy,
+        prefetchState = state.prefetchState,
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TransformingLazyColumnItemProvider(
     val intervalContent: LazyLayoutIntervalContent<TransformingLazyColumnInterval>,
     val state: TransformingLazyColumnState,
@@ -278,7 +280,7 @@ internal class TransformingLazyColumnItemProvider(
 
     @Composable
     override fun Item(index: Int, key: Any) {
-        val reduceMotionEnabled = LocalReduceMotion.current.enabled()
+        val reduceMotionEnabled = LocalReduceMotion.current
         val itemScope =
             remember(index, reduceMotionEnabled) {
                 TransformingLazyColumnItemScopeImpl(
@@ -315,7 +317,6 @@ internal class TransformingLazyColumnItemProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class NearestRangeKeyIndexMap(
     nearestRange: IntRange,
     intervalContent: LazyLayoutIntervalContent<*>
@@ -349,6 +350,7 @@ internal class NearestRangeKeyIndexMap(
                         val end = minOf(last, it.startIndex + it.size - 1)
                         for (i in start..end) {
                             val key =
+                                // TODO: Use getDefaultLazyLayoutKey
                                 keyFactory?.invoke(i - it.startIndex) ?: getDefaultLazyLayoutKey(i)
                             map[key] = i
                             keys[i - keysStartIndex] = key

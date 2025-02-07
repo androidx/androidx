@@ -74,7 +74,7 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
         return if (pagingSourceTypeName == PagingTypeNames.PAGING_SOURCE) {
             val convertRowsOverrideInfo =
                 ConvertRowsOverrideInfo(
-                    method = convertExecutableElement,
+                    function = convertExecutableElement,
                     continuationParamName = convertExecutableElement.parameters.last().name,
                     owner =
                         context.processingEnv.getDeclaredType(roomPagingSourceTypeElement, typeArg),
@@ -124,10 +124,12 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
     }
 }
 
-/** Data class used to store necessary info when generating the suspending `convertRows` method. */
+/**
+ * Data class used to store necessary info when generating the suspending `convertRows` function.
+ */
 class ConvertRowsOverrideInfo(
     val continuationParamName: String,
-    val method: XMethodElement,
+    val function: XMethodElement,
     val owner: XType,
     val returnTypeName: XTypeName
 )

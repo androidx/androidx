@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,8 +33,6 @@ plugins {
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
-    androidTestImplementation(project(":tracing:tracing-perfetto"))
-    androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
@@ -56,5 +54,5 @@ android {
 }
 
 androidx {
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
 }

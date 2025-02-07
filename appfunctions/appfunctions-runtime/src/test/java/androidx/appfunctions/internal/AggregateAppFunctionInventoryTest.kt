@@ -19,6 +19,7 @@ package androidx.appfunctions.internal
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -73,19 +74,17 @@ class AggregateAppFunctionInventoryTest {
                     AppFunctionMetadata(
                         id = "androix.appfunctions.internal#test1",
                         isEnabledByDefault = false,
-                        isRestrictToTrustedCaller = false,
-                        displayNameRes = 0,
                         schema = null,
                         parameters = emptyList(),
                         response =
                             AppFunctionResponseMetadata(
-                                isNullable = false,
-                                dataType =
-                                    AppFunctionDataTypeMetadata(
-                                        type = AppFunctionDataTypeMetadata.UNIT
-                                    )
+                                valueType =
+                                    AppFunctionPrimitiveTypeMetadata(
+                                        type = AppFunctionDataTypeMetadata.TYPE_UNIT,
+                                        isNullable = false
+                                    ),
                             ),
-                        components = AppFunctionComponentsMetadata(dataTypes = emptyList())
+                        components = AppFunctionComponentsMetadata()
                     )
             )
     }
@@ -97,19 +96,17 @@ class AggregateAppFunctionInventoryTest {
                     AppFunctionMetadata(
                         id = "androix.appfunctions.internal#test2",
                         isEnabledByDefault = false,
-                        isRestrictToTrustedCaller = false,
-                        displayNameRes = 0,
                         schema = null,
                         parameters = emptyList(),
                         response =
                             AppFunctionResponseMetadata(
-                                isNullable = false,
-                                dataType =
-                                    AppFunctionDataTypeMetadata(
-                                        type = AppFunctionDataTypeMetadata.UNIT
-                                    )
+                                valueType =
+                                    AppFunctionPrimitiveTypeMetadata(
+                                        type = AppFunctionDataTypeMetadata.TYPE_UNIT,
+                                        isNullable = false
+                                    ),
                             ),
-                        components = AppFunctionComponentsMetadata(dataTypes = emptyList())
+                        components = AppFunctionComponentsMetadata()
                     )
             )
     }

@@ -24,8 +24,8 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DataClass
-import androidx.room.vo.FieldWithIndex
-import androidx.room.vo.Fields
+import androidx.room.vo.Properties
+import androidx.room.vo.PropertyWithIndex
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
 
@@ -33,7 +33,7 @@ class EntityUpdateAdapterWriter
 private constructor(
     val tableName: String,
     val dataClass: DataClass,
-    val primaryKeyFields: Fields,
+    val primaryKeyFields: Properties,
     val onConflict: String
 ) {
     companion object {
@@ -41,7 +41,7 @@ private constructor(
             EntityUpdateAdapterWriter(
                 tableName = entity.tableName,
                 dataClass = entity.dataClass,
-                primaryKeyFields = entity.primaryKey.fields,
+                primaryKeyFields = entity.primaryKey.properties,
                 onConflict = onConflict
             )
     }
@@ -89,27 +89,27 @@ private constructor(
                             addParameter(stmtParam, SQLiteDriverTypeNames.STATEMENT)
                             val entityParam = "entity"
                             addParameter(entityParam, dataClass.typeName)
-                            val mappedField = FieldWithIndex.byOrder(dataClass.fields)
+                            val mappedField = PropertyWithIndex.byOrder(dataClass.properties)
                             val bindScope = CodeGenScope(writer = typeWriter)
-                            FieldReadWriteWriter.bindToStatement(
+                            PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,
-                                fieldsWithIndices = mappedField,
+                                propertiesWithIndices = mappedField,
                                 scope = bindScope
                             )
-                            val pkeyStart = dataClass.fields.size
+                            val pkeyStart = dataClass.properties.size
                             val mappedPrimaryKeys =
                                 primaryKeyFields.mapIndexed { index, field ->
-                                    FieldWithIndex(
-                                        field = field,
+                                    PropertyWithIndex(
+                                        property = field,
                                         indexVar = "${pkeyStart + index + 1}",
                                         alwaysExists = true
                                     )
                                 }
-                            FieldReadWriteWriter.bindToStatement(
+                            PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,
-                                fieldsWithIndices = mappedPrimaryKeys,
+                                propertiesWithIndices = mappedPrimaryKeys,
                                 scope = bindScope
                             )
                             addCode(bindScope.generate())

@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.database.Cursor;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -48,6 +47,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

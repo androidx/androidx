@@ -46,7 +46,7 @@ internal class BaseVisibilityElement(
     val dynamicVisibility: DynamicBool? = null
 ) : LayoutModifier.Element {
     @SuppressLint("ProtoLayoutMinSchema")
-    fun foldIn(initial: BoolProp.Builder?): BoolProp.Builder =
+    fun mergeTo(initial: BoolProp.Builder?): BoolProp.Builder =
         (initial ?: BoolProp.Builder(visibility)).apply {
             dynamicVisibility?.let { setDynamicValue(it) }
         }

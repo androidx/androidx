@@ -25,7 +25,7 @@ import androidx.build.AndroidXConfig
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -178,7 +178,7 @@ androidXMultiplatform {
         configureTargets(requiredNativeTargets)
     }
 
-    android() {
+    androidTarget() {
         addNativeLibrariesToJniLibs(it, jvmArtJniImplementation)
     }
     ios()
@@ -247,7 +247,7 @@ android {
 
 androidx {
     name = "SQLite Bundled Integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "The implementation of SQLite library using the bundled SQLite."
     kotlinTarget = KotlinTarget.KOTLIN_2_0

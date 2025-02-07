@@ -65,7 +65,7 @@ class LazyListSlotsReuseTest {
             }
         }
 
-        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
         rule.onNodeWithTag("0").assertIsDisplayed()
 
         rule.runOnIdle { runBlocking { state.scrollToItem(1) } }
@@ -86,8 +86,8 @@ class LazyListSlotsReuseTest {
             }
         }
 
-        val id0 = rule.onNodeWithTag("0").semanticsId()
-        val id1 = rule.onNodeWithTag("1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
+        val id1 = rule.onNodeWithTag("1").fetchSemanticsNode().id
         rule.onNodeWithTag("0").assertIsDisplayed()
         rule.onNodeWithTag("1").assertIsDisplayed()
 
@@ -112,7 +112,7 @@ class LazyListSlotsReuseTest {
         // Semantics IDs must be fetched before scrolling.
         val deactivatedIds = mutableListOf<Int>()
         repeat(DefaultMaxItemsToRetain) {
-            deactivatedIds.add(rule.onNodeWithTag("$it").semanticsId())
+            deactivatedIds.add(rule.onNodeWithTag("$it").fetchSemanticsNode().id)
         }
 
         rule.runOnIdle { runBlocking { state.scrollToItem(DefaultMaxItemsToRetain + 1) } }
@@ -136,8 +136,8 @@ class LazyListSlotsReuseTest {
             }
         }
 
-        val id0 = rule.onNodeWithTag("0").semanticsId()
-        val id1 = rule.onNodeWithTag("1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
+        val id1 = rule.onNodeWithTag("1").fetchSemanticsNode().id
         rule.onNodeWithTag("0").assertIsDisplayed()
         rule.onNodeWithTag("1").assertIsDisplayed()
 
@@ -183,7 +183,7 @@ class LazyListSlotsReuseTest {
         }
 
         // 3 should be visible at this point, so save its ID to check later
-        val id3 = rule.onNodeWithTag("3").semanticsId()
+        val id3 = rule.onNodeWithTag("3").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {
@@ -217,8 +217,8 @@ class LazyListSlotsReuseTest {
             }
         }
 
-        val id10 = rule.onNodeWithTag("10").semanticsId()
-        val id11 = rule.onNodeWithTag("11").semanticsId()
+        val id10 = rule.onNodeWithTag("10").fetchSemanticsNode().id
+        val id11 = rule.onNodeWithTag("11").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {
@@ -253,7 +253,7 @@ class LazyListSlotsReuseTest {
             }
         }
         // 8 should be visible at this point, so save its ID to check later
-        val id8 = rule.onNodeWithTag("8").semanticsId()
+        val id8 = rule.onNodeWithTag("8").fetchSemanticsNode().id
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(6) // 9 reused, buffer is [8]
@@ -314,8 +314,8 @@ class LazyListSlotsReuseTest {
         }
 
         // 2 and 3 should be visible at this point, so save its ID to check later
-        val id2 = rule.onNodeWithTag("2").semanticsId()
-        val id3 = rule.onNodeWithTag("3").semanticsId()
+        val id2 = rule.onNodeWithTag("2").fetchSemanticsNode().id
+        val id3 = rule.onNodeWithTag("3").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {
@@ -357,7 +357,7 @@ class LazyListSlotsReuseTest {
 
         val deactivatedIds = mutableListOf<Int>()
         for (i in 0 until visibleItemsCount) {
-            deactivatedIds.add(rule.onNodeWithTag("$i").semanticsId())
+            deactivatedIds.add(rule.onNodeWithTag("$i").fetchSemanticsNode().id)
             rule.onNodeWithTag("$i").assertIsDisplayed()
         }
         for (i in startOfType1 until startOfType1 + DefaultMaxItemsToRetain) {
@@ -398,8 +398,8 @@ class LazyListSlotsReuseTest {
             }
         }
 
-        val id0 = rule.onNodeWithTag("0").semanticsId()
-        val id1 = rule.onNodeWithTag("1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
+        val id1 = rule.onNodeWithTag("1").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {
@@ -434,4 +434,4 @@ class LazyListSlotsReuseTest {
     }
 }
 
-private val DefaultMaxItemsToRetain = 7
+private const val DefaultMaxItemsToRetain = 7

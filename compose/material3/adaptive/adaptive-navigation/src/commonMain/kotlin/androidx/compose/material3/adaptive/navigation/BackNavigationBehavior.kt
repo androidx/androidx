@@ -16,21 +16,32 @@
 
 package androidx.compose.material3.adaptive.navigation
 
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import kotlin.jvm.JvmInline
 
 /** A class to control how back navigation should behave in a [ThreePaneScaffoldNavigator]. */
+@ExperimentalMaterial3AdaptiveApi
 @JvmInline
 value class BackNavigationBehavior private constructor(private val description: String) {
     override fun toString(): String = this.description
 
     companion object {
-        /** Pop the latest destination from the backstack. */
+        /**
+         * Pop the latest destination from the backstack.
+         *
+         * Note: a multi-pane layout may create navigation backstacks that are not possible in a
+         * single-pane layout (e.g., navigating directly from one detail item to another). If the
+         * device size changes in the middle of the navigation, this [BackNavigationBehavior] may
+         * result in unintuitive behavior.
+         */
         val PopLatest = BackNavigationBehavior("PopLatest")
 
         /**
-         * Pop destinations from the backstack until there is a change in the scaffold value.
+         * Pop destinations from the backstack until there is a change in the scaffold value. In
+         * other words, back navigation forces a change in which pane(s) is/are shown.
          *
          * For example, in a single-pane layout, this will skip entries until the current
          * destination is a different [ThreePaneScaffoldRole]. In a multi-pane layout, this will
@@ -40,12 +51,9 @@ value class BackNavigationBehavior private constructor(private val description: 
 
         /**
          * Pop destinations from the backstack until there is a change in the current destination
-         * pane.
-         *
-         * In a single-pane layout, this should behave similarly to [PopUntilScaffoldValueChange].
-         * In a multi-pane layout, it is possible for both the current destination and previous
-         * destination to be showing at the same time, so this may not result in a visual change in
-         * the scaffold.
+         * pane. In other words, back navigation forces a change in which pane is currently
+         * considered "active", as determined by the `pane` of the current
+         * [ThreePaneScaffoldDestinationItem].
          */
         val PopUntilCurrentDestinationChange =
             BackNavigationBehavior("PopUntilCurrentDestinationChange")
@@ -56,6 +64,11 @@ value class BackNavigationBehavior private constructor(private val description: 
          * A "content change" is defined as either a change in the `contentKey` of the current
          * [ThreePaneScaffoldDestinationItem], or a change in the scaffold value (similar to
          * [PopUntilScaffoldValueChange]).
+         *
+         * Note: a multi-pane layout may create navigation backstacks that are not possible in a
+         * single-pane layout (e.g., navigating directly from one detail item to another). If the
+         * device size changes in the middle of the navigation, this [BackNavigationBehavior] may
+         * result in unintuitive behavior.
          */
         val PopUntilContentChange = BackNavigationBehavior("PopUntilContentChange")
     }

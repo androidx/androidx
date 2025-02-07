@@ -86,6 +86,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     if (ignoreListIteratorFilter.any { path.contains(it) } || !isPublished) {
                         disable.add("ListIterator")
                     }
+
+                    // b/333784604 Disable ConfigurationScreenWidthHeight for wear libraries, it
+                    // does not apply to wear
+                    if (path.startsWith(":wear:")) {
+                        disable.add("ConfigurationScreenWidthHeight")
+                    }
                 }
             }
 

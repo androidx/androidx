@@ -1,0 +1,93 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.tracing.benchmark.perfetto
+
+import android.os.Build
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
+import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.benchmark.BASIC_STRING
+import androidx.tracing.benchmark.LARGE_STRING_POOL
+import androidx.tracing.perfetto.PerfettoSdkTrace
+import junit.framework.TestCase.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@OptIn(ExperimentalBenchmarkConfigApi::class)
+@LargeTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+/**
+ * Measures overhead of Perfetto SDK tracing [androidx.tracing.perfetto].
+ *
+ * NOTE: benchmark behavior isn't consistent with other tracing benchmarks, this should be addressed
+ */
+class PerfettoSdkBenchmark {
+    private val targetPackage =
+        InstrumentationRegistry.getInstrumentation().targetContext.packageName
+
+    @get:Rule val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
+
+    @Before
+    fun setUp() = assumeTrue(isAbiSupported()) // We need all tests to work to compare their results
+
+    private fun enablePerfettoSdk() {
+        PerfettoCapture()
+            .enableAndroidxTracingPerfetto(
+                PerfettoSdkConfig(targetPackage, InitialProcessState.Alive)
+            )
+            .let { (resultCode, _) ->
+                assertTrue(
+                    "Ensuring Perfetto SDK is enabled",
+                    resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                )
+            }
+    }
+
+    /** Measuring overhead of [androidx.tracing.perfetto.PerfettoSdkTrace]. */
+    @Test
+    fun beginEnd_basic() {
+        enablePerfettoSdk()
+        benchmarkRule.measureRepeated {
+            PerfettoSdkTrace.beginSection(BASIC_STRING)
+            PerfettoSdkTrace.endSection()
+        }
+    }
+
+    /** Measuring overhead of [androidx.tracing.perfetto.PerfettoSdkTrace]. */
+    @Test
+    fun beginEnd_largeStringPool() {
+        enablePerfettoSdk()
+        var ix = 0
+        benchmarkRule.measureRepeated {
+            PerfettoSdkTrace.beginSection(LARGE_STRING_POOL[ix++ % LARGE_STRING_POOL.size])
+            PerfettoSdkTrace.endSection()
+        }
+    }
+}

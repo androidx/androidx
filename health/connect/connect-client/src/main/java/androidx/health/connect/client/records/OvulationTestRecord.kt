@@ -30,7 +30,7 @@ public class OvulationTestRecord(
      * field.
      */
     @property:Results public val result: Int,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

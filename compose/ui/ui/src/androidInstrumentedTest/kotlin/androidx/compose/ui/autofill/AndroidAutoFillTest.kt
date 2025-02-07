@@ -44,16 +44,16 @@ import org.junit.runner.RunWith
 class AndroidAutoFillTest {
     @get:Rule val rule = createComposeRule()
 
-    private var autofill: Autofill? = null
-    private lateinit var autofillTree: AutofillTree
+    private var autofill: @Suppress("Deprecation") Autofill? = null
+    private lateinit var autofillTree: @Suppress("Deprecation") AutofillTree
     private lateinit var ownerView: View
 
     @Before
     fun setup() {
         rule.setContent {
             ownerView = LocalView.current
-            autofill = LocalAutofill.current
-            autofillTree = LocalAutofillTree.current
+            autofill = @Suppress("Deprecation") LocalAutofill.current
+            autofillTree = @Suppress("Deprecation") LocalAutofillTree.current
         }
     }
 
@@ -81,6 +81,7 @@ class AndroidAutoFillTest {
         // Arrange.
         val viewStructure: ViewStructure = FakeViewStructure()
         val autofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = {},
                 autofillTypes = listOf(AutofillType.PersonFullName),
@@ -123,6 +124,7 @@ class AndroidAutoFillTest {
         val expectedValue = "PersonName"
         var autoFilledValue = ""
         val autofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = { autoFilledValue = it },
                 autofillTypes = listOf(AutofillType.PersonFullName),

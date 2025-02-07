@@ -18,7 +18,7 @@ package androidx.compose.runtime {
 
   public final class ActualAndroid_androidKt {
     method @Deprecated public static androidx.compose.runtime.MonotonicFrameClock getDefaultMonotonicFrameClock();
-    property @Deprecated public static final androidx.compose.runtime.MonotonicFrameClock DefaultMonotonicFrameClock;
+    property @Deprecated public static androidx.compose.runtime.MonotonicFrameClock DefaultMonotonicFrameClock;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Applier<N> {
@@ -44,7 +44,7 @@ package androidx.compose.runtime {
     method public boolean getHasAwaiters();
     method public void sendFrame(long timeNanos);
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
-    property public final boolean hasAwaiters;
+    property public boolean hasAwaiters;
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface Composable {
@@ -90,10 +90,10 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.Composable public static inline <T> T remember(Object?[] keys, kotlin.jvm.functions.Function0<? extends T> calculation);
     method @androidx.compose.runtime.Composable public static inline <T> T remember(kotlin.jvm.functions.Function0<? extends T> calculation);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionContext rememberCompositionContext();
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static final androidx.compose.runtime.Composer currentComposer;
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static final int currentCompositeKeyHash;
-    property @androidx.compose.runtime.Composable public static final androidx.compose.runtime.CompositionLocalContext currentCompositionLocalContext;
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static final androidx.compose.runtime.RecomposeScope currentRecomposeScope;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.Composer currentComposer;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ExplicitGroupsComposable public static int currentCompositeKeyHash;
+    property @androidx.compose.runtime.Composable public static androidx.compose.runtime.CompositionLocalContext currentCompositionLocalContext;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
   }
 
   @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
@@ -106,7 +106,7 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
-    property public final boolean isMovingNestedMovableContentEnabled;
+    property public boolean isMovingNestedMovableContentEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
     field public static boolean isMovingNestedMovableContentEnabled;
   }
@@ -194,8 +194,9 @@ package androidx.compose.runtime {
 
   public static final class Composer.Companion {
     method public Object getEmpty();
+    method public void setDiagnosticStackTraceEnabled(boolean enabled);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeTracingApi public void setTracer(androidx.compose.runtime.CompositionTracer? tracer);
-    property public final Object Empty;
+    property public Object Empty;
   }
 
   public final class ComposerKt {
@@ -230,6 +231,7 @@ package androidx.compose.runtime {
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @org.jetbrains.annotations.TestOnly public static androidx.compose.runtime.ControlledComposition ControlledComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent, kotlin.coroutines.CoroutineContext recomposeCoroutineContext);
     method public static androidx.compose.runtime.ReusableComposition ReusableComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext getRecomposeCoroutineContext(androidx.compose.runtime.ControlledComposition);
+    property @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static kotlin.coroutines.CoroutineContext recomposeCoroutineContext;
   }
 
   @androidx.compose.runtime.Stable public abstract sealed class CompositionLocal<T> {
@@ -239,7 +241,7 @@ package androidx.compose.runtime {
 
   public interface CompositionLocalAccessorScope {
     method public <T> T getCurrentValue(androidx.compose.runtime.CompositionLocal<T>);
-    property public T currentValue;
+    property public abstract T currentValue;
   }
 
   @androidx.compose.runtime.Stable public final class CompositionLocalContext {
@@ -261,7 +263,7 @@ package androidx.compose.runtime {
 
   public static final class CompositionLocalMap.Companion {
     method public androidx.compose.runtime.CompositionLocalMap getEmpty();
-    property public final androidx.compose.runtime.CompositionLocalMap Empty;
+    property public androidx.compose.runtime.CompositionLocalMap Empty;
   }
 
   public interface CompositionServiceKey<T> {
@@ -399,12 +401,13 @@ package androidx.compose.runtime {
     method public static suspend inline <R> Object? withFrameMillis(androidx.compose.runtime.MonotonicFrameClock, kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withFrameMillis(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
+    property @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.MonotonicFrameClock monotonicFrameClock;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public final class MovableContent<P> {
     ctor public MovableContent(kotlin.jvm.functions.Function1<? super P,kotlin.Unit> content);
     method public kotlin.jvm.functions.Function1<P,kotlin.Unit> getContent();
-    property public final kotlin.jvm.functions.Function1<P,kotlin.Unit> content;
+    property public kotlin.jvm.functions.Function1<P,kotlin.Unit> content;
   }
 
   public final class MovableContentKt {
@@ -484,7 +487,7 @@ package androidx.compose.runtime {
     method public void pause();
     method public void resume();
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
-    property public final boolean isPaused;
+    property public boolean isPaused;
   }
 
   public sealed interface PausedComposition {
@@ -515,9 +518,9 @@ package androidx.compose.runtime {
     method public boolean getCanOverride();
     method public androidx.compose.runtime.CompositionLocal<T> getCompositionLocal();
     method public T getValue();
-    property public final boolean canOverride;
-    property public final androidx.compose.runtime.CompositionLocal<T> compositionLocal;
-    property public final T value;
+    property public boolean canOverride;
+    property public androidx.compose.runtime.CompositionLocal<T> compositionLocal;
+    property public T value;
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ReadOnlyComposable {
@@ -543,17 +546,17 @@ package androidx.compose.runtime {
     method public void resumeCompositionFrameClock();
     method public suspend Object? runRecomposeAndApplyChanges(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public suspend Object? runRecomposeConcurrentlyAndApplyChanges(kotlin.coroutines.CoroutineContext recomposeCoroutineContext, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final long changeCount;
-    property public final kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.Recomposer.State> currentState;
+    property public long changeCount;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.Recomposer.State> currentState;
     property public kotlin.coroutines.CoroutineContext effectCoroutineContext;
-    property public final boolean hasPendingWork;
-    property @Deprecated public final kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> state;
+    property public boolean hasPendingWork;
+    property @Deprecated public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> state;
     field public static final androidx.compose.runtime.Recomposer.Companion Companion;
   }
 
   public static final class Recomposer.Companion {
     method public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> getRunningRecomposers();
-    property public final kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> runningRecomposers;
+    property public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.compose.runtime.RecomposerInfo>> runningRecomposers;
   }
 
   public enum Recomposer.State {
@@ -637,6 +640,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> collectAsState(kotlinx.coroutines.flow.StateFlow<? extends T>, optional kotlin.coroutines.CoroutineContext context);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> derivedStateOf(androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> calculation);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> derivedStateOf(kotlin.jvm.functions.Function0<? extends T> calculation);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<kotlin.coroutines.CoroutineContext> getLocalCollectAsStateCoroutineContext();
     method public static inline operator <T> T getValue(androidx.compose.runtime.State<? extends T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> mutableStateListOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> mutableStateListOf(T... elements);
@@ -658,6 +662,7 @@ package androidx.compose.runtime {
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> structuralEqualityPolicy();
     method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> toMutableStateList(java.util.Collection<? extends T>);
     method public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> toMutableStateMap(Iterable<? extends kotlin.Pair<? extends K,? extends V>>);
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<kotlin.coroutines.CoroutineContext> LocalCollectAsStateCoroutineContext;
   }
 
   @androidx.compose.runtime.StableMarker @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface Stable {
@@ -748,9 +753,9 @@ package androidx.compose.runtime.collection {
     method public operator T set(int index, T element);
     method public void sortWith(java.util.Comparator<T> comparator);
     method public inline int sumBy(kotlin.jvm.functions.Function1<? super T,java.lang.Integer> selector);
-    property public final inline kotlin.ranges.IntRange indices;
-    property public final inline int lastIndex;
-    property public final int size;
+    property public inline kotlin.ranges.IntRange indices;
+    property public inline int lastIndex;
+    property public int size;
   }
 
   public final class MutableVectorKt {
@@ -838,7 +843,7 @@ package androidx.compose.runtime.internal {
     method public static boolean isLiveLiteralsEnabled();
     method @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static <T> androidx.compose.runtime.State<T> liveLiteral(String key, T value);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static void updateLiveLiteralValue(String key, Object? value);
-    property @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static final boolean isLiveLiteralsEnabled;
+    property @SuppressCompatibility @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.InternalComposeApi public static boolean isLiveLiteralsEnabled;
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface StabilityInferred {
@@ -856,9 +861,9 @@ package androidx.compose.runtime.reflect {
     method public Class<? extends java.lang.Object?>[] getParameterTypes();
     method public java.lang.reflect.Parameter[] getParameters();
     method public operator Object? invoke(androidx.compose.runtime.Composer composer, Object? instance, java.lang.Object?... args);
-    property public final int parameterCount;
-    property public final Class<? extends java.lang.Object?>[] parameterTypes;
-    property public final java.lang.reflect.Parameter[] parameters;
+    property public int parameterCount;
+    property public Class<? extends java.lang.Object?>[] parameterTypes;
+    property public java.lang.reflect.Parameter[] parameters;
   }
 
   public final class ComposableMethodKt {
@@ -928,16 +933,16 @@ package androidx.compose.runtime.snapshots {
     method public androidx.compose.runtime.snapshots.Snapshot takeSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     method public inline <R> R withMutableSnapshot(kotlin.jvm.functions.Function0<? extends R> block);
     method public inline <T> T withoutReadObservation(kotlin.jvm.functions.Function0<? extends T> block);
-    property public static final int PreexistingSnapshotId;
-    property public final androidx.compose.runtime.snapshots.Snapshot current;
-    property public final boolean isApplyObserverNotificationPending;
-    property public final boolean isInSnapshot;
+    property public static int PreexistingSnapshotId;
+    property public androidx.compose.runtime.snapshots.Snapshot current;
+    property public boolean isApplyObserverNotificationPending;
+    property public boolean isInSnapshot;
   }
 
   public final class SnapshotApplyConflictException extends java.lang.Exception {
     ctor public SnapshotApplyConflictException(androidx.compose.runtime.snapshots.Snapshot snapshot);
     method public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
-    property public final androidx.compose.runtime.snapshots.Snapshot snapshot;
+    property public androidx.compose.runtime.snapshots.Snapshot snapshot;
   }
 
   public abstract sealed class SnapshotApplyResult {
@@ -951,7 +956,7 @@ package androidx.compose.runtime.snapshots {
     method public void check();
     method public androidx.compose.runtime.snapshots.Snapshot getSnapshot();
     method public boolean getSucceeded();
-    property public final androidx.compose.runtime.snapshots.Snapshot snapshot;
+    property public androidx.compose.runtime.snapshots.Snapshot snapshot;
     property public boolean succeeded;
   }
 
@@ -1111,8 +1116,8 @@ package androidx.compose.runtime.snapshots.tooling {
     ctor public SnapshotInstanceObservers(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
     method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getWriteObserver();
-    property public final kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver;
-    property public final kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver;
+    property public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver;
+    property public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface SnapshotObserver {
@@ -1140,6 +1145,15 @@ package androidx.compose.runtime.tooling {
 
   public final class CompositionDataKt {
     method public static androidx.compose.runtime.tooling.CompositionInstance? findCompositionInstance(androidx.compose.runtime.tooling.CompositionData);
+  }
+
+  public sealed interface CompositionErrorContext {
+    method public boolean attachComposeStackTrace(Throwable, Object composeNode);
+  }
+
+  public final class CompositionErrorContextKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.tooling.CompositionErrorContext?> getLocalCompositionErrorContext();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.tooling.CompositionErrorContext?> LocalCompositionErrorContext;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface CompositionGroup extends androidx.compose.runtime.tooling.CompositionData {
@@ -1189,7 +1203,7 @@ package androidx.compose.runtime.tooling {
 
   public final class InspectionTablesKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> getLocalInspectionTables();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> LocalInspectionTables;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<java.util.Set<androidx.compose.runtime.tooling.CompositionData>?> LocalInspectionTables;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface RecomposeScopeObserver {

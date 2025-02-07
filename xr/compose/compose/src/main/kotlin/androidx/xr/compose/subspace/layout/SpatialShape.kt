@@ -16,16 +16,14 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 
 /** Base Spatial shape. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class SpatialShape
+public abstract class SpatialShape
 
 /** A shape describing a rectangle with rounded corners in 3D space. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialRoundedCornerShape(private val size: CornerSize) : SpatialShape() {
     /**
      * Computes corner radius to be no larger than 50 percent of the smallest side.

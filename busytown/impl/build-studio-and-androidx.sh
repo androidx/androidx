@@ -100,4 +100,8 @@ if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
 fi
 
 $SCRIPTS_DIR/impl/build.sh $androidxArguments --dependency-verification=off -Pandroidx.validateNoUnrecognizedMessages=false
+
+# stop Gradle daemon to clean up after ourselves
+JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
+
 echo "Completing $0 at $(date)"

@@ -34,9 +34,13 @@ import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
+import androidx.fragment.app.testing.FragmentScenario;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,41 +66,62 @@ public class BiometricFragmentTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
-    @Mock private Context mContext;
-    @Mock private Handler mHandler;
-    @Mock private androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
+    @Mock
+    private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
+    @Mock
+    private Context mContext;
+    @Mock
+    private Handler mHandler;
+    @Mock
+    private androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
 
-    @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
+    @Captor
+    private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
-    private BiometricFragment mFragment;
-    private BiometricViewModel mViewModel = new BiometricViewModel();
+    private final BiometricViewModel mViewModel = new BiometricViewModel();
+    private BiometricFragmentFactory mFragmentFactory;
 
     @Before
     public void setUp() {
         prepareMockHandler(mHandler);
-        mFragment = BiometricFragment.newInstance(mHandler, mViewModel,
-                true /* hostedInActivity */, true /* hasFingerprint */,
-                true /* hasFace */, true /* hasIris */);
+        mViewModel.setClientExecutor(EXECUTOR);
+        mViewModel.setClientCallback(mAuthenticationCallback);
+        mViewModel.setAwaitingResult(true);
+        mViewModel.setPromptInfo(new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title")
+                .setNegativeButtonText("Cancel")
+                .build());
+        mFragmentFactory = new BiometricFragmentFactory(mHandler, mViewModel, true, true, true,
+                true);
     }
 
     @Test
     public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
-        mFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> {
+                fragment.cancelAuthentication(
+                        BiometricFragment.CANCELED_FROM_INTERNAL);
+
+            });
+        }
     }
 
     @Test
     public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
-        mViewModel.setClientExecutor(EXECUTOR);
-        mViewModel.setClientCallback(mAuthenticationCallback);
-        mViewModel.setAwaitingResult(true);
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> {
+                fragment.onAuthenticationSucceeded(
+                        new BiometricPrompt.AuthenticationResult(
+                                null /* crypto */,
+                                BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC));
 
-        mFragment.onAuthenticationSucceeded(
-                new BiometricPrompt.AuthenticationResult(
-                        null /* crypto */, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC));
+                verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
+                assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
+            });
+        }
 
-        verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
-        assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
     }
 
     @Test
@@ -105,53 +130,64 @@ public class BiometricFragmentTest {
         final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
 
-        mViewModel.setClientExecutor(EXECUTOR);
-        mViewModel.setClientCallback(mAuthenticationCallback);
         mViewModel.setPromptShowing(true);
-        mViewModel.setAwaitingResult(true);
         mViewModel.setFingerprintDialogDismissedInstantly(false);
+        mFragmentFactory = new BiometricFragmentFactory(mHandler, mViewModel, true, true, true,
+                true);
 
-        mFragment.onAuthenticationError(errMsgId, errString);
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> {
+                fragment.onAuthenticationError(errMsgId, errString);
 
-        assertThat(mViewModel.getFingerprintDialogState().getValue())
-                .isEqualTo(FingerprintDialogFragment.STATE_FINGERPRINT_ERROR);
-        assertThat(mViewModel.getFingerprintDialogHelpMessage().getValue()).isEqualTo(errString);
-        assertThat(mViewModel.isPromptShowing()).isFalse();
-        verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
+                assertThat(mViewModel.getFingerprintDialogState().getValue())
+                        .isEqualTo(FingerprintDialogFragment.STATE_FINGERPRINT_ERROR);
+                assertThat(mViewModel.getFingerprintDialogHelpMessage().getValue()).isEqualTo(
+                        errString);
+                assertThat(mViewModel.isPromptShowing()).isFalse();
+                verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
+            });
+        }
+
+
     }
 
     @Test
     public void testAuthenticate_ReturnsWithoutError_WhenDetached() {
-        mFragment.authenticate(
-                new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle("Title")
-                        .setNegativeButtonText("Cancel")
-                        .build(),
-                null /* crypto */);
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> fragment.authenticate(
+                    new BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("Title")
+                            .setNegativeButtonText("Cancel")
+                            .build(),
+                    null /* crypto */));
+        }
     }
 
     @Test
     public void testAuthenticateWithFingerprint_DoesShowErrorAndDismiss_WhenNPEThrown() {
-        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
-        final String errString = "test string";
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> {
+                final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+                final String errString = "test string";
+                doThrow(NullPointerException.class).when(mFingerprintManager).authenticate(
+                        nullable(androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                                .CryptoObject.class),
+                        anyInt(),
+                        any(androidx.core.os.CancellationSignal.class),
+                        any(androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                                .AuthenticationCallback.class),
+                        nullable(Handler.class));
+                when(mContext.getString(anyInt())).thenReturn(errString);
 
-        mViewModel.setClientExecutor(EXECUTOR);
-        mViewModel.setClientCallback(mAuthenticationCallback);
-        mViewModel.setAwaitingResult(true);
+                fragment.authenticateWithFingerprint(mFingerprintManager, mContext);
 
-        doThrow(NullPointerException.class).when(mFingerprintManager).authenticate(
-                nullable(androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                        .CryptoObject.class),
-                anyInt(),
-                any(androidx.core.os.CancellationSignal.class),
-                any(androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                        .AuthenticationCallback.class),
-                nullable(Handler.class));
-        when(mContext.getString(anyInt())).thenReturn(errString);
+                verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
 
-        mFragment.authenticateWithFingerprint(mFingerprintManager, mContext);
-
-        verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
+            });
+        }
     }
 
     @Test
@@ -161,21 +197,23 @@ public class BiometricFragmentTest {
         final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
         final String errString = "test string";
 
-        mViewModel.setClientExecutor(EXECUTOR);
-        mViewModel.setClientCallback(mAuthenticationCallback);
-        mViewModel.setAwaitingResult(true);
+        try (FragmentScenario<BiometricFragment> scenario = FragmentScenario.launchInContainer(
+                BiometricFragment.class, null, mFragmentFactory)) {
+            scenario.onFragment(fragment -> {
+                final android.hardware.biometrics.BiometricPrompt biometricPrompt =
+                        mock(android.hardware.biometrics.BiometricPrompt.class);
+                doThrow(NullPointerException.class).when(biometricPrompt).authenticate(
+                        any(android.os.CancellationSignal.class),
+                        any(Executor.class),
+                        any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));
+                when(mContext.getString(anyInt())).thenReturn(errString);
 
-        final android.hardware.biometrics.BiometricPrompt biometricPrompt =
-                mock(android.hardware.biometrics.BiometricPrompt.class);
-        doThrow(NullPointerException.class).when(biometricPrompt).authenticate(
-                any(android.os.CancellationSignal.class),
-                any(Executor.class),
-                any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));
-        when(mContext.getString(anyInt())).thenReturn(errString);
+                fragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);
 
-        mFragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);
+                verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
 
-        verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
+            });
+        }
     }
 
     private static void prepareMockHandler(Handler mockHandler) {
@@ -188,5 +226,37 @@ public class BiometricFragmentTest {
                     }
                     return true;
                 });
+    }
+
+
+    private static class BiometricFragmentFactory extends FragmentFactory {
+        private final Handler mHandler;
+        private final BiometricViewModel mViewModel;
+        private final boolean mHostedInActivity;
+        private final boolean mHasFingerprint;
+        private final boolean mHasFace;
+        private final boolean mHasIris;
+
+        BiometricFragmentFactory(@NonNull Handler handler,
+                @NonNull BiometricViewModel viewModel,
+                boolean hostedInActivity, boolean hasFingerprint, boolean hasFace,
+                boolean hasIris) {
+            mHandler = handler;
+            mViewModel = viewModel;
+            mHostedInActivity = hostedInActivity;
+            mHasFace = hasFace;
+            mHasFingerprint = hasFingerprint;
+            mHasIris = hasIris;
+        }
+
+        @Override
+        @NonNull
+        public Fragment instantiate(@NonNull ClassLoader classLoader, String className) {
+            if (className.equals(BiometricFragment.class.getName())) {
+                return BiometricFragment.newInstance(mHandler, mViewModel, mHostedInActivity,
+                        mHasFingerprint, mHasFace, mHasIris);
+            }
+            return super.instantiate(classLoader, className);
+        }
     }
 }

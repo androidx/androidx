@@ -25,6 +25,7 @@ import androidx.compose.animation.graphics.vector.compat.seekToStartTag
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import org.xmlpull.v1.XmlPullParserException
 
 /**
@@ -39,7 +40,7 @@ public fun AnimatedImageVector.Companion.animatedVectorResource(
     @DrawableRes id: Int
 ): AnimatedImageVector {
     val context = LocalContext.current
-    val res = context.resources
+    val res = LocalResources.current
     val theme = context.theme
     return remember(id) { loadAnimatedVectorResource(theme, res, id) }
 }

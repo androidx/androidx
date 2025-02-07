@@ -25,12 +25,12 @@ import android.view.ContextThemeWrapper;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

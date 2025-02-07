@@ -28,7 +28,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Random;
 
-
 /**
  * This test creates a random set of non overlapping rectangles uses the scout
  * to add a sequence of constraints. Verify that the constraint engine will then layout the

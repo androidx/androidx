@@ -40,12 +40,13 @@ import javax.lang.model.element.AnnotationMirror;
  *     <li>{@link BooleanPropertyAnnotation}</li>
  *     <li>{@link BytesPropertyAnnotation}</li>
  *     <li>{@link EmbeddingPropertyAnnotation}</li>
+ *     <li>{@link BlobHandlePropertyAnnotation}</li>
  * </ul>
  */
 public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     public enum Kind {
         STRING_PROPERTY, DOCUMENT_PROPERTY, LONG_PROPERTY, DOUBLE_PROPERTY, BOOLEAN_PROPERTY,
-        BYTES_PROPERTY, EMBEDDING_PROPERTY
+        BYTES_PROPERTY, EMBEDDING_PROPERTY, BLOB_HANDLE_PROPERTY
     }
 
     private final @NonNull ClassName mClassName;
@@ -102,6 +103,9 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
         } else if (qualifiedClassName.equals(
                 EmbeddingPropertyAnnotation.CLASS_NAME.canonicalName())) {
             return EmbeddingPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(
+                BlobHandlePropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return BlobHandlePropertyAnnotation.parse(annotationParams, defaultName);
         }
         return null;
     }

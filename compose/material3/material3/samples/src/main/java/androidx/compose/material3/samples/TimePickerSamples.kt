@@ -17,31 +17,19 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.TimePickerDialogDefaults
+import androidx.compose.material3.TimePickerDialogDefaults.MinHeightForTimePicker
+import androidx.compose.material3.TimePickerDisplayMode
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,8 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -81,17 +67,26 @@ fun TimePickerSample() {
 
     if (showTimePicker) {
         TimePickerDialog(
-            onCancel = { showTimePicker = false },
-            onConfirm = {
-                val cal = Calendar.getInstance()
-                cal.set(Calendar.HOUR_OF_DAY, state.hour)
-                cal.set(Calendar.MINUTE, state.minute)
-                cal.isLenient = false
-                snackScope.launch {
-                    snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+            title = { TimePickerDialogDefaults.Title(displayMode = TimePickerDisplayMode.Picker) },
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, state.hour)
+                        cal.set(Calendar.MINUTE, state.minute)
+                        cal.isLenient = false
+                        snackScope.launch {
+                            snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+                        }
+                        showTimePicker = false
+                    }
+                ) {
+                    Text("Ok")
                 }
-                showTimePicker = false
             },
+            dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Ok") } },
+            modeToggleButton = {},
         ) {
             TimePicker(state = state)
         }
@@ -118,17 +113,26 @@ fun TimeInputSample() {
 
     if (showTimePicker) {
         TimePickerDialog(
-            onCancel = { showTimePicker = false },
-            onConfirm = {
-                val cal = Calendar.getInstance()
-                cal.set(Calendar.HOUR_OF_DAY, state.hour)
-                cal.set(Calendar.MINUTE, state.minute)
-                cal.isLenient = false
-                snackScope.launch {
-                    snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+            title = { TimePickerDialogDefaults.Title(displayMode = TimePickerDisplayMode.Input) },
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, state.hour)
+                        cal.set(Calendar.MINUTE, state.minute)
+                        cal.isLenient = false
+                        snackScope.launch {
+                            snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+                        }
+                        showTimePicker = false
+                    }
+                ) {
+                    Text("Ok")
                 }
-                showTimePicker = false
             },
+            dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Ok") } },
+            modeToggleButton = {},
         ) {
             TimeInput(state = state)
         }
@@ -144,7 +148,7 @@ fun TimePickerSwitchableSample() {
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    val showingPicker = remember { mutableStateOf(true) }
+    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Picker) }
     val snackScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
 
@@ -157,92 +161,48 @@ fun TimePickerSwitchableSample() {
 
     if (showTimePicker) {
         TimePickerDialog(
-            title =
-                if (showingPicker.value) {
-                    "Select Time "
-                } else {
-                    "Enter Time"
-                },
-            onCancel = { showTimePicker = false },
-            onConfirm = {
-                val cal = Calendar.getInstance()
-                cal.set(Calendar.HOUR_OF_DAY, state.hour)
-                cal.set(Calendar.MINUTE, state.minute)
-                cal.isLenient = false
-                snackScope.launch {
-                    snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
-                }
-                showTimePicker = false
-            },
-            toggle = {
-                if (configuration.screenHeightDp > 400) {
-                    IconButton(onClick = { showingPicker.value = !showingPicker.value }) {
-                        val icon =
-                            if (showingPicker.value) {
-                                Icons.Outlined.Keyboard
-                            } else {
-                                Icons.Outlined.Schedule
-                            }
-                        Icon(
-                            icon,
-                            contentDescription =
-                                if (showingPicker.value) {
-                                    "Switch to Text Input"
-                                } else {
-                                    "Switch to Touch Input"
-                                }
-                        )
+            title = { TimePickerDialogDefaults.Title(displayMode = displayMode) },
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, state.hour)
+                        cal.set(Calendar.MINUTE, state.minute)
+                        cal.isLenient = false
+                        snackScope.launch {
+                            snackState.showSnackbar("Entered time: ${formatter.format(cal.time)}")
+                        }
+                        showTimePicker = false
                     }
+                ) {
+                    Text("Ok")
+                }
+            },
+            dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
+            modeToggleButton = {
+                if (configuration.screenHeightDp > 400) {
+                    TimePickerDialogDefaults.DisplayModeToggle(
+                        onDisplayModeChange = {
+                            displayMode =
+                                if (displayMode == TimePickerDisplayMode.Picker) {
+                                    TimePickerDisplayMode.Input
+                                } else {
+                                    TimePickerDisplayMode.Picker
+                                }
+                        },
+                        displayMode = displayMode
+                    )
                 }
             }
         ) {
-            if (showingPicker.value && configuration.screenHeightDp > 400) {
+            if (
+                displayMode == TimePickerDisplayMode.Picker &&
+                    configuration.screenHeightDp.dp > MinHeightForTimePicker
+            ) {
                 TimePicker(state = state)
             } else {
                 TimeInput(state = state)
-            }
-        }
-    }
-}
-
-@Composable
-fun TimePickerDialog(
-    title: String = "Select Time",
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
-    toggle: @Composable () -> Unit = {},
-    content: @Composable () -> Unit,
-) {
-    Dialog(
-        onDismissRequest = onCancel,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier =
-                Modifier.width(IntrinsicSize.Min)
-                    .background(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surface
-                    ),
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium
-                )
-                content()
-                Row(modifier = Modifier.height(40.dp).fillMaxWidth()) {
-                    toggle()
-                    Spacer(modifier = Modifier.weight(1f))
-                    TextButton(onClick = onCancel) { Text("Cancel") }
-                    TextButton(onClick = onConfirm) { Text("OK") }
-                }
             }
         }
     }

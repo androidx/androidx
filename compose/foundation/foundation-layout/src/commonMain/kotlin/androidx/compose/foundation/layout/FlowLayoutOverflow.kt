@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.layout
 
 import androidx.collection.IntIntPair
@@ -54,6 +56,7 @@ import androidx.compose.ui.unit.dp
  * - [expandOrCollapseIndicator]: Extends the [expandIndicator] functionality by adding a 'Collapse'
  *   option. After expanding the content, users can choose to collapse it back to the summary view.
  */
+@Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
 class FlowRowOverflow
 private constructor(
@@ -188,6 +191,7 @@ private constructor(
  * - [expandOrCollapseIndicator]: Extends the [expandIndicator] functionality by adding a 'Collapse'
  *   option. After expanding the content, users can choose to collapse it back to the summary view.
  */
+@Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
 class FlowColumnOverflow
 private constructor(
@@ -204,6 +208,8 @@ private constructor(
         seeMoreGetter,
         collapseGetter
     ) {
+    @Deprecated("FlowLayout overflow is no longer maintained")
+    @ExperimentalLayoutApi
     companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -323,6 +329,7 @@ private constructor(
  * - [expandOrCollapseIndicator]: Extends the [expandIndicator] functionality by adding a 'Collapse'
  *   option. After expanding the content, users can choose to collapse it back to the summary view.
  */
+@Deprecated("ContextualFlowLayouts are no longer maintained")
 @ExperimentalLayoutApi
 class ContextualFlowRowOverflow
 private constructor(
@@ -340,6 +347,8 @@ private constructor(
         collapseGetter
     ) {
 
+    @Deprecated("FlowLayout overflow is no longer maintained")
+    @ExperimentalLayoutApi
     companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -462,6 +471,7 @@ private constructor(
  * - [expandOrCollapseIndicator]: Extends the [expandIndicator] functionality by adding a 'Collapse'
  *   option. After expanding the content, users can choose to collapse it back to the summary view.
  */
+@Deprecated("ContextualFlowLayouts are no longer maintained")
 @ExperimentalLayoutApi
 class ContextualFlowColumnOverflow
 private constructor(
@@ -479,6 +489,8 @@ private constructor(
         collapseGetter
     ) {
 
+    @Deprecated("ContextualFlowLayouts are no longer maintained")
+    @ExperimentalLayoutApi
     companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -596,6 +608,7 @@ private constructor(
  * @see [ContextualFlowRowOverflow]
  * @see [ContextualFlowColumnOverflow]
  */
+@Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
 sealed class FlowLayoutOverflow(
     internal val type: OverflowType,

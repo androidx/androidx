@@ -69,9 +69,9 @@ class AndroidTextViewBenchmark(private val textLength: Int) {
             runBenchmarkFor(caseFactory) {
                 measureRepeatedOnUiThread {
                     setupContent()
-                    runWithTimingDisabled { requestLayout() }
+                    runWithMeasurementDisabled { requestLayout() }
                     measure()
-                    runWithTimingDisabled { disposeContent() }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }

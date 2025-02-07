@@ -32,7 +32,9 @@ public interface NavLocalProvider {
      *
      * This function is called by the [NavWrapperManager] and should not be called directly.
      */
-    @Composable public fun ProvideToBackStack(backStack: List<Any>): Unit = Unit
+    @Composable
+    public fun ProvideToBackStack(backStack: List<Any>, content: @Composable () -> Unit): Unit =
+        content.invoke()
 
     /**
      * Allows a [NavLocalProvider] to provide information to a single entry.

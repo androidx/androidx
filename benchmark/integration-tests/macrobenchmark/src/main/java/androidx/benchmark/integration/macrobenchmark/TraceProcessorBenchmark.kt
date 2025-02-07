@@ -20,11 +20,12 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
-import androidx.benchmark.macro.runServer
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runServer
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -37,7 +38,7 @@ import org.junit.Test
 
 @SmallTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalMetricApi::class)
+@OptIn(ExperimentalMetricApi::class, ExperimentalTraceProcessorApi::class)
 class TraceProcessorBenchmark {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 

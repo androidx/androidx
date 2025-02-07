@@ -171,11 +171,11 @@ internal class GraphicsLayerV29(
         val newClipToOutline = clip && outlineIsProvided
         if (newClipToBounds != clipToBounds) {
             clipToBounds = newClipToBounds
-            renderNode.setClipToBounds(clipToBounds)
+            renderNode.clipToBounds = clipToBounds
         }
         if (newClipToOutline != clipToOutline) {
             clipToOutline = newClipToOutline
-            renderNode.setClipToOutline(newClipToOutline)
+            renderNode.clipToOutline = newClipToOutline
         }
     }
 

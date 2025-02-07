@@ -398,6 +398,8 @@ class MovableComponentImpl implements MovableComponent {
                 && mEntity.getParent() == mCreatedAnchorEntity
                 && reformEvent.getState() == ReformEvent.REFORM_STATE_END) {
 
+            // TODO: b/367754233 - Revisit if this needs to use ActivitySpaceScale or
+            // WorldSpaceScale.
             mEntity.setScale(
                     mEntity.getWorldSpaceScale().div(mActivitySpaceImpl.getWorldSpaceScale()));
             mEntity.setParent(mActivitySpaceImpl);

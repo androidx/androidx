@@ -41,8 +41,8 @@ internal class AccessibilityPageHelper(
     private val pageManager: PageManager
 ) : ExploreByTouchHelper(pdfView) {
 
-    private var gotoLinks: MutableList<PdfPageGotoLinkContent> = mutableListOf()
-    private var urlLinks: MutableList<PdfPageLinkContent> = mutableListOf()
+    private val gotoLinks: MutableMap<Int, LinkWrapper<PdfPageGotoLinkContent>> = mutableMapOf()
+    private val urlLinks: MutableMap<Int, LinkWrapper<PdfPageLinkContent>> = mutableMapOf()
     private val totalPages = pdfView.pdfDocument?.pageCount ?: 0
     private var isLinksLoaded = false
 
@@ -56,19 +56,21 @@ internal class AccessibilityPageHelper(
             loadPageLinks()
         }
 
-        // Check if the coordinates fall within any of the gotoLinks bounds
-        gotoLinks.forEachIndexed { index, gotoLink ->
-            if (gotoLink.bounds.any { it.contains(contentX.toFloat(), contentY.toFloat()) }) {
-                return index + totalPages
+        gotoLinks.entries
+            .find { (_, wrapper) ->
+                wrapper.linkBounds.contains(contentX.toFloat(), contentY.toFloat())
             }
-        }
+            ?.let {
+                return it.key
+            }
 
-        // Check if the coordinates fall within any of the urlLinks bounds
-        urlLinks.forEachIndexed { index, urlLink ->
-            if (urlLink.bounds.any { it.contains(contentX.toFloat(), contentY.toFloat()) }) {
-                return index + totalPages + gotoLinks.size
+        urlLinks.entries
+            .find { (_, wrapper) ->
+                wrapper.linkBounds.contains(contentX.toFloat(), contentY.toFloat())
             }
-        }
+            ?.let {
+                return it.key
+            }
 
         // Check if the coordinates fall within the visible page bounds
         return (visiblePages.lower..visiblePages.upper).firstOrNull { page ->
@@ -80,14 +82,12 @@ internal class AccessibilityPageHelper(
 
     public override fun getVisibleVirtualViews(virtualViewIds: MutableList<Int>) {
         val visiblePages = pageLayoutManager.visiblePages.value
-        virtualViewIds.addAll(visiblePages.lower..visiblePages.upper)
-
         loadPageLinks()
 
-        gotoLinks.forEachIndexed { index, _ -> virtualViewIds.add(totalPages + index) }
-
-        urlLinks.forEachIndexed { index, _ ->
-            virtualViewIds.add(totalPages + gotoLinks.size + index)
+        virtualViewIds.apply {
+            addAll(visiblePages.lower..visiblePages.upper)
+            addAll(gotoLinks.keys)
+            addAll(urlLinks.keys)
         }
     }
 
@@ -97,10 +97,13 @@ internal class AccessibilityPageHelper(
     ) {
         if (!isLinksLoaded) loadPageLinks()
 
-        if (virtualViewId < totalPages) {
-            populateNodeForPage(virtualViewId, node)
-        } else {
-            populateNodeForLink(virtualViewId, node)
+        when {
+            virtualViewId < totalPages -> populateNodeForPage(virtualViewId, node)
+            else -> {
+                // Populate node for GoTo links and URL links
+                gotoLinks[virtualViewId]?.let { populateGotoLinkNode(it, node) }
+                urlLinks[virtualViewId]?.let { populateUrlLinkNode(it, node) }
+            }
         }
     }
 
@@ -134,40 +137,61 @@ internal class AccessibilityPageHelper(
         }
     }
 
-    private fun populateNodeForLink(virtualViewId: Int, node: AccessibilityNodeInfoCompat) {
-        val adjustedId = virtualViewId - totalPages
-        if (adjustedId < gotoLinks.size) {
-            populateGotoLinkNode(adjustedId, node)
-        } else {
-            populateUrlLinkNode(adjustedId - gotoLinks.size, node)
-        }
-    }
+    private fun populateGotoLinkNode(
+        linkWrapper: LinkWrapper<PdfPageGotoLinkContent>,
+        node: AccessibilityNodeInfoCompat
+    ) {
+        val bounds = scalePageBounds(linkWrapper.linkBounds, pdfView.zoom)
 
-    private fun populateGotoLinkNode(linkIndex: Int, node: AccessibilityNodeInfoCompat) {
-        val gotoLink = gotoLinks[linkIndex]
-        val bounds = scalePageBounds(gotoLink.bounds.first(), pdfView.zoom)
         node.apply {
             contentDescription =
                 pdfView.context.getString(
                     R.string.desc_goto_link,
-                    gotoLink.destination.pageNumber + 1
+                    linkWrapper.content.destination.pageNumber + 1
                 )
-            setBoundsInScreenFromBoundsInParent(node, bounds)
+            setBoundsInScreenFromBoundsInParent(this, bounds)
             isFocusable = true
         }
     }
 
-    private fun populateUrlLinkNode(linkIndex: Int, node: AccessibilityNodeInfoCompat) {
-        val urlLink = urlLinks[linkIndex]
-        val bounds = scalePageBounds(urlLink.bounds.first(), pdfView.zoom)
+    private fun populateUrlLinkNode(
+        linkWrapper: LinkWrapper<PdfPageLinkContent>,
+        node: AccessibilityNodeInfoCompat
+    ) {
+        val bounds = scalePageBounds(linkWrapper.linkBounds, pdfView.zoom)
         node.apply {
             contentDescription =
-                ExternalLinks.getDescription(urlLink.uri.toString(), pdfView.context)
+                ExternalLinks.getDescription(linkWrapper.content.uri.toString(), pdfView.context)
             setBoundsInScreenFromBoundsInParent(node, bounds)
             isFocusable = true
         }
     }
 
+    /**
+     * Calculates the adjusted bounds of a link relative to the full content of the PDF.
+     *
+     * @param pageNumber The 0-indexed page number.
+     * @param linkBounds The bounds of the link on the page.
+     * @return The adjusted bounds in the content coordinate system.
+     */
+    fun getLinkBounds(pageNumber: Int, linkBounds: RectF): RectF {
+        val pageBounds =
+            pageLayoutManager.getPageLocation(pageNumber, pdfView.getVisibleAreaInContentCoords())
+        return RectF(
+            linkBounds.left + pageBounds.left,
+            linkBounds.top + pageBounds.top,
+            linkBounds.right + pageBounds.left,
+            linkBounds.bottom + pageBounds.top
+        )
+    }
+
+    /**
+     * Scales the bounds of a page based on the current zoom level.
+     *
+     * @param bounds The original bounds to scale.
+     * @param zoom The zoom level.
+     * @return The scaled bounds as a Rect.
+     */
     @VisibleForTesting
     fun scalePageBounds(bounds: RectF, zoom: Float): Rect {
         return Rect(
@@ -178,6 +202,12 @@ internal class AccessibilityPageHelper(
         )
     }
 
+    /**
+     * Loads the links for the visible pages.
+     *
+     * This method fetches the GoTo links and URL links for the currently visible pages and stores
+     * them in the corresponding maps.
+     */
     fun loadPageLinks() {
         val visiblePages = pageLayoutManager.visiblePages.value
 
@@ -185,10 +215,20 @@ internal class AccessibilityPageHelper(
         gotoLinks.clear()
         urlLinks.clear()
 
+        var cumulativeId = totalPages
+
         (visiblePages.lower..visiblePages.upper).forEach { pageIndex ->
             pageManager.pages[pageIndex]?.links?.let { links ->
-                links.gotoLinks.let { gotoLinks.addAll(it) }
-                links.externalLinks.let { urlLinks.addAll(it) }
+                links.gotoLinks.forEach { link ->
+                    gotoLinks[cumulativeId] =
+                        LinkWrapper(pageIndex, link, getLinkBounds(pageIndex, link.bounds.first()))
+                    cumulativeId++
+                }
+                links.externalLinks.forEach { link ->
+                    urlLinks[cumulativeId] =
+                        LinkWrapper(pageIndex, link, getLinkBounds(pageIndex, link.bounds.first()))
+                    cumulativeId++
+                }
             }
         }
         isLinksLoaded = true
@@ -243,3 +283,13 @@ internal class AccessibilityPageHelper(
         }
     }
 }
+
+/**
+ * A wrapper class for links in the PDF document.
+ *
+ * @param T The type of link content (GotoLink or URL link).
+ * @param pageNumber The 0-indexed page number where the link is located.
+ * @param content The link's content (GotoLink or URL link).
+ * @param linkBounds The link's bounds in the full PDF's content coordinates.
+ */
+private data class LinkWrapper<T>(val pageNumber: Int, val content: T, val linkBounds: RectF)

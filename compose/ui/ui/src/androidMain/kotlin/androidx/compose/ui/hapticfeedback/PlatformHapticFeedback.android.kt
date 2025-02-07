@@ -32,6 +32,8 @@ internal class PlatformHapticFeedback(private val view: View) : HapticFeedback {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
             HapticFeedbackType.GestureThresholdActivate ->
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+            HapticFeedbackType.KeyboardTap ->
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             HapticFeedbackType.LongPress ->
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             HapticFeedbackType.Reject -> view.performHapticFeedback(HapticFeedbackConstants.REJECT)
@@ -59,6 +61,8 @@ internal actual object PlatformHapticFeedbackType {
         HapticFeedbackType(HapticFeedbackConstants.GESTURE_END)
     actual val GestureThresholdActivate: HapticFeedbackType =
         HapticFeedbackType(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+    actual val KeyboardTap: HapticFeedbackType =
+        HapticFeedbackType(HapticFeedbackConstants.KEYBOARD_TAP)
     actual val LongPress: HapticFeedbackType =
         HapticFeedbackType(HapticFeedbackConstants.LONG_PRESS)
     actual val Reject: HapticFeedbackType = HapticFeedbackType(HapticFeedbackConstants.REJECT)

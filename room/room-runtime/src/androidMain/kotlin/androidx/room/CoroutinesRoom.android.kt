@@ -29,7 +29,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 /** A helper class for supporting Kotlin Coroutines in Room. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 public class CoroutinesRoom private constructor() {
 
     public companion object {

@@ -35,6 +35,8 @@ internal actual value class Strings(val value: Int) {
     actual companion object {
         actual val defaultPaneExpansionDragHandleContentDescription: Strings =
             implementedInJetBrainsFork()
+        actual val defaultPaneExpansionDragHandleStateDescription: Strings =
+            implementedInJetBrainsFork()
         actual val defaultPaneExpansionDragHandleActionDescription: Strings =
             implementedInJetBrainsFork()
         actual val defaultPaneExpansionProportionAnchorDescription: Strings =

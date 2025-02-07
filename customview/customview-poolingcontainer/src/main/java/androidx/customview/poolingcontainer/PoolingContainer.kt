@@ -49,6 +49,7 @@ fun interface PoolingContainerListener {
 /**
  * Add a callback for when this View should dispose its resources.
  *
+ * @param listener the listener that produces onRelease callbacks, triggering resource disposal
  * @receiver the child view to receive callbacks regarding
  */
 @SuppressLint("ExecutorRegistration") // This is a UI thread callback

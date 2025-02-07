@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -56,7 +56,7 @@ dependencies {
 
 androidx {
     name = "Activity"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
     legacyDisableKotlinStrictApiMode = true

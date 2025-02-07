@@ -18,7 +18,7 @@ package androidx.room.solver.query.result
 
 import androidx.room.solver.CodeGenScope
 
-/** Gets a Statement and converts it into the return type of a method annotated with @Query. */
+/** Gets a Statement and converts it into the return type of a function annotated with @Query. */
 abstract class QueryResultAdapter(val rowAdapters: List<RowAdapter>) {
 
     val mappings: List<QueryMappedRowAdapter.Mapping>

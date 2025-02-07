@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,10 +32,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,6 +64,14 @@ class ResizeComposeFragment : BaseFragment() {
         val newHeight = newSize(currentDimension.height.value.toInt(), maxSizePixels).dp
         bannerDimension = BannerDimension(newWidth, newHeight)
     }
+    private var bannerPadding by mutableStateOf(BannerPadding())
+    private val onChangePaddingClicked: (BannerDimension) -> Unit = { currentDimension ->
+        val maxHorizontalPadding = (currentDimension.width.value.toInt() / 2) - 10
+        val maxVerticalPadding = (currentDimension.height.value.toInt() / 2) - 10
+        val horizontalPadding = (10..maxHorizontalPadding).random().dp
+        val verticalPadding = (10..maxVerticalPadding).random().dp
+        bannerPadding = BannerPadding(horizontalPadding, verticalPadding)
+    }
 
     override fun handleLoadAdFromDrawer(
         adType: Int,
@@ -81,7 +93,15 @@ class ResizeComposeFragment : BaseFragment() {
         return ComposeView(requireContext()).apply {
             // Dispose of the Composition when the view's LifecycleOwner is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { ResizeableBannerAd(adapter, bannerDimension, onBannerDimensionChanged) }
+            setContent {
+                ResizeableBannerAd(
+                    adapter,
+                    bannerDimension,
+                    onBannerDimensionChanged,
+                    bannerPadding,
+                    onChangePaddingClicked
+                )
+            }
         }
     }
 
@@ -89,21 +109,40 @@ class ResizeComposeFragment : BaseFragment() {
     fun ResizeableBannerAd(
         adapter: SandboxedUiAdapter?,
         bannerDimension: BannerDimension,
-        onResizeClicked: (BannerDimension) -> Unit
+        onResizeClicked: (BannerDimension) -> Unit,
+        bannerPadding: BannerPadding,
+        onChangePaddingClicked: (BannerDimension) -> Unit,
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            val sandboxedSdkUiModifier =
+            val localDensity = LocalDensity.current
+            var ssvHeight by remember { mutableStateOf(0.dp) }
+            var ssvWidth by remember { mutableStateOf(0.dp) }
+
+            var sandboxedSdkUiModifier =
+                Modifier.onGloballyPositioned { coordinates ->
+                        with(localDensity) {
+                            ssvWidth = coordinates.size.width.toDp()
+                            ssvHeight = coordinates.size.height.toDp()
+                        }
+                    }
+                    .padding(
+                        horizontal = bannerPadding.horizontalPadding,
+                        vertical = bannerPadding.verticalPadding
+                    )
+
+            sandboxedSdkUiModifier =
                 if (bannerDimension.height != 0.dp && bannerDimension.width != 0.dp) {
-                    Modifier.width(bannerDimension.width)
+                    sandboxedSdkUiModifier
+                        .width(bannerDimension.width)
                         .weight(
                             1f,
                         )
                 } else {
-                    Modifier.fillMaxWidth().weight(1f)
+                    sandboxedSdkUiModifier.fillMaxWidth().weight(1f)
                 }
 
             Text("Ad state: $adEventText")
@@ -128,7 +167,12 @@ class ResizeComposeFragment : BaseFragment() {
                         },
                 )
             }
-            Button(onClick = { onResizeClicked(bannerDimension) }) { Text("Resize") }
+            Row {
+                Button(onClick = { onResizeClicked(bannerDimension) }) { Text("Resize") }
+                Button(onClick = { onChangePaddingClicked(BannerDimension(ssvWidth, ssvHeight)) }) {
+                    Text("Change padding")
+                }
+            }
         }
     }
 
@@ -149,4 +193,6 @@ class ResizeComposeFragment : BaseFragment() {
     }
 
     data class BannerDimension(val width: Dp = 0.dp, val height: Dp = 0.dp)
+
+    data class BannerPadding(val horizontalPadding: Dp = 0.dp, val verticalPadding: Dp = 0.dp)
 }

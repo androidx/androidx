@@ -76,7 +76,7 @@ class LazySwitchingStatesBenchmark {
             }
 
             measureRepeatedOnUiThread {
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     assertNoPendingChanges()
                     repeat(switchingStateCount) { getTestCase().toggle(it) }
                     doFramesUntilIdle()

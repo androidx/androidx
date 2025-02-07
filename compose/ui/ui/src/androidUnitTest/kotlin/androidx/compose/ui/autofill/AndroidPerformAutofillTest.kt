@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = 26)
 class AndroidPerformAutofillTest {
-    private val autofillTree = AutofillTree()
+    private val autofillTree = @Suppress("Deprecation") AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
 
     @Before
@@ -50,6 +50,7 @@ class AndroidPerformAutofillTest {
         val expectedValue = "Name"
         var autoFilledValue = ""
         val autofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = { autoFilledValue = it },
                 autofillTypes = listOf(AutofillType.PersonFullName),
@@ -75,6 +76,7 @@ class AndroidPerformAutofillTest {
         val expectedValue = "email@google.com"
         var autoFilledValue = ""
         val autofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = { autoFilledValue = it },
                 autofillTypes = listOf(AutofillType.EmailAddress),

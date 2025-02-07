@@ -22,8 +22,8 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -100,7 +100,7 @@ protobuf {
 
 androidx {
     name = "Android Wear Tiles Renderer"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."

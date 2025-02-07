@@ -21,8 +21,9 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A wrapper class for GestureDetector allowing it interact with SelectionTracker

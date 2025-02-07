@@ -18,6 +18,7 @@ package androidx.security.state.provider
 
 import android.content.Context
 import androidx.security.state.SecurityPatchState
+import androidx.security.state.SecurityPatchState.Companion.getComponentSecurityPatchLevel
 import kotlinx.serialization.json.Json
 
 /**
@@ -93,11 +94,7 @@ public class UpdateInfoManager(
                 // Ignore unknown components.
                 return@forEach
             }
-            val updateSpl =
-                securityState.getComponentSecurityPatchLevel(
-                    component,
-                    updateInfo.securityPatchLevel
-                )
+            val updateSpl = getComponentSecurityPatchLevel(component, updateInfo.securityPatchLevel)
 
             if (updateSpl <= currentSpl) {
                 val key = getKeyForUpdateInfo(updateInfo)

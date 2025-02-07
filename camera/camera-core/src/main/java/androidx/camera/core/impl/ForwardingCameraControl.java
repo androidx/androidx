@@ -84,9 +84,9 @@ public class ForwardingCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> setTorchStrengthLevelAsync(
+    public @NonNull ListenableFuture<Void> setTorchStrengthLevel(
             @IntRange(from = 1) int torchStrengthLevel) {
-        return mCameraControlInternal.setTorchStrengthLevelAsync(torchStrengthLevel);
+        return mCameraControlInternal.setTorchStrengthLevel(torchStrengthLevel);
     }
 
     @Override

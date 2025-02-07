@@ -81,8 +81,8 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
- * target="_blank">Material Design outlined text field</a>.
+ * [Material Design outlined text
+ * field](https://m2.material.io/components/text-fields#outlined-text-field).
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
  * places like forms, where many text fields are placed together, their reduced emphasis helps
@@ -184,7 +184,6 @@ fun OutlinedTextField(
 
     val density = LocalDensity.current
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         state = state,
         modifier =
@@ -253,8 +252,8 @@ fun OutlinedTextField(
 }
 
 /**
- * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
- * target="_blank">Material Design outlined text field</a>.
+ * [Material Design outlined text
+ * field](https://m2.material.io/components/text-fields#outlined-text-field).
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
  * places like forms, where many text fields are placed together, their reduced emphasis helps
@@ -346,7 +345,6 @@ fun OutlinedTextField(
 
     val density = LocalDensity.current
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
         modifier =
@@ -460,8 +458,8 @@ fun OutlinedTextField(
 }
 
 /**
- * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
- * target="_blank">Material Design outlined text field</a>.
+ * [Material Design outlined text
+ * field](https://m2.material.io/components/text-fields#outlined-text-field).
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
  * places like forms, where many text fields are placed together, their reduced emphasis helps
@@ -554,7 +552,6 @@ fun OutlinedTextField(
 
     val density = LocalDensity.current
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
         modifier =

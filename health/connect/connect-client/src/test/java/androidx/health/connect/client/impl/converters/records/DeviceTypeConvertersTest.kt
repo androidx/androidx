@@ -43,6 +43,6 @@ class DeviceTypeConvertersTest {
         assertThat(Device(type = totalDeviceTypes).toProto())
             .isEqualTo(DataProto.Device.newBuilder().setType(DeviceTypes.UNKNOWN).build())
         assertThat(DataProto.Device.newBuilder().setType("unrecognized enum").build().toDevice())
-            .isEqualTo(Device())
+            .isEqualTo(Device(type = Device.Companion.TYPE_UNKNOWN))
     }
 }

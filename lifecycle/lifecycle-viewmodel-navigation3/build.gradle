@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -33,7 +33,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -44,6 +44,7 @@ androidXMultiplatform {
                 api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
                 implementation(libs.kotlinStdlib)
+                implementation("androidx.collection:collection-ktx:1.4.5")
                 implementation("androidx.compose.runtime:runtime:1.7.5")
                 implementation("androidx.compose.runtime:runtime-saveable:1.7.5")
                 implementation(project(":navigation3:navigation3"))
@@ -102,7 +103,7 @@ android {
 
 androidx {
     name = "Androidx Lifecycle Navigation3 ViewModel"
-    type = LibraryType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Provides the ViewModel wrapper for nav3."
     doNotDocumentReason = "Not published to maven"

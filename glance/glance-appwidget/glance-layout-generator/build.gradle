@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +40,7 @@ dependencies {
 
 androidx {
     name = "Glance AppWidget Layout Generator"
-    type = LibraryType.INTERNAL_OTHER_CODE_PROCESSOR
+    type = SoftwareType.INTERNAL_OTHER_CODE_PROCESSOR
     inceptionYear = "2021"
     description = "Generator module that generates the layouts Glance AppWidget needs."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

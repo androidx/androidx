@@ -27,7 +27,7 @@ import androidx.sqlite.db.SupportSQLiteStatement
  * @constructor Creates an InsertionAdapter that can insert the entity type T into the given
  *   database.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Deprecated("No longer used by generated code.", ReplaceWith("EntityInsertAdapter"))
 abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteStatement(database) {
     /**

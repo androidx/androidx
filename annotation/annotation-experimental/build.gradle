@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -37,7 +37,7 @@ dependencies {
 
 androidx {
     name = "Experimental annotation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
     inceptionYear = "2019"
     description = "Java annotation for use on unstable Android API surfaces. When used in " +

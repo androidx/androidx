@@ -23,7 +23,7 @@
  */
 import androidx.build.ExportAtomicLibraryGroupsToTextTask
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -57,7 +57,7 @@ dependencies {
 
 androidx {
     name = "Lint checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2018"
     description = "Internal lint checks"
     kotlinTarget = KotlinTarget.KOTLIN_2_0

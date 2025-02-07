@@ -43,7 +43,18 @@ public class AuthenticatorUtilsTest {
                 Authenticators.BIOMETRIC_WEAK,
                 Authenticators.DEVICE_CREDENTIAL,
                 Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL,
-                Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL};
+                Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL,
+
+                // identity check authenticators:
+                Authenticators.IDENTITY_CHECK,
+                Authenticators.BIOMETRIC_STRONG | Authenticators.IDENTITY_CHECK,
+                Authenticators.BIOMETRIC_WEAK | Authenticators.IDENTITY_CHECK,
+                Authenticators.DEVICE_CREDENTIAL | Authenticators.IDENTITY_CHECK,
+                Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL
+                        | Authenticators.IDENTITY_CHECK,
+                Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL
+                        | Authenticators.IDENTITY_CHECK,
+        };
     }
 
     @Test
@@ -66,10 +77,30 @@ public class AuthenticatorUtilsTest {
 
             final BiometricPrompt.PromptInfo info =
                     createPromptInfo(authenticators, true /* deviceCredentialAllowed */);
-            assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */))
-                    .isEqualTo(authenticators);
-            assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject()))
-                    .isEqualTo(authenticators);
+
+            if (authenticators == Authenticators.IDENTITY_CHECK) {
+                assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */,
+                        false /*isIdentityCheckAvailable*/))
+                        .isEqualTo(
+                                Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL);
+                assertThat(
+                        AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject(),
+                                false /*isIdentityCheckAvailable*/))
+                        .isEqualTo(
+                                Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL);
+            } else {
+                assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */,
+                        false /*isIdentityCheckAvailable*/))
+                        .isEqualTo(authenticators & ~Authenticators.IDENTITY_CHECK);
+                assertThat(
+                        AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject(),
+                                false /*isIdentityCheckAvailable*/))
+                        .isEqualTo(authenticators & ~Authenticators.IDENTITY_CHECK);
+            }
+            assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */,
+                    true /*isIdentityCheckAvailable*/)).isEqualTo(authenticators);
+            assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject(),
+                    true /*isIdentityCheckAvailable*/)).isEqualTo(authenticators);
         }
     }
 
@@ -77,9 +108,11 @@ public class AuthenticatorUtilsTest {
     public void testGetConsolidatedAuthenticators_WithDeviceCredentialAllowed() throws Exception {
         final BiometricPrompt.PromptInfo info =
                 createPromptInfo(0 /* authenticators */, true /* deviceCredentialAllowed */);
-        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */))
+        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */,
+                false /*isIdentityCheckAvailable*/))
                 .isEqualTo(Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL);
-        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject()))
+        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject(),
+                false /*isIdentityCheckAvailable*/))
                 .isEqualTo(Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL);
     }
 
@@ -88,9 +121,11 @@ public class AuthenticatorUtilsTest {
             throws Exception {
         final BiometricPrompt.PromptInfo info =
                 createPromptInfo(0 /* authenticators */, false /* deviceCredentialAllowed */);
-        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */))
+        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, null /* crypto */,
+                false /*isIdentityCheckAvailable*/))
                 .isEqualTo(Authenticators.BIOMETRIC_WEAK);
-        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject()))
+        assertThat(AuthenticatorUtils.getConsolidatedAuthenticators(info, createCryptoObject(),
+                false /*isIdentityCheckAvailable*/))
                 .isEqualTo(Authenticators.BIOMETRIC_STRONG);
     }
 

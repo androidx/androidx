@@ -102,6 +102,9 @@ internal class PdfDocumentViewModel(
     internal val searchViewUiState: StateFlow<SearchViewUiState>
         get() = _searchViewUiState.asStateFlow()
 
+    internal val toolboxViewUiState: StateFlow<Boolean>
+        get() = state.getStateFlow(TOOLBOX_STATE_KEY, false)
+
     private val _highlightsFlow = MutableStateFlow<HighlightData>(EMPTY_HIGHLIGHTS)
 
     /** Stream of highlights to be added on PdfView. Also includes scroll to page data. */
@@ -145,7 +148,13 @@ internal class PdfDocumentViewModel(
             [PdfFragmentUiState.DocumentLoaded] state.
             */
             documentLoadJob?.invokeOnCompletion { maybeRestoreSearchState() }
+            documentLoadJob?.invokeOnCompletion { maybeRestoreToolboxState() }
         }
+    }
+
+    private fun maybeRestoreToolboxState() {
+        if (!isToolboxVisibleFromState) return
+        updateToolboxState(isToolboxActive = isToolboxVisibleFromState)
     }
 
     private fun maybeRestoreSearchState() {
@@ -202,6 +211,7 @@ internal class PdfDocumentViewModel(
                 // Loading a new document should not persist a search session from previous
                 // document.
                 updateSearchState(isTextSearchActive = false)
+                updateToolboxState(isToolboxActive = false)
 
                 documentLoadJob = viewModelScope.launch { openDocument(uri, password) }
             }
@@ -306,7 +316,6 @@ internal class PdfDocumentViewModel(
         /**
          * Toolbox state should be updated only after document is loaded. else it will be a No-Op.
          */
-        // TODO b/385288421 - Applying toolbox state and handling visibility
         if (fragmentUiScreenState.value !is PdfFragmentUiState.DocumentLoaded) return
         state[TOOLBOX_STATE_KEY] = isToolboxActive
     }
@@ -324,6 +333,7 @@ internal class PdfDocumentViewModel(
 
             /** Successful load, move to [PdfFragmentUiState.DocumentLoaded] state. */
             _fragmentUiScreenState.update { PdfFragmentUiState.DocumentLoaded(document) }
+            updateToolboxState(isToolboxActive = true)
 
             /** Resets the [passwordFailed] state after a document is successfully loaded. */
             passwordFailed = false

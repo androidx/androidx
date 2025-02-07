@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
 
@@ -79,7 +79,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-apicompiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2022"
     description = "Compiler for Privacy Sandbox API annotations."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

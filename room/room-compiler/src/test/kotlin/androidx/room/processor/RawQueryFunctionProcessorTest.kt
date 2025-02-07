@@ -35,10 +35,8 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.RawQueryFunction
-import androidx.sqlite.db.SupportSQLiteQuery
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -215,15 +213,25 @@ class RawQueryFunctionProcessorTest {
         }
     }
 
-    interface RawQuerySuspendUnitDao {
-        @RawQuery suspend fun foo(query: SupportSQLiteQuery)
-    }
-
     @Test
     fun suspendUnit() {
-        runProcessorTest { invocation ->
-            val daoElement =
-                invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
+        runProcessorTest(
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "RawQuerySuspendUnitDao.kt",
+                        """
+                    import androidx.room.RawQuery
+                    import androidx.sqlite.db.SupportSQLiteQuery
+                    interface RawQuerySuspendUnitDao {
+                        @RawQuery suspend fun foo(query: SupportSQLiteQuery)
+                    }
+                    """
+                            .trimIndent()
+                    )
+                )
+        ) { invocation ->
+            val daoElement = invocation.processingEnv.requireTypeElement("RawQuerySuspendUnitDao")
             val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryFunctionProcessor(
                     baseContext = invocation.context,
@@ -645,7 +653,7 @@ class RawQueryFunctionProcessorTest {
                 COMMON.IMAGE_FORMAT,
                 COMMON.CONVERTER
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = commonSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
@@ -699,7 +707,7 @@ class RawQueryFunctionProcessorTest {
                 COMMON.FLOW,
                 COMMON.GUAVA_ROOM
             )
-        runProcessorTestWithK1(sources = commonSources + inputSource) { invocation ->
+        runProcessorTest(sources = commonSources + inputSource) { invocation ->
             val (owner, functions) =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(Dao::class.qualifiedName!!)

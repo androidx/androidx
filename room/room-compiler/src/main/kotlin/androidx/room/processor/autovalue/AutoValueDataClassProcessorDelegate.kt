@@ -26,8 +26,8 @@ import androidx.room.processor.DataClassProcessor.Companion.TARGET_METHOD_ANNOTA
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.Constructor
 import androidx.room.vo.DataClass
-import androidx.room.vo.EmbeddedField
-import androidx.room.vo.Field
+import androidx.room.vo.EmbeddedProperty
+import androidx.room.vo.Property
 import androidx.room.vo.Warning
 import com.google.auto.value.AutoValue.CopyAnnotations
 
@@ -82,16 +82,16 @@ class AutoValueDataClassProcessorDelegate(
     override fun createDataClass(
         element: XTypeElement,
         declaredType: XType,
-        fields: List<Field>,
-        embeddedFields: List<EmbeddedField>,
+        properties: List<Property>,
+        embeddedProperties: List<EmbeddedProperty>,
         relations: List<androidx.room.vo.Relation>,
         constructor: Constructor?
     ): DataClass {
         return DataClass(
             element = element,
             type = autoValueDeclaredType,
-            fields = fields,
-            embeddedFields = embeddedFields,
+            properties = properties,
+            embeddedProperties = embeddedProperties,
             relations = relations,
             constructor = constructor
         )

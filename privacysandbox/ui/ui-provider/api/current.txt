@@ -31,5 +31,9 @@ package androidx.privacysandbox.ui.provider {
     property public abstract java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> sessionObserverFactories;
   }
 
+  public final class SharedUiAdapterProxy {
+    method @SuppressCompatibility @androidx.privacysandbox.ui.core.ExperimentalFeatures.SharedUiPresentationApi public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SharedUiAdapter);
+  }
+
 }
 

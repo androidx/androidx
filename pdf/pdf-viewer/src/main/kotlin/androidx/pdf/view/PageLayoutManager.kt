@@ -21,6 +21,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.util.Range
+import android.util.SparseArray
 import androidx.pdf.PdfDocument
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -104,6 +105,30 @@ internal class PageLayoutManager(
         }
 
         increaseReach(pagePrefetchRadius - 1)
+    }
+
+    /**
+     * Returns a [SparseArray] containing [Rect]s indicating the visible region of each visible
+     * page, in page coordinates.
+     */
+    fun getVisiblePageAreas(pages: Range<Int>, viewport: Rect): SparseArray<Rect> {
+        val ret = SparseArray<Rect>(pages.upper - pages.lower + 1)
+        for (i in pages.lower..pages.upper) {
+            ret.put(i, getPageVisibleArea(i, viewport))
+        }
+        return ret
+    }
+
+    private fun getPageVisibleArea(pageNum: Int, viewport: Rect): Rect {
+        val pageLocation = getPageLocation(pageNum, viewport)
+        val pageWidth = pageLocation.right - pageLocation.left
+        val pageHeight = pageLocation.bottom - pageLocation.top
+        return Rect(
+            maxOf(viewport.left - pageLocation.left, 0),
+            maxOf(viewport.top - pageLocation.top, 0),
+            minOf(viewport.right - pageLocation.left, pageWidth),
+            minOf(viewport.bottom - pageLocation.top, pageHeight),
+        )
     }
 
     /**

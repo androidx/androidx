@@ -122,7 +122,7 @@ private val defaultPlacementApproachInProgress:
         false
     }
 
-private data class ApproachLayoutElement(
+private class ApproachLayoutElement(
     val approachMeasure:
         ApproachMeasureScope.(
             measurable: Measurable,
@@ -151,6 +151,24 @@ private data class ApproachLayoutElement(
         properties["approachMeasure"] = approachMeasure
         properties["isMeasurementApproachInProgress"] = isMeasurementApproachInProgress
         properties["isPlacementApproachInProgress"] = isPlacementApproachInProgress
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ApproachLayoutElement) return false
+
+        if (approachMeasure !== other.approachMeasure) return false
+        if (isMeasurementApproachInProgress !== other.isMeasurementApproachInProgress) return false
+        if (isPlacementApproachInProgress !== other.isPlacementApproachInProgress) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = approachMeasure.hashCode()
+        result = 31 * result + isMeasurementApproachInProgress.hashCode()
+        result = 31 * result + isPlacementApproachInProgress.hashCode()
+        return result
     }
 }
 

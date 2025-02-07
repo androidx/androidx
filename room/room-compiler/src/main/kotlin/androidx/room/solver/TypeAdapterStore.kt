@@ -41,10 +41,10 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.DataClassProcessor
 import androidx.room.processor.EntityProcessor
-import androidx.room.processor.FieldProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
 import androidx.room.processor.ProcessorErrors.invalidQueryForSingleColumnArray
+import androidx.room.processor.PropertyProcessor
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -811,9 +811,10 @@ private constructor(
             context.processingEnv.requireType(CommonTypeNames.COLLECTION).rawType
         if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
             // The Map's value type argument is assignable to a Collection, we need to make
-            // sure it is either a list or a set.
-            val listTypeRaw = context.processingEnv.requireType(CommonTypeNames.LIST).rawType
-            val setTypeRaw = context.processingEnv.requireType(CommonTypeNames.SET).rawType
+            // sure it is either a List or a Set.
+            val listTypeRaw =
+                context.processingEnv.requireType(CommonTypeNames.MUTABLE_LIST).rawType
+            val setTypeRaw = context.processingEnv.requireType(CommonTypeNames.MUTABLE_SET).rawType
             val collectionValueType =
                 when {
                     mapValueTypeArg.rawType.isAssignableFrom(listTypeRaw) ->
@@ -933,7 +934,7 @@ private constructor(
                             DataClassProcessor.createFor(
                                     context = subContext,
                                     element = typeElement,
-                                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                                     parent = null
                                 )
                                 .process()
@@ -1001,7 +1002,7 @@ private constructor(
                     DataClassProcessor.createFor(
                             context = context,
                             element = typeElement,
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                            bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                             parent = null
                         )
                         .process()

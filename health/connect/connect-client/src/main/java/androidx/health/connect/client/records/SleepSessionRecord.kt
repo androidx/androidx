@@ -39,12 +39,12 @@ class SleepSessionRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     /** Title of the session. Optional field. */
     val title: String? = null,
     /** Additional notes for the session. Optional field. */
     val notes: String? = null,
     val stages: List<Stage> = emptyList(),
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {

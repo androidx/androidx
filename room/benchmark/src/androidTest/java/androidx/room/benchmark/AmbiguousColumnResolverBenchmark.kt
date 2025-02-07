@@ -94,7 +94,7 @@ class AmbiguousColumnResolverBenchmark(
                     resultColumns = resultColumns.toTypedArray(),
                     mappings = mappings.map { it.toTypedArray() }.toTypedArray()
                 )
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 result.forEachIndexed { i, resultMapping ->
                     assertArrayEquals(resultMapping, expected[i])
                 }

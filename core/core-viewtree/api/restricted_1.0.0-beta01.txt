@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.core.viewtree {
+
+  public final class ViewTree {
+    method public static android.view.ViewParent? getParentOrViewTreeDisjointParent(android.view.View);
+    method public static void setViewTreeDisjointParent(android.view.View, android.view.ViewParent? parent);
+  }
+
+}
+

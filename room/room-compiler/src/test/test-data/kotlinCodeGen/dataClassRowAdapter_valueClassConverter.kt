@@ -127,6 +127,26 @@ public class MyDao_Impl(
     }
   }
 
+  public override fun getValueClass(): UUIDValueClass {
+    val _sql: String = "SELECT uuidData FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _result: UUIDValueClass
+        if (_stmt.step()) {
+          val _data: UUID
+          _data = convertByteToUUID(_stmt.getBlob(0))
+          _result = UUIDValueClass(_data)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <UUIDValueClass>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
   public companion object {
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }

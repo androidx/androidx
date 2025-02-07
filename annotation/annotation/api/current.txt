@@ -78,9 +78,9 @@ package androidx.annotation {
   }
 
   public static final class Dimension.Companion {
-    property public static final int DP;
-    property public static final int PX;
-    property public static final int SP;
+    property public static int DP;
+    property public static int PX;
+    property public static int SP;
     field public static final int DP = 0; // 0x0
     field public static final int PX = 1; // 0x1
     field public static final int SP = 2; // 0x2
@@ -361,10 +361,10 @@ package androidx.annotation {
   }
 
   public static final class VisibleForTesting.Companion {
-    property public static final int NONE;
-    property public static final int PACKAGE_PRIVATE;
-    property public static final int PRIVATE;
-    property public static final int PROTECTED;
+    property public static int NONE;
+    property public static int PACKAGE_PRIVATE;
+    property public static int PRIVATE;
+    property public static int PROTECTED;
     field public static final int NONE = 5; // 0x5
     field public static final int PACKAGE_PRIVATE = 3; // 0x3
     field public static final int PRIVATE = 2; // 0x2

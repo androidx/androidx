@@ -28,14 +28,9 @@ import androidx.compose.material3.tokens.StandardIconButtonTokens
 import androidx.compose.material3.tokens.XLargeIconButtonTokens
 import androidx.compose.material3.tokens.XSmallIconButtonTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -892,6 +887,20 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any extra small icon button. */
+    val xSmallSelectedRoundShape: Shape
+        @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any extra small, square icon button. */
+    val xSmallSelectedSquareShape: Shape
+        @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any small icon button. */
     val smallRoundShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
@@ -899,7 +908,7 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
-    /** Default shape for any small icon button. */
+    /** Default square shape for any small icon button. */
     val smallSquareShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeSquare.value
 
@@ -909,6 +918,20 @@ object IconButtonDefaults {
     /** Default pressed shape for any small icon button. */
     val smallPressedShape: Shape
         @Composable get() = SmallIconButtonTokens.PressedContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any small icon button. */
+    val smallSelectedRoundShape: Shape
+        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any small, square icon button. */
+    val SmallSelectedSquareShape: Shape
+        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeSquare.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
@@ -934,6 +957,20 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any medium icon button. */
+    val mediumSelectedRoundShape: Shape
+        @Composable get() = MediumIconButtonTokens.SelectedContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any medium, square icon button. */
+    val mediumSelectedSquareShape: Shape
+        @Composable get() = MediumIconButtonTokens.SelectedContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any large icon button. */
     val largeRoundShape: Shape
         @Composable get() = LargeIconButtonTokens.ContainerShapeRound.value
@@ -951,6 +988,20 @@ object IconButtonDefaults {
     /** Default pressed shape for any large icon button. */
     val largePressedShape: Shape
         @Composable get() = LargeIconButtonTokens.PressedContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any large icon button. */
+    val largeSelectedRoundShape: Shape
+        @Composable get() = LargeIconButtonTokens.SelectedContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any large, square icon button. */
+    val largeSelectedSquareShape: Shape
+        @Composable get() = LargeIconButtonTokens.SelectedContainerShapeSquare.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
@@ -973,20 +1024,100 @@ object IconButtonDefaults {
     val xLargePressedShape: Shape
         @Composable get() = XLargeIconButtonTokens.PressedContainerShape.value
 
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any extra large icon button. */
+    val xLargeSelectedRoundShape: Shape
+        @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeRound.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default selected shape for any extra large, square icon button. */
+    val xLargeSelectedSquareShape: Shape
+        @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeSquare.value
+
     /**
-     * Creates a [ButtonShapes] that correspond to the shapes in the default, pressed, and checked
-     * states. Toggle button will morph between these shapes as long as the shapes are all
+     * Creates a [IconButtonShapes] that correspond to the shapes in the default or pressed states.
+     * Icon button will morph between these shapes as long as the shapes are all
      * [CornerBasedShape]s.
      *
      * @param shape the unchecked shape for [ButtonShapes]
      * @param pressedShape the unchecked shape for [ButtonShapes]
-     * @param checkedShape the unchecked shape for [ButtonShapes]
      */
     @ExperimentalMaterial3ExpressiveApi
     @Composable
-    fun shapes(shape: Shape, pressedShape: Shape, checkedShape: Shape): IconButtonShapes =
-        remember(shape, pressedShape, checkedShape) {
-            IconButtonShapes(shape, pressedShape, checkedShape)
+    fun shapes(shape: Shape? = null, pressedShape: Shape? = null): IconButtonShapes =
+        MaterialTheme.shapes.defaultIconButtonShapes.copy(
+            shape = shape,
+            pressedShape = pressedShape,
+        )
+
+    /**
+     * Creates a [IconButtonShapes] that correspond to a default [IconButton] in the active and
+     * pressed states. [IconButton] will morph between these shapes as long as the shapes are all
+     * [CornerBasedShape]s.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun shapes(): IconButtonShapes = MaterialTheme.shapes.defaultIconButtonShapes
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal val Shapes.defaultIconButtonShapes: IconButtonShapes
+        @Composable
+        get() {
+            return defaultIconButtonShapesCached
+                ?: IconButtonShapes(
+                        shape = smallRoundShape,
+                        pressedShape = smallPressedShape,
+                    )
+                    .also { defaultIconButtonShapesCached = it }
+        }
+
+    /**
+     * Creates a [IconToggleButtonShapes] that correspond to the shapes in the default, pressed, and
+     * checked states. Icon button will morph between these shapes as long as the shapes are all
+     * [CornerBasedShape]s.
+     *
+     * @param shape the active shape for [IconToggleButtonShapes]
+     * @param pressedShape the pressed shape for [IconToggleButtonShapes]
+     * @param checkedShape the checked shape for [IconToggleButtonShapes]
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun toggleableShapes(
+        shape: Shape? = null,
+        pressedShape: Shape? = null,
+        checkedShape: Shape? = null
+    ): IconToggleButtonShapes =
+        MaterialTheme.shapes.defaultIconToggleButtonShapes.copy(
+            shape = shape,
+            pressedShape = pressedShape,
+            checkedShape = checkedShape
+        )
+
+    /**
+     * Creates a [ButtonShapes] that correspond to a default [IconToggleButton] in the active,
+     * pressed and selected states. [IconToggleButton] will morph between these shapes as long as
+     * the shapes are all [CornerBasedShape]s.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun toggleableShapes(): IconToggleButtonShapes =
+        MaterialTheme.shapes.defaultIconToggleButtonShapes
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal val Shapes.defaultIconToggleButtonShapes: IconToggleButtonShapes
+        @Composable
+        get() {
+            return defaultIconToggleButtonShapesCached
+                ?: IconToggleButtonShapes(
+                        shape = smallRoundShape,
+                        pressedShape = smallPressedShape,
+                        checkedShape = smallSelectedRoundShape
+                    )
+                    .also { defaultIconToggleButtonShapesCached = it }
         }
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -1185,191 +1316,5 @@ object IconButtonDefaults {
                 Wide -> "Wide"
                 else -> "Unknown"
             }
-    }
-}
-
-/**
- * Represents the container and content colors used in an icon button in different states.
- *
- * @param containerColor the container color of this icon button when enabled.
- * @param contentColor the content color of this icon button when enabled.
- * @param disabledContainerColor the container color of this icon button when not enabled.
- * @param disabledContentColor the content color of this icon button when not enabled.
- * @constructor create an instance with arbitrary colors.
- * - See [IconButtonDefaults.filledIconButtonColors] and
- *   [IconButtonDefaults.filledTonalIconButtonColors] for the default colors used in a
- *   [FilledIconButton].
- * - See [IconButtonDefaults.outlinedIconButtonVibrantColors] for the default colors used in an
- *   [OutlinedIconButton].
- */
-@Immutable
-class IconButtonColors(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
-) {
-
-    /**
-     * Returns a copy of this IconButtonColors, optionally overriding some of the values. This uses
-     * the Color.Unspecified to mean “use the value from the source”
-     */
-    fun copy(
-        containerColor: Color = this.containerColor,
-        contentColor: Color = this.contentColor,
-        disabledContainerColor: Color = this.disabledContainerColor,
-        disabledContentColor: Color = this.disabledContentColor,
-    ) =
-        IconButtonColors(
-            containerColor.takeOrElse { this.containerColor },
-            contentColor.takeOrElse { this.contentColor },
-            disabledContainerColor.takeOrElse { this.disabledContainerColor },
-            disabledContentColor.takeOrElse { this.disabledContentColor },
-        )
-
-    /**
-     * Represents the container color for this icon button, depending on [enabled].
-     *
-     * @param enabled whether the icon button is enabled
-     */
-    @Stable
-    internal fun containerColor(enabled: Boolean): Color =
-        if (enabled) containerColor else disabledContainerColor
-
-    /**
-     * Represents the content color for this icon button, depending on [enabled].
-     *
-     * @param enabled whether the icon button is enabled
-     */
-    @Stable
-    internal fun contentColor(enabled: Boolean): Color =
-        if (enabled) contentColor else disabledContentColor
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is IconButtonColors) return false
-
-        if (containerColor != other.containerColor) return false
-        if (contentColor != other.contentColor) return false
-        if (disabledContainerColor != other.disabledContainerColor) return false
-        if (disabledContentColor != other.disabledContentColor) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = containerColor.hashCode()
-        result = 31 * result + contentColor.hashCode()
-        result = 31 * result + disabledContainerColor.hashCode()
-        result = 31 * result + disabledContentColor.hashCode()
-
-        return result
-    }
-}
-
-/**
- * Represents the container and content colors used in a toggleable icon button in different states.
- *
- * @param containerColor the container color of this icon button when enabled.
- * @param contentColor the content color of this icon button when enabled.
- * @param disabledContainerColor the container color of this icon button when not enabled.
- * @param disabledContentColor the content color of this icon button when not enabled.
- * @param checkedContainerColor the container color of this icon button when checked.
- * @param checkedContentColor the content color of this icon button when checked.
- * @constructor create an instance with arbitrary colors.
- * - See [IconButtonDefaults.filledIconToggleButtonColors] and
- *   [IconButtonDefaults.filledTonalIconToggleButtonColors] for the default colors used in a
- *   [FilledIconButton].
- * - See [IconButtonDefaults.outlinedIconToggleButtonVibrantColors] for the default colors used in a
- *   toggleable [OutlinedIconButton].
- */
-@Immutable
-class IconToggleButtonColors(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
-    val checkedContainerColor: Color,
-    val checkedContentColor: Color,
-) {
-
-    /**
-     * Returns a copy of this IconToggleButtonColors, optionally overriding some of the values. This
-     * uses the Color.Unspecified to mean “use the value from the source”
-     */
-    fun copy(
-        containerColor: Color = this.containerColor,
-        contentColor: Color = this.contentColor,
-        disabledContainerColor: Color = this.disabledContainerColor,
-        disabledContentColor: Color = this.disabledContentColor,
-        checkedContainerColor: Color = this.checkedContainerColor,
-        checkedContentColor: Color = this.checkedContentColor
-    ) =
-        IconToggleButtonColors(
-            containerColor.takeOrElse { this.containerColor },
-            contentColor.takeOrElse { this.contentColor },
-            disabledContainerColor.takeOrElse { this.disabledContainerColor },
-            disabledContentColor.takeOrElse { this.disabledContentColor },
-            checkedContainerColor.takeOrElse { this.checkedContainerColor },
-            checkedContentColor.takeOrElse { this.checkedContentColor }
-        )
-
-    /**
-     * Represents the container color for this icon button, depending on [enabled] and [checked].
-     *
-     * @param enabled whether the icon button is enabled
-     * @param checked whether the icon button is checked
-     */
-    @Composable
-    internal fun containerColor(enabled: Boolean, checked: Boolean): State<Color> {
-        val target =
-            when {
-                !enabled -> disabledContainerColor
-                !checked -> containerColor
-                else -> checkedContainerColor
-            }
-        return rememberUpdatedState(target)
-    }
-
-    /**
-     * Represents the content color for this icon button, depending on [enabled] and [checked].
-     *
-     * @param enabled whether the icon button is enabled
-     * @param checked whether the icon button is checked
-     */
-    @Composable
-    internal fun contentColor(enabled: Boolean, checked: Boolean): State<Color> {
-        val target =
-            when {
-                !enabled -> disabledContentColor
-                !checked -> contentColor
-                else -> checkedContentColor
-            }
-        return rememberUpdatedState(target)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is IconToggleButtonColors) return false
-
-        if (containerColor != other.containerColor) return false
-        if (contentColor != other.contentColor) return false
-        if (disabledContainerColor != other.disabledContainerColor) return false
-        if (disabledContentColor != other.disabledContentColor) return false
-        if (checkedContainerColor != other.checkedContainerColor) return false
-        if (checkedContentColor != other.checkedContentColor) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = containerColor.hashCode()
-        result = 31 * result + contentColor.hashCode()
-        result = 31 * result + disabledContainerColor.hashCode()
-        result = 31 * result + disabledContentColor.hashCode()
-        result = 31 * result + checkedContainerColor.hashCode()
-        result = 31 * result + checkedContentColor.hashCode()
-
-        return result
     }
 }

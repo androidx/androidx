@@ -8,6 +8,7 @@ package androidx.lifecycle {
 
   public final class AndroidViewModel_androidKt {
     method public static inline android.app.Application getApplication(androidx.lifecycle.AndroidViewModel);
+    property public static inline android.app.Application application;
   }
 
   public interface HasDefaultViewModelProviderFactory {
@@ -32,6 +33,7 @@ package androidx.lifecycle {
 
   public final class ViewModelKt {
     method public static kotlinx.coroutines.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
+    property public static kotlinx.coroutines.CoroutineScope viewModelScope;
   }
 
   public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
@@ -67,13 +69,13 @@ package androidx.lifecycle {
 
   public static final class ViewModelProvider.AndroidViewModelFactory.Companion {
     method public androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
-    property public final androidx.lifecycle.viewmodel.CreationExtras.Key<android.app.Application> APPLICATION_KEY;
+    property public androidx.lifecycle.viewmodel.CreationExtras.Key<android.app.Application> APPLICATION_KEY;
   }
 
   public static final class ViewModelProvider.Companion {
     method public androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStore store, optional androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
     method public androidx.lifecycle.ViewModelProvider create(androidx.lifecycle.ViewModelStoreOwner owner, optional androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
-    property public final androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
+    property public androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
   }
 
   public static interface ViewModelProvider.Factory {
@@ -95,7 +97,7 @@ package androidx.lifecycle {
   }
 
   public static final class ViewModelProvider.NewInstanceFactory.Companion {
-    property public final androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
+    property public androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
   }
 
   public final class ViewModelProviderGetKt {

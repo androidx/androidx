@@ -24,6 +24,7 @@ import androidx.compose.material3.internal.CalendarDate
 import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.DateInputFormat
 import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.formatString
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
@@ -286,26 +287,27 @@ internal fun DateInputTextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Stable
-internal expect class DateInputValidator(
-    yearRange: IntRange,
-    selectableDates: SelectableDates,
-    dateInputFormat: DateInputFormat,
-    dateFormatter: DatePickerFormatter,
-    errorDatePattern: String,
-    errorDateOutOfYearRange: String,
-    errorInvalidNotAllowed: String,
-    errorInvalidRangeInput: String,
+internal class DateInputValidator(
+    private val yearRange: IntRange,
+    private val selectableDates: SelectableDates,
+    private val dateInputFormat: DateInputFormat,
+    private val dateFormatter: DatePickerFormatter,
+    private val errorDatePattern: String,
+    private val errorDateOutOfYearRange: String,
+    private val errorInvalidNotAllowed: String,
+    private val errorInvalidRangeInput: String
 ) {
     /**
      * the currently selected start date in milliseconds. Only checked against when the
      * [InputIdentifier] is [InputIdentifier.EndDateInput].
      */
-    var currentStartDateMillis: Long?
+    var currentStartDateMillis: Long? = null
+
     /**
      * the currently selected end date in milliseconds. Only checked against when the
      * [InputIdentifier] is [InputIdentifier.StartDateInput].
      */
-    var currentEndDateMillis: Long?
+    var currentEndDateMillis: Long? = null
 
     /**
      * Validates a [CalendarDate] input and returns an error string in case an issue with the given
@@ -320,7 +322,47 @@ internal expect class DateInputValidator(
         dateToValidate: CalendarDate?,
         inputIdentifier: InputIdentifier,
         locale: CalendarLocale
-    ): String
+    ): String {
+        if (dateToValidate == null) {
+            return formatString(errorDatePattern, dateInputFormat.patternWithDelimiters.uppercase())
+        }
+        // Check that the date is within the valid range of years.
+        if (!yearRange.contains(dateToValidate.year)) {
+            return formatString(
+                errorDateOutOfYearRange,
+                yearRange.first.toLocalString(),
+                yearRange.last.toLocalString()
+            )
+        }
+        // Check that the provided SelectableDates allows this date to be selected.
+        with(selectableDates) {
+            if (
+                !isSelectableYear(dateToValidate.year) ||
+                    !isSelectableDate(dateToValidate.utcTimeMillis)
+            ) {
+                return formatString(
+                    errorInvalidNotAllowed,
+                    dateFormatter.formatDate(
+                        dateMillis = dateToValidate.utcTimeMillis,
+                        locale = locale
+                    )
+                )
+            }
+        }
+
+        // Additional validation when the InputIdentifier is for start of end dates in a range input
+        if (
+            (inputIdentifier == InputIdentifier.StartDateInput &&
+                dateToValidate.utcTimeMillis > (currentEndDateMillis ?: Long.MAX_VALUE)) ||
+                (inputIdentifier == InputIdentifier.EndDateInput &&
+                    dateToValidate.utcTimeMillis < (currentStartDateMillis ?: Long.MIN_VALUE))
+        ) {
+            // The input start date is after the end date, or the end date is before the start date.
+            return errorInvalidRangeInput
+        }
+
+        return ""
+    }
 }
 
 /**

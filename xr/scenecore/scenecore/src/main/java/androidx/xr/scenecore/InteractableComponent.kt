@@ -17,14 +17,12 @@
 package androidx.xr.scenecore
 
 import android.util.Log
-import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
 /**
  * Provides access to raw input events for given Entity, so a client can implement their own
  * interaction logic.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class InteractableComponent
 private constructor(
     private val runtime: JxrPlatformAdapter,

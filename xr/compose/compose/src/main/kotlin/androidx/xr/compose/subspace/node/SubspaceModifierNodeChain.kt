@@ -81,14 +81,17 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             // modifiers.
             var node = paddedHead
 
-            // First match as many identical modifiers at the beginning of the lists.
+            // First match as many same-type modifiers at the beginning of the lists.
             checkNotNull(before) { "prior modifier list should be non-empty" }
-            while (i < beforeSize && i < after.size && before[i] == after[i]) {
+            while (i < beforeSize && i < after.size && before[i]::class == after[i]::class) {
                 node = checkNotNull(node.child) { "child should not be null" }
+                if (before[i] != after[i]) {
+                    updateNode(node, after[i])
+                }
                 i++
             }
 
-            // Then remove the remaining existing modifiers.
+            // Then remove the remaining existing modifiers when we have a structural change.
             var nodeToDelete = node.child
             var beforeIndex = i
             while (nodeToDelete != null && beforeIndex < beforeSize) {
@@ -111,6 +114,26 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         head = trimChain()
     }
 
+    /**
+     * Marks all nodes in the chain as attached to a [SubspaceLayout].
+     *
+     * This should be called *before* [runOnAttach] is called. We check that the node is not already
+     * attached as this method may be called more than necessary to ensure proper state.
+     */
+    internal fun markAsAttached() = headToTail { if (!it.isAttached) it.markAsAttached() }
+
+    internal fun runOnAttach() = headToTail { if (it.isAttached) it.onAttach() }
+
+    /**
+     * Marks all nodes in the chain as detached from a [SubspaceLayout].
+     *
+     * This should be called *after* [runOnDetach] is called. We check that the node is attached as
+     * this method may be called more than necessary to ensure proper state.
+     */
+    internal fun markAsDetached() = tailToHead { if (it.isAttached) it.markAsDetached() }
+
+    internal fun runOnDetach() = tailToHead { if (it.isAttached) it.onDetach() }
+
     internal fun measureChain(
         constraints: VolumeConstraints,
         wrappedMeasureBlock: (VolumeConstraints) -> Placeable,
@@ -125,6 +148,14 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         inMeasurePass = false
         return placeable
     }
+
+    /** Executes [block] for each modifier in the chain starting at the head. */
+    internal inline fun headToTail(block: (SubspaceModifier.Node) -> Unit) =
+        head.traverseSelfThenDescendants().forEach(block)
+
+    /** Executes [block] for each modifier in the chain starting at the tail. */
+    internal inline fun tailToHead(block: (SubspaceModifier.Node) -> Unit) =
+        tail.traverseSelfThenAncestors().forEach(block)
 
     /** Returns all nodes of the given type in the chain in the declared modifier order. */
     internal inline fun <reified T> getAll(): Sequence<T> =
@@ -160,7 +191,15 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         }
         parent.child = node
         node.parent = parent
+        if (!node.isAttached) {
+            node.markAsAttached()
+            node.onAttach()
+        }
         return node
+    }
+
+    private fun updateNode(node: SubspaceModifier.Node, modifier: SubspaceModifier) {
+        (modifier as SubspaceModifierElement<*>).updateUnsafe(node)
     }
 
     private fun removeNode(node: SubspaceModifier.Node): SubspaceModifier.Node {
@@ -174,8 +213,18 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             parent.child = child
             node.parent = null
         }
+        if (node.isAttached) {
+            node.onDetach()
+            node.markAsDetached()
+        }
         return parent!!
     }
+}
+
+private fun <T : SubspaceModifier.Node> SubspaceModifierElement<T>.updateUnsafe(
+    node: SubspaceModifier.Node
+) {
+    @Suppress("UNCHECKED_CAST") update(node as T)
 }
 
 private fun SubspaceModifier.fillVector(

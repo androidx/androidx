@@ -244,7 +244,40 @@ internal open class AndroidViewHolder(
 
     override fun onDeactivate() {
         reset()
-        removeAllViewsInLayout()
+        if (hasFocus()) {
+            // When a focused View is removed, it will request a focus change. We'll give it a
+            // temporary View to focus on so that we don't do a recompose during applyChanges()
+            // while searching for a focusable View (e.g. in a LazyColumn)
+            val focused = findFocus()
+            // focused should not be null here, but we'll check just in case
+            if (focused == null) {
+                removeAllViewsInLayout()
+            } else {
+                val tempFocusable = View(context)
+                val rect = Rect(0, 0, focused.width, focused.height)
+                offsetDescendantRectToMyCoords(focused, rect)
+                addView(tempFocusable)
+
+                with(tempFocusable) {
+                    isFocusable = true
+                    isFocusableInTouchMode = true
+                    nextFocusUpId = focused.nextFocusUpId
+                    nextFocusDownId = focused.nextFocusDownId
+                    nextFocusLeftId = focused.nextFocusLeftId
+                    nextFocusRightId = focused.nextFocusRightId
+                    nextFocusForwardId = focused.nextFocusForwardId
+                    layout(rect.left, rect.top, rect.right, rect.bottom)
+                    requestFocus()
+                }
+                repeat(childCount - 1) { removeViewAt(0) }
+                owner.registerOnEndApplyChangesListener {
+                    // Now we're ready to send focus to the next focusable item.
+                    removeView(tempFocusable)
+                }
+            }
+        } else {
+            removeAllViewsInLayout()
+        }
     }
 
     override fun onRelease() {

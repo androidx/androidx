@@ -246,4 +246,53 @@ public object StockBrushes {
      * latest version of the pressure pen.
      */
     @JvmStatic public val highlighterLatest: BrushFamily = highlighterV1
+
+    /**
+     * Version 1 of a brush that appears as rounded rectangles with gaps in between them. This may
+     * be decorative, or can be used to signify a user interaction like free-form (lasso) selection.
+     *
+     * The behavior of this [BrushFamily] will not meaningfully change in future releases. More
+     * significant updates would be contained in a [BrushFamily] with a different name specifying a
+     * later version number.
+     */
+    @JvmStatic
+    public val dashedLineV1: BrushFamily =
+        BrushFamily(
+            tip =
+                BrushTip(
+                    scaleX = 2F,
+                    scaleY = 1F,
+                    cornerRounding = 0.45F,
+                    particleGapDistanceScale = 3F,
+                    behaviors =
+                        listOf(
+                            predictionFadeOutBehavior,
+                            BrushBehavior(
+                                listOf(
+                                    BrushBehavior.TargetNode(
+                                        BrushBehavior.Target.ROTATION_OFFSET_IN_RADIANS,
+                                        -Angle.HALF_TURN_RADIANS,
+                                        Angle.HALF_TURN_RADIANS,
+                                        BrushBehavior.SourceNode(
+                                            BrushBehavior.Source.DIRECTION_ABOUT_ZERO_IN_RADIANS,
+                                            -Angle.HALF_TURN_RADIANS,
+                                            Angle.HALF_TURN_RADIANS,
+                                            BrushBehavior.OutOfRange.CLAMP,
+                                        ),
+                                    )
+                                )
+                            ),
+                        ),
+                )
+        )
+
+    /**
+     * The latest version of a brush that appears as rounded rectangles with gaps in between them.
+     * This may be decorative, or can be used to signify a user interaction like free-form (lasso)
+     * selection.
+     *
+     * The behavior of this [BrushFamily] may change in future releases, as it always points to the
+     * latest version of the pressure pen.
+     */
+    @JvmStatic public val dashedLineLatest: BrushFamily = dashedLineV1
 }

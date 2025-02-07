@@ -26,7 +26,7 @@ package androidx.compose.animation {
     method public androidx.compose.animation.EnterTransition slideIntoContainer(int towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> initialOffset);
     method public androidx.compose.animation.ExitTransition slideOutOfContainer(int towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> targetOffset);
     method public infix androidx.compose.animation.ContentTransform using(androidx.compose.animation.ContentTransform, androidx.compose.animation.SizeTransform? sizeTransform);
-    property public androidx.compose.animation.ExitTransition KeepUntilTransitionsFinished;
+    property public default androidx.compose.animation.ExitTransition KeepUntilTransitionsFinished;
     property public abstract androidx.compose.ui.Alignment contentAlignment;
   }
 
@@ -41,12 +41,12 @@ package androidx.compose.animation {
     method public int getRight();
     method public int getStart();
     method public int getUp();
-    property public final int Down;
-    property public final int End;
-    property public final int Left;
-    property public final int Right;
-    property public final int Start;
-    property public final int Up;
+    property public int Down;
+    property public int End;
+    property public int Left;
+    property public int Right;
+    property public int Start;
+    property public int Up;
   }
 
   public final class AnimatedVisibilityKt {
@@ -76,6 +76,7 @@ package androidx.compose.animation {
 
   public final class ColorVectorConverterKt {
     method public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getVectorConverter(androidx.compose.ui.graphics.Color.Companion);
+    property public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> VectorConverter;
   }
 
   public final class ContentTransform {
@@ -85,10 +86,10 @@ package androidx.compose.animation {
     method public androidx.compose.animation.EnterTransition getTargetContentEnter();
     method public float getTargetContentZIndex();
     method public void setTargetContentZIndex(float);
-    property public final androidx.compose.animation.ExitTransition initialContentExit;
-    property public final androidx.compose.animation.SizeTransform? sizeTransform;
-    property public final androidx.compose.animation.EnterTransition targetContentEnter;
-    property public final float targetContentZIndex;
+    property public androidx.compose.animation.ExitTransition initialContentExit;
+    property public androidx.compose.animation.SizeTransform? sizeTransform;
+    property public androidx.compose.animation.EnterTransition targetContentEnter;
+    property public float targetContentZIndex;
   }
 
   public final class CrossfadeKt {
@@ -129,7 +130,7 @@ package androidx.compose.animation {
 
   public static final class EnterTransition.Companion {
     method public androidx.compose.animation.EnterTransition getNone();
-    property public final androidx.compose.animation.EnterTransition None;
+    property public androidx.compose.animation.EnterTransition None;
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed class ExitTransition {
@@ -139,7 +140,7 @@ package androidx.compose.animation {
 
   public static final class ExitTransition.Companion {
     method public androidx.compose.animation.ExitTransition getNone();
-    property public final androidx.compose.animation.ExitTransition None;
+    property public androidx.compose.animation.ExitTransition None;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalAnimationApi {
@@ -174,8 +175,8 @@ package androidx.compose.animation {
   public static final class SharedTransitionScope.PlaceHolderSize.Companion {
     method public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize getAnimatedSize();
     method public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize getContentSize();
-    property public final androidx.compose.animation.SharedTransitionScope.PlaceHolderSize animatedSize;
-    property public final androidx.compose.animation.SharedTransitionScope.PlaceHolderSize contentSize;
+    property public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize animatedSize;
+    property public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize contentSize;
   }
 
   public static sealed interface SharedTransitionScope.ResizeMode {
@@ -185,7 +186,7 @@ package androidx.compose.animation {
   public static final class SharedTransitionScope.ResizeMode.Companion {
     method public androidx.compose.animation.SharedTransitionScope.ResizeMode ScaleToBounds(optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.ui.Alignment alignment);
     method public androidx.compose.animation.SharedTransitionScope.ResizeMode getRemeasureToBounds();
-    property public final androidx.compose.animation.SharedTransitionScope.ResizeMode RemeasureToBounds;
+    property public androidx.compose.animation.SharedTransitionScope.ResizeMode RemeasureToBounds;
   }
 
   public static final class SharedTransitionScope.SharedContentState {
@@ -193,10 +194,10 @@ package androidx.compose.animation {
     method public Object getKey();
     method public androidx.compose.animation.SharedTransitionScope.SharedContentState? getParentSharedContentState();
     method public boolean isMatchFound();
-    property public final androidx.compose.ui.graphics.Path? clipPathInOverlay;
-    property public final boolean isMatchFound;
-    property public final Object key;
-    property public final androidx.compose.animation.SharedTransitionScope.SharedContentState? parentSharedContentState;
+    property public androidx.compose.ui.graphics.Path? clipPathInOverlay;
+    property public boolean isMatchFound;
+    property public Object key;
+    property public androidx.compose.animation.SharedTransitionScope.SharedContentState? parentSharedContentState;
   }
 
   public final class SharedTransitionScopeKt {

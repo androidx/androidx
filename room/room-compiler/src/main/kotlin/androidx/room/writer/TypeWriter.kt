@@ -189,7 +189,7 @@ abstract class TypeWriter(val context: WriterContext) {
 
         abstract fun getUniqueKey(): String
 
-        abstract fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder)
+        abstract fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder)
 
         fun build(writer: TypeWriter, name: String): XFunSpec {
             val builder = XFunSpec.builder(name, VisibilityModifier.PRIVATE)

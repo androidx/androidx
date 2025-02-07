@@ -42,7 +42,7 @@ package androidx.glance.appwidget {
 
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> LocalAppWidgetOptions;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> LocalAppWidgetOptions;
   }
 
   public final class CornerRadiusKt {
@@ -78,7 +78,7 @@ package androidx.glance.appwidget {
   public final class GlanceAppWidgetManager {
     ctor public GlanceAppWidgetManager(android.content.Context context);
     method public int getAppWidgetId(androidx.glance.GlanceId glanceId);
-    method public suspend Object? getAppWidgetSizes(androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.compose.ui.unit.DpSize>>);
+    method public suspend Object? getAppWidgetSizes(androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super java.util.List<androidx.compose.ui.unit.DpSize>>);
     method public androidx.glance.GlanceId? getGlanceIdBy(android.content.Intent configurationIntent);
     method public androidx.glance.GlanceId getGlanceIdBy(int appWidgetId);
     method public suspend <T extends androidx.glance.appwidget.GlanceAppWidget> Object? getGlanceIds(Class<T> provider, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.glance.GlanceId>>);
@@ -102,7 +102,7 @@ package androidx.glance.appwidget {
   }
 
   public static final class GlanceAppWidgetReceiver.Companion {
-    property public static final String ACTION_DEBUG_UPDATE;
+    property public static String ACTION_DEBUG_UPDATE;
   }
 
   @SuppressCompatibility @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi public final class GlanceRemoteViews {
@@ -135,8 +135,8 @@ package androidx.glance.appwidget {
   public final class ProgressIndicatorDefaults {
     method public androidx.glance.unit.ColorProvider getBackgroundColorProvider();
     method public androidx.glance.unit.ColorProvider getIndicatorColorProvider();
-    property public final androidx.glance.unit.ColorProvider BackgroundColorProvider;
-    property public final androidx.glance.unit.ColorProvider IndicatorColorProvider;
+    property public androidx.glance.unit.ColorProvider BackgroundColorProvider;
+    property public androidx.glance.unit.ColorProvider IndicatorColorProvider;
     field public static final androidx.glance.appwidget.ProgressIndicatorDefaults INSTANCE;
   }
 
@@ -160,7 +160,7 @@ package androidx.glance.appwidget {
   @SuppressCompatibility @androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi public final class RemoteViewsCompositionResult {
     ctor public RemoteViewsCompositionResult(android.widget.RemoteViews remoteViews);
     method public android.widget.RemoteViews getRemoteViews();
-    property public final android.widget.RemoteViews remoteViews;
+    property public android.widget.RemoteViews remoteViews;
   }
 
   public sealed interface SizeMode {
@@ -173,7 +173,7 @@ package androidx.glance.appwidget {
   public static final class SizeMode.Responsive implements androidx.glance.appwidget.PreviewSizeMode androidx.glance.appwidget.SizeMode {
     ctor public SizeMode.Responsive(java.util.Set<androidx.compose.ui.unit.DpSize> sizes);
     method public java.util.Set<androidx.compose.ui.unit.DpSize> getSizes();
-    property public final java.util.Set<androidx.compose.ui.unit.DpSize> sizes;
+    property public java.util.Set<androidx.compose.ui.unit.DpSize> sizes;
   }
 
   public static final class SizeMode.Single implements androidx.glance.appwidget.PreviewSizeMode androidx.glance.appwidget.SizeMode {
@@ -248,7 +248,7 @@ package androidx.glance.appwidget.action {
 
   public final class ToggleableKt {
     method public static androidx.glance.action.ActionParameters.Key<java.lang.Boolean> getToggleableStateKey();
-    property public static final androidx.glance.action.ActionParameters.Key<java.lang.Boolean> ToggleableStateKey;
+    property public static androidx.glance.action.ActionParameters.Key<java.lang.Boolean> ToggleableStateKey;
   }
 
 }
@@ -284,13 +284,13 @@ package androidx.glance.appwidget.lazy {
   @RequiresApi(31) public static final class GridCells.Adaptive extends androidx.glance.appwidget.lazy.GridCells {
     ctor public GridCells.Adaptive(float minSize);
     method public float getMinSize();
-    property public final float minSize;
+    property public float minSize;
   }
 
   public static final class GridCells.Fixed extends androidx.glance.appwidget.lazy.GridCells {
     ctor public GridCells.Fixed(int count);
     method public int getCount();
-    property public final int count;
+    property public int count;
   }
 
   @androidx.glance.appwidget.lazy.LazyScopeMarker public interface LazyItemScope {
@@ -313,7 +313,7 @@ package androidx.glance.appwidget.lazy {
   }
 
   public static final class LazyListScope.Companion {
-    property public static final long UnspecifiedItemId;
+    property public static long UnspecifiedItemId;
     field public static final long UnspecifiedItemId = -9223372036854775808L; // 0x8000000000000000L
   }
 
@@ -337,7 +337,7 @@ package androidx.glance.appwidget.lazy {
   }
 
   public static final class LazyVerticalGridScope.Companion {
-    property public static final long UnspecifiedItemId;
+    property public static long UnspecifiedItemId;
     field public static final long UnspecifiedItemId = -9223372036854775808L; // 0x8000000000000000L
   }
 

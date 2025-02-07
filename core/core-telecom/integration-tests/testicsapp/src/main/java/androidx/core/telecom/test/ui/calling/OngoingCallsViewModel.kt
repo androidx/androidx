@@ -17,6 +17,7 @@
 package androidx.core.telecom.test.ui.calling
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
@@ -28,6 +29,7 @@ import androidx.core.telecom.CallException
 import androidx.core.telecom.test.services.AudioRoute
 import androidx.core.telecom.test.services.CallAudioEndpoint
 import androidx.core.telecom.test.services.CallData
+import androidx.core.telecom.test.services.CallIconData
 import androidx.core.telecom.test.services.CallState
 import androidx.core.telecom.test.services.Capability
 import androidx.core.telecom.test.services.LocalCallSilenceData
@@ -136,8 +138,21 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
             callType = fullCallData.callData.callType,
             onStateChanged = { fullCallData.callData.onStateChanged(it) },
             participantUiState = mapToUiParticipantExtension(fullCallData.participantExtensionData),
-            localCallSilenceUiState = mapToUiLocalSilenceExtension(fullCallData.localSilenceData)
+            localCallSilenceUiState = mapToUiLocalSilenceExtension(fullCallData.localSilenceData),
+            callIconUiState = mapToUiCallIconExtension(fullCallData.callIconData)
         )
+    }
+
+    /** map [CallIconData] to [CallIconExtensionUiState] */
+    @OptIn(ExperimentalAppActions::class)
+    private fun mapToUiCallIconExtension(
+        callIconExtensionData: CallIconData?
+    ): CallIconExtensionUiState {
+        return if (callIconExtensionData == null) {
+            CallIconExtensionUiState(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+        } else {
+            CallIconExtensionUiState(callIconExtensionData.callIconUri)
+        }
     }
 
     @OptIn(ExperimentalAppActions::class)

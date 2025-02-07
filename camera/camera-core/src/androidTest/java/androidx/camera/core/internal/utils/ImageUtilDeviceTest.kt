@@ -124,7 +124,7 @@ class ImageUtilDeviceTest {
                     0,
                     0,
                     Matrix(),
-                    FlashState.FLASH_STATE_UNKNOWN
+                    FlashState.UNKNOWN
                 ),
                 WIDTH,
                 HEIGHT
@@ -146,7 +146,7 @@ class ImageUtilDeviceTest {
                     0,
                     0,
                     Matrix(),
-                    FlashState.FLASH_STATE_UNKNOWN
+                    FlashState.UNKNOWN
                 ),
                 WIDTH,
                 HEIGHT
@@ -228,7 +228,7 @@ class ImageUtilDeviceTest {
                     0,
                     0,
                     Matrix(),
-                    FlashState.FLASH_STATE_UNKNOWN
+                    FlashState.UNKNOWN
                 )
             )
         image.format = ImageFormat.PRIVATE

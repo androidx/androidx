@@ -64,8 +64,6 @@ import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.test.NestedScrollingParent2Adapter;
@@ -77,6 +75,8 @@ import androidx.testutils.AnimationDurationScaleRule;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -835,9 +835,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 layoutLatch.countDown();
             }
 
-            @Nullable
             @Override
-            public View onFocusSearchFailed(View focused, int direction,
+            public @Nullable View onFocusSearchFailed(View focused, int direction,
                     RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
                 int expectedDir = View.FOCUS_FORWARD;
@@ -981,7 +980,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                 outRect.set(1, 2, 3, 4);
             }
         });
@@ -1067,7 +1066,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 return new RecyclerView.ViewHolder(view) {};
             }
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {}
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {}
             @Override
             public int getItemCount() {
                 return 1;
@@ -1234,9 +1233,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 layoutLatch.countDown();
             }
 
-            @Nullable
             @Override
-            public View onFocusSearchFailed(View focused, int direction,
+            public @Nullable View onFocusSearchFailed(View focused, int direction,
                     RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
                 try {
@@ -3381,9 +3379,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         countDownLatch.countDown();
                     }
 
-                    @Nullable
                     @Override
-                    public PointF computeScrollVectorForPosition(int targetPosition) {
+                    public @Nullable PointF computeScrollVectorForPosition(int targetPosition) {
                         return new PointF(dxIncrement, dyIncrement);
                     }
                 };
@@ -3581,7 +3578,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         recyclerView.setAdapter(testAdapter);
         recyclerView.setRecyclerListener(new RecyclerView.RecyclerListener() {
             @Override
-            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+            public void onViewRecycled(RecyclerView.@NonNull ViewHolder holder) {
                 recycledViewCount.incrementAndGet();
             }
         });
@@ -3738,7 +3735,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final RecyclerView.ItemDecoration decoration = new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                 try {
                     TestViewHolder tvh = (TestViewHolder) parent.getChildViewHolder(view);
                     Object data = tvh.getData();
@@ -5145,7 +5142,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             rv.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
                 public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                        @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                     outRect.set(0, 10, 0, 10);
                 }
             });
@@ -5487,7 +5484,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-                @NonNull int[] consumed, @ViewCompat.NestedScrollType int type) {
+                int @NonNull [] consumed, @ViewCompat.NestedScrollType int type) {
             // Consume everything!
             consumed[0] = dx;
             consumed[1] = dy;

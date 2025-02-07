@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 
 package androidx.compose.ui.node
 
@@ -21,9 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillManager
-import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -41,7 +38,6 @@ import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -52,7 +48,6 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -88,7 +83,7 @@ internal interface Owner : PositionCalculator {
     val inputModeManager: InputModeManager
 
     /** Provide clipboard manager to the user. Use the Android version of clipboard manager. */
-    val clipboardManager: ClipboardManager
+    val clipboardManager: @Suppress("Deprecation") androidx.compose.ui.platform.ClipboardManager
 
     /**
      * Provide clipboard manager with suspend function to the user. Use the Android version of
@@ -114,17 +109,14 @@ internal interface Owner : PositionCalculator {
     /**
      * A data structure used to store autofill information. It is used by components that want to
      * provide autofill semantics.
-     *
-     * TODO(ralu): Replace with SemanticsTree. This is a temporary hack until we have a semantics
-     *   tree implemented.
      */
-    val autofillTree: AutofillTree
+    val autofillTree: @Suppress("Deprecation") androidx.compose.ui.autofill.AutofillTree
 
     /**
-     * The [Autofill] class can be used to perform autofill operations. It is used as a
-     * CompositionLocal.
+     * The [Autofill][androidx.compose.ui.autofill.Autofill] class can be used to perform autofill
+     * operations. It is used as a CompositionLocal.
      */
-    val autofill: Autofill?
+    val autofill: @Suppress("Deprecation") androidx.compose.ui.autofill.Autofill?
 
     /**
      * The [AutofillManager] class can be used to perform autofill operations. It is used as a
@@ -134,7 +126,7 @@ internal interface Owner : PositionCalculator {
 
     val density: Density
 
-    val textInputService: TextInputService
+    val textInputService: @Suppress("Deprecation") androidx.compose.ui.text.input.TextInputService
 
     val softwareKeyboardController: SoftwareKeyboardController
 

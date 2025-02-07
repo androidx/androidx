@@ -26,7 +26,6 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -109,16 +108,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
                 val glanceId = AppWidgetId(appWidgetId)
                 try {
                     startSessionIfNeededAndWaitUntilReady(glanceId)
-                } catch (e: ClosedSendChannelException) {
-                    // This catch should no longer be necessary.
-                    // Because we use SessionManager.runWithLock, we are guaranteed that the session
-                    // we create won't be closed by concurrent calls to SessionManager. Currently,
-                    // the only way a session would be closed is if there is an error in the
-                    // composition that happens between the call to `startSession` and
-                    // `waitForReady()` In that case, the composition error will be logged by
-                    // GlanceAppWidget.onCompositionError, but could still cause
-                    // ClosedSendChannelException. This is pretty unlikely, however keeping this
-                    // here to avoid crashes in that scenario.
+                } catch (e: Throwable) {
                     Log.e(TAG, "Error when trying to start session for list items", e)
                 }
             }

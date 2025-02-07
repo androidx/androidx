@@ -13,11 +13,11 @@ package androidx.wear.phone.interactions {
 
   public static final class PhoneTypeHelper.Companion {
     method public int getPhoneDeviceType(android.content.Context context);
-    property public static final int DEVICE_TYPE_ANDROID;
-    property public static final int DEVICE_TYPE_ERROR;
-    property public static final int DEVICE_TYPE_IOS;
-    property public static final int DEVICE_TYPE_NONE;
-    property public static final int DEVICE_TYPE_UNKNOWN;
+    property public static int DEVICE_TYPE_ANDROID;
+    property public static int DEVICE_TYPE_ERROR;
+    property public static int DEVICE_TYPE_IOS;
+    property public static int DEVICE_TYPE_NONE;
+    property public static int DEVICE_TYPE_UNKNOWN;
   }
 
 }
@@ -27,7 +27,7 @@ package androidx.wear.phone.interactions.authentication {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeChallenge {
     ctor public CodeChallenge(androidx.wear.phone.interactions.authentication.CodeVerifier codeVerifier);
     method public String getValue();
-    property public final String value;
+    property public String value;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
@@ -35,16 +35,16 @@ package androidx.wear.phone.interactions.authentication {
     ctor public CodeVerifier(optional int byteLength);
     ctor public CodeVerifier(String value);
     method public String getValue();
-    property public final String value;
+    property public String value;
   }
 
   public final class OAuthRequest {
     method public String getPackageName();
     method public String getRedirectUrl();
     method public android.net.Uri getRequestUrl();
-    property public final String packageName;
-    property public final String redirectUrl;
-    property public final android.net.Uri requestUrl;
+    property public String packageName;
+    property public String redirectUrl;
+    property public android.net.Uri requestUrl;
     field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
     field public static final String WEAR_REDIRECT_URL_PREFIX = "https://wear.googleapis.com/3p_auth/";
     field public static final String WEAR_REDIRECT_URL_PREFIX_CN = "https://wear.googleapis-cn.com/3p_auth/";
@@ -60,15 +60,15 @@ package androidx.wear.phone.interactions.authentication {
   }
 
   public static final class OAuthRequest.Companion {
-    property public static final String WEAR_REDIRECT_URL_PREFIX;
-    property public static final String WEAR_REDIRECT_URL_PREFIX_CN;
+    property public static String WEAR_REDIRECT_URL_PREFIX;
+    property public static String WEAR_REDIRECT_URL_PREFIX_CN;
   }
 
   public final class OAuthResponse {
     method public int getErrorCode();
     method public android.net.Uri? getResponseUrl();
-    property @androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode public final int errorCode;
-    property public final android.net.Uri? responseUrl;
+    property @androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode public int errorCode;
+    property public android.net.Uri? responseUrl;
   }
 
   public static final class OAuthResponse.Builder {
@@ -84,7 +84,7 @@ package androidx.wear.phone.interactions.authentication {
     method protected void finalize();
     method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getAvailabilityStatus();
     method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, java.util.concurrent.Executor executor, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
-    property public final kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
+    property public kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
     field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
     field public static final int ERROR_PHONE_UNAVAILABLE = 1; // 0x1
     field public static final int ERROR_UNSUPPORTED = 0; // 0x0
@@ -103,13 +103,13 @@ package androidx.wear.phone.interactions.authentication {
 
   public static final class RemoteAuthClient.Companion {
     method public androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
-    property public static final int ERROR_PHONE_UNAVAILABLE;
-    property public static final int ERROR_UNSUPPORTED;
-    property public static final int NO_ERROR;
-    property public static final int STATUS_AVAILABLE;
-    property public static final int STATUS_TEMPORARILY_UNAVAILABLE;
-    property public static final int STATUS_UNAVAILABLE;
-    property public static final int STATUS_UNKNOWN;
+    property public static int ERROR_PHONE_UNAVAILABLE;
+    property public static int ERROR_UNSUPPORTED;
+    property public static int NO_ERROR;
+    property public static int STATUS_AVAILABLE;
+    property public static int STATUS_TEMPORARILY_UNAVAILABLE;
+    property public static int STATUS_UNAVAILABLE;
+    property public static int STATUS_UNKNOWN;
   }
 
   @IntDef({androidx.wear.phone.interactions.authentication.RemoteAuthClient.NO_ERROR, androidx.wear.phone.interactions.authentication.RemoteAuthClient.ERROR_UNSUPPORTED, androidx.wear.phone.interactions.authentication.RemoteAuthClient.ERROR_PHONE_UNAVAILABLE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface RemoteAuthClient.Companion.ErrorCode {
@@ -139,8 +139,8 @@ package androidx.wear.phone.interactions.notifications {
   public final class BridgingConfig {
     method public java.util.Set<java.lang.String>? getExcludedTags();
     method public boolean isBridgingEnabled();
-    property public final java.util.Set<java.lang.String>? excludedTags;
-    property public final boolean isBridgingEnabled;
+    property public java.util.Set<java.lang.String>? excludedTags;
+    property public boolean isBridgingEnabled;
   }
 
   public static final class BridgingConfig.Builder {

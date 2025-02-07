@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.offset
 
 /**
@@ -203,10 +204,14 @@ interface PaddingValues {
     ) : PaddingValues {
 
         init {
-            requirePrecondition(left.value >= 0) { "Left padding must be non-negative" }
-            requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
-            requirePrecondition(right.value >= 0) { "Right padding must be non-negative" }
-            requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
+            requirePrecondition(
+                (left.value >= 0f) and
+                    (top.value >= 0f) and
+                    (right.value >= 0f) and
+                    (bottom.value >= 0f)
+            ) {
+                "Padding must be non-negative"
+            }
         }
 
         override fun calculateLeftPadding(layoutDirection: LayoutDirection) = left
@@ -291,10 +296,11 @@ internal class PaddingValuesImpl(
 ) : PaddingValues {
 
     init {
-        requirePrecondition(start.value >= 0) { "Start padding must be non-negative" }
-        requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
-        requirePrecondition(end.value >= 0) { "End padding must be non-negative" }
-        requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
+        requirePrecondition(
+            (start.value >= 0f) and (top.value >= 0f) and (end.value >= 0f) and (bottom.value >= 0f)
+        ) {
+            "Padding must be non-negative"
+        }
     }
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection) =
@@ -332,10 +338,10 @@ private class PaddingElement(
 
     init {
         requirePrecondition(
-            (start.value >= 0f || start == Dp.Unspecified) &&
-                (top.value >= 0f || top == Dp.Unspecified) &&
-                (end.value >= 0f || end == Dp.Unspecified) &&
-                (bottom.value >= 0f || bottom == Dp.Unspecified)
+            (start.value >= 0f || start.isUnspecified) and
+                (top.value >= 0f || top.isUnspecified) and
+                (end.value >= 0f || end.isUnspecified) and
+                (bottom.value >= 0f || bottom.isUnspecified)
         ) {
             "Padding must be non-negative"
         }
@@ -436,30 +442,30 @@ private class PaddingValuesModifier(var paddingValues: PaddingValues) :
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
+        val leftPadding = paddingValues.calculateLeftPadding(layoutDirection)
+        val topPadding = paddingValues.calculateTopPadding()
+        val rightPadding = paddingValues.calculateRightPadding(layoutDirection)
+        val bottomPadding = paddingValues.calculateBottomPadding()
+
         requirePrecondition(
-            paddingValues.calculateLeftPadding(layoutDirection) >= 0.dp &&
-                paddingValues.calculateTopPadding() >= 0.dp &&
-                paddingValues.calculateRightPadding(layoutDirection) >= 0.dp &&
-                paddingValues.calculateBottomPadding() >= 0.dp
+            (leftPadding >= 0.dp) and
+                (topPadding >= 0.dp) and
+                (rightPadding >= 0.dp) and
+                (bottomPadding >= 0.dp)
         ) {
             "Padding must be non-negative"
         }
-        val horizontal =
-            paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
-                paddingValues.calculateRightPadding(layoutDirection).roundToPx()
-        val vertical =
-            paddingValues.calculateTopPadding().roundToPx() +
-                paddingValues.calculateBottomPadding().roundToPx()
+
+        val roundedLeftPadding = leftPadding.roundToPx()
+        val horizontal = roundedLeftPadding + rightPadding.roundToPx()
+
+        val roundedTopPadding = topPadding.roundToPx()
+        val vertical = roundedTopPadding + bottomPadding.roundToPx()
 
         val placeable = measurable.measure(constraints.offset(-horizontal, -vertical))
 
         val width = constraints.constrainWidth(placeable.width + horizontal)
         val height = constraints.constrainHeight(placeable.height + vertical)
-        return layout(width, height) {
-            placeable.place(
-                paddingValues.calculateLeftPadding(layoutDirection).roundToPx(),
-                paddingValues.calculateTopPadding().roundToPx()
-            )
-        }
+        return layout(width, height) { placeable.place(roundedLeftPadding, roundedTopPadding) }
     }
 }

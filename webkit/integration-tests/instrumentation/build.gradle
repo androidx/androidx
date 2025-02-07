@@ -6,7 +6,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -56,6 +56,6 @@ dependencies {
 }
 
 androidx {
-    type = type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = type = SoftwareType.INTERNAL_TEST_LIBRARY
     additionalDeviceTestApkKeys.add("chrome")
 }

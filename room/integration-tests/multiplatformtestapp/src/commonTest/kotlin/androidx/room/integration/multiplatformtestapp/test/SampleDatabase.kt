@@ -41,10 +41,13 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Entity
+@Serializable
 data class SampleEntity(
-    @PrimaryKey val pk: Long,
+    @PrimaryKey @SerialName("key") val pk: Long,
     @ColumnInfo(defaultValue = "0") val data: Long = 0
 )
 

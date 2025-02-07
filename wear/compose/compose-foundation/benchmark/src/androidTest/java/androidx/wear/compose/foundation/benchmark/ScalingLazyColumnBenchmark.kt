@@ -123,7 +123,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnMeasure(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -134,7 +134,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnMeasure(
             measure()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -150,7 +150,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnLayout(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -162,7 +162,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnLayout(
             layout()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -178,7 +178,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnDraw(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -193,7 +193,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnDraw(
             drawFinish()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }

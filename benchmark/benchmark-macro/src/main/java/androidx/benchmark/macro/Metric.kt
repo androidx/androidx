@@ -23,9 +23,7 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
 import androidx.benchmark.macro.PowerMetric.Companion.deviceSupportsHighPrecisionTracking
-import androidx.benchmark.macro.PowerMetric.Type
 import androidx.benchmark.macro.PowerRail.hasMetrics
-import androidx.benchmark.macro.TraceSectionMetric.Mode
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
@@ -123,6 +121,7 @@ sealed class Metric {
      *
      * To validate results in tests, use [assertEqualMeasurements]
      */
+    @ConsistentCopyVisibility // Mirror copy()'s visibility with that of the constructor
     @ExperimentalMetricApi
     data class Measurement
     internal constructor(
@@ -730,8 +729,8 @@ class ArtMetric : Metric() {
                 .asMeasurements("artVerifyClass") +
             if (
                 DeviceInfo.isClassLoadTracingAvailable(
-                    targetApiLevel = captureInfo.apiLevel,
-                    targetArtMainlineVersion = captureInfo.artMainlineVersion
+                    sdkInt = captureInfo.apiLevel,
+                    artVersion = captureInfo.artMainlineVersion
                 )
             ) {
                 traceSession

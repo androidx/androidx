@@ -16,9 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
@@ -27,6 +25,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import kotlinx.coroutines.CoroutineScope
 
 internal fun interface MeasuredItemProvider {
@@ -42,7 +41,6 @@ internal fun interface MeasuredItemProvider {
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 internal fun rememberTransformingLazyColumnMeasurePolicy(
     itemProviderLambda: () -> TransformingLazyColumnItemProvider,
     state: TransformingLazyColumnState,
@@ -54,6 +52,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
     remember(
         itemProviderLambda,
         state,
+        coroutineScope,
         horizontalAlignment,
         verticalArrangement,
         measurementStrategy

@@ -779,7 +779,10 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_respectsConfirmValueChange() {
         lateinit var sheetState: SheetState
+        lateinit var scope: CoroutineScope
+
         rule.setContent {
+            scope = rememberCoroutineScope()
             sheetState =
                 rememberModalBottomSheetState(
                     confirmValueChange = { newState -> newState != SheetValue.Hidden }
@@ -794,16 +797,25 @@ class ModalBottomSheetTest {
             }
         }
 
+        val currentOffset = sheetState.requireOffset()
+        // Respects on swipe gesture
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
-
         rule.onNodeWithTag(sheetTag).performTouchInput { swipeDown() }
-
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
+        assertThat(sheetState.requireOffset()).isEqualTo(currentOffset)
 
+        // Respects on animation call
+        rule.runOnIdle { scope.launch { sheetState.hide() } }
+        rule.runOnIdle {
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        }
+        assertThat(sheetState.requireOffset()).isEqualTo(currentOffset)
+
+        // Respects on semantic action
         rule
             .onNodeWithTag(dragHandleTag, useUnmergedTree = true)
             .onParent()
@@ -812,6 +824,7 @@ class ModalBottomSheetTest {
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
+        assertThat(sheetState.requireOffset()).isEqualTo(currentOffset)
 
         // Tap Scrim
         val outsideY =
@@ -828,6 +841,7 @@ class ModalBottomSheetTest {
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
+        assertThat(sheetState.requireOffset()).isEqualTo(currentOffset)
     }
 
     @Test

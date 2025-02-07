@@ -29,7 +29,7 @@ import kotlin.jvm.JvmName
 import kotlinx.coroutines.withContext
 
 /** Performs a database operation. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
@@ -58,7 +58,7 @@ internal actual suspend fun RoomDatabase.getCoroutineContext(
  * This function should only be invoked from generated code and is needed to support `@Transaction`
  * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual suspend fun <R> performInTransactionSuspending(db: RoomDatabase, block: suspend () -> R): R =
     withContext(db.getCoroutineContext(inTransaction = true)) {
         db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }

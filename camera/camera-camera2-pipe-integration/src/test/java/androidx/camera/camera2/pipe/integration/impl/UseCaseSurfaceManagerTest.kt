@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
@@ -28,21 +29,30 @@ import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.MainDispatcherRule
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,16 +66,16 @@ class UseCaseSurfaceManagerTest {
 
     @get:Rule val dispatcherRule = MainDispatcherRule(useCaseThreads.backgroundDispatcher)
 
-    companion object {
-        private val executor = MoreExecutors.directExecutor()
-        private val useCaseThreads by lazy {
-            val dispatcher = executor.asCoroutineDispatcher()
-            val cameraScope =
-                CoroutineScope(
-                    SupervisorJob() + dispatcher + CoroutineName("UseCaseSurfaceManagerTest")
-                )
+    private val testDeferrableSurfaces = mutableListOf<DeferrableSurface>()
 
-            UseCaseThreads(cameraScope, executor, dispatcher)
+    @After
+    fun tearDown() {
+        testDeferrableSurfaces.forEach {
+            if (it is NeverCompletingDeferrableSurface) {
+                it.cleanUp()
+            } else {
+                it.close()
+            }
         }
     }
 
@@ -89,37 +99,15 @@ class UseCaseSurfaceManagerTest {
                 }
             }
 
-        val fakeTestUseCase1 = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(testDeferrableSurface1)
-                    sessionConfigBuilder.setErrorListener(errorListener)
-                }
-            )
-        }
-        val fakeTestUseCase2 = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(testDeferrableSurface2)
-                    sessionConfigBuilder.setErrorListener(errorListener)
-                }
-            )
-        }
+        val fakeTestUseCase1 = createFakeTestUseCase(testDeferrableSurface1, errorListener)
+        val fakeTestUseCase2 = createFakeTestUseCase(testDeferrableSurface2, errorListener)
 
         val fakeGraph = FakeCameraGraph()
 
         // Act
-        UseCaseSurfaceManager(
-                useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-                NoOpInactiveSurfaceCloser,
-            )
-            .setupAsync(
+        createUseCaseSurfaceManagerAndSetupAsync(
                 graph = fakeGraph,
-                sessionConfigAdapter =
-                    SessionConfigAdapter(useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)),
+                useCases = listOf(fakeTestUseCase1, fakeTestUseCase2),
                 surfaceToStreamMap =
                     mapOf(
                         testDeferrableSurface1 to StreamId(0),
@@ -141,37 +129,17 @@ class UseCaseSurfaceManagerTest {
         // Arrange
         val testDeferrableSurface1 = createTestDeferrableSurface()
         val testDeferrableSurface2 = createTestDeferrableSurface()
-        val fakeTestUseCase1 = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(testDeferrableSurface1)
-                }
-            )
-        }
-        val fakeTestUseCase2 = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(testDeferrableSurface2)
-                }
-            )
-        }
+        val fakeTestUseCase1 = createFakeTestUseCase(testDeferrableSurface1)
+        val fakeTestUseCase2 = createFakeTestUseCase(testDeferrableSurface2)
 
         val fakeGraph = FakeCameraGraph()
         val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
             mapOf(testDeferrableSurface1 to StreamId(0), testDeferrableSurface2 to StreamId(1))
 
         // Act
-        UseCaseSurfaceManager(
-                useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-                NoOpInactiveSurfaceCloser,
-            )
-            .setupAsync(
+        createUseCaseSurfaceManagerAndSetupAsync(
                 graph = fakeGraph,
-                sessionConfigAdapter =
-                    SessionConfigAdapter(useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)),
+                useCases = listOf(fakeTestUseCase1, fakeTestUseCase2),
                 surfaceToStreamMap = deferrableSurfaceToStreamId,
             )
             .await()
@@ -184,28 +152,12 @@ class UseCaseSurfaceManagerTest {
                     .map { it.value to (it.key as TestDeferrableSurface).testSurface }
                     .toMap()
             )
-
-        // Clean up
-        testDeferrableSurface1.close()
-        testDeferrableSurface2.close()
     }
 
     @Test
     fun setupNeverCompleteDeferrableSurface_shouldTimeout() = runBlocking {
         // Arrange
-        val neverCompleteDeferrableSurface =
-            object : DeferrableSurface() {
-                val provideSurfaceDeferred = CompletableDeferred<Surface>()
-
-                override fun provideSurface(): ListenableFuture<Surface> {
-                    return provideSurfaceDeferred.asListenableFuture()
-                }
-
-                fun cleanUp() {
-                    provideSurfaceDeferred.cancel()
-                    close()
-                }
-            }
+        val neverCompleteDeferrableSurface = createNeverCompletingDeferrableSurface()
         val errorListener =
             object : SessionConfig.ErrorListener {
                 val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
@@ -217,15 +169,7 @@ class UseCaseSurfaceManagerTest {
                     results.add(Pair(sessionConfig, error))
                 }
             }
-        val fakeTestUseCase = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
-                    sessionConfigBuilder.setErrorListener(errorListener)
-                }
-            )
-        }
+        val fakeTestUseCase = createFakeTestUseCase(neverCompleteDeferrableSurface, errorListener)
 
         val fakeGraph = FakeCameraGraph()
         val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
@@ -234,48 +178,22 @@ class UseCaseSurfaceManagerTest {
             )
 
         // Act
-        UseCaseSurfaceManager(
-                useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-                NoOpInactiveSurfaceCloser,
-            )
-            .setupAsync(
+        createUseCaseSurfaceManagerAndSetupAsync(
                 graph = fakeGraph,
-                sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                useCases = listOf(fakeTestUseCase),
                 surfaceToStreamMap = deferrableSurfaceToStreamId,
-                timeoutMillis = TimeUnit.SECONDS.toMillis(1)
             )
             .await()
 
         // Assert, verify it is no-op for the getSurface timeout case.
         assertThat(fakeGraph.setSurfaceResults.size).isEqualTo(0)
         assertThat(errorListener.results.size).isEqualTo(0)
-
-        // Clean up
-        neverCompleteDeferrableSurface.cleanUp()
     }
 
     @Test
     fun stopNeverCompleteTask_shouldCancelSurfaceSetup() = runBlocking {
         // Arrange
-        val neverCompleteDeferrableSurface =
-            object : DeferrableSurface() {
-                val provideSurfaceDeferred = CompletableDeferred<Surface>()
-                val provideSurfaceIsCalledDeferred = CompletableDeferred<Unit>()
-
-                override fun provideSurface(): ListenableFuture<Surface> {
-                    try {
-                        return provideSurfaceDeferred.asListenableFuture()
-                    } finally {
-                        provideSurfaceIsCalledDeferred.complete(Unit)
-                    }
-                }
-
-                fun cleanUp() {
-                    close()
-                    provideSurfaceDeferred.cancel()
-                }
-            }
+        val neverCompleteDeferrableSurface = createNeverCompletingDeferrableSurface()
         val errorListener =
             object : SessionConfig.ErrorListener {
                 val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
@@ -287,27 +205,14 @@ class UseCaseSurfaceManagerTest {
                     results.add(Pair(sessionConfig, error))
                 }
             }
-        val fakeTestUseCase = createFakeTestUseCase {
-            it.setupSessionConfig(
-                SessionConfig.Builder().also { sessionConfigBuilder ->
-                    sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
-                    sessionConfigBuilder.setErrorListener(errorListener)
-                }
-            )
-        }
+        val fakeTestUseCase = createFakeTestUseCase(neverCompleteDeferrableSurface, errorListener)
 
         val fakeGraph = FakeCameraGraph()
         val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
             mapOf(
                 neverCompleteDeferrableSurface to StreamId(0),
             )
-        val useCaseSurfaceManager =
-            UseCaseSurfaceManager(
-                useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-                NoOpInactiveSurfaceCloser,
-            )
+        val useCaseSurfaceManager = createUseCaseSurfaceManager(listOf(fakeTestUseCase))
         val deferred =
             useCaseSurfaceManager.setupAsync(
                 graph = fakeGraph,
@@ -326,18 +231,248 @@ class UseCaseSurfaceManagerTest {
         assertThat(errorListener.results.size).isEqualTo(0)
         // The return ListenableFuture of DeferrableSurface#getSurface() should never be cancelled.
         assertThat(neverCompleteDeferrableSurface.surface.isCancelled).isFalse()
-
-        // Clean up
-        neverCompleteDeferrableSurface.cleanUp()
     }
 
-    private fun createFakeTestUseCase(block: (FakeTestUseCase) -> Unit) =
-        FakeTestUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig).also {
-            block(it)
+    @Test
+    fun awaitSetupCompletion_returnsTrueWhenSurfaceSetupCompletedSuccessfully() = runBlocking {
+        // Arrange
+        val testDeferrableSurface = createTestDeferrableSurface()
+        val fakeTestUseCase = createFakeTestUseCase(testDeferrableSurface)
+
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(testDeferrableSurface to StreamId(0))
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                setupAsync(
+                        graph = fakeGraph,
+                        sessionConfigAdapter =
+                            SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                        surfaceToStreamMap = deferrableSurfaceToStreamId,
+                        timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                    )
+                    .await()
+            }
+
+        // Act & Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isTrue()
+    }
+
+    @Test
+    fun awaitSetupCompletion_returnsFalseWhenSurfaceSetupNotStartedYet() = runBlocking {
+        // Arrange
+        val useCaseSurfaceManager = createUseCaseSurfaceManager(emptyList())
+
+        // Act & Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isFalse()
+    }
+
+    @Test
+    fun awaitSetupCompletion_returnsFalseWhenSurfaceSetupWithClosedSurface() = runBlocking {
+        // Arrange
+        val testDeferrableSurface = createTestDeferrableSurface().also { it.close() }
+        val fakeTestUseCase = createFakeTestUseCase(testDeferrableSurface)
+
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(testDeferrableSurface to StreamId(0))
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                setupAsync(
+                        graph = fakeGraph,
+                        sessionConfigAdapter =
+                            SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                        surfaceToStreamMap = deferrableSurfaceToStreamId,
+                        timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                    )
+                    .await()
+            }
+
+        // Act & Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isFalse()
+    }
+
+    @Test
+    fun awaitSetupCompletion_returnsFalseWhenStoppedAfterSuccessfulSurfaceSetup() = runBlocking {
+        // Arrange
+        val testDeferrableSurface = createTestDeferrableSurface()
+        val fakeTestUseCase = createFakeTestUseCase(testDeferrableSurface)
+
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(testDeferrableSurface to StreamId(0))
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                setupAsync(
+                        graph = fakeGraph,
+                        sessionConfigAdapter =
+                            SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                        surfaceToStreamMap = deferrableSurfaceToStreamId,
+                        timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                    )
+                    .await()
+            }
+        useCaseSurfaceManager.stopAsync().await()
+
+        // Act & Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isFalse()
+    }
+
+    @Test
+    fun awaitSetupCompletion_returnsFalseAfterStoppedDuringOngoingSurfaceSetup() = runBlocking {
+        // Arrange
+        val neverCompleteDeferrableSurface = createNeverCompletingDeferrableSurface()
+        val fakeTestUseCase = createFakeTestUseCase(neverCompleteDeferrableSurface)
+
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(neverCompleteDeferrableSurface to StreamId(0))
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                setupAsync(
+                    graph = fakeGraph,
+                    sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                    surfaceToStreamMap = deferrableSurfaceToStreamId,
+                    timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                )
+            }
+        useCaseSurfaceManager.stopAsync().await()
+
+        // Act & Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isFalse()
+    }
+
+    @Test
+    fun awaitSetupCompletion_returnsFalseIfStoppedWhileWaitingForAwaitSetupCompletion() =
+        runBlocking {
+            // Arrange
+            val neverCompleteDeferrableSurface = createNeverCompletingDeferrableSurface()
+            val fakeTestUseCase = createFakeTestUseCase(neverCompleteDeferrableSurface)
+
+            val fakeGraph = FakeCameraGraph()
+            val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+                mapOf(neverCompleteDeferrableSurface to StreamId(0))
+            val useCaseSurfaceManager =
+                createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                    setupAsync(
+                        graph = fakeGraph,
+                        sessionConfigAdapter =
+                            SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                        surfaceToStreamMap = deferrableSurfaceToStreamId,
+                        timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                    )
+                }
+            val isSetupCompleted = async { useCaseSurfaceManager.awaitSetupCompletion() }
+            launch { useCaseSurfaceManager.stopAsync() }
+
+            // Act & Assert
+            assertThat(isSetupCompleted.await()).isFalse()
+        }
+
+    @Test
+    fun awaitSetupCompletion_blocksWhenSurfaceSetupIsOngoing(): Unit = runBlocking {
+        // Arrange
+        val neverCompleteDeferrableSurface = createNeverCompletingDeferrableSurface()
+
+        val fakeTestUseCase = createFakeTestUseCase(neverCompleteDeferrableSurface)
+
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(
+                neverCompleteDeferrableSurface to StreamId(0),
+            )
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(fakeTestUseCase)).apply {
+                setupAsync(
+                    graph = fakeGraph,
+                    sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                    surfaceToStreamMap = deferrableSurfaceToStreamId,
+                    timeoutMillis = TimeUnit.SECONDS.toMillis(1)
+                )
+            }
+
+        // Act & Assert
+        assertThrows<TimeoutCancellationException> {
+            withTimeout(timeout = 500.milliseconds) { // less than the timeout of setupAsync above
+                useCaseSurfaceManager.awaitSetupCompletion()
+            }
+        }
+    }
+
+    private fun createFakeTestUseCase(
+        deferrableSurface: DeferrableSurface,
+        errorListener: SessionConfig.ErrorListener? = null,
+    ) =
+        FakeTestUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig).apply {
+            setupSessionConfig(
+                SessionConfig.Builder().apply {
+                    setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                    addSurface(deferrableSurface)
+                    if (errorListener != null) {
+                        setErrorListener(errorListener)
+                    }
+                }
+            )
         }
 
     private fun createTestDeferrableSurface() =
         TestDeferrableSurface().also {
             it.terminationFuture.addListener({ it.cleanUp() }, useCaseThreads.backgroundExecutor)
+            testDeferrableSurfaces.add(it)
         }
+
+    private fun createNeverCompletingDeferrableSurface() =
+        NeverCompletingDeferrableSurface().also { testDeferrableSurfaces.add(it) }
+
+    private fun createUseCaseSurfaceManager(useCase: List<UseCase>) =
+        UseCaseSurfaceManager(
+            useCaseThreads,
+            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+            NoOpInactiveSurfaceCloser,
+            SessionConfigAdapter(useCases = useCase),
+        )
+
+    private fun createUseCaseSurfaceManagerAndSetupAsync(
+        useCases: List<UseCase>,
+        surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
+        graph: CameraGraph = FakeCameraGraph(),
+    ): Deferred<Unit> {
+        return createUseCaseSurfaceManager(useCases)
+            .setupAsync(
+                graph = graph,
+                sessionConfigAdapter = SessionConfigAdapter(useCases = useCases),
+                surfaceToStreamMap = surfaceToStreamMap,
+            )
+    }
+
+    class NeverCompletingDeferrableSurface : DeferrableSurface() {
+        val provideSurfaceDeferred = CompletableDeferred<Surface>()
+        val provideSurfaceIsCalledDeferred = CompletableDeferred<Unit>()
+
+        override fun provideSurface(): ListenableFuture<Surface> {
+            try {
+                return provideSurfaceDeferred.asListenableFuture()
+            } finally {
+                provideSurfaceIsCalledDeferred.complete(Unit)
+            }
+        }
+
+        fun cleanUp() {
+            close()
+            provideSurfaceDeferred.cancel()
+        }
+    }
+
+    companion object {
+        private val executor = MoreExecutors.directExecutor()
+        private val useCaseThreads by lazy {
+            val dispatcher = executor.asCoroutineDispatcher()
+            val cameraScope =
+                CoroutineScope(
+                    SupervisorJob() + dispatcher + CoroutineName("UseCaseSurfaceManagerTest")
+                )
+
+            UseCaseThreads(cameraScope, executor, dispatcher)
+        }
+    }
 }

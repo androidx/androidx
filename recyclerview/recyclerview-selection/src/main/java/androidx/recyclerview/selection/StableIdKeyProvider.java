@@ -24,13 +24,14 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener;
 import androidx.recyclerview.widget.RecyclerView.RecyclerListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link ItemKeyProvider} that provides item keys by way of native

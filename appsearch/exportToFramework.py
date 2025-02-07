@@ -71,7 +71,6 @@ GOOGLE_JAVA_FORMAT = (
 # Miscellaneous constants
 SHA_FILE_NAME = 'synced_jetpack_sha.txt'
 
-
 class ExportToFramework:
     def __init__(self, jetpack_appsearch_root, framework_appsearch_root):
         self._jetpack_appsearch_root = jetpack_appsearch_root
@@ -84,6 +83,17 @@ class ExportToFramework:
                 abs_path = os.path.join(walk_path, walk_filename)
                 print('Prune: remove "%s"' % abs_path)
                 os.remove(abs_path)
+
+    def _TransformExportedToCts(self, contents):
+        """
+        Blanket transforms for files that are being exported to the CTS test repo (platform/cts).
+        File specific transforms will still be applied in _TransformAndCopyFileToPath
+        """
+        contents = (contents
+            .replace('com.google.android.icing.proto.',
+                     'com.android.server.appsearch.icing.proto.')
+        )
+        return contents
 
     def _TransformAndCopyFile(
             self, source_path, default_dest_path, transform_func=None, ignore_skips=False):
@@ -104,16 +114,17 @@ class ExportToFramework:
         copy_to_path = re.search(r'@exportToFramework:copyToPath\(([^)]+)\)', contents)
         if copy_to_path:
             dest_path = os.path.join(self._framework_appsearch_root, copy_to_path.group(1))
+            # Check if the file is being exported to the CTS test repo.
+            if "cts/tests/appsearch/" in dest_path:
+                contents = self._TransformExportedToCts(contents)
         else:
             dest_path = default_dest_path
 
-        self._TransformAndCopyFileToPath(source_path, dest_path, transform_func)
+        self._TransformAndCopyFileToPath(source_path, dest_path, contents, transform_func)
 
-    def _TransformAndCopyFileToPath(self, source_path, dest_path, transform_func=None):
+    def _TransformAndCopyFileToPath(self, source_path, dest_path, contents, transform_func=None):
         """Transforms the file located at 'source_path' and writes it into 'dest_path'."""
         print('Copy: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
-        with open(source_path, 'r') as fh:
-            contents = fh.read()
         if transform_func:
             contents = transform_func(contents)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)

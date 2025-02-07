@@ -21,6 +21,7 @@ import androidx.core.telecom.extensions.Capability;
 import androidx.core.telecom.extensions.IParticipantStateListener;
 import androidx.core.telecom.extensions.ICallDetailsListener;
 import androidx.core.telecom.extensions.ILocalSilenceStateListener;
+import androidx.core.telecom.extensions.ICallIconStateListener;
 
 // ICS Client -> VOIP app
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
@@ -35,4 +36,5 @@ oneway interface ICapabilityExchangeListener {
     void onRemoveExtensions() = 2;
     // V1 - no actions, only the ability to toggle the isLocallySilenced value
     void onCreateLocalCallSilenceExtension(in int version, in int[] actions,  in ILocalSilenceStateListener l) = 3;
+    void onCreateCallIconExtension(in int version, in int[] actions,  in String remoteName, in ICallIconStateListener l) = 4;
 }

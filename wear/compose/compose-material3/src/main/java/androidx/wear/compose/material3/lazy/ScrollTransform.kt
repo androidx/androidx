@@ -64,7 +64,7 @@ public fun Modifier.scrollTransform(
     backgroundColor: Color,
     shape: Shape = RectangleShape
 ): Modifier =
-    if (LocalReduceMotion.current.enabled()) this
+    if (LocalReduceMotion.current) this
     else
         with(scope) {
             var minMorphingHeight by remember(scope) { mutableStateOf<Float?>(null) }
@@ -119,7 +119,7 @@ public fun Modifier.scrollTransform(
     painter: Painter,
     border: BorderStroke? = null
 ): Modifier =
-    if (LocalReduceMotion.current.enabled()) this
+    if (LocalReduceMotion.current) this
     else
         with(scope) {
             var minMorphingHeight by remember(scope) { mutableStateOf<Float?>(null) }
@@ -168,7 +168,7 @@ public fun Modifier.scrollTransform(
 public fun Modifier.scrollTransform(
     scope: TransformingLazyColumnItemScope,
 ): Modifier =
-    if (LocalReduceMotion.current.enabled()) this
+    if (LocalReduceMotion.current) this
     else
         with(scope) {
             var minMorphingHeight by remember(scope) { mutableStateOf<Float?>(null) }
@@ -208,7 +208,7 @@ internal fun Modifier.scrollTransform(
     scope: TransformingLazyColumnItemScope,
     spec: TransformationSpec,
 ): Modifier =
-    if (LocalReduceMotion.current.enabled()) this
+    if (LocalReduceMotion.current) this
     else
         with(scope) {
             val minMorphingHeight = remember(scope) { mutableStateOf<Float?>(null) }
@@ -263,7 +263,7 @@ internal fun Modifier.scrollTransform(
     painter: Painter,
     border: BorderStroke? = null
 ): Modifier =
-    if (LocalReduceMotion.current.enabled()) this
+    if (LocalReduceMotion.current) this
     else
         with(scope) {
             val minMorphingHeight = remember(scope) { mutableStateOf<Float?>(null) }
@@ -382,10 +382,10 @@ internal fun transformationState(
 
 /** Uses a TransformationSpec to convert a scrollProgress into a transitionProgress. */
 private fun transformProgress(
-    scrollProgress: TransformingLazyColumnItemScrollProgress?,
+    scrollProgress: TransformingLazyColumnItemScrollProgress,
     spec: TransformationSpec
 ): TransitionAreaProgress =
-    if (scrollProgress == null) {
+    if (scrollProgress == TransformingLazyColumnItemScrollProgress.Unspecified) {
         TransitionAreaProgress.None
     } else {
         // Size of the item, relative to the screen

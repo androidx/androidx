@@ -23,10 +23,10 @@ import static androidx.recyclerview.selection.Shared.VERBOSE;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A MotionInputHandler that provides the high-level glue for mouse driven selection. This
@@ -170,7 +170,7 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
             return false;
         }
 
-        @Nullable ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
+        ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
         if (item == null || !item.hasSelectionKey()) {
             return false;
         }
@@ -204,7 +204,7 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
 
     private boolean onRightClick(@NonNull MotionEvent e) {
         if (mDetailsLookup.overItemWithSelectionKey(e)) {
-            @Nullable ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
+            ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
             if (item != null && !mSelectionTracker.isSelected(item.getSelectionKey())) {
                 mSelectionTracker.clearSelection();
                 selectItem(item);

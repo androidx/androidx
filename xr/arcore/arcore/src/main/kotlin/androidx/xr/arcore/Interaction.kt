@@ -18,7 +18,6 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Ray
 
@@ -32,7 +31,6 @@ import androidx.xr.runtime.math.Ray
  * @return A list of [HitResult] objects, sorted by distance from the origin of the ray. The nearest
  *   hit is at the beginning of the list.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hitTest(session: Session, ray: Ray): List<HitResult> {
     val perceptionStateExtender =
         session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()

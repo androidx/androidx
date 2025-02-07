@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.compat.XConverters.toJavac
@@ -42,6 +43,7 @@ import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
@@ -317,8 +319,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 .isEqualTo(TestSuppressWarnings::class.qualifiedName)
             assertThat(annotation.type.typeElement)
                 .isEqualTo(invocation.processingEnv.requireTypeElement(TestSuppressWarnings::class))
-            assertThat(annotation.asAnnotationBox<TestSuppressWarnings>().value.value)
-                .isEqualTo(arrayOf("a", "b"))
+            assertThat(annotation.getAsStringList("value")).containsExactly("a", "b")
         }
     }
 
@@ -493,6 +494,46 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 assertThat(boxArray).hasSize(2)
                 assertThat(boxArray[0].getAsString("value")).isEqualTo("other list 1")
                 assertThat(boxArray[1].getAsString("value")).isEqualTo("other list 2")
+            }
+        }
+    }
+
+    @Test
+    fun typeReferenceError_kotlin() {
+        val mySource =
+            Source.kotlin(
+                "Subject.kt",
+                """
+            import kotlin.reflect.KClass
+
+            @Target(AnnotationTarget.CLASS)
+            annotation class TheAnnotation(vararg val value: KClass<*>)
+
+            @TheAnnotation(value = [GeneratedType::class, String::class])
+            class SubjectOne
+
+            @TheAnnotation(GeneratedType::class, String::class)
+            class SubjectTwo
+            """
+                    .trimIndent()
+            )
+        runKspTest(sources = listOf(mySource)) { invocation ->
+            listOf("SubjectOne", "SubjectTwo").forEach {
+                val element = invocation.processingEnv.requireTypeElement(it)
+                val annotation = element.requireAnnotation(XClassName.get("", "TheAnnotation"))
+
+                assertThat(element.validate()).isFalse()
+                assertThat(
+                        annotation.annotationValues.single().asTypeList().map { it.asTypeName() }
+                    )
+                    .containsExactly(
+                        XClassName.get("", "GeneratedType"),
+                        String::class.asClassName()
+                    )
+
+                invocation.assertCompilationResult {
+                    hasError("Unresolved reference 'GeneratedType'.")
+                }
             }
         }
     }
@@ -1039,11 +1080,11 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             val annotation = subject.getAnnotation(OtherAnnotation::class)
             assertThat(annotation).isNotNull()
-            assertThat(annotation?.value?.value).isEqualTo("x")
+            assertThat(annotation?.getAsString("value")).isEqualTo("x")
 
             val annotation2 = subject.getAnnotation(OtherAnnotationTypeAlias::class)
             assertThat(annotation2).isNotNull()
-            assertThat(annotation2?.value?.value).isEqualTo("x")
+            assertThat(annotation2?.getAsString("value")).isEqualTo("x")
         }
     }
 

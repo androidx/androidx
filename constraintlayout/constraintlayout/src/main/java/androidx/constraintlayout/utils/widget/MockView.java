@@ -26,8 +26,9 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A view that is useful for prototyping layouts. <b>Added in 2.0</b>

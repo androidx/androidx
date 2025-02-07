@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -63,7 +63,7 @@ android {
 
 androidx {
     name = "androidx.pdf:pdf-viewer-fragment"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "This library can be used in your Android application to embed a fragment that renders a PDF document and provides functionalities to interact with it."
 }

@@ -34,6 +34,7 @@ import androidx.navigation.safe.args.generator.StringType
 import androidx.navigation.safe.args.generator.ext.capitalize
 import androidx.navigation.safe.args.generator.ext.toCamelCase
 import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
+import androidx.navigation.safe.args.generator.java.Annotations.AndroidXAnnotations
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
@@ -85,6 +86,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                 val methodName = action.id.javaIdentifier.toCamelCaseAsVar()
                 if (action.args.isEmpty()) {
                     MethodSpec.methodBuilder(methodName)
+                        .addAnnotation(annotations.CHECK_RESULT)
                         .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .returns(NAV_DIRECTION_CLASSNAME)
@@ -104,6 +106,11 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                             actionType.name
                         )
                     MethodSpec.methodBuilder(methodName)
+                        .apply {
+                            if (useAndroidX) {
+                                addAnnotation((annotations as AndroidXAnnotations).CHECK_RESULT)
+                            }
+                        }
                         .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameters(constructor.parameters)

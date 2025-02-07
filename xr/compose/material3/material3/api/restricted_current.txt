@@ -16,27 +16,27 @@ package androidx.xr.compose.material3 {
     method public int getPosition();
     method public androidx.xr.compose.spatial.OrbiterSettings getSettings();
     method public androidx.xr.compose.subspace.layout.SpatialShape getShape();
-    property public final androidx.compose.ui.Alignment.Horizontal alignment;
-    property public final androidx.xr.compose.spatial.EdgeOffset offset;
+    property public androidx.compose.ui.Alignment.Horizontal alignment;
+    property public androidx.xr.compose.spatial.EdgeOffset offset;
     property public int position;
-    property public final androidx.xr.compose.spatial.OrbiterSettings settings;
-    property public final androidx.xr.compose.subspace.layout.SpatialShape shape;
+    property public androidx.xr.compose.spatial.OrbiterSettings settings;
+    property public androidx.xr.compose.subspace.layout.SpatialShape shape;
   }
 
   public final class NavigationBarKt {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationBar(optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional float tonalElevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.HorizontalOrbiterProperties getDefaultNavigationBarOrbiterProperties();
     method @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties?> getLocalNavigationBarOrbiterProperties();
-    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static final androidx.xr.compose.material3.HorizontalOrbiterProperties DefaultNavigationBarOrbiterProperties;
-    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties?> LocalNavigationBarOrbiterProperties;
+    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.HorizontalOrbiterProperties DefaultNavigationBarOrbiterProperties;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.HorizontalOrbiterProperties?> LocalNavigationBarOrbiterProperties;
   }
 
   public final class NavigationRailKt {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static void NavigationRail(optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? header, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static androidx.xr.compose.material3.VerticalOrbiterProperties getDefaultNavigationRailOrbiterProperties();
     method @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.VerticalOrbiterProperties?> getLocalNavigationRailOrbiterProperties();
-    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static final androidx.xr.compose.material3.VerticalOrbiterProperties DefaultNavigationRailOrbiterProperties;
-    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.VerticalOrbiterProperties?> LocalNavigationRailOrbiterProperties;
+    property @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.xr.compose.material3.VerticalOrbiterProperties DefaultNavigationRailOrbiterProperties;
+    property @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.xr.compose.material3.VerticalOrbiterProperties?> LocalNavigationRailOrbiterProperties;
   }
 
   public final class ThreePaneScaffoldKt {
@@ -51,11 +51,11 @@ package androidx.xr.compose.material3 {
     method public int getPosition();
     method public androidx.xr.compose.spatial.OrbiterSettings getSettings();
     method public androidx.xr.compose.subspace.layout.SpatialShape getShape();
-    property public final androidx.compose.ui.Alignment.Vertical alignment;
-    property public final androidx.xr.compose.spatial.EdgeOffset offset;
+    property public androidx.compose.ui.Alignment.Vertical alignment;
+    property public androidx.xr.compose.spatial.EdgeOffset offset;
     property public int position;
-    property public final androidx.xr.compose.spatial.OrbiterSettings settings;
-    property public final androidx.xr.compose.subspace.layout.SpatialShape shape;
+    property public androidx.xr.compose.spatial.OrbiterSettings settings;
+    property public androidx.xr.compose.subspace.layout.SpatialShape shape;
   }
 
   @SuppressCompatibility @androidx.xr.compose.material3.ExperimentalMaterial3XrApi @kotlin.jvm.JvmInline public final value class XrComponentOverride {

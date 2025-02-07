@@ -110,7 +110,7 @@ class AppFunctionExceptionTest {
         val exception = AppFunctionException.fromPlatformExtensionsClass(platformException)
 
         assertThat(exception).isInstanceOf(exceptionClass)
-        assertThat(exception.errorCode).isEqualTo(errorCode)
+        assertThat(exception.internalErrorCode).isEqualTo(errorCode)
         assertThat(exception.errorMessage).isEqualTo("testMessage")
         assertThat(exception.extras.getString("testKey")).isEqualTo("testValue")
     }

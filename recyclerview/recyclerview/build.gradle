@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -14,6 +14,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     implementation(project(":core:core"))
     implementation("androidx.collection:collection:1.4.2")
@@ -59,11 +60,9 @@ android {
 
 androidx {
     name = "RecyclerView"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView"
     failOnDeprecationWarnings = false
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

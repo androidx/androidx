@@ -94,8 +94,14 @@ interface LazyListPrefetchScope {
      * See [PrefetchScheduler].
      *
      * @param index the index of the child to prefetch
+     * @param onPrefetchFinished A callback that will be invoked when the prefetching of this item
+     *   is completed. If the prefetch request is cancelled or the item is not premeasured this will
+     *   not be called. The main axis size of the prefetched item is available.
      */
-    fun schedulePrefetch(index: Int): LazyLayoutPrefetchState.PrefetchHandle
+    fun schedulePrefetch(
+        index: Int,
+        onPrefetchFinished: ((Int) -> Unit)? = null
+    ): LazyLayoutPrefetchState.PrefetchHandle
 }
 
 /**

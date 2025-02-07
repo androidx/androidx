@@ -29,9 +29,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -144,8 +144,8 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
         }
     }
 
-    @NonNull
-    private String log(Map<Integer, Rect> startPositions, Map<Integer, Rect> endPositions) {
+    private @NonNull String log(Map<Integer, Rect> startPositions,
+            Map<Integer, Rect> endPositions) {
         StringBuilder logBuilder = new StringBuilder();
         for (Map.Entry<Integer, Rect> entry : startPositions.entrySet()) {
             logBuilder.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");

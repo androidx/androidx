@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.getConstructors
@@ -96,13 +95,5 @@ internal class KspAnnotation(val env: KspProcessingEnv, val ksAnnotated: KSAnnot
                     put(it.jvmName, it.returnType)
                 }
         }
-    }
-
-    override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
-        return KspAnnotationBox(
-            env = env,
-            annotationClass = annotationClass,
-            annotation = ksAnnotated
-        )
     }
 }

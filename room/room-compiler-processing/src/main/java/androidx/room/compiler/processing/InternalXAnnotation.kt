@@ -33,8 +33,6 @@ internal abstract class InternalXAnnotation : XAnnotation {
         return valuesByName[methodName]
             ?: error("No property named $methodName was found in annotation $name")
     }
-
-    abstract fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
 }
 
 /**

@@ -27,10 +27,8 @@ import static org.mockito.Mockito.when;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
-import android.os.Binder;
 import android.os.SystemClock;
 import android.view.Display;
-import android.view.SurfaceControlViewHost;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
@@ -65,8 +63,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
-import java.util.Objects;
-
 @RunWith(RobolectricTestRunner.class)
 public class EntityManagerTest {
 
@@ -100,6 +96,7 @@ public class EntityManagerTest {
         }
         when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
                 .thenReturn(immediateFuture(mSession));
+        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
         mRuntime =
                 JxrPlatformAdapterAxr.create(
                         mActivity,
@@ -272,19 +269,15 @@ public class EntityManagerTest {
         Context displayContext = mActivity.createDisplayContext(display);
         View view = new View(displayContext);
         view.setLayoutParams(new LayoutParams(VGA_WIDTH, VGA_HEIGHT));
-        SurfaceControlViewHost surfaceControlViewHost =
-                new SurfaceControlViewHost(
-                        displayContext,
-                        Objects.requireNonNull(displayContext.getDisplay()),
-                        new Binder());
-        surfaceControlViewHost.setView(view, VGA_WIDTH, VGA_HEIGHT);
         PanelEntityImpl panelEntity =
                 new PanelEntityImpl(
                         mPanelEntityNode,
+                        view,
                         mFakeExtensions,
                         mEntityManager,
-                        surfaceControlViewHost,
                         new PixelDimensions(VGA_WIDTH, VGA_HEIGHT),
+                        "panel",
+                        displayContext,
                         mExecutor);
         mEntityManager.setEntityForNode(mPanelEntityNode, panelEntity);
         return panelEntity;

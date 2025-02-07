@@ -51,6 +51,9 @@ class CoroutineBroadcastReceiverTest {
                 coroutineScopeUsed.set(this)
                 extraValue.set(intent.getStringExtra(EXTRA_STRING))
                 broadcastExecuted.countDown()
+                // Test throwing an error directly in goAsync's job. The error should be caught,
+                // logged, and cancel the job/scope, without crashing the process.
+                error("This error should be caught and logged.")
             }
         }
     }

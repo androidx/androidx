@@ -8,8 +8,8 @@ package androidx.core.haptics {
     ctor public HapticAttributes(int usage, optional int flags);
     method public int getFlags();
     method public int getUsage();
-    property public final int flags;
-    property public final int usage;
+    property public int flags;
+    property public int usage;
     field public static final androidx.core.haptics.HapticAttributes.Companion Companion;
     field public static final int FLAG_BYPASS_INTERRUPTION_POLICY = 1; // 0x1
     field public static final int USAGE_ACCESSIBILITY = 66; // 0x42
@@ -35,17 +35,17 @@ package androidx.core.haptics {
   }
 
   public static final class HapticAttributes.Companion {
-    property public static final int FLAG_BYPASS_INTERRUPTION_POLICY;
-    property public static final int USAGE_ACCESSIBILITY;
-    property public static final int USAGE_ALARM;
-    property public static final int USAGE_COMMUNICATION_REQUEST;
-    property public static final int USAGE_HARDWARE_FEEDBACK;
-    property public static final int USAGE_MEDIA;
-    property public static final int USAGE_NOTIFICATION;
-    property public static final int USAGE_PHYSICAL_EMULATION;
-    property public static final int USAGE_RINGTONE;
-    property public static final int USAGE_TOUCH;
-    property public static final int USAGE_UNKNOWN;
+    property public static int FLAG_BYPASS_INTERRUPTION_POLICY;
+    property public static int USAGE_ACCESSIBILITY;
+    property public static int USAGE_ALARM;
+    property public static int USAGE_COMMUNICATION_REQUEST;
+    property public static int USAGE_HARDWARE_FEEDBACK;
+    property public static int USAGE_MEDIA;
+    property public static int USAGE_NOTIFICATION;
+    property public static int USAGE_PHYSICAL_EMULATION;
+    property public static int USAGE_RINGTONE;
+    property public static int USAGE_TOUCH;
+    property public static int USAGE_UNKNOWN;
   }
 
   public interface HapticManager {
@@ -73,8 +73,8 @@ package androidx.core.haptics.device {
     method public long getPrimitiveDurationMillis(int primitiveType);
     method public java.util.Set<java.lang.Integer> getSupportedPrimitiveTypes();
     method public boolean isPrimitiveDurationReported();
-    property public final boolean isPrimitiveDurationReported;
-    property public final java.util.Set<java.lang.Integer> supportedPrimitiveTypes;
+    property public boolean isPrimitiveDurationReported;
+    property public java.util.Set<java.lang.Integer> supportedPrimitiveTypes;
   }
 
   public final class HapticDeviceProfile {
@@ -86,9 +86,9 @@ package androidx.core.haptics.device {
     method public java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> getHardwareOptimizedPredefinedEffects();
     method public boolean isAmplitudeControlSupported();
     method public boolean supports(androidx.core.haptics.signal.HapticSignal signal);
-    property public final androidx.core.haptics.device.HapticCompositionProfile compositionProfile;
-    property public final java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffects;
-    property public final boolean isAmplitudeControlSupported;
+    property public androidx.core.haptics.device.HapticCompositionProfile compositionProfile;
+    property public java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffects;
+    property public boolean isAmplitudeControlSupported;
   }
 
 }
@@ -126,7 +126,7 @@ package androidx.core.haptics.signal {
     method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
     method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick();
     method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
-    property public final java.util.List<androidx.core.haptics.signal.CompositionSignal.Atom> atoms;
+    property public java.util.List<androidx.core.haptics.signal.CompositionSignal.Atom> atoms;
     field public static final androidx.core.haptics.signal.CompositionSignal.Companion Companion;
   }
 
@@ -157,15 +157,15 @@ package androidx.core.haptics.signal {
 
   public static final class CompositionSignal.OffAtom extends androidx.core.haptics.signal.CompositionSignal.Atom {
     method public long getDurationMillis();
-    property public final long durationMillis;
+    property public long durationMillis;
   }
 
   public static final class CompositionSignal.PrimitiveAtom extends androidx.core.haptics.signal.CompositionSignal.Atom {
     method public float getAmplitudeScale();
     method public int getType();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom withAmplitudeScale(@FloatRange(from=0.0, to=1.0) float newAmplitudeScale);
-    property @FloatRange(from=0.0, to=1.0) public final float amplitudeScale;
-    property public final int type;
+    property @FloatRange(from=0.0, to=1.0) public float amplitudeScale;
+    property public int type;
     field public static final int CLICK = 1; // 0x1
     field public static final androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom.Companion Companion;
     field public static final int LOW_TICK = 8; // 0x8
@@ -178,14 +178,14 @@ package androidx.core.haptics.signal {
   }
 
   public static final class CompositionSignal.PrimitiveAtom.Companion {
-    property public static final int CLICK;
-    property public static final int LOW_TICK;
-    property public static final int QUICK_FALL;
-    property public static final int QUICK_RISE;
-    property public static final int SLOW_RISE;
-    property public static final int SPIN;
-    property public static final int THUD;
-    property public static final int TICK;
+    property public static int CLICK;
+    property public static int LOW_TICK;
+    property public static int QUICK_FALL;
+    property public static int QUICK_RISE;
+    property public static int SLOW_RISE;
+    property public static int SPIN;
+    property public static int THUD;
+    property public static int TICK;
   }
 
   public final class FallbackChainSignal implements androidx.core.haptics.signal.ResolvableSignal {
@@ -193,7 +193,7 @@ package androidx.core.haptics.signal {
     method public static androidx.core.haptics.signal.FallbackChainSignal fallbackChainOf(androidx.core.haptics.signal.ResolvableSignal... signals);
     method public java.util.List<androidx.core.haptics.signal.ResolvableSignal> getSignals();
     method public androidx.core.haptics.signal.HapticSignal? resolve(androidx.core.haptics.device.HapticDeviceProfile deviceProfile);
-    property public final java.util.List<androidx.core.haptics.signal.ResolvableSignal> signals;
+    property public java.util.List<androidx.core.haptics.signal.ResolvableSignal> signals;
     field public static final androidx.core.haptics.signal.FallbackChainSignal.Companion Companion;
   }
 
@@ -229,8 +229,8 @@ package androidx.core.haptics.signal {
   public final class RepeatingWaveformSignal extends androidx.core.haptics.signal.InfiniteSignal {
     method public androidx.core.haptics.signal.WaveformSignal? getInitialWaveform();
     method public androidx.core.haptics.signal.WaveformSignal getRepeatingWaveform();
-    property public final androidx.core.haptics.signal.WaveformSignal? initialWaveform;
-    property public final androidx.core.haptics.signal.WaveformSignal repeatingWaveform;
+    property public androidx.core.haptics.signal.WaveformSignal? initialWaveform;
+    property public androidx.core.haptics.signal.WaveformSignal repeatingWaveform;
   }
 
   public fun interface ResolvableSignal {
@@ -251,7 +251,7 @@ package androidx.core.haptics.signal {
     method public androidx.core.haptics.signal.RepeatingWaveformSignal thenRepeat(androidx.core.haptics.signal.WaveformSignal waveformToRepeat);
     method public androidx.core.haptics.signal.RepeatingWaveformSignal thenRepeat(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
     method public static androidx.core.haptics.signal.WaveformSignal waveformOf(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
-    property public final java.util.List<androidx.core.haptics.signal.WaveformSignal.Atom> atoms;
+    property public java.util.List<androidx.core.haptics.signal.WaveformSignal.Atom> atoms;
     field public static final androidx.core.haptics.signal.WaveformSignal.Companion Companion;
   }
 
@@ -272,14 +272,14 @@ package androidx.core.haptics.signal {
   public static final class WaveformSignal.ConstantVibrationAtom extends androidx.core.haptics.signal.WaveformSignal.Atom {
     method public float getAmplitude();
     method public long getDurationMillis();
-    property public final float amplitude;
-    property public final long durationMillis;
+    property public float amplitude;
+    property public long durationMillis;
     field public static final androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom.Companion Companion;
     field public static final float DEFAULT_AMPLITUDE = -1.0f;
   }
 
   public static final class WaveformSignal.ConstantVibrationAtom.Companion {
-    property public static final float DEFAULT_AMPLITUDE;
+    property public static float DEFAULT_AMPLITUDE;
   }
 
 }

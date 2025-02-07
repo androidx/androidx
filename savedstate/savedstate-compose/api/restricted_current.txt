@@ -3,7 +3,16 @@ package androidx.savedstate.compose {
 
   public final class LocalSavedStateRegistryOwnerKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> getLocalSavedStateRegistryOwner();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
+  }
+
+}
+
+package androidx.savedstate.compose.serialization.serializers {
+
+  public final class MutableStateSerializerKt {
+    method public static inline <reified T> kotlinx.serialization.KSerializer<androidx.compose.runtime.MutableState<T>> MutableStateSerializer();
+    method public static <T> kotlinx.serialization.KSerializer<androidx.compose.runtime.MutableState<T>> MutableStateSerializer(kotlinx.serialization.KSerializer<T> serializer);
   }
 
 }

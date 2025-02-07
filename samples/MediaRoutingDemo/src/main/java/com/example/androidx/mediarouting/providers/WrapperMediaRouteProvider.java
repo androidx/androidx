@@ -621,25 +621,8 @@ public class WrapperMediaRouteProvider extends MediaRouteProvider {
         /** Called when a user selects a new set of routes they want the session to be played. */
         @Override
         public void onUpdateMemberRoutes(@Nullable List<String> routeIds) {
-            if (mGroupRoute == null || routeIds == null) {
-                return;
-            }
-            Log.i(TAG, "onUpdateMemberRoutes with " + routeIds.size() + " routes");
-            List<MediaRouter.RouteInfo> routes = new ArrayList<>();
-            for (String routeId : routeIds) {
-                String originalDescriptorId = getOriginalDescriptorId(routeId);
-                MediaRouter.RouteInfo originalRoute =
-                        getRouteWithDescriptorId(originalDescriptorId);
-                if (originalRoute == null) {
-                    continue;
-                }
-                routes.add(originalRoute);
-            }
-            if (routes.isEmpty()) {
-                Log.i(TAG, "onUpdateMemberRoutes skipped with empty routes");
-                return;
-            }
-            mGroupRoute.updateRoutes(routes);
+            // This will not be invoked because the routes from this provider are not transferable.
+            throw new UnsupportedOperationException("onUpdateMemberRoutes should never be called");
         }
 
         /** Called when a user adds a route into the session. */

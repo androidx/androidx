@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -49,7 +49,7 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
-    android()
+    androidTarget()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -66,16 +66,16 @@ androidXMultiplatform {
             }
         }
 
-        commonJvmMain {
+        jvmAndroidMain {
             dependsOn(commonMain)
         }
 
         androidMain {
-            dependsOn(commonJvmMain)
+            dependsOn(jvmAndroidMain)
         }
 
         jvmMain {
-            dependsOn(commonJvmMain)
+            dependsOn(jvmAndroidMain)
         }
 
         commonTest {
@@ -90,7 +90,7 @@ androidXMultiplatform {
             }
         }
 
-        commonJvmTest {
+        jvmAndroidTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
@@ -104,18 +104,18 @@ androidXMultiplatform {
         }
 
         jvmTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
         }
 
         androidUnitTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
             dependencies {
                 implementation(libs.protobufLite)
             }
         }
 
         androidInstrumentedTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
             dependencies {
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
@@ -153,7 +153,7 @@ androidXMultiplatform {
 
 androidx {
     name = "DataStore Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true

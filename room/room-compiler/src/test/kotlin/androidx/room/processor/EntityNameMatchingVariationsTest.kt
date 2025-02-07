@@ -21,9 +21,9 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
-import androidx.room.vo.Field
-import androidx.room.vo.FieldGetter
-import androidx.room.vo.FieldSetter
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyGetter
+import androidx.room.vo.PropertySetter
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -63,12 +63,12 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
         ) { entity, invocation ->
             assertThat(entity.type.asTypeName().toString(CodeLanguage.JAVA))
                 .isEqualTo("foo.bar.MyEntity")
-            assertThat(entity.fields.size).isEqualTo(1)
-            val field = entity.fields.first()
+            assertThat(entity.properties.size).isEqualTo(1)
+            val field = entity.properties.first()
             val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
             assertThat(field)
                 .isEqualTo(
-                    Field(
+                    Property(
                         element = field.element,
                         name = fieldName,
                         type = intType,
@@ -77,9 +77,9 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
                     )
                 )
             assertThat(field.setter)
-                .isEqualTo(FieldSetter(field.name, setterName, intType, CallType.METHOD))
+                .isEqualTo(PropertySetter(field.name, setterName, intType, CallType.FUNCTION))
             assertThat(field.getter)
-                .isEqualTo(FieldGetter(field.name, getterName, intType, CallType.METHOD))
+                .isEqualTo(PropertyGetter(field.name, getterName, intType, CallType.FUNCTION))
         }
     }
 }

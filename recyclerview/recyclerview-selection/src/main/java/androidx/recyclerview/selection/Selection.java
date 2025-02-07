@@ -16,8 +16,8 @@
 
 package androidx.recyclerview.selection;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;

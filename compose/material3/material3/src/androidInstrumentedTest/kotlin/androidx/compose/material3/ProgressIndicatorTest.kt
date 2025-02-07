@@ -110,6 +110,20 @@ class ProgressIndicatorTest {
     }
 
     @Test
+    fun determinateLinearProgressIndicator_NaNProgress() {
+        val tag = "linear"
+        rule.setMaterialContent(lightColorScheme()) {
+            LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { Float.NaN })
+        }
+
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+    }
+
+    @Test
     fun determinateLinearProgressIndicator_Size() {
         rule
             .setMaterialContentForSizeAssertions { LinearProgressIndicator(progress = { 0f }) }
@@ -191,6 +205,22 @@ class ProgressIndicatorTest {
             .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
+    }
+
+    @Test
+    fun determinateCircularProgressIndicator_NaNProgress() {
+        val tag = "circular"
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = { Float.NaN },
+            )
+        }
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @Test

@@ -35,7 +35,7 @@ import org.junit.Assert.assertTrue
 fun ComposeBenchmarkRule.benchmarkToFirstPixel(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -48,7 +48,7 @@ fun ComposeBenchmarkRule.benchmarkToFirstPixel(caseFactory: () -> LayeredCompose
             drawPrepare()
             draw()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 drawFinish()
                 assertNoPendingChanges()
                 disposeContent()
@@ -64,7 +64,7 @@ fun ComposeBenchmarkRule.benchmarkToFirstPixel(caseFactory: () -> LayeredCompose
 fun ComposeBenchmarkRule.benchmarkFirstCompose(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -72,7 +72,7 @@ fun ComposeBenchmarkRule.benchmarkFirstCompose(caseFactory: () -> LayeredCompose
 
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled { disposeContent() }
+            runWithMeasurementDisabled { disposeContent() }
         }
     }
 }
@@ -84,7 +84,7 @@ fun ComposeBenchmarkRule.benchmarkFirstCompose(caseFactory: () -> LayeredCompose
 fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -94,7 +94,7 @@ fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> LayeredCompose
 
             measure()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -109,7 +109,7 @@ fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> LayeredCompose
 fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -120,7 +120,7 @@ fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> LayeredComposeT
 
             layout()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -135,7 +135,7 @@ fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> LayeredComposeT
 fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -148,7 +148,7 @@ fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> LayeredComposeTes
 
             draw()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 drawFinish()
                 assertNoPendingChanges()
                 disposeContent()
@@ -162,7 +162,7 @@ fun AndroidBenchmarkRule.benchmarkFirstSetContent(caseFactory: () -> AndroidTest
     runBenchmarkFor(caseFactory) {
         measureRepeatedOnUiThread {
             setupContent()
-            runWithTimingDisabled { disposeContent() }
+            runWithMeasurementDisabled { disposeContent() }
         }
     }
 }
@@ -171,14 +171,14 @@ fun AndroidBenchmarkRule.benchmarkFirstSetContent(caseFactory: () -> AndroidTest
 fun AndroidBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 setupContent()
                 requestLayout()
             }
 
             measure()
 
-            runWithTimingDisabled { disposeContent() }
+            runWithMeasurementDisabled { disposeContent() }
         }
     }
 }
@@ -187,7 +187,7 @@ fun AndroidBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> AndroidTestCas
 fun AndroidBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 setupContent()
                 requestLayout()
                 measure()
@@ -195,7 +195,7 @@ fun AndroidBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> AndroidTestCase
 
             layout()
 
-            runWithTimingDisabled { disposeContent() }
+            runWithMeasurementDisabled { disposeContent() }
         }
     }
 }
@@ -204,7 +204,7 @@ fun AndroidBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> AndroidTestCase
 fun AndroidBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> AndroidTestCase) {
     runBenchmarkFor(caseFactory) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 setupContent()
                 requestLayout()
                 measure()
@@ -214,7 +214,7 @@ fun AndroidBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> AndroidTestCase) 
 
             draw()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 drawFinish()
                 disposeContent()
             }

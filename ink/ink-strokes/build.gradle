@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -24,7 +24,7 @@ plugins {
 
 androidXMultiplatform {
   jvm()
-  android()
+  androidTarget()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -91,7 +91,7 @@ android {
 
 androidx {
     name = "Ink Strokes"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Create beautiful strokes"
 }

@@ -20,10 +20,10 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.DataClassProcessor
-import androidx.room.processor.FieldProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.runProcessorTestWithK1
+import androidx.room.processor.PropertyProcessor
 import androidx.room.testing.context
 import androidx.room.vo.DataClass
 import com.google.auto.value.processor.AutoValueProcessor
@@ -83,7 +83,7 @@ class AutoValueDataClassProcessorDelegateTest {
                 """
         ) { dataClass, invocation ->
             assertThat(dataClass.type.asTypeName(), `is`(MY_DATA_CLASS))
-            assertThat(dataClass.fields.size, `is`(1))
+            assertThat(dataClass.properties.size, `is`(1))
             assertThat(dataClass.constructor?.element, `is`(notNullValue()))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
@@ -113,14 +113,14 @@ class AutoValueDataClassProcessorDelegateTest {
                 javacArguments = listOf("-parameters")
             )
         // https://github.com/google/ksp/issues/2033
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = emptyList(),
             classpath = libraryClasspath,
         ) { invocation: XTestInvocation ->
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()
@@ -283,12 +283,12 @@ class AutoValueDataClassProcessorDelegateTest {
         val autoValueDataClassSource =
             Source.java(AUTOVALUE_MY_DATA_CLASS.canonicalName, autoValueDataClassCode)
         val all: List<Source> = sources.toList() + dataClassSource + autoValueDataClassSource
-        runProcessorTestWithK1(sources = all, classpath = classpathFiles) { invocation ->
+        runProcessorTest(sources = all, classpath = classpathFiles) { invocation ->
             handler.invoke(
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process(),

@@ -22,11 +22,11 @@ import static androidx.recyclerview.selection.Shared.DEBUG;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A MotionInputHandler that provides the high-level glue for touch driven selection. This class
@@ -84,7 +84,7 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             checkArgument(MotionEvents.isActionUp(e));
         }
 
-        @Nullable ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
+        ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
         if (item == null || !item.hasSelectionKey()) {
             if (DEBUG) Log.d(TAG, "Tap not associated w/ model item. Clearing selection.");
             return mSelectionTracker.clearSelection();

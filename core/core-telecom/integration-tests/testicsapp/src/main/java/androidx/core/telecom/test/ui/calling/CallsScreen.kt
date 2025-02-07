@@ -356,7 +356,11 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                 Column {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
                     ExtensionsContent(
-                        ExtensionUiState(caller.localCallSilenceUiState, caller.participantUiState)
+                        ExtensionUiState(
+                            caller.localCallSilenceUiState,
+                            caller.participantUiState,
+                            caller.callIconUiState
+                        )
                     )
                 }
             }

@@ -42,6 +42,7 @@ class BrushPaintTest {
                             offsetY = 0.2f,
                             rotation = Angle.QUARTER_TURN_RADIANS,
                             opacity = 0.3f,
+                            animationFrames = 1,
                             BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                             BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                             BrushPaint.TextureMapping.TILING,
@@ -56,6 +57,7 @@ class BrushPaintTest {
                             offsetY = 0.9f,
                             rotation = Angle.HALF_TURN_RADIANS,
                             opacity = 0.7f,
+                            animationFrames = 1,
                             BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                             BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                             BrushPaint.TextureMapping.TILING,
@@ -229,6 +231,18 @@ class BrushPaintTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
+    fun textureLayerConstructor_withInvalidAnimationFrames_throwsIllegalArgumentException() {
+        val fakeValidUri = makeTestTextureUri()
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, animationFrames = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, animationFrames = 0)
+        }
+    }
+
+    @Test
     fun textureLayerHashCode_withIdenticalValues_matches() {
         assertThat(makeTestTextureLayer().hashCode()).isEqualTo(makeTestTextureLayer().hashCode())
     }
@@ -244,6 +258,7 @@ class BrushPaintTest {
                 offsetY = 0.2f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
                 opacity = 0.3f,
+                animationFrames = 1,
                 BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                 BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
                 BrushPaint.TextureMapping.WINDING,
@@ -263,6 +278,7 @@ class BrushPaintTest {
                     offsetY = 0.2f,
                     rotation = Angle.QUARTER_TURN_RADIANS,
                     opacity = 0.3f,
+                    animationFrames = 1,
                     BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                     BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
                     BrushPaint.TextureMapping.WINDING,
@@ -282,6 +298,7 @@ class BrushPaintTest {
         assertThat(layer).isNotEqualTo(layer.copy(offsetY = 0.999F))
         assertThat(layer).isNotEqualTo(layer.copy(rotation = Angle.HALF_TURN_RADIANS))
         assertThat(layer).isNotEqualTo(layer.copy(opacity = 0.999f))
+        assertThat(layer).isNotEqualTo(layer.copy(animationFrames = 2))
         assertThat(layer)
             .isNotEqualTo(layer.copy(sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES))
         assertThat(layer)
@@ -312,6 +329,7 @@ class BrushPaintTest {
                 offsetY = 0.2f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
                 opacity = 0.3f,
+                animationFrames = 1,
                 BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                 BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                 BrushPaint.TextureMapping.WINDING,
@@ -335,6 +353,7 @@ class BrushPaintTest {
                     offsetY = 0.2f,
                     rotation = Angle.QUARTER_TURN_RADIANS,
                     opacity = 0.3f,
+                    animationFrames = 1,
                     BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                     BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                     BrushPaint.TextureMapping.WINDING,
@@ -354,6 +373,7 @@ class BrushPaintTest {
         assertThat(string).contains("offset")
         assertThat(string).contains("rotation")
         assertThat(string).contains("opacity")
+        assertThat(string).contains("animationFrames")
         assertThat(string).contains("sizeUnit")
         assertThat(string).contains("origin")
         assertThat(string).contains("mapping")
@@ -569,6 +589,7 @@ class BrushPaintTest {
             offsetY = 0.2f,
             rotation = Angle.QUARTER_TURN_RADIANS,
             opacity = 0.3f,
+            animationFrames = 1,
             BrushPaint.TextureSizeUnit.BRUSH_SIZE,
             BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
             BrushPaint.TextureMapping.WINDING,

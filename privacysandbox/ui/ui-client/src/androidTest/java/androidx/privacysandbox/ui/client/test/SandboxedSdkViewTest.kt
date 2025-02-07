@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceView
 import android.view.View
@@ -27,10 +28,12 @@ import android.view.ViewGroup.LayoutParams
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import androidx.privacysandbox.ui.integration.testingutils.TestEventListener
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -270,7 +273,7 @@ class SandboxedSdkViewTest {
         class CustomUiAdapter : AbstractSandboxedUiAdapter() {
             override fun openSession(
                 context: Context,
-                windowInputToken: IBinder,
+                sessionConstants: SessionConstants,
                 initialWidth: Int,
                 initialHeight: Int,
                 isZOrderOnTop: Boolean,
@@ -307,7 +310,7 @@ class SandboxedSdkViewTest {
         class CustomUiAdapter : AbstractSandboxedUiAdapter() {
             override fun openSession(
                 context: Context,
-                windowInputToken: IBinder,
+                sessionConstants: SessionConstants,
                 initialWidth: Int,
                 initialHeight: Int,
                 isZOrderOnTop: Boolean,
@@ -441,8 +444,10 @@ class SandboxedSdkViewTest {
      */
     @SuppressLint("NewApi") // Test runs on U+ devices
     @Test
-    fun inputTokenIsCorrect() {
-        // Input token is only needed when provider can be located on a separate process.
+    fun windowInputTokenIsCorrect() {
+        // Input token is only needed when provider can be located on a separate process. It is
+        // also only needed on U devices, on V+ we will use InputTransferToken
+        assumeTrue(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         assumeTrue(BackwardCompatUtil.canProviderBeRemote())
         lateinit var layout: LinearLayout
         val surfaceView = SurfaceView(context)
@@ -471,7 +476,19 @@ class SandboxedSdkViewTest {
         // Verify that the UI adapter receives the same host token object when opening a session.
         addViewToLayout()
         testSandboxedUiAdapter.assertSessionOpened()
-        assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
+        assertThat(testSandboxedUiAdapter.sessionConstants?.windowInputToken).isEqualTo(token)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    fun inputTransferTokenIsCorrect() {
+        // InputTransferToken is only sent on V+
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        addViewToLayoutAndWaitToBeActive()
+        val inputTransferToken = view.rootSurfaceControl?.inputTransferToken
+        assertThat(testSandboxedUiAdapter.sessionConstants?.inputTransferToken).isNotNull()
+        assertThat(testSandboxedUiAdapter.sessionConstants?.inputTransferToken)
+            .isEqualTo(inputTransferToken)
     }
 
     @Ignore("b/307829956")

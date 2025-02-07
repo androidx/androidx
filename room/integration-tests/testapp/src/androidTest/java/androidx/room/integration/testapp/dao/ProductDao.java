@@ -16,11 +16,12 @@
 
 package androidx.room.integration.testapp.dao;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.integration.testapp.vo.Product;
+
+import org.jspecify.annotations.NonNull;
 
 @Dao
 public interface ProductDao {

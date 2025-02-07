@@ -17,7 +17,6 @@
 package androidx.xr.runtime.openxr
 
 import android.app.Activity
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration.Companion.milliseconds
@@ -25,7 +24,6 @@ import kotlinx.coroutines.delay
 
 /** Manages the lifecycle of an OpenXR session. */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrManager
 internal constructor(
     private val activity: Activity,

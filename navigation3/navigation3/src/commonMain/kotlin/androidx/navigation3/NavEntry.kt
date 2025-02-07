@@ -26,8 +26,8 @@ import androidx.compose.runtime.Composable
  * @param featureMap map of the available features from a display
  * @param content content for this entry to be displayed when this entry is active
  */
-public class NavEntry<T : Any>(
-    public val key: T,
-    public val featureMap: Map<String, Any> = emptyMap(),
-    public val content: @Composable (T) -> Unit,
+public open class NavEntry<T : Any>(
+    public open val key: T,
+    public open val featureMap: Map<String, Any> = emptyMap(),
+    public open val content: @Composable (T) -> Unit
 )

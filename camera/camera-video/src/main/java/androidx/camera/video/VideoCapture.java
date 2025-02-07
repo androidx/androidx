@@ -715,6 +715,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         mCropRect = adjustCropRectByQuirk(mCropRect, mRotationDegrees,
                 isCreateNodeNeeded(camera, config, mCropRect, resolution), videoEncoderInfo);
         mNode = createNodeIfNeeded(camera, config, mCropRect, resolution, dynamicRange);
+        boolean hasGlProcessing = !camera.getHasTransform() || mNode != null;
         Timebase timebase = resolveTimebase(camera, mNode);
         Logger.d(TAG, "camera timebase = " + camera.getCameraInfoInternal().getTimebase()
                 + ", processing timebase = " + timebase);
@@ -745,7 +746,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(
-                    () -> onAppEdgeInvalidated(appEdge, camera, config, timebase));
+                    () -> onAppEdgeInvalidated(appEdge, camera, config, timebase, hasGlProcessing));
             mSurfaceRequest = appEdge.createSurfaceRequest(camera);
             mDeferrableSurface = mCameraEdge.getDeferrableSurface();
             DeferrableSurface latestDeferrableSurface = mDeferrableSurface;
@@ -761,7 +762,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }
 
-        config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
+        config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase, hasGlProcessing);
         sendTransformationInfoIfReady();
         // Since VideoCapture is in video module and can't be recognized by core module, use
         // MediaCodec class instead.
@@ -789,10 +790,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge, @NonNull CameraInternal camera,
-            @NonNull VideoCaptureConfig<T> config, @NonNull Timebase timebase) {
+            @NonNull VideoCaptureConfig<T> config, @NonNull Timebase timebase,
+            boolean hasGlProcessing) {
         if (camera == getCamera()) {
             mSurfaceRequest = appEdge.createSurfaceRequest(camera);
-            config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
+            config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase, hasGlProcessing);
             sendTransformationInfoIfReady();
         }
     }

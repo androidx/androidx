@@ -21,6 +21,8 @@ import androidx.health.connect.client.impl.platform.aggregate.LocalTimeRange
 import androidx.health.connect.client.impl.platform.aggregate.createInstantTimeRange
 import androidx.health.connect.client.impl.platform.aggregate.createLocalTimeRange
 import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -155,7 +157,8 @@ class TimeExtensionsTest {
                 startTime = startTime,
                 endTime = startTime.plusSeconds(10),
                 startZoneOffset = null,
-                endZoneOffset = null
+                endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
             )
         assertThat(nutritionRecord.duration).isEqualTo(Duration.ofSeconds(10))
     }

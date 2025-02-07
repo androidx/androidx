@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,7 +38,7 @@ dependencies {
 
 androidx {
     name = "Compose Lint Test Utils"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2021"
     description = "Lint Test utils used for writing tests for Compose related lint checks"
 }

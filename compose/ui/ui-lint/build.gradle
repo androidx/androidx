@@ -23,7 +23,7 @@
  */
 import androidx.build.BundleInsideHelper
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Compose UI Lint Checks"
-    type = LibraryType.STANDALONE_PUBLISHED_LINT
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2020"
     description = "Compose UI Lint Checks"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

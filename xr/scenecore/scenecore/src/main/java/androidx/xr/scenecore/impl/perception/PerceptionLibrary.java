@@ -145,6 +145,12 @@ public class PerceptionLibrary {
         return mSession;
     }
 
+    /** Returns the activity associated with the session. */
+    @NonNull
+    public Activity getActivity() {
+        return mSession.mActivity;
+    }
+
     /**
      * JNI function that returns a string. This is a temporary function to validate the JNI
      * implementation.

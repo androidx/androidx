@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,7 +30,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
 
     sourceSets {
         commonMain {
@@ -105,7 +105,7 @@ dependencies {
 
 androidx {
     name = "ConstraintLayout Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"

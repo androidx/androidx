@@ -104,9 +104,9 @@ private fun displayImage(context: Context, image: ImageProxy) {
 
         val flashState =
             when (image.imageInfo.flashState) {
-                FlashState.FLASH_STATE_FIRED -> "FIRED"
-                FlashState.FLASH_STATE_UNAVAILABLE -> "UNAVAILABLE"
-                FlashState.FLASH_STATE_READY -> "READY"
+                FlashState.FIRED -> "FIRED"
+                FlashState.UNAVAILABLE -> "UNAVAILABLE"
+                FlashState.NOT_FIRED -> "NOT_FIRED"
                 else -> "UNKNOWN"
             }
         Toast.makeText(context, "Flash state: $flashState", Toast.LENGTH_SHORT).show()

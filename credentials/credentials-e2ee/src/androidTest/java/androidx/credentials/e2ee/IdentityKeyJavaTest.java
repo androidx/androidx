@@ -20,10 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Base64;
 
-import androidx.annotation.NonNull;
-
 import com.google.common.io.BaseEncoding;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 
 import java.util.Random;
@@ -32,8 +31,7 @@ import java.util.Random;
 public class IdentityKeyJavaTest {
     Random mRandom = new Random();
 
-    @NonNull
-    private byte[] randBytes(int numBytes) {
+    private byte @NonNull [] randBytes(int numBytes) {
         byte[] bytes = new byte[numBytes];
         mRandom.nextBytes(bytes);
         return bytes;

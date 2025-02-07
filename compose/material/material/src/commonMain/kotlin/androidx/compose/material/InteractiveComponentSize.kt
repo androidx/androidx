@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.material.internal.identityHashCode
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
@@ -72,8 +73,6 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
 
     override fun equals(other: Any?) = (other === this)
 }
-
-internal expect inline fun identityHashCode(value: Any): Int
 
 internal class MinimumInteractiveModifierNode :
     Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {

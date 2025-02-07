@@ -20,6 +20,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
@@ -45,6 +46,14 @@ class AnimationSpecUtilsTest {
         createAnimationSpecs().forEach { spec ->
             val slowerSpec = spec.slower(50f)
             assertEquals(spec.getDuration() * 2f, slowerSpec.getDuration().toFloat(), 10f)
+        }
+    }
+
+    @Test
+    fun testDelay() {
+        createAnimationSpecs().forEach { spec ->
+            val delayedSpec = spec.delayMillis(200)
+            assertEquals(spec.getDuration() + 200f, delayedSpec.getDuration().toFloat(), 1f)
         }
     }
 
@@ -117,7 +126,7 @@ class AnimationSpecUtilsTest {
             .toFloat()
 
     private fun createAnimationSpecs() =
-        buildList<AnimationSpec<Float>> {
+        buildList<FiniteAnimationSpec<Float>> {
             listOf(0.2f, 0.4f, 0.8f, 1f).forEach { damping ->
                 listOf(50f, 200f, 400f, 1500f, 10_000f).forEach { stiffness ->
                     listOf(0.01f, 0.001f, 0.0001f).forEach { threshold ->

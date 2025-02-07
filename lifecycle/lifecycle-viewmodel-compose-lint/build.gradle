@@ -23,7 +23,7 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle ViewModel Compose Lint Checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2024"
     description = "Android Lifecycles Lint Checks"
 }

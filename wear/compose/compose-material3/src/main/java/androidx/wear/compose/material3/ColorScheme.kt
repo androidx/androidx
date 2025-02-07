@@ -73,10 +73,14 @@ import androidx.wear.compose.material3.tokens.ColorTokens
  * @property background The background color that appears behind other content.
  * @property onBackground Color used for text and icons displayed on top of the background color.
  * @property error Color that indicates remove, delete, close or dismiss actions, such as Swipe to
- *   Reveal. Added as an errorContainer alternative that is slightly less alarming and urgent color.
+ *   Reveal. Added as a slightly less alarming and urgent alternative to errorContainer than the
+ *   error dim color.
+ * @property errorDim Indicates high priority errors or emergency actions, such as safety alerts,
+ *   failed dialog overlays or stop buttons.
+ * @property errorContainer A less prominent container color than [error], for components using the
+ *   error state. Can also indicate an active error state which feels less interactive than a filled
+ *   state, such as an active emergency sharing button, or on a failed overlay dialog..
  * @property onError Color used for text and icons displayed on top of the error color.
- * @property errorContainer Color that indicates errors or emergency actions, such as safety alerts.
- *   This color is for use-cases that are more alarming and urgent than the error color.
  * @property onErrorContainer Color used for text and icons on the errorContainer color.
  */
 @Immutable
@@ -107,8 +111,9 @@ public class ColorScheme(
     public val background: Color = ColorTokens.Background,
     public val onBackground: Color = ColorTokens.OnBackground,
     public val error: Color = ColorTokens.Error,
-    public val onError: Color = ColorTokens.OnError,
+    public val errorDim: Color = ColorTokens.ErrorDim,
     public val errorContainer: Color = ColorTokens.ErrorContainer,
+    public val onError: Color = ColorTokens.OnError,
     public val onErrorContainer: Color = ColorTokens.OnErrorContainer,
 ) {
     /** Returns a copy of this Colors, optionally overriding some of the values. */
@@ -138,8 +143,9 @@ public class ColorScheme(
         background: Color = this.background,
         onBackground: Color = this.onBackground,
         error: Color = this.error,
-        onError: Color = this.onError,
+        errorDim: Color = this.errorDim,
         errorContainer: Color = this.errorContainer,
+        onError: Color = this.onError,
         onErrorContainer: Color = this.onErrorContainer,
     ): ColorScheme =
         ColorScheme(
@@ -168,8 +174,9 @@ public class ColorScheme(
             background = background,
             onBackground = onBackground,
             error = error,
-            onError = onError,
+            errorDim = errorDim,
             errorContainer = errorContainer,
+            onError = onError,
             onErrorContainer = onErrorContainer,
         )
 
@@ -199,8 +206,10 @@ public class ColorScheme(
             "outlineVariant=$outlineVariant, " +
             "background=$background, " +
             "onBackground=$onBackground, " +
-            "onError=$onError," +
+            "error=$error, " +
+            "errorDim=$errorDim, " +
             "errorContainer=$errorContainer, " +
+            "onError=$onError," +
             "onErrorContainer=$onErrorContainer" +
             ")"
     }
@@ -261,6 +270,9 @@ public class ColorScheme(
     // Level Indicator
     internal var defaultLevelIndicatorColorsCached: LevelIndicatorColors? = null
 
+    // Scroll Indicator
+    internal var defaultScrollIndicatorColorsCached: ScrollIndicatorColors? = null
+
     // Confirmation
     internal var defaultConfirmationColorsCached: ConfirmationDialogColors? = null
     internal var defaultSuccessConfirmationColorsCached: ConfirmationDialogColors? = null
@@ -306,6 +318,7 @@ public fun ColorScheme.contentColorFor(backgroundColor: Color): Color {
         surfaceContainerHigh -> onSurface
         background -> onBackground
         error -> onError
+        errorDim -> onError
         errorContainer -> onErrorContainer
         else -> Color.Unspecified
     }
@@ -365,8 +378,9 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
         ColorSchemeKeyTokens.Background -> background
         ColorSchemeKeyTokens.OnBackground -> onBackground
         ColorSchemeKeyTokens.Error -> error
-        ColorSchemeKeyTokens.OnError -> onError
         ColorSchemeKeyTokens.ErrorContainer -> errorContainer
+        ColorSchemeKeyTokens.ErrorDim -> errorDim
+        ColorSchemeKeyTokens.OnError -> onError
         ColorSchemeKeyTokens.OnErrorContainer -> onErrorContainer
     }
 }

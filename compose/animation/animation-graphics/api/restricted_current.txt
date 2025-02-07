@@ -23,8 +23,8 @@ package androidx.compose.animation.graphics.vector {
   @androidx.compose.runtime.Immutable public final class AnimatedImageVector {
     method public androidx.compose.ui.graphics.vector.ImageVector getImageVector();
     method public int getTotalDuration();
-    property public final androidx.compose.ui.graphics.vector.ImageVector imageVector;
-    property public final int totalDuration;
+    property public androidx.compose.ui.graphics.vector.ImageVector imageVector;
+    property public int totalDuration;
     field public static final androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion Companion;
   }
 

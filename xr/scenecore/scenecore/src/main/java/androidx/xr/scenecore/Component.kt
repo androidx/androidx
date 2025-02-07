@@ -16,14 +16,11 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-
 /**
  * Base interface for all components.
  *
  * Components are attached to entities, to add functionality to those entities.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Component {
     /**
      * Called when this component is attached to the entity.

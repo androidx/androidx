@@ -91,7 +91,6 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalTestApi::class)
 @LargeTest
 class TextFieldCursorTest : FocusedWindowTest {
 
@@ -373,8 +372,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             )
     }
 
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorBlinkingAnimation_whenSystemDisablesAnimations() {

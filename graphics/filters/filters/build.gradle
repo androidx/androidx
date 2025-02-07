@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -56,7 +56,7 @@ android {
 
 androidx {
     name = "androidx.graphics.filters:filters"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Apply visual filters to images, video or UI in real time."
     legacyDisableKotlinStrictApiMode = true

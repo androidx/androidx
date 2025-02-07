@@ -23,6 +23,7 @@ internal actual object PlatformHapticFeedbackType {
     actual val ContextClick: HapticFeedbackType = implementedInJetBrainsFork()
     actual val GestureEnd: HapticFeedbackType = implementedInJetBrainsFork()
     actual val GestureThresholdActivate: HapticFeedbackType = implementedInJetBrainsFork()
+    actual val KeyboardTap: HapticFeedbackType = implementedInJetBrainsFork()
     actual val LongPress: HapticFeedbackType = implementedInJetBrainsFork()
     actual val Reject: HapticFeedbackType = implementedInJetBrainsFork()
     actual val SegmentFrequentTick: HapticFeedbackType = implementedInJetBrainsFork()

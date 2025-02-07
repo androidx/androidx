@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TriStateCheckbox
@@ -35,10 +36,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.floor
 
 @Preview
 @Sampled
@@ -74,6 +80,29 @@ fun CheckboxWithTextSample() {
             modifier = Modifier.padding(start = 16.dp)
         )
     }
+}
+
+@Preview
+@Sampled
+@Composable
+fun CheckboxRoundedStrokesSample() {
+    val strokeWidthPx = with(LocalDensity.current) { floor(CheckboxDefaults.StrokeWidth.toPx()) }
+    val checkmarkStroke =
+        remember(strokeWidthPx) {
+            Stroke(
+                width = strokeWidthPx,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round,
+            )
+        }
+    val outlineStroke = remember(strokeWidthPx) { Stroke(width = strokeWidthPx) }
+    val checkedState = remember { mutableStateOf(true) }
+    Checkbox(
+        checked = checkedState.value,
+        onCheckedChange = { checkedState.value = it },
+        checkmarkStroke = checkmarkStroke,
+        outlineStroke = outlineStroke
+    )
 }
 
 @Preview
@@ -141,6 +170,99 @@ fun TriStateCheckboxSample() {
                     )
             ) {
                 Checkbox(state2, null)
+                Text("Weekly")
+            }
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun TriStateCheckboxRoundedStrokesSample() {
+    val strokeWidthPx = with(LocalDensity.current) { floor(CheckboxDefaults.StrokeWidth.toPx()) }
+    val checkmarkStroke =
+        remember(strokeWidthPx) {
+            Stroke(
+                width = strokeWidthPx,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round,
+            )
+        }
+    val outlineStroke = remember(strokeWidthPx) { Stroke(width = strokeWidthPx) }
+    Column {
+        // define dependent checkboxes states
+        val (state, onStateChange) = remember { mutableStateOf(true) }
+        val (state2, onStateChange2) = remember { mutableStateOf(true) }
+
+        // TriStateCheckbox state reflects state of dependent checkboxes
+        val parentState =
+            remember(state, state2) {
+                if (state && state2) ToggleableState.On
+                else if (!state && !state2) ToggleableState.Off else ToggleableState.Indeterminate
+            }
+        // click on TriStateCheckbox can set state for dependent checkboxes
+        val onParentClick = {
+            val s = parentState != ToggleableState.On
+            onStateChange(s)
+            onStateChange2(s)
+        }
+
+        // The sample below composes just basic checkboxes which are not fully accessible on their
+        // own. See the CheckboxWithTextSample as a way to ensure your checkboxes are fully
+        // accessible.
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.triStateToggleable(
+                    state = parentState,
+                    onClick = onParentClick,
+                    role = Role.Checkbox
+                )
+        ) {
+            TriStateCheckbox(
+                state = parentState,
+                onClick = null,
+                checkmarkStroke = checkmarkStroke,
+                outlineStroke = outlineStroke
+            )
+            Text("Receive Emails")
+        }
+        Spacer(Modifier.size(25.dp))
+        Column(Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier.toggleable(
+                        value = state,
+                        onValueChange = onStateChange,
+                        role = Role.Checkbox
+                    )
+            ) {
+                Checkbox(
+                    checked = state,
+                    onCheckedChange = null,
+                    checkmarkStroke = checkmarkStroke,
+                    outlineStroke = outlineStroke
+                )
+                Text("Daily")
+            }
+            Spacer(Modifier.size(25.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier.toggleable(
+                        value = state2,
+                        onValueChange = onStateChange2,
+                        role = Role.Checkbox
+                    )
+            ) {
+                Checkbox(
+                    checked = state2,
+                    onCheckedChange = null,
+                    checkmarkStroke = checkmarkStroke,
+                    outlineStroke = outlineStroke
+                )
                 Text("Weekly")
             }
         }

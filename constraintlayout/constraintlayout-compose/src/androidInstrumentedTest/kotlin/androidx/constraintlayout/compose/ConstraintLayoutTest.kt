@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
@@ -2452,6 +2453,138 @@ class ConstraintLayoutTest {
 
             // Vertical is infinity, fillMaxSize behavior should pin it to minimum height (Zero)
             assertEquals(IntSize(rootSizePx.fastRoundToInt(), 0), layoutSize)
+        }
+
+    @Test
+    fun testToggleVisibilityWithFillConstraintsWidth() =
+        with(rule.density) {
+            val rootSizePx = 100f
+
+            var toggleVisibility by mutableStateOf(false)
+
+            rule.setContent {
+                // Regression test, modify only dimensions if necessary
+                ConstraintLayout(modifier = Modifier.size(rootSizePx.toDp())) {
+                    val (titleRef, detailRef) = createRefs()
+                    Box(
+                        modifier =
+                            Modifier.background(Color.Cyan).testTag("box1").constrainAs(detailRef) {
+                                centerHorizontallyTo(parent)
+
+                                width = Dimension.fillToConstraints
+                                height = rootSizePx.toDp().asDimension()
+
+                                visibility =
+                                    if (!toggleVisibility) Visibility.Gone else Visibility.Visible
+                            }
+                    )
+                    Box(
+                        modifier =
+                            Modifier.background(Color.Red).testTag("box2").constrainAs(titleRef) {
+                                centerHorizontallyTo(parent)
+
+                                width = Dimension.fillToConstraints
+                                height = rootSizePx.toDp().asDimension()
+
+                                visibility =
+                                    if (toggleVisibility) Visibility.Gone else Visibility.Visible
+                            }
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box1").apply {
+                assertWidthIsEqualTo(Dp.Unspecified)
+                assertHeightIsEqualTo(Dp.Unspecified)
+            }
+            rule.onNodeWithTag("box2").apply {
+                assertWidthIsEqualTo(rootSizePx.toDp())
+                assertHeightIsEqualTo(rootSizePx.toDp())
+            }
+
+            toggleVisibility = !toggleVisibility
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box1").apply {
+                assertWidthIsEqualTo(rootSizePx.toDp())
+                assertHeightIsEqualTo(rootSizePx.toDp())
+            }
+            rule.onNodeWithTag("box2").apply {
+                assertWidthIsEqualTo(Dp.Unspecified)
+                assertHeightIsEqualTo(Dp.Unspecified)
+            }
+            Unit // Test expects to return Unit
+        }
+
+    @Test
+    fun testToggleVisibilityWithFillConstraintsWidth_underLookahead() =
+        with(rule.density) {
+            val rootSizePx = 100f
+
+            var toggleVisibility by mutableStateOf(false)
+
+            rule.setContent {
+                LookaheadScope {
+                    // Regression test, modify only dimensions if necessary
+                    ConstraintLayout(modifier = Modifier.size(rootSizePx.toDp())) {
+                        val (titleRef, detailRef) = createRefs()
+                        Box(
+                            modifier =
+                                Modifier.background(Color.Cyan).testTag("box1").constrainAs(
+                                    detailRef
+                                ) {
+                                    centerHorizontallyTo(parent)
+
+                                    width = Dimension.fillToConstraints
+                                    height = rootSizePx.toDp().asDimension()
+
+                                    visibility =
+                                        if (!toggleVisibility) Visibility.Gone
+                                        else Visibility.Visible
+                                }
+                        )
+                        Box(
+                            modifier =
+                                Modifier.background(Color.Red).testTag("box2").constrainAs(
+                                    titleRef
+                                ) {
+                                    centerHorizontallyTo(parent)
+
+                                    width = Dimension.fillToConstraints
+                                    height = rootSizePx.toDp().asDimension()
+
+                                    visibility =
+                                        if (toggleVisibility) Visibility.Gone
+                                        else Visibility.Visible
+                                }
+                        )
+                    }
+                }
+            }
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box1").apply {
+                assertWidthIsEqualTo(Dp.Unspecified)
+                assertHeightIsEqualTo(Dp.Unspecified)
+            }
+            rule.onNodeWithTag("box2").apply {
+                assertWidthIsEqualTo(rootSizePx.toDp())
+                assertHeightIsEqualTo(rootSizePx.toDp())
+            }
+
+            toggleVisibility = !toggleVisibility
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box1").apply {
+                assertWidthIsEqualTo(rootSizePx.toDp())
+                assertHeightIsEqualTo(rootSizePx.toDp())
+            }
+            rule.onNodeWithTag("box2").apply {
+                assertWidthIsEqualTo(Dp.Unspecified)
+                assertHeightIsEqualTo(Dp.Unspecified)
+            }
+            Unit // Test expects to return Unit
         }
 
     /**

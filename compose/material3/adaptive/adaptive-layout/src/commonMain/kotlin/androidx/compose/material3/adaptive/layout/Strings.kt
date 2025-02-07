@@ -25,6 +25,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 internal expect value class Strings(val value: Int) {
     companion object {
         val defaultPaneExpansionDragHandleContentDescription: Strings
+        val defaultPaneExpansionDragHandleStateDescription: Strings
         val defaultPaneExpansionDragHandleActionDescription: Strings
         val defaultPaneExpansionProportionAnchorDescription: Strings
         val defaultPaneExpansionStartOffsetAnchorDescription: Strings

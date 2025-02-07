@@ -40,8 +40,8 @@ import androidx.room.vo.ColumnIndexVar
  * of nested maps. Each level of nesting of a map is represented by a [NestedMapValueResultAdapter],
  * except the innermost level which is represented by an [EndMapValueResultAdapter].
  *
- * For example, if a DAO method returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented by
- * an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
+ * For example, if a DAO function returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented
+ * by an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
  * [NestedMapValueResultAdapter] each.
  *
  * A [NestedMapValueResultAdapter] can wrap either another [NestedMapValueResultAdapter] or an
@@ -409,8 +409,8 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
     }
 
     /**
-     * Utility method that returns a code block containing the code expression that verifies if all
-     * matched fields are null.
+     * Utility function that returns a code block containing the code expression that verifies if
+     * all matched properties are null.
      */
     protected fun getContinueColumnNullCheck(
         rowAdapter: RowAdapter,
@@ -431,7 +431,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
             }
             .build()
 
-    /** Generates a code expression that verifies if all matched fields are null. */
+    /** Generates a code expression that verifies if all matched properties are null. */
     protected fun getColumnNullCheckCode(stmtVarName: String, indexVars: List<ColumnIndexVar>) =
         buildCodeBlock { language ->
             val space =

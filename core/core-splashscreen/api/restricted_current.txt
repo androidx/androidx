@@ -26,10 +26,10 @@ package androidx.core.splashscreen {
     method public android.view.View getIconView();
     method public android.view.View getView();
     method public void remove();
-    property public final long iconAnimationDurationMillis;
-    property public final long iconAnimationStartMillis;
-    property public final android.view.View iconView;
-    property public final android.view.View view;
+    property public long iconAnimationDurationMillis;
+    property public long iconAnimationStartMillis;
+    property public android.view.View iconView;
+    property public android.view.View view;
   }
 
 }

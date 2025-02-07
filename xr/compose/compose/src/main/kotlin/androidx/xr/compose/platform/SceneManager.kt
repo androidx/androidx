@@ -17,17 +17,14 @@
 package androidx.xr.compose.platform
 
 import android.util.CloseGuard
-import androidx.annotation.RestrictTo
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
  * Manager for all [SpatialComposeScene]s that are created when the [SceneManager] is running.
  *
- * This is used by the testing framework to keep track of all scene compositions that were created
- * for the purpose of finding the semantic roots.
+ * Enables finding all semantic roots in a spatial scene graph.
  */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object SceneManager : AutoCloseable {
     private val registeredScenes: MutableList<SpatialComposeScene> = mutableListOf()
     private var isRunning = false
@@ -76,9 +73,9 @@ public object SceneManager : AutoCloseable {
      * nodes. This will throw an [IllegalStateException] if the [SceneManager] is not in a running
      * state.
      */
-    public fun getAllRootSubspaceSemanticsNodes(): List<SubspaceSemanticsNode> {
+    public fun getAllRootSubspaceSemanticsNodes(): List<SubspaceSemanticsInfo> {
         check(isRunning) { "SceneManager is not started. Call SceneManager.start() first." }
-        return registeredScenes.map { SubspaceSemanticsNode(it.rootElement.compositionOwner.root) }
+        return registeredScenes.map { it.rootElement.compositionOwner.root.measurableLayout }
     }
 
     public fun getSceneCount(): Int {

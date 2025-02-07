@@ -36,9 +36,7 @@ public class LoggingUtilsImpl implements LoggingUtils {
     @Override
     @FormatMethod
     public void logD(
-        @NonNull String tag,
-        @FormatString @NonNull String format,
-        Object @NonNull ... args) {
+            @NonNull String tag, @FormatString @NonNull String format, Object @NonNull ... args) {
         logD(tag, String.format(format, args));
     }
 

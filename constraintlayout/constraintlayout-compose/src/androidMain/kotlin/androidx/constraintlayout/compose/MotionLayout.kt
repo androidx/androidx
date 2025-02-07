@@ -42,8 +42,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MultiMeasureLayout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.node.Ref
@@ -978,6 +980,9 @@ internal fun motionLayoutMeasurePolicy(
     optimizationLevel: Int,
     invalidationStrategy: InvalidationStrategy
 ): MeasurePolicy = MeasurePolicy { measurables, constraints ->
+    // Map to properly capture Placeables across Measure and Layout passes
+    val placeableMap = mutableMapOf<Measurable, Placeable>()
+
     // Do a state read, to guarantee that we control measure when the content recomposes without
     // notifying our Composable caller
     contentTracker.value
@@ -990,6 +995,7 @@ internal fun motionLayoutMeasurePolicy(
             constraintSetEnd = constraintSetEnd,
             transition = transition,
             measurables = measurables,
+            placeableMap = placeableMap,
             optimizationLevel = optimizationLevel,
             progress = motionProgress.floatValue,
             compositionSource = compositionSource.value ?: CompositionSource.Unknown,
@@ -997,7 +1003,9 @@ internal fun motionLayoutMeasurePolicy(
         )
     compositionSource.value = CompositionSource.Unknown // Reset after measuring
 
-    layout(layoutSize.width, layoutSize.height) { with(measurer) { performLayout(measurables) } }
+    layout(layoutSize.width, layoutSize.height) {
+        with(measurer) { performLayout(measurables = measurables, placeableMap = placeableMap) }
+    }
 }
 
 /**

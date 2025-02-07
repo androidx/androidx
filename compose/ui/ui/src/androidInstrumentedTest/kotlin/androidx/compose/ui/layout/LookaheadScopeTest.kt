@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
@@ -80,6 +82,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -1282,6 +1285,7 @@ class LookaheadScopeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun testNestedLookaheadPlacement() {
@@ -3283,6 +3287,83 @@ class LookaheadScopeTest {
         rule.waitForIdle()
 
         repeat(4) { Assert.assertEquals(approachPos[it], lookaheadPos[it]) }
+    }
+
+    @Test
+    fun testReorderChildrenInLookaheadScope() {
+        val list = mutableStateListOf(1, 2)
+        data class Stats(
+            var lookaheadMeasurementCount: Int = 0,
+            var measurementCount: Int = 0,
+            var lookaheadPlacementCount: Int = 0,
+            var placementCount: Int = 0,
+        )
+        val boxStats = Stats()
+        val rowStats = Stats()
+        rule.setContent {
+            Row {
+                LookaheadScope {
+                    list.fastForEach {
+                        key(it) {
+                            if (it == 1) {
+                                Box(
+                                    Modifier.size(100.dp).layout { m, c ->
+                                        if (isLookingAhead) boxStats.lookaheadMeasurementCount++
+                                        else boxStats.measurementCount++
+                                        m.measure(c).run {
+                                            layout(width, height) {
+                                                if (isLookingAhead)
+                                                    boxStats.lookaheadPlacementCount++
+                                                else boxStats.placementCount++
+                                                place(0, 0)
+                                            }
+                                        }
+                                    }
+                                )
+                            } else {
+                                Row(
+                                    Modifier.size(200.dp).layout { m, c ->
+                                        if (isLookingAhead) rowStats.lookaheadMeasurementCount++
+                                        else rowStats.measurementCount++
+                                        m.measure(c).run {
+                                            layout(width, height) {
+                                                if (isLookingAhead)
+                                                    rowStats.lookaheadPlacementCount++
+                                                else rowStats.placementCount++
+                                                place(0, 0)
+                                            }
+                                        }
+                                    }
+                                ) {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(1, boxStats.lookaheadMeasurementCount)
+            assertEquals(1, boxStats.lookaheadPlacementCount)
+            assertEquals(1, boxStats.measurementCount)
+            assertEquals(1, boxStats.placementCount)
+            assertEquals(1, rowStats.lookaheadMeasurementCount)
+            assertEquals(1, rowStats.lookaheadPlacementCount)
+            assertEquals(1, rowStats.measurementCount)
+            assertEquals(1, rowStats.placementCount)
+        }
+        list[0] = 2
+        list[1] = 1
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(2, boxStats.lookaheadMeasurementCount)
+            assertEquals(2, boxStats.lookaheadPlacementCount)
+            assertEquals(2, boxStats.measurementCount)
+            assertEquals(2, boxStats.placementCount)
+            assertEquals(2, rowStats.lookaheadMeasurementCount)
+            assertEquals(2, rowStats.lookaheadPlacementCount)
+            assertEquals(2, rowStats.measurementCount)
+            assertEquals(2, rowStats.placementCount)
+        }
     }
 
     @Test

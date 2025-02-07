@@ -455,7 +455,7 @@ public final class Camera2CameraControlImplDeviceTest {
         int defaultStrength = mCamera.getCameraInfo().getTorchStrengthLevel().getValue();
         // If the default strength is the max, set the strength to 1, otherwise, set to max.
         int customizedStrength = defaultStrength == maxStrength ? 1 : maxStrength;
-        camera2CameraControlImpl.setTorchStrengthLevelAsync(customizedStrength).get();
+        camera2CameraControlImpl.setTorchStrengthLevel(customizedStrength).get();
 
         // Assert: the customized strength is applied
         Camera2ImplConfig camera2Config = new Camera2ImplConfig(
@@ -483,7 +483,7 @@ public final class Camera2CameraControlImplDeviceTest {
 
         // Act & Assert
         try {
-            camera2CameraControlImpl.setTorchStrengthLevelAsync(0).get();
+            camera2CameraControlImpl.setTorchStrengthLevel(0).get();
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
             return;
@@ -510,7 +510,7 @@ public final class Camera2CameraControlImplDeviceTest {
 
         // Act & Assert
         try {
-            camera2CameraControlImpl.setTorchStrengthLevelAsync(
+            camera2CameraControlImpl.setTorchStrengthLevel(
                     mCamera.getCameraInfo().getMaxTorchStrengthLevel() + 1).get();
         } catch (ExecutionException e) {
             assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
@@ -631,7 +631,7 @@ public final class Camera2CameraControlImplDeviceTest {
         int defaultStrength = mCamera.getCameraInfo().getTorchStrengthLevel().getValue();
         // If the default strength is the max, set the strength to 1, otherwise, set to max.
         int customizedStrength = defaultStrength == maxStrength ? 1 : maxStrength;
-        camera2CameraControlImpl.setTorchStrengthLevelAsync(customizedStrength).get();
+        camera2CameraControlImpl.setTorchStrengthLevel(customizedStrength).get();
 
         // Assert: the capture uses default torch strength
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();

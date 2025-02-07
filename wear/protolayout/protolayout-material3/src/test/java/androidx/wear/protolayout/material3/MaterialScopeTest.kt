@@ -19,8 +19,12 @@ import android.graphics.Color
 import android.os.Build.VERSION_CODES
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.material3.tokens.ColorTokens
+import androidx.wear.protolayout.testing.LayoutElementAssertionsProvider
+import androidx.wear.protolayout.testing.hasColor
+import androidx.wear.protolayout.testing.hasHeight
+import androidx.wear.protolayout.testing.hasImage
+import androidx.wear.protolayout.testing.hasWidth
 import androidx.wear.protolayout.types.argb
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -56,7 +60,9 @@ class MaterialScopeTest {
                 defaultTextElementStyle = TextElementStyle(),
                 defaultIconStyle = IconStyle(),
                 defaultBackgroundImageStyle = BackgroundImageStyle(),
-                defaultAvatarImageStyle = AvatarImageStyle()
+                defaultAvatarImageStyle = AvatarImageStyle(),
+                layoutSlotsPresence = LayoutSlotsPresence(),
+                defaultProgressIndicatorStyle = ProgressIndicatorStyle()
             )
 
         assertThat(scopeWithDefaultTheme.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
@@ -88,7 +94,9 @@ class MaterialScopeTest {
                 defaultTextElementStyle = TextElementStyle(),
                 defaultIconStyle = IconStyle(),
                 defaultBackgroundImageStyle = BackgroundImageStyle(),
-                defaultAvatarImageStyle = AvatarImageStyle()
+                defaultAvatarImageStyle = AvatarImageStyle(),
+                layoutSlotsPresence = LayoutSlotsPresence(),
+                defaultProgressIndicatorStyle = ProgressIndicatorStyle()
             )
 
         assertThat(materialScope.deviceConfiguration).isEqualTo(DEVICE_PARAMETERS)
@@ -124,7 +132,9 @@ class MaterialScopeTest {
                 defaultTextElementStyle = TextElementStyle(),
                 defaultIconStyle = IconStyle(),
                 defaultBackgroundImageStyle = BackgroundImageStyle(),
-                defaultAvatarImageStyle = AvatarImageStyle()
+                defaultAvatarImageStyle = AvatarImageStyle(),
+                layoutSlotsPresence = LayoutSlotsPresence(),
+                defaultProgressIndicatorStyle = ProgressIndicatorStyle()
             )
 
         assertThat(isDynamicColorSchemeEnabled(materialScope.context)).isFalse()
@@ -139,11 +149,28 @@ class MaterialScopeTest {
             .isEqualTo(ColorTokens.PRIMARY)
     }
 
-    companion object {
-        internal val DEVICE_PARAMETERS =
-            DeviceParametersBuilders.DeviceParameters.Builder()
-                .setScreenWidthDp(192)
-                .setScreenHeightDp(192)
-                .build()
+    @Test
+    fun icon_inflates() {
+        val iconId = "id"
+        val color = Color.YELLOW
+        val size = 12.toDp()
+
+        val provider =
+            LayoutElementAssertionsProvider(
+                materialScope(
+                    context = getApplicationContext(),
+                    deviceConfiguration = DEVICE_PARAMETERS
+                ) {
+                    icon(
+                        protoLayoutResourceId = iconId,
+                        tintColor = color.argb,
+                        width = size,
+                        height = size
+                    )
+                }
+            )
+
+        provider.onElement(hasImage(iconId)).assertExists()
+        provider.onRoot().assert(hasColor(color)).assert(hasWidth(size)).assert(hasHeight(size))
     }
 }

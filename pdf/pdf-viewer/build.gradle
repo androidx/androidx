@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -53,7 +53,6 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
@@ -96,7 +95,7 @@ android {
 
 androidx {
     name = "androidx.pdf:pdf-viewer"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "add pdf viewing to their apps."
 }

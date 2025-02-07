@@ -1,3 +1,89 @@
 // Baseline format: 1.0
-ParameterNameChange: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole, T) parameter #1:
-    Attempted to change parameter name from content to contentKey in constructor androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue:
+    Removed class androidx.compose.material3.adaptive.layout.PaneAdaptedValue from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue#Companion:
+    Removed field androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion:
+    Removed class androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion#Expanded:
+    Removed property PaneAdaptedValue.Companion.Expanded from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion#Hidden:
+    Removed property PaneAdaptedValue.Companion.Hidden from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion#getExpanded():
+    Removed method androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.getExpanded() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion#getHidden():
+    Removed method androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.getHidden() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int):
+    Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int) parameter #0:
+    Removed parameter windowAdaptiveInfo in androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, int verticalHingePolicy) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int) parameter #1:
+    Removed parameter verticalHingePolicy in androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, int verticalHingePolicy) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int):
+    Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int) parameter #0:
+    Removed parameter windowAdaptiveInfo in androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, int verticalHingePolicy) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt#calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int) parameter #1:
+    Removed parameter verticalHingePolicy in androidx.compose.material3.adaptive.layout.PaneScaffoldDirectiveKt.calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, int verticalHingePolicy) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole:
+    Removed class androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#Extra:
+    Removed property SupportingPaneScaffoldRole.Extra from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#INSTANCE:
+    Removed field androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole.INSTANCE from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#Main:
+    Removed property SupportingPaneScaffoldRole.Main from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#Supporting:
+    Removed property SupportingPaneScaffoldRole.Supporting from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#getExtra():
+    Removed method androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole.getExtra() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#getMain():
+    Removed method androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole.getMain() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole#getSupporting():
+    Removed method androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole.getSupporting() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole, T):
+    Removed constructor androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,T) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole, T) parameter #0:
+    Removed parameter pane in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, T contentKey) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole, T) parameter #1:
+    Removed parameter contentKey in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, T contentKey) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#contentKey:
+    Removed property ThreePaneScaffoldDestinationItem.contentKey from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#getContentKey():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem.getContentKey() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#getPane():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem.getPane() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem#pane:
+    Removed property ThreePaneScaffoldDestinationItem.pane from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue:
+    Removed class androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#ThreePaneScaffoldValue(String, String, String):
+    Removed constructor androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue(String,String,String) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#ThreePaneScaffoldValue(String, String, String) parameter #0:
+    Removed parameter primary in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue(String primary, String secondary, String tertiary) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#ThreePaneScaffoldValue(String, String, String) parameter #1:
+    Removed parameter secondary in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue(String primary, String secondary, String tertiary) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#ThreePaneScaffoldValue(String, String, String) parameter #2:
+    Removed parameter tertiary in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue(String primary, String secondary, String tertiary) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole):
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole) parameter #0:
+    Removed parameter role in androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#getPaneExpansionStateKey():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.getPaneExpansionStateKey() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#getPrimary():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.getPrimary() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#getSecondary():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.getSecondary() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#getTertiary():
+    Removed method androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue.getTertiary() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#paneExpansionStateKey:
+    Removed property ThreePaneScaffoldValue.paneExpansionStateKey from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#primary:
+    Removed property ThreePaneScaffoldValue.primary from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#secondary:
+    Removed property ThreePaneScaffoldValue.secondary from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue#tertiary:
+    Removed property ThreePaneScaffoldValue.tertiary from compatibility checked API surface

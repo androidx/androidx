@@ -87,9 +87,8 @@ object TextFieldDefaults {
     val FocusedIndicatorThickness = 2.dp
 
     /**
-     * A decorator used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design filled text field</a>.
+     * A decorator used to create custom text fields based on
+     * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [TextField], such as
      * the indicator line thickness, consider using this decorator to achieve the desired design.
@@ -141,7 +140,6 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun decorator(
         state: TextFieldState,
         enabled: Boolean,
@@ -212,9 +210,9 @@ object TextFieldDefaults {
 
     /**
      * Composable that draws a default container for a [TextField] with an indicator line at the
-     * bottom. You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text
-     * field based on the styling of a Material filled text field. The [TextField] component applies
-     * it automatically.
+     * bottom. You can apply it to a [BasicTextField] using [decorator] or [DecorationBox] to create
+     * a custom text field based on the styling of a Material filled text field. The [TextField]
+     * component applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
@@ -228,7 +226,6 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun Container(
         enabled: Boolean,
@@ -264,8 +261,8 @@ object TextFieldDefaults {
 
     /**
      * A modifier to draw a default bottom indicator line for [TextField]. You can apply it to a
-     * [BasicTextField] or to [DecorationBox] to create a custom text field based on the styling of
-     * a Material filled text field.
+     * [BasicTextField] to create a custom text field based on the styling of a Material filled text
+     * field.
      *
      * Consider using [Container], which automatically applies this modifier as well as other text
      * field container styling.
@@ -283,7 +280,6 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    @ExperimentalMaterial3Api
     fun Modifier.indicatorLine(
         enabled: Boolean,
         isError: Boolean,
@@ -305,9 +301,8 @@ object TextFieldDefaults {
             )
 
     /**
-     * A decoration box used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design filled text field</a>.
+     * A decoration box used to create custom text fields based on
+     * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [TextField], consider
      * using this decoration box to achieve the desired design.
@@ -323,9 +318,9 @@ object TextFieldDefaults {
      *
      * @sample androidx.compose.material3.samples.CustomTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
-     * @param innerTextField input text field that this decoration box wraps. You will pass here a
-     *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
-     *   the [BasicTextField]
+     * @param innerTextField input text field that this decoration box wraps. Pass the
+     *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
+     *   of the [BasicTextField]
      * @param enabled the enabled state of the text field. When `false`, this decoration box will
      *   appear visually disabled. This must be the same value that is passed to [BasicTextField].
      * @param singleLine indicates if this is a single line or multi line text field. This must be
@@ -363,7 +358,6 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
@@ -917,9 +911,8 @@ object OutlinedTextFieldDefaults {
     val FocusedBorderThickness = 2.dp
 
     /**
-     * A decorator used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design outlined text field</a>.
+     * A decorator used to create custom text fields based on
+     * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
      * such as the border thickness, consider using this decorator to achieve the desired design.
@@ -972,7 +965,6 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun decorator(
         state: TextFieldState,
         enabled: Boolean,
@@ -1038,9 +1030,9 @@ object OutlinedTextFieldDefaults {
 
     /**
      * Composable that draws a default container for an [OutlinedTextField] with a border stroke.
-     * You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text field
-     * based on the styling of a Material outlined text field. The [OutlinedTextField] component
-     * applies it automatically.
+     * You can apply it to a [BasicTextField] using [decorator] or [DecorationBox] to create a
+     * custom text field based on the styling of a Material outlined text field. The
+     * [OutlinedTextField] component applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
@@ -1052,7 +1044,6 @@ object OutlinedTextFieldDefaults {
      * @param focusedBorderThickness thickness of the border when the text field is focused
      * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun Container(
         enabled: Boolean,
@@ -1088,9 +1079,8 @@ object OutlinedTextFieldDefaults {
     }
 
     /**
-     * A decoration box used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design outlined text field</a>.
+     * A decoration box used to create custom text fields based on
+     * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
      * consider using this decoration box to achieve the desired design.
@@ -1106,9 +1096,9 @@ object OutlinedTextFieldDefaults {
      *
      * @sample androidx.compose.material3.samples.CustomOutlinedTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
-     * @param innerTextField input text field that this decoration box wraps. You will pass here a
-     *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
-     *   the [BasicTextField]
+     * @param innerTextField input text field that this decoration box wraps. Pass the
+     *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
+     *   of the [BasicTextField]
      * @param enabled the enabled state of the text field. When `false`, this decoration box will
      *   appear visually disabled. This must be the same value that is passed to [BasicTextField].
      * @param singleLine indicates if this is a single line or multi line text field. This must be
@@ -1146,7 +1136,6 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,

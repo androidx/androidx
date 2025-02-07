@@ -76,10 +76,12 @@ class RawQueryFunctionProcessor(
         // build the query but don't calculate result info since we just guessed it.
         val resultBinder =
             delegate.findResultBinder(returnType, query) {
-                @Suppress("DEPRECATION")
-                delegate.executableElement.getAnnotation(androidx.room.MapInfo::class)?.let {
-                    val keyColumn = it.value.keyColumn
-                    val valueColumn = it.value.valueColumn
+                @Suppress("DEPRECATION") // Due to MapInfo
+                val annotation =
+                    delegate.executableElement.getAnnotation(androidx.room.MapInfo::class)
+                if (annotation != null) {
+                    val keyColumn = annotation["keyColumn"]?.asString() ?: ""
+                    val valueColumn = annotation["valueColumn"]?.asString() ?: ""
                     context.checker.check(
                         keyColumn.isNotEmpty() || valueColumn.isNotEmpty(),
                         executableElement,
@@ -111,16 +113,16 @@ class RawQueryFunctionProcessor(
 
     private fun processObservedTables(): Set<String> {
         val annotation = executableElement.getAnnotation(RawQuery::class)
-        return annotation
-            ?.getAsTypeList("observedEntities")
-            ?.mapNotNull {
+        val observedEntities = annotation?.get("observedEntities")?.asTypeList() ?: emptyList()
+        return observedEntities
+            .mapNotNull {
                 it.typeElement.also { typeElement ->
                     if (typeElement == null) {
                         context.logger.e(executableElement, ProcessorErrors.NOT_ENTITY_OR_VIEW)
                     }
                 }
             }
-            ?.flatMap {
+            .flatMap {
                 if (it.isEntityElement()) {
                     val entity = EntityProcessor(context = context, element = it).process()
                     arrayListOf(entity.tableName)
@@ -129,7 +131,7 @@ class RawQueryFunctionProcessor(
                         DataClassProcessor.createFor(
                                 context = context,
                                 element = it,
-                                bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                                bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                                 parent = null
                             )
                             .process()
@@ -146,7 +148,7 @@ class RawQueryFunctionProcessor(
                     tableNames
                 }
             }
-            ?.toSet() ?: emptySet()
+            .toSet()
     }
 
     private fun findRuntimeQueryParameter(

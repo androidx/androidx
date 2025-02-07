@@ -263,8 +263,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
-        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val idMinus1 = rule.onNodeWithTag("-1").fetchSemanticsNode().id
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2)
@@ -327,8 +327,8 @@ class LazyPagingItemsTest {
 
         rule.waitUntil { loadedItem6 }
 
-        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
-        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val idMinus1 = rule.onNodeWithTag("-1").fetchSemanticsNode().id
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {
@@ -381,8 +381,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
-        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val idMinus1 = rule.onNodeWithTag("-1").fetchSemanticsNode().id
+        val id0 = rule.onNodeWithTag("0").fetchSemanticsNode().id
 
         rule.runOnIdle {
             runBlocking {

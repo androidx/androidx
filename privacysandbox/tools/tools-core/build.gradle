@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
 
@@ -83,7 +83,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
-    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

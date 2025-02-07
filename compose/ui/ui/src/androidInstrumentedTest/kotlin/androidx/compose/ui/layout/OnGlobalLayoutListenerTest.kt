@@ -38,10 +38,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.spatial.RelativeLayoutBounds
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -60,7 +62,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -611,10 +612,10 @@ private class OnGlobalLayoutListenerNode(
     var debounceMillis: Long,
     var callback: (RelativeLayoutBounds) -> Unit,
 ) : Modifier.Node() {
-    var handle: DisposableHandle? = null
+    var handle: RegistrationHandle? = null
 
     fun diposeAndRegister() {
-        handle?.dispose()
+        handle?.unregister()
         handle = registerOnGlobalLayoutListener(throttleMillis, debounceMillis, callback)
     }
 
@@ -623,6 +624,6 @@ private class OnGlobalLayoutListenerNode(
     }
 
     override fun onDetach() {
-        handle?.dispose()
+        handle?.unregister()
     }
 }

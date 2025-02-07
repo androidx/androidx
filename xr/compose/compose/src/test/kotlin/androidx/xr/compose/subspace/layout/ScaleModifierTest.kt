@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.setSubspaceContent
@@ -54,7 +54,7 @@ class ScaleModifierTest {
         }
     }
 
-    private fun assertSingleNode(testTag: String): SubspaceSemanticsNode {
+    private fun assertSingleNode(testTag: String): SubspaceSemanticsInfo {
         val subspaceNode = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
         assertNotNull(subspaceNode)
         return subspaceNode

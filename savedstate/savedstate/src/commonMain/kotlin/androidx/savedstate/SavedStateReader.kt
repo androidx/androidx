@@ -240,6 +240,31 @@ internal constructor(
     public inline fun getIntListOrElse(key: String, defaultValue: () -> List<Int>): List<Int>
 
     /**
+     * Retrieves a [List] of elements of [SavedState] associated with the specified [key].
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalStateException if associated value has wrong type.
+     */
+    public inline fun getSavedStateList(key: String): List<SavedState>
+
+    /**
+     * Retrieves a [List] of elements of [SavedState] associated with the specified [key], or a
+     * default value if the [key] doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param defaultValue A function providing the default value to return if the key is not found
+     *   or the associated value has the wrong type.
+     * @return The value associated with the [key], or the result of [defaultValue] if the key is
+     *   not found or the associated value has the wrong type.
+     */
+    public inline fun getSavedStateListOrElse(
+        key: String,
+        defaultValue: () -> List<SavedState>
+    ): List<SavedState>
+
+    /**
      * Retrieves a [List] of elements of [String] associated with the specified [key].
      *
      * @param key The [key] to retrieve the value for.
@@ -451,6 +476,31 @@ internal constructor(
      *   not found or the associated value has the wrong type.
      */
     public inline fun getLongArrayOrElse(key: String, defaultValue: () -> LongArray): LongArray
+
+    /**
+     * Retrieves a [Array] of [SavedState] value associated with the specified [key].
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalStateException if associated value has wrong type.
+     */
+    public inline fun getSavedStateArray(key: String): Array<SavedState>
+
+    /**
+     * Retrieves a [Array] of [SavedState] value associated with the specified [key], or a default
+     * value if the [key] doesn't exist.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param defaultValue A function providing the default value to return if the key is not found
+     *   or the associated value has the wrong type.
+     * @return The value associated with the [key], or the result of [defaultValue] if the key is
+     *   not found or the associated value has the wrong type.
+     */
+    public inline fun getSavedStateArrayOrElse(
+        key: String,
+        defaultValue: () -> Array<SavedState>,
+    ): Array<SavedState>
 
     /**
      * Retrieves a [Array] of [String] value associated with the specified [key].

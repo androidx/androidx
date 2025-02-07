@@ -24,7 +24,7 @@
 
 import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +52,7 @@ dependencies {
 
 androidx {
     name = "Room Paging RxJava3"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "RxJava3 integration in Room Paging"
     legacyDisableKotlinStrictApiMode = true

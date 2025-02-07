@@ -43,7 +43,9 @@ import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -102,7 +104,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -114,6 +115,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -132,6 +134,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.Layout
@@ -144,8 +150,8 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -163,7 +169,6 @@ import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastFirst
@@ -185,6 +190,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -201,6 +207,7 @@ import kotlinx.coroutines.launch
  * conjunction with an [ExpandedFullScreenSearchBar] or [ExpandedDockedSearchBar] to display search
  * results when expanded.
  *
+ * @sample androidx.compose.material3.samples.SimpleSearchBarSample
  * @param state the state of the search bar. This state should also be passed to the [inputField]
  *   and the expanded search bar.
  * @param inputField the input field of this search bar that allows entering a query, typically a
@@ -218,7 +225,7 @@ import kotlinx.coroutines.launch
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 @ExperimentalMaterial3Api
 @Composable
-internal fun SearchBar(
+fun SearchBar(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -257,6 +264,8 @@ internal fun SearchBar(
  * used in conjunction with an [ExpandedFullScreenSearchBar] or [ExpandedDockedSearchBar] to display
  * search results when expanded.
  *
+ * @sample androidx.compose.material3.samples.FullScreenSearchBarScaffoldSample
+ * @sample androidx.compose.material3.samples.DockedSearchBarScaffoldSample
  * @param state the state of the search bar. This state should also be passed to the [inputField]
  *   and the expanded search bar.
  * @param inputField the input field of this search bar that allows entering a query, typically a
@@ -278,7 +287,7 @@ internal fun SearchBar(
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 @ExperimentalMaterial3Api
 @Composable
-internal fun TopSearchBar(
+fun TopSearchBar(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -315,6 +324,7 @@ internal fun TopSearchBar(
  * If this expansion behavior is undesirable, for example on medium or large screens such as
  * tablets, [ExpandedDockedSearchBar] can be used instead.
  *
+ * @sample androidx.compose.material3.samples.FullScreenSearchBarScaffoldSample
  * @param state the state of the search bar. This state should also be passed to the [inputField]
  *   and the collapsed search bar.
  * @param inputField the input field of this search bar that allows entering a query, typically a
@@ -337,7 +347,7 @@ internal fun TopSearchBar(
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun ExpandedFullScreenSearchBar(
+fun ExpandedFullScreenSearchBar(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -358,8 +368,6 @@ internal fun ExpandedFullScreenSearchBar(
         properties = properties,
     ) { predictiveBackState ->
         val focusRequester = remember { FocusRequester() }
-        val softwareKeyboardController = LocalSoftwareKeyboardController.current
-        SideEffect { state.softwareKeyboardController = softwareKeyboardController }
         FullScreenSearchBarLayout(
             state = state,
             predictiveBackState = predictiveBackState,
@@ -383,6 +391,15 @@ internal fun ExpandedFullScreenSearchBar(
         // Focus the input field on the first expansion,
         // but no need to re-focus if the focus gets cleared.
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+        // Manually dismiss keyboard when search bar is collapsed.
+        // Otherwise, the search bar's window closes and the keyboard disappears suddenly.
+        val softwareKeyboardController = LocalSoftwareKeyboardController.current
+        LaunchedEffect(state.targetValue) {
+            if (state.targetValue == SearchBarValue.Collapsed) {
+                softwareKeyboardController?.hide()
+            }
+        }
     }
 }
 
@@ -392,6 +409,7 @@ internal fun ExpandedFullScreenSearchBar(
  * bar. It is recommended to use [ExpandedDockedSearchBar] on medium and large screens such as
  * tablets, and to instead use [ExpandedFullScreenSearchBar] on compact screen such as phones.
  *
+ * @sample androidx.compose.material3.samples.DockedSearchBarScaffoldSample
  * @param state the state of the search bar. This state should also be passed to the [inputField]
  *   and the collapsed search bar.
  * @param inputField the input field of this search bar that allows entering a query, typically a
@@ -412,7 +430,7 @@ internal fun ExpandedFullScreenSearchBar(
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun ExpandedDockedSearchBar(
+fun ExpandedDockedSearchBar(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -467,6 +485,15 @@ internal fun ExpandedDockedSearchBar(
         // Focus the input field on the first expansion,
         // but no need to re-focus if the focus gets cleared.
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+        // Manually dismiss keyboard when search bar is collapsed.
+        // Otherwise, the search bar's window closes and the keyboard disappears suddenly.
+        val softwareKeyboardController = LocalSoftwareKeyboardController.current
+        LaunchedEffect(state.targetValue) {
+            if (state.targetValue == SearchBarValue.Collapsed) {
+                softwareKeyboardController?.hide()
+            }
+        }
     }
 }
 
@@ -492,9 +519,6 @@ internal fun ExpandedDockedSearchBar(
  * If this expansion behavior is undesirable, for example on large tablet screens, [DockedSearchBar]
  * can be used instead.
  *
- * An example looks like:
- *
- * @sample androidx.compose.material3.samples.SearchBarSample
  * @param inputField the input field of this search bar that allows entering a query, typically a
  *   [SearchBarDefaults.InputField].
  * @param expanded whether this search bar is expanded and showing search results.
@@ -527,6 +551,7 @@ fun SearchBar(
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val animationProgress = remember { Animatable(initialValue = if (expanded) 1f else 0f) }
     val finalBackProgress = remember { mutableFloatStateOf(Float.NaN) }
     val firstBackEvent = remember { mutableStateOf<BackEventCompat?>(null) }
@@ -564,13 +589,15 @@ fun SearchBar(
                 finalBackProgress.floatValue = animationProgress.value
                 onExpandedChange(false)
             } catch (e: CancellationException) {
-                animationProgress.animateTo(
-                    targetValue = 1f,
-                    animationSpec = AnimationPredictiveBackExitFloatSpec
-                )
-                finalBackProgress.floatValue = Float.NaN
-                firstBackEvent.value = null
-                currentBackEvent.value = null
+                coroutineScope.launch {
+                    animationProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = AnimationPredictiveBackExitFloatSpec
+                    )
+                    finalBackProgress.floatValue = Float.NaN
+                    firstBackEvent.value = null
+                    currentBackEvent.value = null
+                }
             }
         }
     }
@@ -609,9 +636,6 @@ fun SearchBar(
  * alternative to [SearchBar] when expanding to full-screen size is undesirable on large screens
  * such as tablets.
  *
- * An example looks like:
- *
- * @sample androidx.compose.material3.samples.DockedSearchBarSample
  * @param inputField the input field of this search bar that allows entering a query, typically a
  *   [SearchBarDefaults.InputField].
  * @param expanded whether this search bar is expanded and showing search results.
@@ -672,10 +696,20 @@ fun DockedSearchBar(
     BackHandler(enabled = expanded) { onExpandedChange(false) }
 }
 
+/** Possible values of [SearchBarState]. */
+@ExperimentalMaterial3Api
+enum class SearchBarValue {
+    /** The state of the search bar when it is collapsed. */
+    Collapsed,
+
+    /** The state of the search bar when it is expanded. */
+    Expanded,
+}
+
 /** The state of a search bar. */
 @ExperimentalMaterial3Api
 @Stable
-internal class SearchBarState
+class SearchBarState
 private constructor(
     private val animatable: Animatable<Float, AnimationVector1D>,
     private val animationSpecForExpand: AnimationSpec<Float>,
@@ -684,16 +718,17 @@ private constructor(
     /**
      * Construct a [SearchBarState].
      *
-     * @param initialExpanded the initial value of whether the search bar is expanded.
+     * @param initialValue the initial value of whether the search bar is collapsed or expanded.
      * @param animationSpecForExpand the animation spec used when the search bar expands.
      * @param animationSpecForCollapse the animation spec used when the search bar collapses.
      */
     constructor(
-        initialExpanded: Boolean,
+        initialValue: SearchBarValue,
         animationSpecForExpand: AnimationSpec<Float>,
         animationSpecForCollapse: AnimationSpec<Float>,
     ) : this(
-        animatable = Animatable(if (initialExpanded) 1f else 0f),
+        animatable =
+            Animatable(if (initialValue == SearchBarValue.Expanded) Expanded else Collapsed),
         animationSpecForExpand = animationSpecForExpand,
         animationSpecForCollapse = animationSpecForCollapse,
     )
@@ -705,17 +740,38 @@ private constructor(
     var collapsedCoords: LayoutCoordinates? by mutableStateOf(null)
 
     /**
-     * The animation progress of the search bar, where 0 represents the collapsed state and 1
-     * represents the expanded state.
+     * The animation progress of the search bar, where 0 represents [SearchBarValue.Collapsed] and 1
+     * represents [SearchBarValue.Expanded].
      */
     @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float
         get() = animatable.value.coerceIn(0f, 1f)
 
-    /** Whether this search bar is expanded or in the process of expanding. */
-    val isExpanded: Boolean by derivedStateOf { progress > 0f }
+    /** Whether the state is currently animating */
+    val isAnimating: Boolean
+        get() = animatable.isRunning
 
-    internal var softwareKeyboardController: SoftwareKeyboardController? = null
+    /** Whether the search bar is going to be expanded or collapsed. */
+    val targetValue: SearchBarValue
+        get() =
+            if (animatable.targetValue == Expanded) {
+                SearchBarValue.Expanded
+            } else {
+                SearchBarValue.Collapsed
+            }
+
+    /**
+     * Whether the search bar is currently expanded or collapsed. If the search bar is currently
+     * animating to/from the expanded state, [currentValue] is [SearchBarValue.Expanded] until the
+     * animation completes.
+     */
+    val currentValue: SearchBarValue by derivedStateOf {
+        if (animatable.value == Collapsed) {
+            SearchBarValue.Collapsed
+        } else {
+            SearchBarValue.Expanded
+        }
+    }
 
     /** Animate the search bar to its expanded state. */
     suspend fun animateToExpanded() {
@@ -724,16 +780,22 @@ private constructor(
 
     /** Animate the search bar to its collapsed state. */
     suspend fun animateToCollapsed() {
-        softwareKeyboardController?.hide()
         animatable.animateTo(targetValue = 0f, animationSpec = animationSpecForCollapse)
     }
 
-    /** Snap the search bar progress to the given [fraction]. */
+    /**
+     * Snap the search bar progress to the given [fraction], where 0 represents
+     * [SearchBarValue.Collapsed] and 1 represents [SearchBarValue.Expanded].
+     */
     suspend fun snapTo(fraction: Float) {
         animatable.snapTo(fraction)
     }
 
     companion object {
+        private const val Collapsed = 0f
+        private const val Expanded = 1f
+
+        /** The default [Saver] implementation for [SearchBarState]. */
         fun Saver(
             animationSpecForExpand: AnimationSpec<Float>,
             animationSpecForCollapse: AnimationSpec<Float>,
@@ -754,19 +816,19 @@ private constructor(
 /**
  * Create and remember a [SearchBarState].
  *
- * @param initialExpanded the initial value of whether the search bar is expanded.
+ * @param initialValue the initial value of whether the search bar is collapsed or expanded.
  * @param animationSpecForExpand the animation spec used when the search bar expands.
  * @param animationSpecForCollapse the animation spec used when the search bar collapses.
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun rememberSearchBarState(
-    initialExpanded: Boolean = false,
+fun rememberSearchBarState(
+    initialValue: SearchBarValue = SearchBarValue.Collapsed,
     animationSpecForExpand: AnimationSpec<Float> = MotionSchemeKeyTokens.SlowSpatial.value(),
     animationSpecForCollapse: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value(),
 ): SearchBarState {
     return rememberSaveable(
-        initialExpanded,
+        initialValue,
         animationSpecForExpand,
         animationSpecForCollapse,
         saver =
@@ -776,7 +838,7 @@ internal fun rememberSearchBarState(
             )
     ) {
         SearchBarState(
-            initialExpanded = initialExpanded,
+            initialValue = initialValue,
             animationSpecForExpand = animationSpecForExpand,
             animationSpecForCollapse = animationSpecForCollapse,
         )
@@ -791,7 +853,7 @@ internal fun rememberSearchBarState(
  */
 @ExperimentalMaterial3Api
 @Stable
-internal interface SearchBarScrollBehavior {
+interface SearchBarScrollBehavior {
     /**
      * The search bar's current offset due to scrolling, in pixels. This offset is applied to the
      * fixed size of the search bar to control the displayed size when content is being scrolled.
@@ -996,7 +1058,7 @@ object SearchBarDefaults {
     val dockedShape: Shape
         @Composable get() = SearchViewTokens.DockedContainerShape.value
 
-    /** Default window insets for a [SearchBar]. */
+    /** Default window insets for a [TopSearchBar]. */
     val windowInsets: WindowInsets
         @Composable
         get() =
@@ -1004,10 +1066,8 @@ object SearchBarDefaults {
                 WindowInsetsSides.Horizontal + WindowInsetsSides.Top
             )
 
-    /**
-     * Default window insets used and consumed by a full screen search bar in the expanded state.
-     */
-    internal val fullScreenWindowInsets: WindowInsets
+    /** Default window insets used and consumed by [ExpandedFullScreenSearchBar]. */
+    val fullScreenWindowInsets: WindowInsets
         @Composable get() = WindowInsets.safeDrawing
 
     /**
@@ -1034,7 +1094,7 @@ object SearchBarDefaults {
      */
     @ExperimentalMaterial3Api
     @Composable
-    internal fun enterAlwaysSearchBarScrollBehavior(
+    fun enterAlwaysSearchBarScrollBehavior(
         initialOffset: Float = 0f,
         initialOffsetLimit: Float = -Float.MAX_VALUE,
         canScroll: () -> Boolean = { true },
@@ -1200,7 +1260,7 @@ object SearchBarDefaults {
      *
      * This overload of [InputField] uses [TextFieldState] to keep track of the text content and
      * position of the cursor or selection, and [SearchBarState] to keep track of the state of the
-     * search bar.
+     * search bar. It should be used with the search bar APIs which also accept a [SearchBarState].
      *
      * @param textFieldState [TextFieldState] that holds the internal editing state of the input
      *   field.
@@ -1240,7 +1300,7 @@ object SearchBarDefaults {
      */
     @ExperimentalMaterial3Api
     @Composable
-    internal fun InputField(
+    fun InputField(
         textFieldState: TextFieldState,
         searchBarState: SearchBarState,
         onSearch: (String) -> Unit,
@@ -1263,9 +1323,18 @@ object SearchBarDefaults {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-        val focused = interactionSource.collectIsFocusedAsState().value
+        /*
+        Relationship between focus and expansion state:
+            * In touch mode, the two are coupled:
+                * Text field gains focus => search bar expands
+                * Search bar collapses => text field loses focus
+            * In non-touch/keyboard mode, they are independent. Instead, expansion triggers when:
+                * the user starts typing
+                * the user presses the down direction key
+         */
+        val focused by interactionSource.collectIsFocusedAsState()
         val focusManager = LocalFocusManager.current
-        val focusRequester = remember { FocusRequester() }
+        val isInTouchMode = LocalInputModeManager.current.inputMode == InputMode.Touch
 
         val searchSemantics = getString(Strings.SearchBarSearch)
         val suggestionsAvailableSemantics = getString(Strings.SuggestionsAvailable)
@@ -1282,14 +1351,21 @@ object SearchBarDefaults {
             state = textFieldState,
             modifier =
                 modifier
+                    .onPreviewKeyEvent {
+                        val expandOnDownKey = !isInTouchMode && !searchBarState.isExpanded
+                        if (expandOnDownKey && it.key == Key.DirectionDown) {
+                            coroutineScope.launch { searchBarState.animateToExpanded() }
+                            return@onPreviewKeyEvent true
+                        }
+                        false
+                    }
                     .sizeIn(
                         minWidth = SearchBarMinWidth,
                         maxWidth = SearchBarMaxWidth,
                         minHeight = InputFieldHeight,
                     )
-                    .focusRequester(focusRequester)
                     .onFocusChanged {
-                        if (it.isFocused) {
+                        if (it.isFocused && isInTouchMode) {
                             coroutineScope.launch { searchBarState.animateToExpanded() }
                         }
                     }
@@ -1346,9 +1422,36 @@ object SearchBarDefaults {
                 )
         )
 
-        val shouldClearFocus = !searchBarState.isExpanded && focused
+        // Most expansions from touch happen via `onFocusChanged` above, but in a mixed
+        // keyboard-touch flow, the user can focus via keyboard (with no expansion),
+        // and subsequent touches won't change focus state. So this effect is needed as well.
+        DetectClickFromInteractionSource(interactionSource) {
+            if (!searchBarState.isExpanded) {
+                coroutineScope.launch { searchBarState.animateToExpanded() }
+            }
+        }
+
+        // Expand search bar if the user starts typing
+        LaunchedEffect(searchBarState, textFieldState) {
+            if (!searchBarState.isExpanded) {
+                var prevLength = textFieldState.text.length
+                snapshotFlow { textFieldState.text }
+                    .onEach {
+                        val currLength = it.length
+                        if (currLength > prevLength && focused && !searchBarState.isExpanded) {
+                            // Don't use LaunchedEffect's coroutine because
+                            // cancelling the animation shouldn't cancel the Flow
+                            coroutineScope.launch { searchBarState.animateToExpanded() }
+                        }
+                        prevLength = currLength
+                    }
+                    .collect {}
+            }
+        }
+
+        val shouldClearFocusOnCollapse = !searchBarState.isExpanded && focused && isInTouchMode
         LaunchedEffect(searchBarState.isExpanded) {
-            if (shouldClearFocus) {
+            if (shouldClearFocusOnCollapse) {
                 focusManager.clearFocus()
             }
         }
@@ -1359,7 +1462,8 @@ object SearchBarDefaults {
      *
      * This overload of [InputField] uses [TextFieldState] to keep track of the text content and
      * position of the cursor or selection, and [expanded] and [onExpandedChange] to keep track of
-     * the state of the search bar.
+     * the state of the search bar. It should be used with the search bar APIs which also accept
+     * [expanded] and [onExpandedChange].
      *
      * @param state [TextFieldState] that holds the internal editing state of the input field.
      * @param onSearch the callback to be invoked when the input service triggers the
@@ -1975,6 +2079,10 @@ fun DockedSearchBar(
     )
 
 @OptIn(ExperimentalMaterial3Api::class)
+private val SearchBarState.isExpanded
+    get() = this.currentValue == SearchBarValue.Expanded
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SearchBarImpl(
     animationProgress: Animatable<Float, AnimationVector1D>,
@@ -2507,6 +2615,18 @@ private val SearchBarState.collapsedBounds: IntRect
     get() =
         collapsedCoords?.let { IntRect(offset = it.positionInWindow().round(), size = it.size) }
             ?: IntRect.Zero
+
+@Composable
+private fun DetectClickFromInteractionSource(
+    interactionSource: InteractionSource,
+    onClick: () -> Unit,
+) {
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Release) onClick()
+        }
+    }
+}
 
 private fun calculatePredictiveBackMultiplier(
     currentBackEvent: BackEventCompat?,

@@ -47,6 +47,9 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
                 .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED);
     }
 
+    /** Returns a build from the input config. */
+    public abstract @NonNull Builder toBuilder();
+
     @Override
     public abstract @NonNull String getMimeType();
 

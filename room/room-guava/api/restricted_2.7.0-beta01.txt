@@ -1,0 +1,16 @@
+// Signature format: 4.0
+package androidx.room.guava {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class GuavaRoom {
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T> block);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, boolean inTransaction, java.util.concurrent.Callable<T> callable);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, boolean inTransaction, java.util.concurrent.Callable<T> callable, androidx.room.RoomSQLiteQuery query, boolean releaseQuery);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, boolean inTransaction, java.util.concurrent.Callable<T> callable, androidx.room.RoomSQLiteQuery query, boolean releaseQuery, android.os.CancellationSignal? cancellationSignal);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, boolean inTransaction, java.util.concurrent.Callable<T> callable, androidx.sqlite.db.SupportSQLiteQuery query, boolean releaseQuery, android.os.CancellationSignal? cancellationSignal);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, java.util.concurrent.Callable<T> callable);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room.RoomDatabase roomDatabase, java.util.concurrent.Callable<T> callable, androidx.room.RoomSQLiteQuery query, boolean releaseQuery);
+    method @Deprecated public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(java.util.concurrent.Callable<T> callable, androidx.room.RoomSQLiteQuery query, boolean releaseQuery);
+  }
+
+}
+

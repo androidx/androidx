@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -33,7 +33,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -132,7 +132,7 @@ dependencies {
 
 androidx {
     name = "Compose Material3 Components"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose Material You Design Components library"
     legacyDisableKotlinStrictApiMode = true

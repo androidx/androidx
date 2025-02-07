@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicInteger
  *   the EGL context. This is invoked on the GL Thread
  */
 // GL is the industry standard for referencing OpenGL vs Gl (lowercase l)
-@Suppress("AcronymName")
 class GLRenderer(
     eglSpecFactory: () -> EGLSpec = { EGLSpec.V14 },
     eglConfigFactory: EGLManager.() -> EGLConfig = {
@@ -265,7 +264,6 @@ class GLRenderer(
      *
      * These callbacks are invoked on the backing thread.
      */
-    @Suppress("AcronymName")
     fun registerEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.add(callback)
         mGLThread?.addEGLCallback(callback)
@@ -277,7 +275,6 @@ class GLRenderer(
      *
      * These callbacks are invoked on the backing thread
      */
-    @Suppress("AcronymName")
     fun unregisterEGLContextCallback(callback: EGLContextCallback) {
         mEglContextCallback.remove(callback)
         mGLThread?.removeEGLCallback(callback)
@@ -288,7 +285,6 @@ class GLRenderer(
      * places to setup and tear down any dependencies that are used for drawing content within a
      * frame (ex. compiling shaders)
      */
-    @Suppress("AcronymName")
     interface EGLContextCallback {
 
         /**
@@ -297,7 +293,7 @@ class GLRenderer(
          * called. This will be invoked after [GLRenderer.start].
          */
         // Suppressing CallbackMethodName due to b/238939160
-        @Suppress("AcronymName", "CallbackMethodName")
+        @Suppress("CallbackMethodName")
         @WorkerThread
         fun onEGLContextCreated(eglManager: EGLManager)
 
@@ -306,7 +302,7 @@ class GLRenderer(
          * This is invoked after [GLRenderer.stop] is processed.
          */
         // Suppressing CallbackMethodName due to b/238939160
-        @Suppress("AcronymName", "CallbackMethodName")
+        @Suppress("CallbackMethodName")
         @WorkerThread
         fun onEGLContextDestroyed(eglManager: EGLManager)
     }

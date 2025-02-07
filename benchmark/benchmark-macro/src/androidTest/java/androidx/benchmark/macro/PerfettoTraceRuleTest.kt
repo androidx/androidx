@@ -21,6 +21,7 @@ import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.tracing.trace

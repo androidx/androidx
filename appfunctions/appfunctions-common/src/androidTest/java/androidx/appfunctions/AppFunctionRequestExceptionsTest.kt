@@ -22,37 +22,37 @@ import org.junit.Test
 class AppFunctionRequestExceptionsTest {
     @Test
     fun testErrorCategory_RequestError() {
-        assertThat(AppFunctionDeniedException().errorCode)
+        assertThat(AppFunctionDeniedException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_DENIED)
         assertThat(AppFunctionDeniedException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionInvalidArgumentException().errorCode)
+        assertThat(AppFunctionInvalidArgumentException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_INVALID_ARGUMENT)
         assertThat(AppFunctionInvalidArgumentException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionDisabledException().errorCode)
+        assertThat(AppFunctionDisabledException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_DISABLED)
         assertThat(AppFunctionDisabledException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionFunctionNotFoundException().errorCode)
+        assertThat(AppFunctionFunctionNotFoundException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_FUNCTION_NOT_FOUND)
         assertThat(AppFunctionFunctionNotFoundException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionElementNotFoundException().errorCode)
+        assertThat(AppFunctionElementNotFoundException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_RESOURCE_NOT_FOUND)
         assertThat(AppFunctionElementNotFoundException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionLimitExceededException().errorCode)
+        assertThat(AppFunctionLimitExceededException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_LIMIT_EXCEEDED)
         assertThat(AppFunctionLimitExceededException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)
 
-        assertThat(AppFunctionElementAlreadyExistsException().errorCode)
+        assertThat(AppFunctionElementAlreadyExistsException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_RESOURCE_ALREADY_EXISTS)
         assertThat(AppFunctionElementAlreadyExistsException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_REQUEST_ERROR)

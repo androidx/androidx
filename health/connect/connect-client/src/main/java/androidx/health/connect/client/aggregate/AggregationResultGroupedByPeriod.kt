@@ -37,13 +37,6 @@ constructor(
         require(startTime.isBefore(endTime)) { "start time must be before end time" }
     }
 
-    internal fun mergedWith(
-        other: AggregationResultGroupedByPeriod
-    ): AggregationResultGroupedByPeriod {
-        require(startTime == other.startTime && endTime == other.endTime)
-        return AggregationResultGroupedByPeriod(result + other.result, startTime, endTime)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

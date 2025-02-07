@@ -28,7 +28,7 @@ public class FloorsClimbedRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Number of floors. Required field. Valid range: 0-1000000. */
     public val floors: Double,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
     init {
         requireNonNegative(value = floors, name = "floors")

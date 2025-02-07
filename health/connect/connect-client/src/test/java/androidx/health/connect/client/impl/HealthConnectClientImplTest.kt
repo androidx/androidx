@@ -40,6 +40,8 @@ import androidx.health.connect.client.records.StepsRecord.Companion.COUNT_TOTAL
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_UNKNOWN
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
@@ -337,6 +339,7 @@ class HealthConnectClientImplTest {
                         weight = 45.8.kilograms,
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     )
                 )
             )
@@ -349,6 +352,7 @@ class HealthConnectClientImplTest {
                     .setInstantTimeMillis(1234L)
                     .putValues("weight", DataProto.Value.newBuilder().setDoubleVal(45.8).build())
                     .setDataType(DataProto.DataType.newBuilder().setName("Weight"))
+                    .setRecordingMethod(RECORDING_METHOD_MANUAL_ENTRY)
                     .build()
             )
     }
@@ -366,7 +370,8 @@ class HealthConnectClientImplTest {
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
-                        endZoneOffset = null
+                        endZoneOffset = null,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     )
                 )
             )
@@ -385,6 +390,7 @@ class HealthConnectClientImplTest {
                         DataProto.Value.newBuilder().setEnumVal(MealType.UNKNOWN).build()
                     )
                     .setDataType(DataProto.DataType.newBuilder().setName("Nutrition"))
+                    .setRecordingMethod(RECORDING_METHOD_MANUAL_ENTRY)
                     .build()
             )
     }
@@ -433,7 +439,7 @@ class HealthConnectClientImplTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
-                    metadata = Metadata(id = "testUid")
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, id = "testUid")
                 )
             )
     }
@@ -552,7 +558,8 @@ class HealthConnectClientImplTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
                         endZoneOffset = null,
-                        metadata = Metadata(id = "testUid")
+                        metadata =
+                            Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, id = "testUid")
                     )
                 )
             )

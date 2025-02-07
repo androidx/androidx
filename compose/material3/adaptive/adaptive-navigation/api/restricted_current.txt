@@ -6,7 +6,7 @@ package androidx.compose.material3.adaptive.navigation {
     method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> void NavigableSupportingPaneScaffold(androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator<T> navigator, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope,kotlin.Unit> mainPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope,kotlin.Unit> supportingPane, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope,kotlin.Unit>? extraPane, optional String defaultBackBehavior, optional kotlin.jvm.functions.Function2<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,? super androidx.compose.material3.adaptive.layout.PaneExpansionState,kotlin.Unit>? paneExpansionDragHandle, optional androidx.compose.material3.adaptive.layout.PaneExpansionState? paneExpansionState);
   }
 
-  @kotlin.jvm.JvmInline public final value class BackNavigationBehavior {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class BackNavigationBehavior {
     field public static final androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion Companion;
   }
 
@@ -15,10 +15,10 @@ package androidx.compose.material3.adaptive.navigation {
     method public String getPopUntilContentChange();
     method public String getPopUntilCurrentDestinationChange();
     method public String getPopUntilScaffoldValueChange();
-    property public final String PopLatest;
-    property public final String PopUntilContentChange;
-    property public final String PopUntilCurrentDestinationChange;
-    property public final String PopUntilScaffoldValueChange;
+    property public String PopLatest;
+    property public String PopUntilContentChange;
+    property public String PopUntilCurrentDestinationChange;
+    property public String PopUntilScaffoldValueChange;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public interface ThreePaneScaffoldNavigator<T> {

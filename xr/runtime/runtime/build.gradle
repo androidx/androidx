@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,12 +33,12 @@ plugins {
 }
 
 dependencies {
+    api(libs.guavaListenableFuture)
+    api(libs.kotlinCoroutinesRx3)
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
 
-    implementation(libs.guavaListenableFuture)
-    implementation(libs.kotlinCoroutinesRx3)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.core:core:1.1.0")
 
@@ -64,7 +64,7 @@ android {
 
 androidx {
     name = "XR Runtime"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Runtime interfaces and helper libraries for the androidx.xr namespace."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

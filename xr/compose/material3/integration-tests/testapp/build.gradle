@@ -50,7 +50,7 @@ dependencies {
 android {
     compileSdk = 35
     defaultConfig {
-        minSdk = 32
+        minSdk = 34
     }
     namespace = "androidx.xr.compose.material3.integration.testapp"
 }

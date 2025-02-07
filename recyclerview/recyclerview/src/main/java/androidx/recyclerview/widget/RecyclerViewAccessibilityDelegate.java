@@ -22,12 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -104,8 +105,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
      * {@code ItemDelegate} will prevent use of the {@code ViewCompat} accessibility API on
      * item views.
      */
-    @NonNull
-    public AccessibilityDelegateCompat getItemDelegate() {
+    public @NonNull AccessibilityDelegateCompat getItemDelegate() {
         return mItemDelegate;
     }
 
@@ -151,8 +151,8 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         @Override
         public void onInitializeAccessibilityNodeInfo(
                 @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
-                @SuppressLint("InvalidNullabilityOverride") @NonNull
-                        AccessibilityNodeInfoCompat info
+                @SuppressLint("InvalidNullabilityOverride")
+                @NonNull AccessibilityNodeInfoCompat info
         ) {
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
@@ -258,8 +258,8 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         }
 
         @Override
-        @Nullable
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
+        public @Nullable AccessibilityNodeProviderCompat getAccessibilityNodeProvider(
+                @NonNull View host) {
             AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
             if (originalDelegate != null) {
                 return originalDelegate.getAccessibilityNodeProvider(host);

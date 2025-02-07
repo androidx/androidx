@@ -30,7 +30,7 @@ public class HydrationRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
     public val volume: Volume,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

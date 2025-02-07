@@ -16,11 +16,13 @@
 
 package androidx.core.telecom.internal
 
+import android.net.Uri
 import android.util.Log
 import androidx.core.telecom.CallException
 import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.IActionsResultCallback
 import androidx.core.telecom.extensions.ICallDetailsListener
+import androidx.core.telecom.extensions.ICallIconStateListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.ILocalSilenceActions
@@ -118,6 +120,31 @@ internal class ParticipantStateListenerRemote(private val binder: IParticipantSt
 
     fun finishSync(actions: IParticipantActions) {
         binder.finishSync(actions)
+    }
+}
+
+@ExperimentalAppActions
+internal class CallIconStateListenerRemote(val binder: ICallIconStateListener) {
+    fun updateCallIconUri(uri: Uri) {
+        binder.updateCallIconUri(uri)
+    }
+
+    fun finishSync() {
+        binder.finishSync()
+    }
+}
+
+@ExperimentalAppActions
+internal class CallIconStateListener(
+    private val callIconUriUpdater: (Uri) -> Unit,
+    private val finishSync: (Unit) -> Unit
+) : ICallIconStateListener.Stub() {
+    override fun updateCallIconUri(uri: Uri) {
+        callIconUriUpdater.invoke(uri)
+    }
+
+    override fun finishSync() {
+        finishSync.invoke(Unit)
     }
 }
 
@@ -249,6 +276,10 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
         ((CoroutineScope, Set<Int>, LocalCallSilenceStateListenerRemote) -> Unit)? =
         null
 
+    var onCreateCallIconExtension:
+        ((CoroutineScope, Set<Int>, String, CallIconStateListenerRemote) -> Unit)? =
+        null
+
     val listener =
         object : ICapabilityExchangeListener.Stub() {
             override fun onCreateParticipantExtension(
@@ -276,6 +307,22 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
                         connectionScope,
                         actions?.toSet() ?: emptySet(),
                         LocalCallSilenceStateListenerRemote(l)
+                    )
+                }
+            }
+
+            override fun onCreateCallIconExtension(
+                version: Int,
+                actions: IntArray?,
+                remoteName: String,
+                l: ICallIconStateListener?
+            ) {
+                l?.let {
+                    onCreateCallIconExtension?.invoke(
+                        connectionScope,
+                        actions?.toSet() ?: emptySet(),
+                        remoteName,
+                        CallIconStateListenerRemote(l)
                     )
                 }
             }

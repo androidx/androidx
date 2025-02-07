@@ -507,7 +507,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_fullScreen_expanded() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             ExpandedFullScreenSearchBar(
                 modifier = Modifier.testTag(testTag),
                 state = state,
@@ -527,7 +527,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_fullScreen_expanded_withIcons() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             ExpandedFullScreenSearchBar(
                 modifier = Modifier.testTag(testTag),
                 state = state,
@@ -549,7 +549,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_fullScreen_expanded_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             val colors =
                 SearchBarDefaults.colors(
                     containerColor = Color.Yellow,
@@ -576,7 +576,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_docked_expanded() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             ExpandedDockedSearchBar(
                 modifier = Modifier.testTag(testTag),
                 state = state,
@@ -596,7 +596,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_docked_expanded_withIcons() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             ExpandedDockedSearchBar(
                 modifier = Modifier.testTag(testTag),
                 state = state,
@@ -618,7 +618,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_docked_expanded_customShape() {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             ExpandedDockedSearchBar(
                 modifier = Modifier.testTag(testTag),
                 state = state,
@@ -639,7 +639,7 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun newSearchBar_docked_expanded_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberSearchBarState(initialExpanded = true)
+            val state = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
             val colors =
                 SearchBarDefaults.colors(
                     containerColor = Color.Yellow,

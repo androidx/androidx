@@ -16,10 +16,14 @@
 
 package androidx.xr.scenecore.impl;
 
+import android.content.Context;
+import android.os.Binder;
 import android.util.Log;
 import android.view.SurfaceControlViewHost;
 import android.view.SurfaceControlViewHost.SurfacePackage;
+import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.xr.extensions.XrExtensions;
 import androidx.xr.extensions.node.Node;
 import androidx.xr.extensions.node.NodeTransaction;
@@ -40,21 +44,45 @@ final class PanelEntityImpl extends BasePanelEntity implements PanelEntity {
     private static final String TAG = "PanelEntity";
     private final SurfaceControlViewHost mSurfaceControlViewHost;
 
-    // TODO(b/352630140): Create a static factory method for PanelEntityImpl and move the Extensions
-    //                    init there (out of JxrPlatformAdapterAxr)
-
     PanelEntityImpl(
             Node node,
+            @NonNull View view,
             XrExtensions extensions,
             EntityManager entityManager,
-            SurfaceControlViewHost surfaceControlViewHost,
-            PixelDimensions windowBoundsPx,
+            PixelDimensions surfaceDimensionsPx,
+            @NonNull String name,
+            @SuppressWarnings("ContextFirst") @NonNull Context context,
             ScheduledExecutorService executor) {
         super(node, extensions, entityManager, executor);
+        SurfaceControlViewHost surfaceControlViewHost =
+                new SurfaceControlViewHost(
+                        context, Objects.requireNonNull(context.getDisplay()), new Binder());
+        surfaceControlViewHost.setView(view, surfaceDimensionsPx.width, surfaceDimensionsPx.height);
+
+        SurfacePackage surfacePackage =
+                Objects.requireNonNull(surfaceControlViewHost.getSurfacePackage());
+
         // We need to manually inform our base class of the pixelDimensions, even though the
         // Extensions
         // are initialized in the factory method. (ext.setWindowBounds, etc)
-        super.setPixelDimensions(windowBoundsPx);
+        super.setPixelDimensions(surfaceDimensionsPx);
+        float cornerRadius = getDefaultCornerRadiusInMeters();
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction
+                    .setName(node, name)
+                    .setSurfacePackage(node, surfacePackage)
+                    .setWindowBounds(
+                            surfacePackage, surfaceDimensionsPx.width, surfaceDimensionsPx.height)
+                    .setVisibility(node, true)
+                    .setCornerRadius(node, cornerRadius)
+                    .apply();
+        }
+
+        // TODO (b/392642541): Handle surfacePackage release in the case where there is an exception
+        // on
+        // the NodeTransaction.
+        surfacePackage.release();
+        super.setCornerRadiusValue(cornerRadius);
         mSurfaceControlViewHost = surfaceControlViewHost;
     }
 

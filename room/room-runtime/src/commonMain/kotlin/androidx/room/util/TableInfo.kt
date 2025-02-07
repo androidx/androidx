@@ -29,7 +29,7 @@ import kotlin.jvm.JvmStatic
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 expect class TableInfo(
     name: String,
     columns: Map<String, Column>,
@@ -75,7 +75,7 @@ expect class TableInfo(
     }
 
     /** Holds the information about a database column. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     class Column(
         name: String,
         type: String,
@@ -117,7 +117,7 @@ expect class TableInfo(
     }
 
     /** Holds the information about an SQLite foreign key */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     class ForeignKey(
         referenceTable: String,
         onDelete: String,
@@ -139,7 +139,7 @@ expect class TableInfo(
     }
 
     /** Holds the information about an SQLite index */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     class Index(name: String, unique: Boolean, columns: List<String>, orders: List<String>) {
 
         val name: String

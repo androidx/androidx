@@ -20,21 +20,32 @@ import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
+import android.view.View.FOCUSABLES_ALL
+import android.view.View.FOCUSABLES_TOUCH_MODE
 import android.view.View.FOCUS_BACKWARD
+import android.view.View.FOCUS_DOWN
 import android.view.View.FOCUS_FORWARD
+import android.view.View.FOCUS_LEFT
+import android.view.View.FOCUS_RIGHT
+import android.view.View.FOCUS_UP
 import android.view.ViewGroup
-import androidx.collection.MutableObjectList
-import androidx.collection.ObjectList
 import androidx.collection.mutableObjectIntMapOf
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.isBetterCandidate
+import androidx.compose.ui.focus.toFocusDirection
+import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.core.view.isVisible
 import java.util.Collections
 
 /**
- * On devices before [Build.VERSION_CODES.O], [FocusFinder] orders Views incorrectly. This
- * implementation uses the current [FocusFinder] behavior, ordering Views correctly for
- * one-dimensional focus searches.
+ * FocusFinder behaves differently and sometimes incorrectly on different API versions. This is a
+ * consistent version of FocusFinder used in AndroidComposeView
  *
  * This is copied and simplified from FocusFinder's source. There may be some code that doesn't look
  * quite right in Kotlin as it was copy/pasted with auto-translation.
@@ -53,17 +64,15 @@ internal class FocusFinderCompat {
             get() = FocusFinderThreadLocal.get()!!
     }
 
-    private val focusedRect: Rect = Rect()
+    private val cachedFocusedRect = Rect()
+    private val bestCandidateRect = Rect()
+    private val otherRect = Rect()
 
-    private val userSpecifiedFocusComparator =
-        UserSpecifiedFocusComparator({ r, v ->
-            if (isValidId(v.nextFocusForwardId)) v.findUserSetNextFocus(r, FOCUS_FORWARD) else null
-        })
+    private val userSpecifiedFocusComparator = UserSpecifiedFocusComparator { r, v ->
+        if (isValidId(v.nextFocusForwardId)) v.findUserSetNextFocus(r, FOCUS_FORWARD) else null
+    }
 
-    private val tmpList = MutableObjectList<View>()
-
-    // enforce thread local access
-    private fun FocusFinder() {}
+    private val tmpList = ArrayList<View>()
 
     /**
      * Find the next view to take focus in root's descendants, starting from the view that currently
@@ -74,7 +83,7 @@ internal class FocusFinderCompat {
      * @param direction Direction to look.
      * @return The next focusable view, or null if none exists.
      */
-    fun findNextFocus1d(root: ViewGroup, focused: View, direction: Int): View? {
+    fun findNextFocus(root: ViewGroup, focused: View, direction: Int): View? {
         val effectiveRoot = getEffectiveRoot(root, focused)
         var next = findNextUserSpecifiedFocus(effectiveRoot, focused, direction)
         if (next != null) {
@@ -85,12 +94,26 @@ internal class FocusFinderCompat {
             focusables.clear()
             effectiveRoot.addFocusableViews(focusables, direction)
             if (!focusables.isEmpty()) {
-                next = findNextFocus(effectiveRoot, focused, direction, focusables)
+                next = findNextFocus(effectiveRoot, focused, null, direction, focusables)
             }
         } finally {
             focusables.clear()
         }
         return next
+    }
+
+    /**
+     * Find the next view to take focus in root's descendants, searching from a particular rectangle
+     * in root's coordinates.
+     *
+     * @param root Contains focusedRect. Cannot be null.
+     * @param focusedRect The starting point of the search.
+     * @param direction Direction to look.
+     * @return The next focusable view, or null if none exists.
+     */
+    fun findNextFocusFromRect(root: ViewGroup, focusedRect: Rect, direction: Int): View? {
+        cachedFocusedRect.set(focusedRect)
+        return findNextFocus(root, cachedFocusedRect, direction)
     }
 
     /**
@@ -154,31 +177,79 @@ internal class FocusFinderCompat {
         return null
     }
 
+    private fun findNextFocus(root: ViewGroup, focusedRect: Rect?, direction: Int): View? {
+        val effectiveRoot = getEffectiveRoot(root, null)
+        val focusables = tmpList
+        try {
+            focusables.clear()
+            effectiveRoot.addFocusableViews(focusables, direction)
+            if (!focusables.isEmpty()) {
+                return findNextFocus(effectiveRoot, null, focusedRect, direction, focusables)
+            }
+            return null
+        } finally {
+            focusables.clear()
+        }
+    }
+
     private fun findNextFocus(
         root: ViewGroup,
-        focused: View,
+        focused: View?,
+        focusedRect: Rect?,
         direction: Int,
-        focusables: MutableObjectList<View>
+        focusables: ArrayList<View>
     ): View? {
-        val focusedRect = focusedRect
-        // fill in interesting rect from focused
-        focused.getFocusedRect(focusedRect)
-        root.offsetDescendantRectToMyCoords(focused, focusedRect)
+        val rect = cachedFocusedRect
+        if (focused != null) {
+            focused.getFocusedRect(rect)
+            root.offsetDescendantRectToMyCoords(focused, rect)
+        } else if (focusedRect != null) {
+            rect.set(focusedRect)
+        } else {
+            // make up a rect at top left or bottom right of root
+            when (direction) {
+                FOCUS_RIGHT,
+                FOCUS_DOWN -> setFocusTopLeft(root, rect)
+                FOCUS_FORWARD ->
+                    if (root.layoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                        setFocusBottomRight(root, rect)
+                    } else {
+                        setFocusTopLeft(root, rect)
+                    }
+                FOCUS_LEFT,
+                FOCUS_UP -> setFocusBottomRight(root, rect)
+                FOCUS_BACKWARD ->
+                    if (root.layoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                        setFocusTopLeft(root, rect)
+                    } else {
+                        setFocusBottomRight(root, rect)
+                    }
+            }
+        }
 
-        return findNextFocusInRelativeDirection(focusables, root, focused, direction)
+        return when (direction) {
+            FOCUS_FORWARD,
+            FOCUS_BACKWARD -> findNextFocusInRelativeDirection(focusables, root, focused, direction)
+            FOCUS_UP,
+            FOCUS_DOWN,
+            FOCUS_LEFT,
+            FOCUS_RIGHT ->
+                findNextFocusInAbsoluteDirection(root, focused, rect, focusables, direction)
+            else -> throw IllegalArgumentException("Unknown direction: $direction")
+        }
     }
 
     @SuppressLint("AsCollectionCall")
     private fun findNextFocusInRelativeDirection(
-        focusables: MutableObjectList<View>,
-        root: ViewGroup?,
-        focused: View,
+        focusables: ArrayList<View>,
+        root: ViewGroup,
+        focused: View?,
         direction: Int
     ): View? {
         try {
             // Note: This sort is stable.
-            userSpecifiedFocusComparator.setFocusables(focusables, root!!)
-            Collections.sort(focusables.asMutableList(), userSpecifiedFocusComparator)
+            userSpecifiedFocusComparator.setFocusables(focusables, root)
+            Collections.sort(focusables, userSpecifiedFocusComparator)
         } finally {
             userSpecifiedFocusComparator.recycle()
         }
@@ -188,36 +259,90 @@ internal class FocusFinderCompat {
             return null
         }
         var next: View? = null
-        val looped = BooleanArray(1)
         when (direction) {
-            FOCUS_FORWARD -> next = getNextFocusable(focused, focusables, count, looped)
-            FOCUS_BACKWARD -> next = getPreviousFocusable(focused, focusables, count, looped)
+            FOCUS_FORWARD -> next = getNextFocusable(focused, focusables, count)
+            FOCUS_BACKWARD -> next = getPreviousFocusable(focused, focusables, count)
+            FOCUS_LEFT,
+            FOCUS_RIGHT,
+            FOCUS_UP,
+            FOCUS_DOWN ->
+                next =
+                    findNextFocusInAbsoluteDirection(
+                        root,
+                        focused,
+                        cachedFocusedRect,
+                        focusables,
+                        direction
+                    )
         }
         return next ?: focusables[count - 1]
     }
 
-    private fun getNextFocusable(
-        focused: View,
-        focusables: ObjectList<View>,
-        count: Int,
-        outLooped: BooleanArray
+    private fun setFocusBottomRight(root: ViewGroup, focusedRect: Rect) {
+        val rootBottom = root.scrollY + root.height
+        val rootRight = root.scrollX + root.width
+        focusedRect.set(rootRight, rootBottom, rootRight, rootBottom)
+    }
+
+    private fun setFocusTopLeft(root: ViewGroup, focusedRect: Rect) {
+        val rootTop = root.scrollY
+        val rootLeft = root.scrollX
+        focusedRect.set(rootLeft, rootTop, rootLeft, rootTop)
+    }
+
+    private fun findNextFocusInAbsoluteDirection(
+        root: ViewGroup,
+        focused: View?,
+        focusedRect: Rect,
+        focusables: ArrayList<View>,
+        direction: Int
     ): View? {
+        bestCandidateRect.set(focusedRect)
+        when (direction) {
+            FOCUS_LEFT -> bestCandidateRect.offset(focusedRect.width() + 1, 0)
+            FOCUS_RIGHT -> bestCandidateRect.offset(-focusedRect.width() - 1, 0)
+            FOCUS_UP -> bestCandidateRect.offset(0, focusedRect.height() + 1)
+            FOCUS_DOWN -> bestCandidateRect.offset(0, -focusedRect.height() - 1)
+        }
+
+        var closest: View? = null
+        focusables.fastForEach { focusable ->
+            if (focusable != focused && focusable != root) {
+                focusable.getFocusedRect(otherRect)
+                root.offsetDescendantRectToMyCoords(focusable, otherRect)
+                if (
+                    isBetterCandidate(
+                        otherRect.toComposeRect(),
+                        bestCandidateRect.toComposeRect(),
+                        focusedRect.toComposeRect(),
+                        toFocusDirection(direction) ?: FocusDirection.Next
+                    )
+                ) {
+                    bestCandidateRect.set(otherRect)
+                    closest = focusable
+                }
+            }
+        }
+        return closest
+    }
+
+    private fun getNextFocusable(focused: View?, focusables: ArrayList<View>, count: Int): View? {
         if (count < 2) {
             return null
         }
-        val position = focusables.lastIndexOf(focused)
-        if (position >= 0 && position + 1 < count) {
-            return focusables[position + 1]
+        if (focused != null) {
+            val position = focusables.lastIndexOf(focused)
+            if (position >= 0 && position + 1 < count) {
+                return focusables[position + 1]
+            }
         }
-        outLooped[0] = true
         return focusables[0]
     }
 
     private fun getPreviousFocusable(
         focused: View?,
-        focusables: ObjectList<View>,
-        count: Int,
-        outLooped: BooleanArray
+        focusables: ArrayList<View>,
+        count: Int
     ): View? {
         if (count < 2) {
             return null
@@ -228,7 +353,6 @@ internal class FocusFinderCompat {
                 return focusables[position - 1]
             }
         }
-        outLooped[0] = true
         return focusables[count - 1]
     }
 
@@ -260,12 +384,11 @@ internal class FocusFinderCompat {
             nextFoci.clear()
         }
 
-        fun setFocusables(focusables: ObjectList<View>, root: View) {
+        fun setFocusables(focusables: ArrayList<View>, root: View) {
             this.root = root
-            focusables.forEachIndexed { index, view -> originalOrdinal[view] = index }
+            focusables.fastForEachIndexed { index, view -> originalOrdinal[view] = index }
 
-            for (i in focusables.indices.reversed()) {
-                val view = focusables[i]
+            focusables.fastForEachReversed { view ->
                 val next = mNextFocusGetter.get(root, view)
                 if (next != null && originalOrdinal.containsKey(next)) {
                     nextFoci[view] = next
@@ -273,8 +396,7 @@ internal class FocusFinderCompat {
                 }
             }
 
-            for (i in focusables.indices.reversed()) {
-                val view = focusables[i]
+            focusables.fastForEachReversed { view ->
                 val next = nextFoci[view]
                 if (next != null && !isConnectedTo.contains(view)) {
                     setHeadOfChain(view)
@@ -431,32 +553,135 @@ private fun View.findViewByPredicateTraversal(
     return null
 }
 
-private fun View.addFocusableViews(views: MutableObjectList<View>, direction: Int) {
-    addFocusableViews(views, direction, isInTouchMode)
+/**
+ * On older platforms, addFocusableViews() has a different implementation that causes problems with
+ * focus order.
+ */
+private fun View.addFocusableViews(views: ArrayList<View>, direction: Int) {
+    if (Build.VERSION.SDK_INT < 26) {
+        addFocusableViews(views, isInTouchMode)
+    } else {
+        val focusableMode = if (isInTouchMode) FOCUSABLES_TOUCH_MODE else FOCUSABLES_ALL
+        addFocusables(views, direction, focusableMode)
+    }
 }
 
 /**
  * Older versions of View don't add focusable Views in order. This is a corrected version that adds
  * them in the right order.
  */
-private fun View.addFocusableViews(
-    views: MutableObjectList<View>,
-    direction: Int,
-    inTouchMode: Boolean
-) {
-    if (
+@OptIn(ExperimentalStdlibApi::class)
+private fun View.addFocusableViews(views: ArrayList<View>, inTouchMode: Boolean) {
+    val addToViews =
         isVisible &&
             isFocusable &&
             isEnabled &&
             width > 0 &&
             height > 0 &&
             (!inTouchMode || isFocusableInTouchMode)
-    ) {
+
+    if (this is ViewGroup) {
+        val viewCountBefore = views.size
+        val before = descendantFocusability == ViewGroup.FOCUS_BEFORE_DESCENDANTS
+        if (addToViews && before) {
+            views += this
+        }
+        if (descendantFocusability != ViewGroup.FOCUS_BLOCK_DESCENDANTS) {
+            val children = Array<View>(childCount) { index -> getChildAt(index) }
+            FocusSorter.sort(children, this, layoutDirection == View.LAYOUT_DIRECTION_RTL)
+            children.forEach { it.addFocusableViews(views, inTouchMode) }
+        }
+
+        // When set to FOCUS_AFTER_DESCENDANTS, we only add ourselves if
+        // there aren't any focusable descendants.  this is
+        // to avoid the focus search finding layouts when a more precise search
+        // among the focusable children would be more interesting.
+        if (addToViews && !before && viewCountBefore == views.size) {
+            views += this
+        }
+    } else if (addToViews) {
         views += this
     }
-    if (this is ViewGroup) {
-        for (i in 0 until childCount) {
-            getChildAt(i).addFocusableViews(views, direction, inTouchMode)
+}
+
+/** Copy of FocusSorter from FocusFinder.java in the platform. */
+private object FocusSorter {
+    val rectPool = mutableObjectListOf<Rect>()
+    var lastPoolIndex = 0
+    var rtlMult = 1
+    val rectByView = mutableScatterMapOf<View, Rect>()
+    val topsComparator =
+        Comparator<View> { first, second ->
+            if (first === second) {
+                0
+            } else {
+                val firstRect = rectByView[first]!!
+                val secondRect = rectByView[second]!!
+                val result = firstRect.top - secondRect.top
+                if (result == 0) {
+                    firstRect.bottom - secondRect.bottom
+                } else {
+                    result
+                }
+            }
         }
+    val sidesComparator =
+        Comparator<View> { first, second ->
+            if (first === second) {
+                0
+            } else {
+                val firstRect = rectByView[first]!!
+                val secondRect = rectByView[second]!!
+
+                val result = firstRect.left - secondRect.left
+                if (result == 0) {
+                    (firstRect.right - secondRect.right) * rtlMult
+                } else {
+                    result * rtlMult
+                }
+            }
+        }
+
+    fun sort(views: Array<View>, root: ViewGroup, isRtl: Boolean) {
+        val count = views.size
+        if (count < 2) {
+            return
+        }
+        repeat(count - rectPool.size) { rectPool += Rect() }
+
+        views.forEach { view ->
+            val next = rectPool[lastPoolIndex++]
+            view.getDrawingRect(next)
+            root.offsetDescendantRectToMyCoords(view, next)
+            rectByView[view] = next
+        }
+
+        // sort top-to-bottom
+        views.sortWith(topsComparator)
+        var sweepBottom = rectByView[views[0]]!!.bottom
+        var rowStart = 0
+        rtlMult = if (isRtl) -1 else 1
+        for (sweepIdx in 0 until count) {
+            val currRect = rectByView[views[sweepIdx]]!!
+            if (currRect.top >= sweepBottom) {
+                // Next view is on a new row, sort the row we've just finished left-to-right.
+                if ((sweepIdx - rowStart) > 1) {
+                    views.sortWith(sidesComparator, rowStart, sweepIdx)
+                }
+                sweepBottom = currRect.bottom
+                rowStart = sweepIdx
+            } else {
+                // Next view vertically overlaps, we need to extend our "row height"
+                sweepBottom = maxOf(sweepBottom, currRect.bottom)
+            }
+        }
+
+        // Sort whatever's left (final row) left-to-right
+        if ((count - rowStart) > 1) {
+            views.sortWith(sidesComparator, rowStart, count)
+        }
+
+        lastPoolIndex = 0
+        rectByView.clear()
     }
 }

@@ -150,6 +150,11 @@ public class DeviceQuirksLoader {
                 PrematureEndOfStreamVideoQuirk.load())) {
             quirks.add(PrematureEndOfStreamVideoQuirk.INSTANCE);
         }
+        if (quirkSettings.shouldEnableQuirk(
+                MediaCodecDefaultDataSpaceQuirk.class,
+                MediaCodecDefaultDataSpaceQuirk.load())) {
+            quirks.add(new MediaCodecDefaultDataSpaceQuirk());
+        }
         return quirks;
     }
 }

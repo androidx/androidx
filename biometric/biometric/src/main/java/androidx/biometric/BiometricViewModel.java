@@ -19,6 +19,7 @@ package androidx.biometric;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -251,6 +252,11 @@ public class BiometricViewModel extends ViewModel {
     private boolean mIsUsingKeyguardManagerForBiometricAndCredential;
 
     /**
+     * Whether Identity check is available in the current API level.
+     */
+    private boolean mIsIdentityCheckAvailable;
+
+    /**
      * Information associated with a successful authentication attempt.
      */
     private @Nullable MutableLiveData<BiometricPrompt.AuthenticationResult> mAuthenticationResult;
@@ -472,9 +478,8 @@ public class BiometricViewModel extends ViewModel {
     @SuppressWarnings("deprecation")
     @BiometricManager.AuthenticatorTypes
     int getAllowedAuthenticators() {
-        return mPromptInfo != null
-                ? AuthenticatorUtils.getConsolidatedAuthenticators(mPromptInfo, mCryptoObject)
-                : 0;
+        return AuthenticatorUtils.getConsolidatedAuthenticators(mPromptInfo, mCryptoObject,
+                mIsIdentityCheckAvailable);
     }
 
     BiometricPrompt.@Nullable CryptoObject getCryptoObject() {
@@ -483,6 +488,14 @@ public class BiometricViewModel extends ViewModel {
 
     void setCryptoObject(BiometricPrompt.@Nullable CryptoObject cryptoObject) {
         mCryptoObject = cryptoObject;
+
+        // Use a fake crypto object to force Strong biometric auth prior to Android 11 (API 30).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+                && getAllowedAuthenticators() == BiometricManager.Authenticators.BIOMETRIC_STRONG
+                && cryptoObject == null) {
+            mCryptoObject = CryptoObjectUtils.createFakeCryptoObject();
+        }
     }
 
     @NonNull AuthenticationCallbackProvider getAuthenticationCallbackProvider() {
@@ -574,6 +587,10 @@ public class BiometricViewModel extends ViewModel {
             boolean usingKeyguardManagerForBiometricAndCredential) {
         mIsUsingKeyguardManagerForBiometricAndCredential =
                 usingKeyguardManagerForBiometricAndCredential;
+    }
+
+    void setIsIdentityCheckAvailable(boolean isIdentityCheckAvailable) {
+        mIsIdentityCheckAvailable = isIdentityCheckAvailable;
     }
 
     @NonNull LiveData<BiometricPrompt.AuthenticationResult> getAuthenticationResult() {

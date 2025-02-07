@@ -56,7 +56,9 @@ class PartitionedMeshTest {
     fun getOutlineCount_whenEmptyShape_shouldThrow() {
         val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(-1) }
+        assertFailsWith<IllegalArgumentException> {
+            @Suppress("Range") partitionedMesh.getOutlineCount(-1)
+        }
         assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(0) }
         assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(1) }
     }
@@ -65,7 +67,9 @@ class PartitionedMeshTest {
     fun getOutlineVertexCount_whenEmptyShape_shouldThrow() {
         val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(-1, 0) }
+        assertFailsWith<IllegalArgumentException> {
+            @Suppress("Range") partitionedMesh.getOutlineVertexCount(-1, 0)
+        }
         assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(0, 0) }
         assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(1, 0) }
     }
@@ -75,7 +79,7 @@ class PartitionedMeshTest {
         val partitionedMesh = PartitionedMesh()
 
         assertFailsWith<IllegalArgumentException> {
-            partitionedMesh.populateOutlinePosition(-1, 0, 0, MutableVec())
+            @Suppress("Range") partitionedMesh.populateOutlinePosition(-1, 0, 0, MutableVec())
         }
         assertFailsWith<IllegalArgumentException> {
             partitionedMesh.populateOutlinePosition(0, 0, 0, MutableVec())
@@ -121,12 +125,18 @@ class PartitionedMeshTest {
         val shape = buildTestStrokeShape()
 
         val p = MutableVec()
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(-1, 0, 0, p)) }
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(5, 0, 0, p)) }
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(0, -1, 0, p)) }
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(0, 5, 0, p)) }
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(0, 0, -1, p)) }
-        assertFailsWith<IllegalArgumentException> { (shape.populateOutlinePosition(0, 1, 999, p)) }
+        assertFailsWith<IllegalArgumentException> {
+            @Suppress("Range") shape.populateOutlinePosition(-1, 0, 0, p)
+        }
+        assertFailsWith<IllegalArgumentException> { shape.populateOutlinePosition(5, 0, 0, p) }
+        assertFailsWith<IllegalArgumentException> {
+            @Suppress("Range") shape.populateOutlinePosition(0, -1, 0, p)
+        }
+        assertFailsWith<IllegalArgumentException> { shape.populateOutlinePosition(0, 5, 0, p) }
+        assertFailsWith<IllegalArgumentException> {
+            @Suppress("Range") shape.populateOutlinePosition(0, 0, -1, p)
+        }
+        assertFailsWith<IllegalArgumentException> { shape.populateOutlinePosition(0, 1, 999, p) }
     }
 
     @Test

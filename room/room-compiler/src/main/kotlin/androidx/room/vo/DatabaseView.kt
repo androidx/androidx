@@ -27,11 +27,11 @@ class DatabaseView(
     val viewName: String,
     val query: ParsedQuery,
     type: XType,
-    fields: List<Field>,
-    embeddedFields: List<EmbeddedField>,
+    fields: List<Property>,
+    embeddedProperties: List<EmbeddedProperty>,
     constructor: Constructor?
 ) :
-    DataClass(element, type, fields, embeddedFields, emptyList(), constructor),
+    DataClass(element, type, fields, embeddedProperties, emptyList(), constructor),
     HasSchemaIdentity,
     EntityOrView {
 

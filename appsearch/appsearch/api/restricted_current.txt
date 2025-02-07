@@ -6,6 +6,11 @@ package androidx.appsearch.annotation {
     method public abstract Class<? extends java.lang.Object!>[] parent() default {};
   }
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.BlobHandleProperty {
+    method public abstract String name() default "";
+    method public abstract boolean required() default false;
+  }
+
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.BooleanProperty {
     method public abstract String name() default "";
     method public abstract boolean required() default false;
@@ -38,6 +43,7 @@ package androidx.appsearch.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.EmbeddingProperty {
     method public abstract int indexingType() default androidx.appsearch.app.AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
     method public abstract String name() default "";
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public abstract int quantizationType() default androidx.appsearch.app.AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE;
     method public abstract boolean required() default false;
   }
 
@@ -133,7 +139,6 @@ package androidx.appsearch.app {
     field public static final int RESULT_OUT_OF_SPACE = 5; // 0x5
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final int RESULT_RATE_LIMITED = 10; // 0xa
     field public static final int RESULT_SECURITY_ERROR = 8; // 0x8
-    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final int RESULT_TIMED_OUT = 11; // 0xb
     field public static final int RESULT_UNKNOWN_ERROR = 1; // 0x1
   }
 

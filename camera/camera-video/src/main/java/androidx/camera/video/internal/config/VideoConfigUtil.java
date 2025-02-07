@@ -52,6 +52,8 @@ import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.MediaCodecDefaultDataSpaceQuirk;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderDataSpace;
 import androidx.camera.video.internal.utils.DynamicRangeUtil;
@@ -259,6 +261,32 @@ public final class VideoConfigUtil {
         }
 
         return configSupplier.get();
+    }
+
+    /**
+     * Workarounds data space of {@link VideoEncoderConfig} if required.
+     *
+     * @param config            the video encoder config.
+     * @param hasGlProcessing   whether OpenGL processing is involved.
+     * @return VideoEncoderConfig.
+     */
+    @NonNull
+    public static VideoEncoderConfig workaroundDataSpaceIfRequired(
+            @NonNull VideoEncoderConfig config, boolean hasGlProcessing) {
+        // Not to modify data space if it is already specified.
+        if (config.getDataSpace() != ENCODER_DATA_SPACE_UNSPECIFIED) {
+            return config;
+        }
+
+        // Apply workaround if required.
+        MediaCodecDefaultDataSpaceQuirk quirk = DeviceQuirks.get(
+                MediaCodecDefaultDataSpaceQuirk.class);
+        if (hasGlProcessing && quirk != null) {
+            VideoEncoderDataSpace dataSpace = quirk.getSuggestedDataSpace();
+            return config.toBuilder().setDataSpace(dataSpace).build();
+        }
+
+        return config;
     }
 
     /**

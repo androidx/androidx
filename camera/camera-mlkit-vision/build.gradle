@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,8 +47,8 @@ dependencies {
 android {
     compileSdk = 35
 
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 
     testOptions.unitTests.includeAndroidResources = true
@@ -57,7 +57,7 @@ android {
 
 androidx {
     name = "Camera MLKit Vision"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "MLKit vision components for the Jetpack Camera Library, a library providing a " +
             "seamless integration that enables camera driven computer vision features " +

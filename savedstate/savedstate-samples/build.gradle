@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,7 @@ android {
 
 androidx {
     name = "androidx.savedstate:savedstate-samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Sample code for SavedState"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

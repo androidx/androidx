@@ -84,8 +84,15 @@ internal class ChangeList : OperationsDebugStringFormattable() {
     fun executeAndFlushAllPendingChanges(
         applier: Applier<*>,
         slots: SlotWriter,
-        rememberManager: RememberManager
-    ) = operations.executeAndFlushAllPendingOperations(applier, slots, rememberManager)
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?
+    ) =
+        operations.executeAndFlushAllPendingOperations(
+            applier,
+            slots,
+            rememberManager,
+            errorContext
+        )
 
     fun pushRemember(value: RememberObserverHolder) {
         operations.push(Remember) { setObject(Remember.Value, value) }

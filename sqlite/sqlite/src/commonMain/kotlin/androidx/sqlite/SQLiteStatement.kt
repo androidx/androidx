@@ -26,7 +26,7 @@ import androidx.annotation.IntRange
  *
  * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
  */
-@Suppress("NotCloseable", "AcronymName") // SQL is a known term and should remain capitalized
+@Suppress("NotCloseable")
 public interface SQLiteStatement : AutoCloseable {
     /**
      * Binds a ByteArray value to this statement at an index.

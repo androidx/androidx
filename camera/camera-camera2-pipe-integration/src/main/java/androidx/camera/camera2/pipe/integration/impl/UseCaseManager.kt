@@ -347,10 +347,12 @@ constructor(
             synchronized(lock) {
                 closeCurrentUseCases()
                 meteringRepeating.onUnbind()
+                cameraDevices.disconnectAsync(cameraConfig.cameraId).also {
+                    closingCameraJobs.add(it)
+                }
                 closingCameraJobs.toList()
             }
         closingJobs.joinAll()
-        cameraDevices.disconnectAll()
     }
 
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"

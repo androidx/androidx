@@ -159,8 +159,8 @@ package androidx.camera.view {
     ctor public TapToFocusInfo(int focusState, android.graphics.PointF? tapPoint);
     method public int getFocusState();
     method public android.graphics.PointF? getTapPoint();
-    property public final int focusState;
-    property public final android.graphics.PointF? tapPoint;
+    property public int focusState;
+    property public android.graphics.PointF? tapPoint;
   }
 
 }

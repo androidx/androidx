@@ -39,7 +39,7 @@ class InteractableComponentTest {
     private val mockRuntime = mock<JxrPlatformAdapter>()
     private lateinit var session: Session
     private val mockContentlessEntity = mock<JxrPlatformAdapter.Entity>()
-    private val entity by lazy { session.createEntity("test") }
+    private val entity by lazy { ContentlessEntity.create(session, "test") }
 
     @Before
     fun setUp() {
@@ -86,7 +86,7 @@ class InteractableComponentTest {
 
     @Test
     fun interactableComponent_canAttachOnlyOnce() {
-        val entity2 = session.createEntity("test")
+        val entity2 = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         whenever(mockRuntime.createInteractableComponent(any(), any())).thenReturn(mock())

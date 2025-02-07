@@ -24,8 +24,10 @@ import androidx.wear.protolayout.DimensionBuilders.dp
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.Column
+import androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
 import androidx.wear.protolayout.material3.AppCardStyle.Companion.largeAppCardStyle
+import androidx.wear.protolayout.material3.AvatarButtonStyle.Companion.largeAvatarButtonStyle
 import androidx.wear.protolayout.material3.ButtonDefaults.filledButtonColors
 import androidx.wear.protolayout.material3.ButtonDefaults.filledTonalButtonColors
 import androidx.wear.protolayout.material3.ButtonDefaults.filledVariantButtonColors
@@ -34,12 +36,14 @@ import androidx.wear.protolayout.material3.CardDefaults.filledVariantCardColors
 import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledTonalProgressIndicatorColors
 import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledVariantProgressIndicatorColors
 import androidx.wear.protolayout.material3.DataCardStyle.Companion.smallCompactDataCardStyle
+import androidx.wear.protolayout.material3.GraphicDataCardDefaults.constructGraphic
 import androidx.wear.protolayout.material3.IconButtonStyle.Companion.largeIconButtonStyle
 import androidx.wear.protolayout.material3.MaterialGoldenTest.Companion.pxToDp
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MAX_PRIMARY_LAYOUT_MARGIN
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MIN_PRIMARY_LAYOUT_MARGIN
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.extraLargeTextButtonStyle
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.largeTextButtonStyle
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.smallTextButtonStyle
-import androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion.Bottom
 import androidx.wear.protolayout.modifiers.LayoutModifier
 import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.clip
@@ -119,7 +123,8 @@ object TestCasesGenerator {
                     mainSlot = {
                         graphicDataCard(
                             onClick = clickable,
-                            modifier = LayoutModifier.contentDescription("Graphic Data Card"),
+                            modifier =
+                                LayoutModifier.contentDescription("Graphic Data Card with CPI"),
                             height = expand(),
                             horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_START,
                             title = {
@@ -132,9 +137,101 @@ object TestCasesGenerator {
                                     "steps".layoutString,
                                 )
                             },
-                            graphic = { circularProgressIndicator(staticProgress = 0.5F) }
+                            graphic = {
+                                constructGraphic(
+                                    mainContent = {
+                                        circularProgressIndicator(staticProgress = 0.5F)
+                                    },
+                                    iconContent = { icon(ICON_ID) }
+                                )
+                            }
                         )
                     },
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                )
+            }
+        testCases["primarylayout_graphcard_filledVariant_golden$goldenSuffix"] =
+            materialScope(
+                ApplicationProvider.getApplicationContext(),
+                deviceParameters,
+                allowDynamicTheme = false
+            ) {
+                primaryLayout(
+                    mainSlot = {
+                        graphicDataCard(
+                            onClick = clickable,
+                            modifier =
+                                LayoutModifier.contentDescription(
+                                    "Graphic Data Card with segmented CPI"
+                                ),
+                            height = expand(),
+                            horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_START,
+                            title = {
+                                text(
+                                    "1234".layoutString,
+                                )
+                            },
+                            content = {
+                                text(
+                                    "steps".layoutString,
+                                )
+                            },
+                            graphic = {
+                                constructGraphic(
+                                    mainContent = {
+                                        segmentedCircularProgressIndicator(
+                                            segmentCount = 5,
+                                            staticProgress = 0.5F,
+                                        )
+                                    },
+                                    iconContent = { icon(ICON_ID) }
+                                )
+                            },
+                            colors = filledVariantCardColors(),
+                        )
+                    },
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                )
+            }
+        testCases["primarylayout_graphcard_avatarbutton_fallback_golden$goldenSuffix"] =
+            materialScope(
+                ApplicationProvider.getApplicationContext(),
+                deviceParameters.copy(VersionInfo.Builder().setMajor(1).setMinor(100).build()),
+                allowDynamicTheme = false
+            ) {
+                primaryLayout(
+                    mainSlot = {
+                        Column.Builder()
+                            .setWidth(expand())
+                            .setHeight(expand())
+                            .addContent(
+                                graphicDataCard(
+                                    onClick = clickable,
+                                    modifier =
+                                        LayoutModifier.contentDescription("Graphic Data Card"),
+                                    height = expand(),
+                                    horizontalAlignment =
+                                        LayoutElementBuilders.HORIZONTAL_ALIGN_START,
+                                    title = {
+                                        text(
+                                            "1234".layoutString,
+                                        )
+                                    },
+                                    graphic = { circularProgressIndicator(staticProgress = 0.5F) }
+                                )
+                            )
+                            .addContent(DEFAULT_SPACER_BETWEEN_BUTTON_GROUPS)
+                            .addContent(
+                                avatarButton(
+                                    onClick = clickable,
+                                    labelContent = { text("Primary label".layoutString) },
+                                    avatarContent = { avatarImage(IMAGE_ID) },
+                                    height = expand()
+                                )
+                            )
+                            .build()
+                    },
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN
                 )
             }
         testCases["primarylayout_edgebuttonfilledvariant_iconoverride_golden$NORMAL_SCALE_SUFFIX"] =
@@ -153,17 +250,9 @@ object TestCasesGenerator {
                                     title = { text("MM".layoutString) },
                                     content = { text("Min".layoutString) },
                                     secondaryIcon = { icon(ICON_ID) },
-                                    shape = shapes.full
-                                )
-                            }
-                            buttonGroupItem {
-                                iconDataCard(
-                                    onClick = clickable,
-                                    modifier = LayoutModifier.contentDescription("Data Card"),
-                                    title = { text("MM".layoutString) },
-                                    content = { text("Min".layoutString) },
-                                    secondaryIcon = { icon(ICON_ID) },
-                                    titleContentPlacement = Bottom
+                                    shape = shapes.none,
+                                    width = expand(),
+                                    height = expand()
                                 )
                             }
                             buttonGroupItem {
@@ -178,11 +267,13 @@ object TestCasesGenerator {
                                             backgroundColor = colorScheme.onSecondary,
                                             titleColor = colorScheme.secondary,
                                             contentColor = colorScheme.secondaryDim
-                                        )
+                                        ),
+                                    shape = shapes.full
                                 )
                             }
                         }
                     },
+                    margins = MAX_PRIMARY_LAYOUT_MARGIN,
                     bottomSlot = {
                         textEdgeButton(
                             onClick = clickable,
@@ -392,6 +483,47 @@ object TestCasesGenerator {
                     },
                 )
             }
+        testCases["primarylayout_nobottomslotnotitle_avatarbuttons_golden$NORMAL_SCALE_SUFFIX"] =
+            materialScope(
+                ApplicationProvider.getApplicationContext(),
+                deviceParameters,
+                allowDynamicTheme = false
+            ) {
+                primaryLayout(
+                    mainSlot = {
+                        Column.Builder()
+                            .setWidth(expand())
+                            .setHeight(expand())
+                            .addContent(
+                                avatarButton(
+                                    onClick = clickable,
+                                    labelContent = { text("Primary label".layoutString) },
+                                    secondaryLabelContent = {
+                                        text("Secondary label".layoutString)
+                                    },
+                                    avatarContent = { avatarImage(IMAGE_ID) },
+                                )
+                            )
+                            .addContent(DEFAULT_SPACER_BETWEEN_BUTTON_GROUPS)
+                            .addContent(
+                                avatarButton(
+                                    onClick = clickable,
+                                    labelContent = {
+                                        text("Primary label overflowing".layoutString)
+                                    },
+                                    secondaryLabelContent = {
+                                        text("Secondary label overflowing".layoutString)
+                                    },
+                                    avatarContent = { avatarImage(IMAGE_ID) },
+                                    height = expand(),
+                                    style = largeAvatarButtonStyle(),
+                                    horizontalAlignment = HORIZONTAL_ALIGN_END
+                                )
+                            )
+                            .build()
+                    },
+                )
+            }
         testCases["primarylayout_oneslotbuttons_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
@@ -473,7 +605,10 @@ object TestCasesGenerator {
                 deviceParameters,
                 allowDynamicTheme = false
             ) {
-                primaryLayout(mainSlot = { progressIndicatorGroup() })
+                primaryLayout(
+                    mainSlot = { progressIndicatorGroup() },
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                )
             }
 
         testCases["primarylayout_circularprogressindicators_fallback__golden$NORMAL_SCALE_SUFFIX"] =
@@ -486,6 +621,7 @@ object TestCasesGenerator {
             ) {
                 primaryLayout(
                     mainSlot = { progressIndicatorGroup() },
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN,
                     bottomSlot = {
                         iconEdgeButton(
                             onClick = clickable,

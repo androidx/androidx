@@ -114,7 +114,7 @@ fun ComposeBenchmarkRule.measureModifier(
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled { getTestCase().toggleState() }
+            runWithMeasurementDisabled { getTestCase().toggleState() }
             timingIf(includeComposition) { recomposeAssertHadChanges() }
             assertNoPendingChanges()
             timingIf(includeLayout) {
@@ -135,6 +135,6 @@ inline fun BenchmarkRule.Scope.timingIf(condition: Boolean, block: () -> Unit) {
     if (condition) {
         block()
     } else {
-        runWithTimingDisabled { block() }
+        runWithMeasurementDisabled { block() }
     }
 }

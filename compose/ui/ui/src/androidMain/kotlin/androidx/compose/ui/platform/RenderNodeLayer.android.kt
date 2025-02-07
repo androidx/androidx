@@ -161,6 +161,12 @@ internal class RenderNodeLayer(
         if (maybeChangedFields and Fields.RenderEffect != 0) {
             renderNode.renderEffect = scope.renderEffect
         }
+        if (maybeChangedFields and Fields.ColorFilter != 0) {
+            renderNode.colorFilter = scope.colorFilter
+        }
+        if (maybeChangedFields and Fields.BlendMode != 0) {
+            renderNode.blendMode = scope.blendMode
+        }
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             renderNode.compositingStrategy = scope.compositingStrategy
         }

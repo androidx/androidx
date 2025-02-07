@@ -81,6 +81,33 @@ class ParagraphLayoutCacheTest {
         }
     }
 
+    @Test
+    fun minIntrinsicsHeight_respectsMinLines() {
+        with(density) {
+            val fontSize = 20.sp
+            val text = "A"
+            val singleLineLayout =
+                ParagraphLayoutCache(
+                        text = text,
+                        style = createTextStyle(fontSize = fontSize),
+                        fontFamilyResolver = fontFamilyResolver,
+                        minLines = 1
+                    )
+                    .also { it.density = this }
+            val withMinLinesLayout =
+                ParagraphLayoutCache(
+                        text = text,
+                        style = createTextStyle(fontSize = fontSize),
+                        fontFamilyResolver = fontFamilyResolver,
+                        minLines = 3
+                    )
+                    .also { it.density = this }
+
+            assertThat(withMinLinesLayout.intrinsicHeight(200, LayoutDirection.Ltr))
+                .isEqualTo(singleLineLayout.intrinsicHeight(200, LayoutDirection.Ltr) * 3)
+        }
+    }
+
     @OptIn(ExperimentalTextApi::class)
     @Test
     fun TextLayoutInput_reLayout_withDifferentHeight() {

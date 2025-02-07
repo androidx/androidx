@@ -32,7 +32,7 @@ import org.junit.Assert
 internal fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -43,7 +43,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> Layer
             measure()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -55,7 +55,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstMeasure(caseFactory: () -> Layer
 internal fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -67,7 +67,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> Layere
             layout()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -79,7 +79,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstLayout(caseFactory: () -> Layere
 internal fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> LayeredComposeTestCase) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -94,7 +94,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstDraw(caseFactory: () -> LayeredC
             drawFinish()
             recomposeUntilNoChangesPending()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }

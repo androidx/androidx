@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.geometry.AngleRadiansFloat
 import androidx.ink.nativeloader.NativeLoader
@@ -424,14 +425,19 @@ public class BrushPaint(
      * @param colorTextureUri The URI of an image that provides the color for a particular pixel for
      *   this layer. The coordinates within this image that will be used are determined by the other
      *   parameters.
-     * @param sizeX The X size in [TextureSizeUnit] of the image specified by [colorTextureUri].
-     * @param sizeY The Y size in [TextureSizeUnit] of the image specified by [colorTextureUri].
+     * @param sizeX The X size in [TextureSizeUnit] of (one animation frame of) the image specified
+     *   by [colorTextureUri].
+     * @param sizeY The Y size in [TextureSizeUnit] of (one animation frame of) the image specified
+     *   by [colorTextureUri].
      * @param offsetX An offset into the texture, specified as fractions of the texture [sizeX].
      * @param offsetY An offset into the texture, specified as fractions of the texture [sizeY].
      * @param rotation Angle in radians specifying the rotation of the texture. The rotation is
      *   carried out about the center of the texture's first repetition along both axes.
      * @param opacity Overall layer opacity in the range [0,1], where 0 is transparent and 1 is
      *   opaque.
+     * @param animationFrames The number of animation frames in this texture, or 1 for no animation.
+     *   If greater than 1, then the texture image is treated as a vertical strip of this many frame
+     *   images, in order from top to bottom.
      * @param sizeUnit The units used to specify [sizeX] and [sizeY].
      * @param origin The origin point to be used for texture space.
      * @param mapping The method by which the coordinates of the [colorTextureUri] image will apply
@@ -465,6 +471,7 @@ public class BrushPaint(
         @AngleRadiansFloat public val rotation: Float = 0F,
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
         public val opacity: Float = 1f,
+        @IntRange(from = 1) public val animationFrames: Int = 1,
         public val sizeUnit: TextureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
         public val origin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
         public val mapping: TextureMapping = TextureMapping.TILING,
@@ -481,6 +488,7 @@ public class BrushPaint(
                 offsetY,
                 rotation,
                 opacity,
+                animationFrames,
                 sizeUnit.value,
                 origin.value,
                 mapping.value,
@@ -502,6 +510,7 @@ public class BrushPaint(
             offsetY: Float = this.offsetY,
             @AngleRadiansFloat rotation: Float = this.rotation,
             opacity: Float = this.opacity,
+            animationFrames: Int = this.animationFrames,
             sizeUnit: TextureSizeUnit = this.sizeUnit,
             origin: TextureOrigin = this.origin,
             mapping: TextureMapping = this.mapping,
@@ -517,6 +526,7 @@ public class BrushPaint(
                     offsetY == this.offsetY &&
                     rotation == this.rotation &&
                     opacity == this.opacity &&
+                    animationFrames == this.animationFrames &&
                     sizeUnit == this.sizeUnit &&
                     origin == this.origin &&
                     mapping == this.mapping &&
@@ -534,6 +544,7 @@ public class BrushPaint(
                 offsetY,
                 rotation,
                 opacity,
+                animationFrames,
                 sizeUnit,
                 origin,
                 mapping,
@@ -556,6 +567,7 @@ public class BrushPaint(
                 offsetY = this.offsetY,
                 rotation = this.rotation,
                 opacity = this.opacity,
+                animationFrames = this.animationFrames,
                 sizeUnit = this.sizeUnit,
                 origin = this.origin,
                 mapping = this.mapping,
@@ -573,6 +585,7 @@ public class BrushPaint(
                 offsetY == other.offsetY &&
                 rotation == other.rotation &&
                 opacity == other.opacity &&
+                animationFrames == other.animationFrames &&
                 sizeUnit == other.sizeUnit &&
                 origin == other.origin &&
                 mapping == other.mapping &&
@@ -583,9 +596,9 @@ public class BrushPaint(
 
         override fun toString(): String =
             "BrushPaint.TextureLayer(colorTextureUri=$colorTextureUri, sizeX=$sizeX, sizeY=$sizeY, " +
-                "offset=[$offsetX, $offsetY], rotation=$rotation, opacity=$opacity sizeUnit=$sizeUnit, " +
-                "origin=$origin, mapping=$mapping, wrapX=$wrapX, " +
-                "wrapY=$wrapY, blendMode=$blendMode)"
+                "offset=[$offsetX, $offsetY], rotation=$rotation, opacity=$opacity, " +
+                "animationFrames=$animationFrames, sizeUnit=$sizeUnit, origin=$origin, " +
+                "mapping=$mapping, wrapX=$wrapX, wrapY=$wrapY, blendMode=$blendMode)"
 
         override fun hashCode(): Int {
             var result = colorTextureUri.hashCode()
@@ -595,6 +608,7 @@ public class BrushPaint(
             result = 31 * result + offsetY.hashCode()
             result = 31 * result + rotation.hashCode()
             result = 31 * result + opacity.hashCode()
+            result = 31 * result + animationFrames.hashCode()
             result = 31 * result + sizeUnit.hashCode()
             result = 31 * result + origin.hashCode()
             result = 31 * result + mapping.hashCode()
@@ -640,6 +654,7 @@ public class BrushPaint(
             @AngleRadiansFloat private var rotation: Float = 0F,
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
             private var opacity: Float = 1f,
+            @IntRange(from = 1) private var animationFrames: Int = 1,
             private var sizeUnit: TextureSizeUnit = TextureSizeUnit.STROKE_COORDINATES,
             private var origin: TextureOrigin = TextureOrigin.STROKE_SPACE_ORIGIN,
             private var mapping: TextureMapping = TextureMapping.TILING,
@@ -651,17 +666,43 @@ public class BrushPaint(
                 this.colorTextureUri = colorTextureUri
             }
 
-            public fun setSizeX(sizeX: Float): Builder = apply { this.sizeX = sizeX }
+            public fun setSizeX(
+                @FloatRange(
+                    from = 0.0,
+                    fromInclusive = false,
+                    to = Double.POSITIVE_INFINITY,
+                    toInclusive = false,
+                )
+                sizeX: Float
+            ): Builder = apply { this.sizeX = sizeX }
 
-            public fun setSizeY(sizeY: Float): Builder = apply { this.sizeY = sizeY }
+            public fun setSizeY(
+                @FloatRange(
+                    from = 0.0,
+                    fromInclusive = false,
+                    to = Double.POSITIVE_INFINITY,
+                    toInclusive = false,
+                )
+                sizeY: Float
+            ): Builder = apply { this.sizeY = sizeY }
 
             public fun setOffsetX(offsetX: Float): Builder = apply { this.offsetX = offsetX }
 
             public fun setOffsetY(offsetY: Float): Builder = apply { this.offsetY = offsetY }
 
-            public fun setRotation(rotation: Float): Builder = apply { this.rotation = rotation }
+            public fun setRotation(@AngleRadiansFloat rotation: Float): Builder = apply {
+                this.rotation = rotation
+            }
 
-            public fun setOpacity(opacity: Float): Builder = apply { this.opacity = opacity }
+            public fun setOpacity(
+                @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
+                opacity: Float
+            ): Builder = apply { this.opacity = opacity }
+
+            public fun setAnimationFrames(@IntRange(from = 1) animationFrames: Int): Builder =
+                apply {
+                    this.animationFrames = animationFrames
+                }
 
             public fun setSizeUnit(sizeUnit: TextureSizeUnit): Builder = apply {
                 this.sizeUnit = sizeUnit
@@ -690,6 +731,7 @@ public class BrushPaint(
                     offsetY,
                     rotation,
                     opacity,
+                    animationFrames,
                     sizeUnit,
                     origin,
                     mapping,
@@ -708,6 +750,7 @@ public class BrushPaint(
             offsetY: Float,
             rotation: Float,
             opacity: Float,
+            animationFrames: Int,
             sizeUnit: Int,
             origin: Int,
             mapping: Int,

@@ -28,16 +28,17 @@ import kotlinx.serialization.serializer
  * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
  *
  * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey_withSerializer
- * @param key The [String] key to use for storing the value in the [SavedStateRegistry].
  * @param serializer The [KSerializer] to use for serializing and deserializing the value.
+ * @param key An optional [String] key to use for storing the value in the [SavedStateRegistry]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
  * @param init The function to provide the initial value of the property.
  * @return A property delegate provider that manages the saving and restoring of the value.
  * @see encodeToSavedState
  * @see decodeFromSavedState
  */
 public fun <T : Any> SavedStateRegistryOwner.saved(
-    key: String,
     serializer: KSerializer<T>,
+    key: String? = null,
     init: () -> T,
 ): ReadWriteProperty<Any?, T> {
     return SavedStateRegistryOwnerDelegate(
@@ -52,34 +53,9 @@ public fun <T : Any> SavedStateRegistryOwner.saved(
  * Returns a property delegate provider that manages the saving and restoring of a value of type [T]
  * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
  *
- * This is a convenience overload that uses the name of the property as the key for storing the
- * value in the [SavedStateRegistry]
- *
- * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withSerializer
- * @param serializer The [KSerializer] to use for serializing and deserializing the value.
- * @param init The function to provide the initial value of the property.
- * @return A property delegate provider that manages the saving and restoring of the value.
- * @see encodeToSavedState
- * @see decodeFromSavedState
- */
-public fun <T : Any> SavedStateRegistryOwner.saved(
-    serializer: KSerializer<T>,
-    init: () -> T,
-): ReadWriteProperty<Any?, T> {
-    return SavedStateRegistryOwnerDelegate(
-        registry = savedStateRegistry,
-        key = null,
-        serializer = serializer,
-        init = init
-    )
-}
-
-/**
- * Returns a property delegate provider that manages the saving and restoring of a value of type [T]
- * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
- *
  * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey
- * @param key The [String] key to use for storing the value in the [SavedStateRegistry].
+ * @param key An optional [String] key to use for storing the value in the [SavedStateRegistry]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
  * @param init The function to provide the initial value of the property.
  * @return A property delegate provider that manages the saving and restoring of the value.
  * @see encodeToSavedState
@@ -87,30 +63,9 @@ public fun <T : Any> SavedStateRegistryOwner.saved(
  * @see serializer
  */
 public inline fun <reified T : Any> SavedStateRegistryOwner.saved(
-    key: String,
+    key: String? = null,
     noinline init: () -> T,
-): ReadWriteProperty<Any?, T> = saved(key = key, serializer = serializer(), init = init)
-
-/**
- * Returns a property delegate provider that manages the saving and restoring of a value of type [T]
- * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
- *
- * This is a convenience overload that uses the [serializer] function to obtain the serializer for
- * the reified type [T].
- *
- * The name of the property will be used as the key for storing the value in the
- * [SavedStateRegistry].
- *
- * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved
- * @param init The function to provide the initial value of the property.
- * @return A property delegate provider that manages the saving and restoring of the value.
- * @see encodeToSavedState
- * @see decodeFromSavedState
- * @see serializer
- */
-public inline fun <reified T : Any> SavedStateRegistryOwner.saved(
-    noinline init: () -> T,
-): ReadWriteProperty<Any?, T> = saved(serializer = serializer(), init = init)
+): ReadWriteProperty<Any?, T> = saved(serializer = serializer(), key = key, init = init)
 
 private class SavedStateRegistryOwnerDelegate<T : Any>(
     private val registry: SavedStateRegistry,

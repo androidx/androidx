@@ -33,13 +33,14 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -221,8 +222,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     /**
      * Developer callback which controls the behavior of ItemTouchHelper.
      */
-    @NonNull
-    Callback mCallback;
+    @NonNull Callback mCallback;
 
     /**
      * Current mode.
@@ -543,7 +543,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     public void onDrawOver(
             @NonNull Canvas c,
             @NonNull RecyclerView parent,
-            @NonNull RecyclerView.State state
+            RecyclerView.@NonNull State state
     ) {
         float dx = 0, dy = 0;
         if (mSelected != null) {
@@ -1471,8 +1471,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * @return The {@link ItemTouchUIUtil} instance that is used by the {@link Callback}
          */
         @SuppressWarnings("WeakerAccess")
-        @NonNull
-        public static ItemTouchUIUtil getDefaultUIUtil() {
+        public static @NonNull ItemTouchUIUtil getDefaultUIUtil() {
             return ItemTouchUIUtilImpl.INSTANCE;
         }
 
@@ -1949,8 +1948,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          *                     are applied. This value does not include margins added by
          *                     {@link RecyclerView.ItemDecoration}s.
          */
-        public void onMoved(@NonNull final RecyclerView recyclerView,
-                @NonNull final ViewHolder viewHolder, int fromPos, @NonNull final ViewHolder target,
+        public void onMoved(final @NonNull RecyclerView recyclerView,
+                final @NonNull ViewHolder viewHolder, int fromPos, final @NonNull ViewHolder target,
                 int toPos, int x, int y) {
             final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
             if (layoutManager instanceof ViewDropHandler) {
@@ -2280,7 +2279,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          */
         @SuppressWarnings("WeakerAccess")
         public int getSwipeDirs(@SuppressWarnings("unused") @NonNull RecyclerView recyclerView,
-                @NonNull @SuppressWarnings("unused") ViewHolder viewHolder) {
+                @SuppressWarnings("unused") @NonNull ViewHolder viewHolder) {
             return mDefaultSwipeDirs;
         }
 

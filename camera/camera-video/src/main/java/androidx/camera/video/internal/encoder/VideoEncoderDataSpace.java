@@ -47,6 +47,16 @@ public abstract class VideoEncoderDataSpace {
                     VIDEO_COLOR_RANGE_UNSPECIFIED);
 
     /**
+     * Color standard BT.601 625 with SDR video transfer function.
+     *
+     * <p>This mirrors the data space from {@link android.hardware.DataSpace#DATASPACE_BT601_625}.
+     */
+    public static final VideoEncoderDataSpace ENCODER_DATA_SPACE_BT601_625 =
+            create(MediaFormat.COLOR_STANDARD_BT601_PAL,
+                    MediaFormat.COLOR_TRANSFER_SDR_VIDEO,
+                    MediaFormat.COLOR_RANGE_LIMITED);
+
+    /**
      * Color standard BT.709 with SDR video transfer function.
      *
      * <p>This mirrors the data space from {@link android.hardware.DataSpace#DATASPACE_BT709}.

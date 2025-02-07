@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Vector3
 import kotlin.math.roundToInt
@@ -27,7 +26,6 @@ import kotlin.math.roundToInt
  *
  * @see SpatialBiasAlignment
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialAlignment {
     /**
      * Provides the horizontal offset from the origin of the space to the origin of the content.
@@ -130,7 +128,6 @@ public interface SpatialAlignment {
  * @param verticalBias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
  * @param depthBias Must be within the range of [-1, 1] with -1 being back and 1 being front.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialBiasAlignment(
     public val horizontalBias: Float,
     public val verticalBias: Float,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -43,8 +43,8 @@ dependencies {
 
 android {
     compileSdk = 35
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 
     testOptions.unitTests.includeAndroidResources = true
@@ -54,7 +54,7 @@ android {
 
 androidx {
     name = "Camera Feature Combination Query With Play Services"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Camera feature combination components for the Camera Library, a " +
             "library providing camera feature combination with Google Play Services dependencies."

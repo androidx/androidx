@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,7 @@ dependencies {
 
 androidx {
     name = "Constraintlayout Compose Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2024"
     description = "Contains the sample code for the Androidx Constraintlayout Compose Library"

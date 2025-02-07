@@ -19,8 +19,8 @@ package androidx.recyclerview.widget;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -157,8 +157,8 @@ public class AsyncListDiffer<T> {
      *
      * @see DiffUtil.DiffResult#dispatchUpdatesTo(RecyclerView.Adapter)
      */
-    public AsyncListDiffer(@NonNull RecyclerView.Adapter adapter,
-            @NonNull DiffUtil.ItemCallback<T> diffCallback) {
+    public AsyncListDiffer(RecyclerView.@NonNull Adapter adapter,
+            DiffUtil.@NonNull ItemCallback<T> diffCallback) {
         this(new AdapterListUpdateCallback(adapter),
             new AsyncDifferConfig.Builder<>(diffCallback).build());
     }
@@ -185,16 +185,14 @@ public class AsyncListDiffer<T> {
         }
     }
 
-    @Nullable
-    private List<T> mList;
+    private @Nullable List<T> mList;
 
     /**
      * Non-null, unmodifiable version of mList.
      * <p>
      * Collections.emptyList when mList is null, wrapped by Collections.unmodifiableList otherwise
      */
-    @NonNull
-    private List<T> mReadOnlyList = Collections.emptyList();
+    private @NonNull List<T> mReadOnlyList = Collections.emptyList();
 
     // Max generation of currently scheduled runnable
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -211,8 +209,7 @@ public class AsyncListDiffer<T> {
      *
      * @return current List.
      */
-    @NonNull
-    public List<T> getCurrentList() {
+    public @NonNull List<T> getCurrentList() {
         return mReadOnlyList;
     }
 
@@ -227,7 +224,7 @@ public class AsyncListDiffer<T> {
      * @param newList The new List.
      */
     @SuppressWarnings("WeakerAccess")
-    public void submitList(@Nullable final List<T> newList) {
+    public void submitList(final @Nullable List<T> newList) {
         submitList(newList, null);
     }
 
@@ -248,8 +245,8 @@ public class AsyncListDiffer<T> {
      *                       it is committed.
      */
     @SuppressWarnings("WeakerAccess")
-    public void submitList(@Nullable final List<T> newList,
-            @Nullable final Runnable commitCallback) {
+    public void submitList(final @Nullable List<T> newList,
+            final @Nullable Runnable commitCallback) {
         // incrementing generation means any currently-running diffs are discarded when they finish
         final int runGeneration = ++mMaxScheduledGeneration;
 
@@ -328,9 +325,9 @@ public class AsyncListDiffer<T> {
                         throw new AssertionError();
                     }
 
-                    @Nullable
                     @Override
-                    public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                    public @Nullable Object getChangePayload(int oldItemPosition,
+                            int newItemPosition) {
                         T oldItem = oldList.get(oldItemPosition);
                         T newItem = newList.get(newItemPosition);
                         if (oldItem != null && newItem != null) {
@@ -359,7 +356,7 @@ public class AsyncListDiffer<T> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void latchList(
             @NonNull List<T> newList,
-            @NonNull DiffUtil.DiffResult diffResult,
+            DiffUtil.@NonNull DiffResult diffResult,
             @Nullable Runnable commitCallback) {
         final List<T> previousList = mReadOnlyList;
         mList = newList;

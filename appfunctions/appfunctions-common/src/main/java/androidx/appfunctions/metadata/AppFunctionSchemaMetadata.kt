@@ -18,65 +18,74 @@ package androidx.appfunctions.metadata
 
 import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
-import java.util.Objects
 
-// TODO: Make it public once API surface is finalize
 /**
- * Represent a predefined AppFunction schema.
+ * Represents a predefined AppFunction schema.
  *
- * A schema defines the input parameters and the output of a function. This class holds the
- * identifying information about a specific schema.
+ * A schema defines a function's input parameters and output. This class holds identifying
+ * information about a specific, SDK-provided schema.
  */
+public class AppFunctionSchemaMetadata(
+    /**
+     * Specifies the category of the schema used by this function. This allows for logical grouping
+     * of schemas. For instance, all schemas related to email functionality would be categorized as
+     * 'email'.
+     */
+    public val category: String,
+    /** The unique name of the schema within its category. */
+    public val name: String,
+    /** The version of the schema. This is used to track the changes to the schema over time. */
+    public val version: Long
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AppFunctionSchemaMetadata
+
+        if (version != other.version) return false
+        if (category != other.category) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = version.hashCode()
+        result = 31 * result + category.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "AppFunctionSchemaMetadata(category='$category', name='$name', version=$version)"
+    }
+
+    /**
+     * Converts this [AppFunctionSchemaMetadata] to an [AppFunctionSchemaMetadataDocument].
+     *
+     * This is used to persist the schema metadata to storage.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toAppFunctionSchemaMetadataDocument(): AppFunctionSchemaMetadataDocument {
+        return AppFunctionSchemaMetadataDocument(
+            schemaName = name,
+            schemaCategory = category,
+            schemaVersion = version
+        )
+    }
+}
+
+/** Represents the persistent storage format of [AppFunctionSchemaMetadata]. */
 @Document
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppFunctionSchemaMetadata
-internal constructor(
-    @Document.Namespace public val namespace: String,
-    @Document.Id public val id: String,
+public data class AppFunctionSchemaMetadataDocument(
+    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
+    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
     /** The category of the schema, used to group related schemas. */
     @Document.StringProperty public val schemaCategory: String,
     /** The unique name of the schema within its category. */
     @Document.StringProperty public val schemaName: String,
     /** The version of the schema. This is used to track the changes to the schema over time. */
     @Document.LongProperty public val schemaVersion: Long
-) {
-    /**
-     * @param schemaCategory The category of the schema.
-     * @param schemaName The unique name of the schema within its category.
-     * @param schemaVersion The version of the schema.
-     */
-    public constructor(
-        schemaCategory: String,
-        schemaName: String,
-        schemaVersion: Long,
-    ) : this(
-        APP_FUNCTION_NAMESPACE,
-        APP_FUNCTION_ID_EMPTY,
-        schemaCategory,
-        schemaName,
-        schemaVersion
-    )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is AppFunctionSchemaMetadata) return false
-
-        return this.namespace == other.namespace &&
-            this.id == other.id &&
-            this.schemaCategory == other.schemaCategory &&
-            this.schemaName == other.schemaName &&
-            this.schemaVersion == other.schemaVersion
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(namespace, id, schemaCategory, schemaName, schemaVersion)
-    }
-
-    override fun toString(): String {
-        return "AppFunctionSchemaMetadata(namespace=$namespace, " +
-            "id=$id, " +
-            "schemaCategory=$schemaCategory, " +
-            "schemaName=$schemaName, " +
-            "schemaVersion=$schemaVersion)"
-    }
-}
+)

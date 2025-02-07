@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.xr.compose.subspace.node.SubspaceModifierElement
 import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
@@ -26,7 +25,6 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
  *
  * Based on [androidx.compose.ui.semantics.SemanticsModifier].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.semantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
 ): SubspaceModifier = this then AppendedSemanticsElement(properties = properties)

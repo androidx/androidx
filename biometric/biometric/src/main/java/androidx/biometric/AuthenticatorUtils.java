@@ -16,6 +16,7 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.biometric.BiometricManager.Authenticators;
@@ -34,7 +35,8 @@ class AuthenticatorUtils {
     private static final int BIOMETRIC_CLASS_MASK = 0x7FFF;
 
     // Prevent instantiation.
-    private AuthenticatorUtils() {}
+    private AuthenticatorUtils() {
+    }
 
     /**
      * Converts the given set of allowed authenticator types to a unique, developer-readable string.
@@ -43,21 +45,35 @@ class AuthenticatorUtils {
      * @return A string that uniquely identifies the set of authenticators and can be used in
      * developer-facing contexts (e.g. error messages).
      */
+    @SuppressLint("WrongConstant")
     static String convertToString(@BiometricManager.AuthenticatorTypes int authenticators) {
-        switch (authenticators) {
+        String result;
+        switch (authenticators & ~Authenticators.IDENTITY_CHECK) {
             case Authenticators.BIOMETRIC_STRONG:
-                return "BIOMETRIC_STRONG";
+                result = "BIOMETRIC_STRONG";
+                break;
             case Authenticators.BIOMETRIC_WEAK:
-                return "BIOMETRIC_WEAK";
+                result = "BIOMETRIC_WEAK";
+                break;
             case Authenticators.DEVICE_CREDENTIAL:
-                return "DEVICE_CREDENTIAL";
+                result = "DEVICE_CREDENTIAL";
+                break;
             case Authenticators.BIOMETRIC_STRONG | Authenticators.DEVICE_CREDENTIAL:
-                return "BIOMETRIC_STRONG | DEVICE_CREDENTIAL";
+                result = "BIOMETRIC_STRONG | DEVICE_CREDENTIAL";
+                break;
             case Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL:
-                return "BIOMETRIC_WEAK | DEVICE_CREDENTIAL";
+                result = "BIOMETRIC_WEAK | DEVICE_CREDENTIAL";
+                break;
             default:
-                return String.valueOf(authenticators);
+                result = String.valueOf(authenticators);
         }
+        if ((authenticators & Authenticators.IDENTITY_CHECK) == Authenticators.IDENTITY_CHECK) {
+            if (authenticators != Authenticators.IDENTITY_CHECK) {
+                result += " | ";
+            }
+            result += "IDENTITY_CHECK";
+        }
+        return result;
     }
 
     /**
@@ -76,22 +92,41 @@ class AuthenticatorUtils {
      * {@link BiometricPrompt.CryptoObject} to determine which type(s) of authenticators should be
      * allowed for a given authentication session.
      *
-     * @param info   The {@link BiometricPrompt.PromptInfo} for a given authentication session.
-     * @param crypto The {@link BiometricPrompt.CryptoObject} for a given crypto-based
-     *               authentication session, or {@code null} for non-crypto authentication.
+     * @param info                     The {@link BiometricPrompt.PromptInfo} for a given
+     *                                 authentication session.
+     * @param crypto                   The {@link BiometricPrompt.CryptoObject} for a given
+     *                                 crypto-based
+     *                                 authentication session, or {@code null} for non-crypto
+     *                                 authentication.
+     * @param isIdentityCheckAvailable Whether Identity check is available in the current api
+     *                                 level. If not, ignore identity check from authenticators.
      * @return A bit field representing all valid authenticator types that may be invoked.
      */
+    @SuppressLint("WrongConstant")
     @SuppressWarnings("deprecation")
     @BiometricManager.AuthenticatorTypes
     static int getConsolidatedAuthenticators(
             BiometricPrompt.@NonNull PromptInfo info,
-            BiometricPrompt.@Nullable CryptoObject crypto) {
+            BiometricPrompt.@Nullable CryptoObject crypto,
+            boolean isIdentityCheckAvailable) {
+        if (info == null) {
+            return 0;
+        }
 
-        @BiometricManager.AuthenticatorTypes int authenticators;
-        if (info.getAllowedAuthenticators() != 0) {
-            // Use explicitly allowed authenticators if set.
-            authenticators = info.getAllowedAuthenticators();
-        } else {
+        // Use explicitly allowed authenticators if set.
+        @BiometricManager.AuthenticatorTypes int authenticators = info.getAllowedAuthenticators();
+
+        //  We don't want identity check to block the authentication, so ignore identity check if
+        //  it's not available: a. if there are other authenticators set by the app, identity
+        //  check will be ignored and use the others only; b. if not, the default authenticator
+        //  will be used from above.
+        // TODO(b/375693808): Add this information to setAllowedAuthenticators() doc.
+        if ((authenticators & Authenticators.IDENTITY_CHECK) == Authenticators.IDENTITY_CHECK
+                && !isIdentityCheckAvailable) {
+            authenticators &= ~Authenticators.IDENTITY_CHECK;
+        }
+
+        if (authenticators == 0) {
             // Crypto auth requires a Class 3 (Strong) biometric.
             authenticators = crypto != null
                     ? Authenticators.BIOMETRIC_STRONG
@@ -112,7 +147,13 @@ class AuthenticatorUtils {
      * @return Whether user authentication with the given set of allowed authenticator types is
      * supported on the current Android version.
      */
+    @SuppressLint("WrongConstant")
     static boolean isSupportedCombination(@BiometricManager.AuthenticatorTypes int authenticators) {
+        // Ignore identity check. We don't want identity check to block the authentication. See
+        // getConsolidatedAuthenticators() for more information.
+        // TODO(b/375693808): Add this information to setAllowedAuthenticators() doc.
+        authenticators &= ~Authenticators.IDENTITY_CHECK;
+
         switch (authenticators) {
             case Authenticators.BIOMETRIC_STRONG:
             case Authenticators.BIOMETRIC_WEAK:

@@ -48,6 +48,9 @@ abstract class CompositionContext internal constructor() {
     abstract val effectCoroutineContext: CoroutineContext
     internal abstract val recomposeCoroutineContext: CoroutineContext
 
+    /** Associated composition if one exists. */
+    internal abstract val composition: Composition?
+
     internal abstract fun composeInitial(
         composition: ControlledComposition,
         content: @Composable () -> Unit
@@ -103,6 +106,4 @@ abstract class CompositionContext internal constructor() {
     ): MovableContentState? = null
 
     internal abstract fun reportRemovedComposition(composition: ControlledComposition)
-
-    internal abstract val composition: Composition?
 }

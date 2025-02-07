@@ -39,14 +39,9 @@ object TimePickerBenchmark : MacrobenchmarkScreen {
 
     override val exercise: MacrobenchmarkScope.() -> Unit
         get() = {
-            repeat(4) { i ->
+            repeat(20) {
                 val startY = device.displayHeight / 2
-                val endY =
-                    if (i % 2 == 0) {
-                        device.displayHeight / 10 // scroll up
-                    } else {
-                        device.displayHeight * 9 / 10 // scroll down
-                    }
+                val endY = device.displayHeight * 9 / 10 // scroll down
 
                 val hourX = device.displayWidth / 4
                 device.swipe(hourX, startY, hourX, endY, 10)

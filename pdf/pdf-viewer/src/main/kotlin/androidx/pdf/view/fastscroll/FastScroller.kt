@@ -19,7 +19,11 @@ package androidx.pdf.view.fastscroll
 import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
 import android.util.Range
+import androidx.annotation.RestrictTo
 
 /**
  * Manages and draws the fast scroller UI element.
@@ -33,8 +37,9 @@ import android.util.Range
  *   scroller UI.
  * @param scrollCalculator The [FastScrollCalculator] that performs scroll-related calculations.
  */
-internal class FastScroller(
-    val fastScrollDrawer: FastScrollDrawer,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FastScroller(
+    public val fastScrollDrawer: FastScrollDrawer,
     private val scrollCalculator: FastScrollCalculator
 ) {
     internal var fastScrollY: Int = 0
@@ -60,7 +65,7 @@ internal class FastScroller(
      * @param visibleArea The rectangular area of the view that is currently visible.
      * @param visiblePages The range of pages that are currently visible.
      */
-    fun drawScroller(
+    public fun drawScroller(
         canvas: Canvas,
         scrollY: Int,
         zoom: Float,
@@ -97,7 +102,7 @@ internal class FastScroller(
      * @param viewHeight The height of the view in pixels.
      * @return The calculated content scroll position in pixels.
      */
-    fun viewScrollPositionFromFastScroller(
+    public fun viewScrollPositionFromFastScroller(
         scrollY: Float,
         zoom: Float,
         viewHeight: Int,
@@ -118,27 +123,58 @@ internal class FastScroller(
         )
     }
 
-    fun show(onAnimationUpdate: () -> Unit) {
+    public fun show(onAnimationUpdate: () -> Unit) {
         hideValueAnimator?.cancel()
         fastScrollDrawer.alpha = FastScrollDrawer.VISIBLE_ALPHA
         animate(onAnimationUpdate)
     }
 
-    private fun animate(onAnimationUpdate: () -> Unit) {
-        hideValueAnimator =
-            ValueAnimator.ofInt(FastScrollDrawer.VISIBLE_ALPHA, FastScrollDrawer.GONE_ALPHA).apply {
-                startDelay = HIDE_DELAY_MS
-                duration = HIDE_ANIMATION_DURATION_MILLIS
-                addUpdateListener { animation ->
-                    fastScrollDrawer.alpha = animation.animatedValue as Int
-                    onAnimationUpdate()
-                }
-                start()
-            }
+    public fun hide(onAnimationUpdate: () -> Unit) {
+        hideValueAnimator?.cancel()
+        fastScrollDrawer.alpha = FastScrollDrawer.GONE_ALPHA
+        animate(onAnimationUpdate)
     }
 
-    companion object {
-        private const val HIDE_ANIMATION_DURATION_MILLIS = 200L
-        private const val HIDE_DELAY_MS = 1300L
+    private fun animate(onAnimationUpdate: () -> Unit) {
+        if (areAnimationsEnabled()) {
+            hideValueAnimator =
+                ValueAnimator.ofInt(FastScrollDrawer.VISIBLE_ALPHA, FastScrollDrawer.GONE_ALPHA)
+                    .apply {
+                        startDelay = HIDE_DELAY_MS
+                        duration = HIDE_ANIMATION_DURATION_MILLIS
+                        addUpdateListener { animation ->
+                            fastScrollDrawer.alpha = animation.animatedValue as Int
+                            onAnimationUpdate()
+                        }
+                        start()
+                    }
+        } else {
+            // Handle when animations are disabled
+            fastScrollDrawer.alpha = FastScrollDrawer.VISIBLE_ALPHA
+
+            Handler(Looper.getMainLooper())
+                .postDelayed(
+                    {
+                        fastScrollDrawer.alpha = FastScrollDrawer.GONE_ALPHA
+                        onAnimationUpdate()
+                    },
+                    HIDE_DELAY_MS + HIDE_ANIMATION_DURATION_MILLIS
+                ) // Simulate total time
+        }
+    }
+
+    // In case of integration tests, animations are disabled by default. In that case, we will need
+    // to explicit check the settings and handle the visibility of the scrubber.
+    private fun areAnimationsEnabled(): Boolean {
+        return Settings.Global.getFloat(
+            fastScrollDrawer.context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) != 0f
+    }
+
+    public companion object {
+        public const val HIDE_ANIMATION_DURATION_MILLIS: Long = 200L
+        public const val HIDE_DELAY_MS: Long = 1300L
     }
 }

@@ -17,6 +17,7 @@
 package androidx.camera.testing.impl
 
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_COLOR_STANDARD
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.media.MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO
 import android.media.MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO
@@ -27,6 +28,7 @@ import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION
 import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH
 import android.util.Rational
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 
@@ -67,5 +69,9 @@ public fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational =
     if (is90or270(getRotation())) Rational(getHeight(), getWidth()) else getAspectRatio()
 
 public fun MediaMetadataRetriever.getMimeType(): String = extractMetadata(METADATA_KEY_MIMETYPE)!!
+
+@RequiresApi(30)
+public fun MediaMetadataRetriever.getColorStandard(): Int =
+    extractMetadata(METADATA_KEY_COLOR_STANDARD)?.toInt() ?: -1
 
 public fun MediaMetadataRetriever.getLocation(): String = extractMetadata(METADATA_KEY_LOCATION)!!

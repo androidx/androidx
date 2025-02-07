@@ -351,17 +351,17 @@ class DatabaseWriter(
 
     private fun addDaoImpls(builder: XTypeSpec.Builder) {
         val scope = CodeGenScope(this)
-        database.daoFunctions.forEach { method ->
+        database.daoFunctions.forEach { function ->
             val name =
-                method.dao.typeName.simpleNames.first().decapitalize(Locale.US).stripNonJava()
+                function.dao.typeName.simpleNames.first().decapitalize(Locale.US).stripNonJava()
             val privateDaoProperty =
                 XPropertySpec.builder(
                         name = scope.getTmpVar("_$name"),
                         typeName =
                             when (scope.language) {
                                 CodeLanguage.KOTLIN ->
-                                    KotlinTypeNames.LAZY.parametrizedBy(method.dao.typeName)
-                                CodeLanguage.JAVA -> method.dao.typeName
+                                    KotlinTypeNames.LAZY.parametrizedBy(function.dao.typeName)
+                                CodeLanguage.JAVA -> function.dao.typeName
                             },
                         visibility = VisibilityModifier.PRIVATE,
                         isMutable = scope.language == CodeLanguage.JAVA
@@ -377,7 +377,7 @@ class DatabaseWriter(
                                         addStatement(
                                             "%L",
                                             XCodeBlock.ofNewInstance(
-                                                method.dao.implTypeName,
+                                                function.dao.implTypeName,
                                                 "this"
                                             )
                                         )
@@ -392,10 +392,10 @@ class DatabaseWriter(
                     .build()
             builder.addProperty(privateDaoProperty)
             builder.applyTo { language ->
-                if (language == CodeLanguage.KOTLIN && method.isProperty) {
+                if (language == CodeLanguage.KOTLIN && function.isProperty) {
                     applyToKotlinPoet {
                         addProperty(
-                            PropertySpecHelper.overriding(method.element, database.type)
+                            PropertySpecHelper.overriding(function.element, database.type)
                                 .getter(
                                     KFunSpec.getterBuilder()
                                         .addCode("return %L.value", privateDaoProperty.name)
@@ -405,13 +405,13 @@ class DatabaseWriter(
                         )
                     }
                 } else {
-                    addFunction(createDaoGetter(method, privateDaoProperty))
+                    addFunction(createDaoGetter(function, privateDaoProperty))
                 }
             }
         }
     }
 
-    private fun createDaoGetter(method: DaoFunction, daoProperty: XPropertySpec): XFunSpec {
+    private fun createDaoGetter(function: DaoFunction, daoProperty: XPropertySpec): XFunSpec {
         val body =
             XCodeBlock.builder().applyTo { language ->
                 // For Java we implement the memoization logic in the Dao getter, meanwhile for
@@ -427,7 +427,7 @@ class DatabaseWriter(
                                     addStatement(
                                         "%N = %L",
                                         daoProperty,
-                                        XCodeBlock.ofNewInstance(method.dao.implTypeName, "this")
+                                        XCodeBlock.ofNewInstance(function.dao.implTypeName, "this")
                                     )
                                 }
                                 endControlFlow()
@@ -442,7 +442,7 @@ class DatabaseWriter(
                     }
                 }
             }
-        return XFunSpec.overridingBuilder(element = method.element, owner = database.element.type)
+        return XFunSpec.overridingBuilder(element = function.element, owner = database.element.type)
             .apply { addCode(body.build()) }
             .build()
     }

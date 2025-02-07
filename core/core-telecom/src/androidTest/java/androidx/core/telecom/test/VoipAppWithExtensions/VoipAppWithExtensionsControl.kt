@@ -58,6 +58,7 @@ open class VoipAppWithExtensionsControl : Service() {
     private var raisedHandsFlow: MutableStateFlow<List<Participant>> = MutableStateFlow(emptyList())
     // TODO:: b/364316364 should be Pair(callId:String, value: Boolean)
     private var isLocallySilencedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var callIconFlow: MutableStateFlow<Uri> = MutableStateFlow(Uri.EMPTY)
 
     companion object {
         val TAG = VoipAppWithExtensionsControl::class.java.simpleName
@@ -138,6 +139,14 @@ open class VoipAppWithExtensionsControl : Service() {
                                         localCallSilenceUpdater?.updateIsLocallySilenced(it)
                                     }
                                     .launchIn(this)
+                                callIconFlow
+                                    .drop(1)
+                                    .onEach {
+                                        Log.i(TAG, "VoIP callIconFlow=[$it]")
+                                        callIconUpdater?.updateCallIconUri(it)
+                                    }
+                                    .launchIn(this)
+
                                 mCallback?.onCallAdded(requestId, this.getCallId().toString())
                             }
                         }
@@ -160,6 +169,10 @@ open class VoipAppWithExtensionsControl : Service() {
             // TODO:: b/364316364 add CallId arg.  Should be changing on a per call basis
             override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
                 isLocallySilencedFlow.value = isLocallySilenced
+            }
+
+            override fun updateCallIcon(uri: Uri) {
+                callIconFlow.value = uri
             }
         }
 

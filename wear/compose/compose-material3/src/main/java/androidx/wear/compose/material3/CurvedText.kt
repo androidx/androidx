@@ -83,6 +83,12 @@ import androidx.wear.compose.foundation.sizeIn
  * @param fontStyle The typeface variant to use when drawing the letters (e.g. italic).
  * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
  *   style cannot be found in the provided font family.
+ * @param letterSpacing The amount of space (in em or sp) to add between each letter, when text is
+ *   going clockwise.
+ * @param letterSpacingCounterClockwise The amount of space (in em or sp) to add between each
+ *   letter, when text is going counterClockwise. Note that this usually needs to be bigger than
+ *   [letterSpacing] to account for the fact that going clockwise, text fans out from the baseline
+ *   while going counter clockwise text fans in.
  * @param style Specifies the style to use.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
  *   needs to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
@@ -100,6 +106,8 @@ public fun CurvedScope.curvedText(
     fontWeight: FontWeight? = null,
     fontStyle: FontStyle? = null,
     fontSynthesis: FontSynthesis? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    letterSpacingCounterClockwise: TextUnit = TextUnit.Unspecified,
     style: CurvedTextStyle? = null,
     angularDirection: CurvedDirection.Angular? = null,
     overflow: TextOverflow = TextOverflow.Clip,
@@ -110,7 +118,7 @@ public fun CurvedScope.curvedText(
         angularDirection = angularDirection,
         overflow = overflow
     ) {
-        val baseStyle = style ?: CurvedTextStyle(MaterialTheme.typography.arcMedium)
+        val baseStyle = style ?: MaterialTheme.typography.arcMedium
         val textColor =
             color.takeOrElse { baseStyle.color.takeOrElse { LocalContentColor.current } }
         baseStyle.merge(
@@ -121,7 +129,9 @@ public fun CurvedScope.curvedText(
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
                 fontSynthesis = fontSynthesis,
-                background = background
+                background = background,
+                letterSpacing = letterSpacing,
+                letterSpacingCounterClockwise = letterSpacingCounterClockwise
             )
         )
     }

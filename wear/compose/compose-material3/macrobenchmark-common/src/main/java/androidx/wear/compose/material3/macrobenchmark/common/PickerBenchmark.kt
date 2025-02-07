@@ -45,13 +45,8 @@ object PickerBenchmark : MacrobenchmarkScreen {
 
     override val exercise: MacrobenchmarkScope.() -> Unit
         get() = {
-            repeat(4) { i ->
-                val endY =
-                    if (i % 2 == 0) {
-                        device.displayHeight / 10 // scroll up
-                    } else {
-                        device.displayHeight * 9 / 10 // scroll down
-                    }
+            repeat(20) {
+                val endY = device.displayHeight * 9 / 10 // scroll down
                 device.swipe(
                     device.displayWidth / 2,
                     device.displayHeight / 2,

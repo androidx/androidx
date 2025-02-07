@@ -137,7 +137,7 @@ class NonLinearFontScalingBenchmark(
 
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
-                val text = runWithTimingDisabled {
+                val text = runWithMeasurementDisabled {
                     // create a new paragraph and use a smaller width to get
                     // some line breaking in the result
                     text(textGenerator)
@@ -155,7 +155,7 @@ class NonLinearFontScalingBenchmark(
 
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
-                val text = runWithTimingDisabled {
+                val text = runWithMeasurementDisabled {
                     // create a new paragraph and use a smaller width to get
                     // some line breaking in the result
                     text(textGenerator)

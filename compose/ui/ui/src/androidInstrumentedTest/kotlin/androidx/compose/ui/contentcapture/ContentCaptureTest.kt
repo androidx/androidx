@@ -47,12 +47,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.isShowingTextSubstitution
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.setTextSubstitution
 import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSubstitution
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -585,7 +585,7 @@ class ContentCaptureTest {
                 )
             }
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         val ids = LongArray(1).apply { this[0] = virtualViewId.toLong() }
         val requestsCollector: Consumer<ViewTranslationRequest?> = mock()
@@ -639,7 +639,7 @@ class ContentCaptureTest {
                 )
             }
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         rule.runOnIdle {
@@ -784,10 +784,6 @@ class ContentCaptureTest {
             }
         }
     }
-
-    // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
-    private val SemanticsNodeInteraction.semanticsId: Int
-        get() = fetchSemanticsNode().id
 
     @Composable
     private fun ContentCaptureTestLazyList(listState: LazyListState) {

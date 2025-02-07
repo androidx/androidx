@@ -33,23 +33,28 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.TimeTextDefaults
+import androidx.wear.compose.material3.curvedText
 import androidx.wear.compose.material3.samples.TimeTextClockOnly
 import androidx.wear.compose.material3.samples.TimeTextWithStatus
+import androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
+import androidx.wear.compose.material3.timeTextSeparator
 
 val TimeTextDemos =
     listOf(
         ComposableDemo("Clock only") { TimeTextClockOnly() },
         ComposableDemo("Clock with Status") { TimeTextWithStatus() },
+        ComposableDemo("Clock with Ellipsized Status") { TimeTextWithStatusEllipsized() },
         ComposableDemo("Clock with long Status") { TimeTextWithLongStatus() },
         ComposableDemo("Clock with Icon") { TimeTextWithIcon() },
         ComposableDemo("Clock with custom colors") { TimeTextWithCustomColors() },
@@ -61,10 +66,10 @@ val TimeTextDemos =
 
 @Composable
 fun TimeTextWithLongStatus() {
-    TimeText {
-        text("Some long leading text")
-        separator()
-        time()
+    TimeText { time ->
+        curvedText("Some long leading text")
+        timeTextSeparator()
+        curvedText(time)
     }
 }
 
@@ -72,12 +77,12 @@ fun TimeTextWithLongStatus() {
 fun TimeTextWithCustomColors() {
     val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
 
-    TimeText {
-        text("ETA", customStyle)
-        composable { Spacer(modifier = Modifier.size(4.dp)) }
-        text("12:48")
-        separator()
-        time()
+    TimeText { time ->
+        curvedText("ETA", style = customStyle)
+        curvedComposable { Spacer(modifier = Modifier.size(4.dp)) }
+        curvedText("12:48")
+        timeTextSeparator()
+        curvedText(time)
     }
 }
 
@@ -85,19 +90,19 @@ fun TimeTextWithCustomColors() {
 fun TimeTextCustomSize() {
     val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Green, fontSize = 24.sp)
 
-    TimeText {
-        text("ETA", customStyle)
-        separator()
-        time()
+    TimeText { time ->
+        curvedText("ETA", style = customStyle)
+        timeTextSeparator()
+        curvedText(time)
     }
 }
 
 @Composable
 fun TimeTextWithIcon() {
-    TimeText {
-        time()
-        separator()
-        composable {
+    TimeText { time ->
+        curvedText(time)
+        timeTextSeparator()
+        curvedComposable {
             Icon(
                 imageVector = Icons.Filled.Favorite,
                 contentDescription = "Favorite",
@@ -123,7 +128,7 @@ fun TimeTextOnScreen() {
     // It's preferable to use the ScreenScaffold, this is a demo of the simplest usage.
     Box(Modifier.fillMaxSize()) {
         ScalingLazyColumn(Modifier.fillMaxSize(), contentPadding = padding) {
-            item { Text("Buttons") }
+            item { ListHeader { Text("Buttons") } }
             item {
                 OutlinedButton(onClick = {}) {
                     Text("Outlined Button", Modifier.align(Alignment.CenterVertically))
@@ -151,22 +156,18 @@ fun TimeTextOnScreen() {
             items(10) { Text("Some extra items ($it) to scroll", Modifier.padding(5.dp)) }
         }
         // Timetext later so it's on top.
-        TimeText { time() }
+        TimeText { time -> curvedText(time) }
     }
 }
 
 @Composable
 fun TimeTextOnScreenWhiteBackground() {
-    Box(Modifier.fillMaxSize().background(Color.White)) { TimeText { time() } }
+    Box(Modifier.fillMaxSize().background(Color.White)) { TimeText { time -> curvedText(time) } }
 }
 
 @Composable
 fun TimeTextBackgroundOverride() {
     Box(Modifier.fillMaxSize().background(Color.DarkGray)) {
-        MaterialTheme(
-            colorScheme = MaterialTheme.colorScheme.copy(background = Color.Transparent)
-        ) {
-            TimeText { time() }
-        }
+        TimeText(backgroundColor = Color.Transparent) { time -> curvedText(time) }
     }
 }

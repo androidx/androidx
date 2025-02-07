@@ -229,6 +229,95 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun relations_set() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+            import androidx.room.*
+
+            @Dao
+            @Suppress(
+                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                RoomWarnings.MISSING_INDEX_ON_JUNCTION
+            )
+            interface MyDao {
+                // 1 to 1
+                @Query("SELECT * FROM Song")
+                fun getSongsWithArtist(): SongWithArtist
+
+                // 1 to many
+                @Query("SELECT * FROM Artist")
+                fun getArtistAndSongs(): ArtistAndSongs
+
+                // many to many
+                @Query("SELECT * FROM Playlist")
+                fun getPlaylistAndSongs(): PlaylistAndSongs
+            }
+
+            data class SongWithArtist(
+                @Embedded
+                val song: Song,
+                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                val artist: Artist
+            )
+
+            data class ArtistAndSongs(
+                @Embedded
+                val artist: Artist,
+                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                val songs: Set<Song>
+            )
+
+            data class PlaylistAndSongs(
+                @Embedded
+                val playlist: Playlist,
+                @Relation(
+                    parentColumn = "playlistId",
+                    entityColumn = "songId",
+                    associateBy = Junction(
+                        value = PlaylistSongXRef::class,
+                        parentColumn = "playlistKey",
+                        entityColumn = "songKey",
+                    )
+                )
+                val songs: Set<Song>
+            )
+
+            @Entity
+            data class Artist(
+                @PrimaryKey
+                val artistId: Long
+            )
+
+            @Entity
+            data class Song(
+                @PrimaryKey
+                val songId: Long,
+                val artistKey: Long
+            )
+
+            @Entity
+            data class Playlist(
+                @PrimaryKey
+                val playlistId: Long,
+            )
+
+            @Entity(primaryKeys = ["playlistKey", "songKey"])
+            data class PlaylistSongXRef(
+                val playlistKey: Long,
+                val songKey: Long,
+            )
+            """
+                    .trimIndent()
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun relations_longSparseArray() {
         val src =
             Source.kotlin(

@@ -185,6 +185,25 @@ interface GraphicsLayerScope : Density {
         set(_) {}
 
     /**
+     * BlendMode to use when drawing this layer to the destination. The default is
+     * [BlendMode.SrcOver]. Any value other than [BlendMode.SrcOver] will force this
+     * [GraphicsLayerScope] to use an offscreen compositing layer for rendering and is equivalent to
+     * using [CompositingStrategy.Offscreen].
+     */
+    var blendMode: BlendMode
+        get() = BlendMode.SrcOver
+        set(_) {}
+
+    /**
+     * ColorFilter applied when drawing this layer to the destination. Setting of this to any
+     * non-null will force this [GraphicsLayer] to use an offscreen compositing layer for rendering
+     * and is equivalent to using [CompositingStrategy.Offscreen]
+     */
+    var colorFilter: ColorFilter?
+        get() = null
+        set(_) {}
+
+    /**
      * Determines the [CompositingStrategy] used to render the contents of this graphicsLayer into
      * an offscreen buffer first before rendering to the destination
      */
@@ -255,6 +274,8 @@ internal object Fields {
     const val Clip: Int = 0b1 shl 14
     const val CompositingStrategy: Int = 0b1 shl 15
     const val RenderEffect: Int = 0b1 shl 17
+    const val ColorFilter: Int = 0b1 shl 18
+    const val BlendMode: Int = 0b1 shl 19
 
     const val MatrixAffectingFields =
         ScaleX or
@@ -419,6 +440,22 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
             }
         }
 
+    override var colorFilter: ColorFilter? = null
+        set(value) {
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.ColorFilter
+                field = value
+            }
+        }
+
+    override var blendMode: BlendMode = BlendMode.SrcOver
+        set(value) {
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.BlendMode
+                field = value
+            }
+        }
+
     internal var outline: Outline? = null
         @VisibleForTesting internal set
 
@@ -439,6 +476,8 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         shape = RectangleShape
         clip = false
         renderEffect = null
+        colorFilter = null
+        blendMode = BlendMode.SrcOver
         compositingStrategy = CompositingStrategy.Auto
         size = Size.Unspecified
         outline = null

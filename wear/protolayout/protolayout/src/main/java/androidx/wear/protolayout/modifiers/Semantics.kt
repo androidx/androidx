@@ -58,7 +58,7 @@ internal class BaseSemanticElement(
     @SemanticsRole val semanticsRole: Int = SEMANTICS_ROLE_NONE
 ) : LayoutModifier.Element {
     @SuppressLint("ProtoLayoutMinSchema")
-    fun foldIn(initial: Semantics.Builder?): Semantics.Builder =
+    fun mergeTo(initial: Semantics.Builder?): Semantics.Builder =
         (initial ?: Semantics.Builder()).apply {
             contentDescription?.let { setContentDescription(it) }
             if (semanticsRole != SEMANTICS_ROLE_NONE) {

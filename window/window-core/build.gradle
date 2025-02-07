@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -79,7 +79,7 @@ androidXMultiplatform {
 
 androidx {
     name = "WindowManager Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "WindowManager Core Library."
     legacyDisableKotlinStrictApiMode = true

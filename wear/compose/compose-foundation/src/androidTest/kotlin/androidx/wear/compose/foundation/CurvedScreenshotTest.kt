@@ -270,6 +270,50 @@ class CurvedScreenshotTest {
         }
     }
 
+    @Test
+    fun letter_spacing_top_and_bottom() {
+        verify_composable_screenshot {
+            val style =
+                CurvedTextStyle(letterSpacing = 0.6.sp, letterSpacingCounterClockwise = 1.4.sp)
+            Box {
+                CurvedLayout(modifier = Modifier.fillMaxSize()) {
+                    basicCurvedText(
+                        "Clockwise",
+                        style = style,
+                    )
+                }
+                CurvedLayout(
+                    modifier = Modifier.fillMaxSize(),
+                    angularDirection = CurvedDirection.Angular.CounterClockwise,
+                    anchor = 90f
+                ) {
+                    basicCurvedText(
+                        "Counter Clockwise",
+                        style = style,
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun line_height_test() {
+        verify_composable_screenshot {
+            val baseStyle =
+                CurvedTextStyle(color = Color.White, background = Color.Gray, fontSize = 16.sp)
+            CurvedLayout(
+                modifier = Modifier.fillMaxSize(),
+                radialAlignment = CurvedAlignment.Radial.Center,
+            ) {
+                basicCurvedText("Line Height 10.sp", style = baseStyle.copy(lineHeight = 10.sp))
+                curvedBox(CurvedModifier.angularSizeDp(1.dp)) {}
+                basicCurvedText("Base", style = baseStyle)
+                curvedBox(CurvedModifier.angularSizeDp(1.dp)) {}
+                basicCurvedText("Line Height 24.sp", style = baseStyle.copy(lineHeight = 24.sp))
+            }
+        }
+    }
+
     private fun CurvedScope.layout_direction_block() {
         basicCurvedText("A")
         curvedColumn {

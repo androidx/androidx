@@ -154,7 +154,7 @@ actual abstract class RoomDatabase {
         message = "This property is always null and will be removed in a future version.",
         level = DeprecationLevel.ERROR
     )
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     protected var mCallbacks: List<Callback>? = null
 
     private var autoCloser: AutoCloser? = null
@@ -193,7 +193,7 @@ actual abstract class RoomDatabase {
      * @param T The type of the expected Type Converter subclass.
      * @return An instance of T.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     @Suppress("UNCHECKED_CAST")
     actual fun <T : Any> getTypeConverter(klass: KClass<T>): T {
         return typeConverters[klass] as T
@@ -320,7 +320,7 @@ actual abstract class RoomDatabase {
      * @return A list of migration instances each of which is a generated autoMigration
      */
     @Deprecated("No longer implemented by generated")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     @JvmSuppressWildcards // Suppress wildcards due to generated Java code
     open fun getAutoMigrations(
         autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>
@@ -328,7 +328,7 @@ actual abstract class RoomDatabase {
         return emptyList()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     actual open fun createAutoMigrations(
         autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>
     ): List<Migration> {
@@ -386,7 +386,7 @@ actual abstract class RoomDatabase {
      * @return A new delegate to be used while opening the database
      * @throws NotImplementedError by default
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     protected actual open fun createOpenDelegate(): RoomOpenDelegateMarker {
         throw NotImplementedError()
     }
@@ -424,7 +424,7 @@ actual abstract class RoomDatabase {
      *
      * @return Creates a map that will include all required type converters for this database.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     protected open fun getRequiredTypeConverters(): Map<Class<*>, List<Class<*>>> {
         return emptyMap()
     }
@@ -439,7 +439,7 @@ actual abstract class RoomDatabase {
      *
      * @return A map that will include all required type converters for this database.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     protected actual open fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
         // For backwards compatibility when newer runtime is used with older generated code,
         // call the Java version this function.
@@ -460,12 +460,12 @@ actual abstract class RoomDatabase {
      * @return Creates a set that will include all required auto migration specs for this database.
      */
     @Deprecated("No longer implemented by generated")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     open fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
         return emptySet()
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     actual open fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>> {
         // For backwards compatibility when newer runtime is used with older generated code,
         // call the Java version of this function.
@@ -565,7 +565,7 @@ actual abstract class RoomDatabase {
     }
 
     /** Asserts that we are not on a suspending transaction. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used in generated code
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     open fun assertNotSuspendingTransaction() {
         check(!inCompatibilityMode() || inTransaction() || suspendingTransactionId.get() == null) {
             "Cannot access database on a different coroutine" +
@@ -755,7 +755,7 @@ actual abstract class RoomDatabase {
      *
      * @param connection The database connection.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     protected actual fun internalInitInvalidationTracker(connection: SQLiteConnection) {
         invalidationTracker.internalInit(connection)
     }
@@ -767,7 +767,7 @@ actual abstract class RoomDatabase {
      * @see SupportSQLiteDatabase.inTransaction
      */
     open fun inTransaction(): Boolean {
-        return openHelper.writableDatabase.inTransaction()
+        return isOpenInternal && openHelper.writableDatabase.inTransaction()
     }
 
     /**
@@ -1931,7 +1931,8 @@ actual abstract class RoomDatabase {
         /**
          * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) const val MAX_BIND_PARAMETER_CNT = 999
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+        const val MAX_BIND_PARAMETER_CNT = 999
     }
 }
 

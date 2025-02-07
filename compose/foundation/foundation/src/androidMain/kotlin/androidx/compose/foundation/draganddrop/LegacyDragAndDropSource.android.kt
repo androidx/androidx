@@ -83,7 +83,7 @@ fun Modifier.dragAndDropSource(
         )
 
 @ExperimentalFoundationApi
-private data class LegacyDragAndDropSourceElement(
+private class LegacyDragAndDropSourceElement(
     /** @see Modifier.dragAndDropSource */
     val drawDragDecoration: DrawScope.() -> Unit,
     /** @see Modifier.dragAndDropSource */
@@ -105,6 +105,22 @@ private data class LegacyDragAndDropSourceElement(
         name = "dragSource"
         properties["drawDragDecoration"] = drawDragDecoration
         properties["dragAndDropSourceHandler"] = dragAndDropSourceHandler
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LegacyDragAndDropSourceElement) return false
+
+        if (drawDragDecoration !== other.drawDragDecoration) return false
+        if (dragAndDropSourceHandler !== other.dragAndDropSourceHandler) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = drawDragDecoration.hashCode()
+        result = 31 * result + dragAndDropSourceHandler.hashCode()
+        return result
     }
 }
 

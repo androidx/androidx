@@ -264,6 +264,10 @@ constructor(
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultToggleButtonShapesCached: ToggleButtonShapes? = null
     internal var defaultVerticalDragHandleShapesCached: DragHandleShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultIconToggleButtonShapesCached: IconToggleButtonShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultIconButtonShapesCached: IconButtonShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */

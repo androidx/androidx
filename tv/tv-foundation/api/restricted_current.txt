@@ -15,7 +15,7 @@ package androidx.tv.foundation.text {
 
   @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
     method public String? getOption();
-    property public final String? option;
+    property public String? option;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Center;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Fullscreen;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Left;

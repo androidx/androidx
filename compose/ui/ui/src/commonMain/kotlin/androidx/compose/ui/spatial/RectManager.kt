@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.postDelayed
@@ -38,7 +39,6 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.trace
 import kotlin.math.max
-import kotlinx.coroutines.DisposableHandle
 
 internal class RectManager(
     /** [LayoutNode.semanticsId] to [LayoutNode] mapping, maintained by Owner. */
@@ -165,7 +165,7 @@ internal class RectManager(
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit
-    ): DisposableHandle {
+    ): RegistrationHandle {
         return throttledCallbacks.registerOnRectChanged(
             id,
             throttleMillis,
@@ -181,7 +181,7 @@ internal class RectManager(
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit
-    ): DisposableHandle {
+    ): RegistrationHandle {
         return throttledCallbacks.registerOnGlobalChange(
             id = id,
             throttleMillis = throttleMillis,

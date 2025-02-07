@@ -123,7 +123,7 @@ class PdfDocumentViewModelTest {
         // Assert fragmentUiState is set to Loading
         assertTrue(pdfViewModel.fragmentUiScreenState.value is PdfFragmentUiState.Loading)
 
-        pdfViewModel.updateToolboxState(true)
+        pdfViewModel.updateToolboxState(isToolboxActive = true)
 
         // Assert toolboxState never set to visible
         assertFalse(pdfViewModel.isToolboxVisibleFromState)
@@ -152,7 +152,7 @@ class PdfDocumentViewModelTest {
             pdfDocumentViewModel.fragmentUiScreenState.value is PdfFragmentUiState.DocumentError
         )
 
-        pdfDocumentViewModel.updateToolboxState(true)
+        pdfDocumentViewModel.updateToolboxState(isToolboxActive = true)
 
         // Assert toolboxState never set to visible
         assertFalse(pdfDocumentViewModel.isToolboxVisibleFromState)

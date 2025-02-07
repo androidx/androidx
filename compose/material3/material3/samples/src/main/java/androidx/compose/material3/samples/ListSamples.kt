@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun OneLineListItem() {
     Column {
+        HorizontalDivider()
         ListItem(
             headlineContent = { Text("One line list item with 24x24 icon") },
             leadingContent = {
@@ -50,6 +51,7 @@ fun OneLineListItem() {
 @Composable
 fun TwoLineListItem() {
     Column {
+        HorizontalDivider()
         ListItem(
             headlineContent = { Text("Two line list item with trailing") },
             supportingContent = { Text("Secondary text") },
@@ -70,6 +72,7 @@ fun TwoLineListItem() {
 @Composable
 fun ThreeLineListItemWithOverlineAndSupporting() {
     Column {
+        HorizontalDivider()
         ListItem(
             headlineContent = { Text("Three line list item") },
             overlineContent = { Text("OVERLINE") },
@@ -91,11 +94,10 @@ fun ThreeLineListItemWithOverlineAndSupporting() {
 @Composable
 fun ThreeLineListItemWithExtendedSupporting() {
     Column {
+        HorizontalDivider()
         ListItem(
             headlineContent = { Text("Three line list item") },
-            supportingContent = {
-                Text("Secondary text that is long and perhaps goes onto another line")
-            },
+            supportingContent = { Text("Secondary text that\nspans multiple lines") },
             leadingContent = {
                 Icon(
                     Icons.Filled.Favorite,

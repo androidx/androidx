@@ -302,6 +302,16 @@ object DeviceInfo {
     private const val ART_MAINLINE_MIN_VERSION_VERIFY_CLEARS_RUNTIME_IMAGE = 350800000L
 
     /**
+     * ART mainline 990090000 means the module is built from source in the system image and isn't
+     * updatable, and thus expectations should be conservative - assume that any potential bug on
+     * the current SDK version may be present on this device.
+     *
+     * Ideally, we'd have a minimum release build ID, but these may not be consistently and easily
+     * sortable.
+     */
+    private const val ART_MAINLINE_INTERNAL_BUILD_MIN = 990000000
+
+    /**
      * Used when mainline version failed to detect, but this is accepted due to low API level (<34)
      * where presence isn't guaranteed (e.g. go devices)
      */
@@ -320,15 +330,18 @@ object DeviceInfo {
             else -> ART_MAINLINE_VERSION_UNDETECTED
         }
 
-    val methodTracingAffectsMeasurements =
-        Build.VERSION.SDK_INT in 26..30 || // b/313868903
-            artMainlineVersion in ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING // b/303660864
+    fun willMethodTracingAffectMeasurements(sdkInt: Int, artVersion: Long): Boolean =
+        sdkInt in 26..30 || // b/313868903
+            artVersion in ART_MAINLINE_VERSIONS_AFFECTING_METHOD_TRACING || // b/303660864
+            (sdkInt == 34 && artVersion >= ART_MAINLINE_INTERNAL_BUILD_MIN) // b/303686344#comment31
 
-    fun isClassLoadTracingAvailable(targetApiLevel: Int, targetArtMainlineVersion: Long?): Boolean =
-        targetApiLevel >= 35 ||
-            (targetApiLevel >= 31 &&
-                (targetArtMainlineVersion == null ||
-                    targetArtMainlineVersion >= ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING))
+    val methodTracingAffectsMeasurements =
+        willMethodTracingAffectMeasurements(Build.VERSION.SDK_INT, artMainlineVersion)
+
+    fun isClassLoadTracingAvailable(sdkInt: Int, artVersion: Long?): Boolean =
+        sdkInt >= 35 ||
+            (sdkInt >= 31 &&
+                (artVersion == null || artVersion >= ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING))
 
     val supportsClassLoadTracing =
         isClassLoadTracingAvailable(Build.VERSION.SDK_INT, artMainlineVersion)

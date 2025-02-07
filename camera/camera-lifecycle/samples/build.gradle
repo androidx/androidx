@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ android {
 
 androidx {
     name = "Camera Lifecycle Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains sample code for the Androidx Camera Lifecycle APIs and Utilities"
 }

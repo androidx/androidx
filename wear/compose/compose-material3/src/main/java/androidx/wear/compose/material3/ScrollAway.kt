@@ -96,7 +96,7 @@ public value class ScreenStage internal constructor(internal val value: Int) {
         }
 }
 
-private data class ScrollAwayModifierElement(
+private class ScrollAwayModifierElement(
     val scrollInfoProvider: ScrollInfoProvider,
     val screenStage: () -> ScreenStage
 ) : ModifierNodeElement<ScrollAwayModifierNode>() {
@@ -111,6 +111,24 @@ private data class ScrollAwayModifierElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "scrollAway"
         properties["scrollInfoProvider"] = scrollInfoProvider
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ScrollAwayModifierElement
+
+        if (scrollInfoProvider != other.scrollInfoProvider) return false
+        if (screenStage !== other.screenStage) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = scrollInfoProvider.hashCode()
+        result = 31 * result + screenStage.hashCode()
+        return result
     }
 }
 

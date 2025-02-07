@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,16 +48,18 @@ dependencies {
 
 android {
     compileSdk = 35
-    lintOptions {
+    lint {
         // Bug in Android Lint 7.0.0-alpha15 b/187419330
-        disable("MissingLeanbackLauncher", "ImpliedTouchscreenHardware", "MissingLeanbackSupport")
+        disable.add("MissingLeanbackLauncher")
+        disable.add("ImpliedTouchscreenHardware")
+        disable.add("MissingLeanbackSupport")
     }
     namespace = "androidx.leanback.paging"
 }
 
 androidx {
     name = "Leanback Paging"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.LEANBACK_PAGING
     inceptionYear = "2020"
     description = "AndroidX Leanback Paging"

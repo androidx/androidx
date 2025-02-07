@@ -374,6 +374,7 @@ internal class Camera2CaptureSequenceProcessor(
         // [1] b/307588161 - [ANR] at
         // androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
         Threading.runBlockingCheckedOrNull(
+            threads.blockingDispatcher,
             threads.backgroundDispatcher,
             WAIT_FOR_REPEATING_TIMEOUT_MS,
         ) {

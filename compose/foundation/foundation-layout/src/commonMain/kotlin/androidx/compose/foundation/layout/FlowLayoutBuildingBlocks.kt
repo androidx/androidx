@@ -64,6 +64,7 @@ internal class FlowLayoutBuildingBlocks(
         return ellipsisInfo
     }
 
+    @Suppress("DEPRECATION")
     fun getWrapInfo(
         nextItemHasNext: Boolean,
         nextIndexInLine: Int,

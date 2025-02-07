@@ -48,33 +48,50 @@ abstract class BaseRoomConnectionManager {
 
     abstract suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R): R
 
+    // Lets impl class resolve driver file name if necessary.
+    internal open fun resolveFileName(fileName: String): String = fileName
+
     /* A driver wrapper that configures opened connections per the manager. */
     protected inner class DriverWrapper(private val actual: SQLiteDriver) : SQLiteDriver {
-        override fun open(fileName: String): SQLiteConnection =
+        override fun open(fileName: String): SQLiteConnection {
+            return openLocked(resolveFileName(fileName))
+        }
+
+        private fun openLocked(filename: String) =
             ExclusiveLock(
-                    filename = fileName,
-                    useFileLock = !isConfigured && !isInitializing && fileName != ":memory:"
+                    filename = filename,
+                    useFileLock = !isConfigured && !isInitializing && filename != ":memory:"
                 )
-                .withLock {
-                    check(!isInitializing) {
-                        "Recursive database initialization detected. Did you try to use the database " +
-                            "instance during initialization? Maybe in one of the callbacks?"
-                    }
-                    val connection = actual.open(fileName)
-                    if (!isConfigured) {
-                        // Perform initial connection configuration
-                        try {
-                            isInitializing = true
-                            configureDatabase(connection)
-                        } finally {
-                            isInitializing = false
+                .withLock(
+                    onLocked = {
+                        check(!isInitializing) {
+                            "Recursive database initialization detected. Did you try to use the " +
+                                "database instance during initialization? Maybe in one of the " +
+                                "callbacks?"
                         }
-                    } else {
-                        // Perform other non-initial connection configuration
-                        configurationConnection(connection)
+                        val connection = actual.open(filename)
+                        if (!isConfigured) {
+                            // Perform initial connection configuration
+                            try {
+                                isInitializing = true
+                                configureDatabase(connection)
+                            } finally {
+                                isInitializing = false
+                            }
+                        } else {
+                            // Perform other non-initial connection configuration
+                            configurationConnection(connection)
+                        }
+                        return@withLock connection
+                    },
+                    onLockError = { error ->
+                        throw IllegalStateException(
+                            "Unable to open database '$filename'. Was a proper path / " +
+                                "name used in Room's database builder?",
+                            error
+                        )
                     }
-                    return@withLock connection
-                }
+                )
     }
 
     /**
@@ -204,7 +221,7 @@ abstract class BaseRoomConnectionManager {
                         "Please provide the necessary Migration path via " +
                         "RoomDatabase.Builder.addMigration(...) or allow for " +
                         "destructive migrations via one of the " +
-                        "RoomDatabase.Builder.fallbackToDestructiveMigration* methods."
+                        "RoomDatabase.Builder.fallbackToDestructiveMigration* functions."
                 )
             }
             dropAllTables(connection)

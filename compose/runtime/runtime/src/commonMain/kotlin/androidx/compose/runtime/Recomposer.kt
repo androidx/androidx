@@ -61,7 +61,6 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -1503,7 +1502,7 @@ class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionContext(
         get() = false
 
     internal override val collectingSourceInformation: Boolean
-        get() = false
+        get() = composeStackTraceEnabled
 
     internal override fun recordInspectionTable(table: MutableSet<CompositionData>) {
         // TODO: The root recomposer might be a better place to set up inspection

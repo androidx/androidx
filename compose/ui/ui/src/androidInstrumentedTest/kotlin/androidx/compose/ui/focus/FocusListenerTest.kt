@@ -27,9 +27,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.node.requireSemanticsInfo
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -100,7 +104,9 @@ class FocusListenerTest {
         // Arrange.
         val listener = TestFocusListener()
         lateinit var focusManager: FocusManager
+        lateinit var inputModeManager: InputModeManager
         rule.setContent(listener) {
+            inputModeManager = LocalInputModeManager.current
             focusManager = LocalFocusManager.current
             Box(Modifier.size(10.dp).testTag("item").focusable())
         }
@@ -116,7 +122,10 @@ class FocusListenerTest {
             assertThat(listener)
                 .isEqualTo(
                     TestFocusListener(
-                        if (initialFocusAfterClearFocus) {
+                        if (
+                            initialFocusAfterClearFocus ||
+                                inputModeManager.inputMode == InputMode.Keyboard
+                        ) {
                             mutableListOf(Pair(itemId, null), Pair(null, itemId))
                         } else {
                             mutableListOf(Pair(itemId, null))
@@ -158,7 +167,9 @@ class FocusListenerTest {
         // Arrange.
         val listener = TestFocusListener()
         lateinit var focusManager: FocusManager
+        lateinit var inputModeManager: InputModeManager
         rule.setContent(listener) {
+            inputModeManager = LocalInputModeManager.current
             focusManager = LocalFocusManager.current
             Column {
                 Box(Modifier.size(10.dp).testTag("item1").focusable())
@@ -179,7 +190,10 @@ class FocusListenerTest {
             assertThat(listener)
                 .isEqualTo(
                     TestFocusListener(
-                        if (initialFocusAfterClearFocus) {
+                        if (
+                            initialFocusAfterClearFocus ||
+                                inputModeManager.inputMode == InputMode.Keyboard
+                        ) {
                             mutableListOf(Pair(item2Id, null), Pair(null, item1Id))
                         } else {
                             mutableListOf(Pair(item2Id, null))

@@ -44,18 +44,18 @@ package androidx.wear.watchface.complications.rendering {
     method public void setLowBitAmbient(boolean);
     method public void setNoDataText(CharSequence?);
     method public void setRangedValueProgressHidden(boolean);
-    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle activeStyle;
-    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
-    property public final androidx.wear.watchface.complications.data.ComplicationData complicationData;
-    property public final android.content.Context? context;
-    property public final java.time.Instant currentTime;
-    property public final long highlightDuration;
-    property public final boolean isBurnInProtectionOn;
-    property public final boolean isHighlighted;
-    property public final boolean isInAmbientMode;
-    property public final boolean isLowBitAmbient;
-    property public final boolean isRangedValueProgressHidden;
-    property public final CharSequence? noDataText;
+    property public androidx.wear.watchface.complications.rendering.ComplicationStyle activeStyle;
+    property public androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
+    property public androidx.wear.watchface.complications.data.ComplicationData complicationData;
+    property public android.content.Context? context;
+    property public java.time.Instant currentTime;
+    property public long highlightDuration;
+    property public boolean isBurnInProtectionOn;
+    property public boolean isHighlighted;
+    property public boolean isInAmbientMode;
+    property public boolean isLowBitAmbient;
+    property public boolean isRangedValueProgressHidden;
+    property public CharSequence? noDataText;
     field public static final androidx.wear.watchface.complications.rendering.ComplicationDrawable.Companion Companion;
   }
 
@@ -111,26 +111,26 @@ package androidx.wear.watchface.complications.rendering {
     method public void setTitleColor(@ColorInt int);
     method public void setTitleSize(@Px int);
     method public void setTitleTypeface(android.graphics.Typeface titleTypeface);
-    property @ColorInt public final int backgroundColor;
-    property public final android.graphics.drawable.Drawable? backgroundDrawable;
-    property @ColorInt public final int borderColor;
-    property @Px public final int borderDashGap;
-    property @Px public final int borderDashWidth;
-    property @Px public final int borderRadius;
-    property public final int borderStyle;
-    property @Px public final int borderWidth;
-    property @ColorInt public final int highlightColor;
-    property @ColorInt public final int iconColor;
-    property public final android.graphics.ColorFilter? imageColorFilter;
-    property @ColorInt public final int rangedValuePrimaryColor;
-    property @Px public final int rangedValueRingWidth;
-    property @ColorInt public final int rangedValueSecondaryColor;
-    property @ColorInt public final int textColor;
-    property @Px public final int textSize;
-    property public final android.graphics.Typeface textTypeface;
-    property @ColorInt public final int titleColor;
-    property @Px public final int titleSize;
-    property public final android.graphics.Typeface titleTypeface;
+    property @ColorInt public int backgroundColor;
+    property public android.graphics.drawable.Drawable? backgroundDrawable;
+    property @ColorInt public int borderColor;
+    property @Px public int borderDashGap;
+    property @Px public int borderDashWidth;
+    property @Px public int borderRadius;
+    property public int borderStyle;
+    property @Px public int borderWidth;
+    property @ColorInt public int highlightColor;
+    property @ColorInt public int iconColor;
+    property public android.graphics.ColorFilter? imageColorFilter;
+    property @ColorInt public int rangedValuePrimaryColor;
+    property @Px public int rangedValueRingWidth;
+    property @ColorInt public int rangedValueSecondaryColor;
+    property @ColorInt public int textColor;
+    property @Px public int textSize;
+    property public android.graphics.Typeface textTypeface;
+    property @ColorInt public int titleColor;
+    property @Px public int titleSize;
+    property public android.graphics.Typeface titleTypeface;
     field @Px public static final int BORDER_RADIUS_DEFAULT = 2147483647; // 0x7fffffff
     field public static final int BORDER_STYLE_DASHED = 2; // 0x2
     field public static final int BORDER_STYLE_NONE = 0; // 0x0
@@ -139,10 +139,10 @@ package androidx.wear.watchface.complications.rendering {
   }
 
   public static final class ComplicationStyle.Companion {
-    property @Px public static final int BORDER_RADIUS_DEFAULT;
-    property public static final int BORDER_STYLE_DASHED;
-    property public static final int BORDER_STYLE_NONE;
-    property public static final int BORDER_STYLE_SOLID;
+    property @Px public static int BORDER_RADIUS_DEFAULT;
+    property public static int BORDER_STYLE_DASHED;
+    property public static int BORDER_STYLE_NONE;
+    property public static int BORDER_STYLE_SOLID;
   }
 
   public final class GlesTextureComplication {
@@ -150,7 +150,7 @@ package androidx.wear.watchface.complications.rendering {
     method public void bind();
     method public androidx.wear.watchface.ComplicationSlot getComplicationSlot();
     method public void renderToTexture(java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
-    property public final androidx.wear.watchface.ComplicationSlot complicationSlot;
+    property public androidx.wear.watchface.ComplicationSlot complicationSlot;
   }
 
 }

@@ -432,9 +432,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                 }
                 // Compute (stroke -> MotionEvent) = (world -> MotionEvent) * (stroke -> world)
                 it.preConcat(strokeToWorldTransform)
-                // Compute (stroke -> cm) = (MotionEvent -> cm) * (stroke -> MotionEvent)
-                // This assumes that MotionEvent's coordinate space is hardware pixels.
-                // TODO: b/380927473 - Take into account ancestor transforms.
+                // Compute (stroke -> screen) = (MotionEvent -> screen) * (stroke -> MotionEvent)
+                transformMatrixToGlobalWithFallback(this, it)
+                // Compute (stroke -> cm) = (screen -> cm) * (stroke -> screen)
                 val metrics = context.resources.displayMetrics
                 it.postScale(CM_PER_INCH / metrics.xdpi, CM_PER_INCH / metrics.ydpi)
             }
@@ -831,4 +831,30 @@ private class FinishedStrokesView(
             }
         }
     }
+}
+
+/**
+ * Modify [matrix] such that it maps from view-local to on-screen coordinates when
+ * [View.transformMatrixToGlobal] might not be available.
+ */
+private fun transformMatrixToGlobalWithFallback(view: View, matrix: Matrix) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        view.transformMatrixToGlobal(matrix)
+    } else {
+        transformMatrixToGlobalFallback(view, matrix)
+    }
+}
+
+/**
+ * Modify [matrix] such that it maps from view-local to on-screen coordinates when
+ * [View.transformMatrixToGlobal] is not available. Implementation cribbed from internal code in
+ * `androidx/transition/ViewUtils.java`.
+ */
+private fun transformMatrixToGlobalFallback(view: View, matrix: Matrix) {
+    (view.parent as? View)?.let {
+        transformMatrixToGlobalFallback(it, matrix)
+        matrix.preTranslate(-it.scrollX.toFloat(), -it.scrollY.toFloat())
+    }
+    matrix.preTranslate(view.left.toFloat(), view.top.toFloat())
+    matrix.preConcat(view.matrix)
 }

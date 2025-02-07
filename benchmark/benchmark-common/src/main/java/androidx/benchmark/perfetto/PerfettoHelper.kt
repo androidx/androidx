@@ -37,7 +37,7 @@ import org.jetbrains.annotations.TestOnly
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(MIN_SDK_VERSION)
-public class PerfettoHelper(
+class PerfettoHelper(
     private val unbundled: Boolean = Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION
 ) {
     init {
@@ -82,7 +82,7 @@ public class PerfettoHelper(
         try {
             // Cleanup already existing perfetto process.
             Log.i(LOG_TAG, "Cleanup perfetto before starting.")
-            stopAllPerfettoProcesses()
+            cleanupPerfettoState()
 
             // The actual location of the config path.
             val actualConfigPath =
@@ -373,6 +373,12 @@ public class PerfettoHelper(
         //  total kill wait must be much larger than PerfettoConfig data_source_stop_timeout_ms
         private const val PERFETTO_KILL_WAIT_COUNT = 50
 
+        // Similar to above, but shorter to reduce delays from long-running tracing when
+        // benchmarking.
+        // Note that in the 'clean' case we're not gracefully stopping a trace we care about, so we
+        // don't care about data source timeout.
+        private const val PERFETTO_KILL_WAIT_CLEAN_COUNT = 10
+
         // Check if perfetto is stopped every 100 millis.
         private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
@@ -462,12 +468,17 @@ public class PerfettoHelper(
             }
         }
 
-        public fun stopAllPerfettoProcesses() {
+        fun cleanupPerfettoState() {
             listOf("perfetto", "tracebox").forEach { processName ->
                 Shell.killProcessesAndWait(
                     processName,
                     waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
-                    waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
+                    waitPollMaxCount = PERFETTO_KILL_WAIT_CLEAN_COUNT,
+                    onFailure = { errorMessage ->
+                        // Failing to kill perfetto processes we don't own is non-fatal, as shell
+                        // may not have permission to kill them
+                        Log.d(LOG_TAG, errorMessage)
+                    }
                 )
             }
 

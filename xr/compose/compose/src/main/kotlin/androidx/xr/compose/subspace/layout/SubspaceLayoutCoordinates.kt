@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -27,7 +26,6 @@ import androidx.xr.runtime.math.Vector3
  *
  * Based on [androidx.compose.ui.layout.LayoutCoordinates].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SubspaceLayoutCoordinates {
     /** The pose of this layout in the local coordinates space, with translation in pixels. */
     public val pose: Pose
@@ -97,7 +95,6 @@ public interface SubspaceLayoutCoordinates {
 }
 
 /** Returns information on pose, position and size. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceLayoutCoordinates.toDebugString(): String = buildString {
     appendLine("pose: $pose")
     appendLine("poseInParentEntity: $poseInParentEntity")

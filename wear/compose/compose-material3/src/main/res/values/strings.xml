@@ -41,4 +41,5 @@
     <string description="Content description of the Confirm icon of AlertDialog components. It lets the user confirm the action of the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_confirm_button">Confirm</string>
     <string description="Content description of the Dismiss icon of AlertDialog components. It lets the user dismiss the dialog. [CHAR_LIMIT=NONE]" name="wear_m3c_alert_dialog_content_description_dismiss_button">Dismiss</string>
     <string description="A message which is used to indicate than the user should continue their action on their phone, used in OpenOnPhone component [CHAR_LIMIT=12]" name="wear_m3c_open_on_phone">Open on phone</string>
+    <string description="Content description of the icon of OpenOnPhone component. [CHAR_LIMIT=NONE]" name="wear_m3c_open_on_phone_icon_content_description">Open on phone icon</string>
 </resources>

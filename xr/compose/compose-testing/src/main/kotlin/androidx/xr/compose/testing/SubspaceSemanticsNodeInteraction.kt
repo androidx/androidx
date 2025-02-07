@@ -16,8 +16,7 @@
 
 package androidx.xr.compose.testing
 
-import androidx.annotation.RestrictTo
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 /**
@@ -27,7 +26,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue
  * An instance of [SubspaceSemanticsNodeInteraction] can be obtained from [onSubspaceNode] and
  * convenience methods that use a specific filter.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteraction
 internal constructor(
     private val testContext: SubspaceTestContext,
@@ -62,7 +60,7 @@ internal constructor(
      *   be: "Failed to perform doOnClick.".
      * @throws [AssertionError] if 0 or multiple nodes found.
      */
-    public fun fetchSemanticsNode(errorMessageOnFail: String? = null): SubspaceSemanticsNode {
+    public fun fetchSemanticsNode(errorMessageOnFail: String? = null): SubspaceSemanticsInfo {
         return fetchOneOrThrow(errorMessageOnFail)
     }
 
@@ -105,7 +103,7 @@ internal constructor(
     }
 
     @CanIgnoreReturnValue
-    private fun fetchOneOrThrow(errorMessageOnFail: String? = null): SubspaceSemanticsNode {
+    private fun fetchOneOrThrow(errorMessageOnFail: String? = null): SubspaceSemanticsInfo {
         val finalErrorMessage = errorMessageOnFail ?: "Failed: assertExists."
 
         val result =
@@ -134,7 +132,6 @@ internal constructor(
  * [onAllSubspaceNodes] and convenience methods that use a specific filter, such as
  * [onAllNodesWithText].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteractionCollection
 private constructor(
     internal val testContext: SubspaceTestContext,
@@ -163,19 +160,19 @@ private constructor(
     private fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean = true,
         errorMessageOnFail: String? = null,
-    ): List<SubspaceSemanticsNode> {
+    ): List<SubspaceSemanticsInfo> {
         if (nodeIds == null) {
             return selector
                 .map(
                     testContext.getAllSemanticsNodes(atLeastOneRootRequired),
                     errorMessageOnFail.orEmpty()
                 )
-                .apply { nodeIds = selectedNodes.map { it.id }.toList() }
+                .apply { nodeIds = selectedNodes.map { it.semanticsId }.toList() }
                 .selectedNodes
         }
 
         return testContext.getAllSemanticsNodes(atLeastOneRootRequired).filter {
-            it.id in nodeIds!!
+            it.semanticsId in nodeIds!!
         }
     }
 

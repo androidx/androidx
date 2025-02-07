@@ -93,7 +93,7 @@ class SampleCustomBenchmark {
         assumeFalse(ProfilerConfig.MethodTracing.AFFECTS_MEASUREMENTS_ON_THIS_DEVICE)
         benchmarkRule.measureRepeated {
             repeat(20) { counter++ }
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 counter++ // this is ignored, so customCounter output is simply 20
             }
         }

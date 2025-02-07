@@ -88,14 +88,16 @@ class RippleBenchmark {
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
                 measureRepeatedOnUiThread {
-                    runWithTimingDisabled { doFramesUntilNoChangesMeasureLayoutOrDrawPending() }
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
 
                     runBlocking { getTestCase().emitInteraction(press) }
                     doFrame()
 
                     // We explicitly tear down after each iteration so we incur costs for anything
                     // cached at the view hierarchy level, in this case the RippleContainer.
-                    runWithTimingDisabled { disposeContent() }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }
@@ -114,7 +116,7 @@ class RippleBenchmark {
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
                 measureRepeatedOnUiThread {
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
                             getTestCase().emitInteraction(press1)
@@ -131,7 +133,7 @@ class RippleBenchmark {
                     runBlocking { getTestCase().emitInteraction(press2) }
                     doFrame()
 
-                    runWithTimingDisabled { disposeContent() }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }
@@ -151,7 +153,9 @@ class RippleBenchmark {
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
                 measureRepeatedOnUiThread {
-                    runWithTimingDisabled { doFramesUntilNoChangesMeasureLayoutOrDrawPending() }
+                    runWithMeasurementDisabled {
+                        doFramesUntilNoChangesMeasureLayoutOrDrawPending()
+                    }
 
                     runBlocking { getTestCase().emitInteraction(hover) }
                     doFrame()
@@ -160,7 +164,7 @@ class RippleBenchmark {
                     // cached at the view hierarchy level. There shouldn't be anything cached in
                     // this way for the hover case, but we do it to be consistent with the press
                     // case.
-                    runWithTimingDisabled { disposeContent() }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }
@@ -179,7 +183,7 @@ class RippleBenchmark {
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
                 measureRepeatedOnUiThread {
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
                             getTestCase().emitInteraction(hover1)
@@ -191,7 +195,7 @@ class RippleBenchmark {
                     runBlocking { getTestCase().emitInteraction(hover2) }
                     doFrame()
 
-                    runWithTimingDisabled { disposeContent() }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }

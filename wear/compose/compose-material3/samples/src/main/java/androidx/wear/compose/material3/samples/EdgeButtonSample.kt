@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -141,7 +142,8 @@ fun EdgeButtonListSample() {
                 enabled = colors[selectedColor].first != "Disabled"
             ) {
                 if (selectedType == 0) {
-                    CheckIcon()
+                    // Remove extra spacing around the icon so it integrates better into the scroll.
+                    CheckIcon(Modifier.size(21.dp).wrapContentSize(unbounded = true).size(32.dp))
                 } else {
                     Text("Ok")
                 }

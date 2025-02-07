@@ -26,7 +26,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DataClass
-import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.PropertyWithIndex
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
 
@@ -43,7 +43,7 @@ private constructor(
             // not set. For such fields, we must generate a slightly different insertion SQL.
             val primitiveAutoGenerateField =
                 if (entity.primaryKey.autoGenerateId) {
-                    entity.primaryKey.fields.firstOrNull()?.let { field ->
+                    entity.primaryKey.properties.firstOrNull()?.let { field ->
                         field.statementBinder?.typeMirror()?.let { binderType ->
                             if (binderType.nullability == XNullability.NONNULL) {
                                 field
@@ -87,7 +87,7 @@ private constructor(
                                 append(" (${dataClass.columnNames.joinToString(",") { "`$it`" }})")
                                 append(" VALUES (")
                                 append(
-                                    dataClass.fields.joinToString(",") {
+                                    dataClass.properties.joinToString(",") {
                                         if (it.columnName == primitiveAutoGenerateColumn) {
                                             "nullif(?, 0)"
                                         } else {
@@ -113,12 +113,12 @@ private constructor(
                             addParameter(stmtParam, SQLiteDriverTypeNames.STATEMENT)
                             val entityParam = "entity"
                             addParameter(entityParam, dataClass.typeName)
-                            val mapped = FieldWithIndex.byOrder(dataClass.fields)
+                            val mapped = PropertyWithIndex.byOrder(dataClass.properties)
                             val bindScope = CodeGenScope(writer = typeWriter)
-                            FieldReadWriteWriter.bindToStatement(
+                            PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,
-                                fieldsWithIndices = mapped,
+                                propertiesWithIndices = mapped,
                                 scope = bindScope
                             )
                             addCode(bindScope.generate())

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test
 
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
@@ -172,12 +171,6 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
         condition: () -> Boolean
     )
 
-    /** Registers an [IdlingResource] in this test. */
-    fun registerIdlingResource(idlingResource: IdlingResource)
-
-    /** Unregisters an [IdlingResource] from this test. */
-    fun unregisterIdlingResource(idlingResource: IdlingResource)
-
     /**
      * Sets the given [composable] as the content to be tested. This should be called exactly once
      * per test.
@@ -186,28 +179,6 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      *   doesn't have access to a host to set content in.
      */
     fun setContent(composable: @Composable () -> Unit)
-
-    /**
-     * Enables accessibility checks that will be run before every action that is expected to change
-     * the UI.
-     *
-     * Accessibility checks are platform dependent, refer to the documentation of the platform
-     * specific variant of [ComposeUiTest] to see if it is supported and how you can configure it.
-     *
-     * On Android, this requires API 34+ (Android U), and currently does not work on Robolectric.
-     *
-     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
-     * @see disableAccessibilityChecks
-     */
-    @RequiresApi(34) fun enableAccessibilityChecks()
-
-    /**
-     * Disables accessibility checks.
-     *
-     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
-     * @see enableAccessibilityChecks
-     */
-    @RequiresApi(34) fun disableAccessibilityChecks()
 }
 
 /**

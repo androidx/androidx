@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkResourceGenerator
 
 plugins {
@@ -46,6 +46,7 @@ dependencies {
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
     testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
+    testPlugin("com.google.devtools.ksp:symbol-processing-api:1.9.22-1.0.17")
     testPlugin(libs.kotlinGradlePlugin)
     testPlugin(libs.kspGradlePlugin)
 }
@@ -69,7 +70,7 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
 
 androidx {
     name = "androidx.privacysandbox.plugins:privacysandbox-library"
-    type = LibraryType.GRADLE_PLUGIN
+    type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Privacy Sandbox Sdk Library Gradle Plugin"
 }

@@ -27,6 +27,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -55,7 +56,12 @@ import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 import kotlin.math.min
 
-/** Interface that allows libraries to override the behavior of [ThreePaneScaffold]. */
+/**
+ * Interface that allows libraries to override the behavior of [ThreePaneScaffold].
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [LocalThreePaneScaffoldOverride] in the Compose hierarchy.
+ */
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 interface ThreePaneScaffoldOverride {
     /** Behavior function that is called by the [ThreePaneScaffold] composable. */
@@ -194,9 +200,13 @@ internal fun ThreePaneScaffold(
                 scaffoldStateTransition = currentTransition
             }
 
+    val stateHolder = rememberSaveableStateHolder()
+
     LookaheadScope {
         val scaffoldScope =
-            remember(currentTransition, this) { ThreePaneScaffoldScopeImpl(transitionScope, this) }
+            remember(currentTransition, this) {
+                ThreePaneScaffoldScopeImpl(transitionScope, this, stateHolder)
+            }
         with(LocalThreePaneScaffoldOverride.current) {
             ThreePaneScaffoldOverrideContext(
                     modifier = modifier,
@@ -246,7 +256,11 @@ internal fun ThreePaneScaffold(
     }
 }
 
-/** [ThreePaneScaffoldOverride] used when no override is specified. */
+/**
+ * [ThreePaneScaffoldOverride] used when no override is specified.
+ *
+ * This override provides the default behavior of the [ThreePaneScaffold] component.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 private object DefaultThreePaneScaffoldOverride : ThreePaneScaffoldOverride {
@@ -896,16 +910,16 @@ internal object ThreePaneScaffoldDefaults {
 @Composable
 private fun PredictiveBackScaleEffect(
     scaffoldState: ThreePaneScaffoldState,
-    animatable: Animatable<Float, AnimationVector1D>,
+    scaleAnimatable: Animatable<Float, AnimationVector1D>,
 ) {
     LaunchedEffect(scaffoldState) {
         snapshotFlow { scaffoldState.progressFraction }
             .collect { value ->
                 if (scaffoldState.isPredictiveBackInProgress) {
                     val scale = convertStateProgressToPredictiveBackScale(value)
-                    animatable.snapTo(scale)
+                    scaleAnimatable.snapTo(scale)
                 } else {
-                    animatable.animateTo(1f)
+                    scaleAnimatable.animateTo(1f)
                 }
             }
     }

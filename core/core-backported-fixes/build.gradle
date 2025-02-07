@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -46,7 +46,7 @@ android {
 
 androidx {
     name = "androidx.core:core-backported-fixes"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_BACKPORTED_FIXES
     inceptionYear = "2024"
     description = "This library makes it easy for developers to use check if a known critical issue is fixed on a device."

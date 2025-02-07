@@ -11,9 +11,9 @@ package androidx.wear.watchface {
     method public float getThickness();
     method public float getTotalAngle();
     method public boolean hitTest(android.graphics.Rect rect, @Px float x, @Px float y);
-    property public final float startAngle;
-    property @Px public final float thickness;
-    property public final float totalAngle;
+    property public float startAngle;
+    property @Px public float thickness;
+    property public float totalAngle;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface CanvasComplication {
@@ -34,8 +34,8 @@ package androidx.wear.watchface {
   }
 
   public final class CanvasType {
-    property public static final int HARDWARE;
-    property public static final int SOFTWARE;
+    property public static int HARDWARE;
+    property public static int SOFTWARE;
     field public static final int HARDWARE = 1; // 0x1
     field public static final androidx.wear.watchface.CanvasType INSTANCE;
     field public static final int SOFTWARE = 0; // 0x0
@@ -70,23 +70,23 @@ package androidx.wear.watchface {
     method @UiThread public void render(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     method public void setConfigExtras(android.os.Bundle);
-    property @UiThread public final int accessibilityTraversalIndex;
-    property public final int boundsType;
-    property public final androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory;
-    property public final kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.complications.data.ComplicationData> complicationData;
-    property @UiThread public final androidx.wear.watchface.complications.ComplicationSlotBounds complicationSlotBounds;
-    property public final android.os.Bundle configExtras;
-    property @UiThread public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
-    property @Deprecated @UiThread public final androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType;
-    property @UiThread public final boolean enabled;
-    property public final boolean fixedComplicationDataSource;
-    property public final int id;
-    property public final boolean initiallyEnabled;
-    property @UiThread public final Integer? nameResourceId;
-    property public final androidx.wear.watchface.CanvasComplication renderer;
-    property @UiThread public final Integer? screenReaderNameResourceId;
-    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
-    property public final androidx.wear.watchface.ComplicationTapFilter tapFilter;
+    property @UiThread public int accessibilityTraversalIndex;
+    property public int boundsType;
+    property public androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.complications.data.ComplicationData> complicationData;
+    property @UiThread public androidx.wear.watchface.complications.ComplicationSlotBounds complicationSlotBounds;
+    property public android.os.Bundle configExtras;
+    property @UiThread public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property @Deprecated @UiThread public androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType;
+    property @UiThread public boolean enabled;
+    property public boolean fixedComplicationDataSource;
+    property public int id;
+    property public boolean initiallyEnabled;
+    property @UiThread public Integer? nameResourceId;
+    property public androidx.wear.watchface.CanvasComplication renderer;
+    property @UiThread public Integer? screenReaderNameResourceId;
+    property public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+    property public androidx.wear.watchface.ComplicationTapFilter tapFilter;
     field public static final androidx.wear.watchface.ComplicationSlot.Companion Companion;
   }
 
@@ -110,9 +110,9 @@ package androidx.wear.watchface {
   }
 
   public final class ComplicationSlotBoundsType {
-    property public static final int BACKGROUND;
-    property public static final int EDGE;
-    property public static final int ROUND_RECT;
+    property public static int BACKGROUND;
+    property public static int EDGE;
+    property public static int ROUND_RECT;
     field public static final int BACKGROUND = 1; // 0x1
     field public static final int EDGE = 2; // 0x2
     field public static final androidx.wear.watchface.ComplicationSlotBoundsType INSTANCE;
@@ -134,8 +134,8 @@ package androidx.wear.watchface {
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> getComplicationSlots();
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
   }
 
   public static interface ComplicationSlotsManager.TapCallback {
@@ -153,9 +153,9 @@ package androidx.wear.watchface {
     method public android.app.PendingIntent? getTapAction();
     method public androidx.wear.watchface.complications.data.ComplicationText getText();
     method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
-    property public final android.graphics.Rect bounds;
-    property public final android.app.PendingIntent? tapAction;
-    property public final androidx.wear.watchface.complications.data.ComplicationText text;
+    property public android.graphics.Rect bounds;
+    property public android.app.PendingIntent? tapAction;
+    property public androidx.wear.watchface.complications.data.ComplicationText text;
   }
 
   public enum DrawMode {
@@ -174,17 +174,17 @@ package androidx.wear.watchface {
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
     method public boolean isForScreenshot();
-    property public final androidx.wear.watchface.DrawMode drawMode;
-    property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
-    property public final boolean isForScreenshot;
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
-    property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
+    property public androidx.wear.watchface.DrawMode drawMode;
+    property public androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
+    property public boolean isForScreenshot;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
+    property public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
   }
 
   public static final class RenderParameters.Companion {
-    property public final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
+    property public androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;
   }
 
   public static final class RenderParameters.HighlightLayer {
@@ -192,9 +192,9 @@ package androidx.wear.watchface {
     method @ColorInt public int getBackgroundTint();
     method @ColorInt public int getHighlightTint();
     method public androidx.wear.watchface.RenderParameters.HighlightedElement getHighlightedElement();
-    property @ColorInt public final int backgroundTint;
-    property @ColorInt public final int highlightTint;
-    property public final androidx.wear.watchface.RenderParameters.HighlightedElement highlightedElement;
+    property @ColorInt public int backgroundTint;
+    property @ColorInt public int highlightTint;
+    property public androidx.wear.watchface.RenderParameters.HighlightedElement highlightedElement;
   }
 
   public abstract static sealed class RenderParameters.HighlightedElement {
@@ -207,13 +207,13 @@ package androidx.wear.watchface {
   public static final class RenderParameters.HighlightedElement.ComplicationSlot extends androidx.wear.watchface.RenderParameters.HighlightedElement {
     ctor public RenderParameters.HighlightedElement.ComplicationSlot(int id);
     method public int getId();
-    property public final int id;
+    property public int id;
   }
 
   public static final class RenderParameters.HighlightedElement.UserStyle extends androidx.wear.watchface.RenderParameters.HighlightedElement {
     ctor public RenderParameters.HighlightedElement.UserStyle(androidx.wear.watchface.style.UserStyleSetting.Id id);
     method public androidx.wear.watchface.style.UserStyleSetting.Id getId();
-    property public final androidx.wear.watchface.style.UserStyleSetting.Id id;
+    property public androidx.wear.watchface.style.UserStyleSetting.Id id;
   }
 
   public abstract sealed class Renderer {
@@ -351,15 +351,15 @@ package androidx.wear.watchface {
     method public java.time.Instant getTapTime();
     method public int getXPos();
     method public int getYPos();
-    property public final java.time.Instant tapTime;
-    property @Px public final int xPos;
-    property @Px public final int yPos;
+    property public java.time.Instant tapTime;
+    property @Px public int xPos;
+    property @Px public int yPos;
   }
 
   public final class TapType {
-    property public static final int CANCEL;
-    property public static final int DOWN;
-    property public static final int UP;
+    property public static int CANCEL;
+    property public static int DOWN;
+    property public static int UP;
     field public static final int CANCEL = 1; // 0x1
     field public static final int DOWN = 0; // 0x0
     field public static final androidx.wear.watchface.TapType INSTANCE;
@@ -382,10 +382,11 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public androidx.wear.watchface.WatchFace setUpdateScreenshotOnConfigurationChange(boolean updateScreenshotOnConfigurationChange);
     method public void setWatchFaceType(int);
-    property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property public final java.time.Instant? overridePreviewReferenceInstant;
-    property public final androidx.wear.watchface.Renderer renderer;
-    property public final int watchFaceType;
+    property public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
+    property @Deprecated public androidx.wear.watchface.WatchFace.OverlayStyle overlayStyle;
+    property public java.time.Instant? overridePreviewReferenceInstant;
+    property public androidx.wear.watchface.Renderer renderer;
+    property public int watchFaceType;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;
   }
 
@@ -400,10 +401,10 @@ package androidx.wear.watchface {
     method public int getStatusBarGravity();
     method public int getViewProtectionMode();
     method public boolean isTapEventsAccepted();
-    property @ColorInt public final int accentColor;
-    property public final int statusBarGravity;
-    property public final boolean tapEventsAccepted;
-    property public final int viewProtectionMode;
+    property @ColorInt public int accentColor;
+    property public int statusBarGravity;
+    property public boolean tapEventsAccepted;
+    property public int viewProtectionMode;
   }
 
   @Deprecated public static final class WatchFace.OverlayStyle {
@@ -411,8 +412,8 @@ package androidx.wear.watchface {
     ctor @Deprecated public WatchFace.OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
     method @Deprecated public android.graphics.Color? getBackgroundColor();
     method @Deprecated public android.graphics.Color? getForegroundColor();
-    property @Deprecated public final android.graphics.Color? backgroundColor;
-    property @Deprecated public final android.graphics.Color? foregroundColor;
+    property @Deprecated public android.graphics.Color? backgroundColor;
+    property @Deprecated public android.graphics.Color? foregroundColor;
   }
 
   public static interface WatchFace.TapListener {
@@ -424,9 +425,9 @@ package androidx.wear.watchface {
     method public android.graphics.Color getPrimaryColor();
     method public android.graphics.Color getSecondaryColor();
     method public android.graphics.Color getTertiaryColor();
-    property public final android.graphics.Color primaryColor;
-    property public final android.graphics.Color secondaryColor;
-    property public final android.graphics.Color tertiaryColor;
+    property public android.graphics.Color primaryColor;
+    property public android.graphics.Color secondaryColor;
+    property public android.graphics.Color tertiaryColor;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
@@ -460,12 +461,12 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFaceService.Companion {
-    property public static final int MAX_CREATE_WATCHFACE_TIME_MILLIS;
+    property public static int MAX_CREATE_WATCHFACE_TIME_MILLIS;
   }
 
   public final class WatchFaceType {
-    property public static final int ANALOG;
-    property public static final int DIGITAL;
+    property public static int ANALOG;
+    property public static int DIGITAL;
     field public static final int ANALOG = 0; // 0x0
     field public static final int DIGITAL = 1; // 0x1
     field public static final androidx.wear.watchface.WatchFaceType INSTANCE;
@@ -485,17 +486,17 @@ package androidx.wear.watchface {
     method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging();
     method public boolean isHeadless();
     method public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible();
-    property public final long analogPreviewReferenceTimeMillis;
-    property @Px public final int chinHeight;
-    property public final long digitalPreviewReferenceTimeMillis;
-    property public final boolean hasBurnInProtection;
-    property public final boolean hasLowBitAmbient;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> interruptionFilter;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging;
-    property public final boolean isHeadless;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible;
-    property public final kotlinx.coroutines.flow.StateFlow<java.lang.String> watchFaceInstanceId;
+    property public long analogPreviewReferenceTimeMillis;
+    property @Px public int chinHeight;
+    property public long digitalPreviewReferenceTimeMillis;
+    property public boolean hasBurnInProtection;
+    property public boolean hasLowBitAmbient;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.Integer?> interruptionFilter;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isAmbient;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isBatteryLowAndNotCharging;
+    property public boolean isHeadless;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.Boolean?> isVisible;
+    property public kotlinx.coroutines.flow.StateFlow<java.lang.String> watchFaceInstanceId;
   }
 
 }

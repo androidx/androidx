@@ -21,8 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -68,7 +68,7 @@ android {
 
 androidx {
     name = "Android Wear Tiles Material"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
     legacyDisableKotlinStrictApiMode = true

@@ -17,11 +17,12 @@
 package androidx.appfunctions.compiler.testings
 
 import androidx.room.compiler.processing.util.DiagnosticMessage
+import androidx.room.compiler.processing.util.Resource
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import androidx.room.compiler.processing.util.compiler.compile
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 import java.nio.file.Files
@@ -30,6 +31,7 @@ import javax.tools.Diagnostic
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
 
 /** A helper to test compilation. */
@@ -87,30 +89,26 @@ class CompilationTestHelper(
                 )
             )
 
-        // Clear previous output files
-        outputDir.toFile().apply {
-            if (exists()) {
-                deleteRecursively()
-            }
-            mkdirs()
-        }
-
         return CompilationReport.create(result, outputDir)
     }
 
     /**
-     * Asserts that the compilation succeeds and contains [expectGeneratedFileName] in generated
-     * sources that is identical to the content of [goldenFileName].
+     * Asserts that the compilation succeeds and contains a generated file (either source or
+     * resource) with the given name, whose content matches the golden file.
      */
-    fun assertSuccessWithContent(
+    private fun assertSuccessWithGeneratedContent(
         report: CompilationReport,
         expectGeneratedFileName: String,
         goldenFileName: String,
+        generatedFileContent: String?
     ) {
-        Truth.assertWithMessage(
+        assertWithMessage(
                 """
-                Compile failed with error:
-                ${report.printDiagnostics(Diagnostic.Kind.ERROR)}
+            Compile failed with error:
+            ${report.printDiagnostics(Diagnostic.Kind.ERROR)}
+
+            Generated content:
+            $generatedFileContent
             """
                     .trimIndent()
             )
@@ -118,26 +116,78 @@ class CompilationTestHelper(
             .isTrue()
 
         val goldenFile = getGoldenFile(goldenFileName)
-        val generatedSourceFile =
-            report.generatedSourceFiles.single { sourceFile ->
-                sourceFile.source.relativePath.contains(expectGeneratedFileName)
-            }
-        Truth.assertWithMessage(
-                """
-              Content of generated file [${generatedSourceFile.source.relativePath}] does not match
-              the content of golden file [${goldenFile.path}].
-
-              To update the golden file,
-              run `cp ${generatedSourceFile.sourceFilePath} ${goldenFile.absolutePath}`
-            """
-                    .trimIndent()
+        val updateGoldenFiles = System.getProperty("update_golden_files")?.toBoolean() == true
+        assertWithMessage(
+                "Generated file [$expectGeneratedFileName] does not exist or had multiple matches"
             )
-            .that(generatedSourceFile.source.contents)
-            .isEqualTo(goldenFile.readText())
+            .that(generatedFileContent)
+            .isNotNull()
+        if (updateGoldenFiles) {
+            println("Updating golden file: ${goldenFile.path}")
+            goldenFile.writeText(checkNotNull(generatedFileContent))
+        } else {
+            assertWithMessage(
+                    """
+                Content of generated file [$expectGeneratedFileName] does not match
+                the content of golden file [${goldenFile.path}].
+
+                To update the golden file,
+                run:
+                  ./gradlew appfunctions:appfunctions-compiler:test -Dupdate_golden_files=true
+                """
+                        .trimIndent()
+                )
+                .that(generatedFileContent)
+                .isEqualTo(goldenFile.readText())
+        }
+    }
+
+    /**
+     * Asserts that the compilation succeeds and contains [expectGeneratedSourceFileName] in
+     * generated sources that is identical to the content of [goldenFileName].
+     */
+    fun assertSuccessWithSourceContent(
+        report: CompilationReport,
+        expectGeneratedSourceFileName: String,
+        goldenFileName: String,
+    ) {
+        assertSuccessWithGeneratedContent(
+            report,
+            expectGeneratedSourceFileName,
+            goldenFileName,
+            report.generatedSourceFiles
+                .singleOrNull { sourceFile ->
+                    sourceFile.source.relativePath.contains(expectGeneratedSourceFileName)
+                }
+                ?.source
+                ?.contents
+        )
+    }
+
+    /**
+     * Asserts that the compilation succeeds and contains [expectGeneratedResourceFileName] in
+     * generated resources that is identical to the content of [goldenFileName].
+     */
+    fun assertSuccessWithResourceContent(
+        report: CompilationReport,
+        expectGeneratedResourceFileName: String,
+        goldenFileName: String,
+    ) {
+        assertSuccessWithGeneratedContent(
+            report,
+            expectGeneratedResourceFileName,
+            goldenFileName,
+            report.generatedResourceFiles
+                .singleOrNull { resourceFile ->
+                    resourceFile.resource.relativePath.contains(expectGeneratedResourceFileName)
+                }
+                ?.resource
+                ?.getContents()
+        )
     }
 
     fun assertErrorWithMessage(report: CompilationReport, expectedErrorMessage: String) {
-        Truth.assertWithMessage("Compile succeed").that(report.isSuccess).isFalse()
+        assertWithMessage("Compile succeed").that(report.isSuccess).isFalse()
 
         val errorDiagnostics = report.diagnostics[Diagnostic.Kind.ERROR] ?: emptyList()
         var foundError = false
@@ -147,7 +197,7 @@ class CompilationTestHelper(
                 break
             }
         }
-        Truth.assertWithMessage(
+        assertWithMessage(
                 """
                 Unable to find the expected error message [$expectedErrorMessage] from the
                 diagnostics results:
@@ -188,6 +238,10 @@ class CompilationTestHelper(
             .also { file -> check(file.exists()) { "Golden file [${file.path}] does not exist" } }
     }
 
+    private fun String.sanitizeFilePath(): String {
+        return this.replace("$", "\\$")
+    }
+
     /** The compilation report. */
     data class CompilationReport(
         /** Indicates whether the compilation succeed or not. */
@@ -196,6 +250,8 @@ class CompilationTestHelper(
         val generatedSourceFiles: List<GeneratedSourceFile>,
         /** A map of diagnostics results. */
         val diagnostics: Map<Diagnostic.Kind, List<DiagnosticMessage>>,
+        /** A list of generated source files. */
+        val generatedResourceFiles: List<GeneratedResourceFile>,
     ) {
         /** Print the diagnostics result of type [kind]. */
         fun printDiagnostics(kind: Diagnostic.Kind): String {
@@ -216,7 +272,11 @@ class CompilationTestHelper(
                         result.generatedSources.map { source ->
                             GeneratedSourceFile.create(source, outputDir)
                         },
-                    diagnostics = result.diagnostics
+                    diagnostics = result.diagnostics,
+                    generatedResourceFiles =
+                        result.generatedResources.map { resource ->
+                            GeneratedResourceFile.create(resource, outputDir)
+                        }
                 )
             }
         }
@@ -229,11 +289,33 @@ class CompilationTestHelper(
                 val filePath =
                     outputDir.resolve(source.relativePath).apply {
                         parent?.createDirectories()
+                        deleteIfExists()
                         createFile()
                         writeText(source.contents)
                     }
                 return GeneratedSourceFile(source, filePath)
             }
         }
+    }
+
+    /** A wrapper class contains [Resource] with its file path. */
+    data class GeneratedResourceFile(val resource: Resource, val resourceFilePath: Path) {
+        companion object {
+            internal fun create(resource: Resource, outputDir: Path): GeneratedResourceFile {
+                val filePath =
+                    outputDir.resolve(resource.relativePath).apply {
+                        parent?.createDirectories()
+                        deleteIfExists()
+                        createFile()
+                        writeText(resource.getContents())
+                    }
+                return GeneratedResourceFile(resource, filePath)
+            }
+        }
+    }
+
+    companion object {
+        private fun Resource.getContents(): String =
+            openInputStream().bufferedReader().use { it.readText() }
     }
 }

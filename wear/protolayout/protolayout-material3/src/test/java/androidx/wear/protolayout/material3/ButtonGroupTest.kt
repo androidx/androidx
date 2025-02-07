@@ -21,7 +21,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.LayoutElementBuilders.Box
 import androidx.wear.protolayout.LayoutElementBuilders.Row
-import androidx.wear.protolayout.material3.MaterialScopeTest.Companion.DEVICE_PARAMETERS
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

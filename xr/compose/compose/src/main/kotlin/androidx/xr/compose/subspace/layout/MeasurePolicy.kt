@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.unit.VolumeConstraints
 
 /**
@@ -24,7 +23,6 @@ import androidx.xr.compose.unit.VolumeConstraints
  *
  * Based on [androidx.compose.ui.layout.MeasurePolicy].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun interface MeasurePolicy {
     /**
      * The function that defines the measurement and layout. Each [Measurable] in the [measurables]

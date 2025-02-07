@@ -227,8 +227,9 @@ internal constructor(
     /**
      * Whether the back stack and the state of all destinations between the current destination and
      * [popUpToId] should be saved for later restoration via [Builder.setRestoreState] or the
-     * `restoreState` attribute using the same ID as [popUpToId] (note: this matching ID is true
-     * whether [isPopUpToInclusive] is true or false).
+     * `restoreState` attribute using the same ID as [popUpToId] (note: this matching ID is true if
+     * [isPopUpToInclusive] is true. If [isPopUpToInclusive] is false, this matching ID is the id of
+     * the last destination that is popped).
      */
     public fun shouldPopUpToSaveState(): Boolean {
         return popUpToSaveState
@@ -364,7 +365,8 @@ internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          *   current destination and [destinationId] should be saved for later restoration via
          *   [setRestoreState] or the `restoreState` attribute using the same ID as [popUpToId]
-         *   (note: this matching ID is true whether [inclusive] is true or false).
+         *   (note: this matching ID is true if [inclusive] is true. If [inclusive] is false, this
+         *   matching ID is the id of the last destination that is popped).
          * @return this Builder
          * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive
@@ -391,7 +393,8 @@ internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          *   current destination and [route] should be saved for later restoration via
          *   [setRestoreState] or the `restoreState` attribute using the same ID as [popUpToRoute]
-         *   (note: this matching ID is true whether [inclusive] is true or false).
+         *   (note: this matching ID is true if [inclusive] is true. If [inclusive] is false, this
+         *   matching ID is the id of the last destination that is popped).
          * @return this Builder
          * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive
@@ -419,8 +422,9 @@ internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          *   current destination and [T] should be saved for later restoration via [setRestoreState]
          *   or the `restoreState` attribute using the same route from [KClass] as
-         *   [popUpToRouteClass] (note: this matching route is true whether [inclusive] is true or
-         *   false).
+         *   [popUpToRouteClass] (note: this matching ID is true if [inclusive] is true. If
+         *   [inclusive] is false, this matching ID is the id of the last destination that is
+         *   popped).
          * @return this Builder
          * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive
@@ -445,8 +449,9 @@ internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          *   current destination and [T] should be saved for later restoration via [setRestoreState]
          *   or the `restoreState` attribute using the same route from [KClass] as
-         *   [popUpToRouteClass] (note: this matching route is true whether [inclusive] is true or
-         *   false).
+         *   [popUpToRouteClass] (note: this matching ID is true if [inclusive] is true. If
+         *   [inclusive] is false, this matching ID is the id of the last destination that is
+         *   popped).
          * @return this Builder
          * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive
@@ -474,8 +479,9 @@ internal constructor(
          * @param saveState true if the back stack and the state of all destinations between the
          *   current destination and [route] should be saved for later restoration via
          *   [setRestoreState] or the `restoreState` attribute using the same route from an Object
-         *   as [popUpToRouteObject] (note: this matching route is true whether [inclusive] is true
-         *   or false).
+         *   as [popUpToRouteObject] (note: this matching ID is true if [inclusive] is true. If
+         *   [inclusive] is false, this matching ID is the id of the last destination that is
+         *   popped).
          * @return this Builder
          * @see NavOptions.popUpToId
          * @see NavOptions.isPopUpToInclusive

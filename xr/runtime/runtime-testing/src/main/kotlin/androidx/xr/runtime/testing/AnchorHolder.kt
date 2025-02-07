@@ -16,11 +16,9 @@
 
 package androidx.xr.runtime.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.Anchor
 
 /** Object that holds [Anchor] instances. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface AnchorHolder {
 
     /** Notifies the [AnchorHolder] that the given [Anchor] has been persisted. */

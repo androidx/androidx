@@ -897,6 +897,44 @@ class SupportedSurfaceCombinationTest {
             .isEqualTo(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM))
     }
 
+    @Test
+    fun transformSurfaceConfigWithUnsupportedFormatRecordSize() {
+        setupCamera(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+            supportedFormats =
+                intArrayOf(ImageFormat.YUV_420_888, ImageFormat.JPEG, ImageFormat.PRIVATE)
+        )
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(context, fakeCameraMetadata, mockEncoderProfilesAdapter)
+        val surfaceConfig =
+            supportedSurfaceCombination.transformSurfaceConfig(
+                CameraMode.DEFAULT,
+                JPEG_R,
+                recordSize
+            )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.RECORD)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithUnsupportedFormatMaximumSize() {
+        setupCamera(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+            supportedFormats =
+                intArrayOf(ImageFormat.YUV_420_888, ImageFormat.JPEG, ImageFormat.PRIVATE)
+        )
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(context, fakeCameraMetadata, mockEncoderProfilesAdapter)
+        val surfaceConfig =
+            supportedSurfaceCombination.transformSurfaceConfig(
+                CameraMode.DEFAULT,
+                JPEG_R,
+                maximumSize
+            )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
     // //////////////////////////////////////////////////////////////////////////////////////////
     //
     // Resolution selection tests for LEGACY-level guaranteed configurations
@@ -3349,7 +3387,14 @@ class SupportedSurfaceCombinationTest {
             characteristics
         )
 
-        whenever(mockMap.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedSizes)
+        whenever(
+                mockMap.getOutputSizes(
+                    ArgumentMatchers.intThat { format ->
+                        supportedFormats?.contains(format) != false
+                    }
+                )
+            )
+            .thenReturn(supportedSizes)
         // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
         // output sizes need to be retrieved via SurfaceTexture.class.
         whenever(mockMap.getOutputSizes(SurfaceTexture::class.java)).thenReturn(supportedSizes)

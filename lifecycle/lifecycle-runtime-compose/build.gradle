@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -32,7 +32,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -84,20 +84,24 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    lintPublish(project(":lifecycle:lifecycle-runtime-compose-lint"))
+}
+
 androidx {
     name = "Lifecycle Runtime Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
     samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
 android {
-    compileSdk 35
+    compileSdk = 35
 
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
 
-    namespace "androidx.lifecycle.runtime.compose"
+    namespace = "androidx.lifecycle.runtime.compose"
 }

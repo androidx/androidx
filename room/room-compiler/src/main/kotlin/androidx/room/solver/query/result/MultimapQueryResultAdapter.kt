@@ -211,7 +211,7 @@ abstract class MultimapQueryResultAdapter(
         }
     }
 
-    /** Generates a code expression that verifies if all matched fields are null. */
+    /** Generates a code expression that verifies if all matched properties are null. */
     fun getColumnNullCheckCode(stmtVarName: String, indexVars: List<ColumnIndexVar>) =
         buildCodeBlock { language ->
             val space =

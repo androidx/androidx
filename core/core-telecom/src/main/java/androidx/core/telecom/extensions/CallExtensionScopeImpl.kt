@@ -17,6 +17,7 @@
 package androidx.core.telecom.extensions
 
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -163,6 +164,37 @@ internal class CallExtensionScopeImpl(
                     Capability().apply {
                         featureId = Extensions.LOCAL_CALL_SILENCE
                         featureVersion = LocalCallSilenceExtensionImpl.VERSION
+                        supportedActions = extension.actions
+                    },
+                onExchangeComplete = extension::onExchangeComplete
+            )
+        }
+        return extension
+    }
+
+    /**
+     * Adds support for a call icon extension, allowing custom UI and actions to be integrated into
+     * the call screen.
+     *
+     * This function creates and registers a [CallIconExtensionRemoteImpl] instance, configuring its
+     * capabilities and setting up a callback for when the initial communication exchange with the
+     * system is complete. The extension's capabilities are defined, including its feature ID,
+     * version, and supported actions.
+     *
+     * @return The configured [CallIconExtensionRemoteImpl] instance, representing the call icon
+     *   extension.
+     */
+    override fun addCallIconSupport(
+        onCallIconChanged: suspend (Uri) -> Unit
+    ): CallIconExtensionRemote {
+        val extension =
+            CallIconExtensionRemoteImpl(applicationContext, callScope, onCallIconChanged)
+        registerExtension {
+            CallExtensionCreator(
+                extensionCapability =
+                    Capability().apply {
+                        featureId = Extensions.CALL_ICON
+                        featureVersion = CallIconExtensionImpl.VERSION
                         supportedActions = extension.actions
                     },
                 onExchangeComplete = extension::onExchangeComplete
@@ -411,7 +443,7 @@ internal class CallExtensionScopeImpl(
                         capabilities: MutableList<Capability>?,
                         l: ICapabilityExchangeListener?
                     ) {
-                        Log.v(
+                        Log.d(
                             TAG,
                             "registerWithRemoteService: received remote result," +
                                 " caps=$capabilities, listener is null=${l == null}"
@@ -426,7 +458,7 @@ internal class CallExtensionScopeImpl(
                         )
                     }
                 }
-            Log.v(TAG, "registerWithRemoteService: sending event")
+            Log.d(TAG, "registerWithRemoteService: sending event:")
             val extras = setExtras(binder)
             call.sendCallEvent(Extensions.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
         }

@@ -77,7 +77,7 @@ internal interface InProgressStrokesRenderHelper {
 
     /**
      * Called by [InProgressStrokesManager] when new content must be drawn. Will lead to
-     * [InProgressStrokesRenderHelper.onDraw].
+     * [InProgressStrokesRenderHelper.Callback.onDraw].
      */
     @UiThread fun requestDraw()
 

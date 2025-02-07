@@ -18,56 +18,56 @@ import java.lang.ref.WeakReference;
 // hold. Instead, the "y" parameter is the Y coordinate of the baseline, so base the baseline
 // alignment on that rather than "bottom".
 class FixedImageSpan extends ImageSpan {
-  private @Nullable WeakReference<Drawable> mDrawableRef;
+    private @Nullable WeakReference<Drawable> mDrawableRef;
 
-  FixedImageSpan(@NonNull Drawable drawable) {
-    super(drawable);
-  }
-
-  FixedImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
-    super(drawable, verticalAlignment);
-  }
-
-  @Override
-  public void draw(
-      @NonNull Canvas canvas,
-      CharSequence text,
-      int start,
-      int end,
-      float x,
-      int top,
-      int y,
-      int bottom,
-      @NonNull Paint paint) {
-    Drawable b = getCachedDrawable();
-    canvas.save();
-
-    int transY = bottom - b.getBounds().bottom;
-    if (mVerticalAlignment == ALIGN_BASELINE) {
-      transY = y - b.getBounds().bottom;
-    } else if (mVerticalAlignment == ALIGN_CENTER) {
-      transY = (bottom - top) / 2 - b.getBounds().height() / 2;
+    FixedImageSpan(@NonNull Drawable drawable) {
+        super(drawable);
     }
 
-    canvas.translate(x, transY);
-    b.draw(canvas);
-    canvas.restore();
-  }
-
-  @VisibleForTesting
-  Drawable getCachedDrawable() {
-    WeakReference<Drawable> wr = mDrawableRef;
-    Drawable d = null;
-
-    if (wr != null) {
-      d = wr.get();
+    FixedImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
+        super(drawable, verticalAlignment);
     }
 
-    if (d == null) {
-      d = getDrawable();
-      mDrawableRef = new WeakReference<>(d);
+    @Override
+    public void draw(
+            @NonNull Canvas canvas,
+            CharSequence text,
+            int start,
+            int end,
+            float x,
+            int top,
+            int y,
+            int bottom,
+            @NonNull Paint paint) {
+        Drawable b = getCachedDrawable();
+        canvas.save();
+
+        int transY = bottom - b.getBounds().bottom;
+        if (mVerticalAlignment == ALIGN_BASELINE) {
+            transY = y - b.getBounds().bottom;
+        } else if (mVerticalAlignment == ALIGN_CENTER) {
+            transY = (bottom - top) / 2 - b.getBounds().height() / 2;
+        }
+
+        canvas.translate(x, transY);
+        b.draw(canvas);
+        canvas.restore();
     }
 
-    return d;
-  }
+    @VisibleForTesting
+    Drawable getCachedDrawable() {
+        WeakReference<Drawable> wr = mDrawableRef;
+        Drawable d = null;
+
+        if (wr != null) {
+            d = wr.get();
+        }
+
+        if (d == null) {
+            d = getDrawable();
+            mDrawableRef = new WeakReference<>(d);
+        }
+
+        return d;
+    }
 }

@@ -68,7 +68,7 @@ public abstract class PagingDataPresenter<T : Any>(
     cachedPagingData: PagingData<T>? = null,
 ) {
     private var hintReceiver: HintReceiver? = null
-    private var uiReceiver: UiReceiver? = null
+    private var uiReceiver: UiReceiver = InitialUiReceiver()
     private var pageStore: PageStore<T> = PageStore.initial(cachedPagingData?.cachedEvent())
     private val combinedLoadStatesCollection =
         MutableCombinedLoadStateCollection().apply {
@@ -114,7 +114,7 @@ public abstract class PagingDataPresenter<T : Any>(
 
     public suspend fun collectFrom(pagingData: PagingData<T>): @JvmSuppressWildcards Unit {
         collectFromRunner.runInIsolation {
-            uiReceiver = pagingData.uiReceiver
+            setUiReceiver(pagingData.uiReceiver)
             pagingData.flow.collect { event ->
                 log(VERBOSE) { "Collected $event" }
                 withContext(mainContext) {
@@ -309,7 +309,7 @@ public abstract class PagingDataPresenter<T : Any>(
      */
     public fun retry() {
         log(DEBUG) { "Retry signal received" }
-        uiReceiver?.retry()
+        uiReceiver.retry()
     }
 
     /**
@@ -329,7 +329,7 @@ public abstract class PagingDataPresenter<T : Any>(
      */
     public fun refresh() {
         log(DEBUG) { "Refresh signal received" }
-        uiReceiver?.refresh()
+        uiReceiver.refresh()
     }
 
     /** @return Total number of presented items, including placeholders. */
@@ -498,6 +498,33 @@ public abstract class PagingDataPresenter<T : Any>(
             // no items to bind from initial load. Without this hint, paging would stall on
             // an empty list because prepend/append would be not triggered.
             hintReceiver?.accessHint(newPageStore.initializeHint())
+        }
+    }
+
+    // Holds on to retry/refresh requests to deliver them when the real UiReceiver is attached.
+    private class InitialUiReceiver : UiReceiver {
+        var retry = false
+        var refresh = false
+
+        override fun retry() {
+            retry = true
+        }
+
+        override fun refresh() {
+            refresh = true
+        }
+    }
+
+    private fun setUiReceiver(receiver: UiReceiver) {
+        val oldReceiver = this.uiReceiver
+        this.uiReceiver = receiver
+        if (oldReceiver is InitialUiReceiver) {
+            if (oldReceiver.retry) {
+                receiver.retry()
+            }
+            if (oldReceiver.refresh) {
+                receiver.refresh()
+            }
         }
     }
 }

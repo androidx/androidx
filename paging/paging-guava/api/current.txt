@@ -8,8 +8,8 @@ package androidx.paging {
     method public androidx.paging.AdjacentItems<T> copy(T? before, T? after);
     method public T? getAfter();
     method public T? getBefore();
-    property public final T? after;
-    property public final T? before;
+    property public T? after;
+    property public T? before;
   }
 
   public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {

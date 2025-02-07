@@ -757,6 +757,47 @@ class IconButtonTest {
             )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun filledIconButton_medium_pressedShape() {
+        lateinit var shape: Shape
+        val backgroundColor = Color.Yellow
+        val shapeColor = Color.Blue
+        rule.setMaterialContent(lightColorScheme()) {
+            shape = IconButtonDefaults.mediumPressedShape
+            Surface(color = backgroundColor) {
+                FilledIconButton(
+                    onClick = { /* doSomething() */ },
+                    shapes =
+                        IconButtonShapes(
+                            shape = IconButtonDefaults.mediumRoundShape,
+                            pressedShape = IconButtonDefaults.mediumPressedShape
+                        ),
+                    modifier =
+                        Modifier.testTag(IconTestTag)
+                            .size(IconButtonDefaults.mediumContainerSize()),
+                    colors =
+                        IconButtonDefaults.iconButtonVibrantColors(
+                            containerColor = shapeColor,
+                            contentColor = shapeColor
+                        ),
+                ) {}
+            }
+        }
+        rule.onNodeWithTag(IconTestTag).performTouchInput { down(center) }
+
+        rule
+            .onNodeWithTag(IconTestTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = shape,
+                shapeColor = shapeColor,
+                backgroundColor = backgroundColor,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+            )
+    }
+
     @Test
     fun filledIconButton_sizeWithoutMinTargetEnforcement() {
         rule
@@ -1039,7 +1080,7 @@ class IconButtonTest {
                         checked = true,
                         onCheckedChange = { /* doSomething() */ },
                         shapes =
-                            IconButtonShapes(
+                            IconToggleButtonShapes(
                                 shape = IconButtonDefaults.mediumSquareShape,
                                 pressedShape = IconButtonDefaults.mediumPressedShape,
                                 checkedShape = IconButtonDefaults.mediumSquareShape

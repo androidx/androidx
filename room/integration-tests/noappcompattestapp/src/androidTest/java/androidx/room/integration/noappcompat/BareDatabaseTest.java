@@ -21,13 +21,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

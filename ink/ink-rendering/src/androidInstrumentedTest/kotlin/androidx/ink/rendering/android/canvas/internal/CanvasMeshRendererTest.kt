@@ -167,10 +167,11 @@ class CanvasMeshRendererTest {
     }
 
     @Test
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
+        maxSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
+    )
     fun drawStroke_whenAndroidU_shouldSaveRecentlyDrawnMesh() {
-        if (Build.VERSION.SDK_INT >= 35) {
-            return
-        }
         val renderNode = RenderNode("test")
         val canvas = renderNode.beginRecording()
         assertThat(meshRenderer.getRecentlyDrawnAndroidMeshesCount()).isEqualTo(0)
@@ -222,10 +223,8 @@ class CanvasMeshRendererTest {
      * never be any saved meshes.
      */
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun drawStroke_whenAndroidVPlus_shouldNotSaveRecentlyDrawnMeshes() {
-        if (Build.VERSION.SDK_INT < 35) {
-            return
-        }
         val renderNode = RenderNode("test")
         val canvas = renderNode.beginRecording()
         assertThat(meshRenderer.getRecentlyDrawnAndroidMeshesCount()).isEqualTo(0)

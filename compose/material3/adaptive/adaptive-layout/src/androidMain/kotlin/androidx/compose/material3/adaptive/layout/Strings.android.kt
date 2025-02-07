@@ -51,6 +51,10 @@ internal actual value class Strings(@StringRes val value: Int) {
             get() =
                 Strings(R.string.m3_adaptive_default_pane_expansion_drag_handle_content_description)
 
+        actual inline val defaultPaneExpansionDragHandleStateDescription
+            get() =
+                Strings(R.string.m3_adaptive_default_pane_expansion_drag_handle_state_description)
+
         actual inline val defaultPaneExpansionDragHandleActionDescription
             get() =
                 Strings(R.string.m3_adaptive_default_pane_expansion_drag_handle_action_description)

@@ -29,7 +29,7 @@ import androidx.sqlite.SQLiteStatement
  * @constructor Creates an InsertionAdapter that can insert the entity type T into the given
  *   database.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 abstract class EntityInsertAdapter<T> {
     /**
      * Create the query.

@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -187,17 +188,14 @@ actual fun Dialog(
             DialogWrapper(onDismissRequest, properties, view, layoutDirection, density, dialogId)
                 .apply {
                     setContent(composition) {
-                        // TODO(b/159900354): draw a scrim and add margins around the Compose
-                        // Dialog, and
-                        //  consume clicks so they can't pass through to the underlying UI
                         DialogLayout(Modifier.semantics { dialog() }, currentContent)
                     }
                 }
         }
 
-    DisposableEffect(dialog) {
-        dialog.show()
+    LaunchedEffect(Unit) { dialog.show() }
 
+    DisposableEffect(dialog) {
         onDispose {
             dialog.dismiss()
             dialog.disposeComposition()
@@ -536,8 +534,6 @@ private class DialogWrapper(
                 LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
             }
     }
-
-    // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent
 
     fun setContent(parentComposition: CompositionContext, children: @Composable () -> Unit) {
         dialogLayout.setContent(parentComposition, children)

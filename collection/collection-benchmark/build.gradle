@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -37,7 +37,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
@@ -112,7 +112,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Collections Benchmarks (Android / iOS)"
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
     inceptionYear = "2022"
     description = "AndroidX Collections Benchmarks (Android / iOS)"
 }

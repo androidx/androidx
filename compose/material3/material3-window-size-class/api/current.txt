@@ -19,18 +19,18 @@ package androidx.compose.material3.windowsizeclass {
     method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> getDefaultSizeClasses();
     method public int getExpanded();
     method public int getMedium();
-    property public final java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> AllSizeClasses;
-    property public final int Compact;
-    property public final java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> DefaultSizeClasses;
-    property public final int Expanded;
-    property public final int Medium;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> AllSizeClasses;
+    property public int Compact;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> DefaultSizeClasses;
+    property public int Expanded;
+    property public int Medium;
   }
 
   @androidx.compose.runtime.Immutable public final class WindowSizeClass {
     method public int getHeightSizeClass();
     method public int getWidthSizeClass();
-    property public final int heightSizeClass;
-    property public final int widthSizeClass;
+    property public int heightSizeClass;
+    property public int widthSizeClass;
     field public static final androidx.compose.material3.windowsizeclass.WindowSizeClass.Companion Companion;
   }
 
@@ -49,11 +49,11 @@ package androidx.compose.material3.windowsizeclass {
     method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> getDefaultSizeClasses();
     method public int getExpanded();
     method public int getMedium();
-    property public final java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> AllSizeClasses;
-    property public final int Compact;
-    property public final java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> DefaultSizeClasses;
-    property public final int Expanded;
-    property public final int Medium;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> AllSizeClasses;
+    property public int Compact;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> DefaultSizeClasses;
+    property public int Expanded;
+    property public int Medium;
   }
 
 }

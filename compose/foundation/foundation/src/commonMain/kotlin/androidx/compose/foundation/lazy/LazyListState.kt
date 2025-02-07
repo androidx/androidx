@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
-import kotlin.ranges.IntRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -124,7 +123,7 @@ class LazyListState
 constructor(
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
-    private val prefetchStrategy: LazyListPrefetchStrategy = LazyListPrefetchStrategy(),
+    internal val prefetchStrategy: LazyListPrefetchStrategy = LazyListPrefetchStrategy(),
 ) : ScrollableState {
 
     /**
@@ -269,13 +268,28 @@ constructor(
 
     private val prefetchScope: LazyListPrefetchScope =
         object : LazyListPrefetchScope {
-            override fun schedulePrefetch(index: Int): LazyLayoutPrefetchState.PrefetchHandle {
+            override fun schedulePrefetch(
+                index: Int,
+                onPrefetchFinished: ((Int) -> Unit)?
+            ): LazyLayoutPrefetchState.PrefetchHandle {
                 // Without read observation since this can be triggered from scroll - this will then
                 // cause us to recompose when the measure result changes. We don't care since the
                 // prefetch is best effort.
-                val constraints =
-                    Snapshot.withoutReadObservation { layoutInfoState.value.childConstraints }
-                return prefetchState.schedulePrefetch(index, constraints)
+                val lastMeasureResult = Snapshot.withoutReadObservation { layoutInfoState.value }
+                return prefetchState.schedulePrefetch(index, lastMeasureResult.childConstraints) {
+                    if (onPrefetchFinished != null) {
+                        var mainAxisItemSize = 0
+                        repeat(placeablesCount) {
+                            mainAxisItemSize +=
+                                if (lastMeasureResult.orientation == Orientation.Vertical) {
+                                    getSize(it).height
+                                } else {
+                                    getSize(it).width
+                                }
+                        }
+                        onPrefetchFinished.invoke(mainAxisItemSize)
+                    }
+                }
             }
         }
 

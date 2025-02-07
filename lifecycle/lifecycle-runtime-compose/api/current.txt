@@ -55,7 +55,7 @@ package androidx.lifecycle.compose {
 
   public final class LocalLifecycleOwnerKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> getLocalLifecycleOwner();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
   }
 
 }

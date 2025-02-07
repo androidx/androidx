@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.InspectorInfo
 fun Modifier.onFocusChanged(onFocusChanged: (FocusState) -> Unit): Modifier =
     this then FocusChangedElement(onFocusChanged)
 
-private data class FocusChangedElement(val onFocusChanged: (FocusState) -> Unit) :
+private class FocusChangedElement(val onFocusChanged: (FocusState) -> Unit) :
     ModifierNodeElement<FocusChangedNode>() {
     override fun create() = FocusChangedNode(onFocusChanged)
 
@@ -44,6 +44,19 @@ private data class FocusChangedElement(val onFocusChanged: (FocusState) -> Unit)
     override fun InspectorInfo.inspectableProperties() {
         name = "onFocusChanged"
         properties["onFocusChanged"] = onFocusChanged
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FocusChangedElement) return false
+
+        if (onFocusChanged !== other.onFocusChanged) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return onFocusChanged.hashCode()
     }
 }
 

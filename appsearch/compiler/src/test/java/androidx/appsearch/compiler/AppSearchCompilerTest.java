@@ -1054,6 +1054,7 @@ public class AppSearchCompilerTest {
         // TODO(b/156296904): Uncomment Gift in this test when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
+                        + "import androidx.appsearch.app.AppSearchBlobHandle;\n"
                         + "import androidx.appsearch.app.EmbeddingVector;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
@@ -1067,6 +1068,7 @@ public class AppSearchCompilerTest {
                         + "  @BooleanProperty Boolean booleanProp;\n"
                         + "  @BytesProperty byte[] bytesProp;\n"
                         + "  @EmbeddingProperty EmbeddingVector vectorProp;\n"
+                        + "  @BlobHandleProperty AppSearchBlobHandle blobHandleProp;\n"
                         //+ "  @DocumentProperty Gift documentProp;\n"
                         + "}\n");
 
@@ -1267,6 +1269,7 @@ public class AppSearchCompilerTest {
         // TODO(b/156296904): Uncomment Gift and GenericDocument when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
+                        + "import androidx.appsearch.app.AppSearchBlobHandle;\n"
                         + "import androidx.appsearch.app.GenericDocument;\n"
                         + "import androidx.appsearch.app.EmbeddingVector;\n"
                         + "@Document\n"
@@ -1284,6 +1287,8 @@ public class AppSearchCompilerTest {
                         + "  @StringProperty Collection<String> collectString;\n"     // 1b
                         + "  @DocumentProperty Collection<Gift> collectGift;\n"         // 1c
                         + "  @EmbeddingProperty Collection<EmbeddingVector> collectVec;\n"   // 1b
+                        + "  @BlobHandleProperty Collection<AppSearchBlobHandle> collectBlob;\n"
+                             //1b
                         + "\n"
                         + "  // Arrays\n"
                         + "  @LongProperty Long[] arrBoxLong;\n"         // 2a
@@ -1300,6 +1305,7 @@ public class AppSearchCompilerTest {
                         + "  @StringProperty String[] arrString;\n"        // 2b
                         + "  @DocumentProperty Gift[] arrGift;\n"            // 2c
                         + "  @EmbeddingProperty EmbeddingVector[] arrVec;\n"         // 2b
+                        + "  @BlobHandleProperty AppSearchBlobHandle[] arrBlob;\n"  // 2b
                         + "\n"
                         + "  // Single values\n"
                         + "  @StringProperty String string;\n"        // 3a
@@ -1316,6 +1322,7 @@ public class AppSearchCompilerTest {
                         + "  @BytesProperty byte[] unboxByteArr;\n"  // 3a
                         + "  @DocumentProperty Gift gift;\n"            // 3c
                         + "  @EmbeddingProperty EmbeddingVector vec;\n"        // 3a
+                        + "  @BlobHandleProperty AppSearchBlobHandle blob;\n" // 3a
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -3521,6 +3528,55 @@ public class AppSearchCompilerTest {
                 "AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE");
         checkResultContains("Gift.java",
                 "EmbeddingVector");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testQuantizedEmbeddingFields() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "import androidx.appsearch.app.EmbeddingVector;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @EmbeddingProperty(indexingType=1)"
+                        + "  EmbeddingVector defaultUnquantized;\n"
+                        + "  @EmbeddingProperty(indexingType=1, quantizationType=0)"
+                        + "  EmbeddingVector unquantized;\n"
+                        + "  @EmbeddingProperty(indexingType=1, quantizationType=1)"
+                        + "  EmbeddingVector quantized;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE");
+        checkResultContains("Gift.java",
+                "AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_8_BIT");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testBlobHandleFields() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "import androidx.appsearch.app.AppSearchBlobHandle;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        // AppSearchBlobHandle properties
+                        + "  @BlobHandleProperty AppSearchBlobHandle blob;\n"
+                        + "  @BlobHandleProperty Collection<AppSearchBlobHandle> collectBlob;\n"
+                        + "  @BlobHandleProperty AppSearchBlobHandle[] arrBlob;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "new AppSearchSchema.BlobHandlePropertyConfig.Builder");
+        checkResultContains("Gift.java", "AppSearchBlobHandle");
         checkEqualsGolden("Gift.java");
     }
 

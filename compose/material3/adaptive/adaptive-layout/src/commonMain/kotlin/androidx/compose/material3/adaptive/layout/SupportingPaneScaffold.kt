@@ -33,14 +33,18 @@ import androidx.compose.ui.Modifier
  * @param value The current adapted value of the scaffold, which indicates how each pane of the
  *   scaffold is adapted.
  * @param mainPane the main pane of the scaffold, which is supposed to hold the major content of an
- *   app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main].
+ *   app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main]. Note
+ *   that we suggest you to use [AnimatedPane] as the root layout of panes, which supports default
+ *   pane behaviors like enter/exit transitions.
  * @param supportingPane the supporting pane of the scaffold, which is supposed to hold the support
  *   content of an app, for example, the comment list of a doc app. See
- *   [SupportingPaneScaffoldRole.Supporting].
+ *   [SupportingPaneScaffoldRole.Supporting]. Note that we suggest you to use [AnimatedPane] as the
+ *   root layout of panes, which supports default pane behaviors like enter/exit transitions.
  * @param modifier [Modifier] of the scaffold layout.
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any additional content
  *   besides the main and the supporting panes, for example, a styling panel in a doc app. See
- *   [SupportingPaneScaffoldRole.Extra].
+ *   [SupportingPaneScaffoldRole.Extra]. Note that we suggest you to use [AnimatedPane] as the root
+ *   layout of panes, which supports default pane behaviors like enter/exit transitions.
  * @param paneExpansionDragHandle the pane expansion drag handle to allow users to drag to change
  *   pane expansion state, `null` by default.
  * @param paneExpansionState the state object of pane expansion; when no value is provided but
@@ -91,14 +95,18 @@ fun SupportingPaneScaffold(
  * @param scaffoldState The current state of the scaffold, containing information about the adapted
  *   value of each pane of the scaffold and the transitions/animations in progress.
  * @param mainPane the main pane of the scaffold, which is supposed to hold the major content of an
- *   app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main].
+ *   app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main]. Note
+ *   that we suggest you to use [AnimatedPane] as the root layout of panes, which supports default
+ *   pane behaviors like enter/exit transitions.
  * @param supportingPane the supporting pane of the scaffold, which is supposed to hold the support
  *   content of an app, for example, the comment list of a doc app. See
- *   [SupportingPaneScaffoldRole.Supporting].
+ *   [SupportingPaneScaffoldRole.Supporting]. Note that we suggest you to use [AnimatedPane] as the
+ *   root layout of panes, which supports default pane behaviors like enter/exit transitions.
  * @param modifier [Modifier] of the scaffold layout.
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any additional content
  *   besides the main and the supporting panes, for example, a styling panel in a doc app. See
- *   [SupportingPaneScaffoldRole.Extra].
+ *   [SupportingPaneScaffoldRole.Extra]. Note that we suggest you to use [AnimatedPane] as the root
+ *   layout of panes, which supports default pane behaviors like enter/exit transitions.
  * @param paneExpansionDragHandle the pane expansion drag handle to allow users to drag to change
  *   pane expansion state, `null` by default.
  * @param paneExpansionState the state object of pane expansion; when no value is provided but
@@ -177,6 +185,7 @@ object SupportingPaneScaffoldDefaults {
  * three pane scaffolds. We suggest you to use the values defined here instead of the raw
  * [ThreePaneScaffoldRole] under the context of [SupportingPaneScaffold] for better code clarity.
  */
+@ExperimentalMaterial3AdaptiveApi
 object SupportingPaneScaffoldRole {
     /**
      * The main pane of [SupportingPaneScaffold], which is supposed to hold the major content of an

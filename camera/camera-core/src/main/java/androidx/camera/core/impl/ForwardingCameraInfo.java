@@ -85,6 +85,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     }
 
     @Override
+    public boolean isTorchStrengthSupported() {
+        return mCameraInfoInternal.isTorchStrengthSupported();
+    }
+
+    @Override
     public boolean isLowLightBoostSupported() {
         return mCameraInfoInternal.isLowLightBoostSupported();
     }

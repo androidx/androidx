@@ -113,6 +113,7 @@ fun IconButtonWithImageSample(
     IconButton(
         onClick = { /* Do something */ },
         shapes = shapes,
+        enabled = enabled,
     ) {
         Image(
             painter = painter,

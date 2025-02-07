@@ -1696,8 +1696,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
                 .build();
     }
 
-    private @NonNull DynamicFloat animatableFixedFloat(float from, float to, int duration,
-            int delay) {
+    private @NonNull DynamicFloat animatableFixedFloat(
+            float from, float to, int duration, int delay) {
         return DynamicFloat.newBuilder()
                 .setAnimatableFixed(
                         AnimatableFixedFloat.newBuilder()

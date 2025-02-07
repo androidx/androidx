@@ -1239,6 +1239,21 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun errorInBroadcastReceiverDoesNotCrashProcess() = runBlocking {
+        // The following line causes the GlanceAppWidget to throw an error in `update`, which runs
+        // in a child job of the BroadcastReceiver's goAsync scope.
+        TestGlanceAppWidget.withErrorOnSessionCreation {
+            // Waiting for RemoteViews should timeout since the update will fail. The process should
+            // not crash.
+            val result = runCatching { mHostRule.startHost() }
+            assertThat(result.exceptionOrNull()).apply {
+                isInstanceOf(IllegalArgumentException::class.java)
+                hasMessageThat().contains("Timeout before getting RemoteViews")
+            }
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, T::class.java)

@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
 
@@ -123,7 +123,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-apigenerator"
-    type = LibraryType.OTHER_CODE_PROCESSOR
+    type = SoftwareType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

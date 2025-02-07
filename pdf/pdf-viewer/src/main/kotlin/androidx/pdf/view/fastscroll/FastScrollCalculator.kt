@@ -17,10 +17,12 @@
 package androidx.pdf.view.fastscroll
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.pdf.R
 
 /** Class to compute scroll for [FastScroller] */
-internal class FastScrollCalculator(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class FastScrollCalculator(
     private val context: Context,
 ) {
     internal val scrollerTopMarginDp = context.getDimensions(R.dimen.scroller_top_margin).toInt()
@@ -36,7 +38,7 @@ internal class FastScrollCalculator(
      * @param thumbHeightPx Thumbnail height in pixels
      * @return The constrained vertical scroll position.
      */
-    fun constrainScrollPosition(scrollY: Float, viewHeight: Int, thumbHeightPx: Int): Int {
+    public fun constrainScrollPosition(scrollY: Float, viewHeight: Int, thumbHeightPx: Int): Int {
         return scrollY
             .toInt()
             .coerceIn(
@@ -61,7 +63,7 @@ internal class FastScrollCalculator(
      * @return The calculated vertical position of the fast scroll scrubber, constrained to the
      *   valid bounds of the view.
      */
-    fun computeThumbPosition(
+    public fun computeThumbPosition(
         scrollY: Int,
         zoom: Float,
         viewHeight: Int,
@@ -92,7 +94,7 @@ internal class FastScrollCalculator(
      * @param estimatedFullHeight Estimated height of the document including all pages
      * @return The calculated content scroll position in pixels.
      */
-    fun computeViewScroll(
+    public fun computeViewScroll(
         fastScrollY: Int,
         viewHeight: Int,
         zoom: Float,

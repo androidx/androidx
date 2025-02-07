@@ -91,6 +91,9 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val AlertDialogContentDescriptionDismissButton
             get() = Strings(R.string.wear_m3c_alert_dialog_content_description_dismiss_button)
+
+        inline val OpenOnPhoneContentDescriptionIcon
+            get() = Strings(R.string.wear_m3c_open_on_phone_icon_content_description)
     }
 }
 

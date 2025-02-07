@@ -35,10 +35,10 @@ package androidx.window.core.layout {
     method public boolean isAtLeastBreakpoint(int widthDpBreakpoint, int heightDpBreakpoint);
     method public boolean isHeightAtLeastBreakpoint(int heightDpBreakpoint);
     method public boolean isWidthAtLeastBreakpoint(int widthDpBreakpoint);
-    property public final int minHeightDp;
-    property public final int minWidthDp;
-    property @Deprecated public final androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;
-    property @Deprecated public final androidx.window.core.layout.WindowWidthSizeClass windowWidthSizeClass;
+    property public int minHeightDp;
+    property public int minWidthDp;
+    property @Deprecated public androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;
+    property @Deprecated public androidx.window.core.layout.WindowWidthSizeClass windowWidthSizeClass;
     field public static final java.util.Set<androidx.window.core.layout.WindowSizeClass> BREAKPOINTS_V1;
     field public static final androidx.window.core.layout.WindowSizeClass.Companion Companion;
     field public static final int HEIGHT_DP_EXPANDED_LOWER_BOUND = 900; // 0x384
@@ -49,11 +49,11 @@ package androidx.window.core.layout {
 
   public static final class WindowSizeClass.Companion {
     method @Deprecated public androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
-    property public final java.util.Set<? extends androidx.window.core.layout.WindowSizeClass> BREAKPOINTS_V1;
-    property public static final int HEIGHT_DP_EXPANDED_LOWER_BOUND;
-    property public static final int HEIGHT_DP_MEDIUM_LOWER_BOUND;
-    property public static final int WIDTH_DP_EXPANDED_LOWER_BOUND;
-    property public static final int WIDTH_DP_MEDIUM_LOWER_BOUND;
+    property public java.util.Set<? extends androidx.window.core.layout.WindowSizeClass> BREAKPOINTS_V1;
+    property public static int HEIGHT_DP_EXPANDED_LOWER_BOUND;
+    property public static int HEIGHT_DP_MEDIUM_LOWER_BOUND;
+    property public static int WIDTH_DP_EXPANDED_LOWER_BOUND;
+    property public static int WIDTH_DP_MEDIUM_LOWER_BOUND;
   }
 
   public final class WindowSizeClassSelectors {

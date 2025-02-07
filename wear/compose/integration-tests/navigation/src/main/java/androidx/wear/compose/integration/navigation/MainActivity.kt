@@ -27,15 +27,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.HorizontalPagerScaffold
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -48,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
         setContent(parent = null) {
             MaterialTheme {
+                val transformingLazyColumnState = rememberTransformingLazyColumnState()
                 val swipeToDismissBoxState = rememberSwipeToDismissBoxState()
                 val navController = rememberSwipeDismissableNavController()
                 SwipeDismissableNavHost(
@@ -56,21 +65,45 @@ class MainActivity : ComponentActivity() {
                     startDestination = START
                 ) {
                     composable(START) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxSize(),
+                        TransformingLazyColumn(
+                            state = transformingLazyColumnState,
+                            modifier = Modifier.padding(horizontal = 10.dp)
                         ) {
-                            Text(text = "Screen 1", color = MaterialTheme.colors.onSurface)
-                            CompactChip(
-                                onClick = { navController.navigate(SCREEN2) },
-                                label = { Text("Next screen") },
-                            )
-                            Spacer(modifier = Modifier.fillMaxWidth().height(4.dp))
-                            CompactChip(
-                                onClick = { navController.navigate(EDGE_SWIPE_SCREEN) },
-                                label = { Text("Screen with edge swipe") },
-                            )
+                            item {
+                                ListHeader {
+                                    Text(text = "Screen 1", color = MaterialTheme.colors.onSurface)
+                                }
+                            }
+                            item {
+                                CompactChip(
+                                    onClick = { navController.navigate(SCREEN2) },
+                                    label = { Text("Next screen") },
+                                )
+                            }
+                            item {
+                                CompactChip(
+                                    onClick = { navController.navigate(EDGE_SWIPE_SCREEN) },
+                                    label = { Text("Screen with edge swipe") },
+                                )
+                            }
+                            item {
+                                CompactChip(
+                                    onClick = { navController.navigate(PAGER_SCAFFOLD_SCREEN) },
+                                    label = { Text("Screen with PagerScaffold") },
+                                )
+                            }
+                            item {
+                                CompactChip(
+                                    onClick = { navController.navigate(S2R_STANDARD_SCREEN) },
+                                    label = { Text("S2R - Standard") },
+                                )
+                            }
+                            item {
+                                CompactChip(
+                                    onClick = { navController.navigate(S2R_DUAL_DIRECTION_SCREEN) },
+                                    label = { Text("S2R - Dual Direction") },
+                                )
+                            }
                         }
                     }
                     composable(SCREEN2) {
@@ -127,6 +160,28 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                    composable(PAGER_SCAFFOLD_SCREEN) {
+                        AppScaffold {
+                            val pagerState = rememberPagerState(pageCount = { 10 })
+
+                            HorizontalPagerScaffold(pagerState = pagerState) { page ->
+                                ScreenScaffold {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("Page $page")
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    composable(S2R_STANDARD_SCREEN) { SwipeToRevealSingleButtonWithAnchoring() }
+
+                    composable(S2R_DUAL_DIRECTION_SCREEN) {
+                        SwipeToRevealBothDirectionsNonAnchoring()
+                    }
                 }
             }
         }
@@ -137,3 +192,6 @@ private const val START = "start"
 private const val SCREEN2 = "screen2"
 private const val SCREEN3 = "screen3"
 private const val EDGE_SWIPE_SCREEN = "edge_swipe_screen"
+private const val PAGER_SCAFFOLD_SCREEN = "pager_scaffold_screen"
+private const val S2R_STANDARD_SCREEN = "s2r_standard_screen"
+private const val S2R_DUAL_DIRECTION_SCREEN = "s2r_dual_direction_screen"

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-// VERSION: v0_103
+// VERSION: v0_107
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
 internal enum class ColorSchemeKeyTokens {
     Background,
     Error,
     ErrorContainer,
+    ErrorDim,
     OnBackground,
     OnError,
     OnErrorContainer,

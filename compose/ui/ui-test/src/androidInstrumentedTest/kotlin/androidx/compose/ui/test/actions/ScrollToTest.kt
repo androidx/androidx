@@ -31,8 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.actions.ScrollToTest.ExpectedAlignment.Bottom
 import androidx.compose.ui.test.actions.ScrollToTest.ExpectedAlignment.Center
 import androidx.compose.ui.test.actions.ScrollToTest.ExpectedAlignment.Left
@@ -48,7 +46,6 @@ import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.FullyBefore
 import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.PartiallyAfter
 import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.PartiallyBefore
 import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.StartAlignedIn
-import androidx.compose.ui.test.addGlobalAssertion
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -236,33 +233,6 @@ class ScrollToTest(private val config: TestConfig) {
                     .isEqualTo(viewportBounds.center)
             }
         }
-    }
-
-    @Test
-    @OptIn(ExperimentalTestApi::class)
-    fun scrollToTarget_withGlobalAssertion() {
-        val scrollState = ScrollState(config.initialScrollOffset)
-        val isRtl = config.orientation == HorizontalRtl
-        var capturedSni: SemanticsNodeInteraction? = null
-        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
-
-        // Five boxes in a row/col with a specific initialScrollOffset so that the target we want
-        // to bring into view is either before, partially before, in, partially after or after
-        // the viewport.
-        rule.setContent {
-            val direction = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-            CompositionLocalProvider(LocalLayoutDirection provides direction) {
-                when (config.orientation) {
-                    HorizontalLtr,
-                    HorizontalRtl -> Row(rowModifier(scrollState)) { Boxes() }
-                    Vertical -> Column(columnModifier(scrollState)) { Boxes() }
-                }
-            }
-        }
-
-        val sni = rule.onNodeWithTag(itemTag).performScrollTo()
-
-        assertThat(capturedSni).isEqualTo(sni)
     }
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }

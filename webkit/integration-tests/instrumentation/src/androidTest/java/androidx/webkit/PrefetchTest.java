@@ -43,10 +43,10 @@ public class PrefetchTest {
         assertEquals(1, builder.build().getPrefetchTtlSeconds());
 
         builder.setPrefetchTtlSeconds(Integer.MAX_VALUE - 1);
-        assertEquals(Integer.MAX_VALUE - 1, builder.build().getMaxPrefetches());
+        assertEquals(Integer.MAX_VALUE - 1, builder.build().getPrefetchTtlSeconds());
 
         builder.setPrefetchTtlSeconds(5685);
-        assertEquals(5685, builder.build().getMaxPrefetches());
+        assertEquals(5685, builder.build().getPrefetchTtlSeconds());
     }
 
     /**
@@ -59,7 +59,7 @@ public class PrefetchTest {
         builder.setMaxPrefetches(1);
         assertEquals(1, builder.build().getMaxPrefetches());
 
-        builder.setPrefetchTtlSeconds(SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES);
+        builder.setMaxPrefetches(SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES);
         assertEquals(SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES,
                 builder.build().getMaxPrefetches());
     }

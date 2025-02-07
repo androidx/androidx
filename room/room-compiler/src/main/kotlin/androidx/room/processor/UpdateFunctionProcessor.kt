@@ -21,7 +21,7 @@ import androidx.room.Update
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.vo.UpdateFunction
-import androidx.room.vo.findFieldByColumnName
+import androidx.room.vo.findPropertyByColumnName
 
 class UpdateFunctionProcessor(
     baseContext: Context,
@@ -35,7 +35,7 @@ class UpdateFunctionProcessor(
         val annotation =
             delegate.extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
 
-        val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
+        val onConflict = annotation?.get("onConflict")?.asInt() ?: OnConflictStrategy.ABORT
         context.checker.check(
             onConflict in OnConflictStrategy.NONE..OnConflictStrategy.IGNORE,
             executableElement,
@@ -44,12 +44,12 @@ class UpdateFunctionProcessor(
 
         val (entities, params) =
             delegate.extractParams(
-                targetEntityType = annotation?.getAsType("entity"),
+                targetEntityType = annotation?.get("entity")?.asType(),
                 missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
                 onValidatePartialEntity = { entity, pojo ->
                     val missingPrimaryKeys =
-                        entity.primaryKey.fields.filter {
-                            pojo.findFieldByColumnName(it.columnName) == null
+                        entity.primaryKey.properties.filter {
+                            pojo.findPropertyByColumnName(it.columnName) == null
                         }
                     context.checker.check(
                         missingPrimaryKeys.isEmpty(),

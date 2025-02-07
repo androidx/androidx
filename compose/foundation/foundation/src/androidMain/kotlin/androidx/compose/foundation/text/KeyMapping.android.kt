@@ -66,6 +66,7 @@ internal actual object MappedKeys {
     actual val MoveEnd: Key = Key(AndroidKeyEvent.KEYCODE_MOVE_END)
     actual val Insert: Key = Key(AndroidKeyEvent.KEYCODE_INSERT)
     actual val Enter: Key = Key(AndroidKeyEvent.KEYCODE_ENTER)
+    actual val NumPadEnter: Key = Key(AndroidKeyEvent.KEYCODE_NUMPAD_ENTER)
     actual val Backspace: Key = Key(AndroidKeyEvent.KEYCODE_DEL)
     actual val Delete: Key = Key(AndroidKeyEvent.KEYCODE_FORWARD_DEL)
     actual val Paste: Key = Key(AndroidKeyEvent.KEYCODE_PASTE)

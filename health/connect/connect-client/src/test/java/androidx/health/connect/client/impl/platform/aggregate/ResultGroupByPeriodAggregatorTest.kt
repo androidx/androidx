@@ -24,6 +24,7 @@ import androidx.health.connect.client.impl.platform.toLocalTimeWithDefaultZoneFa
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.grams
@@ -61,7 +62,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.ofEpochMilli(1000),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("some.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("some.package")
+                    ),
                 transFat = 5.grams
             )
         )
@@ -100,7 +105,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = filterEndTime.plusDays(1).toInstant(ZoneOffset.UTC),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("some.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("some.package")
+                    ),
                 transFat = 10.grams
             )
         )
@@ -147,7 +156,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.ofEpochMilli(99),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("out.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("out.package")
+                    ),
                 transFat = 10.grams
             )
         )
@@ -159,7 +172,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = filterStartTime.plus(Duration.ofDays(1)).plusMillis(100),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("bucket_1.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("bucket_1.package")
+                    ),
                 transFat = 10.grams
             )
         )
@@ -171,7 +188,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = filterStartTime.plus(Duration.ofDays(2)).plusMillis(100),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("bucket_2.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("bucket_2.package")
+                    ),
                 transFat = 100.grams
             )
         )
@@ -183,7 +204,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = filterStartTime.plus(Duration.ofDays(2)).plus(Duration.ofHours(12)),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("buckets_1_2.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("buckets_1_2.package")
+                    ),
                 transFat = 1.kilograms
             )
         )
@@ -195,7 +220,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = filterStartTime.plus(Duration.ofDays(5)).plus(Duration.ofHours(18)),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("bucket_4.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("bucket_4.package")
+                    ),
                 transFat = 10.kilograms
             )
         )
@@ -262,7 +291,11 @@ class ResultGroupByPeriodAggregatorTest {
                         .minusMillis(100),
                 startZoneOffset = ZoneOffset.ofHours(2),
                 endZoneOffset = ZoneOffset.ofHours(3),
-                metadata = Metadata(dataOrigin = DataOrigin("first.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("first.package")
+                    ),
                 transFat = 10.grams
             )
         )
@@ -281,7 +314,11 @@ class ResultGroupByPeriodAggregatorTest {
                         .plus(Duration.ofHours(12)),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("first_second.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("first_second.package")
+                    ),
                 transFat = 100.grams
             )
         )
@@ -321,7 +358,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.parse("2024-01-15T10:11:30.00Z"),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("january_out.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("january_out.package")
+                    ),
                 transFat = 100.kilograms
             )
         )
@@ -333,7 +374,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.parse("2024-01-28T10:17:30.00Z"),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("january.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("january.package")
+                    ),
                 transFat = 10.grams
             )
         )
@@ -345,7 +390,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.parse("2024-02-29T10:17:30.00Z"),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("february.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("february.package")
+                    ),
                 transFat = 100.grams
             )
         )
@@ -357,7 +406,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.parse("2024-03-27T10:17:30.00Z"),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("march.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("march.package")
+                    ),
                 transFat = 1.kilograms
             )
         )
@@ -369,7 +422,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.parse("2024-03-31T14:00:00.00Z"),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("march_half.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("march_half.package")
+                    ),
                 transFat = 10.kilograms
             )
         )
@@ -414,7 +471,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.ofEpochMilli(1000),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("some.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("some.package")
+                    ),
                 transFat = 5.grams
             )
         )
@@ -442,7 +503,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.ofEpochMilli(1000),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("some.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("some.package")
+                    ),
             )
         )
 
@@ -468,7 +533,11 @@ class ResultGroupByPeriodAggregatorTest {
                 endTime = Instant.ofEpochMilli(1000).plus(Duration.ofDays(10)),
                 startZoneOffset = ZoneOffset.UTC,
                 endZoneOffset = ZoneOffset.UTC,
-                metadata = Metadata(dataOrigin = DataOrigin("some.package")),
+                metadata =
+                    Metadata(
+                        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                        dataOrigin = DataOrigin("some.package")
+                    ),
                 transFat = 5.grams
             )
         )

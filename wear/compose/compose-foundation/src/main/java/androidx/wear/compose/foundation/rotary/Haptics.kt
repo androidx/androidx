@@ -63,7 +63,10 @@ internal fun rememberRotaryHapticHandler(
 ): RotaryHapticHandler =
     if (hapticsEnabled) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM)
-            rememberCustomRotaryHapticHandler(scrollableState)
+            rememberCustomRotaryHapticHandler(
+                scrollableState = scrollableState,
+                performInSeparateThread = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+            )
         else rememberPlatformRotaryHapticHandler(scrollableState)
     } else rememberDisabledRotaryHapticHandler()
 
@@ -76,6 +79,7 @@ internal fun rememberRotaryHapticHandler(
 @Composable
 private fun rememberCustomRotaryHapticHandler(
     scrollableState: ScrollableState,
+    performInSeparateThread: Boolean,
 ): RotaryHapticHandler {
     val hapticsProvider = rememberRotaryHapticFeedbackProvider()
     // Channel to which haptic events will be sent
@@ -87,16 +91,24 @@ private fun rememberCustomRotaryHapticHandler(
     // A scroll threshold after which haptic is produced.
     val hapticsThresholdPx: Long = 50
 
-    LaunchedEffect(hapticsChannel, throttleThresholdMs) {
+    LaunchedEffect(hapticsChannel, performInSeparateThread, throttleThresholdMs) {
         hapticsChannel.receiveAsFlow().throttleLatest(throttleThresholdMs).collect { hapticType ->
             // 'withContext' launches performHapticFeedback in a separate thread,
             // as otherwise it produces a visible lag (b/219776664)
             val currentTime = System.currentTimeMillis()
             debugLog { "Haptics started" }
-            withContext(Dispatchers.Default) {
-                debugLog {
-                    "Performing haptics, delay: " + "${System.currentTimeMillis() - currentTime}"
+            if (performInSeparateThread) {
+                // Dispatchers.Default should be avoided in Compose library code.
+                // Used here because of legacy API requirements, on a rare code path
+                withContext(Dispatchers.Default) {
+                    debugLog {
+                        "Performing haptics in separate thread, delay: " +
+                            "${System.currentTimeMillis() - currentTime}"
+                    }
+                    hapticsProvider.performHapticFeedback(hapticType)
                 }
+            } else {
+                debugLog { "Performing haptics" }
                 hapticsProvider.performHapticFeedback(hapticType)
             }
         }

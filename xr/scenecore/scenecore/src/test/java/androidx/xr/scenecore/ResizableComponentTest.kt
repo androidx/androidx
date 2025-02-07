@@ -54,7 +54,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizableComponent_addsRuntimeResizableComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createResizableComponent(any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -67,7 +67,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizableComponentDefaultArguments_addsRuntimeResizableComponentWithDefaults() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createResizableComponent(any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -89,7 +89,7 @@ class ResizableComponentTest {
 
     @Test
     fun removeResizableComponent_removesRuntimeResizableComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createResizableComponent(any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -102,8 +102,8 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_canAttachOnlyOnce() {
-        val entity = session.createEntity("test")
-        val entity2 = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
+        val entity2 = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createResizableComponent(any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -115,7 +115,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setSizeInvokesRuntimeResizableComponentSetSize() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
@@ -139,7 +139,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setMinimumSizeInvokesRuntimeResizableComponentSetMinimumSize() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val captor = ArgumentCaptor.forClass(JxrPlatformAdapter.Dimensions::class.java)
         assertThat(entity).isNotNull()
 
@@ -163,7 +163,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setMaximumSizeInvokesRuntimeResizableComponentSetMaximumSize() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val captor = ArgumentCaptor.forClass(JxrPlatformAdapter.Dimensions::class.java)
         assertThat(entity).isNotNull()
 
@@ -187,7 +187,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setFixedAspectRatioInvokesRuntimeResizableComponentSetFixedAspectRatio() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
@@ -208,7 +208,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setAutoHideContentInvokesRuntimeResizableComponentSetAutoHideContent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
@@ -228,7 +228,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setAutoUpdateSizeInvokesRuntimeResizableComponentSetAutoUpdateSize() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
@@ -248,7 +248,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setForceShowResizeOverlayInvokesRuntimeResizableComponentSetForceShowResizeOverlay() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
@@ -268,7 +268,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizeListener_invokesRuntimeAddResizeEventListener() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
         whenever(mockRuntime.createResizableComponent(any(), any()))
@@ -311,7 +311,7 @@ class ResizableComponentTest {
 
     @Test
     fun addMultipleResizeEventListeners_invokesAllListeners() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
         whenever(mockRuntime.createResizableComponent(any(), any()))
@@ -344,7 +344,7 @@ class ResizableComponentTest {
 
     @Test
     fun removeResizeEventListener_invokesRuntimeRemoveResizeEventListener() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
         whenever(mockRuntime.createResizableComponent(any(), any()))
@@ -382,7 +382,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_canAttachAgainAfterDetach() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createResizableComponent(any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -395,7 +395,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_attachAfterDetachPreservesListeners() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtResizableComponent = mock<JxrPlatformAdapter.ResizableComponent>()
         whenever(mockRuntime.createResizableComponent(any(), any()))

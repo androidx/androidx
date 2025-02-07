@@ -17,22 +17,17 @@
 package androidx.xr.compose.subspace.node
 
 import androidx.compose.runtime.AbstractApplier
-import androidx.xr.compose.platform.Logger
-import androidx.xr.compose.unit.VolumeConstraints
-import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 
 /**
  * Node applier for subspace compositions.
  *
  * See [androidx.compose.ui.node.UiApplier]
  */
-internal class SubspaceNodeApplier(root: SubspaceLayoutNode) :
-    AbstractApplier<SubspaceLayoutNode>(root) {
+internal class SubspaceNodeApplier(private val owner: SubspaceOwner) :
+    AbstractApplier<SubspaceLayoutNode>(owner.root) {
 
     init {
-        root.measurePolicy = SubspaceLayoutNode.RootMeasurePolicy
+        owner.root.measurePolicy = SubspaceLayoutNode.RootMeasurePolicy
     }
 
     override fun insertTopDown(index: Int, instance: SubspaceLayoutNode) {
@@ -53,19 +48,10 @@ internal class SubspaceNodeApplier(root: SubspaceLayoutNode) :
     }
 
     override fun onClear() {
-        root.removeAll()
+        owner.root.removeAll()
     }
 
     override fun onEndChanges() {
-        val measureResults =
-            root.measurableLayout.measure(
-                VolumeConstraints(0, VolumeConstraints.INFINITY, 0, VolumeConstraints.INFINITY)
-            )
-
-        (measureResults as SubspaceLayoutNode.MeasurableLayout).placeAt(
-            Pose(Vector3.Zero, Quaternion.Identity)
-        )
-        Logger.log("SubspaceNodeApplier") { root.debugTreeToString() }
-        Logger.log("SubspaceNodeApplier") { root.debugEntityTreeToString() }
+        owner.requestRelayout()
     }
 }

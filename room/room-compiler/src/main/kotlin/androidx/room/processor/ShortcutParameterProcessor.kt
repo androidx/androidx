@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
-/** Processes parameters of methods that are annotated with Insert, Update or Delete. */
+/** Processes parameters of functions that are annotated with Insert, Update or Delete. */
 class ShortcutParameterProcessor(
     baseContext: Context,
     val containing: XType,

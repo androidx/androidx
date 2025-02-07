@@ -18,12 +18,12 @@ package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.benchmark.traceprocessor.toSlices
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -33,7 +33,6 @@ import androidx.tracing.trace
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -54,7 +53,7 @@ class AndroidxTracingTraceTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.stopAllPerfettoProcesses()
+        PerfettoHelper.cleanupPerfettoState()
     }
 
     @LargeTest

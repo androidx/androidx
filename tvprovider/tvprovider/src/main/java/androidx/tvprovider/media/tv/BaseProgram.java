@@ -24,13 +24,14 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns;
 import androidx.tvprovider.media.tv.TvContractCompat.ProgramColumns;
 import androidx.tvprovider.media.tv.TvContractCompat.Programs;
 import androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -291,8 +292,7 @@ public abstract class BaseProgram {
      * @return The series ID for the program.
      * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SERIES_ID
      */
-    @Nullable
-    public String getSeriesId() {
+    public @Nullable String getSeriesId() {
         return mValues.getAsString(Programs.COLUMN_SERIES_ID);
     }
 
@@ -918,8 +918,7 @@ public abstract class BaseProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_SERIES_ID
          */
-        @NonNull
-        public T setSeriesId(@Nullable String seriesId) {
+        public @NonNull T setSeriesId(@Nullable String seriesId) {
             mValues.put(ProgramColumns.COLUMN_SERIES_ID, seriesId);
             return (T) this;
         }

@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -59,7 +59,7 @@ android {
 
 androidx {
     name = "TV Foundation"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions["TV"]
     kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2022"

@@ -31,7 +31,6 @@ import android.animation.ValueAnimator;
 import android.view.Gravity;
 import android.view.ViewConfiguration;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
@@ -40,6 +39,7 @@ import androidx.test.filters.Suppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -358,14 +358,14 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView,
-                @NonNull RecyclerView.ViewHolder viewHolder,
-                @NonNull RecyclerView.ViewHolder target) {
+                RecyclerView.@NonNull ViewHolder viewHolder,
+                RecyclerView.@NonNull ViewHolder target) {
             mMoveRecordList.add(new MoveRecord(viewHolder, target));
             return true;
         }
 
         @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        public void onSwiped(RecyclerView.@NonNull ViewHolder viewHolder, int direction) {
             mSwipeRecords.add(new SwipeRecord(viewHolder, direction));
         }
 
@@ -380,7 +380,7 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
         @Override
         public void clearView(@NonNull RecyclerView recyclerView,
-                @NonNull RecyclerView.ViewHolder viewHolder) {
+                RecyclerView.@NonNull ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
             mCleared.add(viewHolder);
         }

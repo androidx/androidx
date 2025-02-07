@@ -30,9 +30,12 @@ import androidx.compose.ui.util.fastRoundToInt
  * Coerce min and max lines into actual constraints.
  *
  * Results are cached with the assumption that there is typically N=1 style being coerced at once.
+ *
+ * Use [androidx.compose.foundation.text.modifiers.MinLinesConstrainer.from] that has caching
+ * mechanism
  */
 internal class MinLinesConstrainer
-private constructor(
+/*@VisibleForTesting*/ internal constructor(
     val layoutDirection: LayoutDirection,
     val inputTextStyle: TextStyle,
     val density: Density,
@@ -58,7 +61,7 @@ private constructor(
             minMaxUtil?.let {
                 if (
                     layoutDirection == it.layoutDirection &&
-                        paramStyle == it.inputTextStyle &&
+                        resolveDefaults(paramStyle, layoutDirection) == it.inputTextStyle &&
                         density.density == it.density.density &&
                         fontFamilyResolver === it.fontFamilyResolver
                 ) {
@@ -68,7 +71,7 @@ private constructor(
             last?.let {
                 if (
                     layoutDirection == it.layoutDirection &&
-                        paramStyle == it.inputTextStyle &&
+                        resolveDefaults(paramStyle, layoutDirection) == it.inputTextStyle &&
                         density.density == it.density.density &&
                         fontFamilyResolver === it.fontFamilyResolver
                 ) {

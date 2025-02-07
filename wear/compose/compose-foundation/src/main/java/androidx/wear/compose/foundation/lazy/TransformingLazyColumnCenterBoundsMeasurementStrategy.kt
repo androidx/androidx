@@ -159,6 +159,11 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
             }
 
         visibleItems.fastForEach { it.isInMeasure = false }
+        val childConstraints =
+            Constraints(
+                maxHeight = Constraints.Infinity,
+                maxWidth = containerConstraints.maxWidth - leftContentPadding - rightContentPadding
+            )
 
         return TransformingLazyColumnMeasureResult(
             anchorItemIndex = anchorItem.index,
@@ -177,6 +182,7 @@ internal class TransformingLazyColumnCenterBoundsMeasurementStrategy :
             // We don't report content padding correctly with center bounds strategy.
             beforeContentPadding = 0,
             afterContentPadding = 0,
+            childConstraints = childConstraints,
             measureResult =
                 layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                     visibleItems.fastForEach { it.place(this) }

@@ -164,6 +164,11 @@ val ColorSchemeScreen =
                         MaterialTheme.colorScheme.onError
                     )
                     ButtonWithColor(
+                        "ErrorDim",
+                        MaterialTheme.colorScheme.errorDim,
+                        MaterialTheme.colorScheme.onError
+                    )
+                    ButtonWithColor(
                         "Error Container",
                         MaterialTheme.colorScheme.errorContainer,
                         MaterialTheme.colorScheme.onErrorContainer

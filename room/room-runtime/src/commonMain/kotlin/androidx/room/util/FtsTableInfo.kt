@@ -21,7 +21,7 @@ import androidx.sqlite.SQLiteConnection
 import kotlin.jvm.JvmStatic
 
 /** A data class that holds the information about an FTS table. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 expect class FtsTableInfo {
     /** The table name */
     val name: String

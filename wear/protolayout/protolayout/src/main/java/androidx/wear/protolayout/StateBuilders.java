@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.expression.DynamicDataMapUtil.dynamicDataMapOf;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -26,7 +27,11 @@ import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.DynamicDataKey;
+import androidx.wear.protolayout.expression.DynamicDataMap;
+import androidx.wear.protolayout.expression.DynamicDataPair;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.MutableDynamicDataMap;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.proto.StateProto;
@@ -71,6 +76,21 @@ public final class StateBuilders {
         /** Gets the ID of the clickable that was last clicked. */
         public @NonNull String getLastClickableId() {
             return mImpl.getLastClickableId();
+        }
+
+        /**
+         * Gets any shared state between the provider and renderer. This method returns the same
+         * underlying data as {@link #getKeyToValueMapping()}.
+         */
+        public @NonNull DynamicDataMap getStateMap() {
+            MutableDynamicDataMap map = new MutableDynamicDataMap();
+            for (Entry<String, DynamicDataProto.DynamicDataValue> entry :
+                    mImpl.getIdToValueMap().entrySet()) {
+                map.set(
+                        new AppDataKey<>(entry.getKey()),
+                        DynamicDataBuilders.dynamicDataValueFromProto(entry.getValue()));
+            }
+            return map;
         }
 
         /** Gets any shared state between the provider and renderer. */
@@ -130,6 +150,79 @@ public final class StateBuilders {
 
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
+
+            /**
+             * Sets the mapping for any shared state between the provider and renderer. This method
+             * replaces the current state map with the entries from {@code map}.Any previous entries
+             * added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will be
+             * overwritten.
+             *
+             * @throws IllegalArgumentException if the size of {@code map} is larger than the
+             *     allowed limit ({@link #getMaxStateEntryCount()}).
+             */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            public @NonNull Builder setStateMap(@NonNull DynamicDataMap map) {
+                if (map.getSize() >= getMaxStateEntryCount()) {
+                    throw new IllegalArgumentException(
+                            String.format(
+                                    "State map size is too large: %d. "
+                                            + "Maximum allowed size is %d.",
+                                    map.getSize(), getMaxStateEntryCount()));
+                }
+                mImpl.clearIdToValue();
+                for (Map.Entry<
+                                DynamicDataKey<? extends DynamicType>,
+                                DynamicDataBuilders.DynamicDataValue<? extends DynamicType>>
+                        entry : map.getEntries()) {
+                    mImpl.putIdToValue(
+                            entry.getKey().getKey(), entry.getValue().toDynamicDataValueProto());
+                    mFingerprint.recordPropertyUpdate(
+                            entry.getKey().getKey().hashCode(),
+                            checkNotNull(entry.getValue().getFingerprint()).aggregateValueAsInt());
+                }
+                return this;
+            }
+
+            /**
+             * Sets the mapping for any shared state between the provider and renderer. This method
+             * replaces the current state map with the entries from {@code map}. Any previous
+             * entries added using this {@link #setStateMap} or {@link #addKeyToValueMapping} will
+             * be overwritten.
+             *
+             * @throws IllegalArgumentException if the size of {@code map} is larger than the
+             *     allowed limit ({@link #getMaxStateEntryCount()}).
+             */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            public @NonNull Builder setStateMap(@NonNull DynamicDataPair<?>... pairs) {
+                return setStateMap(dynamicDataMapOf(pairs));
+            }
+
+            /**
+             * Adds the entries into any shared state between the provider and renderer.
+             *
+             * @throws IllegalArgumentException if adding the new key/value will make the state
+             *     larger than the allowed limit ({@link #getMaxStateEntryCount()}).
+             */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            @SuppressLint("MissingGetterMatchingBuilder")
+            public @NonNull Builder addToStateMap(@NonNull DynamicDataPair<?>... entries) {
+                if (mImpl.getIdToValueMap().size() + entries.length > getMaxStateEntryCount()) {
+                    throw new IllegalArgumentException(
+                            String.format(
+                                    "Can't add the entries to the state. Adding more will increase"
+                                        + " the size to %d beyond the maximum allowed size of %d.",
+                                    mImpl.getIdToValueMap().size() + entries.length,
+                                    getMaxStateEntryCount()));
+                }
+                for (DynamicDataPair<?> entry : entries) {
+                    mImpl.putIdToValue(
+                            entry.getKey().getKey(), entry.getValue().toDynamicDataValueProto());
+                    mFingerprint.recordPropertyUpdate(
+                            entry.getKey().getKey().hashCode(),
+                            checkNotNull(entry.getValue().getFingerprint()).aggregateValueAsInt());
+                }
+                return this;
+            }
 
             /**
              * Adds an entry into any shared state between the provider and renderer.

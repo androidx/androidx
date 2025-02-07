@@ -65,7 +65,7 @@ class MicrobenchmarkPhaseConfigTest {
                     }
                 )
             microbenchmark.executePhases()
-            microbenchmark.output(null)
+            microbenchmark.output()
         }
 
         val calculatedIterations =

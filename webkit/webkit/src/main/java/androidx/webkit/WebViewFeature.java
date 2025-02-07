@@ -653,11 +653,11 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#prerenderUrlAsync(WebView, String,
-     * SpeculativeLoadingParameters, CancellationSignal, PrerenderOperationCallback)}}
+     * {@link androidx.webkit.WebViewCompat#prerenderUrl(WebView, String, CancellationSignal,
+     * Executor, SpeculativeLoadingParameters, PrerenderOperationCallback)}}
      */
     @WebViewCompat.ExperimentalUrlPrerender
-    public static final String PRERENDER_WITH_URL = "PRERENDER_URL";
+    public static final String PRERENDER_WITH_URL = "PRERENDER_URL_V2";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.

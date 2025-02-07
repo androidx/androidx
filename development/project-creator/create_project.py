@@ -265,7 +265,7 @@ def run_update_api(group_id, artifact_id):
     return True
 
 def get_library_type(artifact_id):
-    """Returns the appropriate androidx.build.LibraryType for the project.
+    """Returns the appropriate androidx.build.SoftwareType for the project.
     """
     if "sample" in artifact_id:
         library_type = "SAMPLES"

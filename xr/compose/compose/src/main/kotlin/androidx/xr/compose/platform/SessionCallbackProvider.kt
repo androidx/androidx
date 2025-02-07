@@ -16,13 +16,11 @@
 
 package androidx.xr.compose.platform
 
-import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.Dimensions
 import androidx.xr.scenecore.Session
 import java.io.Closeable
 
 /** Provides a [SessionCallbacks] for the current Activity. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun interface SessionCallbackProvider {
     public operator fun get(session: Session): SessionCallbacks
 
@@ -39,7 +37,6 @@ public fun interface SessionCallbackProvider {
 
 /** Class to store callback lambdas associated with the Session. */
 @Suppress("SingularCallback")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SessionCallbacks {
     /**
      * Register a [callback] to be triggered when the app goes into full space mode. It will be
@@ -93,7 +90,6 @@ public interface SessionCallbacks {
  *   It may render multiple panels and 3D objects.
  */
 @JvmInline
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public value class SpaceMode private constructor(public val value: Int) {
     public companion object {
         /**

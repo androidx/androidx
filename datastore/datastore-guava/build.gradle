@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -58,7 +58,7 @@ dependencies {
 
 androidx {
     name = "DataStore Guava"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Android DataStore Guava - contains wrappers for using DataStore using ListenableFuture"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

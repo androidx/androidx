@@ -510,7 +510,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> setTorchStrengthLevelAsync(
+    public @NonNull ListenableFuture<Void> setTorchStrengthLevel(
             @IntRange(from = 1) int torchStrengthLevel) {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(

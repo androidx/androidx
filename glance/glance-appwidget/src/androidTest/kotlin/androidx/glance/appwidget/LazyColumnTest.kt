@@ -43,6 +43,7 @@ import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.padding
+import androidx.glance.session.GlanceSessionManager
 import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -517,6 +518,33 @@ class LazyColumnTest {
             countFlow.emit(next)
             mHostRule.waitForListViewChildCount(next)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 31)
+    fun glanceRemoteViewsFactory_loadDataCatchesErrors() = runTest {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                item { Text("Row item 0") }
+                item { Text("Row item 1") }
+            }
+        }
+
+        mHostRule.startHost()
+        // Close session so that GlanceRemoteViewsFactory is forced to call createAppWidgetSession.
+        GlanceSessionManager.runWithLock {
+            closeSession(AppWidgetId(mHostRule.appWidgetId).toSessionKey())
+        }
+        val factory =
+            GlanceRemoteViewsService.GlanceRemoteViewsFactory(
+                context = context,
+                appWidgetId = mHostRule.appWidgetId,
+                viewId = 2,
+                size = "",
+            )
+        // withErrorOnSessionCreation causes the GlanceAppWidget to throw an IllegalStateException
+        // in createAppWidgetSession.
+        TestGlanceAppWidget.withErrorOnSessionCreation { factory.onDataSetChanged() }
     }
 }
 

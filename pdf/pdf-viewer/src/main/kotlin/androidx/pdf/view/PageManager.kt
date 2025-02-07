@@ -78,29 +78,41 @@ internal class PageManager(
     private val highlights: MutableMap<Int, MutableList<Highlight>> = mutableMapOf()
 
     /**
-     * Updates the internal state of [Page]s owned by this manager in response to a viewport change
+     * Updates the visibility state of [Page]s owned by this manager.
+     *
+     * @param visiblePageAreas the visible area of each visible page, in page coordinates
+     * @param currentZoomLevel the current zoom level
+     * @param stablePosition true if we don't believe our position is actively changing
      */
-    fun maybeUpdatePageState(
-        visiblePages: Range<Int>,
+    fun updatePageVisibilities(
+        visiblePageAreas: SparseArray<Rect>,
         currentZoomLevel: Float,
-        isFlinging: Boolean
+        stablePosition: Boolean
     ) {
         // Start preparing UI for visible pages
-        for (i in visiblePages.lower..visiblePages.upper) {
-            pages[i]?.updateState(currentZoomLevel, isFlinging)
+        visiblePageAreas.keyIterator().forEach { pageNum ->
+            pages[pageNum]?.setVisible(
+                currentZoomLevel,
+                visiblePageAreas.get(pageNum),
+                stablePosition
+            )
         }
 
-        // Hide pages that are well outside the viewport. We deliberately don't set pages that
-        // are within nearPages, but outside visible pages to invisible to avoid rendering churn
-        // for pages likely to return to the viewport.
+        // We put pages that are near the viewport in a "nearly visible" state where some data is
+        // retained. We release all data from pages well outside the viewport
         val nearPages =
             Range(
-                maxOf(0, visiblePages.lower - pagePrefetchRadius),
-                minOf(visiblePages.upper + pagePrefetchRadius, pdfDocument.pageCount - 1),
+                maxOf(0, visiblePageAreas.keyAt(0) - pagePrefetchRadius),
+                minOf(
+                    visiblePageAreas.keyAt(visiblePageAreas.size() - 1) + pagePrefetchRadius,
+                    pdfDocument.pageCount - 1
+                ),
             )
         for (pageNum in pages.keyIterator()) {
             if (pageNum < nearPages.lower || pageNum > nearPages.upper) {
                 pages[pageNum]?.setInvisible()
+            } else if (!visiblePageAreas.contains(pageNum)) {
+                pages[pageNum]?.setNearlyVisible()
             }
         }
     }
@@ -109,12 +121,12 @@ internal class PageManager(
      * Updates the set of [Page]s owned by this manager when a new Page's dimensions are loaded.
      * Dimensions are the minimum data required to instantiate a page.
      */
-    fun onPageSizeReceived(
+    fun addPage(
         pageNum: Int,
         size: Point,
-        isVisible: Boolean,
         currentZoomLevel: Float,
-        isFlinging: Boolean
+        stablePosition: Boolean,
+        viewArea: Rect? = null
     ) {
         if (pages.contains(pageNum)) return
         val page =
@@ -128,7 +140,12 @@ internal class PageManager(
                     onPageUpdate = { _invalidationSignalFlow.tryEmit(Unit) },
                     onPageTextReady = { pageNumber -> _pageTextReadyFlow.tryEmit(pageNumber) }
                 )
-                .apply { if (isVisible) updateState(currentZoomLevel, isFlinging) }
+                .apply {
+                    // If the page is visible, let it know
+                    if (viewArea != null) {
+                        setVisible(currentZoomLevel, viewArea, stablePosition)
+                    }
+                }
         pages.put(pageNum, page)
     }
 
@@ -151,7 +168,7 @@ internal class PageManager(
      * Sets all [Page]s owned by this manager to invisible, i.e. to reduce memory when the host
      * [PdfView] is not in an interactive state.
      */
-    fun onDetached() {
+    fun cleanup() {
         for (page in pages.valueIterator()) {
             page.setInvisible()
         }

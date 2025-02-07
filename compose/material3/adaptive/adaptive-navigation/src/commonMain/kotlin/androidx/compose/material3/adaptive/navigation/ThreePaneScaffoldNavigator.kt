@@ -117,8 +117,9 @@ interface ThreePaneScaffoldNavigator<T> {
     var isDestinationHistoryAware: Boolean
 
     /**
-     * Navigates to a new destination. The new destination is supposed to have the highest priority
-     * when calculating the new [scaffoldValue].
+     * Navigates to a new destination, possibly with an animation, and suspends until the animation
+     * is complete. The new destination is supposed to have the highest priority when calculating
+     * the new [scaffoldValue].
      *
      * Implementors of this interface should ensure the new destination pane will be expanded or
      * adapted in a reasonable way so it provides users the sense that the new destination is the
@@ -144,8 +145,8 @@ interface ThreePaneScaffoldNavigator<T> {
     ): Boolean
 
     /**
-     * Navigates to the previous destination. Returns `true` if there is a previous destination to
-     * navigate back to.
+     * Navigates to the previous destination, possibly with an animation, and suspends until the
+     * animation is complete. Returns `true` if there is a previous destination to navigate back to.
      *
      * Implementors of this interface should ensure the logic of this function is consistent with
      * [canNavigateBack].

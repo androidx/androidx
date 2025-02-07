@@ -23,7 +23,7 @@
  */
 
 import androidx.build.AndroidXConfig
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 
 
@@ -35,6 +35,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(libs.guavaListenableFuture)
     api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
 
@@ -45,14 +46,14 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-common:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
     implementation(project(":xr:runtime:runtime-openxr"))
-    implementation("com.google.ar:impress:0.0.1")
-    implementation(libs.guavaListenableFuture)
+    implementation("com.google.ar:impress:0.0.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.mockitoCore)
@@ -77,9 +78,7 @@ dependencies {
 android {
     defaultConfig {
         consumerProguardFiles 'proguard-rules.pro'
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdkVersion 24
     }
     sourceSets {
         test {
@@ -96,7 +95,7 @@ android {
 
 androidx {
     name = "XR SceneCore"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Scene building libraries for the androidx.xr namespace."
 

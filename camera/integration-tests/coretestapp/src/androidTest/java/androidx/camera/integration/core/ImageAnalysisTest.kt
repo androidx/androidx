@@ -641,7 +641,6 @@ internal class ImageAnalysisTest(
             // Clears analyzer and analysisResults first to make sure the old resolution frame data
             // will not be kept to cause test failure
             imageAnalysis.clearAnalyzer()
-            synchronized(analysisResultLock) { analysisResults.clear() }
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
@@ -674,11 +673,12 @@ internal class ImageAnalysisTest(
         expectedResolution: Size
     ) {
         analysisResultsSemaphore = Semaphore(0)
+        synchronized(analysisResultLock) { analysisResults.clear() }
         imageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
         analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
         synchronized(analysisResultLock) {
             assertThat(analysisResults).isNotEmpty()
-            assertThat(analysisResults.elementAt(0).resolution).isEqualTo(expectedResolution)
+            assertThat(analysisResults.last().resolution).isEqualTo(expectedResolution)
         }
     }
 

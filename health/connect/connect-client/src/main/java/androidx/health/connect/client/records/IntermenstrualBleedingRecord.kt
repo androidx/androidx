@@ -24,7 +24,7 @@ import java.time.ZoneOffset
 class IntermenstrualBleedingRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     /*

@@ -23,7 +23,6 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.view.Display
@@ -42,6 +41,7 @@ import androidx.privacysandbox.ui.core.ISandboxedUiAdapter
 import androidx.privacysandbox.ui.core.ProtocolConstants
 import androidx.privacysandbox.ui.core.RemoteCallManager.tryToCallRemoteObject
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.provider.impl.DeferredSessionClient
@@ -123,7 +123,7 @@ private class BinderAdapterDelegate(
     /** Called in local mode via reflection. */
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -137,7 +137,7 @@ private class BinderAdapterDelegate(
             val displayContext = sandboxContext.createDisplayContext(display)
             openSessionInternal(
                 displayContext,
-                windowInputToken,
+                sessionConstants,
                 initialWidth,
                 initialHeight,
                 isZOrderOnTop,
@@ -149,7 +149,7 @@ private class BinderAdapterDelegate(
 
     /** Called in remote mode via binder call. */
     override fun openRemoteSession(
-        windowInputToken: IBinder,
+        sessionConstants: Bundle,
         displayId: Int,
         initialWidth: Int,
         initialHeight: Int,
@@ -162,7 +162,7 @@ private class BinderAdapterDelegate(
             }
             return
         }
-
+        val constants = SessionConstants.fromBundle(sessionConstants)
         MainThreadExecutor.execute {
             try {
                 val displayManager =
@@ -173,10 +173,10 @@ private class BinderAdapterDelegate(
                 val deferredClient =
                     DeferredSessionClient.create(
                         clientFactory = {
-                            Api34PlusImpl.createSessionClientProxy(
+                            RemoteCompatImpl.createSessionClientProxy(
                                 displayContext,
                                 display,
-                                windowInputToken,
+                                constants,
                                 isZOrderOnTop,
                                 remoteSessionClient
                             )
@@ -191,7 +191,7 @@ private class BinderAdapterDelegate(
 
                 openSessionInternal(
                     displayContext,
-                    windowInputToken,
+                    constants,
                     initialWidth,
                     initialHeight,
                     isZOrderOnTop,
@@ -210,7 +210,7 @@ private class BinderAdapterDelegate(
 
     private fun openSessionInternal(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -219,7 +219,7 @@ private class BinderAdapterDelegate(
     ) {
         adapter.openSession(
             context,
-            windowInputToken,
+            sessionConstants,
             initialWidth,
             initialHeight,
             isZOrderOnTop,
@@ -412,17 +412,28 @@ private class BinderAdapterDelegate(
         }
     }
 
+    /**
+     * Provides backward compat support for APIs.
+     *
+     * If the API is available, it's called from a version-specific static inner class gated with
+     * version check, otherwise a fallback action is taken depending on the situation.
+     */
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private object Api34PlusImpl {
+    private object RemoteCompatImpl {
+
         fun createSessionClientProxy(
             displayContext: Context,
             display: Display,
-            windowInputToken: IBinder,
+            sessionConstants: SessionConstants,
             isZOrderOnTop: Boolean,
             remoteSessionClient: IRemoteSessionClient
         ): SessionClientProxy {
             val surfaceControlViewHost =
-                SurfaceControlViewHost(displayContext, display, windowInputToken)
+                checkNotNull(
+                    createSurfaceControlViewHost(displayContext, display, sessionConstants)
+                ) {
+                    "Failed to create SurfaceControlViewHost"
+                }
             val touchTransferringView =
                 TouchFocusTransferringView(displayContext, surfaceControlViewHost)
             return SessionClientProxy(
@@ -431,6 +442,51 @@ private class BinderAdapterDelegate(
                 isZOrderOnTop,
                 remoteSessionClient
             )
+        }
+
+        fun createSurfaceControlViewHost(
+            displayContext: Context,
+            display: Display,
+            sessionConstants: SessionConstants
+        ): SurfaceControlViewHost? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                Api35PlusImpl.createSurfaceControlViewHost(
+                    displayContext,
+                    display,
+                    sessionConstants
+                )
+            } else
+                Api34PlusImpl.createSurfaceControlViewHost(
+                    displayContext,
+                    display,
+                    sessionConstants
+                )
+        }
+
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        private object Api35PlusImpl {
+
+            @JvmStatic
+            fun createSurfaceControlViewHost(
+                context: Context,
+                display: Display,
+                sessionConstants: SessionConstants
+            ): SurfaceControlViewHost {
+                return SurfaceControlViewHost(context, display, sessionConstants.inputTransferToken)
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private object Api34PlusImpl {
+
+            @JvmStatic
+            fun createSurfaceControlViewHost(
+                context: Context,
+                display: Display,
+                sessionConstants: SessionConstants
+            ): SurfaceControlViewHost {
+                return SurfaceControlViewHost(context, display, sessionConstants.windowInputToken)
+            }
         }
     }
 }

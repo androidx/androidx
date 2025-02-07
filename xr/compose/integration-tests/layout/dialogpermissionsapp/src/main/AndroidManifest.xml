@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+  <uses-permission android:name="android.permission.SCENE_UNDERSTANDING" />
+  <application
+      android:label="Compose XR Dialog Permissions App"
+      >
+    <property
+        android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
+        android:value="XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED" />
+    <activity
+        android:name=".DialogPermissionsApp"
+        android:exported="true"
+        android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+        >
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <!--suppress AndroidElementNotAllowed -->
+      <layout
+          android:defaultWidth="50dp"
+          android:defaultHeight="50dp"
+          android:minHeight="50dp"
+          android:minWidth="50dp"
+          />
+    </activity>
+  </application>
+
+</manifest>

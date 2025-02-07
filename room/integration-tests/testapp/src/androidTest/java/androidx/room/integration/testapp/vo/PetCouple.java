@@ -26,6 +26,9 @@ import androidx.room.RoomWarnings;
 @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
 public class PetCouple {
     @PrimaryKey
+    // This project is tested against a version of the room compiler that doesn't recognize
+    // JSpecify for primary keys
+    @SuppressWarnings("JSpecifyNullness")
     @NonNull
     public String id;
     @Embedded(prefix = "male_")

@@ -16,11 +16,16 @@
 
 package androidx.wear.protolayout.material3
 
+import androidx.wear.protolayout.LayoutElementBuilders.FontSetting
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE
+import androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END
 import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment
 import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow
+import androidx.wear.protolayout.expression.RequiresSchemaVersion
 import androidx.wear.protolayout.layout.basicText
 import androidx.wear.protolayout.material3.Typography.TypographyToken
+import androidx.wear.protolayout.material3.Versions.hasTextOverflowEllipsizeSupport
 import androidx.wear.protolayout.modifiers.LayoutModifier
 import androidx.wear.protolayout.types.LayoutColor
 import androidx.wear.protolayout.types.LayoutString
@@ -32,6 +37,7 @@ import androidx.wear.protolayout.types.LayoutString
  * [Typography].
  *
  * @param text The text content for this component.
+ * @param modifiers Modifiers to set to this element.
  * @param typography The typography from [Typography] to be applied to this text. This will have
  *   predefined default value specified by each components that uses this text, to achieve the
  *   recommended look.
@@ -41,34 +47,55 @@ import androidx.wear.protolayout.types.LayoutString
  * @param underline Whether text should be displayed as underlined.
  * @param scalable Whether text should scale with the user font size.
  * @param maxLines The maximum number of lines that text can occupy.
- * @param multilineAlignment The horizontal alignment of the multiple lines of text.
+ * @param alignment The horizontal alignment of the multiple lines of text or one line of text when
+ *   text overflows.
  * @param overflow The overflow strategy when text doesn't have enough space to be shown.
- * @param modifiers Modifiers to set to this element.
+ * @param settings The collection of font settings to be applied. If more than one Setting with the
+ *   same axis tag is specified, the first one will be used. Supported settings depend on the font
+ *   used and renderer version. Each default typography will apply appropriate default setting axes
+ *   for it ([FontSetting.weight], [FontSetting.width] and [FontSetting.roundness].
  * @sample androidx.wear.protolayout.material3.samples.helloWorldTextDefault
  * @sample androidx.wear.protolayout.material3.samples.helloWorldTextDynamicCustom
  */
+@Suppress("DEPRECATION") // Intentionally using deprecated fallback for old renderer
 public fun MaterialScope.text(
     text: LayoutString,
+    modifiers: LayoutModifier = LayoutModifier,
     @TypographyToken typography: Int = defaultTextElementStyle.typography,
     color: LayoutColor = defaultTextElementStyle.color,
     italic: Boolean = defaultTextElementStyle.italic,
     underline: Boolean = defaultTextElementStyle.underline,
-    scalable: Boolean = defaultTextElementStyle.scalable,
+    scalable: Boolean =
+        defaultTextElementStyle.scalable ?: TypographyFontSelection.getFontScalability(typography),
     maxLines: Int = defaultTextElementStyle.maxLines,
-    @TextAlignment multilineAlignment: Int = defaultTextElementStyle.multilineAlignment,
+    @TextAlignment alignment: Int = defaultTextElementStyle.alignment,
     @TextOverflow overflow: Int = defaultTextElementStyle.overflow,
-    modifiers: LayoutModifier = LayoutModifier
+    @RequiresSchemaVersion(major = 1, minor = 400) settings: List<FontSetting> = emptyList()
 ): LayoutElement =
     basicText(
         text = text,
         fontStyle =
-            createFontStyleBuilder(typographyToken = typography, deviceConfiguration, scalable)
+            createFontStyleBuilder(
+                    typographyToken = typography,
+                    deviceConfiguration = deviceConfiguration,
+                    isScalable = scalable,
+                    settings = settings
+                )
                 .setColor(color.prop)
                 .setItalic(italic)
                 .setUnderline(underline)
                 .build(),
         maxLines = maxLines,
-        multilineAlignment = multilineAlignment,
-        overflow = overflow,
+        alignment = alignment,
+        overflow =
+            if (overflow == TEXT_OVERFLOW_ELLIPSIZE) {
+                if (deviceConfiguration.rendererSchemaVersion.hasTextOverflowEllipsizeSupport()) {
+                    overflow
+                } else {
+                    TEXT_OVERFLOW_ELLIPSIZE_END
+                }
+            } else {
+                overflow
+            },
         modifier = modifiers
     )

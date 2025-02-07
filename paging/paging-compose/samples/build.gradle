@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,7 +44,7 @@ dependencies {
 
 androidx {
     name = "Paging Compose Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

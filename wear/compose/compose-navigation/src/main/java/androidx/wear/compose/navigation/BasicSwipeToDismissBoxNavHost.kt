@@ -124,7 +124,7 @@ internal fun BasicSwipeToDismissBoxNavHost(
     }
 
     val isRoundDevice = isRoundDevice()
-    val reduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val reduceMotionEnabled = LocalReduceMotion.current
 
     var initialContent by remember { mutableStateOf(true) }
     val swipeState = state.swipeToDismissBoxState

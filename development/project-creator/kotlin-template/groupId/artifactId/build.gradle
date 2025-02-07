@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +40,7 @@ android {
 
 androidx {
     name = "<NAME>"
-    type = LibraryType.<LIBRARY_TYPE>
+    type = SoftwareType.<LIBRARY_TYPE>
     mavenVersion = LibraryVersions.<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<DESCRIPTION>"

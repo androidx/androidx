@@ -19,15 +19,19 @@ package androidx.privacysandbox.ui.tests.endtoend
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Binder
+import android.os.Build
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import androidx.privacysandbox.ui.integration.testingutils.TestEventListener
 import androidx.privacysandbox.ui.tests.endtoend.IntegrationTestSetupRule.Companion.INITIAL_HEIGHT
 import androidx.privacysandbox.ui.tests.endtoend.IntegrationTestSetupRule.Companion.INITIAL_WIDTH
@@ -138,7 +142,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testOpenSession_fromAdapter() {
-        val adapter = sessionManager.createAdapterAndEstablishSession(viewForSession = null)
+        val adapter =
+            sessionManager.createAdapterAndEstablishSession(
+                viewForSession = null,
+                sessionConstants = deriveSessionConstants()
+            )
         assertThat(adapter.session).isNotNull()
     }
 
@@ -524,6 +532,24 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
                     ),
                     false
                 )
+        }
+    }
+
+    private fun deriveSessionConstants(): SessionConstants {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return Api35PlusImpl.deriveSessionConstants(view)
+        } else {
+            return SessionConstants(windowInputToken = Binder(), inputTransferToken = null)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private object Api35PlusImpl {
+        fun deriveSessionConstants(view: SandboxedSdkView): SessionConstants {
+            return SessionConstants(
+                windowInputToken = Binder(),
+                inputTransferToken = view.rootSurfaceControl?.inputTransferToken
+            )
         }
     }
 }

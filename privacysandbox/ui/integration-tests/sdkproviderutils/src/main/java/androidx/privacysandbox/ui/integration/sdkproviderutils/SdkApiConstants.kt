@@ -53,5 +53,34 @@ class SdkApiConstants {
                 const val ENABLED_AFTER_5_SECONDS = 1
             }
         }
+
+        annotation class ZOrderOption {
+            companion object {
+                const val Z_ABOVE = true
+                const val Z_BELOW = false
+            }
+        }
+
+        annotation class ViewabilityOption {
+            companion object {
+                const val DRAW = true
+                const val DO_NOT_DRAW = false
+            }
+        }
+
+        annotation class FragmentOption {
+            companion object {
+                const val RESIZE = 0
+                const val SCROLL = 1
+                const val POOLING_CONTAINER = 2
+            }
+        }
+
+        annotation class UiFrameworkOption {
+            companion object {
+                const val VIEW = 0
+                const val COMPOSE = 1
+            }
+        }
     }
 }

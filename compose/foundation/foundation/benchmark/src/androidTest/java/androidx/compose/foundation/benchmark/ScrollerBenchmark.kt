@@ -91,14 +91,14 @@ class ScrollerBenchmark {
         with(benchmarkRule) {
             runBenchmarkFor({ MouseWheelScrollerTestCase() }) {
                 measureRepeatedOnUiThread {
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         doFrame()
                         assertNoPendingRecompositionMeasureOrLayout()
                     }
 
                     performToggle(getTestCase())
 
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         // This benchmark only cares about initial cost of adding the scroll node
                         disposeContent()
                     }
@@ -119,7 +119,7 @@ class ScrollerBenchmark {
 
                 measureRepeatedOnUiThread {
                     performToggle(getTestCase())
-                    runWithTimingDisabled { doFramesUntilIdle() }
+                    runWithMeasurementDisabled { doFramesUntilIdle() }
                 }
             }
         }

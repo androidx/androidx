@@ -17,7 +17,7 @@
 // This project contains tests for code contained in buildSrc
 // This project is stored outside of buildSrc/ so that waiting for these tests to complete doesn't delay the rest of the build
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 
 plugins {
@@ -89,7 +89,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    type = LibraryType.INTERNAL_GRADLE_PLUGIN
+    type = SoftwareType.INTERNAL_GRADLE_PLUGIN
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 

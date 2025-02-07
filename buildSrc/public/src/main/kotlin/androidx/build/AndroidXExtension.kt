@@ -309,12 +309,12 @@ abstract class AndroidXExtension(
     fun shouldPublishSbom(): Boolean {
         if (isIsolatedProjectsEnabled()) return false
         // IDE plugins are used by and ship inside Studio
-        return shouldPublish() || type == LibraryType.IDE_PLUGIN
+        return shouldPublish() || type == SoftwareType.IDE_PLUGIN
     }
 
     var doNotDocumentReason: String? = null
 
-    var type: LibraryType = LibraryType.UNSET
+    var type: SoftwareType = SoftwareType.UNSET
 
     /** Whether this project should fail on javac compilation warnings */
     var failOnDeprecationWarnings = true
@@ -338,6 +338,7 @@ abstract class AndroidXExtension(
     val additionalDeviceTestTags: MutableList<String> by lazy {
         val tags =
             when {
+                project.path.startsWith(":compose:") -> mutableListOf("compose")
                 project.path.startsWith(":privacysandbox:ads:") ->
                     mutableListOf("privacysandbox", "privacysandbox_ads")
                 project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")

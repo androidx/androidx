@@ -17,10 +17,10 @@
 package androidx.savedstate
 
 import androidx.kruth.assertThat
+import androidx.savedstate.serialization.SavedStateConfig
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.serializer
 
 internal object SavedStateCodecTestUtils {
     /* Test the following steps: 1. encode `T` to a `SavedState`, 2. parcelize it to a `Parcel`,
@@ -33,18 +33,47 @@ internal object SavedStateCodecTestUtils {
      *  used to compare the instances of "E" and "A".
      */
     inline fun <reified T : Any> T.encodeDecode(
-        serializer: KSerializer<T> = serializer<T>(),
+        serializer: KSerializer<T>? = null,
+        config: SavedStateConfig? = null,
         checkDecoded: (T, T) -> Unit = { decoded, original ->
             assertThat(decoded).isEqualTo(original)
         },
         checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) }
     ) {
-        val encoded = encodeToSavedState(serializer, this)
+        val encoded =
+            if (serializer == null) {
+                if (config == null) {
+                    encodeToSavedState(this)
+                } else {
+                    encodeToSavedState(this, config)
+                }
+            } else {
+                if (config == null) {
+                    encodeToSavedState(serializer, this)
+                } else {
+                    encodeToSavedState(serializer, this, config)
+                }
+            }
+
         encoded.read { checkEncoded() }
 
         val restored = platformEncodeDecode(encoded)
 
-        val decoded = decodeFromSavedState(serializer, restored)
+        val decoded =
+            if (serializer == null) {
+                if (config == null) {
+                    decodeFromSavedState(restored)
+                } else {
+                    decodeFromSavedState(restored, config)
+                }
+            } else {
+                if (config == null) {
+                    decodeFromSavedState(serializer, restored)
+                } else {
+                    decodeFromSavedState(serializer, restored, config)
+                }
+            }
+
         checkDecoded(decoded, this)
     }
 }

@@ -27,67 +27,34 @@ import kotlinx.serialization.serializer
 
 /**
  * Returns a property delegate that uses [SavedStateHandle] to save and restore a value of type [T]
- * with fully qualified property or variable name as key and the default serializer.
- *
- * @sample androidx.lifecycle.delegate
- * @param init The function to provide the initial value of the property.
- * @return A property delegate that manages the saving and restoring of the value.
- */
-public inline fun <reified T : Any> SavedStateHandle.saved(
-    noinline init: () -> T,
-): ReadWriteProperty<Any?, T> {
-    return saved(serializer(), init)
-}
-
-/**
- * Returns a property delegate that uses [SavedStateHandle] to save and restore a value of type [T]
  * with the default serializer.
  *
  * @sample androidx.lifecycle.delegateExplicitKey
- * @param key The [String] key to use for storing the value in the [SavedStateHandle].
+ * @param key An optional [String] key to use for storing the value in the [SavedStateHandle]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
  * @param init The function to provide the initial value of the property.
  * @return A property delegate that manages the saving and restoring of the value.
  */
 public inline fun <reified T : Any> SavedStateHandle.saved(
-    key: String,
+    key: String? = null,
     noinline init: () -> T,
 ): ReadWriteProperty<Any?, T> {
-    return saved(key, serializer(), init)
-}
-
-/**
- * Returns a property delegate that uses [SavedStateHandle] to save and restore a value of type [T]
- * with fully qualified property or variable name as key.
- *
- * @sample androidx.lifecycle.delegateExplicitSerializer
- * @param serializer The [KSerializer] to use for serializing and deserializing the value.
- * @param init The function to provide the initial value of the property.
- * @return A property delegate that manages the saving and restoring of the value.
- */
-public fun <T : Any> SavedStateHandle.saved(
-    serializer: KSerializer<T>,
-    init: () -> T,
-): ReadWriteProperty<Any?, T> {
-    return SavedStateHandleDelegate(
-        savedStateHandle = this,
-        key = null,
-        serializer = serializer,
-        init = init
-    )
+    return saved(serializer(), key, init)
 }
 
 /**
  * Returns a property delegate that uses [SavedStateHandle] to save and restore a value of type [T].
  *
  * @sample androidx.lifecycle.delegateExplicitKeyAndSerializer
- * @param key The [String] key to use for storing the value in the [SavedStateHandle].
  * @param serializer The [KSerializer] to use for serializing and deserializing the value.
+ * @param key An optional [String] key to use for storing the value in the [SavedStateHandle]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
  * @param init The function to provide the initial value of the property.
  * @return A property delegate that manages the saving and restoring of the value.
  */
 public fun <T : Any> SavedStateHandle.saved(
-    key: String,
     serializer: KSerializer<T>,
+    key: String? = null,
     init: () -> T,
 ): ReadWriteProperty<Any?, T> {
     return SavedStateHandleDelegate(

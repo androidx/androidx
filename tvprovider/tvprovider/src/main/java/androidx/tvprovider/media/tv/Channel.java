@@ -23,12 +23,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.ServiceType;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.VideoFormat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -334,8 +335,7 @@ public final class Channel {
     /**
      * @return The value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
      */
-    @Nullable
-    public String getGlobalContentId() {
+    public @Nullable String getGlobalContentId() {
         return mValues.getAsString(Channels.COLUMN_GLOBAL_CONTENT_ID);
     }
 
@@ -1010,8 +1010,7 @@ public final class Channel {
          * @param value The value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        @NonNull
-        public Builder setGlobalContentId(@NonNull String value) {
+        public @NonNull Builder setGlobalContentId(@NonNull String value) {
             mValues.put(Channels.COLUMN_GLOBAL_CONTENT_ID, value);
             return this;
         }

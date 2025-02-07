@@ -22,7 +22,7 @@ import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 
 /**
  * Interface for for providing the appropriate [PreparedQueryResultBinder] given a query and a
- * method's return type.
+ * function's return type.
  */
 interface PreparedQueryResultBinderProvider {
     /**

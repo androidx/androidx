@@ -7,10 +7,10 @@ package androidx.security.state.provider {
     method public java.util.Date getPublishedDate();
     method public String getSecurityPatchLevel();
     method public String getUri();
-    property public final String component;
-    property public final java.util.Date publishedDate;
-    property public final String securityPatchLevel;
-    property public final String uri;
+    property public String component;
+    property public java.util.Date publishedDate;
+    property public String securityPatchLevel;
+    property public String uri;
   }
 
   public static final class UpdateInfo.Builder {

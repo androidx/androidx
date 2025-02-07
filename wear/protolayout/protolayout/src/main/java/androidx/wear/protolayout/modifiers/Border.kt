@@ -33,6 +33,6 @@ fun LayoutModifier.border(@Dimension(DP) width: Float, color: LayoutColor): Layo
 
 internal class BaseBorderElement(@Dimension(DP) val width: Float, val color: LayoutColor) :
     LayoutModifier.Element {
-    fun foldIn(initial: Border.Builder?): Border.Builder =
+    fun mergeTo(initial: Border.Builder?): Border.Builder =
         (initial ?: Border.Builder()).setWidth(width.dp).setColor(color.prop)
 }

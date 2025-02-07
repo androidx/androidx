@@ -26,25 +26,35 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 
 public object FakeThreads {
-    public fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
+    public fun fromDispatcher(
+        dispatcher: CoroutineDispatcher,
+        blockingDispatcher: CoroutineDispatcher? = null,
+    ): Threads {
         val scope = CoroutineScope(dispatcher + CoroutineName("CXCP-TestScope"))
-        return create(scope, dispatcher)
+        return create(scope, dispatcher, blockingDispatcher)
     }
 
-    public fun fromTestScope(scope: TestScope): Threads {
+    public fun fromTestScope(
+        scope: TestScope,
+        blockingDispatcher: CoroutineDispatcher? = null,
+    ): Threads {
         val dispatcher = StandardTestDispatcher(scope.testScheduler, "CXCP-TestScope")
-        return create(scope, dispatcher)
+        return create(scope, dispatcher, blockingDispatcher)
     }
 
-    private fun create(scope: CoroutineScope, dispatcher: CoroutineDispatcher): Threads {
+    private fun create(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        blockingDispatcher: CoroutineDispatcher?,
+    ): Threads {
         val executor = dispatcher.asExecutor()
 
         @Suppress("deprecation") val fakeHandler = { Handler() }
 
         return Threads(
             scope,
-            blockingExecutor = executor,
-            blockingDispatcher = dispatcher,
+            blockingExecutor = blockingDispatcher?.asExecutor() ?: executor,
+            blockingDispatcher = blockingDispatcher ?: dispatcher,
             backgroundExecutor = executor,
             backgroundDispatcher = dispatcher,
             lightweightExecutor = executor,

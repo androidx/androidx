@@ -33,9 +33,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

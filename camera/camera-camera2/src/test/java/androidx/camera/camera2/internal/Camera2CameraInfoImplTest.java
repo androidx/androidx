@@ -930,6 +930,19 @@ public class Camera2CameraInfoImplTest {
 
     @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Test
+    public void apiVersionMet_canReturnIsTorchStrengthSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+        final CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo0.isTorchStrengthSupported()).isTrue();
+        assertThat(cameraInfo1.isTorchStrengthSupported()).isFalse();
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
     public void apiVersionMet_canReturnTorchStrengthUnsupported()
             throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ true);

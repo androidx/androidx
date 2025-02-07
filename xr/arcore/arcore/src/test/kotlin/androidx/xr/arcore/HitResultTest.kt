@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class HitResultTest {
 
     class TestTrackable : Trackable<Trackable.State> {
-        override fun createAnchor(pose: Pose): Anchor {
+        override fun createAnchor(pose: Pose): AnchorCreateResult {
             throw NotImplementedError("Not implemented")
         }
 

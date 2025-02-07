@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,54 +18,46 @@ package androidx.appfunctions.metadata
 
 import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
-import java.util.Objects
 
-// TODO: Make it public once API surface is finalize
-/** Represents an AppFunction response's metadata. */
-@Document
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppFunctionResponseMetadata
-internal constructor(
-    @Document.Namespace public val namespace: String,
-    @Document.Id public val id: String,
-    /** Indicates whether the parameter is nullable. */
-    @Document.BooleanProperty public val isNullable: Boolean,
-    /** The data type of the parameter. */
-    @Document.DocumentProperty public val dataType: AppFunctionDataTypeMetadata? = null,
-    /** The reference data type of the parameter. */
-    @Document.StringProperty public val referenceDataType: String? = null,
+/** Represents an AppFunction's response metadata. */
+public class AppFunctionResponseMetadata(
+    /** The schema of the return value type. */
+    public val valueType: AppFunctionDataTypeMetadata
 ) {
-    /**
-     * @param isNullable Indicates whether the parameter is nullable.
-     * @param dataType The data type of the parameter.
-     * @param referenceDataType The reference data type of the parameter.
-     */
-    public constructor(
-        isNullable: Boolean,
-        dataType: AppFunctionDataTypeMetadata? = null,
-        referenceDataType: String? = null,
-    ) : this(APP_FUNCTION_NAMESPACE, APP_FUNCTION_ID_EMPTY, isNullable, dataType, referenceDataType)
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AppFunctionResponseMetadata) return false
+        if (javaClass != other?.javaClass) return false
 
-        return this.namespace == other.namespace &&
-            this.id == other.id &&
-            this.isNullable == other.isNullable &&
-            this.dataType == other.dataType &&
-            this.referenceDataType == other.referenceDataType
+        other as AppFunctionResponseMetadata
+
+        if (valueType != other.valueType) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(namespace, id, isNullable, dataType, referenceDataType)
+        var result = valueType.hashCode()
+        return result
     }
 
     override fun toString(): String {
-        return "AppFunctionResponseMetadata(namespace=$namespace, " +
-            "id=$id, " +
-            "isNullable=$isNullable, " +
-            "dataType=$dataType, " +
-            "referenceDataType=$referenceDataType)"
+        return "AppFunctionResponseMetadata(valueType=$valueType)"
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toAppFunctionResponseMetadataDocument(): AppFunctionResponseMetadataDocument {
+        return AppFunctionResponseMetadataDocument(
+            valueType = valueType.toAppFunctionDataTypeMetadataDocument()
+        )
     }
 }
+
+/** Represents the persistent storage format of [AppFunctionResponseMetadata]. */
+@Document
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class AppFunctionResponseMetadataDocument(
+    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
+    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
+    /** The schema of the return type. */
+    @Document.DocumentProperty public val valueType: AppFunctionDataTypeMetadataDocument,
+)

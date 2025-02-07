@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -22,7 +22,7 @@ android {
 
 androidx {
     name = "Sample Dependent library"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2020"
     description = "This is a sample library for confirming that maxDepVersions builds work correctly"
 }

@@ -1389,17 +1389,13 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the ratio proportional to the bounding box width/height. value 0 represents the
-         * location at the top / left of the bounding box and value 1 represents the location at the
-         * bottom / end of the bounding box. Its default value 0.5 represents the middle of the
-         * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
+         * Gets the ratio proportional to the bounding box width/height. Value 0 represents the
+         * location at the top / start of the bounding box, value 1 represents the location at the
+         * bottom / end of the bounding box, and value 0.5 represents the middle of the bounding
+         *  box. Values outside [0, 1] are also valid. Dynamic value is supported.
          */
         public @NonNull FloatProp getRatio() {
-            if (mImpl.hasRatio()) {
-                return FloatProp.fromProto(mImpl.getRatio());
-            } else {
-                return new FloatProp.Builder(0.5f).build();
-            }
+            return FloatProp.fromProto(mImpl.getRatio());
         }
 
         @Override
@@ -1452,9 +1448,11 @@ public final class DimensionBuilders {
             /**
              * Creates an instance of {@link Builder}.
              *
-             * @param ratio the ratio relative to the bounding box width / height, with the bounding
-             *     box top / left as 0 and bottom / right as 1. Values outside [0, 1] are also
-             *     valid. Dynamic value is supported.
+             * @param ratio the ratio proportional to the bounding box width/height. Value 0
+             *     represents the location at the top / start of the bounding box, value 1
+             *     represents the location at the bottom / end of the bounding box, and value 0.5
+             *     represents the middle of the bounding box. Values outside [0, 1] are also valid.
+             *     Dynamic value is supported.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             public Builder(@NonNull FloatProp ratio) {
@@ -1465,9 +1463,10 @@ public final class DimensionBuilders {
             Builder() {}
 
             /**
-             * Sets the ratio relative to the bounding box width / height, with the bounding box top
-             * / left as 0 and bottom / right as 1. Values outside [0, 1] are also valid. Dynamic
-             * value is supported.
+             * Sets the ratio proportional to the bounding box width/height. Value 0 represents the
+             * location at the top / start of the bounding box, value 1 represents the location at
+             * the bottom / end of the bounding box, and value 0.5 represents the middle of the
+             * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull Builder setRatio(@NonNull FloatProp ratio) {

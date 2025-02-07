@@ -38,6 +38,7 @@ class NavParserTest {
 
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
+        val nameComposable = ClassName.get("com.example", "HomeScreenKt_HomeScreen")
         val expectedFirst =
             Destination(
                 id("first_screen"),
@@ -95,6 +96,15 @@ class NavParserTest {
                 listOf(Action(id("next"), id("first_screen")), Action(id("finish"), null))
             )
 
+        val expectedComposable =
+            Destination(
+                id("home_screen"),
+                nameComposable,
+                "composable",
+                listOf(Argument("myarg3", StringType)),
+                listOf(Action(id("action_home_screen_to_other_fragment"), id("other_fragment")))
+            )
+
         val expectedGraph =
             Destination(
                 null,
@@ -102,7 +112,7 @@ class NavParserTest {
                 "navigation",
                 emptyList(),
                 emptyList(),
-                listOf(expectedFirst, expectedNext)
+                listOf(expectedFirst, expectedNext, expectedComposable)
             )
         assertThat(navGraph).isEqualTo(expectedGraph)
     }

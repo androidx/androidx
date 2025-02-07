@@ -16,7 +16,6 @@
 
 package androidx.room.integration.testapp.migration;
 
-import androidx.annotation.NonNull;
 import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
@@ -37,6 +36,8 @@ import androidx.room.RenameTable;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.AutoMigrationSpec;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -186,7 +187,10 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         public static final String TABLE_NAME = "Entity8";
         public int id;
         @PrimaryKey
-        @NonNull
+        // This project is tested against a version of the room compiler that doesn't recognize
+        // JSpecify for primary keys
+        @SuppressWarnings("JSpecifyNullness")
+        @androidx.annotation.NonNull
         public String name;
         @ColumnInfo(defaultValue = "1")
         public int addedInV1;
@@ -342,7 +346,10 @@ public abstract class AutoMigrationDb extends RoomDatabase {
         public static final String TABLE_NAME = "Entity20_V2";
         public int id;
         @PrimaryKey
-        @NonNull
+        // This project is tested against a version of the room compiler that doesn't recognize
+        // JSpecify for primary keys
+        @SuppressWarnings("JSpecifyNullness")
+        @androidx.annotation.NonNull
         public String name;
         @ColumnInfo(defaultValue = "1")
         public String renamedInV2;

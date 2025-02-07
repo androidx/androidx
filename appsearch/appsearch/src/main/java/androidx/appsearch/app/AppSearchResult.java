@@ -59,7 +59,6 @@ public final class AppSearchResult<ValueType> {
             RESULT_SECURITY_ERROR,
             RESULT_DENIED,
             RESULT_RATE_LIMITED,
-            RESULT_TIMED_OUT,
             RESULT_ALREADY_EXISTS
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -121,11 +120,6 @@ public final class AppSearchResult<ValueType> {
     @FlaggedApi(Flags.FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED)
     @ExperimentalAppSearchApi
     public static final int RESULT_RATE_LIMITED = 10;
-
-    /** The operation was timed out. */
-    @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
-    @ExperimentalAppSearchApi
-    public static final int RESULT_TIMED_OUT = 11;
 
     /** The operation is invalid because the resource already exists and can't be replaced.   */
     @FlaggedApi(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)

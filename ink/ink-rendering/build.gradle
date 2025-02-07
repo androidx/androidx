@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -23,7 +23,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -62,7 +62,7 @@ android {
 
 androidx {
     name = "Ink Rendering"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Display beautiful strokes"
     addGoldenImageAssets()

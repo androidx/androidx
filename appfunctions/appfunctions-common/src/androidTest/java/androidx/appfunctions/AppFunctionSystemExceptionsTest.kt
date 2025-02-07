@@ -22,12 +22,12 @@ import org.junit.Test
 class AppFunctionSystemExceptionsTest {
     @Test
     fun testErrorCategory_SystemError() {
-        assertThat(AppFunctionSystemUnknownException().errorCode)
+        assertThat(AppFunctionSystemUnknownException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_SYSTEM_ERROR)
         assertThat(AppFunctionSystemUnknownException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_SYSTEM)
 
-        assertThat(AppFunctionCancelledException().errorCode)
+        assertThat(AppFunctionCancelledException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_CANCELLED)
         assertThat(AppFunctionCancelledException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_SYSTEM)

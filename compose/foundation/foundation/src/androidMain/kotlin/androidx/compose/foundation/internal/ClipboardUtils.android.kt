@@ -36,7 +36,6 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.util.fastForEach
@@ -386,7 +385,6 @@ internal class DecodeHelper(string: String) {
         return Color(decodeULong())
     }
 
-    @OptIn(ExperimentalUnitApi::class)
     fun decodeTextUnit(): TextUnit {
         val type =
             when (decodeByte()) {
@@ -401,7 +399,6 @@ internal class DecodeHelper(string: String) {
         return TextUnit(value, type)
     }
 
-    @OptIn(ExperimentalUnitApi::class)
     fun decodeFontWeight(): FontWeight {
         return FontWeight(decodeInt())
     }

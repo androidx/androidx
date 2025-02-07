@@ -19,7 +19,7 @@ package androidx.room.vo
 import androidx.room.compiler.codegen.XTypeName
 
 /** Common interface between [Entity] and [DatabaseView]. */
-interface EntityOrView : HasFields {
+interface EntityOrView : HasProperties {
 
     /** The name of this table or view as it is stored in an SQLite database. */
     val tableName: String

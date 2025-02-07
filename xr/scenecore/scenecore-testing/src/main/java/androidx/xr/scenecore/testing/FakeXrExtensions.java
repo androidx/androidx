@@ -33,7 +33,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.xr.extensions.Config;
 import androidx.xr.extensions.Consumer;
 import androidx.xr.extensions.XrExtensionResult;
@@ -84,7 +83,6 @@ import java.util.concurrent.Executor;
  * JXRCore runtime for AndroidXR.
  */
 @SuppressWarnings("deprecation")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeXrExtensions implements XrExtensions {
     private static final String NOT_IMPLEMENTED_IN_FAKE =
             "This function is not implemented yet in FakeXrExtensions.  Please add an"
@@ -845,6 +843,10 @@ public class FakeXrExtensions implements XrExtensions {
             return mWOrientation;
         }
 
+        public float getCornerRadius() {
+            return mCornerRadius;
+        }
+
         public boolean isVisible() {
             return mIsVisible;
         }
@@ -1131,7 +1133,7 @@ public class FakeXrExtensions implements XrExtensions {
             implements androidx.xr.extensions.asset.EnvironmentToken {
         String mUrl;
 
-        private FakeEnvironmentToken(@NonNull String url) {
+        public FakeEnvironmentToken(@NonNull String url) {
             this.mUrl = url;
         }
 
@@ -1474,6 +1476,7 @@ public class FakeXrExtensions implements XrExtensions {
         }
 
         @Override
+        @SuppressWarnings("GetterSetterNames")
         public boolean getForceShowResizeOverlay() {
             return mForceShowResizeOverlay;
         }

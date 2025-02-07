@@ -74,7 +74,6 @@ import kotlin.math.max
  * https://developer.android.com/reference/android/hardware/HardwareBuffer
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-@Suppress("AcronymName")
 class GLFrontBufferedRenderer<T>
 @JvmOverloads
 constructor(

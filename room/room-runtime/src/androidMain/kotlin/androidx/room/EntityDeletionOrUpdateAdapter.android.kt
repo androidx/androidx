@@ -27,7 +27,7 @@ import androidx.sqlite.db.SupportSQLiteStatement
  * @constructor Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the
  *   given database.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Deprecated("No longer used by generated code.", ReplaceWith("EntityDeleteOrUpdateAdapter"))
 abstract class EntityDeletionOrUpdateAdapter<T>(database: RoomDatabase) :
     SharedSQLiteStatement(database) {

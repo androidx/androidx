@@ -43,7 +43,7 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields =
+                properties =
                     listOf(
                         primaryKeyField,
                         bodyField,
@@ -51,11 +51,11 @@ class FtsEntityTest {
                         dontIndexMe1Field,
                         dontIndexMe2Field
                     ),
-                embeddedFields = emptyList(),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
+                        properties = Properties(primaryKeyField),
                         autoGenerateId = true
                     ),
                 constructor = null,
@@ -102,12 +102,12 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
+                        properties = Properties(primaryKeyField),
                         autoGenerateId = true
                     ),
                 constructor = null,
@@ -146,12 +146,12 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
+                        properties = Properties(primaryKeyField),
                         autoGenerateId = true
                     ),
                 constructor = null,
@@ -185,12 +185,12 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
+                        properties = Properties(primaryKeyField),
                         autoGenerateId = true
                     ),
                 constructor = null,
@@ -229,12 +229,12 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
+                        properties = Properties(primaryKeyField),
                         autoGenerateId = true
                     ),
                 constructor = null,
@@ -264,9 +264,9 @@ class FtsEntityTest {
         )
     }
 
-    fun createField(name: String): Field {
+    fun createField(name: String): Property {
         val (element, type) = mockElementAndType()
-        return Field(
+        return Property(
             element = element,
             name = name,
             type = type,

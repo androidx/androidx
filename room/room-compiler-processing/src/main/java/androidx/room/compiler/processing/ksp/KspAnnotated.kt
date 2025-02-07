@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -46,24 +45,18 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
         containerAnnotation: KClass<out Annotation>?
-    ): List<XAnnotationBox<T>> {
+    ): List<XAnnotation> {
         // we'll try both because it can be the container or the annotation itself.
         // try container first
         if (containerAnnotation != null) {
             // if container also repeats, this won't work but we don't have that use case
             findAnnotations(containerAnnotation).firstOrNull()?.let {
-                return KspAnnotationBox(
-                        env = env,
-                        annotation = it,
-                        annotationClass = containerAnnotation.java,
-                    )
-                    .getAsAnnotationBoxArray<T>("value")
-                    .toList()
+                return KspAnnotation(env = env, ksAnnotated = it).getAsAnnotationList("value")
             }
         }
         // didn't find anything with the container, try the annotation class
         return findAnnotations(annotation)
-            .map { KspAnnotationBox(env = env, annotationClass = annotation.java, annotation = it) }
+            .map { KspAnnotation(env = env, ksAnnotated = it) }
             .toList()
     }
 
@@ -181,10 +174,8 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
                     annotationDeclaration.annotations
                         .firstOrNull { it.isSameAnnotationClass(kotlin.annotation.Target::class) }
                         ?.let { targetAnnotation ->
-                            KspAnnotation(env, targetAnnotation)
-                                .asAnnotationBox(kotlin.annotation.Target::class.java)
-                                .value
-                                .allowedTargets
+                            KspAnnotation(env, targetAnnotation)["allowedTargets"]?.asEnumList()
+                                ?.map { AnnotationTarget.valueOf(it.name) }
                         }
                         ?.toSet() ?: emptySet()
                 val javaTargets =
@@ -193,11 +184,9 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
                             it.isSameAnnotationClass(java.lang.annotation.Target::class)
                         }
                         ?.let { targetAnnotation ->
-                            KspAnnotation(env, targetAnnotation)
-                                .asAnnotationBox(java.lang.annotation.Target::class.java)
-                                .value
-                                .value
-                                .toList()
+                            KspAnnotation(env, targetAnnotation)["value"]?.asEnumList()?.map {
+                                ElementType.valueOf(it.name)
+                            }
                         }
                         ?.flatMap { it.toAnnotationTargets() }
                         ?.toSet() ?: emptySet()

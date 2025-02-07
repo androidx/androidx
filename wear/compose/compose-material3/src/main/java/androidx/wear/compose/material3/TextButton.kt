@@ -110,7 +110,7 @@ public fun TextButton(
     val (finalShape, finalInteractionSource) =
         animateButtonShape(
             defaultShape = shapes.shape,
-            pressedShape = shapes.pressed,
+            pressedShape = shapes.pressedShape,
             onPressAnimationSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>().faster(200f),
             onReleaseAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
             interactionSource = interactionSource
@@ -146,6 +146,9 @@ public object TextButtonDefaults {
     public val pressedShape: CornerBasedShape
         @Composable get() = MaterialTheme.shapes.small
 
+    /** Creates a [TextButtonShapes] with a static [shape]. */
+    @Composable public fun shapes(): TextButtonShapes = MaterialTheme.shapes.defaultShapes
+
     /**
      * Creates a [TextButtonShapes] with a static [shape].
      *
@@ -153,8 +156,18 @@ public object TextButtonDefaults {
      */
     @Composable
     public fun shapes(
-        shape: Shape = TextButtonDefaults.shape,
-    ): TextButtonShapes = TextButtonShapes(shape = shape)
+        shape: Shape? = null,
+    ): TextButtonShapes = MaterialTheme.shapes.defaultShapes.copy(shape = shape)
+
+    /**
+     * Creates a [Shape] with a animation between two CornerBasedShapes.
+     *
+     * A simple text button using the default colors, animated when pressed.
+     *
+     * @sample androidx.wear.compose.material3.samples.TextButtonWithCornerAnimationSample
+     */
+    @Composable
+    public fun animatedShapes(): TextButtonShapes = MaterialTheme.shapes.defaultAnimatedShapes
 
     /**
      * Creates a [Shape] with a animation between two CornerBasedShapes.
@@ -167,13 +180,10 @@ public object TextButtonDefaults {
      */
     @Composable
     public fun animatedShapes(
-        shape: CornerBasedShape = TextButtonDefaults.shape,
-        pressedShape: CornerBasedShape = TextButtonDefaults.pressedShape,
+        shape: CornerBasedShape? = null,
+        pressedShape: CornerBasedShape? = null,
     ): TextButtonShapes =
-        TextButtonShapes(
-            shape = shape,
-            pressed = pressedShape,
-        )
+        MaterialTheme.shapes.defaultAnimatedShapes.copy(shape = shape, pressedShape = pressedShape)
 
     /**
      * Creates a [TextButtonColors] with the colors for a filled [TextButton]- by default, a colored
@@ -385,6 +395,26 @@ public object TextButtonDefaults {
     public val largeButtonTextStyle: TextStyle
         @ReadOnlyComposable @Composable get() = MaterialTheme.typography.labelLarge
 
+    internal val Shapes.defaultShapes: TextButtonShapes
+        @Composable
+        get() {
+            return defaultTextButtonShapesCached
+                ?: TextButtonShapes(shape = TextButtonDefaults.shape).also {
+                    defaultTextButtonShapesCached = it
+                }
+        }
+
+    internal val Shapes.defaultAnimatedShapes: TextButtonShapes
+        @Composable
+        get() {
+            return defaultTextButtonAnimatedShapesCached
+                ?: TextButtonShapes(
+                        shape = TextButtonDefaults.shape,
+                        pressedShape = TextButtonDefaults.pressedShape
+                    )
+                    .also { defaultTextButtonAnimatedShapesCached = it }
+        }
+
     private val ColorScheme.defaultFilledTextButtonColors: TextButtonColors
         get() {
             return defaultFilledTextButtonColorsCached
@@ -568,33 +598,37 @@ public class TextButtonColors(
 /**
  * Represents the shapes used for [TextButton] in various states.
  *
- * If [pressed] is non null the shape will be animated on press.
+ * If [pressedShape] is non null the shape will be animated on press.
  *
  * @param shape the shape of the text button when enabled
- * @param pressed the shape of the text button when pressed
+ * @param pressedShape the shape of the text button when pressed
  */
 public class TextButtonShapes(
     public val shape: Shape,
-    public val pressed: Shape? = null,
+    public val pressedShape: Shape? = null,
 ) {
     public fun copy(
-        default: Shape = this.shape,
-        pressed: Shape? = this.pressed,
-    ): TextButtonShapes = TextButtonShapes(default, pressed)
+        shape: Shape? = this.shape,
+        pressedShape: Shape? = this.pressedShape,
+    ): TextButtonShapes =
+        TextButtonShapes(
+            shape = shape ?: this.shape,
+            pressedShape = pressedShape ?: this.pressedShape
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is TextButtonShapes) return false
 
         if (shape != other.shape) return false
-        if (pressed != other.pressed) return false
+        if (pressedShape != other.pressedShape) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = shape.hashCode()
-        result = 31 * result + pressed.hashCode()
+        result = 31 * result + pressedShape.hashCode()
 
         return result
     }

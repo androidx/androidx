@@ -26,8 +26,8 @@ android {
     defaultConfig {
         applicationId = "androidx.wear.compose.integration.demos"
         minSdk = 25
-        versionCode = 64
-        versionName = "1.64"
+        versionCode = 66
+        versionName = "1.66"
     }
 
     buildTypes {
@@ -74,6 +74,8 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.7.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.7.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    androidTestImplementation(project(":core:core"))
+    androidTestImplementation(project(":core:core-ktx"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

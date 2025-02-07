@@ -29,6 +29,7 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.platformstorage.PlatformStorage;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -84,5 +85,13 @@ public class AppSearchSessionPlatformInternalTest extends AppSearchSessionIntern
         assertThat(e.getMessage()).isEqualTo(
                 "StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM is not supported on "
                         + "this AppSearch implementation.");
+    }
+
+    @Override
+    public void testQuery_genericDocumentWrapsParentTypeForPolymorphism() throws Exception {
+        // TODO(b/371610934): Enable this test for B devices once we are able to call
+        //  SearchResult#getParentTypeMap in platform storage to hook up the parent information.
+        assumeFalse(AppSearchVersionUtil.isAtLeastB());
+        super.testQuery_genericDocumentWrapsParentTypeForPolymorphism();
     }
 }

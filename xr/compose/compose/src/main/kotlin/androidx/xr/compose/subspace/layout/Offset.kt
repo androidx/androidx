@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
@@ -29,7 +28,6 @@ import androidx.xr.runtime.math.Vector3
  * Offset the content by ([x] dp, [y] dp, [z] dp). The offsets can be positive as well as
  * non-positive.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.offset(x: Dp = 0.dp, y: Dp = 0.dp, z: Dp = 0.dp): SubspaceModifier =
     this then SubspaceOffsetElement(x = x, y = y, z = z)
 

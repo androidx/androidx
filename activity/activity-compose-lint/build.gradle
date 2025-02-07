@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +52,7 @@ dependencies {
 
 androidx {
     name = "Activity Compose Lint"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2021"
     description = "Lint checks for Activity Compose"
 }

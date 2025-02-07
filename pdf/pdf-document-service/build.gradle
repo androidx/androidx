@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -71,7 +71,7 @@ android {
 
 androidx {
     name = "androidx.pdf:pdf-document-service"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Parse and process PDF documents providing the implementations of PdfDocument and PdfLoader sandboxing the underlying android PdfRenderer class."
 }

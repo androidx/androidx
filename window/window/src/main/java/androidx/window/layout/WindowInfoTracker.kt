@@ -109,6 +109,7 @@ interface WindowInfoTracker {
      * @see windowLayoutInfo
      */
     @RequiresWindowSdkExtension(version = 6)
+    @get:RequiresWindowSdkExtension(version = 6)
     val supportedPostures: List<SupportedPosture>
         get() {
             throw NotImplementedError("Method was not implemented.")

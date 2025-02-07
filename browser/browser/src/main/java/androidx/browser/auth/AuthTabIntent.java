@@ -19,6 +19,7 @@ package androidx.browser.auth;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM;
+import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_COLOR_SCHEME;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_COLOR_SCHEME_PARAMS;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_ENABLE_EPHEMERAL_BROWSING;
@@ -29,6 +30,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -44,6 +46,7 @@ import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.ExperimentalEphemeralBrowsing;
 import androidx.browser.customtabs.ExperimentalPendingSession;
+import androidx.core.content.IntentCompat;
 import androidx.core.os.BundleCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -244,6 +247,11 @@ public class AuthTabIntent {
         return mPendingSession;
     }
 
+    @Nullable
+    public Bitmap getCloseButtonIcon() {
+        return IntentCompat.getParcelableExtra(intent, EXTRA_CLOSE_BUTTON_ICON, Bitmap.class);
+    }
+
     /**
      * Builder class for {@link AuthTabIntent} objects.
      */
@@ -394,6 +402,20 @@ public class AuthTabIntent {
         public AuthTabIntent.@NonNull Builder setDefaultColorSchemeParams(
                 @NonNull AuthTabColorSchemeParams params) {
             mDefaultColorSchemeBundle = params.toBundle();
+            return this;
+        }
+
+        /**
+         * Sets the close button icon for the Auth Tab.
+         *
+         * A 24x24dp icon is recommended, though it may be scaled to fit the toolbar. The icon will
+         * be tinted according to the toolbar's color scheme; its original color is ignored, but the
+         * alpha channel is preserved.
+         *
+         * @param icon The icon {@link Bitmap}.
+         */
+        public @NonNull Builder setCloseButtonIcon(@NonNull Bitmap icon) {
+            mIntent.putExtra(EXTRA_CLOSE_BUTTON_ICON, icon);
             return this;
         }
 

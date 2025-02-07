@@ -55,7 +55,6 @@ import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -82,7 +81,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldFocusTest {

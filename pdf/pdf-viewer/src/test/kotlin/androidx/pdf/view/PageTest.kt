@@ -73,7 +73,7 @@ class PageTest {
     private fun createPage(isTouchExplorationEnabled: Boolean): Page {
         return Page(
             0,
-            pageSizePx = PAGE_SIZE,
+            pageSize = PAGE_SIZE,
             pdfDocument,
             testScope,
             MAX_BITMAP_SIZE,
@@ -97,7 +97,7 @@ class PageTest {
     fun draw_withoutBitmap() {
         // Notably we don't call testDispatcher.scheduler.runCurrent(), so we start, but do not
         // finish, fetching a Bitmap
-        page.updateState(zoom = 1.5F)
+        page.setVisible(zoom = 1.5F, FULL_PAGE_RECT)
         val locationInView = Rect(-60, 125, -60 + PAGE_SIZE.x, 125 + PAGE_SIZE.y)
 
         page.draw(canvasSpy, locationInView, listOf())
@@ -107,7 +107,7 @@ class PageTest {
 
     @Test
     fun draw_withBitmap() {
-        page.updateState(zoom = 1.5F)
+        page.setVisible(zoom = 1.5F, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
         val locationInView = Rect(50, -100, 50 + PAGE_SIZE.x, -100 + PAGE_SIZE.y)
 
@@ -127,7 +127,7 @@ class PageTest {
 
     @Test
     fun draw_withHighlight() {
-        page.updateState(zoom = 1.5F)
+        page.setVisible(zoom = 1.5F, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
         val leftEdgeInView = 650
         val topEdgeInView = -320
@@ -158,7 +158,7 @@ class PageTest {
 
     @Test
     fun updateState_withTouchExplorationEnabled_fetchesPageText() {
-        page.updateState(zoom = 1.0f)
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
         assertThat(page.pageText).isEqualTo("SampleText")
         assertThat(pageTextReadyCounter).isEqualTo(1)
@@ -167,7 +167,7 @@ class PageTest {
     @Test
     fun setVisible_withTouchExplorationDisabled_doesNotFetchPageText() {
         page = createPage(isTouchExplorationEnabled = false)
-        page.updateState(zoom = 1.0f)
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
 
         assertThat(page.pageText).isEqualTo(null)
@@ -176,20 +176,20 @@ class PageTest {
 
     @Test
     fun updateState_doesNotFetchPageTextIfAlreadyFetched() {
-        page.updateState(zoom = 1.0f)
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
         assertThat(page.pageText).isEqualTo("SampleText")
         assertThat(pageTextReadyCounter).isEqualTo(1)
 
-        page.updateState(zoom = 1.0f)
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         testDispatcher.scheduler.runCurrent()
         assertThat(page.pageText).isEqualTo("SampleText")
         assertThat(pageTextReadyCounter).isEqualTo(1)
     }
 
     @Test
-    fun setInvisible_cancelsPageTextFetch() {
-        page.updateState(zoom = 1.0f)
+    fun setPageInvisible_cancelsTextFetch() {
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
         page.setInvisible()
         testDispatcher.scheduler.runCurrent()
         assertThat(page.pageText).isNull()
@@ -198,4 +198,5 @@ class PageTest {
 }
 
 val PAGE_SIZE = Point(100, 150)
+val FULL_PAGE_RECT = Rect(0, 0, PAGE_SIZE.x, PAGE_SIZE.y)
 val MAX_BITMAP_SIZE = Point(500, 500)

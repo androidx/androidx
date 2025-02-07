@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +52,7 @@ android {
 
 androidx {
     name = "androidx.wear.protolayout:protolayout-testing"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Testing framework for protolayout element tree."
 }

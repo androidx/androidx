@@ -24,21 +24,21 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
-import androidx.room.vo.FieldWithIndex
-import androidx.room.vo.Fields
+import androidx.room.vo.Properties
+import androidx.room.vo.PropertyWithIndex
 import androidx.room.vo.ShortcutEntity
 
 class EntityDeleteAdapterWriter
-private constructor(val tableName: String, val pojoTypeName: XTypeName, val fields: Fields) {
+private constructor(val tableName: String, val pojoTypeName: XTypeName, val fields: Properties) {
     companion object {
         fun create(entity: ShortcutEntity): EntityDeleteAdapterWriter {
             val fieldsToUse =
                 if (entity.isPartialEntity) {
                     // When using partial entity, delete by values in pojo
-                    entity.dataClass.fields
+                    entity.dataClass.properties
                 } else {
                     // When using entity, delete by primary key
-                    entity.primaryKey.fields
+                    entity.primaryKey.properties
                 }
             return EntityDeleteAdapterWriter(
                 tableName = entity.tableName,
@@ -78,12 +78,12 @@ private constructor(val tableName: String, val pojoTypeName: XTypeName, val fiel
                             addParameter(stmtParam, SQLiteDriverTypeNames.STATEMENT)
                             val entityParam = "entity"
                             addParameter(entityParam, pojoTypeName)
-                            val mapped = FieldWithIndex.byOrder(fields)
+                            val mapped = PropertyWithIndex.byOrder(fields)
                             val bindScope = CodeGenScope(writer = typeWriter)
-                            FieldReadWriteWriter.bindToStatement(
+                            PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,
-                                fieldsWithIndices = mapped,
+                                propertiesWithIndices = mapped,
                                 scope = bindScope
                             )
                             addCode(bindScope.generate())

@@ -61,7 +61,7 @@ package androidx.lifecycle {
   public static final class ReportFragment.Companion {
     method public androidx.lifecycle.ReportFragment get(android.app.Activity);
     method public void injectIfNeededIn(android.app.Activity activity);
-    property public final androidx.lifecycle.ReportFragment reportFragment;
+    property public static androidx.lifecycle.ReportFragment reportFragment;
   }
 
   public final class ViewKt {

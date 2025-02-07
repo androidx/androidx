@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -61,11 +61,11 @@ dependencies {
 
 androidx {
     name = "Benchmark - JUnit4"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android Benchmark - JUnit4"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
     }

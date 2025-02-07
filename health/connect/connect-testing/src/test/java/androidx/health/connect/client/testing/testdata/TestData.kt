@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.testing.testdata
 
+import android.health.connect.datatypes.Metadata.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -45,6 +46,7 @@ val runRecord1 =
         exerciseRoute = null,
         metadata =
             Metadata(
+                recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
                 clientRecordId = "FakeHealthConnectData1",
                 id = "Id1",
                 dataOrigin = DataOrigin(FakeHealthConnectClient.DEFAULT_PACKAGE_NAME)
@@ -57,6 +59,7 @@ val hydrationRecord1 =
         startZoneOffset = startTime.offset,
         endTime = startTime.plusMinutes(4).toInstant(),
         endZoneOffset = startTime.offset,
+        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
         volume = Volume.liters(1.0)
     )
 
@@ -72,6 +75,7 @@ val runRecord1Updated =
         exerciseRoute = null,
         metadata =
             Metadata(
+                recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
                 clientRecordId = "FakeHealthConnectData1",
                 id = "Id1",
                 dataOrigin = DataOrigin(FakeHealthConnectClient.DEFAULT_PACKAGE_NAME)
@@ -101,6 +105,7 @@ fun generateRunningRecords(
             exerciseRoute = null,
             metadata =
                 Metadata(
+                    recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
                     clientRecordId = "FakeHealthConnectDataRunning$index",
                     dataOrigin = DataOrigin(defaultPackageName)
                 )

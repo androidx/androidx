@@ -48,7 +48,6 @@ import java.util.concurrent.CountDownLatch
  * buffers as well as fine grained control over synchronization of buffer content.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-@Suppress("AcronymName")
 class GLFrameBufferRenderer
 internal constructor(
     private val surfaceControlProvider: SurfaceControlProvider,
@@ -195,7 +194,6 @@ internal constructor(
          *   thread
          * @return The builder instance
          */
-        @Suppress("AcronymName")
         fun setGLRenderer(glRenderer: GLRenderer?): Builder {
             mGLRenderer = glRenderer
             return this
@@ -339,7 +337,7 @@ internal constructor(
      * OpenGL.
      */
     val glRenderer: GLRenderer
-        @Suppress("AcronymName") @JvmName("getGLRenderer") get() = mGLRenderer
+        @JvmName("getGLRenderer") get() = mGLRenderer
 
     /**
      * Returns the [SyncStrategy] used for determining when to create [SyncFenceCompat] objects in

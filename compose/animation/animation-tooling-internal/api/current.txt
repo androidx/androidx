@@ -8,8 +8,8 @@ package androidx.compose.animation.tooling {
     method public androidx.compose.animation.tooling.ComposeAnimatedProperty copy(String label, Object value);
     method public String getLabel();
     method public Object getValue();
-    property public final String label;
-    property public final Object value;
+    property public String label;
+    property public Object value;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ComposeAnimation {
@@ -44,11 +44,11 @@ package androidx.compose.animation.tooling {
     method public String getSpecType();
     method public long getStartTimeMillis();
     method public java.util.Map<java.lang.Long,java.lang.Object?> getValues();
-    property public final long endTimeMillis;
-    property public final String label;
-    property public final String specType;
-    property public final long startTimeMillis;
-    property public final java.util.Map<java.lang.Long,java.lang.Object?> values;
+    property public long endTimeMillis;
+    property public String label;
+    property public String specType;
+    property public long startTimeMillis;
+    property public java.util.Map<java.lang.Long,java.lang.Object?> values;
   }
 
 }

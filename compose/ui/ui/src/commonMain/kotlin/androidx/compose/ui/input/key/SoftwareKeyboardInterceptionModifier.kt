@@ -66,7 +66,7 @@ fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
             onPreKeyEvent = onPreInterceptKeyBeforeSoftKeyboard
         )
 
-private data class SoftKeyboardInterceptionElement(
+private class SoftKeyboardInterceptionElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
     val onPreKeyEvent: ((KeyEvent) -> Boolean)?
 ) : ModifierNodeElement<InterceptedKeyInputNode>() {
@@ -87,6 +87,22 @@ private data class SoftKeyboardInterceptionElement(
             name = "onPreKeyToSoftKeyboardInterceptedEvent"
             properties["onPreKeyToSoftKeyboardInterceptedEvent"] = it
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SoftKeyboardInterceptionElement) return false
+
+        if (onKeyEvent !== other.onKeyEvent) return false
+        if (onPreKeyEvent !== other.onPreKeyEvent) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = onKeyEvent?.hashCode() ?: 0
+        result = 31 * result + (onPreKeyEvent?.hashCode() ?: 0)
+        return result
     }
 }
 

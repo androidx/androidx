@@ -52,9 +52,12 @@ val LocalAccessibilityManager = staticCompositionLocalOf<AccessibilityManager?> 
  * The CompositionLocal that can be used to trigger autofill actions. Eg.
  * [Autofill.requestAutofillForNode].
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
+@Deprecated(
+    """
+        Use the new semantics-based Autofill APIs androidx.compose.ui.autofill.ContentType and
+        androidx.compose.ui.autofill.ContentDataType instead.
+        """
+)
 val LocalAutofill = staticCompositionLocalOf<Autofill?> { null }
 
 /**
@@ -62,14 +65,18 @@ val LocalAutofill = staticCompositionLocalOf<Autofill?> { null }
  * androidx.compose.ui.autofill.AutofillNode]s to the autofill tree. The [AutofillTree] is a
  * temporary data structure that will be replaced by Autofill Semantics (b/138604305).
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@Deprecated(
+    """
+        Use the new semantics-based Autofill APIs androidx.compose.ui.autofill.ContentType and
+        androidx.compose.ui.autofill.ContentDataType instead.
+        """
+)
 val LocalAutofillTree =
     staticCompositionLocalOf<AutofillTree> { noLocalProvidedFor("LocalAutofillTree") }
 
 /**
  * The CompositionLocal that can be used to trigger autofill actions. Eg. [AutofillManager.commit].
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val LocalAutofillManager =
     staticCompositionLocalOf<AutofillManager?> { noLocalProvidedFor("LocalAutofillManager") }
 

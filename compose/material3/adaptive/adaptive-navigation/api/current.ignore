@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior:
+    Removed class androidx.compose.material3.adaptive.navigation.BackNavigationBehavior from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior#Companion:
+    Removed field androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion:
+    Removed class androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#PopLatest:
+    Removed property BackNavigationBehavior.Companion.PopLatest from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#PopUntilContentChange:
+    Removed property BackNavigationBehavior.Companion.PopUntilContentChange from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#PopUntilCurrentDestinationChange:
+    Removed property BackNavigationBehavior.Companion.PopUntilCurrentDestinationChange from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#PopUntilScaffoldValueChange:
+    Removed property BackNavigationBehavior.Companion.PopUntilScaffoldValueChange from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#getPopLatest():
+    Removed method androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion.getPopLatest() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#getPopUntilContentChange():
+    Removed method androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion.getPopUntilContentChange() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#getPopUntilCurrentDestinationChange():
+    Removed method androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion.getPopUntilCurrentDestinationChange() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion#getPopUntilScaffoldValueChange():
+    Removed method androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion.getPopUntilScaffoldValueChange() from compatibility checked API surface

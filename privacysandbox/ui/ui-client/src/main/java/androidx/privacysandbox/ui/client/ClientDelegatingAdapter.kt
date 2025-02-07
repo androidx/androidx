@@ -18,7 +18,6 @@ package androidx.privacysandbox.ui.client
 
 import android.content.Context
 import android.os.Bundle
-import android.os.IBinder
 import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory.createFromCoreLibInfo
@@ -29,6 +28,7 @@ import androidx.privacysandbox.ui.core.IDelegatorCallback
 import androidx.privacysandbox.ui.core.ISessionRefreshCallback
 import androidx.privacysandbox.ui.core.RemoteCallManager.tryToCallRemoteObject
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlinx.coroutines.*
@@ -143,7 +143,7 @@ internal class ClientDelegatingAdapter(
      */
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -153,7 +153,7 @@ internal class ClientDelegatingAdapter(
         val delegateUsed: SandboxedUiAdapter = synchronized(lock) { latestDelegate }
         delegateUsed.openSession(
             context,
-            windowInputToken,
+            sessionConstants,
             initialWidth,
             initialHeight,
             isZOrderOnTop,

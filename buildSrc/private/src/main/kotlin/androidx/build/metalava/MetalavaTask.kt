@@ -110,21 +110,22 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
     @get:Input abstract val targetsJavaConsumers: Property<Boolean>
 
     /**
-     * Information about all source sets for multiplatform projects. Non-multiplatform projects can
-     * be represented as a list with one source set.
+     * Information about all source sets for multiplatform projects. Non-multiplatform projects
+     * should be represented as a list with one source set.
      *
      * This is marked as [Internal] because [compiledSources] is what should determine whether to
      * rerun metalava.
      */
-    @get:Internal abstract val optionalSourceSets: ListProperty<SourceSetInputs>
+    @get:Internal abstract val sourceSets: ListProperty<SourceSetInputs>
 
     /**
-     * Creates an XML file representing the project structure, if [optionalSourceSets] was set.
+     * Creates an XML file representing the project structure.
      *
      * This should only be called during task execution.
      */
-    protected fun createProjectXmlFile(): File? {
-        val sourceSets = optionalSourceSets.get().ifEmpty { null } ?: return null
+    protected fun createProjectXmlFile(): File {
+        val sourceSets = sourceSets.get()
+        check(sourceSets.isNotEmpty()) { "Project must have at least one source set." }
         val outputFile = File(temporaryDir, "project.xml")
         ProjectXml.create(
             sourceSets,

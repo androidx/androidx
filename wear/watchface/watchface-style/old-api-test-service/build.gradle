@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import com.android.build.api.artifact.SingleArtifact
 
 plugins {
@@ -43,7 +43,7 @@ dependencies {
 
 androidx {
     name = "WatchFace Style Old Api Test Service"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2022"
     description = "Test service built with v1.0.0 of the API, used to check for binary AIDL compat"
 }

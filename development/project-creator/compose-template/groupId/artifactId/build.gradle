@@ -22,26 +22,17 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
+    id("com.android.library")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "<PACKAGE>"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-    }
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -106,10 +97,13 @@ androidXMultiplatform {
     }
 }
 
+android {
+    namespace "<PACKAGE>"
+}
 
 androidx {
     name = "<NAME>"
-    type = LibraryType.<LIBRARY_TYPE>
+    type = SoftwareType.<LIBRARY_TYPE>
     mavenVersion = LibraryVersions.<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<DESCRIPTION>"

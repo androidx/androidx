@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 
 plugins {
@@ -42,7 +42,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Binary Compatibility Validator"
-    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_HOST_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Enforce binary compatibility for klibs"
 }

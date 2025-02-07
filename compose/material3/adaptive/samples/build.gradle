@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -53,7 +53,7 @@ dependencies {
 
 androidx {
     name = "Compose Material3 Adaptive Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2023"
     description = "Contains the sample code for the AndroidX Compose Material Adaptive."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

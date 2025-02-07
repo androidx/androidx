@@ -16,6 +16,8 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -34,6 +36,7 @@ class MenstruationPeriodRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 )
             )
             .isEqualTo(
@@ -42,6 +45,7 @@ class MenstruationPeriodRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 )
             )
     }
@@ -54,6 +58,7 @@ class MenstruationPeriodRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
             )
         }
     }
@@ -66,6 +71,7 @@ class MenstruationPeriodRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1233L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
             )
         }
     }
@@ -78,6 +84,7 @@ class MenstruationPeriodRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.parse("2022-02-01T00:00:00.001Z"),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
             )
         }
     }
@@ -89,6 +96,7 @@ class MenstruationPeriodRecordTest {
             startZoneOffset = null,
             endTime = Instant.parse("2022-02-01T00:00:00.000Z"),
             endZoneOffset = null,
+            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
         )
     }
 
@@ -100,11 +108,12 @@ class MenstruationPeriodRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     )
                     .toString()
             )
             .isEqualTo(
-                "MenstruationPeriodRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+                "MenstruationPeriodRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=3))"
             )
     }
 }

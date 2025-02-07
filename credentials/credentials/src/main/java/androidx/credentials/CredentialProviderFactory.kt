@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.ClearCredentialStateRequest.Companion.TYPE_CLEAR_RESTORE_CREDENTIAL
+import androidx.credentials.internal.FormFactorHelper
 
 /** Factory that returns the credential provider to be used by Credential Manager. */
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -94,6 +95,10 @@ internal class CredentialProviderFactory(val context: Context) {
      * library. Post-U, providers will be registered with the framework, and enabled by the user.
      */
     fun getBestAvailableProvider(shouldFallbackToPreU: Boolean = true): CredentialProvider? {
+        if (FormFactorHelper.isTV(context) || FormFactorHelper.isAuto(context)) {
+            return tryCreateClosedSourceProviderFromManifest()
+        }
+
         if (Build.VERSION.SDK_INT >= 34) { // Android U
             val postUProvider = tryCreatePostUProvider()
             if (postUProvider == null && shouldFallbackToPreU) {

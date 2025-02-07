@@ -73,6 +73,7 @@ import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -81,7 +82,6 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSelectionRange
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -143,7 +143,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -174,7 +174,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.setContentWithAccessibilityEnabled {
             Box(Modifier.size(10.dp).semantics(mergeDescendants = true) { testTag = tag })
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -189,7 +189,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.setContentWithAccessibilityEnabled {
             Box(Modifier.size(10.dp).semantics(mergeDescendants = false) { testTag = tag })
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -209,7 +209,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -245,7 +245,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -293,7 +293,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -313,7 +313,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -333,7 +333,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -353,7 +353,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -373,7 +373,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -393,7 +393,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -413,7 +413,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -429,7 +429,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.setContentWithAccessibilityEnabled {
             Box(Modifier.size(10.dp).semantics(mergeDescendants = false) { testTag = tag })
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -445,7 +445,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.setContentWithAccessibilityEnabled {
             Box(Modifier.size(10.dp).semantics(mergeDescendants = true) { testTag = tag })
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -468,7 +468,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -490,7 +490,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -511,7 +511,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -535,7 +535,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -557,7 +557,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 Box(Modifier.semantics { text = AnnotatedString("foo") })
             }
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -578,7 +578,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -600,7 +600,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -620,7 +620,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -650,8 +650,8 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 )
             }
         }
-        val virtualViewId1 = rule.onNodeWithTag(testTag1).semanticsId
-        val virtualViewId2 = rule.onNodeWithTag(testTag2).semanticsId
+        val virtualViewId1 = rule.onNodeWithTag(testTag1).semanticsId()
+        val virtualViewId2 = rule.onNodeWithTag(testTag2).semanticsId()
 
         // Act.
         lateinit var info1: AccessibilityNodeInfoCompat
@@ -680,7 +680,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info1 = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
         dispatchedAccessibilityEvents.clear()
 
@@ -717,7 +717,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -763,7 +763,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -821,7 +821,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -846,7 +846,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -879,7 +879,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -907,7 +907,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -930,7 +930,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -958,7 +958,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -987,7 +987,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -1013,7 +1013,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
@@ -1273,7 +1273,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        val virtualId = rule.onNodeWithTag(tag).semanticsId
+        val virtualId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act.
         rule.runOnIdle { textChanged = true }
@@ -1425,10 +1425,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         get() =
             ViewCompat.getAccessibilityDelegate(this)
                 as AndroidComposeViewAccessibilityDelegateCompat
-
-    // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
-    private val SemanticsNodeInteraction.semanticsId: Int
-        get() = fetchSemanticsNode().id
 
     // TODO(b/304359126): Move this to AccessibilityEventCompat and use it wherever we use obtain().
     private fun AccessibilityEvent(): AccessibilityEvent =

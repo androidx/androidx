@@ -5,8 +5,8 @@ package androidx.wear.watchface.style {
     ctor public CurrentUserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
     method public androidx.wear.watchface.style.UserStyleSchema getSchema();
     method public kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
-    property public final androidx.wear.watchface.style.UserStyleSchema schema;
-    property public final kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
+    property public androidx.wear.watchface.style.UserStyleSchema schema;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
   }
 
   public final class MutableUserStyle implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>> kotlin.jvm.internal.markers.KMappedMarker {
@@ -19,7 +19,7 @@ package androidx.wear.watchface.style {
     method public operator void set(androidx.wear.watchface.style.UserStyleSetting.Id settingId, androidx.wear.watchface.style.UserStyleSetting.Option option);
     method public operator void set(androidx.wear.watchface.style.UserStyleSetting.Id settingId, androidx.wear.watchface.style.UserStyleSetting.Option.Id optionId);
     method public androidx.wear.watchface.style.UserStyle toUserStyle();
-    property public final int size;
+    property public int size;
   }
 
   public final class UserStyle implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> {
@@ -46,7 +46,7 @@ package androidx.wear.watchface.style {
   public final class UserStyleData {
     ctor public UserStyleData(java.util.Map<java.lang.String,byte[]> userStyleMap);
     method public java.util.Map<java.lang.String,byte[]> getUserStyleMap();
-    property public final java.util.Map<java.lang.String,byte[]> userStyleMap;
+    property public java.util.Map<java.lang.String,byte[]> userStyleMap;
   }
 
   public final class UserStyleFlavor {
@@ -55,16 +55,16 @@ package androidx.wear.watchface.style {
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> getComplications();
     method public String getId();
     method public androidx.wear.watchface.style.UserStyleData getStyle();
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
-    property public final String id;
-    property public final androidx.wear.watchface.style.UserStyleData style;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
+    property public String id;
+    property public androidx.wear.watchface.style.UserStyleData style;
   }
 
   public final class UserStyleFlavors {
     ctor public UserStyleFlavors();
     ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors);
     method public java.util.List<androidx.wear.watchface.style.UserStyleFlavor> getFlavors();
-    property public final java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors;
+    property public java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors;
     field public static final androidx.wear.watchface.style.UserStyleFlavors.Companion Companion;
   }
 
@@ -78,8 +78,8 @@ package androidx.wear.watchface.style {
     method public byte[] getDigestHash();
     method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getRootUserStyleSettings();
     method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
-    property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> rootUserStyleSettings;
-    property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
+    property public java.util.List<androidx.wear.watchface.style.UserStyleSetting> rootUserStyleSettings;
+    property @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
     field public static final androidx.wear.watchface.style.UserStyleSchema.Companion Companion;
   }
 
@@ -118,7 +118,7 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     method public static androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
     method public boolean getValue();
-    property public final boolean value;
+    property public boolean value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion Companion;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption FALSE;
     field public static final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption TRUE;
@@ -126,8 +126,8 @@ package androidx.wear.watchface.style {
 
   public static final class UserStyleSetting.BooleanUserStyleSetting.BooleanOption.Companion {
     method public androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption from(boolean value);
-    property public final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption FALSE;
-    property public final androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption TRUE;
+    property public androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption FALSE;
+    property public androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption TRUE;
   }
 
   public static final class UserStyleSetting.BooleanUserStyleSetting.Builder {
@@ -154,10 +154,10 @@ package androidx.wear.watchface.style {
     method public CharSequence getDisplayName();
     method public CharSequence getScreenReaderName();
     method public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    property @ColorInt public final java.util.List<java.lang.Integer> colors;
-    property public final CharSequence displayName;
-    property public final CharSequence screenReaderName;
-    property public final androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
+    property @ColorInt public java.util.List<java.lang.Integer> colors;
+    property public CharSequence displayName;
+    property public CharSequence screenReaderName;
+    property public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
   }
 
   public static final class UserStyleSetting.ColorUserStyleSetting.ColorOption.Builder {
@@ -192,12 +192,12 @@ package androidx.wear.watchface.style {
     method public Integer? getNameResourceId();
     method public Integer? getScreenReaderNameResourceId();
     method public Boolean? isEnabled();
-    property public final Integer? accessibilityTraversalIndex;
-    property public final androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds;
-    property public final int complicationSlotId;
-    property public final Boolean? enabled;
-    property public final Integer? nameResourceId;
-    property public final Integer? screenReaderNameResourceId;
+    property public Integer? accessibilityTraversalIndex;
+    property public androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds;
+    property public int complicationSlotId;
+    property public Boolean? enabled;
+    property public Integer? nameResourceId;
+    property public Integer? screenReaderNameResourceId;
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.Builder {
@@ -220,11 +220,11 @@ package androidx.wear.watchface.style {
     method public android.graphics.drawable.Icon? getIcon();
     method public CharSequence? getScreenReaderName();
     method public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    property public final java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay> complicationSlotOverlays;
-    property public final CharSequence displayName;
-    property public final android.graphics.drawable.Icon? icon;
-    property public final CharSequence? screenReaderName;
-    property public final androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
+    property public java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay> complicationSlotOverlays;
+    property public CharSequence displayName;
+    property public android.graphics.drawable.Icon? icon;
+    property public CharSequence? screenReaderName;
+    property public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
   }
 
   public static final class UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder {
@@ -242,7 +242,7 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
     method public byte[] getCustomValue();
-    property public final byte[] customValue;
+    property public byte[] customValue;
   }
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -251,9 +251,9 @@ package androidx.wear.watchface.style {
     method public double getDefaultValue();
     method public double getMaximumValue();
     method public double getMinimumValue();
-    property public final double defaultValue;
-    property public final double maximumValue;
-    property public final double minimumValue;
+    property public double defaultValue;
+    property public double maximumValue;
+    property public double minimumValue;
   }
 
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting.Builder {
@@ -267,19 +267,19 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption(double value);
     method public double getValue();
-    property public final double value;
+    property public double value;
   }
 
   public static final class UserStyleSetting.Id {
     ctor public UserStyleSetting.Id(String value);
     method public String getValue();
-    property public final String value;
+    property public String value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Id.Companion Companion;
     field public static final int MAX_LENGTH = 40; // 0x28
   }
 
   public static final class UserStyleSetting.Id.Companion {
-    property public static final int MAX_LENGTH;
+    property public static int MAX_LENGTH;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class UserStyleSetting.LargeCustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -289,13 +289,13 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
     method public byte[] getCustomValue();
-    property public final byte[] customValue;
+    property public byte[] customValue;
     field public static final androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.Companion Companion;
     field public static final int MAX_SIZE = 125000; // 0x1e848
   }
 
   public static final class UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.Companion {
-    property public static final int MAX_SIZE;
+    property public static int MAX_SIZE;
   }
 
   public static class UserStyleSetting.ListUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
@@ -324,10 +324,10 @@ package androidx.wear.watchface.style {
     method public android.graphics.drawable.Icon? getIcon();
     method public CharSequence? getScreenReaderName();
     method public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? getWatchFaceEditorData();
-    property public final CharSequence displayName;
-    property public final android.graphics.drawable.Icon? icon;
-    property public final CharSequence? screenReaderName;
-    property public final androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
+    property public CharSequence displayName;
+    property public android.graphics.drawable.Icon? icon;
+    property public CharSequence? screenReaderName;
+    property public androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData;
   }
 
   public static final class UserStyleSetting.ListUserStyleSetting.ListOption.Builder {
@@ -345,9 +345,9 @@ package androidx.wear.watchface.style {
     method public long getDefaultValue();
     method public long getMaximumValue();
     method public long getMinimumValue();
-    property public final long defaultValue;
-    property public final long maximumValue;
-    property public final long minimumValue;
+    property public long defaultValue;
+    property public long maximumValue;
+    property public long minimumValue;
   }
 
   public static final class UserStyleSetting.LongRangeUserStyleSetting.Builder {
@@ -361,7 +361,7 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
     ctor public UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(long value);
     method public long getValue();
-    property public final long value;
+    property public long value;
   }
 
   public abstract static class UserStyleSetting.Option {
@@ -380,19 +380,19 @@ package androidx.wear.watchface.style {
     ctor public UserStyleSetting.Option.Id(byte[] value);
     ctor public UserStyleSetting.Option.Id(String value);
     method public byte[] getValue();
-    property public final byte[] value;
+    property public byte[] value;
     field public static final androidx.wear.watchface.style.UserStyleSetting.Option.Id.Companion Companion;
     field public static final int MAX_LENGTH = 1024; // 0x400
   }
 
   public static final class UserStyleSetting.Option.Id.Companion {
-    property public static final int MAX_LENGTH;
+    property public static int MAX_LENGTH;
   }
 
   public static final class UserStyleSetting.WatchFaceEditorData {
     ctor public UserStyleSetting.WatchFaceEditorData(android.graphics.drawable.Icon? icon);
     method public android.graphics.drawable.Icon? getIcon();
-    property public final android.graphics.drawable.Icon? icon;
+    property public android.graphics.drawable.Icon? icon;
   }
 
   public enum WatchFaceLayer {
@@ -404,7 +404,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class WatchFaceLayer.Companion {
-    property public final java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> ALL_WATCH_FACE_LAYERS;
+    property public java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> ALL_WATCH_FACE_LAYERS;
   }
 
 }

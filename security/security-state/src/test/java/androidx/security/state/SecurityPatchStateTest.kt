@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.security.state.SecurityPatchState.Companion.getComponentSecurityPatchLevel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -39,12 +40,13 @@ import org.robolectric.annotation.Config
 class SecurityPatchStateTest {
 
     private val mockContext: Context = mock<Context>()
-    private val mockSecurityStateManager: SecurityStateManager = mock<SecurityStateManager> {}
+    private val mockSecurityStateManagerCompat: SecurityStateManagerCompat =
+        mock<SecurityStateManagerCompat> {}
     private lateinit var securityState: SecurityPatchState
 
     @Before
     fun setup() {
-        securityState = SecurityPatchState(mockContext, listOf(), mockSecurityStateManager)
+        securityState = SecurityPatchState(mockContext, listOf(), mockSecurityStateManagerCompat)
     }
 
     @Test
@@ -54,11 +56,7 @@ class SecurityPatchStateTest {
 
     @Test
     fun testGetComponentSecurityPatchLevel_withSystemComponent_returnsDateBasedSpl() {
-        val spl =
-            securityState.getComponentSecurityPatchLevel(
-                SecurityPatchState.COMPONENT_SYSTEM,
-                "2022-01-01"
-            )
+        val spl = getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM, "2022-01-01")
         assertTrue(spl is SecurityPatchState.DateBasedSecurityPatchLevel)
         assertEquals("2022-01-01", spl.toString())
     }
@@ -66,11 +64,7 @@ class SecurityPatchStateTest {
     @Test
     fun testGetComponentSecurityPatchLevel_withVendorComponent_whenVendorIsEnabled_returnsDateBasedSpl() {
         SecurityPatchState.Companion.USE_VENDOR_SPL = true
-        val spl =
-            securityState.getComponentSecurityPatchLevel(
-                SecurityPatchState.COMPONENT_VENDOR,
-                "2022-01-01"
-            )
+        val spl = getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_VENDOR, "2022-01-01")
         assertTrue(spl is SecurityPatchState.DateBasedSecurityPatchLevel)
         assertEquals("2022-01-01", spl.toString())
     }
@@ -79,48 +73,28 @@ class SecurityPatchStateTest {
     fun testGetComponentSecurityPatchLevel_withVendorComponent_whenVendorIsDisabled_throwsException() {
         SecurityPatchState.Companion.USE_VENDOR_SPL = false
 
-        securityState.getComponentSecurityPatchLevel(
-            SecurityPatchState.COMPONENT_VENDOR,
-            "2022-01-01"
-        )
+        getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_VENDOR, "2022-01-01")
     }
 
     @Test
     fun testGetComponentSecurityPatchLevel_withKernelComponent_returnsVersionedSpl() {
-        val spl =
-            securityState.getComponentSecurityPatchLevel(
-                SecurityPatchState.COMPONENT_KERNEL,
-                "1.2.3.4"
-            )
+        val spl = getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL, "1.2.3.4")
         assertTrue(spl is SecurityPatchState.VersionedSecurityPatchLevel)
         assertEquals("1.2.3.4", spl.toString())
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetComponentSecurityPatchLevel_withInvalidDateBasedInput_throwsException() {
-        securityState.getComponentSecurityPatchLevel(
-            SecurityPatchState.COMPONENT_SYSTEM,
-            "invalid-date"
-        )
+        getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM, "invalid-date")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetComponentSecurityPatchLevel_withInvalidVersionedInput_throwsException() {
-        securityState.getComponentSecurityPatchLevel(
-            SecurityPatchState.COMPONENT_KERNEL,
-            "invalid-version"
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    @Config(maxSdk = Build.VERSION_CODES.N_MR1)
-    @Test(expected = IllegalArgumentException::class)
-    fun testGetVulnerabilityReportUrl_withUnsupportedSdk_throwsException() {
-        securityState.getVulnerabilityReportUrl(Uri.parse("https://example.com"))
+        getComponentSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL, "invalid-version")
     }
 
     @Test
-    fun testParseVulnerabilityReport_validJson_returnsCorrectData() {
+    fun testLoadVulnerabilityReport_validJson_returnsCorrectData() {
         val jsonString =
             """
             {
@@ -159,7 +133,7 @@ class SecurityPatchStateTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testParseVulnerabilityReport_invalidAsb_throwsIllegalArgumentException() {
+    fun testLoadVulnerabilityReport_invalidAsb_throwsIllegalArgumentException() {
         val jsonString =
             """
             {
@@ -181,21 +155,20 @@ class SecurityPatchStateTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testParseVulnerabilityReport_invalidJson_throwsIllegalArgumentException() {
+    fun testLoadVulnerabilityReport_invalidJson_throwsIllegalArgumentException() {
         val invalidJson = "{ invalid json }"
         securityState.loadVulnerabilityReport(invalidJson)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
     @Test
     fun testGetVulnerabilityReportUrl_validSdkVersion_returnsCorrectUrl() {
         val sdkVersion = 34 // Android 14
         val baseUrl = SecurityPatchState.DEFAULT_VULNERABILITY_REPORTS_URL
-        val expectedUrl = "$baseUrl/v1/android_sdk_34.json"
+        val expectedUrl = "$baseUrl/v1/android_sdk_$sdkVersion.json"
 
-        doReturn(sdkVersion).`when`(mockSecurityStateManager).getAndroidSdkInt()
-
-        val actualUrl = securityState.getVulnerabilityReportUrl(Uri.parse(baseUrl)).toString()
+        val actualUrl = SecurityPatchState.getVulnerabilityReportUrl(Uri.parse(baseUrl)).toString()
         assertEquals(expectedUrl, actualUrl)
     }
 
@@ -205,7 +178,8 @@ class SecurityPatchStateTest {
         val bundle = Bundle()
         bundle.putString("system_spl", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
 
         val spl =
             securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
@@ -219,14 +193,26 @@ class SecurityPatchStateTest {
     fun testGetDeviceSpl_noSplAvailable_throwsIllegalStateException() {
         val bundle = Bundle()
         // SPL not set in the bundle for the system component
-        doReturn("").`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
-        doReturn(bundle).`when`(mockSecurityStateManager).getGlobalSecurityState(anyString())
+        doReturn("").`when`(mockSecurityStateManagerCompat).getPackageVersion(Mockito.anyString())
+        doReturn(bundle).`when`(mockSecurityStateManagerCompat).getGlobalSecurityState(anyString())
 
         securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
     }
 
     @Test(expected = IllegalStateException::class)
     fun testGetPublishedSpl_ThrowsWhenNoVulnerabilityReportLoaded() {
+        securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
+    }
+
+    @Test
+    fun testGetPublishedSpl_doesNotThrowWhenVulnerabilityReportLoadedFromConstructor() {
+        securityState =
+            SecurityPatchState(
+                mockContext,
+                listOf(),
+                mockSecurityStateManagerCompat,
+                vulnerabilityReportJsonString = generateMockReport("system", "2023-01-01")
+            )
         securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
     }
 
@@ -262,15 +248,19 @@ class SecurityPatchStateTest {
 
         securityState.loadVulnerabilityReport(jsonInput)
 
-        `when`(mockSecurityStateManager.getPackageVersion("com.google.android.modulemetadata"))
+        `when`(
+                mockSecurityStateManagerCompat.getPackageVersion(
+                    "com.google.android.modulemetadata"
+                )
+            )
             .thenReturn("2022-01-01")
-        `when`(mockSecurityStateManager.getPackageVersion("com.google.mainline.telemetry"))
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.telemetry"))
             .thenReturn("2023-05-01")
-        `when`(mockSecurityStateManager.getPackageVersion("com.google.mainline.adservices"))
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.adservices"))
             .thenReturn("2022-05-01")
-        `when`(mockSecurityStateManager.getPackageVersion("com.google.mainline.go.primary"))
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.go.primary"))
             .thenReturn("2021-05-01")
-        `when`(mockSecurityStateManager.getPackageVersion("com.google.mainline.go.telemetry"))
+        `when`(mockSecurityStateManagerCompat.getPackageVersion("com.google.mainline.go.telemetry"))
             .thenReturn("2024-05-01")
 
         val spl =
@@ -576,6 +566,40 @@ class SecurityPatchStateTest {
     }
 
     @Test
+    fun testGetPatchedCves_withSystemModulesComponent_returnsCorrectCvesCategorizedBySeverity() {
+        val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2023-01-15")
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-01-01": [{
+                        "cve_identifiers": ["CVE-2023-0001", "CVE-2023-0002"],
+                        "asb_identifiers": ["ASB-A-2023011"],
+                        "severity": "high",
+                        "components": ["system"]
+                    }],
+                    "2023-01-15": [{
+                        "cve_identifiers": ["CVE-2023-0010"],
+                        "asb_identifiers": ["ASB-A-2023022"],
+                        "severity": "moderate",
+                        "components": ["com.google.android.modulemetadata"]
+                    }]
+                },
+                "kernel_lts_versions": {}
+            }
+        """
+                .trimIndent()
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        val cves = securityState.getPatchedCves(SecurityPatchState.COMPONENT_SYSTEM_MODULES, spl)
+
+        assertEquals(1, cves[SecurityPatchState.Severity.MODERATE]?.size)
+        assertEquals(setOf("CVE-2023-0010"), cves[SecurityPatchState.Severity.MODERATE])
+
+        assertEquals(null, cves[SecurityPatchState.Severity.HIGH])
+    }
+
+    @Test
     fun testGetPatchedCves_withVendorComponent_whenVendorIsEnabled_returnsCorrectCvesCategorizedBySeverity() {
         SecurityPatchState.Companion.USE_VENDOR_SPL = true
         val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2023-01-15")
@@ -779,8 +803,9 @@ class SecurityPatchStateTest {
         bundle.putString("kernel_version", "5.4.123")
         bundle.putString("com.google.android.modulemetadata", "2023-10-05")
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn("2023-10-05").`when`(mockSecurityStateManager).getPackageVersion(anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
 
         val jsonInput =
             """
@@ -824,8 +849,9 @@ class SecurityPatchStateTest {
         bundle.putString("kernel_version", "5.4.123")
         bundle.putString("com.google.android.modulemetadata", "2023-10-05")
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn("2023-10-05").`when`(mockSecurityStateManager).getPackageVersion(anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
 
         val jsonInput =
             """
@@ -869,8 +895,9 @@ class SecurityPatchStateTest {
         bundle.putString("kernel_version", "5.4.123")
         bundle.putString("com.google.android.modulemetadata", "2023-10-05")
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn("2023-10-05").`when`(mockSecurityStateManager).getPackageVersion(anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
 
         val jsonInput =
             """
@@ -911,8 +938,9 @@ class SecurityPatchStateTest {
         bundle.putString("system_spl", "2022-01-01")
         bundle.putString("com.google.android.modulemetadata", "2023-10-05")
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn("2023-10-05").`when`(mockSecurityStateManager).getPackageVersion(anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn("2023-10-05").`when`(mockSecurityStateManagerCompat).getPackageVersion(anyString())
 
         val jsonInput =
             """
@@ -984,8 +1012,11 @@ class SecurityPatchStateTest {
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn(systemSpl).`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn(systemSpl)
+            .`when`(mockSecurityStateManagerCompat)
+            .getPackageVersion(Mockito.anyString())
 
         assertTrue(securityState.areCvesPatched(listOf("CVE-2023-0001", "CVE-2023-0002")))
     }
@@ -1027,8 +1058,11 @@ class SecurityPatchStateTest {
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn(systemSpl).`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn(systemSpl)
+            .`when`(mockSecurityStateManagerCompat)
+            .getPackageVersion(Mockito.anyString())
 
         assertFalse(
             securityState.areCvesPatched(listOf("CVE-2023-0010", "CVE-2023-0001", "CVE-2023-0002"))
@@ -1072,8 +1106,11 @@ class SecurityPatchStateTest {
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn(systemSpl).`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn(systemSpl)
+            .`when`(mockSecurityStateManagerCompat)
+            .getPackageVersion(Mockito.anyString())
 
         assertFalse(
             securityState.areCvesPatched(listOf("CVE-2024-1010", "CVE-2023-0001", "CVE-2023-0002"))
@@ -1118,8 +1155,11 @@ class SecurityPatchStateTest {
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn(systemSpl).`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn(systemSpl)
+            .`when`(mockSecurityStateManagerCompat)
+            .getPackageVersion(Mockito.anyString())
 
         assertTrue(securityState.areCvesPatched(listOf("CVE-2023-0010")))
     }
@@ -1162,8 +1202,11 @@ class SecurityPatchStateTest {
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
 
-        `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
-        doReturn(systemSpl).`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
+        `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
+            .thenReturn(bundle)
+        doReturn(systemSpl)
+            .`when`(mockSecurityStateManagerCompat)
+            .getPackageVersion(Mockito.anyString())
 
         assertFalse(securityState.areCvesPatched(listOf("CVE-2023-0010")))
     }

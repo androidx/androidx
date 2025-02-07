@@ -26,10 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.elementOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
@@ -99,6 +103,49 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
             assertThat(semanticsModifier.applySemanticsInvocations)
                 .isEqualTo(if (precomputedSemantics) 0 else 1)
         }
+    }
+
+    // This fixes b/392442163 and fixes a bug in NodeChain.isUpdating().
+    @Test
+    fun applySemantics_alongWithModifierRemoval() {
+        // Helper functions.
+        class EnabledNode(var isEnabled: Boolean) : SemanticsModifierNode, DelegatingNode() {
+            override val shouldAutoInvalidate: Boolean = false
+
+            override fun SemanticsPropertyReceiver.applySemantics() {
+                if (!isEnabled) disabled()
+            }
+        }
+
+        data class EnabledElement(val isEnabled: Boolean) : ModifierNodeElement<EnabledNode>() {
+            override fun create() = EnabledNode(isEnabled)
+
+            override fun update(node: EnabledNode) {
+                // Invalidating before setting the new value should not matter since semantics is
+                // calculated after the modifier update completes.
+                node.invalidateSemantics()
+                node.isEnabled = isEnabled
+            }
+        }
+
+        fun Modifier.enabled(enabled: Boolean) = this.then(EnabledElement(enabled))
+
+        // Arrange.
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.then(if (enabled) Modifier.size(10.dp) else Modifier)
+                        .testTag("tag")
+                        .enabled(enabled)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { enabled = false }
+
+        // Assert.
+        rule.onNodeWithTag("tag").assertIsNotEnabled()
     }
 
     @Test

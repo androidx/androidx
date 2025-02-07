@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.extensions
 
+import android.net.Uri
 import android.telecom.Call
 import androidx.core.telecom.util.ExperimentalAppActions
 
@@ -106,4 +107,30 @@ public interface CallExtensionScope {
     public fun addLocalCallSilenceExtension(
         onIsLocallySilencedUpdated: suspend (Boolean) -> Unit
     ): LocalCallSilenceExtensionRemote
+
+    /**
+     * Add support for call icon updates and provides a callback to receive those updates. This
+     * remote surface should implement a [android.database.ContentObserver] to observe changes to
+     * the icon's content URI. This is necessary to ensure the displayed icon reflects any updates
+     * made by the application if the URI remains the same.
+     *
+     * ```
+     * connectExtensions(call) {
+     *     val callIconExtension = addCallIconSupport(
+     *         // consume call icon state changes
+     *     )
+     *     onConnected {
+     *         // At this point, support for call icon extension will be known
+     *     }
+     * }
+     * ```
+     *
+     * @param onCallIconChanged A suspend function that will be invoked with the [Uri] of the new
+     *   call icon whenever it changes. This callback will only be called if the calling application
+     *   supports the call icon extension (i.e., `isSupported` returns `true`).
+     * @return A [CallIconExtensionRemote] instance that allows the remote to check if the calling
+     *   application supports the call icon extension. The remote *must* use this instance to check
+     *   support before expecting icon updates.
+     */
+    public fun addCallIconSupport(onCallIconChanged: suspend (Uri) -> Unit): CallIconExtensionRemote
 }

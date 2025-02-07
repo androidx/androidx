@@ -16,7 +16,7 @@
   -->
 
 <!--
-  This configuration is applied to LibraryType.SAMPLES projects which must run
+  This configuration is applied to SoftwareType.SAMPLES projects which must run
   specific lint checks on dependencies, but don't want the full suite running.
   -->
 <lint>

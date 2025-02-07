@@ -17,6 +17,7 @@
 package androidx.slidingpanelayout.widget.helpers
 
 import android.view.View
+import android.view.animation.Interpolator
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -67,6 +68,66 @@ fun openPane(): ViewAction {
             if (uiController == null || slidingPaneLayout == null) return
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.openPane()
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+}
+
+fun openPane(duration: Int, interpolator: Interpolator): ViewAction {
+    return object : ViewAction {
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(SlidingPaneLayout::class.java)
+        }
+
+        override fun getDescription(): String {
+            return "Open the list pane with interpolator: $interpolator and duration: $duration"
+        }
+
+        override fun perform(uiController: UiController?, view: View?) {
+            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            if (uiController == null || slidingPaneLayout == null) return
+            uiController.loopMainThreadUntilIdle()
+            slidingPaneLayout.openPane(duration, interpolator)
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+}
+
+fun closePane(): ViewAction {
+    return object : ViewAction {
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(SlidingPaneLayout::class.java)
+        }
+
+        override fun getDescription(): String {
+            return "Close the list pane"
+        }
+
+        override fun perform(uiController: UiController?, view: View?) {
+            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            if (uiController == null || slidingPaneLayout == null) return
+            uiController.loopMainThreadUntilIdle()
+            slidingPaneLayout.closePane()
+            uiController.loopMainThreadUntilIdle()
+        }
+    }
+}
+
+fun closePane(duration: Int, interpolator: Interpolator): ViewAction {
+    return object : ViewAction {
+        override fun getConstraints(): Matcher<View> {
+            return ViewMatchers.isAssignableFrom(SlidingPaneLayout::class.java)
+        }
+
+        override fun getDescription(): String {
+            return "Close the list pane with interpolator: $interpolator and duration: $duration"
+        }
+
+        override fun perform(uiController: UiController?, view: View?) {
+            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            if (uiController == null || slidingPaneLayout == null) return
+            uiController.loopMainThreadUntilIdle()
+            slidingPaneLayout.closePane(duration, interpolator)
             uiController.loopMainThreadUntilIdle()
         }
     }

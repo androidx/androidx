@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -65,7 +65,11 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 // TODO(b/375358921) Set to libs.kotlinTest when collection targets Kotlin 2
-                implementation("org.jetbrains.kotlin:kotlin-test:2.0.10")
+                // For KotlinWasm, versions of toolchain and stdlib need to be the same for tests:
+                // https://youtrack.jetbrains.com/issue/KT-71032
+                // So we force kotlin-test to be on Kotlin 2.
+                // Published artifacts are unaffected by this, they continue to target Kotlin 1.9
+                implementation(libs.kotlinTestForWasmTests)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
             }
@@ -114,13 +118,6 @@ androidXMultiplatform {
 
         webTest {
             dependsOn(commonTest)
-            dependencies {
-                // For KotlinWasm, versions of toolchain and stdlib need to be the same for tests:
-                // https://youtrack.jetbrains.com/issue/KT-71032
-                // So we force kotlin-test to be on Kotlin 2.
-                // Published artifacts are unaffected by this, they continue to target Kotlin 1.9
-                implementation("org.jetbrains.kotlin:kotlin-test:2.1.0")
-            }
         }
 
         wasmJsMain {
@@ -182,7 +179,7 @@ dependencies {
 
 androidx {
     name = "collections"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Standalone efficient collections."
     metalavaK2UastEnabled = false

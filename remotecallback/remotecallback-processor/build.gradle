@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -36,7 +36,7 @@ dependencies {
 
 androidx {
     name = "Remote Callback Compiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2018"
     description = "Compiler for RemoteCallback implementations"
     failOnDeprecationWarnings = false

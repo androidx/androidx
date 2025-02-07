@@ -19,7 +19,7 @@ import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmField
 
 /** A [ByteArray] wrapper that implements equals and hashCode to be used as a Map key.typ */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 class ByteArrayWrapper(@JvmField val array: ByteArray) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

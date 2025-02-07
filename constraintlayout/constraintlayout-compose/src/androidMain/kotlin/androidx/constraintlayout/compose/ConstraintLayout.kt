@@ -413,28 +413,33 @@ inline fun ConstraintLayout(
     }
 
     val density = LocalDensity.current
-    val measurer = remember { Measurer(density) }
+    val measurer = remember { Measurer2(density) }
     val scope = remember { ConstraintLayoutScope() }
     val remeasureRequesterState = remember { mutableStateOf(false) }
     val constraintSet = remember { ConstraintSetForInlineDsl(scope) }
     val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
 
     val measurePolicy = MeasurePolicy { measurables, constraints ->
+        // Map to properly capture Placeables across Measure and Layout passes
+        val placeableMap = mutableMapOf<Measurable, Placeable>()
+
+        // Call to invalidate measure on content recomposition
         contentTracker.value
         val layoutSize =
             measurer.performMeasure(
-                constraints,
-                layoutDirection,
-                constraintSet,
-                measurables,
-                optimizationLevel
+                constraints = constraints,
+                layoutDirection = layoutDirection,
+                constraintSet = constraintSet,
+                measurables = measurables,
+                placeableMap = placeableMap,
+                optimizationLevel = optimizationLevel
             )
         // We read the remeasurement requester state, to request remeasure when the value
         // changes. This will happen when the scope helpers are changing at recomposition.
         remeasureRequesterState.value
 
         layout(layoutSize.width, layoutSize.height) {
-            with(measurer) { performLayout(measurables) }
+            with(measurer) { performLayout(measurables = measurables, placeableMap = placeableMap) }
         }
     }
 
@@ -799,23 +804,26 @@ inline fun ConstraintLayout(
 
         val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
         val density = LocalDensity.current
-        val measurer = remember { Measurer(density) }
-        remember(constraintSet) {
-            measurer.parseDesignElements(constraintSet)
-            true
-        }
+        val measurer = remember { Measurer2(density) }
         val measurePolicy = MeasurePolicy { measurables, constraints ->
+            // Map to properly capture Placeables across Measure and Layout passes
+            val placeableMap = mutableMapOf<Measurable, Placeable>()
+
+            // Call to invalidate measure on content recomposition
             contentTracker.value
             val layoutSize =
                 measurer.performMeasure(
-                    constraints,
-                    layoutDirection,
-                    constraintSet,
-                    measurables,
-                    optimizationLevel
+                    constraints = constraints,
+                    layoutDirection = layoutDirection,
+                    constraintSet = constraintSet,
+                    measurables = measurables,
+                    placeableMap = placeableMap,
+                    optimizationLevel = optimizationLevel
                 )
             layout(layoutSize.width, layoutSize.height) {
-                with(measurer) { performLayout(measurables) }
+                with(measurer) {
+                    performLayout(measurables = measurables, placeableMap = placeableMap)
+                }
             }
         }
         if (constraintSet is EditableJSONLayout) {
@@ -831,12 +839,8 @@ inline fun ConstraintLayout(
                 MultiMeasureLayout(
                     modifier = mod.semantics { designInfoProvider = measurer },
                     measurePolicy = measurePolicy,
-                    content = {
-                        measurer.createDesignElements()
-                        content()
-                    }
+                    content = @SuppressLint("UnnecessaryLambdaCreation") { content() }
                 )
-                with(measurer) { drawDebugBounds(forcedScaleFactor) }
             }
         } else {
             @Suppress("DEPRECATION")
@@ -848,7 +852,6 @@ inline fun ConstraintLayout(
                     // recompose at the same pass as the content. The only expected reader is our
                     // MeasurePolicy.
                     contentTracker.value = Unit
-                    measurer.createDesignElements()
                     content()
                 }
             )
@@ -1604,6 +1607,10 @@ interface LayoutInformationReceiver {
     fun onNewProgress(progress: Float)
 }
 
+@Deprecated(
+    message = "Replace with Measurer2 instead for proper Measure/Layout handling.",
+    replaceWith = ReplaceWith("Measurer2")
+)
 @PublishedApi
 internal open class Measurer(
     density: Density // TODO: Change to a variable since density may change
@@ -2279,9 +2286,9 @@ internal typealias SolverDimension = androidx.constraintlayout.core.state.Dimens
 
 internal typealias SolverState = androidx.constraintlayout.core.state.State
 
-private val DEBUG = false
+private const val DEBUG = false
 
-private fun ConstraintWidget.toDebugString() =
+internal fun ConstraintWidget.toDebugString() =
     "$debugName " +
         "width $width minWidth $minWidth maxWidth $maxWidth " +
         "height $height minHeight $minHeight maxHeight $maxHeight " +

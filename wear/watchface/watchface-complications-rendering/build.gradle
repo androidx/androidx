@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -59,8 +59,8 @@ android {
     defaultConfig {
         minSdk = 26
     }
-    lintOptions {
-        disable 'NullabilityAnnotationsDetector' // False alarm on transformed files.
+    lint {
+        disable.add("NullabilityAnnotationsDetector") // False alarm on transformed files.
     }
 
     // Use Robolectric 4.+
@@ -70,7 +70,7 @@ android {
 
 androidx {
     name = "Android Wear Watchface Complication Rendering"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
     legacyDisableKotlinStrictApiMode = true

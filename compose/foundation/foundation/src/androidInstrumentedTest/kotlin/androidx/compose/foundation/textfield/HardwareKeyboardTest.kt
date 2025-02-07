@@ -139,6 +139,14 @@ class HardwareKeyboardTest {
     }
 
     @Test
+    fun textField_newLineNumpad() {
+        keysSequenceTest(initText = "hello") {
+            Key.NumPadEnter.downAndUp()
+            expectedText("\nhello")
+        }
+    }
+
+    @Test
     fun textField_backspace() {
         keysSequenceTest(initText = "hello") {
             Key.DirectionRight.downAndUp()

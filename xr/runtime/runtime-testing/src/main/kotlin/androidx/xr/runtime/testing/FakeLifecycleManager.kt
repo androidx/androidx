@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
@@ -24,7 +23,6 @@ import kotlinx.coroutines.sync.Semaphore
 
 /** Test-only implementation of [LifecycleManager] used to validate state transitions. */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeLifecycleManager : LifecycleManager {
 
     /** Set of possible states of the runtime. */

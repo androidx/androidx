@@ -67,7 +67,7 @@ internal fun Modifier.container(
 ): Modifier {
     val borderModifier = if (border != null) border(border = border, shape = shape) else this
     val itemScope =
-        if (LocalReduceMotion.current.enabled()) {
+        if (LocalReduceMotion.current) {
             null
         } else {
             LocalTransformingLazyColumnItemScope.current
@@ -102,7 +102,7 @@ internal fun Modifier.container(
 ): Modifier {
     val borderModifier = if (border != null) border(border = border, shape = shape) else this
     val itemScope =
-        if (LocalReduceMotion.current.enabled()) {
+        if (LocalReduceMotion.current) {
             null
         } else {
             LocalTransformingLazyColumnItemScope.current

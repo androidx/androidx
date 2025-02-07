@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -93,7 +93,7 @@ afterEvaluate {
 
 androidx {
     name = "Room XProcessor Testing"
-    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"

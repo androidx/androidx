@@ -351,7 +351,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     @JvmOverloads
-    fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
+    fun androidTarget(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
             kotlinExtension.androidTarget {

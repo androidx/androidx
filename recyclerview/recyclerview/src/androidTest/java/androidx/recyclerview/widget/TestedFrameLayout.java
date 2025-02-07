@@ -25,9 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -183,7 +184,7 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
     }
 
     @Override
-    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, int @NonNull [] consumed) {
         onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 
@@ -244,7 +245,7 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
     }
 
     @Override
-    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, int @NonNull [] consumed,
             @ViewCompat.NestedScrollType int type) {
         if (mNestedScrollingDelegate != null) {
             mNestedScrollingDelegate.onNestedPreScroll(target, dx, dy, consumed, type);

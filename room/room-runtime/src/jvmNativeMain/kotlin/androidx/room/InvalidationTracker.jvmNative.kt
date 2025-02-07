@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.Flow
  * created from, then such table is considered 'invalidated' and the [Flow] will emit a new value.
  */
 actual class InvalidationTracker
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual constructor(
     private val database: RoomDatabase,
     shadowTablesMap: Map<String, String>,
@@ -48,7 +48,7 @@ actual constructor(
             onInvalidatedTablesIds = {}
         )
 
-    /** Internal method to initialize table tracking. Invoked by generated code. */
+    /** Internal function to initialize table tracking. Invoked by generated code. */
     internal actual fun internalInit(connection: SQLiteConnection) {
         implementation.configureConnection(connection)
     }

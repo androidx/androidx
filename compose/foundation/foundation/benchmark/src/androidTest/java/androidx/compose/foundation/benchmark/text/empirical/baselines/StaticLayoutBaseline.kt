@@ -67,7 +67,7 @@ open class StaticLayoutBaseline(private val size: Int) {
         val canvas = Canvas(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
         var isEmpty = false
         benchmarkRule.measureRepeated {
-            val measureText = runWithTimingDisabled {
+            val measureText = runWithMeasurementDisabled {
                 isEmpty = !isEmpty
                 if (isEmpty) "" else text
             }

@@ -26,15 +26,15 @@ import androidx.annotation.RestrictTo.Scope;
 @RestrictTo(Scope.LIBRARY)
 public final class TypefaceTokens {
 
-  public static final String PLAIN = "roboto-flex";
+    public static final String PLAIN = "roboto-flex";
 
-  public static final float WEIGHT_BOLD = 700.0f;
+    public static final float WEIGHT_BOLD = 700.0f;
 
-  public static final float WEIGHT_MEDIUM_1 = 500.0f;
+    public static final float WEIGHT_MEDIUM_1 = 500.0f;
 
-  public static final float WEIGHT_REGULAR = 400.0f;
+    public static final float WEIGHT_REGULAR = 400.0f;
 
-  public static final String BRAND = PLAIN;
+    public static final String BRAND = PLAIN;
 
-  private TypefaceTokens() {}
+    private TypefaceTokens() {}
 }

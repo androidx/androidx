@@ -19,7 +19,8 @@ package androidx.room.processor
 import androidx.room.AutoMigration
 import androidx.room.SkipQueryVerification
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
@@ -40,7 +41,7 @@ import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
-import androidx.room.vo.findFieldByColumnName
+import androidx.room.vo.findPropertyByColumnName
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Path
@@ -62,7 +63,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     }
 
     private fun doProcess(): Database {
-        val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
+        val dbAnnotation = element.requireAnnotation(androidx.room.Database::class)
 
         val entities = processEntities(dbAnnotation, element)
         val viewsMap = processDatabaseViews(dbAnnotation)
@@ -92,13 +93,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 .getAllMethods()
                 .filter { it.isAbstract() }
                 .filterNot {
-                    // remove methods that belong to room
+                    // remove functions that belong to room
                     it.enclosingElement.asClassName() == RoomTypeNames.ROOM_DB
                 }
                 .mapNotNull { executable ->
                     // TODO when we add support for non Dao return types (e.g. database), this code
-                    // needs
-                    // to change
+                    // needs to change
                     val daoType = executable.returnType
                     val daoElement = daoType.typeElement
                     if (daoElement == null) {
@@ -130,44 +130,43 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         val hasClearAllTables =
             roomDatabaseTypeElement.getDeclaredMethods().any { it.name == "clearAllTables" }
 
+        val version = dbAnnotation.getAsInt("version")
         context.checker.check(
-            predicate = dbAnnotation.value.version > 0,
+            predicate = version > 0,
             element = element,
             errorMsg = ProcessorErrors.INVALID_DATABASE_VERSION
         )
 
         val constructorObject = processConstructorObject(element)
-
+        val exportSchema = dbAnnotation["exportSchema"]?.asBoolean() == true
         val database =
             Database(
-                version = dbAnnotation.value.version,
+                version = version,
                 element = element,
                 type = element.type,
                 entities = entities,
                 views = views,
                 daoFunctions = daoFunctions,
-                exportSchema = dbAnnotation.value.exportSchema,
+                exportSchema = exportSchema,
                 enableForeignKeys = hasForeignKeys,
                 overrideClearAllTables = hasClearAllTables,
                 constructorObject = constructorObject
             )
-        database.autoMigrations = processAutoMigrations(element, database.bundle)
+        database.autoMigrations = processAutoMigrations(element, dbAnnotation, database.bundle)
         return database
     }
 
     private fun processAutoMigrations(
         element: XTypeElement,
+        dbAnnotation: XAnnotation,
         latestDbSchema: DatabaseBundle
     ): List<androidx.room.vo.AutoMigration> {
-        val dbAnnotation = element.getAnnotation(androidx.room.Database::class)!!
-
-        val autoMigrationList =
-            dbAnnotation.getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
+        val autoMigrationList = dbAnnotation["autoMigrations"]?.asAnnotationList() ?: emptyList()
         if (autoMigrationList.isEmpty()) {
             return emptyList()
         }
 
-        if (!dbAnnotation.value.exportSchema) {
+        if (dbAnnotation["exportSchema"]?.asBoolean() != true) {
             context.logger.e(element, AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF)
             return emptyList()
         }
@@ -177,23 +176,22 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             return emptyList()
         }
 
-        return autoMigrationList.mapNotNull { annotationBox ->
+        return autoMigrationList.mapNotNull { autoMigrationAnnotation ->
             val databaseSchemaInFolderPath =
                 Path.of(schemaInFolderPath, element.asClassName().canonicalName)
-            val autoMigration = annotationBox.value
+            val fromVersion = autoMigrationAnnotation.getAsInt("from")
+            val toVersion = autoMigrationAnnotation.getAsInt("to")
             val fromSchemaBundle =
-                getSchemaBundle(autoMigration.from, databaseSchemaInFolderPath)
-                    ?: return@mapNotNull null
+                getSchemaBundle(fromVersion, databaseSchemaInFolderPath) ?: return@mapNotNull null
             val toSchemaBundle =
-                if (autoMigration.to == latestDbSchema.version) {
+                if (toVersion == latestDbSchema.version) {
                     latestDbSchema
                 } else {
-                    getSchemaBundle(autoMigration.to, databaseSchemaInFolderPath)
-                        ?: return@mapNotNull null
+                    getSchemaBundle(toVersion, databaseSchemaInFolderPath) ?: return@mapNotNull null
                 }
             AutoMigrationProcessor(
                     context = context,
-                    spec = annotationBox.getAsType("spec"),
+                    spec = autoMigrationAnnotation["spec"]?.asType(),
                     fromSchemaBundle = fromSchemaBundle,
                     toSchemaBundle = toSchemaBundle
                 )
@@ -256,7 +254,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 }
                 val parentFields =
                     foreignKey.parentColumns.mapNotNull { columnName ->
-                        val parentField = parent.findFieldByColumnName(columnName)
+                        val parentField = parent.findPropertyByColumnName(columnName)
                         if (parentField == null) {
                             context.logger.e(
                                 entity.element,
@@ -280,7 +278,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                             parentEntity = parent.element.qualifiedName,
                             childEntity = entity.element.qualifiedName,
                             parentColumns = foreignKey.parentColumns,
-                            childColumns = foreignKey.childFields.map { it.columnName }
+                            childColumns = foreignKey.childProperties.map { it.columnName }
                         )
                     )
                     return@foreignKeyLoop
@@ -354,14 +352,14 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 }
             }
         daoFunctions.forEach { daoFunction ->
-            daoFunction.dao.mDeleteOrUpdateShortcutFunctions.forEach { method ->
-                method.entities.forEach {
-                    check(method.element, daoFunction.dao, it.value.entityTypeName)
+            daoFunction.dao.mDeleteOrUpdateShortcutFunctions.forEach { function ->
+                function.entities.forEach {
+                    check(function.element, daoFunction.dao, it.value.entityTypeName)
                 }
             }
-            daoFunction.dao.mInsertOrUpsertShortcutFunctions.forEach { method ->
-                method.entities.forEach {
-                    check(method.element, daoFunction.dao, it.value.entityTypeName)
+            daoFunction.dao.mInsertOrUpsertShortcutFunctions.forEach { function ->
+                function.entities.forEach {
+                    check(function.element, daoFunction.dao, it.value.entityTypeName)
                 }
             }
         }
@@ -423,11 +421,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             }
     }
 
-    private fun processEntities(
-        dbAnnotation: XAnnotationBox<androidx.room.Database>,
-        element: XTypeElement
-    ): List<Entity> {
-        val entityList = dbAnnotation.getAsTypeList("entities")
+    private fun processEntities(dbAnnotation: XAnnotation, element: XTypeElement): List<Entity> {
+        val entityList = dbAnnotation["entities"]?.asTypeList() ?: emptyList()
         context.checker.check(
             entityList.isNotEmpty(),
             element,
@@ -449,10 +444,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         }
     }
 
-    private fun processDatabaseViews(
-        dbAnnotation: XAnnotationBox<androidx.room.Database>
-    ): Map<XTypeElement, DatabaseView> {
-        val viewList = dbAnnotation.getAsTypeList("views")
+    private fun processDatabaseViews(dbAnnotation: XAnnotation): Map<XTypeElement, DatabaseView> {
+        val viewList = dbAnnotation["views"]?.asTypeList() ?: emptyList()
         return viewList
             .mapNotNull {
                 val viewElement = it.typeElement
@@ -557,7 +550,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             )
             return null
         }
-        val type = annotation.getAsType("value") ?: return null
+        val type = annotation.getAsType("value")
         val typeElement = type.typeElement
         if (typeElement == null) {
             context.logger.e(element, ProcessorErrors.INVALID_CONSTRUCTED_BY_CLASS)

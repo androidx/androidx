@@ -257,6 +257,50 @@ class LazyLayoutTest {
     }
 
     @Test
+    fun prefetchItem_reportMeasuredSizeAfterPremeasure() {
+        val constraints = Constraints.fixed(50, 50)
+        var measureCount = 0
+        @Suppress("NAME_SHADOWING")
+        val modifier =
+            Modifier.layout { measurable, constraints ->
+                measureCount++
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        val itemProvider =
+            itemProvider({ 1 }) { index ->
+                Box(Modifier.fillMaxSize().testTag("$index").then(modifier))
+            }
+        var needToCompose by mutableStateOf(false)
+        val scheduler = TestPrefetchScheduler()
+        val prefetchState = LazyLayoutPrefetchState(scheduler)
+        rule.setContent {
+            LazyLayout(itemProvider, prefetchState = prefetchState) {
+                val item =
+                    if (needToCompose) {
+                        measure(0, constraints)[0]
+                    } else null
+                layout(100, 100) { item?.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(measureCount).isEqualTo(0)
+            var callbackCalled = 0
+            prefetchState.schedulePrefetch(0, constraints) {
+                callbackCalled++
+                repeat(placeablesCount) {
+                    assertThat(getSize(it).width).isEqualTo(50)
+                    assertThat(getSize(it).height).isEqualTo(50)
+                }
+            }
+            scheduler.executeActiveRequests()
+            assertThat(measureCount).isEqualTo(1)
+            assertThat(callbackCalled).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun prefetchItemWithContentType() {
         val constraints = Constraints.fixed(50, 50)
         var measureCount = 0

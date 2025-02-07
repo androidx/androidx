@@ -45,7 +45,7 @@ class ScrollTransformTest {
 
         setContentWithTheme {
             state = rememberTransformingLazyColumnState()
-            CompositionLocalProvider(LocalReduceMotion provides { true }) {
+            CompositionLocalProvider(LocalReduceMotion provides true) {
                 TransformingLazyColumn(
                     state = state,
                     contentPadding = PaddingValues(0.dp),

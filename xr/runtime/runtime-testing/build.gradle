@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -54,7 +54,7 @@ android {
 
 androidx {
     name = "XR Fake Runtime"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "A fake implementation of the XR runtime used in unit tests."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

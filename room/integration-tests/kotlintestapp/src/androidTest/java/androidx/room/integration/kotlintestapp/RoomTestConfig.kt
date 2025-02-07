@@ -26,7 +26,7 @@ object RoomTestConfig {
 }
 
 /**
- * Helper method to check if the test was compiled with KSP, and if not, throw an assumption
+ * Helper function to check if the test was compiled with KSP, and if not, throw an assumption
  * violation exception to skip the test.
  */
 fun assumeKsp() {

@@ -18,7 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-internal actual class TreeSet<E> actual constructor(comparator: Comparator<in E>) {
+internal actual class SortedSet<E> actual constructor(comparator: Comparator<in E>) {
     actual fun add(element: E): Boolean = implementedInJetBrainsFork()
 
     actual fun remove(element: E): Boolean = implementedInJetBrainsFork()

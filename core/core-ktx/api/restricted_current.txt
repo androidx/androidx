@@ -142,6 +142,19 @@ package androidx.core.graphics {
     method @ColorInt public static inline int toColorInt(String);
     method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
+    property public static inline int alpha;
+    property @RequiresApi(26) public static inline float alpha;
+    property public static inline int blue;
+    property @RequiresApi(26) public static inline float blue;
+    property @RequiresApi(26) public static inline android.graphics.ColorSpace colorSpace;
+    property public static inline int green;
+    property @RequiresApi(26) public static inline float green;
+    property @RequiresApi(26) public static inline boolean isSrgb;
+    property @RequiresApi(26) public static inline boolean isWideGamut;
+    property @RequiresApi(26) public static inline float luminance;
+    property @RequiresApi(26) public static inline float luminance;
+    property public static inline int red;
+    property @RequiresApi(26) public static inline float red;
   }
 
   public final class ImageDecoderKt {
@@ -352,6 +365,7 @@ package androidx.core.text {
 
   public final class LocaleKt {
     method public static inline int getLayoutDirection(java.util.Locale);
+    property public static inline int layoutDirection;
   }
 
   public final class SpannableStringBuilderKt {
@@ -441,6 +455,7 @@ package androidx.core.util {
     method public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T value);
     method public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.LongSparseArray<T>);
+    property public static inline int size;
   }
 
   public final class LruCacheKt {
@@ -496,6 +511,7 @@ package androidx.core.util {
     method public static <T> boolean remove(android.util.SparseArray<T>, int key, T value);
     method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.SparseArray<T>);
+    property public static inline int size;
   }
 
   public final class SparseBooleanArrayKt {
@@ -514,6 +530,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseBooleanArray, int key, boolean value);
     method public static inline operator void set(android.util.SparseBooleanArray, int key, boolean value);
     method public static kotlin.collections.BooleanIterator valueIterator(android.util.SparseBooleanArray);
+    property public static inline int size;
   }
 
   public final class SparseIntArrayKt {
@@ -532,6 +549,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseIntArray, int key, int value);
     method public static inline operator void set(android.util.SparseIntArray, int key, int value);
     method public static kotlin.collections.IntIterator valueIterator(android.util.SparseIntArray);
+    property public static inline int size;
   }
 
   public final class SparseLongArrayKt {
@@ -550,6 +568,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseLongArray, int key, long value);
     method public static inline operator void set(android.util.SparseLongArray, int key, long value);
     method public static kotlin.collections.LongIterator valueIterator(android.util.SparseLongArray);
+    property public static inline int size;
   }
 
 }
@@ -568,6 +587,8 @@ package androidx.core.view {
     method public static operator java.util.Iterator<android.view.MenuItem> iterator(android.view.Menu);
     method public static inline operator void minusAssign(android.view.Menu, android.view.MenuItem item);
     method public static inline void removeItemAt(android.view.Menu, int index);
+    property public static kotlin.sequences.Sequence<android.view.MenuItem> children;
+    property public static inline int size;
   }
 
   public final class ViewGroupKt {
@@ -587,6 +608,10 @@ package androidx.core.view {
     method public static inline void setMargins(android.view.ViewGroup.MarginLayoutParams, @Px int size);
     method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
     method public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    property public static kotlin.sequences.Sequence<android.view.View> children;
+    property public static kotlin.sequences.Sequence<android.view.View> descendants;
+    property public static inline kotlin.ranges.IntRange indices;
+    property public static inline int size;
   }
 
   public final class ViewKt {
@@ -617,6 +642,17 @@ package androidx.core.view {
     method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
     method public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    property public static kotlin.sequences.Sequence<android.view.View> allViews;
+    property public static kotlin.sequences.Sequence<android.view.ViewParent> ancestors;
+    property public static inline boolean isGone;
+    property public static inline boolean isInvisible;
+    property public static inline boolean isVisible;
+    property public static inline int marginBottom;
+    property public static inline int marginEnd;
+    property public static inline int marginLeft;
+    property public static inline int marginRight;
+    property public static inline int marginStart;
+    property public static inline int marginTop;
   }
 
 }

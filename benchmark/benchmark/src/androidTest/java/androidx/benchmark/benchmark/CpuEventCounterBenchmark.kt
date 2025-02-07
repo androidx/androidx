@@ -74,7 +74,7 @@ class CpuEventCounterBenchmark {
                 )
             )
             benchmarkRule.measureRepeated {
-                runWithTimingDisabled { counter.reset() }
+                runWithMeasurementDisabled { counter.reset() }
                 counter.start()
                 counter.stop()
             }

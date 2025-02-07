@@ -31,7 +31,7 @@ import java.util.TreeMap
  * Because it is relatively a big object, they are pooled and must be released after each use.
  */
 @SuppressLint("WrongConstant")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity: Int) :
     SupportSQLiteQuery, SupportSQLiteProgram {
     @Volatile private var query: String? = null

@@ -23,25 +23,25 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
-import androidx.room.processor.ProcessorErrors.DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_PROPERTY
+import androidx.room.processor.ProcessorErrors.DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room.processor.ProcessorErrors.MISSING_DATA_CLASS_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.junctionColumnWithoutIndex
-import androidx.room.processor.ProcessorErrors.relationCannotFindEntityField
-import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionEntityField
-import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionParentField
-import androidx.room.processor.ProcessorErrors.relationCannotFindParentEntityField
-import androidx.room.runProcessorTestWithK1
+import androidx.room.processor.ProcessorErrors.relationCannotFindEntityProperty
+import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionEntityProperty
+import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionParentProperty
+import androidx.room.processor.ProcessorErrors.relationCannotFindParentEntityProperty
 import androidx.room.testing.context
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.DataClass
-import androidx.room.vo.EmbeddedField
-import androidx.room.vo.Field
-import androidx.room.vo.FieldGetter
-import androidx.room.vo.FieldSetter
+import androidx.room.vo.EmbeddedProperty
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyGetter
+import androidx.room.vo.PropertySetter
 import androidx.room.vo.RelationCollector
 import java.io.File
 import org.hamcrest.CoreMatchers.instanceOf
@@ -80,12 +80,12 @@ class DataClassProcessorTest {
             package foo.bar.x;
             import androidx.room.*;
             public class BaseClass {
-                private String baseField;
-                public String getBaseField(){ return baseField; }
-                public void setBaseField(String baseField){ }
+                private String baseProperty;
+                public String getBaseProperty(){ return baseProperty; }
+                public void setBaseProperty(String baseProperty){ }
             }
         """
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources =
                 listOf(
                     Source.java(
@@ -94,7 +94,7 @@ class DataClassProcessorTest {
                     package foo.bar;
                     import androidx.room.*;
                     public class ${MY_DATA_CLASS.simpleNames.single()} extends foo.bar.x.BaseClass {
-                        public String myField;
+                        public String myProperty;
                     }
                     """
                     ),
@@ -105,12 +105,12 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "myField" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "baseField" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "myProperty" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "baseProperty" }, notNullValue())
         }
     }
 
@@ -122,8 +122,8 @@ class DataClassProcessorTest {
             int bar;
         """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.size, `is`(1))
-            assertThat(dataClass.fields[0].name, `is`("bar"))
+            assertThat(dataClass.properties.size, `is`(1))
+            assertThat(dataClass.properties[0].name, `is`("bar"))
         }
     }
 
@@ -136,7 +136,7 @@ class DataClassProcessorTest {
             int bar;
         """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.map { it.name }.toSet(), `is`(setOf("bar", "foo")))
+            assertThat(dataClass.properties.map { it.name }.toSet(), `is`(setOf("bar", "foo")))
         }
     }
 
@@ -152,7 +152,7 @@ class DataClassProcessorTest {
             }
         """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.map { it.name }.toSet(), `is`(setOf("x", "bar")))
+            assertThat(dataClass.properties.map { it.name }.toSet(), `is`(setOf("x", "bar")))
         }
     }
 
@@ -169,7 +169,7 @@ class DataClassProcessorTest {
             }
             """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.map { it.name }.toSet(), `is`(setOf("bar", "y")))
+            assertThat(dataClass.properties.map { it.name }.toSet(), `is`(setOf("bar", "y")))
         }
     }
 
@@ -184,8 +184,8 @@ class DataClassProcessorTest {
             COMMON.USER,
         ) { dataClass, invocation ->
             assertThat(dataClass.relations.size, `is`(1))
-            assertThat(dataClass.relations.first().entityField.name, `is`("uid"))
-            assertThat(dataClass.relations.first().parentField.name, `is`("id"))
+            assertThat(dataClass.relations.first().entityProperty.name, `is`("uid"))
+            assertThat(dataClass.relations.first().parentProperty.name, `is`("id"))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
@@ -203,15 +203,15 @@ class DataClassProcessorTest {
                 }
                 """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.size, `is`(3))
-            assertThat(dataClass.fields[1].name, `is`("x"))
-            assertThat(dataClass.fields[2].name, `is`("y"))
-            assertThat(dataClass.fields[0].parent, nullValue())
-            assertThat(dataClass.fields[1].parent, notNullValue())
-            assertThat(dataClass.fields[2].parent, notNullValue())
-            val parent = dataClass.fields[2].parent!!
+            assertThat(dataClass.properties.size, `is`(3))
+            assertThat(dataClass.properties[1].name, `is`("x"))
+            assertThat(dataClass.properties[2].name, `is`("y"))
+            assertThat(dataClass.properties[0].parent, nullValue())
+            assertThat(dataClass.properties[1].parent, notNullValue())
+            assertThat(dataClass.properties[2].parent, notNullValue())
+            val parent = dataClass.properties[2].parent!!
             assertThat(parent.prefix, `is`(""))
-            assertThat(parent.field.name, `is`("myPoint"))
+            assertThat(parent.property.name, `is`("myPoint"))
             assertThat(
                 parent.dataClass.typeName,
                 `is`(XClassName.get("foo.bar", "MyDataClass", "Point"))
@@ -233,12 +233,12 @@ class DataClassProcessorTest {
                 }
                 """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.size, `is`(3))
-            assertThat(dataClass.fields[1].name, `is`("x"))
-            assertThat(dataClass.fields[2].name, `is`("y"))
-            assertThat(dataClass.fields[1].columnName, `is`("foox"))
-            assertThat(dataClass.fields[2].columnName, `is`("fooy2"))
-            val parent = dataClass.fields[2].parent!!
+            assertThat(dataClass.properties.size, `is`(3))
+            assertThat(dataClass.properties[1].name, `is`("x"))
+            assertThat(dataClass.properties[2].name, `is`("y"))
+            assertThat(dataClass.properties[1].columnName, `is`("foox"))
+            assertThat(dataClass.properties[2].columnName, `is`("fooy2"))
+            val parent = dataClass.properties[2].parent!!
             assertThat(parent.prefix, `is`("foo"))
         }
     }
@@ -265,9 +265,9 @@ class DataClassProcessorTest {
                 }
                 """
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.size, `is`(5))
+            assertThat(dataClass.properties.size, `is`(5))
             assertThat(
-                dataClass.fields.map { it.columnName },
+                dataClass.properties.map { it.columnName },
                 `is`(listOf("id", "foox", "fooy2", "foobarlat", "foobarlng"))
             )
         }
@@ -294,7 +294,7 @@ class DataClassProcessorTest {
             import ${Embedded::class.java.canonicalName};
             public class BaseClass<T> {
                 @Embedded
-                public T genericField;
+                public T genericProperty;
             }
             """
             )
@@ -302,19 +302,20 @@ class DataClassProcessorTest {
             """
                 package foo.bar;
                 public class MyDataClass extends BaseClass<Point> {
-                    public int normalField;
+                    public int normalProperty;
                 }
                 """,
             point,
             base
         ) { dataClass, _ ->
-            assertThat(dataClass.fields.size, `is`(3))
+            assertThat(dataClass.properties.size, `is`(3))
             assertThat(
-                dataClass.fields.map { it.columnName }.toSet(),
-                `is`(setOf("x", "y", "normalField"))
+                dataClass.properties.map { it.columnName }.toSet(),
+                `is`(setOf("x", "y", "normalProperty"))
             )
-            val pointField = dataClass.embeddedFields.first { it.field.name == "genericField" }
-            assertThat(pointField.dataClass.typeName, `is`(XClassName.get("foo.bar", "Point")))
+            val pointProperty =
+                dataClass.embeddedProperties.first { it.property.name == "genericProperty" }
+            assertThat(pointProperty.dataClass.typeName, `is`(XClassName.get("foo.bar", "Point")))
         }
     }
 
@@ -344,9 +345,9 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.dataClassDuplicateFieldNames("id", listOf("id", "another"))
+                    ProcessorErrors.dataClassDuplicatePropertyNames("id", listOf("id", "another"))
                 )
-                hasErrorContaining(DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME)
+                hasErrorContaining(DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME)
                 hasErrorCount(3)
             }
         }
@@ -367,9 +368,9 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.dataClassDuplicateFieldNames("id", listOf("id", "foo > x"))
+                    ProcessorErrors.dataClassDuplicatePropertyNames("id", listOf("id", "foo > x"))
                 )
-                hasErrorContaining(DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME)
+                hasErrorContaining(DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME)
                 hasErrorCount(3)
             }
         }
@@ -433,7 +434,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_FIELD_ANNOTATION
+                    ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_PROPERTY_ANNOTATION
                 )
             }
         }
@@ -482,14 +483,18 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindParentEntityField("foo.bar.MyDataClass", "idk", listOf("id"))
+                    relationCannotFindParentEntityProperty(
+                        "foo.bar.MyDataClass",
+                        "idk",
+                        listOf("id")
+                    )
                 )
             }
         }
     }
 
     @Test
-    fun relation_missingEntityField() {
+    fun relation_missingEntityProperty() {
         singleRun(
             """
                 int id;
@@ -500,7 +505,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindEntityField(
+                    relationCannotFindEntityProperty(
                         "foo.bar.User",
                         "idk",
                         listOf("uid", "name", "lastName", "age")
@@ -535,7 +540,7 @@ class DataClassProcessorTest {
     }
 
     @Test
-    fun relation_nestedField() {
+    fun relation_nestedProperty() {
         singleRun(
             """
                 static class Nested {
@@ -549,7 +554,7 @@ class DataClassProcessorTest {
                 """,
             COMMON.USER
         ) { dataClass, _ ->
-            assertThat(dataClass.relations.first().parentField.columnName, `is`("foo"))
+            assertThat(dataClass.relations.first().parentProperty.columnName, `is`("foo"))
         }
     }
 
@@ -569,7 +574,7 @@ class DataClassProcessorTest {
                 """,
             COMMON.USER
         ) { dataClass, invocation ->
-            assertThat(dataClass.relations.first().parentField.name, `is`("id"))
+            assertThat(dataClass.relations.first().parentProperty.name, `is`("id"))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
@@ -587,8 +592,8 @@ class DataClassProcessorTest {
             // trigger assignment evaluation
             RelationCollector.createCollectors(invocation.context, dataClass.relations)
             assertThat(dataClass.relations.size, `is`(1))
-            assertThat(dataClass.relations.first().entityField.name, `is`("uid"))
-            assertThat(dataClass.relations.first().parentField.name, `is`("id"))
+            assertThat(dataClass.relations.first().entityProperty.name, `is`("uid"))
+            assertThat(dataClass.relations.first().parentProperty.name, `is`("id"))
             invocation.assertCompilationResult {
                 hasWarningContaining(
                     ProcessorErrors.relationAffinityMismatch(
@@ -613,8 +618,8 @@ class DataClassProcessorTest {
             COMMON.USER
         ) { dataClass, invocation ->
             assertThat(dataClass.relations.size, `is`(1))
-            assertThat(dataClass.relations.first().entityField.name, `is`("uid"))
-            assertThat(dataClass.relations.first().parentField.name, `is`("id"))
+            assertThat(dataClass.relations.first().entityProperty.name, `is`("uid"))
+            assertThat(dataClass.relations.first().parentProperty.name, `is`("id"))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
@@ -653,7 +658,9 @@ class DataClassProcessorTest {
                 """,
             COMMON.USER
         ) { _, invocation ->
-            invocation.assertCompilationResult { hasErrorContaining(CANNOT_FIND_GETTER_FOR_FIELD) }
+            invocation.assertCompilationResult {
+                hasErrorContaining(CANNOT_FIND_GETTER_FOR_PROPERTY)
+            }
         }
     }
 
@@ -704,8 +711,8 @@ class DataClassProcessorTest {
             COMMON.USER
         ) { dataClass, invocation ->
             assertThat(dataClass.relations.size, `is`(1))
-            assertThat(dataClass.relations.first().entityField.name, `is`("uid"))
-            assertThat(dataClass.relations.first().parentField.name, `is`("id"))
+            assertThat(dataClass.relations.first().entityProperty.name, `is`("uid"))
+            assertThat(dataClass.relations.first().parentProperty.name, `is`("id"))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
@@ -758,9 +765,12 @@ class DataClassProcessorTest {
         ) { dataClass, invocation ->
             assertThat(dataClass.relations.size, `is`(1))
             assertThat(dataClass.relations.first().junction, notNullValue())
-            assertThat(dataClass.relations.first().junction!!.parentField.columnName, `is`("uid"))
             assertThat(
-                dataClass.relations.first().junction!!.entityField.columnName,
+                dataClass.relations.first().junction!!.parentProperty.columnName,
+                `is`("uid")
+            )
+            assertThat(
+                dataClass.relations.first().junction!!.entityProperty.columnName,
                 `is`("friendId")
             )
             invocation.assertCompilationResult { hasNoWarnings() }
@@ -880,7 +890,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindJunctionParentField(
+                    relationCannotFindJunctionParentProperty(
                         "foo.bar.UserFriendsXRef",
                         "id",
                         listOf("friendFrom", "uid")
@@ -921,7 +931,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindJunctionEntityField(
+                    relationCannotFindJunctionEntityProperty(
                         "foo.bar.UserFriendsXRef",
                         "uid",
                         listOf("friendA", "friendB")
@@ -964,7 +974,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindJunctionParentField(
+                    relationCannotFindJunctionParentProperty(
                         "foo.bar.UserFriendsXRef",
                         "bad_col",
                         listOf("friendA", "friendB")
@@ -1007,7 +1017,7 @@ class DataClassProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    relationCannotFindJunctionEntityField(
+                    relationCannotFindJunctionEntityProperty(
                         "foo.bar.UserFriendsXRef",
                         "bad_col",
                         listOf("friendA", "friendB")
@@ -1063,13 +1073,13 @@ class DataClassProcessorTest {
             $FOOTER
             """
             )
-        runProcessorTestWithK1(sources = listOf(dataClass)) { invocation ->
+        runProcessorTest(sources = listOf(dataClass)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS)
             val dataClass1 =
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.BIND_TO_STMT,
+                        PropertyProcessor.BindingScope.BIND_TO_STMT,
                         null
                     )
                     .process()
@@ -1078,7 +1088,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.BIND_TO_STMT,
+                        PropertyProcessor.BindingScope.BIND_TO_STMT,
                         null
                     )
                     .process()
@@ -1088,7 +1098,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.READ_FROM_STMT,
+                        PropertyProcessor.BindingScope.READ_FROM_STMT,
                         null
                     )
                     .process()
@@ -1099,7 +1109,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.TWO_WAY,
+                        PropertyProcessor.BindingScope.TWO_WAY,
                         null
                     )
                     .process()
@@ -1111,7 +1121,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.TWO_WAY,
+                        PropertyProcessor.BindingScope.TWO_WAY,
                         null
                     )
                     .process()
@@ -1120,8 +1130,8 @@ class DataClassProcessorTest {
             val type = invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
             val mockElement = mock(XFieldElement::class.java)
             doReturn(type).`when`(mockElement).type
-            val fakeField =
-                Field(
+            val fakeProperty =
+                Property(
                     element = mockElement,
                     name = "foo",
                     type = type,
@@ -1130,13 +1140,13 @@ class DataClassProcessorTest {
                     parent = null,
                     indexed = false
                 )
-            val fakeEmbedded = EmbeddedField(fakeField, "", null)
+            val fakeEmbedded = EmbeddedProperty(fakeProperty, "", null)
 
             val dataClass6 =
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.TWO_WAY,
+                        PropertyProcessor.BindingScope.TWO_WAY,
                         fakeEmbedded
                     )
                     .process()
@@ -1149,7 +1159,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         invocation.context,
                         element,
-                        FieldProcessor.BindingScope.TWO_WAY,
+                        PropertyProcessor.BindingScope.TWO_WAY,
                         fakeEmbedded
                     )
                     .process()
@@ -1170,7 +1180,7 @@ class DataClassProcessorTest {
     }
 
     @Test
-    fun constructor_ambiguous_twoFieldsExactMatch() {
+    fun constructor_ambiguous_twoPropertiesExactMatch() {
         val dataClassCode =
             """
             public String mName;
@@ -1180,10 +1190,10 @@ class DataClassProcessorTest {
             """
         singleRun(dataClassCode) { dataClass, _ ->
             val param = dataClass.constructor?.params?.first()
-            assertThat(param, instanceOf(Constructor.Param.FieldParam::class.java))
-            assertThat((param as Constructor.Param.FieldParam).field.name, `is`("mName"))
+            assertThat(param, instanceOf(Constructor.Param.PropertyParam::class.java))
+            assertThat((param as Constructor.Param.PropertyParam).property.name, `is`("mName"))
             assertThat(
-                dataClass.fields.find { it.name == "mName" }?.setter?.callType,
+                dataClass.properties.find { it.name == "mName" }?.setter?.callType,
                 `is`(CallType.CONSTRUCTOR)
             )
         }
@@ -1200,17 +1210,17 @@ class DataClassProcessorTest {
             """
         singleRun(dataClassCode) { dataClass, _ ->
             val param = dataClass.constructor?.params?.first()
-            assertThat(param, instanceOf(Constructor.Param.FieldParam::class.java))
-            assertThat((param as Constructor.Param.FieldParam).field.name, `is`("mName"))
+            assertThat(param, instanceOf(Constructor.Param.PropertyParam::class.java))
+            assertThat((param as Constructor.Param.PropertyParam).property.name, `is`("mName"))
             assertThat(
-                dataClass.fields.find { it.name == "mName" }?.setter?.callType,
+                dataClass.properties.find { it.name == "mName" }?.setter?.callType,
                 `is`(CallType.CONSTRUCTOR)
             )
         }
     }
 
     @Test
-    fun constructor_ambiguous_twoFields() {
+    fun constructor_ambiguous_twoProperties() {
         val dataClass =
             """
             String mName;
@@ -1312,11 +1322,11 @@ class DataClassProcessorTest {
             assertThat(dataClass.constructor, notNullValue())
             assertThat(dataClass.constructor?.params?.size, `is`(2))
             assertThat(
-                dataClass.fields.find { it.name == "mName" }?.setter?.callType,
+                dataClass.properties.find { it.name == "mName" }?.setter?.callType,
                 `is`(CallType.CONSTRUCTOR)
             )
             assertThat(
-                dataClass.fields.find { it.name == "mLastName" }?.setter?.callType,
+                dataClass.properties.find { it.name == "mLastName" }?.setter?.callType,
                 `is`(CallType.CONSTRUCTOR)
             )
         }
@@ -1334,7 +1344,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.BIND_TO_STMT,
                         parent = null
                     )
                     .process()
@@ -1354,7 +1364,7 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                        bindingScope = PropertyProcessor.BindingScope.TWO_WAY,
                         parent = null
                     )
                     .process()
@@ -1723,11 +1733,11 @@ class DataClassProcessorTest {
                 "foo.bar.TestData.WithJvmOverloads"
             )
             .forEach {
-                runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
+                runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
                     DataClassProcessor.createFor(
                             context = invocation.context,
                             element = invocation.processingEnv.requireTypeElement(it),
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                            bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                             parent = null
                         )
                         .process()
@@ -1738,14 +1748,14 @@ class DataClassProcessorTest {
 
     @Test
     fun dataClass_withJvmOverloads_primaryConstructor() {
-        runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
+        runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element =
                         invocation.processingEnv.requireTypeElement(
                             "foo.bar.TestData.WithJvmOverloads"
                         ),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()
@@ -1768,23 +1778,23 @@ class DataClassProcessorTest {
             }
             """
             )
-        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val dataClass =
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "foo" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "bar" }, nullValue())
+            assertThat(dataClass.properties.find { it.name == "foo" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "bar" }, nullValue())
         }
     }
 
     @Test
     fun ignoredColumns_noConstructor() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1812,18 +1822,18 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "foo" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "bar" }, nullValue())
+            assertThat(dataClass.properties.find { it.name == "foo" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "bar" }, nullValue())
         }
     }
 
     @Test
     fun ignoredColumns_noSetterGetter() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1849,18 +1859,18 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "foo" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "bar" }, nullValue())
+            assertThat(dataClass.properties.find { it.name == "foo" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "bar" }, nullValue())
         }
     }
 
     @Test
     fun ignoredColumns_columnInfo() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1881,18 +1891,18 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "foo" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "bar" }, nullValue())
+            assertThat(dataClass.properties.find { it.name == "foo" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "bar" }, nullValue())
         }
     }
 
     @Test
     fun ignoredColumns_missing() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1912,12 +1922,12 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            assertThat(dataClass.fields.find { it.name == "foo" }, notNullValue())
-            assertThat(dataClass.fields.find { it.name == "bar" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "foo" }, notNullValue())
+            assertThat(dataClass.properties.find { it.name == "bar" }, notNullValue())
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.missingIgnoredColumns(listOf("no_such_column")))
             }
@@ -1926,7 +1936,7 @@ class DataClassProcessorTest {
 
     @Test
     fun noSetter_scopeBindStmt() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1946,7 +1956,7 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.BIND_TO_STMT,
                     parent = null
                 )
                 .process()
@@ -1955,7 +1965,7 @@ class DataClassProcessorTest {
 
     @Test
     fun noSetter_scopeTwoWay() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -1975,19 +1985,19 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                    bindingScope = PropertyProcessor.BindingScope.TWO_WAY,
                     parent = null
                 )
                 .process()
             invocation.assertCompilationResult {
-                hasErrorContaining("Cannot find setter for field.")
+                hasErrorContaining("Cannot find setter for property.")
             }
         }
     }
 
     @Test
     fun noSetter_scopeReadFromCursor() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -2007,19 +2017,19 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()
             invocation.assertCompilationResult {
-                hasErrorContaining("Cannot find setter for field.")
+                hasErrorContaining("Cannot find setter for property.")
             }
         }
     }
 
     @Test
     fun noGetter_scopeBindStmt() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -2039,19 +2049,19 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.BIND_TO_STMT,
                     parent = null
                 )
                 .process()
             invocation.assertCompilationResult {
-                hasErrorContaining("Cannot find getter for field.")
+                hasErrorContaining("Cannot find getter for property.")
             }
         }
     }
 
     @Test
     fun noGetter_scopeTwoWay() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -2071,19 +2081,19 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                    bindingScope = PropertyProcessor.BindingScope.TWO_WAY,
                     parent = null
                 )
                 .process()
             invocation.assertCompilationResult {
-                hasErrorContaining("Cannot find getter for field.")
+                hasErrorContaining("Cannot find getter for property.")
             }
         }
     }
 
     @Test
     fun noGetter_scopeReadCursor() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.java(
                     MY_DATA_CLASS.canonicalName,
@@ -2103,7 +2113,7 @@ class DataClassProcessorTest {
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()
@@ -2112,7 +2122,7 @@ class DataClassProcessorTest {
 
     @Test
     fun setterStartsWithIs() {
-        runProcessorTestWithK1(
+        runProcessorTest(
             listOf(
                 Source.kotlin(
                     "Book.kt",
@@ -2131,25 +2141,25 @@ class DataClassProcessorTest {
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement("foo.bar.Book"),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                         parent = null
                     )
                     .process()
-            val fields = result.fields.associateBy { it.name }
+            val fields = result.properties.associateBy { it.name }
             val stringType = invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
             assertThat(fields["isbn"]?.getter)
                 .isEqualTo(
-                    FieldGetter(
-                        fieldName = "isbn",
-                        jvmName = "getIsbn",
+                    PropertyGetter(
+                        propertyName = "isbn",
+                        jvmName = if (invocation.isKsp2) "isbn" else "getIsbn",
                         type = stringType,
-                        callType = CallType.SYNTHETIC_METHOD
+                        callType = CallType.SYNTHETIC_FUNCTION
                     )
                 )
             assertThat(fields["isbn"]?.setter)
                 .isEqualTo(
-                    FieldSetter(
-                        fieldName = "isbn",
+                    PropertySetter(
+                        propertyName = "isbn",
                         jvmName = "isbn",
                         type = stringType,
                         callType = CallType.CONSTRUCTOR
@@ -2158,20 +2168,20 @@ class DataClassProcessorTest {
 
             assertThat(fields["isbn2"]?.getter)
                 .isEqualTo(
-                    FieldGetter(
-                        fieldName = "isbn2",
-                        jvmName = "getIsbn2",
+                    PropertyGetter(
+                        propertyName = "isbn2",
+                        jvmName = if (invocation.isKsp2) "isbn2" else "getIsbn2",
                         type = stringType.makeNullable(),
-                        callType = CallType.SYNTHETIC_METHOD
+                        callType = CallType.SYNTHETIC_FUNCTION
                     )
                 )
             assertThat(fields["isbn2"]?.setter)
                 .isEqualTo(
-                    FieldSetter(
-                        fieldName = "isbn2",
-                        jvmName = "setIsbn2",
+                    PropertySetter(
+                        propertyName = "isbn2",
+                        jvmName = if (invocation.isKsp2) "setbn2" else "setIsbn2",
                         type = stringType.makeNullable(),
-                        callType = CallType.SYNTHETIC_METHOD
+                        callType = CallType.SYNTHETIC_FUNCTION
                     )
                 )
         }
@@ -2180,21 +2190,21 @@ class DataClassProcessorTest {
     @Test
     fun embedded_nullability() {
         listOf("foo.bar.TestData.SomeEmbeddedVals").forEach {
-            runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
+            runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
                 val result =
                     DataClassProcessor.createFor(
                             context = invocation.context,
                             element = invocation.processingEnv.requireTypeElement(it),
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                            bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                             parent = null
                         )
                         .process()
 
-                val embeddedFields = result.embeddedFields
+                val embeddedProperties = result.embeddedProperties
 
-                assertThat(embeddedFields.size, `is`(2))
-                assertThat(embeddedFields[0].nonNull, `is`(true))
-                assertThat(embeddedFields[1].nonNull, `is`(false))
+                assertThat(embeddedProperties.size, `is`(2))
+                assertThat(embeddedProperties[0].nonNull, `is`(true))
+                assertThat(embeddedProperties[1].nonNull, `is`(false))
             }
         }
     }
@@ -2228,12 +2238,12 @@ class DataClassProcessorTest {
     ) {
         val dataClassSource = Source.java(MY_DATA_CLASS.canonicalName, code)
         val all = sources.toList() + dataClassSource
-        runProcessorTestWithK1(sources = all, classpath = classpath) { invocation ->
+        runProcessorTest(sources = all, classpath = classpath) { invocation ->
             handler.invoke(
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                        bindingScope = PropertyProcessor.BindingScope.TWO_WAY,
                         parent = null
                     )
                     .process(),

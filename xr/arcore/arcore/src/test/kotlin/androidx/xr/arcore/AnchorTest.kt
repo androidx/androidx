@@ -49,16 +49,29 @@ class AnchorTest {
     private lateinit var session: Session
 
     @get:Rule
-    val grantPermissionRule = GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING")
+    val grantPermissionRule =
+        GrantPermissionRule.grant(
+            "android.permission.SCENE_UNDERSTANDING",
+            "android.permission.HAND_TRACKING",
+        )
 
     @Before
     fun setUp() {
         xrResourcesManager = XrResourcesManager()
+        FakeRuntimeAnchor.anchorsCreated = 0
     }
 
     @After
     fun tearDown() {
         xrResourcesManager.clear()
+    }
+
+    @Test
+    fun create_anchorLimitReached_returnsAnchorResourcesExhausted() = createTestSessionAndRunTest {
+        repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT) { Anchor.create(session, Pose()) }
+
+        assertThat(Anchor.create(session, Pose()))
+            .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
     }
 
     @Test
@@ -72,6 +85,21 @@ class AnchorTest {
         underTest.detach()
 
         assertThat(xrResourcesManager.updatables).isEmpty()
+    }
+
+    @Test
+    fun detach_stopsUpdateAndQueuesAnchorToBeDetached() {
+        val runtimeAnchor = FakeRuntimePlane().createAnchor(Pose()) as FakeRuntimeAnchor
+        check(runtimeAnchor.isAttached)
+        val underTest = Anchor(runtimeAnchor, xrResourcesManager)
+        xrResourcesManager.addUpdatable(underTest)
+        check(xrResourcesManager.updatables.contains(underTest))
+        check(xrResourcesManager.updatables.size == 1)
+
+        underTest.detach()
+
+        assertThat(xrResourcesManager.updatables).isEmpty()
+        assertThat(xrResourcesManager.anchorsToDetachQueue.toList()).containsExactly(underTest)
     }
 
     @Test
@@ -167,6 +195,27 @@ class AnchorTest {
     }
 
     @Test
+    fun load_anchorLimitReached_returnsAnchorResourcesExhausted() = createTestSessionAndRunTest {
+        runTest {
+            val anchor = (Anchor.create(session, Pose()) as AnchorCreateSuccess).anchor
+            var uuid: UUID? = null
+            val persistJob = launch { uuid = anchor.persist() }
+            val updateJob = launch { anchor.update() }
+            updateJob.join()
+            persistJob.join()
+            repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT - 1) { Anchor.load(session, uuid!!) }
+
+            assertThat(Anchor.load(session, uuid!!))
+                .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
+        }
+    }
+
+    @Test
+    fun loadFromNativePointer_returnsAnchorCreateSuccess() = createTestSessionAndRunTest {
+        assertThat(Anchor.loadFromNativePointer(session, 123L)).isNotNull()
+    }
+
+    @Test
     fun unpersist_removesAnchorFromStorage() = createTestSessionAndRunTest {
         runTest {
             val runtimeAnchor =
@@ -185,17 +234,6 @@ class AnchorTest {
 
             assertThat(Anchor.getPersistedAnchorUuids(session)).doesNotContain(uuid)
         }
-    }
-
-    @Test
-    fun detach_removesRuntimeAnchor() {
-        val runtimeAnchor = FakeRuntimePlane().createAnchor(Pose()) as FakeRuntimeAnchor
-        check(runtimeAnchor.isAttached)
-        val underTest = Anchor(runtimeAnchor, xrResourcesManager)
-
-        underTest.detach()
-
-        assertThat(runtimeAnchor.isAttached).isFalse()
     }
 
     @Test

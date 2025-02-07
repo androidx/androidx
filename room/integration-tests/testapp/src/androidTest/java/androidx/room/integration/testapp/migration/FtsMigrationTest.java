@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -44,6 +43,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

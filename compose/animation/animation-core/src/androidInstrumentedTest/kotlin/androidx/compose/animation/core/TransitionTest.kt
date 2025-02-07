@@ -20,9 +20,13 @@ import androidx.collection.mutableLongListOf
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.VectorConverter
 import androidx.compose.animation.animateColor
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +34,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -569,6 +575,55 @@ class TransitionTest {
     }
 
     @Test
+    fun testRecompositionCountWhenPassingTransition() {
+        // Verify that when passing Transition object to the composable (in contrast to
+        // TransitionState), there is no extra recomposition. More specifically, rememberTransition
+        // and Transition.animateFloat/animateValue only triggers one recomposition per
+        // transition (i.e. per target state change).
+        var showContent by mutableStateOf(false)
+        var transitionState by mutableStateOf(MutableTransitionState(false))
+        val recompositionCount = arrayOf(0, 0)
+        rule.setContent {
+            @Composable
+            fun animateContentAlpha(transition: Transition<Boolean>): State<Float> {
+                val animationSpec = tween<Float>(durationMillis = 2000)
+                return transition.animateFloat(
+                    transitionSpec = { animationSpec },
+                    label = "background-scrim-alpha"
+                ) { stage ->
+                    if (stage) 1f else 0f
+                }
+            }
+            val transition = rememberTransition(transitionState)
+
+            val shouldShow by remember {
+                derivedStateOf { showContent || transitionState.currentState }
+            }
+
+            Box(Modifier.fillMaxSize()) {}
+            recompositionCount[if (shouldShow) 1 else 0] += 1
+            if (shouldShow) {
+                val contentAlpha by animateContentAlpha(transition)
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .graphicsLayer { alpha = contentAlpha }
+                            .background(Color.Red),
+                ) {}
+            }
+        }
+        rule.runOnIdle {
+            showContent = true
+            transitionState.targetState = true
+        }
+        rule.runOnIdle {
+            // Verify that there is exactly one recomposition for each target state
+            assertEquals(1, recompositionCount[0])
+            assertEquals(1, recompositionCount[1])
+        }
+    }
+
+    @Test
     fun animateFloatCallerRecompositionCount() {
         var recompositionCount = 0
         val transitionState = MutableTransitionState(false)
@@ -581,8 +636,8 @@ class TransitionTest {
         rule.runOnIdle { transitionState.targetState = true }
 
         rule.runOnIdle {
-            // TODO(b/381537138): Once the bug is fixed, there should only be a single recomposition
-            assertEquals(2, recompositionCount)
+            assertEquals(1, recompositionCount)
+            assertTrue(transitionState.currentState)
         }
     }
 

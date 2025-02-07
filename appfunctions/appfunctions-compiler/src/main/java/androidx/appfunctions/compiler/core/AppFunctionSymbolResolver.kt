@@ -16,7 +16,6 @@
 
 package androidx.appfunctions.compiler.core
 
-import androidx.appfunctions.compiler.core.IntrospectionHelper.APP_FUNCTION_CONTEXT_CLASS
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -54,64 +53,5 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .map { (classDeclaration, appFunctionsDeclarations) ->
                 AnnotatedAppFunctions(classDeclaration, appFunctionsDeclarations).validate()
             }
-    }
-
-    /**
-     * Represents a collection of functions within a specific class that are annotated as app
-     * functions.
-     */
-    data class AnnotatedAppFunctions(
-        /**
-         * The [com.google.devtools.ksp.symbol.KSClassDeclaration] of the class that contains the
-         * annotated app functions.
-         */
-        val classDeclaration: KSClassDeclaration,
-        /**
-         * The list of [com.google.devtools.ksp.symbol.KSFunctionDeclaration] that annotated as app
-         * function.
-         */
-        val appFunctionDeclarations: List<KSFunctionDeclaration>
-    ) {
-        fun validate(): AnnotatedAppFunctions {
-            validateFirstParameter()
-            validateParameterTypes()
-            return this
-        }
-
-        private fun validateFirstParameter() {
-            for (appFunctionDeclaration in appFunctionDeclarations) {
-                val firstParam = appFunctionDeclaration.parameters.firstOrNull()
-                if (firstParam == null) {
-                    throw ProcessingException(
-                        "The first parameter of an app function must be " +
-                            "$APP_FUNCTION_CONTEXT_CLASS",
-                        appFunctionDeclaration
-                    )
-                }
-                if (!firstParam.type.isOfType(APP_FUNCTION_CONTEXT_CLASS)) {
-                    throw ProcessingException(
-                        "The first parameter of an app function must be " +
-                            "$APP_FUNCTION_CONTEXT_CLASS",
-                        firstParam
-                    )
-                }
-            }
-        }
-
-        private fun validateParameterTypes() {
-            // TODO: Validate that the parameter type used by the app functions are supported
-        }
-
-        /**
-         * Gets the identifier of an app functions.
-         *
-         * The format of the identifier is `packageName.className#methodName`.
-         */
-        fun getAppFunctionIdentifier(functionDeclaration: KSFunctionDeclaration): String {
-            val packageName = classDeclaration.packageName.asString()
-            val className = classDeclaration.simpleName.asString()
-            val methodName = functionDeclaration.simpleName.asString()
-            return "${packageName}.${className}#${methodName}"
-        }
     }
 }

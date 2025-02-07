@@ -657,7 +657,7 @@ class AppBarScreenshotTest {
     fun bottomAppBarSpacedAround_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
-                BottomAppBar(
+                FlexibleBottomAppBar(
                     horizontalArrangement = Arrangement.SpaceAround,
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     content = {
@@ -700,8 +700,9 @@ class AppBarScreenshotTest {
     fun bottomAppBarSpacedBetween_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
-                BottomAppBar(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                FlexibleBottomAppBar(
+                    // The default BottomAppBarDefaults.FlexibleHorizontalArrangement is an
+                    // Arrangement.SpacedBetween.
                     content = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
@@ -742,7 +743,7 @@ class AppBarScreenshotTest {
     fun bottomAppBarSpacedEvenly_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
-                BottomAppBar(
+                FlexibleBottomAppBar(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     content = {
@@ -785,8 +786,8 @@ class AppBarScreenshotTest {
     fun bottomAppBarFixed_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
-                BottomAppBar(
-                    horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+                FlexibleBottomAppBar(
+                    horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     content = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
@@ -827,8 +828,8 @@ class AppBarScreenshotTest {
     fun bottomAppBarFixed_darkTheme() {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
-                BottomAppBar(
-                    horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+                FlexibleBottomAppBar(
+                    horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     content = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(

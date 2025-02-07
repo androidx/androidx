@@ -34,6 +34,16 @@ android {
     privacySandbox {
         enable = true
     }
+
+    experimentalProperties["android.privacySandboxSdk.apiGenerator"] =
+            project.dependencies.create(project(":privacysandbox:tools:tools-apigenerator"))
+    experimentalProperties["android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies"] =
+            [libs.kotlinStdlib.get(),
+             libs.kotlinCoroutinesAndroid.get(),
+             libs.kotlinCoroutinesCore.get(),
+             project.dependencies.create(project(":privacysandbox:ui:ui-core")),
+             project.dependencies.create(project(":privacysandbox:ui:ui-client"))
+            ]
 }
 
 dependencies {

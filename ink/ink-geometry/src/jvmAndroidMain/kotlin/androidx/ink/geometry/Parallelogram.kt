@@ -36,7 +36,8 @@ import kotlin.math.abs
  * c + 𝛼 * u + 𝛽 * v, where `c` is the center, and `𝛼` and `𝛽` are real numbers in the interval
  * [-1, 1].
  *
- * Note: Java code should use the factory function Parallelogram.from*.
+ * Note: Java code should use the factory static function `from*` in [MutableParallelogram] or
+ * [ImmutableParallelogram] to create [Parallelogram] instances.
  *
  * A [Parallelogram] may have a positive or negative height; a positive height indicates that the
  * angle from the first semi-axis to the second will also be positive.

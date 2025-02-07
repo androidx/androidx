@@ -24,11 +24,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * GestureSelectionHelper provides logic that interprets a combination

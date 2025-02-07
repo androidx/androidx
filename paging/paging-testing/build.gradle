@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
@@ -132,7 +132,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Paging Testing Extensions"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

@@ -18,10 +18,13 @@ package androidx.navigation3
 
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
  * Wraps the content of a [NavEntry] with a [SaveableStateHolder.SaveableStateProvider] to ensure
@@ -31,69 +34,69 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
  * non-optional feature.
  */
 public class SaveableStateNavLocalProvider : NavLocalProvider {
-    private var savedStateHolder: SaveableStateHolder? = null
-    private val refCount: MutableObjectIntMap<Any> = MutableObjectIntMap()
-    private var backstackSize = 0
 
     @Composable
-    override fun ProvideToBackStack(backStack: List<Any>) {
+    override fun ProvideToBackStack(backStack: List<Any>, content: @Composable () -> Unit) {
+        val localInfo = remember { SaveableStateNavLocalInfo() }
         DisposableEffect(key1 = backStack) {
-            refCount.clear()
+            localInfo.refCount.clear()
             onDispose {}
         }
 
-        savedStateHolder = rememberSaveableStateHolder()
-        backstackSize = backStack.size
+        localInfo.savedStateHolder = rememberSaveableStateHolder()
         backStack.forEach { key ->
+            // We update here as part of composition to ensure the value is available to
+            // ProvideToEntry
+            localInfo.refCount[key] = backStack.count { it == key }
             DisposableEffect(key1 = key) {
-                refCount[key] = refCount.getOrDefault(key, 0).plus(1)
+                // We update here at the end of composition in case the backstack changed and
+                // everything was cleared.
+                localInfo.refCount[key] = backStack.count { it == key }
                 onDispose {
-                    if (refCount[key] == 0) {
-                        savedStateHolder!!.removeState(key)
-                    } else {
-                        refCount[key] =
-                            refCount
-                                .getOrElse(key) {
-                                    error(
-                                        "Attempting to incorrectly dispose of backstack state in " +
-                                            "SaveableStateNavLocalProvider"
-                                    )
-                                }
-                                .minus(1)
+                    // If the backStack count is less than the refCount for the key, remove the
+                    // state since that means we removed a key from the backstack, and set the
+                    // refCount to the backstack count.
+                    val backstackCount = backStack.count { it == key }
+                    if (backstackCount < localInfo.refCount[key]) {
+                        localInfo.savedStateHolder!!.removeState(
+                            getIdForKey(key, localInfo.refCount[key])
+                        )
+                        localInfo.refCount[key] = backstackCount
+                    }
+                    // If the refCount is 0, remove the key from the refCount.
+                    if (localInfo.refCount[key] == 0) {
+                        localInfo.refCount.remove(key)
                     }
                 }
             }
+        }
+
+        CompositionLocalProvider(LocalSaveableStateNavLocalInfo provides localInfo) {
+            content.invoke()
         }
     }
 
     @Composable
     public override fun <T : Any> ProvideToEntry(entry: NavEntry<T>) {
+        val localInfo = LocalSaveableStateNavLocalInfo.current
         val key = entry.key
-        DisposableEffect(key1 = key) {
-            refCount[key] = refCount.getOrDefault(key, 0).plus(1)
-            onDispose {
-                // We need to check to make sure that the refcount has been cleared here because
-                // when we are using animations, if the entire back stack is changed, we will
-                // execute the onDispose above that clears all of the counts before we finish the
-                // transition and run this onDispose so our count will already be gone and we
-                // should just remove the state.
-                if (!refCount.contains(key) || refCount[key] == 0) {
-                    savedStateHolder?.removeState(key)
-                } else {
-                    refCount[key] =
-                        refCount
-                            .getOrElse(key) {
-                                error(
-                                    "Attempting to incorrectly dispose of state associated with " +
-                                        "key $key in SaveableStateNavLocalProvider"
-                                )
-                            }
-                            .minus(1)
-                }
-            }
-        }
-
-        val id: Int = rememberSaveable(key) { key.hashCode() + backstackSize }
-        savedStateHolder?.SaveableStateProvider(id) { entry.content.invoke(key) }
+        val refCount = localInfo.refCount[key]
+        val id: Int = rememberSaveable(key, refCount) { getIdForKey(key, refCount) }
+        localInfo.savedStateHolder?.SaveableStateProvider(id) { entry.content.invoke(key) }
     }
 }
+
+internal val LocalSaveableStateNavLocalInfo =
+    staticCompositionLocalOf<SaveableStateNavLocalInfo> {
+        error(
+            "CompositionLocal LocalSaveableStateNavLocalInfo not present. You must call " +
+                "ProvideToBackStack before calling ProvideToEntry."
+        )
+    }
+
+internal class SaveableStateNavLocalInfo {
+    internal var savedStateHolder: SaveableStateHolder? = null
+    internal val refCount: MutableObjectIntMap<Any> = MutableObjectIntMap()
+}
+
+internal fun getIdForKey(key: Any, count: Int): Int = 31 * key.hashCode() + count

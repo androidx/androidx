@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,6 +30,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api(project(":room:room-common"))
     api(project(":room:room-runtime")) {
         exclude group: "com.google.guava", module: "listenablefuture"
@@ -46,7 +47,7 @@ dependencies {
 
 androidx {
     name = "Room Guava"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Room Guava"
 }

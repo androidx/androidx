@@ -12,8 +12,8 @@ package androidx.privacysandbox.sdkruntime.core {
     ctor public LoadSdkCompatException(Throwable cause, android.os.Bundle extraInfo);
     method public android.os.Bundle getExtraInformation();
     method public int getLoadSdkErrorCode();
-    property public final android.os.Bundle extraInformation;
-    property public final int loadSdkErrorCode;
+    property public android.os.Bundle extraInformation;
+    property public int loadSdkErrorCode;
     field public static final androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion Companion;
     field public static final int LOAD_SDK_ALREADY_LOADED = 101; // 0x65
     field public static final int LOAD_SDK_INTERNAL_ERROR = 500; // 0x1f4
@@ -24,12 +24,12 @@ package androidx.privacysandbox.sdkruntime.core {
   }
 
   public static final class LoadSdkCompatException.Companion {
-    property public static final int LOAD_SDK_ALREADY_LOADED;
-    property public static final int LOAD_SDK_INTERNAL_ERROR;
-    property public static final int LOAD_SDK_NOT_FOUND;
-    property public static final int LOAD_SDK_SDK_DEFINED_ERROR;
-    property public static final int LOAD_SDK_SDK_SANDBOX_DISABLED;
-    property public static final int SDK_SANDBOX_PROCESS_NOT_AVAILABLE;
+    property public static int LOAD_SDK_ALREADY_LOADED;
+    property public static int LOAD_SDK_INTERNAL_ERROR;
+    property public static int LOAD_SDK_NOT_FOUND;
+    property public static int LOAD_SDK_SDK_DEFINED_ERROR;
+    property public static int LOAD_SDK_SDK_SANDBOX_DISABLED;
+    property public static int SDK_SANDBOX_PROCESS_NOT_AVAILABLE;
   }
 
   public final class SandboxedSdkCompat {
@@ -42,8 +42,8 @@ package androidx.privacysandbox.sdkruntime.core {
     ctor public SandboxedSdkInfo(String name, long version);
     method public String getName();
     method public long getVersion();
-    property public final String name;
-    property public final long version;
+    property public String name;
+    property public long version;
   }
 
   public abstract class SandboxedSdkProviderCompat {

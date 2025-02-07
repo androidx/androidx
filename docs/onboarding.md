@@ -253,6 +253,10 @@ or sample to run or debug it, search through classes, and so on.
 *   If you run `./studiow` with a new project set but you're still seeing the
     old project set in `Project`, use `File > Sync Project with Gradle Files` to
     force a re-sync.
+*   If you still see errors after gradle sync, run `repo status` to check for
+    any files listed in a "deleted" status. If there are deleted files, navigate
+    to each directory containing these files and run `git reset --hard` on each
+    of the directories of the deleted files.
 *   If Android Studio's UI looks scaled up, ex. twice the size it should be, you
     may need to add the following line to your `studio64.vmoptions` file using
     `Help > Edit Custom VM Options`: `-Dsun.java2d.uiScale.enabled=false`

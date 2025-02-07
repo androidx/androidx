@@ -38,10 +38,10 @@ import org.junit.Test
  * Verifies that Room mapping code works with both newly created tables and altered tables whose
  * star projections results in a different order of columns.
  *
- * For example, start with entity with fields: A, B, C. Then on the entity a new field and column is
- * added with the fields order being A, B, X, C and the migration is ALTER TABLE _ ADD COLUMN X. The
- * column result order for a star projection query will be different between these two, but Room
- * should be able to do the right mapping anyway.
+ * For example, start with entity with properties: A, B, C. Then on the entity a new field and
+ * column is added with the fields order being A, B, X, C and the migration is ALTER TABLE _ ADD
+ * COLUMN X. The column result order for a star projection query will be different between these
+ * two, but Room should be able to do the right mapping anyway.
  */
 class AlteredTableColumnOrderTest {
     private lateinit var cleanDb: TestDatabase

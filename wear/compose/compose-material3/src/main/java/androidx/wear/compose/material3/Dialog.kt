@@ -86,7 +86,7 @@ public fun Dialog(
 
     val backgroundAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>().faster(50f)
 
-    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val isReduceMotionEnabled = LocalReduceMotion.current
 
     if (!isReduceMotionEnabled) {
         LaunchedEffect(Unit) {

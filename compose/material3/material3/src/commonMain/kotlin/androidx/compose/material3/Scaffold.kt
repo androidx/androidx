@@ -36,9 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -160,7 +157,7 @@ private fun ScaffoldLayout(
         }
     }
 
-    SubcomposeLayout(modifier = Modifier.semantics { isTraversalGroup = true }) { constraints ->
+    SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
 
@@ -172,47 +169,17 @@ private fun ScaffoldLayout(
         val bottomInset = contentWindowInsets.getBottom(this@SubcomposeLayout)
 
         val topBarPlaceable =
-            subcompose(ScaffoldLayoutContent.TopBar) {
-                    Box(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                traversalIndex = 0f
-                            },
-                    ) {
-                        topBar()
-                    }
-                }
+            subcompose(ScaffoldLayoutContent.TopBar) { Box { topBar() } }
                 .first()
                 .measure(looseConstraints)
 
         val snackbarPlaceable =
-            subcompose(ScaffoldLayoutContent.Snackbar) {
-                    Box(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                traversalIndex = 4f
-                            },
-                    ) {
-                        snackbar()
-                    }
-                }
+            subcompose(ScaffoldLayoutContent.Snackbar) { Box { snackbar() } }
                 .first()
                 .measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
 
         val fabPlaceable =
-            subcompose(ScaffoldLayoutContent.Fab) {
-                    Box(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                traversalIndex = 2f
-                            }
-                    ) {
-                        fab()
-                    }
-                }
+            subcompose(ScaffoldLayoutContent.Fab) { Box { fab() } }
                 .first()
                 .measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
 
@@ -248,17 +215,7 @@ private fun ScaffoldLayout(
             }
 
         val bottomBarPlaceable =
-            subcompose(ScaffoldLayoutContent.BottomBar) {
-                    Box(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                traversalIndex = 1f
-                            }
-                    ) {
-                        bottomBar()
-                    }
-                }
+            subcompose(ScaffoldLayoutContent.BottomBar) { Box { bottomBar() } }
                 .first()
                 .measure(looseConstraints)
 
@@ -309,17 +266,7 @@ private fun ScaffoldLayout(
             )
 
         val bodyContentPlaceable =
-            subcompose(ScaffoldLayoutContent.MainContent) {
-                    Box(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                traversalIndex = 3f
-                            }
-                    ) {
-                        content(contentPadding)
-                    }
-                }
+            subcompose(ScaffoldLayoutContent.MainContent) { Box { content(contentPadding) } }
                 .first()
                 .measure(looseConstraints)
 

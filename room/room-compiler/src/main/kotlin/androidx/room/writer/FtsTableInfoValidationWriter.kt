@@ -45,14 +45,14 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                                 add(
                                     "new %T(%L)",
                                     CommonTypeNames.HASH_SET.parametrizedBy(CommonTypeNames.STRING),
-                                    entity.fields.size
+                                    entity.properties.size
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_SET_OF)
                         }
                     }
             )
-            entity.nonHiddenFields.forEach {
+            entity.nonHiddenProperties.forEach {
                 addStatement("%L.add(%S)", columnSetVar, it.columnName)
             }
 

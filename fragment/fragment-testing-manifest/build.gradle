@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -42,7 +42,7 @@ dependencies {
 
 androidx {
     name = "Fragment Testing Manifest dependency"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Fragment testing library that should be added as a debugImplementation dependency to add properties to the debug manifest necessary for testing an application"
     legacyDisableKotlinStrictApiMode = true

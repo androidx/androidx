@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
@@ -148,12 +149,14 @@ fun LinearProgressIndicator(
         )
     },
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     Canvas(
         modifier
             .then(IncreaseVerticalSemanticsBounds)
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -413,9 +416,8 @@ private fun DrawScope.drawLinearIndicator(
     } else {
         // need to adjust barStart and barEnd for the stroke caps
         val strokeCapOffset = strokeWidth / 2
-        val coerceRange = strokeCapOffset..(width - strokeCapOffset)
-        val adjustedBarStart = barStart.coerceIn(coerceRange)
-        val adjustedBarEnd = barEnd.coerceIn(coerceRange)
+        val adjustedBarStart = barStart.fastCoerceIn(strokeCapOffset, width - strokeCapOffset)
+        val adjustedBarEnd = barEnd.fastCoerceIn(strokeCapOffset, width - strokeCapOffset)
 
         if (abs(endFraction - startFraction) > 0) {
             // Progress line
@@ -520,12 +522,14 @@ fun CircularProgressIndicator(
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
     gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
     Canvas(
         modifier
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .size(CircularIndicatorDiameter)
     ) {

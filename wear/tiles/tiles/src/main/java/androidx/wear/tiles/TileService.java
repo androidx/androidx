@@ -170,7 +170,7 @@ public abstract class TileService extends Service {
     @MainThread
     @Deprecated
     protected @NonNull ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
-    onResourcesRequest(@NonNull ResourcesRequest requestParams) {
+            onResourcesRequest(@NonNull ResourcesRequest requestParams) {
         return ON_RESOURCES_REQUEST_NOT_IMPLEMENTED;
     }
 
@@ -243,7 +243,7 @@ public abstract class TileService extends Service {
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
      * @param requestParams Parameters about the request. See {@link TileEnterEvent} for more info.
-     * @deprecated use {@link #onRecentInteractionEvents(List)}.
+     * @deprecated use {@link #onRecentInteractionEventsAsync(List)}.
      */
     @MainThread
     @Deprecated
@@ -255,7 +255,7 @@ public abstract class TileService extends Service {
      * <p>Note that this is called from your app's main thread, which is usually also the UI thread.
      *
      * @param requestParams Parameters about the request. See {@link TileLeaveEvent} for more info.
-     * @deprecated use {@link #onRecentInteractionEvents(List)}.
+     * @deprecated use {@link #onRecentInteractionEventsAsync(List)}.
      */
     @MainThread
     @Deprecated
@@ -266,12 +266,18 @@ public abstract class TileService extends Service {
      * time this method was called. The time between calls to this method may vary, do not depend on
      * it for time-sensitive or critical tasks.
      *
+     * <p>The returned future must complete after at most 10 seconds from the moment this method is
+     * called (exact timeout length subject to change, but 10 seconds is guaranteed).
+     *
      * <p>This method is called from your app's main thread, which is usually also the UI thread.
      *
      * @param events A list of {@link TileInteractionEvent} representing interactions that occurred.
      */
     @MainThread
-    protected void onRecentInteractionEvents(@NonNull List<TileInteractionEvent> events) {}
+    protected @NonNull ListenableFuture<Void> onRecentInteractionEventsAsync(
+            @NonNull List<TileInteractionEvent> events) {
+        return createImmediateFuture();
+    }
 
     /**
      * Gets an instance of {@link TileUpdateRequester} to allow a Tile Provider to notify the tile's
@@ -615,12 +621,13 @@ public abstract class TileService extends Service {
                                 tileService.markTileAsActiveLegacy(evt.getTileId());
 
                                 tileService.onTileEnterEvent(evt);
-                                tileService.onRecentInteractionEvents(
+                                sendRecentInteractionEventsInternal(
                                         List.of(
                                                 new TileInteractionEvent.Builder(
                                                                 evt.getTileId(),
                                                                 TileInteractionEvent.ENTER)
-                                                        .build()));
+                                                        .build()),
+                                        /* callback= */ null);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileEnterEvent payload.", ex);
                             }
@@ -651,12 +658,13 @@ public abstract class TileService extends Service {
                                 tileService.markTileAsActiveLegacy(evt.getTileId());
 
                                 tileService.onTileLeaveEvent(evt);
-                                tileService.onRecentInteractionEvents(
+                                sendRecentInteractionEventsInternal(
                                         List.of(
                                                 new TileInteractionEvent.Builder(
                                                                 evt.getTileId(),
                                                                 TileInteractionEvent.LEAVE)
-                                                        .build()));
+                                                        .build()),
+                                        /* callback= */ null);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileLeaveEvent payload.", ex);
                             }
@@ -666,6 +674,13 @@ public abstract class TileService extends Service {
 
         @Override
         public void processRecentInteractionEvents(List<TileInteractionEventData> data) {
+            onRecentInteractionEvents(data, /* callback= */ null);
+        }
+
+        @Override
+        @SuppressWarnings("JdkCollectors")
+        public void onRecentInteractionEvents(
+                List<TileInteractionEventData> data, InteractionEventsCallback callback) {
             mHandler.post(
                     () -> {
                         TileService tileService = mServiceRef.get();
@@ -688,8 +703,30 @@ public abstract class TileService extends Service {
                                         .filter(Optional::isPresent)
                                         .map(Optional::get)
                                         .collect(Collectors.toList());
-                        tileService.onRecentInteractionEvents(events);
+                        sendRecentInteractionEventsInternal(events, callback);
                     });
+        }
+
+        private void sendRecentInteractionEventsInternal(
+                @NonNull List<TileInteractionEvent> events,
+                @Nullable InteractionEventsCallback callback) {
+            TileService tileService = mServiceRef.get();
+            ListenableFuture<Void> future = tileService.onRecentInteractionEventsAsync(events);
+            future.addListener(
+                    () -> {
+                        try {
+                            future.get();
+                            if (callback != null) {
+                                callback.finish();
+                            }
+                        } catch (ExecutionException
+                                | InterruptedException
+                                | CancellationException
+                                | RemoteException ex) {
+                            Log.e(TAG, "onRecentInteractionEventsAsync Future failed", ex);
+                        }
+                    },
+                    mHandler::post);
         }
 
         private static @NonNull Optional<TileInteractionEvent> tileInteractionEventFromProto(
@@ -902,6 +939,12 @@ public abstract class TileService extends Service {
             long timestampMs, @NonNull TimeSourceClock timeSourceClock) {
         return timeSourceClock.getCurrentTimestampMillis() - timestampMs
                 >= UPDATE_TILE_TIMESTAMP_PERIOD_MS;
+    }
+
+    private static ListenableFuture<Void> createImmediateFuture() {
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        future.set(null);
+        return future;
     }
 
     /**

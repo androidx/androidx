@@ -20,10 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The Selection library calls {@link #getItemDetails(MotionEvent)} when it needs
@@ -99,7 +100,7 @@ public abstract class ItemDetailsLookup<K> {
      * @return the adapter position of the item at the event coordinates.
      */
     final int getItemPosition(@NonNull MotionEvent e) {
-        @Nullable ItemDetails<?> item = getItemDetails(e);
+        ItemDetails<?> item = getItemDetails(e);
         return item != null
                 ? item.getPosition()
                 : RecyclerView.NO_POSITION;

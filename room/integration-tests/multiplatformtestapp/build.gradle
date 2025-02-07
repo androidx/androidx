@@ -26,10 +26,11 @@ plugins {
     id("com.android.library")
     id("com.google.devtools.ksp")
     id("androidx.room")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     ios()
     jvm()
     linux()
@@ -46,6 +47,7 @@ androidXMultiplatform {
                 implementation(project(":paging:paging-common"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinSerializationCore)
             }
         }
         androidInstrumentedTest {

@@ -29,9 +29,16 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
 
-/** Interface that allows libraries to override the behavior of [AnimatedPane]. */
+/**
+ * Interface that allows libraries to override the behavior of [AnimatedPane].
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [AnimatedPaneOverride] in the Compose hierarchy.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 interface AnimatedPaneOverride {
@@ -127,7 +134,11 @@ sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
         AnimatedPaneScope, AnimatedVisibilityScope by animatedVisibilityScope
 }
 
-/** [AnimatedPaneOverride] used when no override is specified. */
+/**
+ * [AnimatedPaneOverride] used when no override is specified.
+ *
+ * This override provides the default behavior of the [AnimatedPane] component.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
@@ -147,11 +158,16 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                             lookaheadScope = this,
                             enabled = animatingBounds
                         )
+                        .semantics { isTraversalGroup = true }
                         .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
                 enter = enterTransition,
                 exit = exitTransition
             ) {
-                AnimatedPaneScope.create(this).content()
+                (scope as ThreePaneScaffoldPaneScopeImpl).saveableStateHolder.SaveableStateProvider(
+                    paneRole.toString()
+                ) {
+                    AnimatedPaneScope.create(this).content()
+                }
             }
         }
     }

@@ -232,12 +232,15 @@ class SchemaCodeGenerator {
             case EMBEDDING_PROPERTY:
                 EmbeddingPropertyAnnotation embeddingPropertyAnnotation =
                         (EmbeddingPropertyAnnotation) annotation;
-                codeBlock.add(
-                        createSetIndexingTypeExpr(embeddingPropertyAnnotation, getterOrField));
+                codeBlock
+                        .add(createSetIndexingTypeExpr(embeddingPropertyAnnotation, getterOrField))
+                        .add(createSetQuantizationTypeExpr(embeddingPropertyAnnotation,
+                                getterOrField));
                 break;
             case DOUBLE_PROPERTY: // fall-through
             case BOOLEAN_PROPERTY: // fall-through
-            case BYTES_PROPERTY:
+            case BYTES_PROPERTY: // fall-through
+            case BLOB_HANDLE_PROPERTY:
                 break;
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
@@ -438,6 +441,30 @@ class SchemaCodeGenerator {
                         getterOrField.getElement());
         }
         return CodeBlock.of("\n.setIndexingType($T.$N)",
+                EmbeddingPropertyAnnotation.CONFIG_CLASS, enumName);
+    }
+
+    /**
+     * Creates an expr like
+     * {@code .setQuantizationType(EmbeddingPropertyConfig.QUANTIZATION_TYPE_8_BIT)}.
+     */
+    private static @NonNull CodeBlock createSetQuantizationTypeExpr(
+            @NonNull EmbeddingPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+        String enumName;
+        switch (annotation.getQuantizationType()) {
+            case 0:
+                enumName = "QUANTIZATION_TYPE_NONE";
+                break;
+            case 1:
+                enumName = "QUANTIZATION_TYPE_8_BIT";
+                break;
+            default:
+                throw new ProcessingException(
+                        "Unknown quantization type " + annotation.getQuantizationType(),
+                        getterOrField.getElement());
+        }
+        return CodeBlock.of("\n.setQuantizationType($T.$N)",
                 EmbeddingPropertyAnnotation.CONFIG_CLASS, enumName);
     }
 

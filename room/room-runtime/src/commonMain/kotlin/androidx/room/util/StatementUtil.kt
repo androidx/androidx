@@ -28,7 +28,7 @@ import kotlin.jvm.JvmName
  * Returns the zero-based index for the given column name, or throws [IllegalArgumentException] if
  * the column doesn't exist.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun getColumnIndexOrThrow(stmt: SQLiteStatement, name: String): Int {
     val index: Int = stmt.columnIndexOf(name)
     if (index >= 0) {
@@ -56,7 +56,7 @@ internal fun SQLiteStatement.columnIndexOfCommon(name: String): Int {
 }
 
 /** Returns the zero-based index for the given column name, or -1 if the column doesn't exist. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun getColumnIndex(stmt: SQLiteStatement, name: String): Int {
     return stmt.columnIndexOf(name)
 }
@@ -76,7 +76,7 @@ fun getColumnIndex(stmt: SQLiteStatement, name: String): Int {
  * @param mapping the cursor column indices of the columns at `columnNames`.
  * @return the wrapped Cursor.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun wrapMappedColumns(
     statement: SQLiteStatement,
     columnNames: Array<String>,

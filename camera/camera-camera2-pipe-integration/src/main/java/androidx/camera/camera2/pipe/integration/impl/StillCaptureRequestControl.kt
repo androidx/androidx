@@ -53,7 +53,7 @@ constructor(
         get() = _requestControl
         set(value) {
             _requestControl = value
-            _requestControl?.let { submitPendingRequests() }
+            trySubmitPendingRequests()
         }
 
     public data class CaptureRequest(
@@ -98,34 +98,37 @@ constructor(
 
         threads.sequentialScope.launch {
             val request = CaptureRequest(captureConfigs, captureMode, flashType, signal)
-            requestControl?.let { requestControl ->
-                submitRequest(request, requestControl)
-                    .propagateResultOrEnqueueRequest(request, requestControl)
-            }
-                ?: run {
-                    // UseCaseCamera may become null by the time the coroutine is started
-                    mutex.withLock { pendingRequests.add(request) }
-                    debug {
-                        "StillCaptureRequestControl: useCaseCamera is null, $request" +
-                            " will be retried with a future UseCaseCamera"
-                    }
+            val requestControl = requestControl
+            if (requestControl != null && requestControl.awaitSurfaceSetup()) {
+                submitRequest(request, requireNotNull(requestControl))
+                    .propagateResultOrEnqueueRequest(request, requireNotNull(requestControl))
+            } else {
+                // UseCaseCamera may become null by the time the coroutine is started
+                mutex.withLock { pendingRequests.add(request) }
+                debug {
+                    "StillCaptureRequestControl: useCaseCamera is null, $request" +
+                        " will be retried with a future UseCaseCamera"
                 }
+            }
         }
 
         return Futures.nonCancellationPropagating(signal.asListenableFuture())
     }
 
-    private fun submitPendingRequests() {
+    private fun trySubmitPendingRequests() {
         threads.sequentialScope.launch {
-            mutex.withLock {
-                while (pendingRequests.isNotEmpty()) {
-                    pendingRequests.poll()?.let { request ->
-                        requestControl?.let { requestControl ->
-                            submitRequest(request, requestControl)
-                                .propagateResultOrEnqueueRequest(
-                                    submittedRequest = request,
-                                    currentRequestControl = requestControl
-                                )
+            val requestControl = requestControl ?: return@launch
+            if (requestControl.awaitSurfaceSetup()) {
+                mutex.withLock {
+                    while (pendingRequests.isNotEmpty()) {
+                        pendingRequests.poll()?.let { request ->
+                            requestControl.let { requestControl ->
+                                submitRequest(request, requestControl)
+                                    .propagateResultOrEnqueueRequest(
+                                        submittedRequest = request,
+                                        currentRequestControl = requestControl
+                                    )
+                            }
                         }
                     }
                 }

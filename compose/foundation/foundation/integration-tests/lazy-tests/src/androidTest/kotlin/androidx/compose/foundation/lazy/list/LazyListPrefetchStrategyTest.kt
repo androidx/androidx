@@ -181,6 +181,24 @@ class LazyListPrefetchStrategyTest(val config: Config) :
         rule.onNodeWithTag("2").assertExists()
     }
 
+    @Test
+    fun itemComposed_whenPrefetchedFromCallback_providesSizeInfo() {
+        var prefetchCount = 0
+        val strategy =
+            PrefetchNextLargestIndexStrategy(scheduler) { itemSize ->
+                prefetchCount++
+                assertThat(itemSize).isEqualTo(itemsSizePx)
+            }
+
+        composeList(prefetchStrategy = strategy)
+
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
+
+        waitForPrefetch()
+        rule.onNodeWithTag("2").assertExists()
+        assertThat(prefetchCount).isEqualTo(1)
+    }
+
     private fun waitForPrefetch() {
         rule.runOnIdle { scheduler.executeActiveRequests() }
     }
@@ -252,10 +270,11 @@ class LazyListPrefetchStrategyTest(val config: Config) :
      * the scroll direction.
      */
     private class PrefetchNextLargestIndexStrategy(
-        override val prefetchScheduler: PrefetchScheduler?
+        override val prefetchScheduler: PrefetchScheduler?,
+        val onItemPrefetched: (Int) -> Unit = {}
     ) : LazyListPrefetchStrategy {
 
-        private var handle: LazyLayoutPrefetchState.PrefetchHandle? = null
+        var handle: LazyLayoutPrefetchState.PrefetchHandle? = null
         private var prefetchIndex: Int = -1
 
         override fun LazyListPrefetchScope.onScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {
@@ -263,7 +282,7 @@ class LazyListPrefetchStrategyTest(val config: Config) :
             if (handle != null && index != prefetchIndex) {
                 cancelPrefetch()
             }
-            handle = schedulePrefetch(index)
+            handle = schedulePrefetch(index, onItemPrefetched)
             prefetchIndex = index
         }
 

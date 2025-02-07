@@ -22,9 +22,9 @@ import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameDuratio
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameDurationUiNs
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameOverrunNs
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.getFrameSubMetrics
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.assertEquals

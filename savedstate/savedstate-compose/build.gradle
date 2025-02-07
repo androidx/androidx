@@ -7,7 +7,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -17,7 +17,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -90,7 +90,7 @@ android {
 
 androidx {
     name = "Saved State Compose"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     samples(project(":savedstate:savedstate-compose"))
     inceptionYear = "2018"
     description = "Compose integration with Saved State"

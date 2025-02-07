@@ -54,12 +54,12 @@ import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus

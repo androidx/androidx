@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "AppSearch Builtin Types"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = '2021'
     description = 'Contains AppSearch Document classes and builders for a variety of common ' +
             'objects based on http://schema.org. Data interchange with the system, and other ' +

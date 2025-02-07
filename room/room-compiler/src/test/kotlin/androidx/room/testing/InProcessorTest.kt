@@ -19,7 +19,7 @@ package androidx.room.testing
 import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -58,7 +58,7 @@ class InProcessorTest(private val kotlinCode: Boolean) {
             }
 
         var runCount = 0
-        runProcessorTestWithK1(sources = listOf(source)) {
+        runProcessorTest(sources = listOf(source)) {
             assertThat(it.processingEnv.findTypeElement("foo.bar.MyClass")).isNotNull()
             runCount++
         }

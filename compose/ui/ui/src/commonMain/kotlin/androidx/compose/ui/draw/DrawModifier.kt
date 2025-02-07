@@ -89,7 +89,7 @@ interface BuildDrawCacheParams {
 /** Draw into a [Canvas] behind the modified content. */
 fun Modifier.drawBehind(onDraw: DrawScope.() -> Unit) = this then DrawBehindElement(onDraw)
 
-private data class DrawBehindElement(val onDraw: DrawScope.() -> Unit) :
+private class DrawBehindElement(val onDraw: DrawScope.() -> Unit) :
     ModifierNodeElement<DrawBackgroundModifier>() {
     override fun create() = DrawBackgroundModifier(onDraw)
 
@@ -100,6 +100,19 @@ private data class DrawBehindElement(val onDraw: DrawScope.() -> Unit) :
     override fun InspectorInfo.inspectableProperties() {
         name = "drawBehind"
         properties["onDraw"] = onDraw
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawBehindElement) return false
+
+        if (onDraw !== other.onDraw) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return onDraw.hashCode()
     }
 }
 
@@ -129,7 +142,7 @@ internal class DrawBackgroundModifier(var onDraw: DrawScope.() -> Unit) :
 fun Modifier.drawWithCache(onBuildDrawCache: CacheDrawScope.() -> DrawResult) =
     this then DrawWithCacheElement(onBuildDrawCache)
 
-private data class DrawWithCacheElement(val onBuildDrawCache: CacheDrawScope.() -> DrawResult) :
+private class DrawWithCacheElement(val onBuildDrawCache: CacheDrawScope.() -> DrawResult) :
     ModifierNodeElement<CacheDrawModifierNodeImpl>() {
     override fun create(): CacheDrawModifierNodeImpl {
         return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
@@ -142,6 +155,19 @@ private data class DrawWithCacheElement(val onBuildDrawCache: CacheDrawScope.() 
     override fun InspectorInfo.inspectableProperties() {
         name = "drawWithCache"
         properties["onBuildDrawCache"] = onBuildDrawCache
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawWithCacheElement) return false
+
+        if (onBuildDrawCache !== other.onBuildDrawCache) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return onBuildDrawCache.hashCode()
     }
 }
 
@@ -391,7 +417,7 @@ class DrawResult internal constructor(internal var block: ContentDrawScope.() ->
 fun Modifier.drawWithContent(onDraw: ContentDrawScope.() -> Unit): Modifier =
     this then DrawWithContentElement(onDraw)
 
-private data class DrawWithContentElement(val onDraw: ContentDrawScope.() -> Unit) :
+private class DrawWithContentElement(val onDraw: ContentDrawScope.() -> Unit) :
     ModifierNodeElement<DrawWithContentModifier>() {
     override fun create() = DrawWithContentModifier(onDraw)
 
@@ -402,6 +428,19 @@ private data class DrawWithContentElement(val onDraw: ContentDrawScope.() -> Uni
     override fun InspectorInfo.inspectableProperties() {
         name = "drawWithContent"
         properties["onDraw"] = onDraw
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawWithContentElement) return false
+
+        if (onDraw !== other.onDraw) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return onDraw.hashCode()
     }
 }
 

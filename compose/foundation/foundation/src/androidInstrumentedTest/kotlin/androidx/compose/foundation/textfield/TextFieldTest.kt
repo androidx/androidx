@@ -882,14 +882,12 @@ class TextFieldTest : FocusedWindowTest {
             )
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performClick().performTextInputSelection(TextRange(0, 0))
 
         // reset
         rule.runOnIdle { onValueChangeCalled = false }
 
         // change selection
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         rule.runOnIdle { assertThat(onValueChangeCalled).isFalse() }
@@ -919,13 +917,11 @@ class TextFieldTest : FocusedWindowTest {
             )
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performClick().performTextInputSelection(TextRange(0, 0))
 
         // reset flag since click might change selection
         rule.runOnIdle { onValueChangeCalled = false }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         // selection changed
@@ -937,7 +933,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.waitUntil { onValueChangeCalled == false }
 
         // set selection to same value, no change should occur
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         rule.runOnIdle {
@@ -980,7 +975,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(callbackCounter).isEqualTo(1) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun textField_stringOverload_doesNotCallOnValueChange_ifSelectionInherentlyChanges() {
         var callbackCounter = 0
@@ -1166,7 +1160,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemoved_SelectionCoerces() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1188,7 +1181,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenPartiallySelectedTextIsRemoved_SelectionCoercesToEdges() {
         val textFieldValue = mutableStateOf("Hello World!")
@@ -1211,7 +1203,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemoved_addedLater_SelectionDoesNotRemain() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1240,7 +1231,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsPartiallyRemoved_addedLater_SelectionRemainsPartially() {
         val textFieldValue = mutableStateOf("Hello")

@@ -380,7 +380,7 @@ private fun AnimatedPageContent(
     contentScrimColor: Color,
     content: @Composable () -> Unit
 ) {
-    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val isReduceMotionEnabled = LocalReduceMotion.current
     val isRtlEnabled = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isCurrentPage: Boolean = page == pagerState.currentPage
     val pageTransitionFraction =

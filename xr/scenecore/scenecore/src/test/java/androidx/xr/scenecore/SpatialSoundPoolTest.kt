@@ -69,7 +69,7 @@ class SpatialSoundPoolTest {
         val expectedStreamId = 1234
 
         val soundPool = SoundPool.Builder().build()
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val pointSourceAttributes = PointSourceAttributes(entity)
         whenever(
                 mockRtSoundPoolExtensions.play(

@@ -2,13 +2,13 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "8.9.0-alpha01"
+androidGradlePlugin = "8.9.0-beta01"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "31.9.0-alpha01"
+androidLint = "31.9.0-beta01"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2024.3.1.1"
+androidStudio = "2024.3.1.10"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.0"
@@ -19,12 +19,12 @@ androidLintPrevAnalysis = "31.7.0-alpha02"
 # would require bumping their Kotlin target to 2.1
 androidLintPrevKotlin = "31.8.0-alpha06"
 androidxActivity = "1.9.3"
-androidxTestRunner = "1.6.1"
-androidxTestRules = "1.6.1"
-androidxTestMonitor = "1.7.1"
-androidxTestCore = "1.6.1"
-androidxTestExtJunit = "1.2.1"
-androidxTestExtTruth = "1.6.0"
+androidxTestRunner = "1.7.0-alpha01"
+androidxTestRules = "1.7.0-alpha01"
+androidxTestMonitor = "1.8.0-alpha01"
+androidxTestCore = "1.7.0-alpha01"
+androidxTestExtJunit = "1.3.0-alpha01"
+androidxTestExtTruth = "1.7.0-alpha01"
 annotationVersion = "1.7.0"
 atomicFu = "0.17.0"
 autoService = "1.0-rc6"
@@ -39,8 +39,8 @@ dagger = "2.54"
 dependencyAnalysisGradlePlugin = "2.4.2"
 dexmaker = "2.28.4"
 dokka = "1.8.20-dev-214"
-espresso = "3.6.1"
-espressoDevice = "1.0.1"
+espresso = "3.7.0-alpha01"
+espressoDevice = "1.1.0-alpha01"
 grpc = "1.52.0"
 guavaJre = "33.2.1-jre"
 hamcrestCore = "1.3"
@@ -50,7 +50,7 @@ javaxInject = "1"
 jcodec = "0.2.5"
 kotlin18 = "1.8.22"
 kotlin19 = "1.9.24"
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 kotlinBenchmark = "0.4.11"
 kotlinGradlePluginAnnotations = "1.9.24"
 kotlinGradlePluginApi = "1.9.24"
@@ -59,7 +59,7 @@ kotlinCoroutines = "1.7.3"
 kotlinNativeUtils = "1.9.24"
 kotlinSerialization = "1.6.3"
 kotlinToolingCore = "1.9.24"
-ksp = "2.1.0-1.0.29"
+ksp = "2.1.10-1.0.29"
 ktfmt = "0.50"
 # Version format is: 1.KOTLIN_MAJOR_VERSION.0.KTFMT_VERSION
 # When updated, the id and checksum in StudioTask needs to be updated too
@@ -75,7 +75,7 @@ skiko = "0.7.7"
 spdxGradlePlugin = "0.6.0"
 sqldelight = "1.3.0"
 retrofit = "2.7.2"
-wire = "5.0.0"
+wire = "5.2.1"
 core = "1.12.0"
 xmlApis = "1.4.01"
 yarn = "1.22.17"
@@ -228,6 +228,7 @@ kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
 kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlinTestForWasmTests = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common" }
 kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common" }
 kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }

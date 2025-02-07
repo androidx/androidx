@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -37,6 +37,10 @@ plugins {
 
 android {
     sourceSets {
+        main.assets.srcDirs += new File(
+                AndroidXConfig.getPrebuiltsRoot(project),
+                "androidx/traceprocessor/trace_processor_shell"
+        )
         main.assets.srcDirs += new File(
                 AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/tracebox"
@@ -96,11 +100,11 @@ dependencies {
 
 androidx {
     name = "Benchmark - Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
     }
@@ -113,6 +117,12 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += [
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
         ]
     }
+}
+
+ksp {
+    useKsp2 = true
 }

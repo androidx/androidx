@@ -22,13 +22,14 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.ExperimentalRoomApi;
 import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.integration.testapp.database.Customer;
 import androidx.room.integration.testapp.database.SampleDatabase;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -93,17 +94,16 @@ public class SampleDatabaseService extends Service {
      * @param databaseName The database name to be used
      * @return A new intent that can be used to connect to this service
      */
-    @NonNull
-    public static Intent intentFor(@NonNull Context context, @NonNull String databaseName) {
+    public static @NonNull Intent intentFor(@NonNull Context context,
+            @NonNull String databaseName) {
         Intent intent = new Intent(context, SampleDatabaseService.class);
         intent.putExtra(DATABASE_NAME_PARAM, databaseName);
         return intent;
     }
 
-    @Nullable
     @Override
     @ExperimentalRoomApi
-    public IBinder onBind(Intent intent) {
+    public @Nullable IBinder onBind(Intent intent) {
         String databaseName = intent.getStringExtra(DATABASE_NAME_PARAM);
         if (databaseName == null) {
             throw new IllegalArgumentException("Must pass database name in the intent");

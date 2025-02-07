@@ -51,4 +51,12 @@
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
         <action android:id="@+id/finish" app:popUpTo="@id/first_screen" />
     </fragment>
+    <composable
+        android:id="@+id/home_screen"
+        android:name="com.example.HomeScreenKt\$HomeScreen" >
+        <argument android:name="myarg3" app:argType="string" />
+        <action
+            android:id="@+id/action_home_screen_to_other_fragment"
+            app:destination="@id/other_fragment" />
+    </composable>
 </navigation>

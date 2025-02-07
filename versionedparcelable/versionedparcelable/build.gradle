@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -64,7 +64,7 @@ android {
 
 androidx {
     name = "VersionedParcelable"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."

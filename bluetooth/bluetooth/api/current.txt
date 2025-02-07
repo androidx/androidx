@@ -12,10 +12,10 @@ package androidx.bluetooth {
   }
 
   public static final class AdvertiseException.Companion {
-    property public static final int DATA_TOO_LARGE;
-    property public static final int INTERNAL_ERROR;
-    property public static final int TOO_MANY_ADVERTISERS;
-    property public static final int UNSUPPORTED;
+    property public static int DATA_TOO_LARGE;
+    property public static int INTERNAL_ERROR;
+    property public static int TOO_MANY_ADVERTISERS;
+    property public static int UNSUPPORTED;
   }
 
   public final class AdvertiseParams {
@@ -30,23 +30,23 @@ package androidx.bluetooth {
     method public boolean isDiscoverable();
     method public boolean shouldIncludeDeviceAddress();
     method public boolean shouldIncludeDeviceName();
-    property @IntRange(from=0L, to=180000L) public final long durationMillis;
-    property public final boolean isConnectable;
-    property public final boolean isDiscoverable;
-    property public final java.util.Map<java.lang.Integer,byte[]> manufacturerData;
-    property public final java.util.Map<java.util.UUID,byte[]> serviceData;
-    property public final java.util.List<java.util.UUID> serviceSolicitationUuids;
-    property public final java.util.List<java.util.UUID> serviceUuids;
-    property public final boolean shouldIncludeDeviceAddress;
-    property public final boolean shouldIncludeDeviceName;
+    property @IntRange(from=0L, to=180000L) public long durationMillis;
+    property public boolean isConnectable;
+    property public boolean isDiscoverable;
+    property public java.util.Map<java.lang.Integer,byte[]> manufacturerData;
+    property public java.util.Map<java.util.UUID,byte[]> serviceData;
+    property public java.util.List<java.util.UUID> serviceSolicitationUuids;
+    property public java.util.List<java.util.UUID> serviceUuids;
+    property public boolean shouldIncludeDeviceAddress;
+    property public boolean shouldIncludeDeviceName;
   }
 
   public final class BluetoothAddress {
     ctor public BluetoothAddress(String address, int addressType);
     method public String getAddress();
     method public int getAddressType();
-    property public final String address;
-    property public final int addressType;
+    property public String address;
+    property public int addressType;
     field public static final int ADDRESS_TYPE_PUBLIC = 0; // 0x0
     field public static final int ADDRESS_TYPE_RANDOM_NON_RESOLVABLE = 3; // 0x3
     field public static final int ADDRESS_TYPE_RANDOM_RESOLVABLE = 2; // 0x2
@@ -56,20 +56,20 @@ package androidx.bluetooth {
   }
 
   public static final class BluetoothAddress.Companion {
-    property public static final int ADDRESS_TYPE_PUBLIC;
-    property public static final int ADDRESS_TYPE_RANDOM_NON_RESOLVABLE;
-    property public static final int ADDRESS_TYPE_RANDOM_RESOLVABLE;
-    property public static final int ADDRESS_TYPE_RANDOM_STATIC;
-    property public static final int ADDRESS_TYPE_UNKNOWN;
+    property public static int ADDRESS_TYPE_PUBLIC;
+    property public static int ADDRESS_TYPE_RANDOM_NON_RESOLVABLE;
+    property public static int ADDRESS_TYPE_RANDOM_RESOLVABLE;
+    property public static int ADDRESS_TYPE_RANDOM_STATIC;
+    property public static int ADDRESS_TYPE_UNKNOWN;
   }
 
   public final class BluetoothDevice {
     method @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public int getBondState();
     method public java.util.UUID getId();
     method @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public String? getName();
-    property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final int bondState;
-    property public final java.util.UUID id;
-    property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final String? name;
+    property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public int bondState;
+    property public java.util.UUID id;
+    property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public String? name;
   }
 
   public class BluetoothException extends java.util.concurrent.CancellationException {
@@ -87,13 +87,13 @@ package androidx.bluetooth {
   }
 
   public static final class BluetoothException.Companion {
-    property public static final int BLUETOOTH_NOT_ALLOWED;
-    property public static final int BLUETOOTH_NOT_ENABLED;
-    property public static final int DEVICE_NOT_BONDED;
-    property public static final int DEVICE_NOT_CONNECTED;
-    property public static final int ERROR_UNKNOWN;
-    property public static final int FEATURE_NOT_CONFIGURED;
-    property public static final int FEATURE_NOT_SUPPORTED;
+    property public static int BLUETOOTH_NOT_ALLOWED;
+    property public static int BLUETOOTH_NOT_ENABLED;
+    property public static int DEVICE_NOT_BONDED;
+    property public static int DEVICE_NOT_CONNECTED;
+    property public static int ERROR_UNKNOWN;
+    property public static int FEATURE_NOT_CONFIGURED;
+    property public static int FEATURE_NOT_SUPPORTED;
   }
 
   public final class BluetoothLe {
@@ -107,15 +107,15 @@ package androidx.bluetooth {
   }
 
   public static final class BluetoothLe.Companion {
-    property public static final int ADVERTISE_STARTED;
+    property public static int ADVERTISE_STARTED;
   }
 
   public final class GattCharacteristic {
     ctor public GattCharacteristic(java.util.UUID uuid, int properties);
     method public int getProperties();
     method public java.util.UUID getUuid();
-    property public final int properties;
-    property public final java.util.UUID uuid;
+    property public int properties;
+    property public java.util.UUID uuid;
     field public static final androidx.bluetooth.GattCharacteristic.Companion Companion;
     field public static final int PROPERTY_BROADCAST = 1; // 0x1
     field public static final int PROPERTY_EXTENDED_PROPS = 128; // 0x80
@@ -128,14 +128,14 @@ package androidx.bluetooth {
   }
 
   public static final class GattCharacteristic.Companion {
-    property public static final int PROPERTY_BROADCAST;
-    property public static final int PROPERTY_EXTENDED_PROPS;
-    property public static final int PROPERTY_INDICATE;
-    property public static final int PROPERTY_NOTIFY;
-    property public static final int PROPERTY_READ;
-    property public static final int PROPERTY_SIGNED_WRITE;
-    property public static final int PROPERTY_WRITE;
-    property public static final int PROPERTY_WRITE_NO_RESPONSE;
+    property public static int PROPERTY_BROADCAST;
+    property public static int PROPERTY_EXTENDED_PROPS;
+    property public static int PROPERTY_INDICATE;
+    property public static int PROPERTY_NOTIFY;
+    property public static int PROPERTY_READ;
+    property public static int PROPERTY_SIGNED_WRITE;
+    property public static int PROPERTY_WRITE;
+    property public static int PROPERTY_WRITE_NO_RESPONSE;
   }
 
   public interface GattClientScope {
@@ -157,7 +157,7 @@ package androidx.bluetooth {
     method public suspend Object? accept(kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattServerSessionScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.bluetooth.BluetoothDevice getDevice();
     method public void reject();
-    property public final androidx.bluetooth.BluetoothDevice device;
+    property public androidx.bluetooth.BluetoothDevice device;
   }
 
   public class GattServerRequest {
@@ -167,23 +167,23 @@ package androidx.bluetooth {
     method public androidx.bluetooth.GattCharacteristic getCharacteristic();
     method public void sendFailure();
     method public void sendResponse(byte[] value);
-    property public final androidx.bluetooth.GattCharacteristic characteristic;
+    property public androidx.bluetooth.GattCharacteristic characteristic;
   }
 
   public static final class GattServerRequest.WriteCharacteristics extends androidx.bluetooth.GattServerRequest {
     method public java.util.List<androidx.bluetooth.GattServerRequest.WriteCharacteristics.Part> getParts();
     method public void sendFailure();
     method public void sendResponse();
-    property public final java.util.List<androidx.bluetooth.GattServerRequest.WriteCharacteristics.Part> parts;
+    property public java.util.List<androidx.bluetooth.GattServerRequest.WriteCharacteristics.Part> parts;
   }
 
   public static final class GattServerRequest.WriteCharacteristics.Part {
     method public androidx.bluetooth.GattCharacteristic getCharacteristic();
     method public int getOffset();
     method public byte[] getValue();
-    property public final androidx.bluetooth.GattCharacteristic characteristic;
-    property public final int offset;
-    property public final byte[] value;
+    property public androidx.bluetooth.GattCharacteristic characteristic;
+    property public int offset;
+    property public byte[] value;
   }
 
   public interface GattServerSessionScope {
@@ -201,8 +201,8 @@ package androidx.bluetooth {
     method public androidx.bluetooth.GattCharacteristic? getCharacteristic(java.util.UUID uuid);
     method public java.util.List<androidx.bluetooth.GattCharacteristic> getCharacteristics();
     method public java.util.UUID getUuid();
-    property public final java.util.List<androidx.bluetooth.GattCharacteristic> characteristics;
-    property public final java.util.UUID uuid;
+    property public java.util.List<androidx.bluetooth.GattCharacteristic> characteristics;
+    property public java.util.UUID uuid;
   }
 
   public final class ScanException extends androidx.bluetooth.BluetoothException {
@@ -217,11 +217,11 @@ package androidx.bluetooth {
   }
 
   public static final class ScanException.Companion {
-    property public static final int APPLICATION_REGISTRATION_FAILED;
-    property public static final int INTERNAL_ERROR;
-    property public static final int OUT_OF_HARDWARE_RESOURCES;
-    property public static final int SCANNING_TOO_FREQUENTLY;
-    property public static final int UNSUPPORTED;
+    property public static int APPLICATION_REGISTRATION_FAILED;
+    property public static int INTERNAL_ERROR;
+    property public static int OUT_OF_HARDWARE_RESOURCES;
+    property public static int SCANNING_TOO_FREQUENTLY;
+    property public static int UNSUPPORTED;
   }
 
   public final class ScanFilter {
@@ -239,24 +239,24 @@ package androidx.bluetooth {
     method public java.util.UUID? getServiceSolicitationUuidMask();
     method public java.util.UUID? getServiceUuid();
     method public java.util.UUID? getServiceUuidMask();
-    property public final androidx.bluetooth.BluetoothAddress? deviceAddress;
-    property public final String? deviceName;
-    property public final byte[]? manufacturerData;
-    property public final byte[]? manufacturerDataMask;
-    property public final int manufacturerId;
-    property public final byte[]? serviceData;
-    property public final byte[]? serviceDataMask;
-    property public final java.util.UUID? serviceDataUuid;
-    property public final java.util.UUID? serviceSolicitationUuid;
-    property public final java.util.UUID? serviceSolicitationUuidMask;
-    property public final java.util.UUID? serviceUuid;
-    property public final java.util.UUID? serviceUuidMask;
+    property public androidx.bluetooth.BluetoothAddress? deviceAddress;
+    property public String? deviceName;
+    property public byte[]? manufacturerData;
+    property public byte[]? manufacturerDataMask;
+    property public int manufacturerId;
+    property public byte[]? serviceData;
+    property public byte[]? serviceDataMask;
+    property public java.util.UUID? serviceDataUuid;
+    property public java.util.UUID? serviceSolicitationUuid;
+    property public java.util.UUID? serviceSolicitationUuidMask;
+    property public java.util.UUID? serviceUuid;
+    property public java.util.UUID? serviceUuidMask;
     field public static final androidx.bluetooth.ScanFilter.Companion Companion;
     field public static final int MANUFACTURER_FILTER_NONE = -1; // 0xffffffff
   }
 
   public static final class ScanFilter.Companion {
-    property public static final int MANUFACTURER_FILTER_NONE;
+    property public static int MANUFACTURER_FILTER_NONE;
   }
 
   public final class ScanResult {
@@ -271,20 +271,20 @@ package androidx.bluetooth {
     method public java.util.List<java.util.UUID> getServiceUuids();
     method public long getTimestampNanos();
     method public boolean isConnectable();
-    property public final androidx.bluetooth.BluetoothDevice device;
-    property public final androidx.bluetooth.BluetoothAddress deviceAddress;
-    property public final long periodicAdvertisingInterval;
-    property public final int rssi;
-    property public final java.util.Map<android.os.ParcelUuid,byte[]> serviceData;
-    property public final java.util.List<android.os.ParcelUuid> serviceSolicitationUuids;
-    property public final java.util.List<java.util.UUID> serviceUuids;
-    property public final long timestampNanos;
+    property public androidx.bluetooth.BluetoothDevice device;
+    property public androidx.bluetooth.BluetoothAddress deviceAddress;
+    property public long periodicAdvertisingInterval;
+    property public int rssi;
+    property public java.util.Map<android.os.ParcelUuid,byte[]> serviceData;
+    property public java.util.List<android.os.ParcelUuid> serviceSolicitationUuids;
+    property public java.util.List<java.util.UUID> serviceUuids;
+    property public long timestampNanos;
     field public static final androidx.bluetooth.ScanResult.Companion Companion;
     field public static final int PERIODIC_INTERVAL_NOT_PRESENT = 0; // 0x0
   }
 
   public static final class ScanResult.Companion {
-    property public static final int PERIODIC_INTERVAL_NOT_PRESENT;
+    property public static int PERIODIC_INTERVAL_NOT_PRESENT;
   }
 
 }

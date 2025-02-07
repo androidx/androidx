@@ -27,11 +27,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.test.R;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -691,8 +691,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         assertFocus(newVh, false);
     }
 
-    @NonNull
-    private RecyclerView.ViewHolder focusVh(int pos) throws Throwable {
+    private RecyclerView.@NonNull ViewHolder focusVh(int pos) throws Throwable {
         final RecyclerView.ViewHolder oldVh = mRecyclerView.findViewHolderForAdapterPosition(pos);
         assertThat("Assumption check", oldVh, notNullValue());
         requestFocus(oldVh);

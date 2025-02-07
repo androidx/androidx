@@ -17,17 +17,13 @@
 package androidx.compose.ui.autofill
 
 import androidx.compose.ui.implementedInJetBrainsFork
-import kotlin.jvm.JvmInline
 
-actual typealias NativeContentDataType = Int
-
-@JvmInline
-actual value class ContentDataType actual constructor(val dataType: NativeContentDataType) {
+actual sealed interface ContentDataType {
     actual companion object {
+        actual val None: ContentDataType = implementedInJetBrainsFork()
         actual val Text: ContentDataType = implementedInJetBrainsFork()
         actual val List: ContentDataType = implementedInJetBrainsFork()
         actual val Date: ContentDataType = implementedInJetBrainsFork()
         actual val Toggle: ContentDataType = implementedInJetBrainsFork()
-        actual val None: ContentDataType = implementedInJetBrainsFork()
     }
 }

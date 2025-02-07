@@ -27,6 +27,7 @@ import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 
@@ -37,6 +38,16 @@ internal fun AggregateGroupByPeriodRequest.withFilteredMetrics(
     predicate: (AggregateMetric<*>) -> Boolean
 ) =
     AggregateGroupByPeriodRequest(
+        metrics.filter(predicate).toSet(),
+        timeRangeFilter,
+        timeRangeSlicer,
+        dataOriginFilter
+    )
+
+internal fun AggregateGroupByDurationRequest.withFilteredMetrics(
+    predicate: (AggregateMetric<*>) -> Boolean
+) =
+    AggregateGroupByDurationRequest(
         metrics.filter(predicate).toSet(),
         timeRangeFilter,
         timeRangeSlicer,

@@ -56,6 +56,10 @@ internal abstract class LazyListMeasuredItemProvider(
         return createItem(index, key, contentType, placeables, constraints)
     }
 
+    fun keepAround(index: Int) {
+        measureScope.measure(index, childConstraints)
+    }
+
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of the
      * list as an optimization.

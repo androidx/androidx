@@ -52,7 +52,6 @@ import java.util.function.Consumer;
 /** Interface for SceneCore Platform operations. This is not intended to be used by Applications. */
 // TODO Add API versioning
 // TODO: b/322549913 - Move subclasses into separate files
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface JxrPlatformAdapter {
 
     /** Returns the Environment for the Session. */
@@ -125,10 +124,11 @@ public interface JxrPlatformAdapter {
             @Nullable Entity parentEntity);
 
     /** A factory function for an Entity which displays drawable surfaces. */
+    @SuppressWarnings("LambdaLast")
     @NonNull
     StereoSurfaceEntity createStereoSurfaceEntity(
             @StereoSurfaceEntity.StereoMode int stereoMode,
-            @NonNull Dimensions dimensions,
+            @NonNull StereoSurfaceEntity.CanvasShape canvasShape,
             @NonNull Pose pose,
             @NonNull Entity parentEntity);
 
@@ -1321,6 +1321,71 @@ public interface JxrPlatformAdapter {
 
     /** Interface for a surface which images can be rendered into. */
     interface StereoSurfaceEntity extends Entity {
+
+        /** Represents the shape of the spatial canvas which the surface is texture mapped to. */
+        public static interface CanvasShape {
+
+            @NonNull
+            public abstract Dimensions getDimensions();
+
+            /**
+             * A 2D rectangle-shaped canvas. Width and height are represented in the local spatial
+             * coordinate system of the entity. (0,0,0) is the center of the canvas.
+             */
+            public static final class Quad implements CanvasShape {
+                public final float width;
+                public final float height;
+
+                public Quad(float width, float height) {
+                    this.width = width;
+                    this.height = height;
+                }
+
+                @Override
+                @NonNull
+                public Dimensions getDimensions() {
+                    return new Dimensions(width, height, 0);
+                }
+            }
+
+            /**
+             * A sphere-shaped canvas. Radius is represented in the local spatial coordinate system
+             * of the entity. (0,0,0) is the center of the sphere.
+             */
+            public static final class Vr360Sphere implements CanvasShape {
+                public final float radius;
+
+                public Vr360Sphere(float radius) {
+                    this.radius = radius;
+                }
+
+                @Override
+                @NonNull
+                public Dimensions getDimensions() {
+                    return new Dimensions(radius * 2, radius * 2, radius * 2);
+                }
+            }
+
+            /**
+             * A hemisphere-shaped canvas. Radius is represented in the local spatial coordinate
+             * system of the entity. (0,0,0) is the center of the base of the hemisphere.
+             */
+            public static final class Vr180Hemisphere implements CanvasShape {
+                public final float radius;
+
+                public Vr180Hemisphere(float radius) {
+                    this.radius = radius;
+                }
+
+                @Override
+                @NonNull
+                public Dimensions getDimensions() {
+                    // Note that the depth dimension is only a single radius
+                    return new Dimensions(radius * 2, radius * 2, radius);
+                }
+            }
+        }
+
         /**
          * Selects the view configuration for the surface. MONO creates a surface contains a single
          * view. SIDE_BY_SIDE means the surface is split in half with two views. The first half of
@@ -1348,21 +1413,19 @@ public interface JxrPlatformAdapter {
         void setStereoMode(@StereoMode int mode);
 
         /**
+         * Specifies the shape of the spatial canvas which the surface is texture mapped to.
+         *
+         * @param canvasShape A concrete instance of [CanvasShape].
+         */
+        void setCanvasShape(@NonNull CanvasShape canvasShape);
+
+        /**
          * Retrieves the StereoMode for this Entity.
          *
          * @return An int StereoMode
          */
         @StereoMode
         int getStereoMode();
-
-        /**
-         * Changes the width and height of the "spatial canvas" which the surface is mapped to.
-         * (0,0,0) for this Entity is the canvas's center. (In ActivitySpace, this is
-         * 1/getWorldSpaceScale() unit per meter) (Z is ignored)
-         *
-         * @param dimensions A [Dimensions] to set the canvas size.
-         */
-        void setDimensions(@NonNull Dimensions dimensions);
 
         /**
          * Retrieves the dimensions of the "spatial canvas" which the surface is mapped to. These
@@ -1436,6 +1499,11 @@ public interface JxrPlatformAdapter {
              * without the possibility of recovery.
              */
             ERROR,
+            /**
+             * The PERMISSIONS_NOT_GRANTED state means that the permissions required to use the
+             * anchor i.e. SCENE_UNDERSTANDING have not been granted by the user.
+             */
+            PERMISSIONS_NOT_GRANTED,
         }
 
         /** Specifies the current persistence state of the Anchor. */

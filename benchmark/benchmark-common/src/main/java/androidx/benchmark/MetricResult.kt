@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -26,7 +27,7 @@ import kotlin.math.sqrt
  * for those measurements (min/median/max).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MetricResult(
+class MetricResult(
     val name: String,
     val data: List<Double>,
     val iterationData: List<List<Double>>? = null
@@ -68,7 +69,7 @@ public class MetricResult(
             if (data.size == 1) {
                 0.0
             } else {
-                val sum = values.map { (it - mean).pow(2) }.sum()
+                val sum = values.sumOf { (it - mean).pow(2) }
                 sqrt(sum / (size - 1).toDouble())
             }
         coefficientOfVariation =
@@ -84,7 +85,7 @@ public class MetricResult(
             "standardDeviation: $standardDeviation"
     }
 
-    public fun putInBundle(status: Bundle, prefix: String) {
+    fun putInBundle(status: Bundle, prefix: String) {
         // format string to be in instrumentation results format
         val bundleName = name.toOutputMetricName()
 
@@ -93,7 +94,7 @@ public class MetricResult(
         status.putDouble("${prefix}${bundleName}_stddev", standardDeviation)
     }
 
-    public fun putPercentilesInBundle(status: Bundle, prefix: String) {
+    fun putPercentilesInBundle(status: Bundle, prefix: String) {
         // format string to be in instrumentation results format
         val bundleName = name.toOutputMetricName()
 
@@ -103,7 +104,19 @@ public class MetricResult(
         status.putDouble("${prefix}${bundleName}_p99", p99)
     }
 
-    // NOTE: Studio-generated, re-generate if members change
+    override fun toString(): String {
+        return "MetricResult(name='$name', data=$data, iterationData=$iterationData)"
+    }
+
+    fun listsAreEqualish(left: List<Double>, right: List<Double>): Boolean {
+        if (left.size != right.size) return false
+
+        for (i in left.indices) {
+            if (abs(left[i] - right[i]) > 1e-6) return false
+        }
+        return true
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -111,26 +124,23 @@ public class MetricResult(
         other as MetricResult
 
         if (name != other.name) return false
-        if (median != other.median) return false
-        if (medianIndex != other.medianIndex) return false
-        if (min != other.min) return false
-        if (minIndex != other.minIndex) return false
-        if (max != other.max) return false
-        if (maxIndex != other.maxIndex) return false
-        if (standardDeviation != other.standardDeviation) return false
+        if (!listsAreEqualish(data, other.data)) return false
+        if ((iterationData == null) != (other.iterationData == null)) return false
+        if (iterationData != null) {
+            if (iterationData.size != other.iterationData!!.size) return false
+            // both have iteration data, do deep compare
+            for (i in iterationData.indices) {
+                if (!listsAreEqualish(iterationData[i], other.iterationData[i])) return false
+            }
+        }
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = name.hashCode()
-        result = 31 * result + median.hashCode()
-        result = 31 * result + medianIndex
-        result = 31 * result + min.hashCode()
-        result = 31 * result + minIndex
-        result = 31 * result + max.hashCode()
-        result = 31 * result + maxIndex
-        result = 31 * result + standardDeviation.hashCode()
+        result = 31 * result + data.hashCode()
+        result = 31 * result + (iterationData?.hashCode() ?: 0)
         return result
     }
 

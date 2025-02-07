@@ -55,6 +55,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoDevice)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.leakcanary)

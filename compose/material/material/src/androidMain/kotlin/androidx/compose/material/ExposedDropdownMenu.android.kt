@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ExposedDropdownMenu_android")
+
 package androidx.compose.material
 
 import android.graphics.Rect as ViewRect

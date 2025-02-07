@@ -42,7 +42,7 @@ private const val ErrorMsg = "unique"
  *   using the given insertionAdapter to perform insertion and updateAdapter to perform update when
  *   the insertion fails
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Deprecated("No longer used by generated code.", ReplaceWith("EntityUpsertAdapter"))
 class EntityUpsertionAdapter<T>(
     @Suppress("DEPRECATION") private val insertionAdapter: EntityInsertionAdapter<T>,

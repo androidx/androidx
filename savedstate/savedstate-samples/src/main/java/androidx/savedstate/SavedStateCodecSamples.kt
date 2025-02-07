@@ -21,6 +21,7 @@ package androidx.savedstate
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.Sampled
+import androidx.savedstate.serialization.SavedStateConfig
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import androidx.savedstate.serialization.serializers.CharSequenceArraySerializer
@@ -37,12 +38,16 @@ import androidx.savedstate.serialization.serializers.SizeSerializer
 import androidx.savedstate.serialization.serializers.SparseParcelableArraySerializer
 import java.util.UUID
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 
 @Sampled
 fun encode() {
@@ -66,6 +71,22 @@ fun encodeWithExplicitSerializer() {
         }
     }
     encodeToSavedState(UUIDSerializer(), UUID.randomUUID())
+}
+
+@Sampled
+fun encodeWithExplicitSerializerAndConfig() {
+    val config = SavedStateConfig {
+        serializersModule = SerializersModule {
+            polymorphic(Any::class) { subclass(String::class) }
+        }
+    }
+    val value = "foo"
+    val encoded =
+        encodeToSavedState(
+            serializer = PolymorphicSerializer(Any::class),
+            value = value,
+            config = config
+        )
 }
 
 val userSavedState = savedState {
@@ -96,6 +117,28 @@ fun decodeWithExplicitSerializer() {
         }
     }
     val uuid = decodeFromSavedState(UUIDSerializer(), uuidSavedState)
+}
+
+@Sampled
+fun decodeWithExplicitSerializerAndConfig() {
+    val config = SavedStateConfig {
+        serializersModule = SerializersModule {
+            polymorphic(Any::class) { subclass(String::class) }
+        }
+    }
+    val value = "foo"
+    val encoded =
+        encodeToSavedState(
+            serializer = PolymorphicSerializer(Any::class),
+            value = value,
+            config = config
+        )
+    val decoded =
+        decodeFromSavedState(
+            deserializer = PolymorphicSerializer(Any::class),
+            savedState = encoded,
+            config = config
+        )
 }
 
 @Sampled
@@ -210,4 +253,26 @@ fun sparseParcelableArraySerializer() {
         @Serializable(with = SparseParcelableArraySerializer::class)
         val sparseParcelableArray: android.util.SparseArray<android.os.Parcelable>
     )
+}
+
+@Sampled
+fun config() {
+    val config = SavedStateConfig {
+        serializersModule = SerializersModule {
+            polymorphic(Any::class) { subclass(String::class) }
+        }
+    }
+    val value = "foo"
+    val encoded =
+        encodeToSavedState(
+            serializer = PolymorphicSerializer(Any::class),
+            value = value,
+            config = config
+        )
+    val decoded =
+        decodeFromSavedState(
+            deserializer = PolymorphicSerializer(Any::class),
+            savedState = encoded,
+            config = config
+        )
 }

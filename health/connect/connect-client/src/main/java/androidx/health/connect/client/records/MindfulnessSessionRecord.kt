@@ -48,7 +48,7 @@ class MindfulnessSessionRecord(
     val title: String? = null,
     /** Additional notes for the session. Optional field. */
     val notes: String? = null,
-    override val metadata: Metadata = Metadata.EMPTY
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

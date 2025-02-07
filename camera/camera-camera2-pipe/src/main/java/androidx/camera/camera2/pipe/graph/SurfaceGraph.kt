@@ -67,13 +67,15 @@ internal class SurfaceGraph(
         val closeable =
             synchronized(lock) {
                 if (closed) {
-                    Log.warn { "Attempted to set $streamId to $surface after close!" }
+                    if (surface != null) {
+                        Log.warn { "Refusing to configure $streamId with $surface after close!" }
+                    }
                     return
                 }
 
                 Log.info {
                     if (surface != null) {
-                        "Configured $streamId to use $surface"
+                        "Configured $streamId with $surface"
                     } else {
                         "Removed surface for $streamId"
                     }

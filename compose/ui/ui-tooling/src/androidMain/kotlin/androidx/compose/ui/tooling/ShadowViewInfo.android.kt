@@ -59,7 +59,8 @@ private constructor(var parent: ShadowViewInfo?, private val viewInfo: ViewInfo)
             viewInfo.bounds,
             viewInfo.location,
             _children.map { it.toViewInfo() },
-            viewInfo.layoutInfo
+            viewInfo.layoutInfo,
+            viewInfo.name
         )
 }
 

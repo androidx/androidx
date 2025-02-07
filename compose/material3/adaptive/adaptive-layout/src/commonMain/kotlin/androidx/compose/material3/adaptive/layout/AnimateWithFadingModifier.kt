@@ -47,7 +47,7 @@ internal fun Modifier.animateWithFading(
         AnimateWithFadingElement(animateFraction, lookaheadScope, enabled, fadingAnimationSpec)
     )
 
-private data class AnimateWithFadingElement(
+private class AnimateWithFadingElement(
     val animateFraction: () -> Float,
     val lookaheadScope: LookaheadScope,
     val enabled: Boolean,
@@ -74,6 +74,28 @@ private data class AnimateWithFadingElement(
 
     override fun InspectorInfo.inspectableProperties() {
         inspectorInfo()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnimateWithFadingElement) return false
+
+        if (enabled != other.enabled) return false
+        if (animateFraction !== other.animateFraction) return false
+        if (lookaheadScope != other.lookaheadScope) return false
+        if (fadingAnimationSpec != other.fadingAnimationSpec) return false
+        if (inspectorInfo !== other.inspectorInfo) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = enabled.hashCode()
+        result = 31 * result + animateFraction.hashCode()
+        result = 31 * result + lookaheadScope.hashCode()
+        result = 31 * result + fadingAnimationSpec.hashCode()
+        result = 31 * result + inspectorInfo.hashCode()
+        return result
     }
 }
 

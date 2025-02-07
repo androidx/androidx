@@ -29,11 +29,14 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.BasicSwipeToDismissBox
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 import androidx.wear.compose.foundation.edgeSwipeToDismiss as foundationEdgeSwipeToDismiss
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 
 /**
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single slot
@@ -445,17 +448,26 @@ public enum class SwipeToDismissValue {
 }
 
 /**
- * Limits swipe to dismiss to be active from the edge of the viewport only. Used when the center of
- * the screen needs to be able to handle horizontal paging, such as 2-d scrolling a Map or swiping
- * horizontally between pages. Swipe to the right is intercepted on the left part of the viewport
- * with width specified by [edgeWidth], with other touch events ignored - vertical scroll, click,
- * long click, etc.
+ * Handles swipe to dismiss from the edge of the viewport.
+ *
+ * Used when the content of the [BasicSwipeToDismissBox] is handling all the gestures of the
+ * viewport, which prevents [BasicSwipeToDismissBox] from handling the swipe-to-dismiss gesture.
+ * Examples of this scenario are horizontal paging, such as 2-d scrolling a Map or swiping
+ * horizontally between pages.
+ *
+ * Use of [Modifier.edgeSwipeToDismiss] defines a zone on the left side of the viewport of width
+ * [edgeWidth] in which the swipe-right gesture is intercepted. Other touch events are ignored -
+ * vertical scroll, click, long click, etc.
  *
  * Currently Edge swipe, like swipe to dismiss, is only supported on the left part of the viewport
  * regardless of layout direction as content is swiped away from left to right.
  *
- * Requires that the element to which this modifier is applied exists within a SwipeToDismissBox
- * which is using the same [SwipeToDismissBoxState] instance.
+ * Requires that the element to which this modifier is applied exists within a
+ * [BasicSwipeToDismissBox] which is using the same [SwipeToDismissBoxState] instance.
+ *
+ * Requires that the element to which this modifier is applied notifies the nested scroll system
+ * about the scrolling events that are happening on the element. For example, using a
+ * [NestedScrollDispatcher].
  *
  * Example of a modifier usage with SwipeToDismiss
  *

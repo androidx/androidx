@@ -18,7 +18,7 @@ package androidx.camera.core {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> setExposureCompensationIndex(int);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
-    method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setTorchStrengthLevelAsync(@IntRange(from=1) int);
+    method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setTorchStrengthLevel(@IntRange(from=1) int);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.FocusMeteringResult!> startFocusAndMetering(androidx.camera.core.FocusMeteringAction);
   }
@@ -61,6 +61,7 @@ package androidx.camera.core {
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method public default boolean isLogicalMultiCameraSupported();
     method public default boolean isLowLightBoostSupported();
+    method public default boolean isTorchStrengthSupported();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
     method public static boolean mustPlayShutterSound();
     method public default java.util.Set<androidx.camera.core.DynamicRange!> querySupportedDynamicRanges(java.util.Set<androidx.camera.core.DynamicRange!>);
@@ -259,15 +260,15 @@ package androidx.camera.core {
   }
 
   public final class FlashState {
-    property public static final int FLASH_STATE_FIRED;
-    property public static final int FLASH_STATE_READY;
-    property public static final int FLASH_STATE_UNAVAILABLE;
-    property public static final int FLASH_STATE_UNKNOWN;
-    field public static final int FLASH_STATE_FIRED = 1; // 0x1
-    field public static final int FLASH_STATE_READY = 3; // 0x3
-    field public static final int FLASH_STATE_UNAVAILABLE = 2; // 0x2
-    field public static final int FLASH_STATE_UNKNOWN = 0; // 0x0
+    property public static int FIRED;
+    property public static int NOT_FIRED;
+    property public static int UNAVAILABLE;
+    property public static int UNKNOWN;
+    field public static final int FIRED = 1; // 0x1
     field public static final androidx.camera.core.FlashState INSTANCE;
+    field public static final int NOT_FIRED = 3; // 0x3
+    field public static final int UNAVAILABLE = 2; // 0x2
+    field public static final int UNKNOWN = 0; // 0x0
   }
 
   public final class FocusMeteringAction {

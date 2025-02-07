@@ -31,25 +31,25 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(Scope.LIBRARY)
 public final class ShapeTokens {
 
-  public static final @NonNull Corner CORNER_EXTRA_LARGE = roundedCornerShape(36.0f);
+    public static final @NonNull Corner CORNER_EXTRA_LARGE = roundedCornerShape(36.0f);
 
-  public static final @NonNull Corner CORNER_EXTRA_SMALL = roundedCornerShape(4.0f);
+    public static final @NonNull Corner CORNER_EXTRA_SMALL = roundedCornerShape(4.0f);
 
-  // Full corner can be achieved by setting a big radius value, which will be clamped by
-  // min(halfWidth, halfHeight).
-  public static final @NonNull Corner CORNER_FULL = roundedCornerShape(99999.0f);
+    // Full corner can be achieved by setting a big radius value, which will be clamped by
+    // min(halfWidth, halfHeight).
+    public static final @NonNull Corner CORNER_FULL = roundedCornerShape(99999.0f);
 
-  public static final @NonNull Corner CORNER_LARGE = roundedCornerShape(26.0f);
+    public static final @NonNull Corner CORNER_LARGE = roundedCornerShape(26.0f);
 
-  public static final @NonNull Corner CORNER_MEDIUM = roundedCornerShape(18.0f);
+    public static final @NonNull Corner CORNER_MEDIUM = roundedCornerShape(18.0f);
 
-  public static final @NonNull Corner CORNER_NONE = roundedCornerShape(0.0f);
+    public static final @NonNull Corner CORNER_NONE = roundedCornerShape(0.0f);
 
-  public static final @NonNull Corner CORNER_SMALL = roundedCornerShape(8.0f);
+    public static final @NonNull Corner CORNER_SMALL = roundedCornerShape(8.0f);
 
-  private static @NonNull Corner roundedCornerShape(float sizeDp) {
-    return new Corner.Builder().setRadius(dp(sizeDp)).build();
-  }
+    private static @NonNull Corner roundedCornerShape(float sizeDp) {
+        return new Corner.Builder().setRadius(dp(sizeDp)).build();
+    }
 
-  private ShapeTokens() {}
+    private ShapeTokens() {}
 }

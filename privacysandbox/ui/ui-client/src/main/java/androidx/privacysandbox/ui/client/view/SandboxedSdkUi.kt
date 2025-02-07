@@ -17,8 +17,6 @@ package androidx.privacysandbox.ui.client.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,33 +39,17 @@ fun SandboxedSdkUi(
     providerUiOnTop: Boolean = true,
     sandboxedSdkViewEventListener: SandboxedSdkViewEventListener? = null
 ) {
-    val delegatedListener =
-        remember {
-                object : SandboxedSdkViewEventListener {
-                    var delegate by mutableStateOf(sandboxedSdkViewEventListener)
-
-                    override fun onUiDisplayed() {
-                        delegate?.onUiDisplayed()
-                    }
-
-                    override fun onUiError(error: Throwable) {
-                        delegate?.onUiError(error)
-                    }
-
-                    override fun onUiClosed() {
-                        delegate?.onUiClosed()
-                    }
-                }
-            }
-            .apply { delegate = sandboxedSdkViewEventListener }
     AndroidView(
         modifier = modifier,
-        factory = { context ->
-            SandboxedSdkView(context).apply { setEventListener(delegatedListener) }
-        },
+        factory = { context -> SandboxedSdkView(context).apply { isInComposeNode = true } },
         update = { view ->
-            view.setAdapter(sandboxedUiAdapter)
-            view.orderProviderUiAboveClientUi(providerUiOnTop)
-        }
+            view.apply {
+                setEventListener(sandboxedSdkViewEventListener)
+                setAdapter(sandboxedUiAdapter)
+                orderProviderUiAboveClientUi(providerUiOnTop)
+            }
+        },
+        onReset = { view -> view.setEventListener(null) },
+        onRelease = { view -> view.closeClient() }
     )
 }

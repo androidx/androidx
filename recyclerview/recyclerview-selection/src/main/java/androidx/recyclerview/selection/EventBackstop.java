@@ -18,9 +18,10 @@ package androidx.recyclerview.selection;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * OnItemTouchListener that claims all ACTION_UP events in streams that have otherwise gone

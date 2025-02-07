@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OpenOnPhoneDialog
 import androidx.wear.compose.material3.OpenOnPhoneDialogDefaults
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.openOnPhoneDialogCurvedText
 import androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
 
 val OpenOnPhoneDialogDemos =
@@ -42,38 +43,40 @@ val OpenOnPhoneDialogDemos =
 
 @Composable
 fun OpenOnPhoneDialogWithCustomText() {
-    var showConfirmation by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
-            onClick = { showConfirmation = true },
+            onClick = { visible = true },
             label = { Text("Open on phone") }
         )
     }
 
+    val curvedTextStyle = OpenOnPhoneDialogDefaults.curvedTextStyle
     OpenOnPhoneDialog(
-        show = showConfirmation,
-        onDismissRequest = { showConfirmation = false },
-        curvedText = OpenOnPhoneDialogDefaults.curvedText("Custom text")
+        visible = visible,
+        onDismissRequest = { visible = false },
+        curvedText = { openOnPhoneDialogCurvedText(text = "Custom text", style = curvedTextStyle) }
     )
 }
 
 @Composable
 fun OpenOnPhoneDialogWithCustomColors() {
-    var showConfirmation by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
-            onClick = { showConfirmation = true },
+            onClick = { visible = true },
             label = { Text("Open on phone") }
         )
     }
 
+    val curvedTextStyle = OpenOnPhoneDialogDefaults.curvedTextStyle
     OpenOnPhoneDialog(
-        show = showConfirmation,
-        onDismissRequest = { showConfirmation = false },
+        visible = visible,
+        onDismissRequest = { visible = false },
         colors =
             OpenOnPhoneDialogDefaults.colors(
                 iconColor = MaterialTheme.colorScheme.tertiary,
@@ -81,6 +84,9 @@ fun OpenOnPhoneDialogWithCustomColors() {
                 progressIndicatorColor = MaterialTheme.colorScheme.tertiary,
                 progressTrackColor = MaterialTheme.colorScheme.onTertiary,
                 textColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            ),
+        curvedText = {
+            openOnPhoneDialogCurvedText(text = "Custom colors", style = curvedTextStyle)
+        }
     )
 }

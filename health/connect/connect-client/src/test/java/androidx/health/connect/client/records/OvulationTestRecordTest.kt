@@ -17,6 +17,7 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_UNKNOWN
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -43,7 +44,7 @@ class OvulationTestRecordTest {
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
                         result = OvulationTestRecord.RESULT_INCONCLUSIVE,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN),
                     )
                     .toString()
             )

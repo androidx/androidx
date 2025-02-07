@@ -114,9 +114,9 @@ fun ToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XSmallSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XSmallPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XSmallCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XSmallContentPadding
         ) {
@@ -145,9 +145,9 @@ fun ToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.MediumSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.MediumPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.MediumCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.MediumContentPadding
         ) {
@@ -166,9 +166,9 @@ fun ToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.LargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.LargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.LargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.LargeContentPadding
         ) {
@@ -187,9 +187,9 @@ fun ToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XLargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XLargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XLargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XLargeContentPadding
         ) {
@@ -220,9 +220,9 @@ fun ElevatedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XSmallSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XSmallPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XSmallCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XSmallContentPadding
         ) {
@@ -251,9 +251,9 @@ fun ElevatedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.MediumSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.MediumPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.MediumCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.MediumContentPadding
         ) {
@@ -272,9 +272,9 @@ fun ElevatedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.LargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.LargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.LargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.LargeContentPadding
         ) {
@@ -293,9 +293,9 @@ fun ElevatedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XLargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XLargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XLargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XLargeContentPadding
         ) {
@@ -326,9 +326,9 @@ fun TonalToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XSmallSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XSmallPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XSmallCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XSmallContentPadding
         ) {
@@ -357,9 +357,9 @@ fun TonalToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.MediumSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.MediumPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.MediumCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.MediumContentPadding
         ) {
@@ -378,9 +378,9 @@ fun TonalToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.LargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.LargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.LargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.LargeContentPadding
         ) {
@@ -399,9 +399,9 @@ fun TonalToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XLargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XLargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XLargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XLargeContentPadding
         ) {
@@ -432,9 +432,9 @@ fun OutlinedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XSmallSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XSmallPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XSmallCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XSmallContentPadding
         ) {
@@ -463,9 +463,9 @@ fun OutlinedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.MediumSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.MediumPressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.MediumCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.MediumContentPadding
         ) {
@@ -484,9 +484,9 @@ fun OutlinedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.LargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.LargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.LargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.LargeContentPadding
         ) {
@@ -505,9 +505,9 @@ fun OutlinedToggleButtons() {
             modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
             shapes =
                 ToggleButtonDefaults.shapes(
-                    ToggleButtonDefaults.XLargeSquareShape,
+                    ToggleButtonDefaults.shape,
                     ToggleButtonDefaults.XLargePressedShape,
-                    ToggleButtonDefaults.checkedShape
+                    ToggleButtonDefaults.XLargeCheckedSquareShape
                 ),
             contentPadding = ButtonDefaults.XLargeContentPadding
         ) {

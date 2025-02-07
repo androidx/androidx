@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.compose.material3.adaptive.AndroidPosture_androidKt#calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature>):
+    Removed method androidx.compose.material3.adaptive.AndroidPosture_androidKt.calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.adaptive.AndroidPosture_androidKt#calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature>) parameter #0:
+    Removed parameter foldingFeatures in androidx.compose.material3.adaptive.AndroidPosture_androidKt.calculatePosture(java.util.List<? extends androidx.window.layout.FoldingFeature> foldingFeatures) from compatibility checked API surface

@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -53,6 +52,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -159,9 +159,8 @@ public class DatabaseViewTest {
             this.name = name;
         }
 
-        @NonNull
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return name + " (" + id + ", " + departmentId + ")";
         }
     }

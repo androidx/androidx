@@ -22,7 +22,7 @@ import android.content.ClipData;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Register an OnDragInitiatedListener to be notified when user intent to perform drag and drop

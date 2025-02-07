@@ -129,6 +129,10 @@ internal actual constructor(
         source.putCharSequenceArrayList(key, value.toArrayListUnsafe())
     }
 
+    public actual inline fun putSavedStateList(key: String, value: List<SavedState>) {
+        putParcelableList(key, value)
+    }
+
     public actual inline fun putStringList(key: String, value: List<String>) {
         source.putStringArrayList(key, value.toArrayListUnsafe())
     }
@@ -173,6 +177,13 @@ internal actual constructor(
 
     public actual inline fun putLongArray(key: String, value: LongArray) {
         source.putLongArray(key, value)
+    }
+
+    public actual inline fun putSavedStateArray(
+        key: String,
+        @Suppress("ArrayReturn") value: Array<SavedState>,
+    ) {
+        putParcelableArray(key, value)
     }
 
     public actual inline fun putStringArray(key: String, value: Array<String>) {

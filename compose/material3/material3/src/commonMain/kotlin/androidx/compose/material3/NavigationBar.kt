@@ -746,7 +746,12 @@ private val IndicatorVerticalOffset: Dp = 12.dp
 /*@VisibleForTesting*/
 internal val NavigationBarItemToIconMinimumPadding: Dp = 44.dp
 
-/** Interface that allows libraries to override the behavior of the [NavigationBar] component. */
+/**
+ * Interface that allows libraries to override the behavior of the [NavigationBar] component.
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [LocalNavigationBarComponentOverride] in the Compose hierarchy.
+ */
 @ExperimentalMaterial3ComponentOverrideApi
 interface NavigationBarComponentOverride {
     /** Behavior function that is called by the [NavigationBar] component. */
@@ -754,7 +759,7 @@ interface NavigationBarComponentOverride {
 }
 
 /**
- * Parameters available to NavigationBar.
+ * Parameters available to [NavigationBar].
  *
  * @param modifier the [Modifier] to be applied to this navigation bar
  * @param containerColor the color used for the background of this navigation bar. Use
@@ -779,7 +784,11 @@ internal constructor(
     val content: @Composable RowScope.() -> Unit,
 )
 
-/** [NavigationBarComponentOverride] used when no override is specified. */
+/**
+ * [NavigationBarComponentOverride] used when no override is specified.
+ *
+ * This override provides the default behavior of the [NavigationBar] component.
+ */
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultNavigationBarComponentOverride : NavigationBarComponentOverride {
     @Composable

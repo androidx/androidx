@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -46,7 +47,12 @@ fun PickerGroupSample() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.size(30.dp))
-        Text(text = if (selectedPickerIndex == 0) "Hours" else "Minutes")
+        val label = if (selectedPickerIndex == 0) "Hours" else "Minutes"
+        AnimatedContent(
+            targetState = label,
+        ) { targetText ->
+            Text(text = targetText)
+        }
         Spacer(modifier = Modifier.size(10.dp))
         PickerGroup(
             selectedPickerIndex = selectedPickerIndex,
@@ -82,7 +88,9 @@ fun AutoCenteringPickerGroup() {
     ) {
         val headingText = mapOf(0 to "Hours", 1 to "Minutes", 2 to "Seconds", 3 to "Milli")
         Spacer(modifier = Modifier.size(30.dp))
-        Text(text = headingText[selectedPickerIndex]!!)
+        AnimatedContent(targetState = headingText[selectedPickerIndex]!!) { targetText ->
+            Text(text = targetText)
+        }
         Spacer(modifier = Modifier.size(10.dp))
         PickerGroup(
             selectedPickerIndex = selectedPickerIndex,

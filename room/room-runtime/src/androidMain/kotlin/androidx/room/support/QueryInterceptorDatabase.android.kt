@@ -111,17 +111,11 @@ internal class QueryInterceptorDatabase(
         return delegate.query(query)
     }
 
-    // Suppress warning about `SQL` in execSQL not being camel case. This is an override function
-    // and it can't be renamed.
-    @Suppress("AcronymName")
     override fun execSQL(sql: String) {
         queryCallbackScope.launch { queryCallback.onQuery(sql, emptyList()) }
         delegate.execSQL(sql)
     }
 
-    // Suppress warning about `SQL` in execSQL not being camel case. This is an override function
-    // and it can't be renamed.
-    @Suppress("AcronymName")
     override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
         val argsCopy = bindArgs.toList()
         queryCallbackScope.launch { queryCallback.onQuery(sql, argsCopy) }

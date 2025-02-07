@@ -41,6 +41,7 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ScreenStage
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.curvedText
 import androidx.wear.compose.material3.samples.ScrollAwaySample
 import androidx.wear.compose.material3.scrollAway
 
@@ -100,7 +101,7 @@ fun ScrollAwayLazyColumn() {
                         else ScreenStage.Idle
                     }
                 ),
-            content = { text("ScrollAway") }
+            content = { curvedText("ScrollAway") }
         )
     }
 }
@@ -151,7 +152,7 @@ fun ScrollAwayColumn() {
                         else ScreenStage.Idle
                     }
                 ),
-            content = { text("ScrollAway") }
+            content = { curvedText("ScrollAway") }
         )
     }
 }

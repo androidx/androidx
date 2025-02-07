@@ -15,7 +15,7 @@
 # Keep all the functions created to throw an exception. We don't want these functions to be
 # inlined in any way, which R8 will do by default. The whole point of these functions is to
 # reduce the amount of code generated at the call site.
--keep,allowshrinking,allowobfuscation class androidx.compose.**.* {
+-keepclassmembers,allowshrinking,allowobfuscation class androidx.compose.**.* {
     static void throw*Exception(...);
     static void throw*ExceptionForNullCheck(...);
     # For methods returning Nothing

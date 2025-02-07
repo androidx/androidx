@@ -27,9 +27,9 @@ import kotlin.jvm.JvmField
  * implementation of a RoomDatabase with runtime.
  *
  * @see [RoomDatabase.createOpenDelegate]
- * @see [RoomConnectionManager.openDelegate]
+ * @see [BaseRoomConnectionManager.openDelegate]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 abstract class RoomOpenDelegate(
     val version: Int,
     val identityHash: String,
@@ -49,7 +49,7 @@ abstract class RoomOpenDelegate(
 
     abstract fun dropAllTables(connection: SQLiteConnection)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     class ValidationResult(@JvmField val isValid: Boolean, @JvmField val expectedFoundMsg: String?)
 }
 

@@ -74,9 +74,9 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                     // bindings internally already have a thread-confined connection pool.
                     AndroidSQLiteDriverConnectionPool(
                         driver = DriverWrapper(config.sqliteDriver),
-                        fileName = configuration.name ?: ":memory:"
+                        fileName = config.name ?: ":memory:"
                     )
-                } else if (configuration.name == null) {
+                } else if (config.name == null) {
                     // An in-memory database must use a single connection pool.
                     newSingleConnectionPool(
                         driver = DriverWrapper(config.sqliteDriver),
@@ -85,9 +85,9 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                 } else {
                     newConnectionPool(
                         driver = DriverWrapper(config.sqliteDriver),
-                        fileName = configuration.name,
-                        maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
-                        maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
+                        fileName = config.name,
+                        maxNumOfReaders = config.journalMode.getMaxNumberOfReaders(),
+                        maxNumOfWriters = config.journalMode.getMaxNumberOfWriters()
                     )
                 }
         }
@@ -124,6 +124,15 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         isReadOnly: Boolean,
         block: suspend (Transactor) -> R
     ): R = connectionPool.useConnection(isReadOnly, block)
+
+    override fun resolveFileName(fileName: String): String =
+        if (fileName != ":memory:") {
+            // Get database path from context, if the database name is not an absolute path, then
+            // the app's database directory will be used, otherwise the given path is used.
+            configuration.context.getDatabasePath(fileName).absolutePath
+        } else {
+            fileName
+        }
 
     fun close() {
         connectionPool.close()

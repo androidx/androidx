@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -41,7 +41,7 @@ dependencies {
 
 androidx {
     name = "Health Connect Testing Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for the Androidx Health Connect Testing Library"
 }

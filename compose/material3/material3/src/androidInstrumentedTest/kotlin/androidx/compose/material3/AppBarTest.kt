@@ -1852,12 +1852,27 @@ class AppBarTest {
     fun bottomAppBarWithCustomArrangement_heightIsFromSpec() {
         rule
             .setMaterialContentForSizeAssertions {
-                BottomAppBar(
-                    horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+                FlexibleBottomAppBar(
+                    horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                     content = {}
                 )
             }
-            .assertHeightIsEqualTo(64.dp) // TODO tokens
+            .assertHeightIsEqualTo(BottomAppBarDefaults.FlexibleBottomAppBarHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun bottomAppBarWithCustomHeight() {
+        val height = 128.dp
+        rule
+            .setMaterialContentForSizeAssertions {
+                FlexibleBottomAppBar(
+                    horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
+                    expandedHeight = height,
+                    content = {}
+                )
+            }
+            .assertHeightIsEqualTo(height)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 

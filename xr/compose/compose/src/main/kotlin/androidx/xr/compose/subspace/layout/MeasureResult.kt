@@ -16,15 +16,12 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
-
 /**
  * Interface holding the size and alignment lines of the measured layout, as well as the children
  * positioning logic.
  *
  * Based on [androidx.compose.ui.layout.MeasureResult].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface MeasureResult {
     /** The measured width of the layout, in pixels. */
     public val width: Int

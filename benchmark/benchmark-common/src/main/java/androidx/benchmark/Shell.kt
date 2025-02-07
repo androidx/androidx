@@ -573,7 +573,8 @@ object Shell {
         processName: String,
         waitPollPeriodMs: Long = DEFAULT_KILL_POLL_PERIOD_MS,
         waitPollMaxCount: Int = DEFAULT_KILL_POLL_MAX_COUNT,
-        processKiller: (List<ProcessPid>) -> Unit = ::killTerm
+        onFailure: (String) -> Unit = { errorMessage -> throw IllegalStateException(errorMessage) },
+        processKiller: (List<ProcessPid>) -> Unit = ::killTerm,
     ) {
         val processes =
             getPidsForProcess(processName).map { pid ->
@@ -583,6 +584,7 @@ object Shell {
             processes,
             waitPollPeriodMs = waitPollPeriodMs,
             waitPollMaxCount = waitPollMaxCount,
+            onFailure,
             processKiller
         )
     }
@@ -591,7 +593,8 @@ object Shell {
         processes: List<ProcessPid>,
         waitPollPeriodMs: Long = DEFAULT_KILL_POLL_PERIOD_MS,
         waitPollMaxCount: Int = DEFAULT_KILL_POLL_MAX_COUNT,
-        processKiller: (List<ProcessPid>) -> Unit = { killTerm(it) }
+        onFailure: (String) -> Unit = { errorMessage -> throw IllegalStateException(errorMessage) },
+        processKiller: (List<ProcessPid>) -> Unit = ::killTerm,
     ) {
         var runningProcesses = processes.toList()
         processKiller(runningProcesses)
@@ -605,7 +608,7 @@ object Shell {
             }
             Log.d(BenchmarkState.TAG, "Waiting $waitPollPeriodMs ms for $runningProcesses to die")
         }
-        throw IllegalStateException("Failed to stop $runningProcesses")
+        onFailure.invoke("Failed to stop $runningProcesses")
     }
 
     fun pathExists(absoluteFilePath: String) =

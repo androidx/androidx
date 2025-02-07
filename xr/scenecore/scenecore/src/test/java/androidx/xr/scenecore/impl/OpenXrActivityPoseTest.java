@@ -88,6 +88,8 @@ public final class OpenXrActivityPoseTest {
     public void doBeforeEachTest() {
         // By default, set the activity space to the root of the underlying OpenXR reference space.
         mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        when(mActivitySpaceRoot.getWorldSpaceScale())
+                .thenReturn(mActivitySpace.getWorldSpaceScale());
     }
 
     /** Creates a HeadActivityPoseImpl instance. */
@@ -196,6 +198,82 @@ public final class OpenXrActivityPoseTest {
     }
 
     @Test
+    public void
+            getPoseInActivitySpace_withScaledTranslatedActivitySpace_returnsScaledDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1));
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(2f, 3f, 4f),
+                        Quaternion.Identity,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        Pose expectedPose = new Pose(new Vector3(-0.5f, -1.0f, -1.5f), new Quaternion(0, 1, 0, 1));
+
+        assertPose(mTestActivityPose.getPoseInActivitySpace(), expectedPose);
+    }
+
+    @Test
+    public void getPoseInActivitySpace_witRotatedPerceptionPose_returnsDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Quaternion perceptionQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
+        Pose pose = new Pose(new Vector3(0, 0, 0), perceptionQuaternion);
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(0f, 0f, 0f),
+                        Quaternion.Identity,
+                        /* scale= */ new Vector3(1f, 1f, 1f)));
+
+        // If the activitySpace has an identity rotation, then there shouldn't be any change
+        Pose expectedPose = new Pose(new Vector3(0f, 0f, 0f), perceptionQuaternion);
+        assertPose(mTestActivityPose.getPoseInActivitySpace(), expectedPose);
+    }
+
+    @Test
+    public void getPoseInActivitySpace_witRotatedActivitySpace_returnsDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Quaternion activitySpaceQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
+        Pose pose = new Pose(new Vector3(0, 0, 0), Quaternion.Identity);
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(0f, 0f, 0f),
+                        activitySpaceQuaternion,
+                        /* scale= */ new Vector3(1f, 1f, 1f)));
+        // If perception pose is identity, then rotation should be the inverse of the activity
+        // space.
+        Pose expectedPose =
+                new Pose(
+                        new Vector3(0f, 0f, 0f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, -90f)));
+
+        assertPose(mTestActivityPose.getPoseInActivitySpace(), expectedPose);
+    }
+
+    @Test
+    public void getPoseInActivitySpace_withScaledAndRotatedActivitySpace_returnsDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Quaternion activitySpaceQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
+        Pose pose = new Pose(new Vector3(1, 1, 1), Quaternion.Identity);
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(2f, 3f, 4f),
+                        activitySpaceQuaternion,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
+        Pose expectedPose =
+                new Pose(
+                        new Vector3(-1.0f, 0.5f, -1.5f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, -90f)));
+
+        assertPose(mTestActivityPose.getPoseInActivitySpace(), expectedPose);
+    }
+
+    // TODO: Add tests with children of these entities
+
+    @Test
     public void getPoseInActivitySpace_withNoActivitySpace_returnsIdentityPose() {
         mTestActivityPose = createTestActivityPose(/* activitySpace= */ null, mActivitySpaceRoot);
 
@@ -220,6 +298,43 @@ public final class OpenXrActivityPoseTest {
         when(mActivitySpaceRoot.getPoseInActivitySpace()).thenReturn(new Pose());
 
         assertPose(mTestActivityPose.getActivitySpacePose(), pose);
+    }
+
+    @Test
+    public void getActivitySpacePose_withScaledActivitySpace_returnsDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1));
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(2f, 3f, 4f),
+                        Quaternion.Identity,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        when(mActivitySpaceRoot.getPoseInActivitySpace()).thenReturn(new Pose());
+        Pose expectedPose = new Pose(new Vector3(-0.5f, -1.0f, -1.5f), new Quaternion(0, 1, 0, 1));
+
+        assertPose(mTestActivityPose.getActivitySpacePose(), expectedPose);
+    }
+
+    @Test
+    public void getActivitySpacePose_withScaledAndRotatedActivitySpace_returnsDifferencePose() {
+        mTestActivityPose = createTestActivityPose();
+        Quaternion activitySpaceQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
+        Pose pose = new Pose(new Vector3(1, 1, 1), Quaternion.Identity);
+        setPerceptionPose(pose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(2f, 3f, 4f),
+                        activitySpaceQuaternion,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        when(mActivitySpaceRoot.getPoseInActivitySpace()).thenReturn(new Pose());
+        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
+        Pose expectedPose =
+                new Pose(
+                        new Vector3(-1.0f, 0.5f, -1.5f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, -90f)));
+
+        assertPose(mTestActivityPose.getActivitySpacePose(), expectedPose);
     }
 
     @Test
@@ -259,6 +374,70 @@ public final class OpenXrActivityPoseTest {
                 transformedPose,
                 new Pose(
                         new Vector3(11f, 2f, 3f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f))));
+    }
+
+    @Test
+    public void
+            transformPoseTo_withScaledActivitySpaceAndDifferentSourcePose_returnsTransformedPose() {
+        mTestActivityPose = createTestActivityPose();
+        Pose openXrPose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
+        setPerceptionPose(openXrPose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        /* translation= */ new Vector3(2f, 3f, 4f),
+                        /* rotation= */ Quaternion.Identity,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        assertVector3(mTestActivityPose.getActivitySpaceScale(), new Vector3(0.5f, 0.5f, 0.5f));
+
+        Pose userHeadSpaceOffset =
+                new Pose(
+                        new Vector3(10f, 5f, 4f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f)));
+        Pose transformedPose =
+                mTestActivityPose.transformPoseTo(userHeadSpaceOffset, mActivitySpace);
+        assertPose(
+                transformedPose,
+                new Pose(
+                        new Vector3(4.5f, 2f, 1.5f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f))));
+    }
+
+    @Test
+    public void
+            transformPoseTo_withScaledActivitySpaceAndIdentityOffset_returnsSourcePoseScaledInActivitySpace() {
+        mTestActivityPose = createTestActivityPose();
+        Pose openXrPose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
+        setPerceptionPose(openXrPose);
+        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromScale(2f));
+
+        Pose expectedPose = mTestActivityPose.getPoseInActivitySpace();
+        Pose transformedPose = mTestActivityPose.transformPoseTo(Pose.Identity, mActivitySpace);
+        assertPose(transformedPose, expectedPose);
+    }
+
+    @Test
+    public void transformPoseTo_withScaledActivitySpaceAtSourcePose_returnsScaledOffset() {
+        mTestActivityPose = createTestActivityPose();
+        Pose openXrPose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
+        setPerceptionPose(openXrPose);
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        openXrPose.getTranslation(),
+                        openXrPose.getRotation(),
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        assertVector3(mTestActivityPose.getActivitySpaceScale(), new Vector3(0.5f, 0.5f, 0.5f));
+
+        Pose userHeadSpaceOffset =
+                new Pose(
+                        new Vector3(10f, 0f, 0f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f)));
+        Pose transformedPose =
+                mTestActivityPose.transformPoseTo(userHeadSpaceOffset, mActivitySpace);
+        assertPose(
+                transformedPose,
+                new Pose(
+                        new Vector3(5f, 0f, 0f),
                         Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f))));
     }
 

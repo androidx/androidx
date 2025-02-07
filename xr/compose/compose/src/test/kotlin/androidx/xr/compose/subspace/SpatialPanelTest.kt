@@ -16,8 +16,10 @@
 
 package androidx.xr.compose.subspace
 
+import android.content.Intent
 import android.view.View
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,10 +34,10 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.compose.subspace.layout.CorePanelEntity
+import androidx.xr.compose.platform.DialogManager
+import androidx.xr.compose.platform.LocalDialogManager
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
@@ -44,6 +46,10 @@ import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.setSubspaceContent
+import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.scenecore.BasePanelEntity
+import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.getEntitiesOfType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -141,20 +147,17 @@ class SpatialPanelTest {
 
     @Test
     fun spatialPanel_cornerRadius_dp() {
-        val density = Density(1.0f)
         composeTestRule.setSubspaceContent {
             SpatialPanel(
                 modifier = SubspaceModifier.width(200.dp).height(300.dp).testTag("panel"),
                 shape = SpatialRoundedCornerShape(CornerSize(32.dp)),
             ) {}
         }
-
-        assertThat(getCorePanelEntity("panel")?.getCornerRadius(density)).isEqualTo(32f)
+        assertThat(getBasePanelEntity("panel")?.getCornerRadius()?.meters?.toDp()).isEqualTo(32.dp)
     }
 
     @Test
     fun spatialPanel_cornerRadius_percent() {
-        val density = Density(1.0f)
         composeTestRule.setSubspaceContent {
             SpatialPanel(
                 modifier = SubspaceModifier.width(200.dp).height(300.dp).testTag("panel"),
@@ -162,26 +165,81 @@ class SpatialPanelTest {
             ) {}
         }
 
-        // 50 percent of the shorter side (200.dp) at 1.0 Density is 100 pixels.
-        assertThat(getCorePanelEntity("panel")?.getCornerRadius(density)).isEqualTo(100f)
+        assertThat(getBasePanelEntity("panel")?.getCornerRadius()?.meters?.toDp()).isEqualTo(100.dp)
     }
 
     @Test
-    fun spatialPanel_cornerRadius_increasedDensity() {
-        val density = Density(3.0f)
+    fun activityPanel_launchesIntent() {
         composeTestRule.setSubspaceContent {
             SpatialPanel(
-                modifier = SubspaceModifier.width(200.dp).height(300.dp).testTag("panel"),
+                intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                modifier = SubspaceModifier.width(200.dp).height(300.dp),
                 shape = SpatialRoundedCornerShape(CornerSize(50)),
-            ) {}
+            )
         }
+        // Since SubspaceTestingActivity uses FakeXrExtensions, the intent is stored in a map
+        // instead of
+        // being launched.
+        val launchIntent =
+            composeTestRule.activity.extensions.activityPanelMap[composeTestRule.activity]
+                ?.launchIntent
 
-        // 50 percent of the shorter side (200.dp) at 3.0 Density is 300 pixels.
-        assertThat(getCorePanelEntity("panel")?.getCornerRadius(density)).isEqualTo(300f)
+        assertThat(launchIntent?.component?.className)
+            .isEqualTo(SpatialPanelActivity::class.java.name)
     }
 
-    private fun getCorePanelEntity(tag: String): CorePanelEntity? {
-        return composeTestRule.onSubspaceNodeWithTag(tag).fetchSemanticsNode().coreEntity
-            as? CorePanelEntity
+    @Test
+    fun activityPanel_scrimAdds() {
+        var dialogManager: DialogManager? = null
+        composeTestRule.setSubspaceContent {
+            SpatialPanel(
+                intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                modifier = SubspaceModifier.width(200.dp).height(300.dp),
+                shape = SpatialRoundedCornerShape(CornerSize(50)),
+            )
+            dialogManager = LocalDialogManager.current
+        }
+        val session = composeTestRule.activity.session
+
+        // For activity panels, the added scrim is represented by a PanelEntity, so the total entity
+        // count should increase by 1.
+        assertThat(session.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(2)
+
+        dialogManager!!.isSpatialDialogActive.value = true
+        composeTestRule.waitForIdle()
+
+        assertThat(session.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(3)
     }
+
+    @Test
+    fun activityPanel_scrimRemoves() {
+        var dialogManager: DialogManager? = null
+        composeTestRule.setSubspaceContent {
+            SpatialPanel(
+                intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                modifier = SubspaceModifier.width(200.dp).height(300.dp),
+                shape = SpatialRoundedCornerShape(CornerSize(50)),
+            )
+            dialogManager = LocalDialogManager.current
+        }
+        val session = composeTestRule.activity.session
+        dialogManager!!.isSpatialDialogActive.value = true
+        composeTestRule.waitForIdle()
+
+        // For activity panels, the added scrim is represented by a PanelEntity, so the total entity
+        // count should decrease by 1.
+        assertThat(session.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(3)
+
+        dialogManager!!.isSpatialDialogActive.value = false
+        composeTestRule.waitForIdle()
+
+        assertThat(session.getEntitiesOfType(PanelEntity::class.java).size).isEqualTo(2)
+    }
+
+    private fun getBasePanelEntity(tag: String): BasePanelEntity<*>? {
+        return composeTestRule.onSubspaceNodeWithTag(tag).fetchSemanticsNode().semanticsEntity
+            as BasePanelEntity<*>
+    }
+
+    private class SpatialPanelActivity : ComponentActivity() {}
 }

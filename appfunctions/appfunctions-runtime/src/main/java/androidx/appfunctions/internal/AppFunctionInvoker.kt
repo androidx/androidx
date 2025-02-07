@@ -50,11 +50,10 @@ public interface AppFunctionInvoker {
     /**
      * Invokes an AppFunction identified by [functionIdentifier], with [parameters].
      *
-     * @throws [androidx.appfunctions.AppFunctionException] with error code
-     *   [androidx.appfunctions.AppFunctionException.ERROR_FUNCTION_NOT_FOUND] if called with
-     *   invalid function identifier or code
-     *   [androidx.appfunctions.AppFunctionException.ERROR_INVALID_ARGUMENT] if called with invalid
-     *   parameters.
+     * @throws [androidx.appfunctions.AppFunctionFunctionNotFoundException] if [functionIdentifier]
+     *   does not exist.
+     * @throws [androidx.appfunctions.AppFunctionInvalidArgumentException] if [parameters] is
+     *   invalid.
      */
     public suspend fun unsafeInvoke(
         appFunctionContext: AppFunctionContext,

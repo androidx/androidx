@@ -104,6 +104,6 @@ class SearchViewAssertions {
     }
 
     companion object {
-        private const val MATCH_COUNT_PATTERN = """(\d+)\s/\s(\d+)"""
+        private const val MATCH_COUNT_PATTERN = """(\d+)\s?/\s?(\d+)"""
     }
 }

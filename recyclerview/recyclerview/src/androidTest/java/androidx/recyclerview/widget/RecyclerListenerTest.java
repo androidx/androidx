@@ -18,11 +18,11 @@ package androidx.recyclerview.widget;
 
 import static org.junit.Assert.assertEquals;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.RecyclerListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,7 +116,7 @@ public class RecyclerListenerTest extends BaseRecyclerViewInstrumentationTest {
         final AtomicInteger mCallCount = new AtomicInteger();
 
         @Override
-        public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        public void onViewRecycled(RecyclerView.@NonNull ViewHolder holder) {
             mCallCount.incrementAndGet();
         }
 

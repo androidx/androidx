@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Fields
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
@@ -78,11 +77,6 @@ internal class GraphicsLayerOwnerLayer(
     private var mutatedFields: Int = 0
     private var transformOrigin: TransformOrigin = TransformOrigin.Center
     private var outline: Outline? = null
-    /**
-     * Optional paint used when the RenderNode is rendered on a software backed canvas and is
-     * somewhat transparent (i.e. alpha less than 1.0f)
-     */
-    private var softwareLayerPaint: Paint? = null
     private var isMatrixDirty = false
     private var isInverseMatrixDirty = false
     private var isIdentity = true
@@ -154,6 +148,12 @@ internal class GraphicsLayerOwnerLayer(
         }
         if (maybeChangedFields and Fields.RenderEffect != 0) {
             graphicsLayer.renderEffect = scope.renderEffect
+        }
+        if (maybeChangedFields and Fields.ColorFilter != 0) {
+            graphicsLayer.colorFilter = scope.colorFilter
+        }
+        if (maybeChangedFields and Fields.BlendMode != 0) {
+            graphicsLayer.blendMode = scope.blendMode
         }
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             graphicsLayer.compositingStrategy =

@@ -33,6 +33,8 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @ExperimentalAppActions
@@ -54,8 +56,19 @@ class VoipCall(
     var hasUpdatedToOngoing = false
     var mLocalCallSilenceExtension: LocalCallSilenceExtension? = null
     var mCallJob: Job? = null
-    var mIconUri: Uri? = null
-    var mIconBitmap: Bitmap = CallIconGenerator.generateNextBitmap()
+
+    // Call Icon data
+    data class IconControl(val onUriChanged: suspend (Uri) -> Unit)
+
+    var mIconExtensionControl: IconControl? = null
+    private val _mIconUri = MutableStateFlow<Uri>(Uri.EMPTY)
+    val mIconUri = _mIconUri.asStateFlow()
+    var mIconBitmap: Bitmap
+
+    init {
+        mIconBitmap = CallIconGenerator.generateNextBitmap()
+        setIconUri(VoipAppFileProvider.writeCallIconBitMapToFile(context, this)!!)
+    }
 
     @RequiresApi(Build.VERSION_CODES.S)
     val mOnSetActiveLambda: suspend () -> Unit = {
@@ -85,7 +98,7 @@ class VoipCall(
     }
 
     fun getIconFileName(): String {
-        return "VoipCallIcon_$notificationId"
+        return "VoipCallIcon_${notificationId}"
     }
 
     fun getIconBitmap(): Bitmap {
@@ -96,12 +109,12 @@ class VoipCall(
         mIconBitmap = bitmap
     }
 
-    fun setIconUri(uri: Uri?) {
-        mIconUri = uri
+    fun setIconUri(uri: Uri) {
+        _mIconUri.value = uri
     }
 
     fun getIconUri(): Uri? {
-        return mIconUri
+        return mIconUri.value
     }
 
     fun setCallControl(callControl: CallControlScope) {

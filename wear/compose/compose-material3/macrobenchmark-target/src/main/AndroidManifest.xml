@@ -162,6 +162,17 @@
         </activity>
 
         <activity
+            android:name=".AlertDialogDismissActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.ALERT_DIALOG_DISMISS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".FailureConfirmationActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
@@ -225,12 +236,34 @@
         </activity>
 
         <activity
+            android:name=".ScalingLazyColumnActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.SCALING_LAZY_COLUMN_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".SliderActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.SLIDER_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".StartupActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.STARTUP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -291,12 +324,33 @@
         </activity>
 
         <activity
+            android:name=".TransformingLazyColumnNotificationsActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_NOTIFICATIONS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".WindowDialogActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.WINDOW_DIALOG_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RotaryScrollActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.ROTARY_SCROLL_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +40,7 @@ android {
 
 androidx {
     name = "androidx.security:security-mls"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.SECURITY_MLS
     inceptionYear = "2024"
     description = "build apps on top of the MLS (RFC 9420) protocol."

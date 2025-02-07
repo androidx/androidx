@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -35,7 +35,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     desktop()
     mac()
     linux()
@@ -173,7 +173,7 @@ dependencies {
 
 androidx {
     name = "Navigation Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

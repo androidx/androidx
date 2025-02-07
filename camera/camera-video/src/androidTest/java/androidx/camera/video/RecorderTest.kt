@@ -553,8 +553,8 @@ class RecorderTest(
         val outputOptions = createFileOutputOptions(durationLimitMillis = durationLimitMs)
         val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
-        // Act.
-        recording.start()
+        // Act: ensure first frame is received before waiting for duration limit.
+        recording.startAndVerify(statusCount = 1)
 
         // Assert.
         val result =

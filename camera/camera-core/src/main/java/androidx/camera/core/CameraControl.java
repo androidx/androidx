@@ -253,7 +253,8 @@ public interface CameraControl {
      * @return a {@link ListenableFuture} that is completed when the torch strength has been
      * applied.
      */
-    default @NonNull ListenableFuture<Void> setTorchStrengthLevelAsync(
+    @SuppressWarnings("AsyncSuffixFuture")
+    default @NonNull ListenableFuture<Void> setTorchStrengthLevel(
             @IntRange(from = 1) int torchStrengthLevel) {
         return Futures.immediateFailedFuture(new UnsupportedOperationException(
                 "Setting torch strength is not supported on the device."));

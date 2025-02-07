@@ -17,10 +17,12 @@
 package androidx.xr.arcore
 
 import android.annotation.SuppressLint
+import androidx.xr.runtime.internal.Hand as RuntimeHand
 import androidx.xr.runtime.internal.Plane as RuntimePlane
 import androidx.xr.runtime.internal.Trackable as RuntimeTrackable
+import java.util.Queue
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlinx.coroutines.flow.update
 
 /** Manages all XR resources that are used by the ARCore for XR API. */
 internal class XrResourcesManager {
@@ -29,11 +31,26 @@ internal class XrResourcesManager {
     private val _updatables = CopyOnWriteArrayList<Updatable>()
     val updatables: List<Updatable> = _updatables
 
+    /** Queue of [Anchor]s that will be detached on the next frame update. */
+    private val _anchorsToDetachQueue = ConcurrentLinkedQueue<Anchor>()
+    val anchorsToDetachQueue: Queue<Anchor> = _anchorsToDetachQueue
+
     /** Map of runtime trackable pointer to [Trackable]. */
     @SuppressLint("BanConcurrentHashMap")
     private val _trackablesMap =
         java.util.concurrent.ConcurrentHashMap<RuntimeTrackable, Trackable<Trackable.State>>()
     val trackablesMap: Map<RuntimeTrackable, Trackable<Trackable.State>> = _trackablesMap
+
+    /** The data of hands */
+    private var _leftRuntimeHand: RuntimeHand? = null
+    private var _rightRuntimeHand: RuntimeHand? = null
+    val leftHand: Hand? by lazy { _leftRuntimeHand?.let { Hand(it) } }
+    val rightHand: Hand? by lazy { _rightRuntimeHand?.let { Hand(it) } }
+
+    internal fun initiateHands(leftRuntimeHand: RuntimeHand?, rightRuntimeHand: RuntimeHand?) {
+        _leftRuntimeHand = leftRuntimeHand
+        _rightRuntimeHand = rightRuntimeHand
+    }
 
     internal fun addUpdatable(updatable: Updatable) {
         _updatables.add(updatable)
@@ -43,7 +60,15 @@ internal class XrResourcesManager {
         _updatables.remove(updatable)
     }
 
+    internal fun queueAnchorToDetach(anchor: Anchor) {
+        _anchorsToDetachQueue.add(anchor)
+    }
+
     internal suspend fun update() {
+        while (!_anchorsToDetachQueue.isEmpty()) {
+            _anchorsToDetachQueue.poll()?.runtimeAnchor?.detach()
+        }
+
         for (updatable in updatables) {
             updatable.update()
         }

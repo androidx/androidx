@@ -18,7 +18,12 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -189,24 +194,39 @@ public fun TimePicker(
             val focusedPicker = FocusableElements(selectedIndex)
             FontScaleIndependent {
                 val styles = getTimePickerStyles(timePickerType, thirdPicker)
-                Text(
-                    text =
-                        when {
-                            focusedPicker == FocusableElements.Hours -> hourString
-                            focusedPicker == FocusableElements.Minutes -> minuteString
-                            focusedPicker == FocusableElements.SecondsOrPeriod &&
-                                thirdPicker != null -> thirdPicker.label
-                            else -> ""
-                        },
-                    color = colors.pickerLabelColor,
-                    style = styles.labelTextStyle,
-                    maxLines = 1,
-                    modifier =
-                        Modifier.height(24.dp)
-                            .fillMaxWidth(0.76f)
-                            .align(Alignment.CenterHorizontally),
-                    textAlign = TextAlign.Center
-                )
+                val heading =
+                    when {
+                        focusedPicker == FocusableElements.Hours -> hourString
+                        focusedPicker == FocusableElements.Minutes -> minuteString
+                        focusedPicker == FocusableElements.SecondsOrPeriod && thirdPicker != null ->
+                            thirdPicker.label
+                        else -> ""
+                    }
+                val headingAnimationSpec: FiniteAnimationSpec<Float> =
+                    MaterialTheme.motionScheme.defaultEffectsSpec()
+                AnimatedContent(
+                    targetState = heading,
+                    transitionSpec = {
+                        ContentTransform(
+                            targetContentEnter =
+                                fadeIn(animationSpec = headingAnimationSpec.delayMillis(200)),
+                            initialContentExit = fadeOut(animationSpec = headingAnimationSpec),
+                            sizeTransform = null
+                        )
+                    }
+                ) { targetText ->
+                    Text(
+                        text = targetText,
+                        color = colors.pickerLabelColor,
+                        style = styles.labelTextStyle,
+                        maxLines = 1,
+                        modifier =
+                            Modifier.height(24.dp)
+                                .fillMaxWidth(0.76f)
+                                .align(Alignment.CenterHorizontally),
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Spacer(Modifier.height(styles.sectionVerticalPadding))
                 Row(
                     modifier = Modifier.fillMaxWidth().weight(1f),

@@ -16,7 +16,6 @@
 package androidx.sqlite.db
 
 /** An interface to map the behavior of [android.database.sqlite.SQLiteStatement]. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public interface SupportSQLiteStatement : SupportSQLiteProgram {
     /**
      * Execute this SQL statement, if it is not a SELECT / INSERT / DELETE / UPDATE, for example

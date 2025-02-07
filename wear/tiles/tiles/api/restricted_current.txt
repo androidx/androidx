@@ -1045,7 +1045,7 @@ package androidx.wear.tiles {
     method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor);
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
-    method @MainThread protected void onRecentInteractionEvents(java.util.List<androidx.wear.tiles.EventBuilders.TileInteractionEvent!>);
+    method @MainThread protected com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> onRecentInteractionEventsAsync(java.util.List<androidx.wear.tiles.EventBuilders.TileInteractionEvent!>);
     method @Deprecated @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method @MainThread protected void onTileAddEvent(androidx.wear.tiles.EventBuilders.TileAddEvent);
     method @Deprecated @MainThread protected void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent);

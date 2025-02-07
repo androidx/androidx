@@ -46,7 +46,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.FlakyTest;
@@ -54,6 +53,7 @@ import androidx.test.filters.LargeTest;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -94,9 +94,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(orientation, false, 1, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(10, orientation) {
 
-                    @NonNull
                     @Override
-                    public TestViewHolder onCreateViewHolder(
+                    public @NonNull TestViewHolder onCreateViewHolder(
                             @NonNull ViewGroup parent, int viewType) {
                         View view = new View(parent.getContext());
                         StaggeredGridLayoutManager.LayoutParams layoutParams =
@@ -342,9 +341,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(1000, VERTICAL) {
 
-                    @NonNull
                     @Override
-                    public TestViewHolder onCreateViewHolder(
+                    public @NonNull TestViewHolder onCreateViewHolder(
                             @NonNull ViewGroup parent, int viewType) {
                         FrameLayout fl = new FrameLayout(parent.getContext());
                         EditText editText = new EditText(parent.getContext());

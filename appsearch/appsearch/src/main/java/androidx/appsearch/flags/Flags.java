@@ -109,10 +109,12 @@ public final class Flags {
             FLAG_PREFIX + "enable_enterprise_global_search_session";
 
     /**
-     * Enables {@link android.app.appsearch.functions.AppFunctionManager} and app functions related
-     * stuff.
+     * Enable {@link android.appsearch.app.AppSearchSchema#getDescription} and
+     * {@link android.appsearch.app.AppSearchSchema.PropertyConfig#getDescription} and the related
+     * builders.
      */
-    public static final String FLAG_ENABLE_APP_FUNCTIONS = FLAG_PREFIX + "enable_app_functions";
+    public static final String FLAG_ENABLE_SCHEMA_DESCRIPTION =
+            FLAG_PREFIX + "enable_schema_description";
 
     /**
      * Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_DENIED} and

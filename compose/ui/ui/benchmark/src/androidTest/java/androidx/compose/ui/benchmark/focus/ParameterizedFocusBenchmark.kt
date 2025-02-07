@@ -356,9 +356,9 @@ class ParameterizedFocusBenchmark(val count: Int) {
 
             runOnUiThread { doFramesUntilNoChangesPending() }
             measureRepeatedOnUiThread {
-                runWithTimingDisabled { getTestCase().toggleState(true) }
+                runWithMeasurementDisabled { getTestCase().toggleState(true) }
                 recomposeWithAssertions()
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     getTestCase().toggleState(false)
                     recomposeWithAssertions()
                 }

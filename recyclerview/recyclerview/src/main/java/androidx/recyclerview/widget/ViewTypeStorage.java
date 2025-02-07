@@ -19,7 +19,7 @@ package androidx.recyclerview.widget;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,9 @@ import java.util.List;
  * Used by {@link ConcatAdapter} to isolate view types between nested adapters, if necessary.
  */
 interface ViewTypeStorage {
-    @NonNull
-    NestedAdapterWrapper getWrapperForGlobalType(int globalViewType);
+    @NonNull NestedAdapterWrapper getWrapperForGlobalType(int globalViewType);
 
-    @NonNull
-    ViewTypeLookup createViewTypeWrapper(
+    @NonNull ViewTypeLookup createViewTypeWrapper(
             @NonNull NestedAdapterWrapper wrapper
     );
 
@@ -52,9 +50,8 @@ interface ViewTypeStorage {
         // they might be removed.
         SparseArray<List<NestedAdapterWrapper>> mGlobalTypeToWrapper = new SparseArray<>();
 
-        @NonNull
         @Override
-        public NestedAdapterWrapper getWrapperForGlobalType(int globalViewType) {
+        public @NonNull NestedAdapterWrapper getWrapperForGlobalType(int globalViewType) {
             List<NestedAdapterWrapper> nestedAdapterWrappers = mGlobalTypeToWrapper.get(
                     globalViewType);
             if (nestedAdapterWrappers == null || nestedAdapterWrappers.isEmpty()) {
@@ -65,9 +62,8 @@ interface ViewTypeStorage {
             return nestedAdapterWrappers.get(0);
         }
 
-        @NonNull
         @Override
-        public ViewTypeLookup createViewTypeWrapper(
+        public @NonNull ViewTypeLookup createViewTypeWrapper(
                 @NonNull NestedAdapterWrapper wrapper) {
             return new WrapperViewTypeLookup(wrapper);
         }
@@ -128,9 +124,8 @@ interface ViewTypeStorage {
             return nextId;
         }
 
-        @NonNull
         @Override
-        public NestedAdapterWrapper getWrapperForGlobalType(int globalViewType) {
+        public @NonNull NestedAdapterWrapper getWrapperForGlobalType(int globalViewType) {
             NestedAdapterWrapper wrapper = mGlobalTypeToWrapper.get(
                     globalViewType);
             if (wrapper == null) {
@@ -141,8 +136,7 @@ interface ViewTypeStorage {
         }
 
         @Override
-        @NonNull
-        public ViewTypeLookup createViewTypeWrapper(
+        public @NonNull ViewTypeLookup createViewTypeWrapper(
                 @NonNull NestedAdapterWrapper wrapper) {
             return new WrapperViewTypeLookup(wrapper);
         }

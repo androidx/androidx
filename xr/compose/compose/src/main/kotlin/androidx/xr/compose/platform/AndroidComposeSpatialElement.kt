@@ -20,6 +20,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.compose.subspace.node.SubspaceLayoutNode
 import androidx.xr.compose.subspace.node.SubspaceOwner
+import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.PanelEntity
 
 /**
@@ -50,6 +52,17 @@ internal class AndroidComposeSpatialElement :
     private var onSubspaceAvailable: ((LifecycleOwner) -> Unit)? = null
 
     private var windowLeashLayoutNode: SubspaceLayoutNode? = null
+
+    /**
+     * Whether a layout request has been made. If a layout request is made while a layout is in
+     * progress, the new request will be handled after the current layout is complete.
+     */
+    private var isLayoutRequested = false
+
+    /**
+     * Tracks whether a layout is currently in progress to avoid recursively triggering a layout.
+     */
+    private var isLayoutInProgress = false
 
     init {
         root.attach(this)
@@ -105,11 +118,43 @@ internal class AndroidComposeSpatialElement :
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        // TODO: "Refresh the layout hierarchy."
+        // TODO: "Refresh the layout hierarchy." <- Can we just call refreshLayout() here?
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         root.detach()
+    }
+
+    // TODO: Consider adding stricter control over how this is called here, or at call sites, if it
+    // becomes too easy to generate superfluous layouts.
+    override fun requestRelayout() {
+        refreshLayout()
+    }
+
+    // TODO: Add unit tests.
+    private fun refreshLayout() {
+        if (isLayoutInProgress) {
+            isLayoutRequested = true
+            return
+        }
+
+        isLayoutRequested = false
+        isLayoutInProgress = true
+
+        val measureResults =
+            root.measurableLayout.measure(
+                VolumeConstraints(0, VolumeConstraints.INFINITY, 0, VolumeConstraints.INFINITY)
+            )
+
+        (measureResults as SubspaceLayoutNode.MeasurableLayout).placeAt(Pose.Identity)
+
+        Logger.log("AndroidComposeSpatialElement") { root.debugTreeToString() }
+        Logger.log("AndroidComposeSpatialElement") { root.debugEntityTreeToString() }
+
+        isLayoutInProgress = false
+        if (isLayoutRequested) {
+            refreshLayout()
+        }
     }
 }

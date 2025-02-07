@@ -28,26 +28,39 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertShape
+import androidx.compose.testutils.toList
+import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.size
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -73,21 +86,25 @@ class ScrollingContainerTest {
     @Test
     fun testInspectorValue() {
         rule.setContent {
-            val modifier =
-                Modifier.scrollingContainer(
-                    rememberScrollState(),
-                    orientation = Horizontal,
-                    enabled = true,
-                    reverseScrolling = false,
-                    flingBehavior = null,
-                    interactionSource = null,
-                    useLocalOverscrollFactory = false,
-                    overscrollEffect = null,
-                    bringIntoViewSpec = null
-                ) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("scrollingContainer")
-            assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+            val modifiers =
+                (Modifier.scrollingContainer(
+                        rememberScrollState(),
+                        orientation = Horizontal,
+                        enabled = true,
+                        reverseScrolling = false,
+                        flingBehavior = null,
+                        interactionSource = null,
+                        useLocalOverscrollFactory = false,
+                        overscrollEffect = null,
+                        bringIntoViewSpec = null
+                    ) as CombinedModifier)
+                    .toList()
+            val clip = modifiers[0] as InspectableValue
+            assertThat(clip.nameFallback).isEqualTo("graphicsLayer")
+            val scrollingContainer = modifiers[1] as InspectableValue
+            assertThat(scrollingContainer.nameFallback).isEqualTo("scrollingContainer")
+            assertThat(scrollingContainer.valueOverride).isNull()
+            assertThat(scrollingContainer.inspectableElements.map { it.name }.asIterable())
                 .containsExactly(
                     "state",
                     "orientation",
@@ -638,6 +655,72 @@ class ScrollingContainerTest {
             assertThat(creationCalls).isEqualTo(1)
             assertThat(overscrollEffect1.node.node.isAttached).isTrue()
             assertThat(overscrollEffect2.node.node.isAttached).isFalse()
+        }
+    }
+
+    /**
+     * Test for b/392060494
+     *
+     * Currently LayoutModifierNodes cannot delegate measurement to other LayoutModifierNodes. So if
+     * scrollingContainer is a LayoutModifierNode, it prevents overscroll implementations from using
+     * LayoutModifierNode internally. This test ensures that an overscroll implementation using
+     * LayoutModifierNode works inside scrollingContainer.
+     */
+    @Test
+    fun doesNotIgnoreOverscrollEffectNodeLayout() {
+        val expectedOffset = IntOffset(20, 20)
+        val overscrollEffect =
+            object : OverscrollEffect {
+                override val isInProgress = false
+
+                override suspend fun applyToFling(
+                    velocity: Velocity,
+                    performFling: suspend (Velocity) -> Velocity
+                ) {}
+
+                override fun applyToScroll(
+                    delta: Offset,
+                    source: NestedScrollSource,
+                    performScroll: (Offset) -> Offset
+                ): Offset = performScroll(delta)
+
+                override val node: DelegatableNode =
+                    object : Modifier.Node(), LayoutModifierNode {
+                        override fun MeasureScope.measure(
+                            measurable: Measurable,
+                            constraints: Constraints
+                        ): MeasureResult {
+                            val placeable = measurable.measure(constraints)
+                            return layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(expectedOffset)
+                            }
+                        }
+                    }
+            }
+
+        rule.setContent {
+            Box(
+                Modifier.scrollingContainer(
+                    rememberScrollState(),
+                    orientation = Horizontal,
+                    enabled = true,
+                    reverseScrolling = false,
+                    flingBehavior = null,
+                    interactionSource = null,
+                    useLocalOverscrollFactory = false,
+                    overscrollEffect = overscrollEffect,
+                    bringIntoViewSpec = null
+                )
+            ) {
+                Box(Modifier.size(20.dp).background(Color.Red).testTag("content"))
+            }
+        }
+
+        rule.runOnIdle { assertThat(overscrollEffect.node.node.isAttached).isTrue() }
+        val bounds = rule.onNodeWithTag("content").getUnclippedBoundsInRoot()
+        with(rule.density) {
+            assertThat(bounds.left.toPx()).isEqualTo(expectedOffset.x)
+            assertThat(bounds.top.toPx()).isEqualTo(expectedOffset.y)
         }
     }
 

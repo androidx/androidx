@@ -1367,7 +1367,7 @@ internal class ExposedDropdownMenuPositionProvider(
     }
 }
 
-private data class ExposedDropdownMenuAnchorElement(
+private class ExposedDropdownMenuAnchorElement(
     val updateStateOnAttach: () -> Unit,
 ) : ModifierNodeElement<ExposedDropdownMenuAnchorNode>() {
     override fun create() = ExposedDropdownMenuAnchorNode(updateStateOnAttach)
@@ -1379,6 +1379,17 @@ private data class ExposedDropdownMenuAnchorElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "exposedDropdownMenuAnchorType"
         properties["updateStateOnAttach"] = updateStateOnAttach
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ExposedDropdownMenuAnchorElement) return false
+
+        return updateStateOnAttach === other.updateStateOnAttach
+    }
+
+    override fun hashCode(): Int {
+        return updateStateOnAttach.hashCode()
     }
 }
 

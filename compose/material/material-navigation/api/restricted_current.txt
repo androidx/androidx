@@ -10,7 +10,7 @@ package androidx.compose.material.navigation {
     ctor public BottomSheetNavigator(androidx.compose.material.ModalBottomSheetState sheetState);
     method public androidx.compose.material.navigation.BottomSheetNavigator.Destination createDestination();
     method public androidx.compose.material.navigation.BottomSheetNavigatorSheetState getNavigatorSheetState();
-    property public final androidx.compose.material.navigation.BottomSheetNavigatorSheetState navigatorSheetState;
+    property public androidx.compose.material.navigation.BottomSheetNavigatorSheetState navigatorSheetState;
   }
 
   @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class BottomSheetNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
@@ -32,9 +32,9 @@ package androidx.compose.material.navigation {
     method public androidx.compose.material.ModalBottomSheetValue getCurrentValue();
     method public androidx.compose.material.ModalBottomSheetValue getTargetValue();
     method public boolean isVisible();
-    property public final androidx.compose.material.ModalBottomSheetValue currentValue;
-    property public final boolean isVisible;
-    property public final androidx.compose.material.ModalBottomSheetValue targetValue;
+    property public androidx.compose.material.ModalBottomSheetValue currentValue;
+    property public boolean isVisible;
+    property public androidx.compose.material.ModalBottomSheetValue targetValue;
   }
 
   public final class NavGraphBuilderKt {

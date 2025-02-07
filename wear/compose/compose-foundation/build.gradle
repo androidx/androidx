@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -57,7 +57,7 @@ dependencies {
     testImplementation(project(":compose:ui:ui-test-junit4"))
     testImplementation(project(":compose:test-utils"))
 
-    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation("androidx.compose.foundation:foundation:1.7.4")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
@@ -86,7 +86,7 @@ android {
 
 androidx {
     name = "Android Wear Compose Foundation"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "WearOS Compose Foundation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +

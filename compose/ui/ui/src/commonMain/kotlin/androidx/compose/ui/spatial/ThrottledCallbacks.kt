@@ -20,13 +20,13 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import kotlin.math.min
-import kotlinx.coroutines.DisposableHandle
 
 internal class ThrottledCallbacks {
 
@@ -41,7 +41,7 @@ internal class ThrottledCallbacks {
         val debounceMillis: Long,
         val node: DelegatableNode,
         val callback: (RelativeLayoutBounds) -> Unit,
-    ) : DisposableHandle {
+    ) : RegistrationHandle {
 
         var next: Entry? = null
 
@@ -50,7 +50,7 @@ internal class ThrottledCallbacks {
         var lastInvokeMillis: Long = -throttleMillis
         var lastUninvokedFireMillis: Long = -1
 
-        override fun dispose() {
+        override fun unregister() {
             val result = rectChangedMap.multiRemove(id, this)
             if (!result) removeFromGlobalEntries(this)
         }
@@ -123,7 +123,7 @@ internal class ThrottledCallbacks {
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit,
-    ): DisposableHandle {
+    ): RegistrationHandle {
         // If zero is set for debounce, we use throttle in its place. This guarantees that
         // consumers will get the value where the node "settled".
         val debounceToUse = if (debounceMillis == 0L) throttleMillis else debounceMillis
@@ -147,7 +147,7 @@ internal class ThrottledCallbacks {
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit,
-    ): DisposableHandle {
+    ): RegistrationHandle {
         // If zero is set for debounce, we use throttle in its place. This guarantees that
         // consumers will get the value where the node "settled".
         val debounceToUse = if (debounceMillis == 0L) throttleMillis else debounceMillis

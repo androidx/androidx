@@ -18,6 +18,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"पैनल को बड़ा करने के लिए, खींचकर छोड़ने वाला हैंडल"</string>
+    <!-- no translation found for m3_adaptive_default_pane_expansion_drag_handle_state_description (3470811934112444098) -->
+    <skip />
     <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description" msgid="9031621431415014327">"पैनल स्प्लिट को %s में बदलें"</string>
     <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"%d प्रतिशत"</string>
+    <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description" msgid="5056616348537665604">"शुरुआत से %d डीपी"</string>
+    <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description" msgid="6412636251656811002">"आखिर में %d डीपी"</string>
 </resources>

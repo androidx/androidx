@@ -19,10 +19,15 @@ package androidx.xr.arcore
 import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.CoreState
+import androidx.xr.runtime.internal.HandJointType
 import androidx.xr.runtime.internal.Trackable as RuntimeTrackable
 import androidx.xr.runtime.internal.TrackingState
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.FakeRuntime
 import androidx.xr.runtime.testing.FakeRuntimeFactory
+import androidx.xr.runtime.testing.FakeRuntimeHand
 import androidx.xr.runtime.testing.FakeRuntimePlane
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -124,6 +129,41 @@ class PerceptionStateExtenderTest {
         // assert
         assertThat(coreState2.perceptionState!!.trackables.last().state.value.trackingState)
             .isEqualTo(TrackingState.Stopped)
+    }
+
+    @Test
+    fun extend_withTwoStates_handStatesUpdated(): Unit = runBlocking {
+        // arrange
+        underTest.initialize(fakeRuntime)
+        val coreState = CoreState(timeSource.markNow())
+        underTest.extend(coreState)
+        check(coreState.perceptionState!!.leftHand != null)
+        check(coreState.perceptionState!!.rightHand != null)
+        check(coreState.perceptionState!!.leftHand!!.state.value.isActive == false)
+        check(coreState.perceptionState!!.leftHand!!.state.value.handJoints.isEmpty())
+        check(coreState.perceptionState!!.rightHand!!.state.value.isActive == false)
+        check(coreState.perceptionState!!.rightHand!!.state.value.handJoints.isEmpty())
+
+        // act
+        timeSource += 10.milliseconds
+        val leftRuntimeHand = fakeRuntime.perceptionManager.leftHand!! as FakeRuntimeHand
+        val rightRuntimeHand = fakeRuntime.perceptionManager.rightHand!! as FakeRuntimeHand
+        val leftHandPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
+        val rightHandPose = Pose(Vector3(3.0f, 2.0f, 1.0f), Quaternion(4.0f, 3.0f, 2.0f, 1.0f))
+        leftRuntimeHand.isActive = true
+        leftRuntimeHand.handJoints = mapOf(HandJointType.PALM to leftHandPose)
+        rightRuntimeHand.isActive = true
+        rightRuntimeHand.handJoints = mapOf(HandJointType.PALM to rightHandPose)
+        val coreState2 = CoreState(timeSource.markNow())
+        underTest.extend(coreState2)
+
+        // assert
+        assertThat(coreState2.perceptionState!!.leftHand!!.state.value.isActive).isEqualTo(true)
+        assertThat(coreState2.perceptionState!!.leftHand!!.state.value.handJoints)
+            .containsEntry(HandJointType.PALM, leftHandPose)
+        assertThat(coreState2.perceptionState!!.rightHand!!.state.value.isActive).isEqualTo(true)
+        assertThat(coreState2.perceptionState!!.rightHand!!.state.value.handJoints)
+            .containsEntry(HandJointType.PALM, rightHandPose)
     }
 
     @Test

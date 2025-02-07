@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ dependencies {
 
 androidx {
     name = "Compose Material 3 Window Size Class Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2022"
     description = "Contains the sample code for the Material 3 Window Size Class APIs"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

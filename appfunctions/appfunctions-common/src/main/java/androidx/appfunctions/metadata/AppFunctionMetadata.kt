@@ -23,7 +23,6 @@ import java.util.Objects
 internal const val APP_FUNCTION_NAMESPACE = "appfunctions"
 internal const val APP_FUNCTION_ID_EMPTY = "unused"
 
-// TODO: Make it public once API surface is finalize
 /**
  * Represents an AppFunction's metadata.
  *
@@ -36,13 +35,88 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
  *   properties describe the input and output of a function. The caller can examine these fields to
  *   obtain the input/output information, and call the function accordingly.
  */
+public class AppFunctionMetadata
+@JvmOverloads
+constructor(
+    /**
+     * The ID used in an [androidx.appfunctions.ExecuteAppFunctionRequest] to refer to this
+     * AppFunction.
+     */
+    public val id: String,
+
+    /**
+     * Indicates whether the function is enabled by default.
+     *
+     * This represents the initial configuration and might not represent the current enabled state,
+     * as it could be modified at runtime.
+     */
+    public val isEnabledByDefault: Boolean,
+    /**
+     * The predefined schema of the AppFunction. If null, it indicates this function is not
+     * implement a particular predefined schema.
+     */
+    public val schema: AppFunctionSchemaMetadata?,
+    /** The parameters of the AppFunction. */
+    public val parameters: List<AppFunctionParameterMetadata>,
+    /** The response of the AppFunction. */
+    public val response: AppFunctionResponseMetadata,
+    /** Reusable components that could be shared within the function specification. */
+    public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AppFunctionMetadata
+
+        if (id != other.id) return false
+        if (isEnabledByDefault != other.isEnabledByDefault) return false
+        if (schema != other.schema) return false
+        if (parameters != other.parameters) return false
+        if (response != other.response) return false
+        if (components != other.components) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int =
+        Objects.hash(id, isEnabledByDefault, schema, parameters, response, components)
+
+    override fun toString(): String {
+        return "AppFunctionMetadata(isEnabledByDefault=$isEnabledByDefault, schema=$schema, parameters=$parameters, response=$response, components=$components)"
+    }
+
+    /**
+     * Converts the [AppFunctionMetadata] to an [AppFunctionMetadataDocument].
+     *
+     * This method is used to persist the [AppFunctionMetadata] in a database.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
+        return AppFunctionMetadataDocument(
+            id = id,
+            isEnabledByDefault = isEnabledByDefault,
+            schema =
+                if (schema != null) {
+                    val functionSchemaMetadata = checkNotNull(schema)
+                    functionSchemaMetadata.toAppFunctionSchemaMetadataDocument()
+                } else {
+                    null
+                },
+            parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
+            response = response.toAppFunctionResponseMetadataDocument(),
+            components = components.toAppFunctionComponentsMetadataDocument()
+        )
+    }
+}
+
+/** Represents the persistent storage format of [AppFunctionMetadata]. */
 @Document
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppFunctionMetadata
-internal constructor(
-    @Document.Namespace public val namespace: String,
+public data class AppFunctionMetadataDocument(
+    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
     /** The id of the AppFunction. */
-    @Document.Id public val id: String,
+    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
     /**
      * Indicates whether the function is enabled by default.
      *
@@ -50,97 +124,12 @@ internal constructor(
      * as it could be modified at runtime.
      */
     @Document.BooleanProperty public val isEnabledByDefault: Boolean,
-    /**
-     * Restricts the function to trusted callers only.
-     *
-     * Trusted callers are the callers with [android.permission.EXECUTE_APPFUNCTIONS_TRUSTED]
-     * permission. Only the applications with privacy guarantees from the system can hold the
-     * permission.
-     *
-     * @see android.permission.EXECUTE_APP_FUNCTIONS_TRUSTED
-     */
-    @Document.BooleanProperty public val isRestrictToTrustedCaller: Boolean,
-    /** The display name of the AppFunction. */
-    @Document.LongProperty public val displayNameRes: Long?,
     /** The predefined schema of the AppFunction. */
-    @Document.DocumentProperty public val schema: AppFunctionSchemaMetadata?,
+    @Document.DocumentProperty public val schema: AppFunctionSchemaMetadataDocument?,
     /** The parameters of the AppFunction. */
-    @Document.DocumentProperty public val parameters: List<AppFunctionParameterMetadata>,
+    @Document.DocumentProperty public val parameters: List<AppFunctionParameterMetadataDocument>,
     /** The response of the AppFunction. */
-    @Document.DocumentProperty public val response: AppFunctionResponseMetadata,
+    @Document.DocumentProperty public val response: AppFunctionResponseMetadataDocument,
     /** The reusable components for the AppFunction. */
-    @Document.DocumentProperty public val components: AppFunctionComponentsMetadata,
-) {
-    /**
-     * @param id The id of the AppFunction.
-     * @param isEnabledByDefault Indicates whether the function is enabled by default.
-     * @param isRestrictToTrustedCaller Indicates whether the function is restricted to trusted
-     *   caller.
-     * @param displayNameRes The string resource for function's display name.
-     * @param schema The schema of the AppFunction.
-     * @param parameters The parameters of the AppFunction.
-     * @param response The response of the AppFunction.
-     * @param components The reusable components for the AppFunction.
-     */
-    public constructor(
-        id: String,
-        isEnabledByDefault: Boolean,
-        isRestrictToTrustedCaller: Boolean,
-        displayNameRes: Long?,
-        schema: AppFunctionSchemaMetadata?,
-        parameters: List<AppFunctionParameterMetadata>,
-        response: AppFunctionResponseMetadata,
-        components: AppFunctionComponentsMetadata
-    ) : this(
-        APP_FUNCTION_NAMESPACE,
-        id,
-        isEnabledByDefault,
-        isRestrictToTrustedCaller,
-        displayNameRes,
-        schema,
-        parameters,
-        response,
-        components
-    )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is AppFunctionMetadata) return false
-
-        return this.namespace == other.namespace &&
-            this.id == other.id &&
-            this.isEnabledByDefault == other.isEnabledByDefault &&
-            this.isRestrictToTrustedCaller == other.isRestrictToTrustedCaller &&
-            this.displayNameRes == other.displayNameRes &&
-            this.schema == other.schema &&
-            this.parameters == other.parameters &&
-            this.response == other.response &&
-            this.components == other.components
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(
-            namespace,
-            id,
-            isEnabledByDefault,
-            isRestrictToTrustedCaller,
-            displayNameRes,
-            schema,
-            parameters,
-            response,
-            components,
-        )
-    }
-
-    override fun toString(): String {
-        return "AppFunctionMetadata(namespace=$namespace, " +
-            "id=$id, " +
-            "isEnabledByDefault=$isEnabledByDefault, " +
-            "isRestrictToTrustedCaller=$isRestrictToTrustedCaller, " +
-            "displayNameRes=$displayNameRes, " +
-            "schema=$schema, " +
-            "parameters=$parameters, " +
-            "response=$response, " +
-            "components=$components)"
-    }
-}
+    @Document.DocumentProperty public val components: AppFunctionComponentsMetadataDocument,
+)

@@ -110,7 +110,23 @@ internal abstract class KspType(
         }
         val resolvedTypeArguments: Map<String, KSTypeArgument> =
             ksType.declaration.typeParameters
-                .mapIndexed { i, parameter -> parameter.name.asString() to ksType.arguments[i] }
+                .mapIndexed { i, parameter ->
+                    val argument: KSTypeArgument =
+                        if (ksType.arguments.isNotEmpty()) {
+                            ksType.arguments[i]
+                        } else {
+                            // In KSP2, a raw java KSType doesn't have any arguments, but we need
+                            // them to replace type parameters in super types (we are forced to
+                            // create super types from the declaration because KSType itself doesn't
+                            // have super types). Here, we mimic KSP1 behavior by taking the first
+                            // bound type as the type argument (e.g. 'Bar' in 'T extends Bar & Baz')
+                            env.resolver.getTypeArgument(
+                                parameter.bounds.first(),
+                                Variance.INVARIANT
+                            )
+                        }
+                    parameter.name.asString() to argument
+                }
                 .toMap()
         val superTypes =
             (ksType.declaration as? KSClassDeclaration)?.superTypes?.toList()?.map {

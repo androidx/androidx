@@ -144,7 +144,6 @@ fun rememberNavigationSuiteScaffoldState(
  * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
  * @param navigationSuiteItems the navigation items to be displayed
  * @param modifier the [Modifier] to be applied to the navigation suite scaffold
- * @param state the [NavigationSuiteScaffoldState] of this navigation suite scaffold
  * @param layoutType the current [NavigationSuiteType]. Defaults to
  *   [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
  * @param navigationSuiteColors [NavigationSuiteColors] that will be used to determine the container
@@ -154,18 +153,19 @@ fun rememberNavigationSuiteScaffoldState(
  *   including the passed [content] composable. Use [Color.Transparent] to have no color
  * @param contentColor the preferred color to be used for typography and iconography within the
  *   passed in [content] lambda inside the navigation suite scaffold.
+ * @param state the [NavigationSuiteScaffoldState] of this navigation suite scaffold
  * @param content the content of your screen
  */
 @Composable
 fun NavigationSuiteScaffold(
     navigationSuiteItems: NavigationSuiteScope.() -> Unit,
     modifier: Modifier = Modifier,
-    state: NavigationSuiteScaffoldState = rememberNavigationSuiteScaffoldState(),
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
     navigationSuiteColors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
     containerColor: Color = NavigationSuiteScaffoldDefaults.containerColor,
     contentColor: Color = NavigationSuiteScaffoldDefaults.contentColor,
+    state: NavigationSuiteScaffoldState = rememberNavigationSuiteScaffoldState(),
     content: @Composable () -> Unit = {},
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
@@ -270,17 +270,17 @@ fun NavigationSuiteScaffold(
  *
  * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomNavigationRail
  * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
- * @param state the [NavigationSuiteScaffoldState] of this navigation suite scaffold layout
  * @param layoutType the current [NavigationSuiteType]. Defaults to
  *   [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
+ * @param state the [NavigationSuiteScaffoldState] of this navigation suite scaffold layout
  * @param content the content of your screen
  */
 @Composable
 fun NavigationSuiteScaffoldLayout(
     navigationSuite: @Composable () -> Unit,
-    state: NavigationSuiteScaffoldState = rememberNavigationSuiteScaffoldState(),
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
+    state: NavigationSuiteScaffoldState = rememberNavigationSuiteScaffoldState(),
     content: @Composable () -> Unit = {}
 ) {
     val animationProgress by

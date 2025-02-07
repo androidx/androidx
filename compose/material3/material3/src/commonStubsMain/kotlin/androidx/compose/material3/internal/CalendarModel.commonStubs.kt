@@ -31,6 +31,3 @@ internal actual fun formatWithSkeleton(
     locale: CalendarLocale,
     cache: MutableMap<String, Any>
 ): String = implementedInJetBrainsFork()
-
-internal actual fun datePatternAsInputFormat(localeFormat: String): DateInputFormat =
-    implementedInJetBrainsFork()

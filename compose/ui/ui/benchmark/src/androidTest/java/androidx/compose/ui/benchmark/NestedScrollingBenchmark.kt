@@ -53,7 +53,7 @@ class NestedScrollingBenchmark {
 
             benchmarkRule.measureRepeatedOnUiThread {
                 getTestCase().toggleState()
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     assertNoPendingChanges()
                     getTestCase().assertPostToggle()
                 }

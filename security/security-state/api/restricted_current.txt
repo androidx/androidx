@@ -3,16 +3,17 @@ package androidx.security.state {
 
   public class SecurityPatchState {
     ctor public SecurityPatchState(android.content.Context context);
-    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModules);
-    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModules, optional androidx.security.state.SecurityStateManager? customSecurityStateManager);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat, optional String? vulnerabilityReportJsonString);
     method public final boolean areCvesPatched(java.util.List<java.lang.String> cveList);
-    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(String component, String securityPatchLevel);
+    method public static final androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(String component, String securityPatchLevel);
     method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(String component);
     method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.Set<java.lang.String>> getPatchedCves(String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
     method public java.util.List<androidx.security.state.SecurityPatchState.SecurityPatchLevel> getPublishedSecurityPatchLevel(String component);
-    method @RequiresApi(26) public final android.net.Uri getVulnerabilityReportUrl(android.net.Uri serverUrl);
+    method @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
     method public final boolean isDeviceFullyUpdated();
-    method public final void loadVulnerabilityReport(String jsonString);
+    method @WorkerThread public final void loadVulnerabilityReport(String jsonString);
     field public static final String COMPONENT_KERNEL = "KERNEL";
     field public static final String COMPONENT_SYSTEM = "SYSTEM";
     field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";
@@ -22,11 +23,13 @@ package androidx.security.state {
   }
 
   public static final class SecurityPatchState.Companion {
-    property public static final String COMPONENT_KERNEL;
-    property public static final String COMPONENT_SYSTEM;
-    property public static final String COMPONENT_SYSTEM_MODULES;
-    property public final java.util.List<? extends java.lang.String> DEFAULT_SYSTEM_MODULES;
-    property public static final String DEFAULT_VULNERABILITY_REPORTS_URL;
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(String component, String securityPatchLevel);
+    method @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    property public static String COMPONENT_KERNEL;
+    property public static String COMPONENT_SYSTEM;
+    property public static String COMPONENT_SYSTEM_MODULES;
+    property public java.util.List<? extends java.lang.String> DEFAULT_SYSTEM_MODULES;
+    property public static String DEFAULT_VULNERABILITY_REPORTS_URL;
   }
 
   public static final class SecurityPatchState.DateBasedSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
@@ -75,19 +78,19 @@ package androidx.security.state {
     method public androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel fromString(String value);
   }
 
-  public class SecurityStateManager {
-    ctor public SecurityStateManager(android.content.Context context);
-    method public android.os.Bundle getGlobalSecurityState(optional String? moduleMetadataProvider);
-    field public static final androidx.security.state.SecurityStateManager.Companion Companion;
+  public class SecurityStateManagerCompat {
+    ctor public SecurityStateManagerCompat(android.content.Context context);
+    method public android.os.Bundle getGlobalSecurityState(optional String moduleMetadataProviderPackageName);
+    field public static final androidx.security.state.SecurityStateManagerCompat.Companion Companion;
     field public static final String KEY_KERNEL_VERSION = "kernel_version";
     field public static final String KEY_SYSTEM_SPL = "system_spl";
     field public static final String KEY_VENDOR_SPL = "vendor_spl";
   }
 
-  public static final class SecurityStateManager.Companion {
-    property public static final String KEY_KERNEL_VERSION;
-    property public static final String KEY_SYSTEM_SPL;
-    property public static final String KEY_VENDOR_SPL;
+  public static final class SecurityStateManagerCompat.Companion {
+    property public static String KEY_KERNEL_VERSION;
+    property public static String KEY_SYSTEM_SPL;
+    property public static String KEY_VENDOR_SPL;
   }
 
 }

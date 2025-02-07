@@ -17,12 +17,15 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
 
 class BuilderTest : BaseBuilderTest() {
 
@@ -52,5 +55,40 @@ class BuilderTest : BaseBuilderTest() {
 
     private fun deleteDatabaseFile() {
         instrumentation.targetContext.deleteDatabase(file.name)
+    }
+
+    @Test
+    fun simpleDatabaseName() = runTest {
+        val name = "simple.db"
+        instrumentation.targetContext.deleteDatabase(name)
+
+        val db =
+            Room.databaseBuilder<SampleDatabase>(instrumentation.targetContext, name)
+                .setDriver(BundledSQLiteDriver())
+                .build()
+
+        db.dao().insertItem(1)
+        db.close()
+
+        val dbFile = instrumentation.targetContext.getDatabasePath(name)
+        assertThat(dbFile.exists())
+    }
+
+    @Test
+    fun badDatabaseName() = runTest {
+        val db =
+            Room.databaseBuilder<SampleDatabase>(
+                    context = instrumentation.targetContext,
+                    name = "/invalid/path/to/database",
+                )
+                .setDriver(BundledSQLiteDriver())
+                .build()
+
+        assertThrows<IllegalStateException> { db.dao().insertItem(1) }
+            .hasMessageThat()
+            .isEqualTo(
+                "Unable to open database '/invalid/path/to/database'. Was a proper path / name " +
+                    "used in Room's database builder?"
+            )
     }
 }

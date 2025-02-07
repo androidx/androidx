@@ -41,7 +41,7 @@ class PerfettoHelperTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.stopAllPerfettoProcesses()
+        PerfettoHelper.cleanupPerfettoState()
     }
 
     private fun validateStopAllPerfettoProcesses(unbundled: Boolean) {
@@ -65,7 +65,7 @@ class PerfettoHelperTest {
         assertTrue(capture.isRunning())
 
         // kill all...
-        PerfettoHelper.stopAllPerfettoProcesses()
+        PerfettoHelper.cleanupPerfettoState()
 
         // should be none again
         assertEquals(expected = listOf(), actual = getPerfettoPids())

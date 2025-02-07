@@ -88,7 +88,7 @@ class RectListBenchmark {
     fun b02_removeExampleData() {
         val testData = exampleLayoutRects
         rule.measureRepeated {
-            val grid = runWithTimingDisabled {
+            val grid = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
@@ -104,7 +104,7 @@ class RectListBenchmark {
         val testData = exampleLayoutRects
         val r = Random(1234)
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
@@ -129,7 +129,7 @@ class RectListBenchmark {
         val scrollableItems = scrollableItems
         val r = Random(1234)
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
@@ -146,13 +146,13 @@ class RectListBenchmark {
     fun b05_findOccludingRectsExampleItems() {
         val queries = occludingRectQueries
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
             }
             for (i in queries.indices) {
-                val list = runWithTimingDisabled { mutableIntListOf() }
+                val list = runWithMeasurementDisabled { mutableIntListOf() }
                 val bounds = queries[i]
                 qt.forEachIntersection(
                     bounds[0],
@@ -160,7 +160,7 @@ class RectListBenchmark {
                     bounds[2],
                     bounds[3],
                 ) {
-                    runWithTimingDisabled { list.add(it) }
+                    runWithMeasurementDisabled { list.add(it) }
                 }
             }
         }
@@ -171,14 +171,14 @@ class RectListBenchmark {
         val queries = nearestNeighborQueries
         val numberOfResults = 4
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
             }
             for (i in queries.indices) {
                 for (direction in 1..4) {
-                    val list = runWithTimingDisabled { mutableIntListOf() }
+                    val list = runWithMeasurementDisabled { mutableIntListOf() }
                     val bounds = queries[i]
                     qt.findKNearestNeighbors(
                         direction,
@@ -188,7 +188,7 @@ class RectListBenchmark {
                         bounds[2],
                         bounds[3],
                     ) { _, id, _, _, _, _ ->
-                        runWithTimingDisabled { list.add(id) }
+                        runWithMeasurementDisabled { list.add(id) }
                     }
                 }
             }
@@ -199,14 +199,14 @@ class RectListBenchmark {
     fun b06_findNearestNeighborInDirection() {
         val queries = nearestNeighborQueries
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
             }
             for (i in queries.indices) {
                 for (direction in 1..4) {
-                    val list = runWithTimingDisabled { mutableIntListOf() }
+                    val list = runWithMeasurementDisabled { mutableIntListOf() }
                     val bounds = queries[i]
                     val result =
                         qt.findNearestNeighbor(
@@ -216,7 +216,7 @@ class RectListBenchmark {
                             bounds[2],
                             bounds[3],
                         )
-                    runWithTimingDisabled { list.add(result) }
+                    runWithMeasurementDisabled { list.add(result) }
                 }
             }
         }
@@ -226,19 +226,19 @@ class RectListBenchmark {
     fun b07_findEligiblePointerInputs() {
         val queries = pointerInputQueries
         rule.measureRepeated {
-            val qt = runWithTimingDisabled {
+            val qt = runWithMeasurementDisabled {
                 val qt = construct()
                 insertRecursive(qt, rootItem, -1)
                 qt
             }
             for (i in queries.indices) {
-                val list = runWithTimingDisabled { mutableIntListOf() }
+                val list = runWithMeasurementDisabled { mutableIntListOf() }
                 val bounds = queries[i]
                 qt.forEachIntersection(
                     bounds[0],
                     bounds[1],
                 ) {
-                    runWithTimingDisabled { list.add(it) }
+                    runWithMeasurementDisabled { list.add(it) }
                 }
             }
         }

@@ -150,7 +150,10 @@ class ClientProxyTypeGenerator(
             addParameters(
                 listOf(
                     ParameterSpec(contextPropertyName, contextClass),
-                    ParameterSpec("windowInputToken", ClassName("android.os", "IBinder")),
+                    ParameterSpec(
+                        "sessionConstants",
+                        ClassName("androidx.privacysandbox.ui.core", "SessionConstants")
+                    ),
                     ParameterSpec("initialWidth", Types.int.poetClassName()),
                     ParameterSpec("initialHeight", Types.int.poetClassName()),
                     ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
@@ -165,7 +168,7 @@ class ClientProxyTypeGenerator(
                 )
             )
             addStatement(
-                "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
+                "$sandboxedUiAdapterPropertyName.openSession(%N, sessionConstants, initialWidth, " +
                     "initialHeight, isZOrderOnTop, clientExecutor, client)",
                 contextPropertyName,
             )

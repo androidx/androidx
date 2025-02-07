@@ -165,8 +165,8 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     project.dependencies.add("lintChecks", lintChecksProject)
 
     if (
-        extension.type == LibraryType.GRADLE_PLUGIN ||
-            extension.type == LibraryType.INTERNAL_GRADLE_PLUGIN
+        extension.type == SoftwareType.GRADLE_PLUGIN ||
+            extension.type == SoftwareType.INTERNAL_GRADLE_PLUGIN
     ) {
         project.rootProject.findProject(":lint:lint-gradle")?.let {
             project.dependencies.add("lintChecks", it)
@@ -215,6 +215,13 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             fatal.add("VisibleForTests")
         }
 
+        if (extension.type.isForTesting) {
+            // Disable this check as we do allow usage of junit as a dependency
+            disable.add("InvalidPackage")
+        } else {
+            fatal.add("InvalidPackage")
+        }
+
         // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
         disable.add("ExpiredTargetSdkVersion")
 
@@ -246,7 +253,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             fatal.add("UnusedResources")
             fatal.add("KotlinPropertyAccess")
             fatal.add("LambdaLast")
-            if (extension.type != LibraryType.PUBLISHED_PROTO_LIBRARY) {
+            if (extension.type != SoftwareType.PUBLISHED_PROTO_LIBRARY) {
                 // Enforce UnknownNullness for all device targeting projects except for proto
                 // projects that generate code without proper nullability annotations.
                 fatal.add("UnknownNullness")
@@ -278,7 +285,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("NullAnnotationGroup")
         }
 
-        if (extension.type == LibraryType.SAMPLES) {
+        if (extension.type == SoftwareType.SAMPLES) {
             // TODO: b/190833328 remove if / when AGP will analyze dependencies by default
             //  This is needed because SampledAnnotationDetector uses partial analysis, and
             //  hence requires dependencies to be analyzed.
@@ -301,7 +308,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         fatal.add("KotlincFE10") // b/239982263
 
         val lintXmlPath =
-            if (extension.type == LibraryType.SAMPLES) {
+            if (extension.type == SoftwareType.SAMPLES) {
                 "buildSrc/lint_samples.xml"
             } else {
                 "buildSrc/lint.xml"

@@ -59,12 +59,12 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
         return "RelationCollectorFunctionWriter" +
             "-${collector.mapTypeName}" +
             "-${relation.entity.typeName.toString(CodeLanguage.JAVA)}" +
-            "-${relation.entityField.columnName}" +
+            "-${relation.entityProperty.columnName}" +
             "-${relation.dataClassTypeName}" +
             "-${relation.createLoadAllSql()}"
     }
 
-    override fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
+    override fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
         val scope = CodeGenScope(writer = writer)
         scope.builder.apply {
             // Check the input map key set for emptiness, returning early as no fetching is needed.
@@ -82,7 +82,7 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
                     "999"
                 )
                 .apply {
-                    addRecursiveFetchCall(scope, methodName)
+                    addRecursiveFetchCall(scope, functionName)
                     addStatement("return")
                 }
                 .endControlFlow()
@@ -125,7 +125,7 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
                 // clause, this column is the rightmost column in the generated SELECT
                 // clause.
                 val junctionParentColumnIndex = relation.projection.size
-                addStatement("// _junction.%L", relation.junction.parentField.columnName)
+                addStatement("// _junction.%L", relation.junction.parentProperty.columnName)
                 addLocalVal(
                     itemKeyIndexVar,
                     XTypeName.PRIMITIVE_INT,
@@ -139,7 +139,7 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
                     assignExprFormat = "%M(%L, %S)",
                     RoomTypeNames.STATEMENT_UTIL.packageMember("getColumnIndex"),
                     stmtVar,
-                    relation.entityField.columnName
+                    relation.entityProperty.columnName
                 )
             }
 

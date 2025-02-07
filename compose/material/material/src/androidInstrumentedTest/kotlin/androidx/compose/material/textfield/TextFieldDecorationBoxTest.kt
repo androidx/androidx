@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FirstBaselineOffset
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldBottomPadding
@@ -68,7 +67,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterialApi::class)
 class TextFieldDecorationBoxTest {
     @get:Rule val rule = createComposeRule()
 

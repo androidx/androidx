@@ -22,14 +22,14 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical spacedBy(float space);
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal spacedBy(float space, androidx.compose.ui.Alignment.Horizontal alignment);
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Vertical spacedBy(float space, androidx.compose.ui.Alignment.Vertical alignment);
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Vertical Bottom;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical Center;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal End;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceAround;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceBetween;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceEvenly;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal Start;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Vertical Top;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Vertical Bottom;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical Center;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal End;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceAround;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceBetween;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceEvenly;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal Start;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Vertical Top;
     field public static final androidx.compose.foundation.layout.Arrangement INSTANCE;
   }
 
@@ -44,12 +44,12 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical spacedBy(float space);
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal spacedBy(float space, androidx.compose.ui.Alignment.Horizontal alignment);
     method @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Vertical spacedBy(float space, androidx.compose.ui.Alignment.Vertical alignment);
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal Center;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal Left;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal Right;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceAround;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceBetween;
-    property @androidx.compose.runtime.Stable public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceEvenly;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal Center;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal Left;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal Right;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal SpaceAround;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal SpaceBetween;
+    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.Arrangement.Horizontal SpaceEvenly;
     field public static final androidx.compose.foundation.layout.Arrangement.Absolute INSTANCE;
   }
 
@@ -105,7 +105,7 @@ package androidx.compose.foundation.layout {
   public final class ColumnKt {
     method @androidx.compose.runtime.Composable public static inline void Column(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, androidx.compose.ui.Alignment.Horizontal horizontalAlignment);
-    property @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultColumnMeasurePolicy;
+    property @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy DefaultColumnMeasurePolicy;
     field @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultColumnMeasurePolicy;
   }
 
@@ -116,81 +116,81 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, optional boolean fill);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ContextualFlowColumnOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
-    field public static final androidx.compose.foundation.layout.ContextualFlowColumnOverflow.Companion Companion;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ContextualFlowColumnOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
+    field @Deprecated public static final androidx.compose.foundation.layout.ContextualFlowColumnOverflow.Companion Companion;
   }
 
-  public static final class ContextualFlowColumnOverflow.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.ContextualFlowColumnOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> collapseIndicator, optional int minColumnsToShowCollapse, optional float minWidthToShowCollapse);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow getClip();
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow getVisible();
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.ContextualFlowColumnOverflow Clip;
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.ContextualFlowColumnOverflow Visible;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static final class ContextualFlowColumnOverflow.Companion {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.ContextualFlowColumnOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowColumnOverflowScope,kotlin.Unit> collapseIndicator, optional int minColumnsToShowCollapse, optional float minWidthToShowCollapse);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow getClip();
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow getVisible();
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow Clip;
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowColumnOverflow Visible;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowColumnOverflowScope extends androidx.compose.foundation.layout.FlowColumnOverflowScope {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowColumnOverflowScope extends androidx.compose.foundation.layout.FlowColumnOverflowScope {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
-    method public int getIndexInLine();
-    method public int getLineIndex();
-    method public float getMaxHeightInLine();
-    method public float getMaxWidth();
-    property public abstract int indexInLine;
-    property public abstract int lineIndex;
-    property public abstract float maxHeightInLine;
-    property public abstract float maxWidth;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @Deprecated public int getIndexInLine();
+    method @Deprecated public int getLineIndex();
+    method @Deprecated public float getMaxHeightInLine();
+    method @Deprecated public float getMaxWidth();
+    property @Deprecated public abstract int indexInLine;
+    property @Deprecated public abstract int lineIndex;
+    property @Deprecated public abstract float maxHeightInLine;
+    property @Deprecated public abstract float maxWidth;
   }
 
   public final class ContextualFlowLayoutKt {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowColumn(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowColumnOverflow overflow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ContextualFlowColumnScope,? super java.lang.Integer,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowRow(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowRowOverflow overflow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ContextualFlowRowScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowColumn(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowColumnOverflow overflow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ContextualFlowColumnScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void ContextualFlowRow(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, optional androidx.compose.foundation.layout.ContextualFlowRowOverflow overflow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ContextualFlowRowScope,? super java.lang.Integer,kotlin.Unit> content);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ContextualFlowRowOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
-    field public static final androidx.compose.foundation.layout.ContextualFlowRowOverflow.Companion Companion;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ContextualFlowRowOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
+    field @Deprecated public static final androidx.compose.foundation.layout.ContextualFlowRowOverflow.Companion Companion;
   }
 
-  public static final class ContextualFlowRowOverflow.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.ContextualFlowRowOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> collapseIndicator, optional int minRowsToShowCollapse, optional float minHeightToShowCollapse);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow getClip();
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow getVisible();
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.ContextualFlowRowOverflow Clip;
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.ContextualFlowRowOverflow Visible;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static final class ContextualFlowRowOverflow.Companion {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.ContextualFlowRowOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ContextualFlowRowOverflowScope,kotlin.Unit> collapseIndicator, optional int minRowsToShowCollapse, optional float minHeightToShowCollapse);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow getClip();
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow getVisible();
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow Clip;
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.ContextualFlowRowOverflow Visible;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowRowOverflowScope extends androidx.compose.foundation.layout.FlowRowOverflowScope {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowRowOverflowScope extends androidx.compose.foundation.layout.FlowRowOverflowScope {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.RowScope {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
-    method public int getIndexInLine();
-    method public int getLineIndex();
-    method public float getMaxHeight();
-    method public float getMaxWidthInLine();
-    property public abstract int indexInLine;
-    property public abstract int lineIndex;
-    property public abstract float maxHeight;
-    property public abstract float maxWidthInLine;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.RowScope {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @Deprecated public int getIndexInLine();
+    method @Deprecated public int getLineIndex();
+    method @Deprecated public float getMaxHeight();
+    method @Deprecated public float getMaxWidthInLine();
+    property @Deprecated public abstract int indexInLine;
+    property @Deprecated public abstract int lineIndex;
+    property @Deprecated public abstract float maxHeight;
+    property @Deprecated public abstract float maxWidthInLine;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The API of this layout is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalLayoutApi {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class FlowColumnOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
-    field public static final androidx.compose.foundation.layout.FlowColumnOverflow.Companion Companion;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class FlowColumnOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
+    field @Deprecated public static final androidx.compose.foundation.layout.FlowColumnOverflow.Companion Companion;
   }
 
-  public static final class FlowColumnOverflow.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.FlowColumnOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> collapseIndicator, optional int minColumnsToShowCollapse, optional float minWidthToShowCollapse);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow getClip();
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow getVisible();
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.FlowColumnOverflow Clip;
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.FlowColumnOverflow Visible;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static final class FlowColumnOverflow.Companion {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.FlowColumnOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnOverflowScope,kotlin.Unit> collapseIndicator, optional int minColumnsToShowCollapse, optional float minWidthToShowCollapse);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow getClip();
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow getVisible();
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow Clip;
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowColumnOverflow Visible;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowColumnOverflowScope extends androidx.compose.foundation.layout.FlowColumnScope {
@@ -200,31 +200,33 @@ package androidx.compose.foundation.layout {
     property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract int totalItemCount;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
   public final class FlowLayoutKt {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, optional androidx.compose.foundation.layout.FlowColumnOverflow overflow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, optional androidx.compose.foundation.layout.FlowRowOverflow overflow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, optional androidx.compose.foundation.layout.FlowColumnOverflow overflow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void FlowColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Horizontal itemHorizontalAlignment, optional int maxItemsInEachColumn, optional int maxLines, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, optional androidx.compose.foundation.layout.FlowRowOverflow overflow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Vertical itemVerticalAlignment, optional int maxItemsInEachRow, optional int maxLines, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, int maxItemsInMainAxis);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, int maxItemsInMainAxis);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract sealed class FlowLayoutOverflow {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract sealed class FlowLayoutOverflow {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class FlowRowOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
-    field public static final androidx.compose.foundation.layout.FlowRowOverflow.Companion Companion;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class FlowRowOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
+    field @Deprecated public static final androidx.compose.foundation.layout.FlowRowOverflow.Companion Companion;
   }
 
-  public static final class FlowRowOverflow.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.FlowRowOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> collapseIndicator, optional int minRowsToShowCollapse, optional float minHeightToShowCollapse);
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow getClip();
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow getVisible();
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.FlowRowOverflow Clip;
-    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final androidx.compose.foundation.layout.FlowRowOverflow Visible;
+  @Deprecated public static final class FlowRowOverflow.Companion {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow expandIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.FlowRowOverflow expandOrCollapseIndicator(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> expandIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowOverflowScope,kotlin.Unit> collapseIndicator, optional int minRowsToShowCollapse, optional float minHeightToShowCollapse);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow getClip();
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow getVisible();
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow Clip;
+    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.foundation.layout.FlowRowOverflow Visible;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowRowOverflowScope extends androidx.compose.foundation.layout.FlowRowScope {
@@ -234,7 +236,7 @@ package androidx.compose.foundation.layout {
     property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract int totalItemCount;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowRowScope extends androidx.compose.foundation.layout.RowScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowRowScope extends androidx.compose.foundation.layout.RowScope {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
@@ -262,7 +264,7 @@ package androidx.compose.foundation.layout {
     method public int getRight(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public int getTop(androidx.compose.ui.unit.Density density);
     method public void setInsets(androidx.compose.foundation.layout.WindowInsets);
-    property public final androidx.compose.foundation.layout.WindowInsets insets;
+    property public androidx.compose.foundation.layout.WindowInsets insets;
   }
 
   public final class OffsetKt {
@@ -304,7 +306,7 @@ package androidx.compose.foundation.layout {
   public final class RowKt {
     method @androidx.compose.runtime.Composable public static inline void Row(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, androidx.compose.ui.Alignment.Vertical verticalAlignment);
-    property @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultRowMeasurePolicy;
+    property @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy DefaultRowMeasurePolicy;
     field @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultRowMeasurePolicy;
   }
 
@@ -409,14 +411,14 @@ package androidx.compose.foundation.layout {
     method public int getStart();
     method public int getTop();
     method public int getVertical();
-    property public final int Bottom;
-    property public final int End;
-    property public final int Horizontal;
-    property public final int Left;
-    property public final int Right;
-    property public final int Start;
-    property public final int Top;
-    property public final int Vertical;
+    property public int Bottom;
+    property public int End;
+    property public int Horizontal;
+    property public int Left;
+    property public int Right;
+    property public int Start;
+    property public int Top;
+    property public int Vertical;
   }
 
   public final class WindowInsetsSizeKt {
@@ -432,7 +434,7 @@ package androidx.compose.foundation.layout {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getCaptionBar(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion);
-    method public boolean getConsumeWindowInsets();
+    method @Deprecated public boolean getConsumeWindowInsets();
     method public static boolean getConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getDisplayCutout(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getIme(androidx.compose.foundation.layout.WindowInsets.Companion);
@@ -456,8 +458,35 @@ package androidx.compose.foundation.layout {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion);
     method public static void setConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView, boolean);
-    method public void setConsumeWindowInsets(boolean);
-    property @Deprecated public boolean consumeWindowInsets;
+    method @Deprecated public void setConsumeWindowInsets(boolean);
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean areNavigationBarsVisible;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean areStatusBarsVisible;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean areSystemBarsVisible;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets captionBar;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets captionBarIgnoringVisibility;
+    property public static boolean consumeWindowInsets;
+    property @Deprecated public static boolean consumeWindowInsets;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets displayCutout;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets ime;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets imeAnimationSource;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets imeAnimationTarget;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isCaptionBarVisible;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isImeVisible;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static boolean isTappableElementVisible;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets mandatorySystemGestures;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets navigationBars;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets navigationBarsIgnoringVisibility;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets safeContent;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets safeDrawing;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets safeGestures;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets statusBars;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets statusBarsIgnoringVisibility;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets systemBars;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets systemBarsIgnoringVisibility;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets systemGestures;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets tappableElement;
+    property @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets tappableElementIgnoringVisibility;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets waterfall;
   }
 
 }

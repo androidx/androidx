@@ -16,22 +16,18 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
-
 /** Result of a [Anchor.create] call. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public sealed class AnchorCreateResult
+public sealed class AnchorCreateResult
 
 /**
  * Result of a successful [Anchor.create] call.
  *
  * @property anchor the [Anchor] that was created.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class AnchorCreateSuccess(public val anchor: Anchor) : AnchorCreateResult()
 
 /**
  * Result of an unsuccessful [Anchor.create] call. The resources allocated for anchors has been
  * exhausted.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class AnchorCreateResourcesExhausted() : AnchorCreateResult()

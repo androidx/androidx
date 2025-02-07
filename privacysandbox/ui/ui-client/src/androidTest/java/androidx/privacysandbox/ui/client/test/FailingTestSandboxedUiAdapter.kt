@@ -17,15 +17,15 @@
 package androidx.privacysandbox.ui.client.test
 
 import android.content.Context
-import android.os.IBinder
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import java.util.concurrent.Executor
 
 class FailingTestSandboxedUiAdapter : AbstractSandboxedUiAdapter() {
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,

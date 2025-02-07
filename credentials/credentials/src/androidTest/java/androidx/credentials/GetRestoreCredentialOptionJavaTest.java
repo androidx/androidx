@@ -26,7 +26,6 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetRestoreCredentialOptionJavaTest {

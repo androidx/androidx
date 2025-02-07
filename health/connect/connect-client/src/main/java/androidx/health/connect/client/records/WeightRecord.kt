@@ -32,7 +32,7 @@ public class WeightRecord(
     override val zoneOffset: ZoneOffset?,
     /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
     public val weight: Mass,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     init {

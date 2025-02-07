@@ -637,29 +637,6 @@ public fun ScreenScaffold(
 
 /** Contains the default values used by [ScreenScaffold] */
 public object ScreenScaffoldDefaults {
-    /**
-     * Creates padding values with extra bottom padding for an EdgeButton.
-     *
-     * @param edgeButtonSize The size of the EdgeButton.
-     * @param start The padding on the start side of the content.
-     * @param top The padding on the top side of the content.
-     * @param end The padding on the end side of the content.
-     * @param extraBottom Additional padding to be added to the bottom padding calculated from the
-     *   edge button size.
-     * @return A [PaddingValues] object with the calculated padding.
-     */
-    @Deprecated(
-        "Use the combination of a new contentPadding parameter on the ScreenScaffold to " +
-            "get back the padding values inside of the content lambda."
-    )
-    public fun contentPaddingWithEdgeButton(
-        edgeButtonSize: EdgeButtonSize,
-        start: Dp = 0.dp,
-        top: Dp = 0.dp,
-        end: Dp = 0.dp,
-        extraBottom: Dp = 0.dp,
-    ): PaddingValues =
-        PaddingValues(start, top, end, extraBottom + edgeButtonSize.maximumHeightPlusPadding())
 
     /** The default space between [EdgeButton] and list content in [ScreenScaffold]. */
     public val EdgeButtonSpacing: Dp = 16.dp

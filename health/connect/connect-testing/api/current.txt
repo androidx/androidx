@@ -27,15 +27,15 @@ package androidx.health.connect.client.testing {
     method public void setPageSizeGetChanges(int);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.health.connect.client.HealthConnectFeatures features;
-    property public final androidx.health.connect.client.testing.FakeHealthConnectClientOverrides overrides;
-    property public final int pageSizeGetChanges;
+    property public androidx.health.connect.client.testing.FakeHealthConnectClientOverrides overrides;
+    property public int pageSizeGetChanges;
     property public androidx.health.connect.client.PermissionController permissionController;
     field public static final androidx.health.connect.client.testing.FakeHealthConnectClient.Companion Companion;
     field public static final String DEFAULT_PACKAGE_NAME = "androidx.health.connect.test";
   }
 
   public static final class FakeHealthConnectClient.Companion {
-    property public static final String DEFAULT_PACKAGE_NAME;
+    property public static String DEFAULT_PACKAGE_NAME;
   }
 
   public final class FakeHealthConnectClientOverrides {
@@ -61,16 +61,16 @@ package androidx.health.connect.client.testing {
     method public void setReadRecord(androidx.health.connect.client.testing.stubs.Stub<? super java.lang.String,? extends androidx.health.connect.client.response.ReadRecordResponse<? extends java.lang.Object?>>?);
     method public void setReadRecords(androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.ReadRecordsRequest<? extends java.lang.Object?>,? extends androidx.health.connect.client.response.ReadRecordsResponse<? extends java.lang.Object?>>?);
     method public void setUpdateRecords(androidx.health.connect.client.testing.stubs.Stub?);
-    property public final androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? aggregate;
-    property public final androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateGroupByDurationRequest,java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>? aggregateGroupByDuration;
-    property public final androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateGroupByPeriodRequest,java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>? aggregateGroupByPeriod;
-    property public final androidx.health.connect.client.testing.stubs.Stub? deleteRecords;
-    property public final androidx.health.connect.client.testing.stubs.Stub<java.lang.String,androidx.health.connect.client.response.ChangesResponse>? getChanges;
-    property public final androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.ChangesTokenRequest,java.lang.String>? getChangesToken;
-    property public final androidx.health.connect.client.testing.stubs.Stub<java.util.List<? extends java.lang.Object?>,androidx.health.connect.client.response.InsertRecordsResponse>? insertRecords;
-    property public final androidx.health.connect.client.testing.stubs.Stub<java.lang.String,androidx.health.connect.client.response.ReadRecordResponse<? extends java.lang.Object?>>? readRecord;
-    property public final androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.ReadRecordsRequest<? extends java.lang.Object?>,androidx.health.connect.client.response.ReadRecordsResponse<? extends java.lang.Object?>>? readRecords;
-    property public final androidx.health.connect.client.testing.stubs.Stub? updateRecords;
+    property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? aggregate;
+    property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateGroupByDurationRequest,java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>? aggregateGroupByDuration;
+    property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateGroupByPeriodRequest,java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>? aggregateGroupByPeriod;
+    property public androidx.health.connect.client.testing.stubs.Stub? deleteRecords;
+    property public androidx.health.connect.client.testing.stubs.Stub<java.lang.String,androidx.health.connect.client.response.ChangesResponse>? getChanges;
+    property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.ChangesTokenRequest,java.lang.String>? getChangesToken;
+    property public androidx.health.connect.client.testing.stubs.Stub<java.util.List<? extends java.lang.Object?>,androidx.health.connect.client.response.InsertRecordsResponse>? insertRecords;
+    property public androidx.health.connect.client.testing.stubs.Stub<java.lang.String,androidx.health.connect.client.response.ReadRecordResponse<? extends java.lang.Object?>>? readRecord;
+    property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.ReadRecordsRequest<? extends java.lang.Object?>,androidx.health.connect.client.response.ReadRecordsResponse<? extends java.lang.Object?>>? readRecords;
+    property public androidx.health.connect.client.testing.stubs.Stub? updateRecords;
   }
 
   public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
@@ -94,7 +94,7 @@ package androidx.health.connect.client.testing.stubs {
     method public kotlin.jvm.functions.Function1<T,R?> getDefaultHandler();
     method public R? next(T request);
     method public void setDefaultHandler(kotlin.jvm.functions.Function1<? super T,? extends R?>);
-    property public final kotlin.jvm.functions.Function1<T,R?> defaultHandler;
+    property public kotlin.jvm.functions.Function1<T,R?> defaultHandler;
   }
 
   public final class MutableStubKt {

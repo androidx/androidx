@@ -1,1 +1,91 @@
 // Signature format: 4.0
+package @RequiresApi(34) androidx.xr.compose.testing {
+
+  public final class SubspaceAssertionsKt {
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinDepth);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedDepth);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinHeight);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedHeight);
+    method public static void assertIsEqualTo(float, float expected, String subject, optional float tolerance);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertLeftPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedLeft);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX, float expectedY, float expectedZ);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX, float expectedY, float expectedZ);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertRotationInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, androidx.xr.runtime.math.Quaternion expected);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertRotationIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, androidx.xr.runtime.math.Quaternion expected);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertTopPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedTop);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinWidth);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedWidth);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedY);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedY);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedZ);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedZ);
+    method public static androidx.xr.runtime.math.Vector3 getPosition(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
+    method public static androidx.xr.runtime.math.Vector3 getPositionInRoot(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
+    method public static androidx.xr.runtime.math.Quaternion getRotation(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
+    method public static androidx.xr.runtime.math.Quaternion getRotationInRoot(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
+    method public static androidx.xr.compose.unit.DpVolumeSize getSize(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
+    method public static float toDp(float);
+    method public static float toDp(int);
+  }
+
+  public final class SubspaceFiltersKt {
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyAncestor(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyChild(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnyDescendant(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasAnySibling(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasParent(androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher hasTestTag(String testTag);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isFocusable();
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isFocused();
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isNotFocusable();
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isNotFocused();
+    method public static androidx.xr.compose.testing.SubspaceSemanticsMatcher isRoot();
+  }
+
+  public final class SubspaceSemanticsMatcher {
+    ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
+  }
+
+  public final class SubspaceSemanticsNodeInteraction {
+    ctor public SubspaceSemanticsNodeInteraction(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public void assertDoesNotExist();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
+    method public androidx.xr.compose.subspace.node.SubspaceSemanticsInfo fetchSemanticsNode(optional String? errorMessageOnFail);
+  }
+
+  public final class SubspaceSemanticsNodeInteractionCollection {
+    ctor public SubspaceSemanticsNodeInteractionCollection(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+  }
+
+  public final class SubspaceTestContext {
+    ctor public SubspaceTestContext(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,? extends java.lang.Object?> testRule);
+  }
+
+  public final class SubspaceTestingActivity extends androidx.activity.ComponentActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public SubspaceTestingActivity();
+    method public androidx.xr.scenecore.testing.FakeXrExtensions getExtensions();
+    method public androidx.xr.scenecore.Session getSession();
+    property public androidx.xr.scenecore.testing.FakeXrExtensions extensions;
+    property public androidx.xr.scenecore.Session session;
+  }
+
+  public final class SubspaceTestingActivityKt {
+    method public static androidx.xr.scenecore.JxrPlatformAdapter createFakeRuntime(androidx.xr.compose.testing.SubspaceTestingActivity activity);
+    method public static androidx.xr.scenecore.Session createFakeSession(androidx.xr.compose.testing.SubspaceTestingActivity activity, optional androidx.xr.scenecore.JxrPlatformAdapter runtime);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteractionCollection onAllSubspaceNodes(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteractionCollection onAllSubspaceNodesWithTag(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, String testTag);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNode(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
+    method public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNodeWithTag(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, String testTag);
+    method public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, kotlin.jvm.functions.Function0<kotlin.Unit> uiContent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class TestSetupKt {
+    method @androidx.compose.runtime.Composable public static void TestSetup(optional boolean isXrEnabled, optional boolean isFullSpace, optional androidx.xr.scenecore.JxrPlatformAdapter runtime, kotlin.jvm.functions.Function1<? super androidx.xr.scenecore.Session,kotlin.Unit> content);
+  }
+
+}
+

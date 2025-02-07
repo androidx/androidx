@@ -55,8 +55,6 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
         val baselineFile = baselines.get().apiLintFile
         val checkArgs =
             getGenerateApiArgs(
-                bootClasspath,
-                dependencyClasspath,
                 createProjectXmlFile(),
                 sourcePaths.files.filter { it.exists() },
                 null,

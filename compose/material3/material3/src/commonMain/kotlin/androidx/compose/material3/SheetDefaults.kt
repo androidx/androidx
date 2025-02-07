@@ -90,7 +90,7 @@ class SheetState(
     positionalThreshold: () -> Float,
     velocityThreshold: () -> Float,
     initialValue: SheetValue = Hidden,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
+    internal val confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
 
@@ -167,19 +167,18 @@ class SheetState(
         get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
 
     /**
-     * Fully expand the bottom sheet with animation and suspend until it is fully expanded or
-     * animation has been cancelled.
-     * *
+     * If [confirmValueChange] returns true, fully expand the bottom sheet with animation and
+     * suspend until it is fully expanded or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun expand() {
-        anchoredDraggableState.animateTo(Expanded)
+        if (confirmValueChange(Expanded)) animateTo(Expanded, showMotionSpec)
     }
 
     /**
-     * Animate the bottom sheet and suspend until it is partially expanded or animation has been
-     * cancelled.
+     * If [confirmValueChange] returns true, animate the bottom sheet and suspend until it is
+     * partially expanded or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      * @throws [IllegalStateException] if [skipPartiallyExpanded] is set to true
@@ -189,12 +188,12 @@ class SheetState(
             "Attempted to animate to partial expanded when skipPartiallyExpanded was enabled. Set" +
                 " skipPartiallyExpanded to false to use this function."
         }
-        animateTo(PartiallyExpanded, showMotionSpec)
+        if (confirmValueChange(PartiallyExpanded)) animateTo(PartiallyExpanded, showMotionSpec)
     }
 
     /**
-     * Expand the bottom sheet with animation and suspend until it is [PartiallyExpanded] if defined
-     * else [Expanded].
+     * If [confirmValueChange] returns true, expand the bottom sheet with animation and suspend
+     * until it is [PartiallyExpanded] if defined, else [Expanded].
      *
      * @throws [CancellationException] if the animation is interrupted
      */
@@ -204,12 +203,12 @@ class SheetState(
                 hasPartiallyExpandedState -> PartiallyExpanded
                 else -> Expanded
             }
-        animateTo(targetValue, showMotionSpec)
+        if (confirmValueChange(targetValue)) animateTo(targetValue, showMotionSpec)
     }
 
     /**
-     * Hide the bottom sheet with animation and suspend until it is fully hidden or animation has
-     * been cancelled.
+     * If [confirmValueChange] returns true, hide the bottom sheet with animation and suspend until
+     * it is fully hidden or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      */
@@ -218,7 +217,7 @@ class SheetState(
             "Attempted to animate to hidden when skipHiddenState was enabled. Set skipHiddenState" +
                 " to false to use this function."
         }
-        animateTo(Hidden, hideMotionSpec)
+        if (confirmValueChange(Hidden)) animateTo(Hidden, hideMotionSpec)
     }
 
     /**

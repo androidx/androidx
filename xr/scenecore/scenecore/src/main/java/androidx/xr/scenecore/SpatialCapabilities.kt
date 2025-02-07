@@ -20,7 +20,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /** Representation of the spatial capabilities of the current session. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialCapabilities(@SpatialCapability private val capabilities: Int) {
 
     public companion object {

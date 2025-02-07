@@ -31,7 +31,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -47,7 +46,6 @@ import kotlinx.coroutines.launch
  * See [create], [resume], [pause], and [destroy] for more details.
  */
 @Suppress("NotCloseable")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Session
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val runtime: Runtime,
@@ -61,8 +59,8 @@ internal constructor(
         /**
          * Creates a new [Session].
          *
-         * Creating a session requires the `android.permission.SCENE_UNDERSTANDING` permission to be
-         * granted.
+         * Creating a session requires the `android.permission.SCENE_UNDERSTANDING` and
+         * `android.permission.HAND_TRACKING` permissions to be granted.
          *
          * @param activity the [Activity] that owns the session.
          * @param coroutineDispatcher the [CoroutineDispatcher] that will be used to handle the
@@ -96,8 +94,9 @@ internal constructor(
             return SessionCreateSuccess(session)
         }
 
+        // TODO(b/392919087): Move the Hand Tracking permission to another place.
         internal val SESSION_PERMISSIONS: List<String> =
-            listOf("android.permission.SCENE_UNDERSTANDING")
+            listOf("android.permission.SCENE_UNDERSTANDING", "android.permission.HAND_TRACKING")
     }
 
     /** The state of the runtime. */
@@ -133,7 +132,8 @@ internal constructor(
     /**
      * Starts or resumes the session.
      *
-     * Resuming a session requires the `android.permission.SCENE_UNDERSTANDING` to be granted.
+     * Resuming a session requires the `android.permission.SCENE_UNDERSTANDING` and
+     * `android.permission.HAND_TRACKING` permissions to be granted.
      *
      * @return the result of the operation. Can be [SessionResumeSuccess] if the session was
      *   successfully resumed, or [SessionResumePermissionsNotGranted] if the required permissions

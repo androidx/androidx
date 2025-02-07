@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 import androidx.room.ext.KotlinTypeNames.FLOW
 import androidx.room.ext.LifecyclesTypeNames.COMPUTABLE_LIVE_DATA
@@ -30,7 +31,6 @@ import androidx.room.ext.LifecyclesTypeNames.LIVE_DATA
 import androidx.room.ext.ReactiveStreamsTypeNames.PUBLISHER
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.TransactionFunction
 import org.hamcrest.CoreMatchers.`is`
@@ -342,7 +342,7 @@ class TransactionFunctionProcessorTest {
                 COMMON.LISTENABLE_FUTURE,
                 COMMON.FLOW
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = inputSource + otherSources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false")
         ) { invocation ->

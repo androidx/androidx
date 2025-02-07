@@ -3197,6 +3197,83 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(flingDelta).isNotEqualTo(previousDelta) }
     }
 
+    @Test
+    fun onNestedFlingCancelled_shouldResetFlingState() {
+        rule.mainClock.autoAdvance = false
+        var outerStateDeltas = 0f
+        val outerState = ScrollableState {
+            outerStateDeltas += it
+            it
+        }
+
+        val innerState = ScrollableState { it }
+
+        val dispatcher = NestedScrollDispatcher()
+        var flingJob: Job? = null
+
+        rule.setContentAndGetScope {
+            Box(
+                Modifier.size(400.dp)
+                    .background(Color.Red)
+                    .scrollable(
+                        flingBehavior = ScrollableDefaults.flingBehavior(),
+                        state = outerState,
+                        orientation = Orientation.Vertical
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    Modifier.size(200.dp)
+                        .background(Color.Black)
+                        .nestedScroll(
+                            connection = object : NestedScrollConnection {},
+                            dispatcher = dispatcher
+                        )
+                        .scrollable(state = innerState, orientation = Orientation.Vertical)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            // causes the inner scrollable to dispatch a post fling to the outer scrollable
+            flingJob =
+                scope.launch {
+                    innerState.scroll {
+                        dispatcher.dispatchPreFling(Velocity(0f, 10000f))
+                        dispatcher.dispatchPostFling(Velocity.Zero, Velocity(0f, 10000f))
+                    }
+                }
+        }
+
+        rule.mainClock.advanceTimeBy(200L)
+
+        rule.runOnIdle {
+            // outer scrollable is flinging from onPostFling
+            assertThat(outerStateDeltas).isNonZero()
+        }
+
+        outerStateDeltas = 0f
+
+        rule.runOnIdle {
+            flingJob?.cancel() // cancel job mid fling
+
+            // try to run fling again
+            scope.launch {
+                innerState.scroll {
+                    dispatcher.dispatchPreFling(Velocity(0f, 10000f))
+                    dispatcher.dispatchPostFling(Velocity.Zero, Velocity(0f, 10000f))
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = true
+        // fling reached outer scrollable even if the previous child fling was cancelled.
+        rule.runOnIdle {
+            // outer scrollable is flinging from onPostFling
+            assertThat(outerStateDeltas).isNonZero()
+        }
+    }
+
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
         rule.setContentAndGetScope {
             Box {

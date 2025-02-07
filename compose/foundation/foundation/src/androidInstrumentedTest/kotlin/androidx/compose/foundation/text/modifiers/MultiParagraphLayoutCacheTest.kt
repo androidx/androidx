@@ -104,6 +104,33 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
+    fun minIntrinsicsHeight_respectsMinLines() {
+        with(density) {
+            val fontSize = 20.sp
+            val text = AnnotatedString("A")
+            val singleLineLayout =
+                MultiParagraphLayoutCache(
+                        text = text,
+                        style = TextStyle.Default.copy(fontSize = fontSize),
+                        fontFamilyResolver = fontFamilyResolver,
+                        minLines = 1
+                    )
+                    .also { it.density = this }
+            val withMinLinesLayout =
+                MultiParagraphLayoutCache(
+                        text = text,
+                        style = TextStyle.Default.copy(fontSize = fontSize),
+                        fontFamilyResolver = fontFamilyResolver,
+                        minLines = 3
+                    )
+                    .also { it.density = this }
+
+            assertThat(withMinLinesLayout.intrinsicHeight(200, LayoutDirection.Ltr))
+                .isEqualTo(singleLineLayout.intrinsicHeight(200, LayoutDirection.Ltr) * 3)
+        }
+    }
+
+    @Test
     fun maxIntrinsicWidth_getter() {
         with(density) {
             val fontSize = 20.sp

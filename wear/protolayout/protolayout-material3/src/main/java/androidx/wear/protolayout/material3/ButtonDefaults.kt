@@ -19,10 +19,13 @@ package androidx.wear.protolayout.material3
 import android.graphics.Color
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.DP
+import androidx.annotation.FloatRange
 import androidx.wear.protolayout.DimensionBuilders
+import androidx.wear.protolayout.DimensionBuilders.ContainerDimension
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.LayoutElementBuilders.Box
 import androidx.wear.protolayout.LayoutElementBuilders.Column
+import androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START
 import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
@@ -78,6 +81,101 @@ public object ButtonDefaults {
             .addElement(labels.build(), verticalSpacer(style.iconToLabelsSpaceDp))
 
         return row.build()
+    }
+
+    /**
+     * Returns [LayoutElement] describing the inner content for the avatar shape button.
+     *
+     * This is a [Row] containing the following:
+     * * avatar
+     * * spacing if icon is present
+     * * labels that are in [Column]
+     *
+     * Additionally, horizontal padding and spacing for avatar and labels is weight based.
+     *
+     * [horizontalAlignment] defines side that avatar is.
+     */
+    internal fun MaterialScope.buildContentForAvatarButton(
+        avatar: LayoutElement,
+        label: LayoutElement,
+        secondaryLabel: LayoutElement?,
+        @HorizontalAlignment horizontalAlignment: Int,
+        style: AvatarButtonStyle,
+        height: ContainerDimension
+    ): LayoutElement {
+        val verticalElementBuilder: Column.Builder =
+            Column.Builder().setWidth(expand()).setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+        val horizontalElementBuilder: Row.Builder =
+            Row.Builder().setWidth(expand()).setHeight(height)
+
+        ContainerWithSpacersBuilder<LayoutElement>(
+                { it: LayoutElement? -> verticalElementBuilder.addContent(it!!) },
+                label
+            )
+            .addElement(secondaryLabel, horizontalSpacer(style.labelsSpaceDp))
+
+        // Side padding - start
+        horizontalElementBuilder.addContent(
+            verticalSpacer(
+                deviceConfiguration.weightForSpacer(
+                    if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
+                        style.avatarPaddingWeight
+                    } else {
+                        style.labelsPaddingWeight
+                    }
+                )
+            )
+        )
+
+        // Wrap avatar in expandable box with weights
+        val wrapAvatar =
+            Box.Builder()
+                .setWidth(deviceConfiguration.weightForContainer(style.avatarSizeWeight))
+                .setHeight(height)
+                .addContent(avatar)
+                .build()
+
+        if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
+            horizontalElementBuilder.addContent(wrapAvatar)
+            horizontalElementBuilder.addContent(verticalSpacer(style.avatarToLabelsSpaceDp))
+        }
+
+        // Labels
+        horizontalElementBuilder.addContent(
+            Box.Builder()
+                .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                // Remaining % from 100% is for labels
+                .setWidth(
+                    weightAsExpand(
+                        100 -
+                            style.avatarPaddingWeight -
+                            style.labelsPaddingWeight -
+                            style.avatarSizeWeight
+                    )
+                )
+                .addContent(verticalElementBuilder.build())
+                .build()
+        )
+
+        if (horizontalAlignment == HORIZONTAL_ALIGN_END) {
+            horizontalElementBuilder.addContent(verticalSpacer(style.avatarToLabelsSpaceDp))
+            horizontalElementBuilder.addContent(wrapAvatar)
+        }
+
+        // Side padding - end
+        horizontalElementBuilder.addContent(
+            verticalSpacer(
+                deviceConfiguration.weightForSpacer(
+                    if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
+                        style.labelsPaddingWeight
+                    } else {
+                        style.avatarPaddingWeight
+                    }
+                )
+            )
+        )
+
+        return horizontalElementBuilder.build()
     }
 
     /**
@@ -280,6 +378,53 @@ internal constructor(
                 innerPadding = padding(horizontal = 14f, vertical = 8f),
                 labelsSpaceDp = 0,
                 iconToLabelsSpaceDp = 10
+            )
+    }
+}
+
+/** Provides style values for the avatar button component. */
+public class AvatarButtonStyle
+internal constructor(
+    @TypographyToken internal val labelTypography: Int,
+    @TypographyToken internal val secondaryLabelTypography: Int,
+    @FloatRange(from = 0.0, to = 100.0) internal val avatarSizeWeight: Float,
+    @FloatRange(from = 0.0, to = 100.0) internal val avatarPaddingWeight: Float,
+    @FloatRange(from = 0.0, to = 100.0) internal val labelsPaddingWeight: Float,
+    internal val innerVerticalPadding: Padding,
+    @Dimension(DP) internal val avatarToLabelsSpaceDp: Int,
+    @Dimension(DP) internal val labelsSpaceDp: Int,
+) {
+    public companion object {
+        /**
+         * Default style variation for the [avatarButton] where all opinionated inner content is
+         * displayed in a medium size.
+         */
+        public fun defaultAvatarButtonStyle(): AvatarButtonStyle =
+            AvatarButtonStyle(
+                labelTypography = Typography.LABEL_MEDIUM,
+                secondaryLabelTypography = Typography.BODY_SMALL,
+                avatarSizeWeight = 19.6f,
+                avatarPaddingWeight = 4.16f,
+                labelsPaddingWeight = 7.1f,
+                innerVerticalPadding = padding(vertical = 8f, horizontal = Float.NaN),
+                avatarToLabelsSpaceDp = 6,
+                labelsSpaceDp = 0
+            )
+
+        /**
+         * Default style variation for the [avatarButton] where all opinionated inner content is
+         * displayed in a large size.
+         */
+        public fun largeAvatarButtonStyle(): AvatarButtonStyle =
+            AvatarButtonStyle(
+                labelTypography = Typography.TITLE_MEDIUM,
+                secondaryLabelTypography = Typography.LABEL_SMALL,
+                avatarSizeWeight = 23.15f,
+                avatarPaddingWeight = 2.1f,
+                labelsPaddingWeight = 6f,
+                innerVerticalPadding = padding(vertical = 6f, horizontal = Float.NaN),
+                avatarToLabelsSpaceDp = 8,
+                labelsSpaceDp = 0
             )
     }
 }

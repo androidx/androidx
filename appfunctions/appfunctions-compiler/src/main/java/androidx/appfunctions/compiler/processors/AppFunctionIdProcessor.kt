@@ -17,8 +17,8 @@
 package androidx.appfunctions.compiler.processors
 
 import androidx.appfunctions.compiler.AppFunctionCompiler
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
-import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.fromCamelCaseToScreamingSnakeCase
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies

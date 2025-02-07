@@ -150,6 +150,7 @@ public constructor(
 
         /** Returns a transformation that rotates by the given angle, centered about the origin. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+        @JvmStatic
         public fun rotate(@AngleRadiansFloat angleOfRotation: Float): ImmutableAffineTransform {
             val sin = sin(angleOfRotation)
             val cos = cos(angleOfRotation)

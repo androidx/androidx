@@ -24,7 +24,7 @@
 
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -111,11 +111,10 @@ androidXMultiplatform {
 
 androidx {
     name = "Material Adaptive Navigation Suite"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Navigation Suite Library"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

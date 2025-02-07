@@ -136,6 +136,9 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
             }
         } else {
             configBuilder.tag("androidx_unit_tests")
+            if (additionalTags.get().contains("compose")) {
+                configBuilder.tag("compose_tests")
+            }
         }
         additionalTags.get().forEach { configBuilder.tag(it) }
         instrumentationArgs.get().forEach { (key, value) ->

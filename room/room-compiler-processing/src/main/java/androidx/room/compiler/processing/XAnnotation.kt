@@ -24,10 +24,6 @@ import com.squareup.javapoet.ClassName
  *
  * Values in the annotation can be accessed via [annotationValues], the [XAnnotation.get] extension
  * function, or any of the "getAs*" helper functions.
- *
- * In comparison, [XAnnotationBox] is used in situations where the annotation class is already
- * compiled and can be referenced. This can be converted with [asAnnotationBox] if the annotation
- * class is already compiled.
  */
 interface XAnnotation {
     /** The simple name of the annotation class. */
@@ -194,15 +190,4 @@ fun <T> XAnnotation.get(methodName: String, clazz: Class<T>): T {
     }
 
     @Suppress("UNCHECKED_CAST") return value as T
-}
-
-/**
- * Get a representation of this [XAnnotation] as a [XAnnotationBox]. This is helpful for converting
- * to [XAnnotationBox] after getting annotations with [XAnnotated.getAllAnnotations].
- *
- * Only possible if the annotation class is available (ie it is in the classpath and not in the
- * compiled sources).
- */
-inline fun <reified T : Annotation> XAnnotation.asAnnotationBox(): XAnnotationBox<T> {
-    return (this as InternalXAnnotation).asAnnotationBox(T::class.java)
 }

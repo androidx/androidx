@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The No-Vary-Search data specifies a set of rules that define how a URL's
+ * The No-Vary-Search header specifies a set of rules that define how a URL's
  * query parameters will affect cache matching. These rules dictate whether
  * the same URL with different URL parameters should be saved as separate
  * browser cache entries.
@@ -79,7 +79,7 @@ public class NoVarySearchHeader {
 
     /**
      * Private constructor to prevent constructing invalid No-Vary-Search
-     * data. Static methods should be used instead e.g. {@link #neverVaryData}.
+     * header. Static methods should be used instead e.g. {@link #neverVaryHeader}.
      */
     private NoVarySearchHeader(boolean varyOnKeyOrder,
             boolean ignoreDifferencesInParameters,
@@ -93,33 +93,33 @@ public class NoVarySearchHeader {
 
 
     /**
-     * Returns No-Vary-Search data that doesn't consider any differences in
+     * Returns No-Vary-Search header that doesn't consider any differences in
      * query parameters (i.e. presence or ordering) between otherwise
      * identical URLs in cache matching.
      */
     @Profile.ExperimentalUrlPrefetch
-    public static @NonNull NoVarySearchHeader neverVaryData() {
+    public static @NonNull NoVarySearchHeader neverVaryHeader() {
         return new NoVarySearchHeader(false, true, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
-     * Returns No-Vary-Search data that considers all differences in
+     * Returns No-Vary-Search header that considers all differences in
      * query parameters (i.e. presence and ordering) between otherwise
      * identical URLs in cache matching.
      */
     @Profile.ExperimentalUrlPrefetch
-    public static @NonNull NoVarySearchHeader alwaysVaryData() {
+    public static @NonNull NoVarySearchHeader alwaysVaryHeader() {
         return new NoVarySearchHeader(true, false, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
-     * Returns No-Vary-Search data that doesn't consider differences in
+     * Returns No-Vary-Search header that doesn't consider differences in
      * in query parameters present between otherwise identical URLs
      * in cache matching with the exception of the ones provided
      * in {@link #consideredQueryParameters}.
      * <p>
      *
-     * @param varyOnOrdering               true if the ordering of query parameters should be
+     * @param varyOnOrdering            true if the ordering of query parameters should be
      *                                  considered in cache matching, false otherwise.
      * @param consideredQueryParameters the query parameters to consider
      *                                  in cache matching.
@@ -133,13 +133,13 @@ public class NoVarySearchHeader {
     }
 
     /**
-     * Returns No-Vary-Search data that considers differences in
+     * Returns No-Vary-Search header that considers differences in
      * in query parameters present between otherwise identical URLs
      * in cache matching with the exception of the ones provided
      * in {@link #ignoredQueryParameters}.
      * <p>
      *
-     * @param varyOnOrdering            true if the ordering of query parameters should be
+     * @param varyOnOrdering         true if the ordering of query parameters should be
      *                               considered in cache matching, false otherwise.
      * @param ignoredQueryParameters the query parameters to ignore
      *                               in cache matching.

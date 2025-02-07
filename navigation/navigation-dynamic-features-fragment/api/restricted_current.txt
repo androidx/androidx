@@ -11,7 +11,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public void setModuleName(String?);
-    property public final String? moduleName;
+    property public String? moduleName;
   }
 
   @androidx.navigation.NavDestinationDsl public final class DynamicFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
@@ -21,7 +21,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
     method public String? getModuleName();
     method public void setModuleName(String?);
-    property public final String? moduleName;
+    property public String? moduleName;
   }
 
   public final class DynamicFragmentNavigatorDestinationBuilderKt {

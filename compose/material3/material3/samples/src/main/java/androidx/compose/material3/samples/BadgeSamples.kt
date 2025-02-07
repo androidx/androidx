@@ -40,8 +40,46 @@ fun NavigationBarItemWithBadge() {
             icon = {
                 BadgedBox(
                     badge = {
+                        Badge(
+                            modifier =
+                                Modifier.semantics { contentDescription = "New notification" }
+                        )
+                    }
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = "Favorite")
+                }
+            },
+            selected = false,
+            onClick = {}
+        )
+        NavigationBarItem(
+            icon = {
+                BadgedBox(
+                    badge = {
                         Badge {
                             val badgeNumber = "8"
+                            Text(
+                                badgeNumber,
+                                modifier =
+                                    Modifier.semantics {
+                                        contentDescription = "$badgeNumber new notifications"
+                                    }
+                            )
+                        }
+                    }
+                ) {
+                    Icon(Icons.Filled.Star, contentDescription = "Favorite")
+                }
+            },
+            selected = false,
+            onClick = {}
+        )
+        NavigationBarItem(
+            icon = {
+                BadgedBox(
+                    badge = {
+                        Badge {
+                            val badgeNumber = "999+"
                             Text(
                                 badgeNumber,
                                 modifier =

@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test.services
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.telecom.Call
 import android.telecom.TelecomManager
@@ -119,6 +120,19 @@ class LocalCallSilenceExtensionDataEmitter {
 
     fun collect(e: LocalCallSilenceExtensionRemote): Flow<LocalCallSilenceData> {
         return mLcsDataFlow.map { LocalCallSilenceData(it, ::onInCallServiceUpdate, e) }
+    }
+}
+
+class CallIconExtensionDataEmitter {
+    private val mCallIconFlow: MutableStateFlow<CallIconData> =
+        MutableStateFlow(CallIconData(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)))
+
+    fun onVoipAppUpdate(newBitmap: Bitmap) {
+        mCallIconFlow.value = CallIconData(newBitmap)
+    }
+
+    fun collect(): Flow<CallIconData> {
+        return mCallIconFlow
     }
 }
 

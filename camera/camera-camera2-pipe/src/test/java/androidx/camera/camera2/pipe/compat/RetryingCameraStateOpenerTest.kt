@@ -46,6 +46,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -143,6 +144,7 @@ class RetryingCameraStateOpenerTest {
 
     private val fakeDevicePolicyManager: DevicePolicyManagerWrapper = mock()
     private val audioRestrictionController = FakeAudioRestrictionController()
+    private val fakeThreads = FakeThreads.fromDispatcher(StandardTestDispatcher())
 
     private val retryingCameraStateOpener =
         RetryingCameraStateOpenerImpl(
@@ -152,7 +154,8 @@ class RetryingCameraStateOpenerTest {
             fakeTimeSource,
             fakeDevicePolicyManager,
             audioRestrictionController,
-            cameraInteropConfig = null
+            cameraInteropConfig = null,
+            fakeThreads,
         )
 
     @Test

@@ -440,6 +440,7 @@ internal class CompositionImpl(
     RecomposeScopeOwner,
     CompositionServices,
     PausableComposition {
+
     /**
      * `null` if a composition isn't pending to apply. `Set<Any>` or `Array<Set<Any>>` if there are
      * modifications to record [PendingApplyNoModifications] if a composition is pending to apply,
@@ -565,7 +566,7 @@ internal class CompositionImpl(
     internal val observerHolder = CompositionObserverHolder()
 
     /** The [Composer] to use to create and update the tree managed by this composition. */
-    private val composer: ComposerImpl =
+    internal val composer: ComposerImpl =
         ComposerImpl(
                 applier = applier,
                 parentContext = parent,
@@ -834,7 +835,7 @@ internal class CompositionImpl(
                 // will be moved to a new location.
                 val nonEmptySlotTable = slotTable.groupsSize > 0
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
-                    val manager = RememberEventDispatcher(abandonSet)
+                    val manager = RememberEventDispatcher(abandonSet, composer.errorContext)
                     if (nonEmptySlotTable) {
                         applier.onBeginChanges()
                         slotTable.write { writer -> writer.removeCurrentGroup(manager) }
@@ -1016,14 +1017,14 @@ internal class CompositionImpl(
     }
 
     override fun disposeUnusedMovableContent(state: MovableContentState) {
-        val manager = RememberEventDispatcher(abandonSet)
+        val manager = RememberEventDispatcher(abandonSet, composer.errorContext)
         val slotTable = state.slotTable
         slotTable.write { writer -> writer.removeCurrentGroup(manager) }
         manager.dispatchRememberObservers()
     }
 
     private fun applyChangesInLocked(changes: ChangeList) {
-        val manager = RememberEventDispatcher(abandonSet)
+        val manager = RememberEventDispatcher(abandonSet, composer.errorContext)
         try {
             if (changes.isEmpty()) return
             trace("Compose:applyChanges") {
@@ -1033,7 +1034,12 @@ internal class CompositionImpl(
 
                 // Apply all changes
                 slotTable.write { slots ->
-                    changes.executeAndFlushAllPendingChanges(applier, slots, rememberManager)
+                    changes.executeAndFlushAllPendingChanges(
+                        applier,
+                        slots,
+                        rememberManager,
+                        composer.errorContext
+                    )
                 }
                 applier.onEndChanges()
             }
@@ -1088,7 +1094,8 @@ internal class CompositionImpl(
                 // By this time all abandon objects should be notified that they have been
                 // abandoned.
                 if (this.abandonSet.isNotEmpty()) {
-                    RememberEventDispatcher(abandonSet).dispatchAbandons()
+                    RememberEventDispatcher(abandonSet, traceContext = composer.errorContext)
+                        .dispatchAbandons()
                 }
             }
         }
@@ -1120,7 +1127,7 @@ internal class CompositionImpl(
         lateChanges.clear()
 
         if (abandonSet.isNotEmpty()) {
-            RememberEventDispatcher(abandonSet).dispatchAbandons()
+            RememberEventDispatcher(abandonSet, composer.errorContext).dispatchAbandons()
         }
     }
 
@@ -1296,7 +1303,7 @@ internal class CompositionImpl(
             block().also { success = true }
         } finally {
             if (!success && abandonSet.isNotEmpty()) {
-                RememberEventDispatcher(abandonSet).dispatchAbandons()
+                RememberEventDispatcher(abandonSet, composer.errorContext).dispatchAbandons()
             }
         }
     }
@@ -1321,7 +1328,7 @@ internal class CompositionImpl(
             val nonEmptySlotTable = slotTable.groupsSize > 0
             if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                 trace("Compose:deactivate") {
-                    val manager = RememberEventDispatcher(abandonSet)
+                    val manager = RememberEventDispatcher(abandonSet, composer.errorContext)
                     if (nonEmptySlotTable) {
                         applier.onBeginChanges()
                         slotTable.write { writer -> writer.deactivateCurrentGroup(manager) }

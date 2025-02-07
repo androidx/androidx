@@ -690,11 +690,15 @@ class ParameterFactoryTest {
                     parameter("transformOrigin", ParameterType.String, "Center")
                     parameter("shape", ParameterType.String, "RectangleShape")
                     parameter("clip", ParameterType.Boolean, true)
+                    // Null values aren't added to the list of properties
                     // parameter("renderEffect", ParameterType.String, "")
                     val shadowArgb = DefaultShadowColor.toArgb()
                     parameter("ambientShadowColor", ParameterType.Color, shadowArgb, index = 14)
                     parameter("spotShadowColor", ParameterType.Color, shadowArgb, index = 15)
                     parameter("compositingStrategy", ParameterType.String, "Auto", index = 16)
+                    parameter("blendMode", ParameterType.String, "SrcOver", index = 17)
+                    // Null values aren't added to the list of properties
+                    // parameter("colorFilter", ParameterType.String, "null", index = 18)
                 }
             }
         }

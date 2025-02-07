@@ -20,7 +20,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -32,7 +32,7 @@ dependencies {
 }
 androidx {
     name = "Biometric Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for the AndroidX Biometric library"
 }

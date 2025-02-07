@@ -1231,7 +1231,7 @@ internal class ThresholdHandler(
     ): Float = smoothingConstant * currentVelocity + (1 - smoothingConstant) * prevVelocity
 }
 
-private data class RotaryHandlerElement(
+private class RotaryHandlerElement(
     private val behavior: RotaryScrollableBehavior,
     private val reverseDirection: Boolean,
     private val inspectorInfo: InspectorInfo.() -> Unit

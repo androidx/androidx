@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -219,6 +220,19 @@ private class DialogWrapper(
             lightStatusBars = lightStatusBars,
             lightNavigationBars = lightNavigationBars,
         )
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (
+            properties.dismissOnBackPress &&
+                event.isTracking &&
+                !event.isCanceled &&
+                keyCode == KeyEvent.KEYCODE_ESCAPE
+        ) {
+            onDismissRequest()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {

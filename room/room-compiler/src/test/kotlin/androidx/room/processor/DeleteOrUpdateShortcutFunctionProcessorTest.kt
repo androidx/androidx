@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
@@ -35,7 +36,6 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.DeleteOrUpdateShortcutFunction
 import kotlin.reflect.KClass
@@ -247,13 +247,21 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
                 @${annotation.java.canonicalName}
                 abstract public void users(User[] users);
                 """
-        ) { shortcut, _ ->
+        ) { shortcut, invocation ->
             assertThat(shortcut.element.jvmName).isEqualTo("users")
             assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XTypeName.getArrayName(COMMON.USER_TYPE_NAME.copy(nullable = true))
+                    XTypeName.getArrayName(
+                            if (invocation.isKsp2) {
+                                XTypeName.getProducerExtendsName(
+                                    COMMON.USER_TYPE_NAME.copy(nullable = true)
+                                )
+                            } else {
+                                COMMON.USER_TYPE_NAME.copy(nullable = true)
+                            }
+                        )
                         .copy(nullable = true)
                 )
 
@@ -579,7 +587,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
             additionalSources = listOf(usernameSource)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.cannotFindAsEntityField("foo.bar.User"))
+                hasErrorContaining(ProcessorErrors.cannotFindAsEntityProperty("foo.bar.User"))
             }
         }
     }
@@ -776,7 +784,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
                 COMMON.LISTENABLE_FUTURE,
                 COMMON.GUAVA_ROOM
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
@@ -832,7 +840,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
                 COMMON.GUAVA_ROOM
             )
 
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->

@@ -423,4 +423,71 @@ src/test/test.kt:31: Error: Creating an unnecessary lambda to emit a captured la
         """
             )
     }
+
+    /**
+     * Test for b/391445108. Inline and crossinline lambda parameters cannot be passed as a
+     * reference, they must be invoked in place (this does not allocate a new lambda). noinline
+     * lambda parameters should still warn.
+     */
+    @Test
+    fun ignoresInlineLambdaParametersPassedToNonInlineFunctions() {
+        check(
+                """
+            package test
+
+            import androidx.compose.runtime.Composable
+
+            fun uncomposableLambdaFunction(child: () -> Unit) {}
+
+            @Composable
+            inline fun TestInline(lambda: @Composable () -> Unit, uncomposableLambda: () -> Unit) {
+                // These should technically have
+                // contract {
+                //     callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+                // }
+                // Or else the compiler won't allow calling non-crossinline lambdas in this way
+                uncomposableLambdaFunction {
+                    uncomposableLambda()
+                }
+
+                ComposableFunction {
+                    lambda()
+                }
+            }
+
+            @Composable
+            inline fun TestCrossinline(crossinline lambda: @Composable () -> Unit, crossinline uncomposableLambda: () -> Unit) {
+                uncomposableLambdaFunction {
+                    uncomposableLambda()
+                }
+
+                ComposableFunction {
+                    lambda()
+                }
+            }
+
+            @Composable
+            inline fun TestNoinline(noinline lambda: @Composable () -> Unit, noinline uncomposableLambda: () -> Unit) {
+                uncomposableLambdaFunction {
+                    uncomposableLambda()
+                }
+
+                ComposableFunction {
+                    lambda()
+                }
+            }
+        """
+            )
+            .expect(
+                """
+src/test/test.kt:37: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        uncomposableLambda()
+        ~~~~~~~~~~~~~~~~~~
+src/test/test.kt:41: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        lambda()
+        ~~~~~~
+2 errors, 0 warnings
+                """
+            )
+    }
 }

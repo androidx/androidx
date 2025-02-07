@@ -13,10 +13,10 @@ package androidx.graphics {
     method public void setContentRoot(android.graphics.RenderNode renderNode);
     method public void setLightSourceAlpha(float ambientShadowAlpha, float spotShadowAlpha);
     method public void setLightSourceGeometry(float lightX, float lightY, float lightZ, float lightRadius);
-    property public final int bufferFormat;
-    property public final boolean isClosed;
-    property public final int maxBuffers;
-    property public final long usageFlags;
+    property public int bufferFormat;
+    property public boolean isClosed;
+    property public int maxBuffers;
+    property public long usageFlags;
   }
 
   public static final class CanvasBufferedRenderer.Builder {
@@ -40,17 +40,17 @@ package androidx.graphics {
     method public androidx.hardware.SyncFenceCompat? getFence();
     method public android.hardware.HardwareBuffer getHardwareBuffer();
     method public int getStatus();
-    property public final androidx.hardware.SyncFenceCompat? fence;
-    property public final android.hardware.HardwareBuffer hardwareBuffer;
-    property public final int status;
+    property public androidx.hardware.SyncFenceCompat? fence;
+    property public android.hardware.HardwareBuffer hardwareBuffer;
+    property public int status;
     field public static final androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion Companion;
     field public static final int ERROR_UNKNOWN = 1; // 0x1
     field public static final int SUCCESS = 0; // 0x0
   }
 
   public static final class CanvasBufferedRenderer.RenderResult.Companion {
-    property public static final int ERROR_UNKNOWN;
-    property public static final int SUCCESS;
+    property public static int ERROR_UNKNOWN;
+    property public static int SUCCESS;
   }
 
 }
@@ -61,9 +61,9 @@ package androidx.graphics.lowlatency {
     method public int getFrameBufferId();
     method public int getHeight();
     method public int getWidth();
-    property public final int frameBufferId;
-    property public final int height;
-    property public final int width;
+    property public int frameBufferId;
+    property public int height;
+    property public int width;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class CanvasFrontBufferedRenderer<T> {
@@ -80,8 +80,8 @@ package androidx.graphics.lowlatency {
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
     method public void setColorSpace(android.graphics.ColorSpace);
-    property public final int bufferFormat;
-    property public final android.graphics.ColorSpace colorSpace;
+    property public int bufferFormat;
+    property public android.graphics.ColorSpace colorSpace;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface CanvasFrontBufferedRenderer.Callback<T> {
@@ -96,7 +96,7 @@ package androidx.graphics.lowlatency {
     method public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
     method public boolean isVisible();
     method public void setVisible(boolean);
-    property public final boolean isVisible;
+    property public boolean isVisible;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
@@ -113,7 +113,7 @@ package androidx.graphics.lowlatency {
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
-    property public final int bufferFormat;
+    property public int bufferFormat;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
@@ -151,8 +151,8 @@ package androidx.graphics.opengl {
     method public android.hardware.HardwareBuffer getHardwareBuffer();
     method public boolean isClosed();
     method public void makeCurrent();
-    property public final android.hardware.HardwareBuffer hardwareBuffer;
-    property public final boolean isClosed;
+    property public android.hardware.HardwareBuffer hardwareBuffer;
+    property public boolean isClosed;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class FrameBufferRenderer implements androidx.graphics.opengl.GLRenderer.RenderCallback {
@@ -178,11 +178,11 @@ package androidx.graphics.opengl {
     method public void release(boolean cancelPending);
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseCallback);
     method public void render();
-    property public final int bufferFormat;
-    property public final androidx.graphics.opengl.GLRenderer glRenderer;
-    property public final int maxBuffers;
-    property public final androidx.graphics.opengl.SyncStrategy syncStrategy;
-    property public final long usageFlags;
+    property public int bufferFormat;
+    property public androidx.graphics.opengl.GLRenderer glRenderer;
+    property public int maxBuffers;
+    property public androidx.graphics.opengl.SyncStrategy syncStrategy;
+    property public long usageFlags;
   }
 
   public static final class GLFrameBufferRenderer.Builder {
@@ -264,7 +264,7 @@ package androidx.graphics.opengl.egl {
 
   public final class EGLConfigAttributes {
     method public int[] toArray();
-    property @kotlin.PublishedApi internal final int[] attrs;
+    property @kotlin.PublishedApi internal int[] attrs;
     field public static final androidx.graphics.opengl.egl.EGLConfigAttributes.Companion Companion;
     field public static final int EGL_COLOR_COMPONENT_TYPE_EXT = 13113; // 0x3339
     field public static final int EGL_COLOR_COMPONENT_TYPE_FIXED_EXT = 13114; // 0x333a
@@ -283,12 +283,12 @@ package androidx.graphics.opengl.egl {
   }
 
   public static final class EGLConfigAttributes.Companion {
-    property public static final int EGL_COLOR_COMPONENT_TYPE_EXT;
-    property public static final int EGL_COLOR_COMPONENT_TYPE_FIXED_EXT;
-    property public static final int EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT;
-    property public final androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_1010102;
-    property public final androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_8888;
-    property public final androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_F16;
+    property public static int EGL_COLOR_COMPONENT_TYPE_EXT;
+    property public static int EGL_COLOR_COMPONENT_TYPE_FIXED_EXT;
+    property public static int EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT;
+    property public androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_1010102;
+    property public androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_8888;
+    property public androidx.graphics.opengl.egl.EGLConfigAttributes RGBA_F16;
   }
 
   public final class EGLConfigAttributesKt {
@@ -299,9 +299,9 @@ package androidx.graphics.opengl.egl {
     ctor public EGLException(int error, optional String msg);
     method public int getError();
     method public String getMsg();
-    property public final int error;
+    property public int error;
     property public String message;
-    property public final String msg;
+    property public String msg;
   }
 
   public final class EGLManager {
@@ -322,13 +322,13 @@ package androidx.graphics.opengl.egl {
     method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public void release();
     method public void swapAndFlushBuffers();
-    property public final android.opengl.EGLSurface currentDrawSurface;
-    property public final android.opengl.EGLSurface currentReadSurface;
-    property public final android.opengl.EGLSurface defaultSurface;
-    property public final android.opengl.EGLConfig? eglConfig;
-    property public final android.opengl.EGLContext? eglContext;
-    property public final androidx.graphics.opengl.egl.EGLSpec eglSpec;
-    property public final androidx.graphics.opengl.egl.EGLVersion eglVersion;
+    property public android.opengl.EGLSurface currentDrawSurface;
+    property public android.opengl.EGLSurface currentReadSurface;
+    property public android.opengl.EGLSurface defaultSurface;
+    property public android.opengl.EGLConfig? eglConfig;
+    property public android.opengl.EGLContext? eglContext;
+    property public androidx.graphics.opengl.egl.EGLSpec eglSpec;
+    property public androidx.graphics.opengl.egl.EGLVersion eglVersion;
     field public static final androidx.graphics.opengl.egl.EGLManager.Companion Companion;
   }
 
@@ -374,8 +374,8 @@ package androidx.graphics.opengl.egl {
     method public androidx.graphics.opengl.egl.EGLVersion copy(int major, int minor);
     method public int getMajor();
     method public int getMinor();
-    property public final int major;
-    property public final int minor;
+    property public int major;
+    property public int minor;
     field public static final androidx.graphics.opengl.egl.EGLVersion.Companion Companion;
     field public static final androidx.graphics.opengl.egl.EGLVersion Unknown;
     field public static final androidx.graphics.opengl.egl.EGLVersion V14;
@@ -383,9 +383,9 @@ package androidx.graphics.opengl.egl {
   }
 
   public static final class EGLVersion.Companion {
-    property public final androidx.graphics.opengl.egl.EGLVersion Unknown;
-    property public final androidx.graphics.opengl.egl.EGLVersion V14;
-    property public final androidx.graphics.opengl.egl.EGLVersion V15;
+    property public androidx.graphics.opengl.egl.EGLVersion Unknown;
+    property public androidx.graphics.opengl.egl.EGLVersion V14;
+    property public androidx.graphics.opengl.egl.EGLVersion V15;
   }
 
 }
@@ -417,16 +417,16 @@ package androidx.graphics.surface {
   }
 
   public static final class SurfaceControlCompat.Companion {
-    property public static final int BUFFER_TRANSFORM_IDENTITY;
-    property public static final int BUFFER_TRANSFORM_MIRROR_HORIZONTAL;
-    property public static final int BUFFER_TRANSFORM_MIRROR_VERTICAL;
-    property public static final int BUFFER_TRANSFORM_ROTATE_180;
-    property public static final int BUFFER_TRANSFORM_ROTATE_270;
-    property public static final int BUFFER_TRANSFORM_ROTATE_90;
-    property public static final int CHANGE_FRAME_RATE_ALWAYS;
-    property public static final int CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS;
-    property public static final int FRAME_RATE_COMPATIBILITY_DEFAULT;
-    property public static final int FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
+    property public static int BUFFER_TRANSFORM_IDENTITY;
+    property public static int BUFFER_TRANSFORM_MIRROR_HORIZONTAL;
+    property public static int BUFFER_TRANSFORM_MIRROR_VERTICAL;
+    property public static int BUFFER_TRANSFORM_ROTATE_180;
+    property public static int BUFFER_TRANSFORM_ROTATE_270;
+    property public static int BUFFER_TRANSFORM_ROTATE_90;
+    property public static int CHANGE_FRAME_RATE_ALWAYS;
+    property public static int CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS;
+    property public static int FRAME_RATE_COMPATIBILITY_DEFAULT;
+    property public static int FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
@@ -491,29 +491,29 @@ package androidx.hardware {
   }
 
   public static final class DataSpace.Companion {
-    property public static final int DATASPACE_ADOBE_RGB;
-    property public static final int DATASPACE_BT2020;
-    property public static final int DATASPACE_BT2020_HLG;
-    property public static final int DATASPACE_BT2020_PQ;
-    property public static final int DATASPACE_BT601_525;
-    property public static final int DATASPACE_BT601_625;
-    property public static final int DATASPACE_BT709;
-    property public static final int DATASPACE_DCI_P3;
-    property public static final int DATASPACE_DEPTH;
-    property public static final int DATASPACE_DISPLAY_P3;
-    property public static final int DATASPACE_DYNAMIC_DEPTH;
-    property public static final int DATASPACE_HEIF;
-    property public static final int DATASPACE_JFIF;
-    property public static final int DATASPACE_JPEG_R;
-    property public static final int DATASPACE_SCRGB;
-    property public static final int DATASPACE_SCRGB_LINEAR;
-    property public static final int DATASPACE_SRGB;
-    property public static final int DATASPACE_SRGB_LINEAR;
-    property public static final int DATASPACE_UNKNOWN;
-    property public static final int RANGE_EXTENDED;
-    property public static final int RANGE_FULL;
-    property public static final int RANGE_LIMITED;
-    property public static final int RANGE_UNSPECIFIED;
+    property public static int DATASPACE_ADOBE_RGB;
+    property public static int DATASPACE_BT2020;
+    property public static int DATASPACE_BT2020_HLG;
+    property public static int DATASPACE_BT2020_PQ;
+    property public static int DATASPACE_BT601_525;
+    property public static int DATASPACE_BT601_625;
+    property public static int DATASPACE_BT709;
+    property public static int DATASPACE_DCI_P3;
+    property public static int DATASPACE_DEPTH;
+    property public static int DATASPACE_DISPLAY_P3;
+    property public static int DATASPACE_DYNAMIC_DEPTH;
+    property public static int DATASPACE_HEIF;
+    property public static int DATASPACE_JFIF;
+    property public static int DATASPACE_JPEG_R;
+    property public static int DATASPACE_SCRGB;
+    property public static int DATASPACE_SCRGB_LINEAR;
+    property public static int DATASPACE_SRGB;
+    property public static int DATASPACE_SRGB_LINEAR;
+    property public static int DATASPACE_UNKNOWN;
+    property public static int RANGE_EXTENDED;
+    property public static int RANGE_FULL;
+    property public static int RANGE_LIMITED;
+    property public static int RANGE_UNSPECIFIED;
   }
 
   public final class SyncFenceCompat implements java.lang.AutoCloseable {
@@ -530,8 +530,8 @@ package androidx.hardware {
 
   public static final class SyncFenceCompat.Companion {
     method public androidx.hardware.SyncFenceCompat createNativeSyncFence();
-    property public static final long SIGNAL_TIME_INVALID;
-    property public static final long SIGNAL_TIME_PENDING;
+    property public static long SIGNAL_TIME_INVALID;
+    property public static long SIGNAL_TIME_PENDING;
   }
 
 }
@@ -591,38 +591,38 @@ package androidx.opengl {
     method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
     method public java.util.Set<java.lang.String> parseExtensions(String queryString);
-    property public static final String EGL_ANDROID_CLIENT_BUFFER;
-    property public static final String EGL_ANDROID_IMAGE_NATIVE_BUFFER;
-    property public static final String EGL_ANDROID_NATIVE_FENCE_SYNC;
-    property public static final int EGL_CONDITION_SATISFIED_KHR;
-    property public static final String EGL_EXT_BUFFER_AGE;
-    property public static final String EGL_EXT_GL_COLORSPACE_BT2020_PQ;
-    property public static final String EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH;
-    property public static final String EGL_EXT_GL_COLORSPACE_SCRGB;
-    property public static final String EGL_EXT_PIXEL_FORMAT_FLOAT;
-    property public static final int EGL_FALSE;
-    property public static final long EGL_FOREVER_KHR;
-    property public static final String EGL_IMG_CONTEXT_PRIORITY;
-    property public static final String EGL_KHR_FENCE_SYNC;
-    property public static final String EGL_KHR_GL_COLORSPACE;
-    property public static final String EGL_KHR_IMAGE;
-    property public static final String EGL_KHR_IMAGE_BASE;
-    property public static final String EGL_KHR_NO_CONFIG_CONTEXT;
-    property public static final String EGL_KHR_PARTIAL_UPDATE;
-    property public static final String EGL_KHR_SURFACELESS_CONTEXT;
-    property public static final String EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE;
-    property public static final String EGL_KHR_WAIT_SYNC;
-    property public static final int EGL_SIGNALED_KHR;
-    property public static final int EGL_SYNC_CONDITION_KHR;
-    property public static final int EGL_SYNC_FENCE_KHR;
-    property public static final int EGL_SYNC_FLUSH_COMMANDS_BIT_KHR;
-    property public static final int EGL_SYNC_NATIVE_FENCE_ANDROID;
-    property public static final int EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR;
-    property public static final int EGL_SYNC_STATUS_KHR;
-    property public static final int EGL_SYNC_TYPE_KHR;
-    property public static final int EGL_TIMEOUT_EXPIRED_KHR;
-    property public static final int EGL_TRUE;
-    property public static final int EGL_UNSIGNALED_KHR;
+    property public static String EGL_ANDROID_CLIENT_BUFFER;
+    property public static String EGL_ANDROID_IMAGE_NATIVE_BUFFER;
+    property public static String EGL_ANDROID_NATIVE_FENCE_SYNC;
+    property public static int EGL_CONDITION_SATISFIED_KHR;
+    property public static String EGL_EXT_BUFFER_AGE;
+    property public static String EGL_EXT_GL_COLORSPACE_BT2020_PQ;
+    property public static String EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH;
+    property public static String EGL_EXT_GL_COLORSPACE_SCRGB;
+    property public static String EGL_EXT_PIXEL_FORMAT_FLOAT;
+    property public static int EGL_FALSE;
+    property public static long EGL_FOREVER_KHR;
+    property public static String EGL_IMG_CONTEXT_PRIORITY;
+    property public static String EGL_KHR_FENCE_SYNC;
+    property public static String EGL_KHR_GL_COLORSPACE;
+    property public static String EGL_KHR_IMAGE;
+    property public static String EGL_KHR_IMAGE_BASE;
+    property public static String EGL_KHR_NO_CONFIG_CONTEXT;
+    property public static String EGL_KHR_PARTIAL_UPDATE;
+    property public static String EGL_KHR_SURFACELESS_CONTEXT;
+    property public static String EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE;
+    property public static String EGL_KHR_WAIT_SYNC;
+    property public static int EGL_SIGNALED_KHR;
+    property public static int EGL_SYNC_CONDITION_KHR;
+    property public static int EGL_SYNC_FENCE_KHR;
+    property public static int EGL_SYNC_FLUSH_COMMANDS_BIT_KHR;
+    property public static int EGL_SYNC_NATIVE_FENCE_ANDROID;
+    property public static int EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR;
+    property public static int EGL_SYNC_STATUS_KHR;
+    property public static int EGL_SYNC_TYPE_KHR;
+    property public static int EGL_TIMEOUT_EXPIRED_KHR;
+    property public static int EGL_TRUE;
+    property public static int EGL_UNSIGNALED_KHR;
   }
 
   public interface EGLHandle {

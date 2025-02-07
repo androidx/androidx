@@ -29,8 +29,6 @@ import android.view.animation.Interpolator;
 import android.widget.OverScroller;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.core.view.DifferentialMotionFlingController;
 import androidx.core.view.DifferentialMotionFlingTarget;
@@ -40,6 +38,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -293,7 +293,7 @@ public class RecyclerViewOnGenericMotionEventTest {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
 
         }
 

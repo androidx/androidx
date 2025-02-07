@@ -29,6 +29,7 @@ value class HapticFeedbackType(internal val value: Int) {
             ContextClick -> "ContextClick"
             GestureEnd -> "GestureEnd"
             GestureThresholdActivate -> "GestureThresholdActivate"
+            KeyboardTap -> "KeyboardTap"
             LongPress -> "LongPress"
             Reject -> "Reject"
             SegmentFrequentTick -> "SegmentFrequentTick"
@@ -64,6 +65,10 @@ value class HapticFeedbackType(internal val value: Int) {
          */
         val GestureThresholdActivate
             get() = PlatformHapticFeedbackType.GestureThresholdActivate
+
+        /** The user has pressed a soft keyboard key. */
+        val KeyboardTap
+            get() = PlatformHapticFeedbackType.KeyboardTap
 
         /**
          * The user has performed a long press on an object that is resulting in an action being
@@ -113,6 +118,7 @@ value class HapticFeedbackType(internal val value: Int) {
                 ContextClick,
                 GestureEnd,
                 GestureThresholdActivate,
+                KeyboardTap,
                 LongPress,
                 Reject,
                 SegmentFrequentTick,
@@ -130,6 +136,7 @@ internal expect object PlatformHapticFeedbackType {
     val ContextClick: HapticFeedbackType
     val GestureEnd: HapticFeedbackType
     val GestureThresholdActivate: HapticFeedbackType
+    val KeyboardTap: HapticFeedbackType
     val LongPress: HapticFeedbackType
     val Reject: HapticFeedbackType
     val SegmentFrequentTick: HapticFeedbackType

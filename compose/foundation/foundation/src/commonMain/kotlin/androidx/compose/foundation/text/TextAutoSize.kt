@@ -29,6 +29,8 @@ import kotlin.math.floor
 /**
  * Interface used by Text composables to override text size to automatically grow or shrink text to
  * fill the layout bounds.
+ *
+ * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 interface TextAutoSize {
     /**
@@ -99,61 +101,6 @@ object TextAutoSizeDefaults {
 
     /** The default maximum font size for [TextAutoSize]. */
     val MaxFontSize = 112.sp
-}
-
-/**
- * Interface used by Text composables to override text size to automatically grow or shrink text to
- * fill the layout bounds.
- */
-@Deprecated(
-    message = "AutoSize has been renamed to TextAutoSize",
-    replaceWith = ReplaceWith("TextAutoSize")
-)
-sealed interface AutoSize {
-    companion object {
-        /**
-         * Automatically size the text with the biggest font size that fits the available space.
-         *
-         * @param minFontSize The smallest potential font size of the text. Default = 12.sp. This
-         *   must be smaller than [maxFontSize]; an [IllegalArgumentException] will be thrown
-         *   otherwise.
-         * @param maxFontSize The largest potential font size of the text. Default = 112.sp. This
-         *   must be larger than [minFontSize]; an [IllegalArgumentException] will be thrown
-         *   otherwise.
-         * @param stepSize The smallest difference between potential font sizes. Specifically, every
-         *   font size, when subtracted by [minFontSize], is divisible by [stepSize]. Default =
-         *   0.25.sp. This must not be less than `0.0001f.sp`; an [IllegalArgumentException] will be
-         *   thrown otherwise. If [stepSize] is greater than the difference between [minFontSize]
-         *   and [maxFontSize], [minFontSize] will be used for the layout.
-         * @return AutoSize instance with the step-based configuration. Using this in a compatible
-         *   composable will cause its text to be sized as above.
-         */
-        @Deprecated(
-            message = "AutoSize has been renamed to TextAutoSize",
-            replaceWith = ReplaceWith("TextAutoSize.StepBased")
-        )
-        @Suppress("Deprecation")
-        fun StepBased(
-            minFontSize: TextUnit = AutoSizeDefaults.MinFontSize,
-            maxFontSize: TextUnit = AutoSizeDefaults.MaxFontSize,
-            stepSize: TextUnit = 0.25.sp
-        ): TextAutoSize = TextAutoSize.StepBased(minFontSize, maxFontSize, stepSize)
-    }
-}
-
-/** Contains defaults for [AutoSize] APIs. */
-@Deprecated(
-    message = "AutoSizeDefaults has been renamed to TextAutoSizeDefaults",
-    replaceWith = ReplaceWith("TextAutoSizeDefaults")
-)
-object AutoSizeDefaults {
-    /** The default minimum font size for [AutoSize]. */
-    val MinFontSize: TextUnit
-        get() = TextAutoSizeDefaults.MinFontSize
-
-    /** The default maximum font size for [AutoSize]. */
-    val MaxFontSize: TextUnit
-        get() = TextAutoSizeDefaults.MaxFontSize
 }
 
 private class AutoSizeStepBased(

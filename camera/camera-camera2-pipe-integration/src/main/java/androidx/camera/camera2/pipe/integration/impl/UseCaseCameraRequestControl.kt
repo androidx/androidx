@@ -208,6 +208,14 @@ public interface UseCaseCameraRequestControl {
         awbRegions: List<MeteringRectangle>? = null,
     ): Deferred<Result3A>
 
+    /**
+     * Waits for any ongoing surface setup to be completed and returns a boolean value to indicate
+     * if a successful setup exists.
+     *
+     * @see UseCaseSurfaceManager.awaitSetupCompletion
+     */
+    public suspend fun awaitSurfaceSetup(): Boolean
+
     public fun close()
 }
 
@@ -218,6 +226,7 @@ constructor(
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val useCaseSurfaceManager: UseCaseSurfaceManager,
     private val threads: UseCaseThreads,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
@@ -403,6 +412,8 @@ constructor(
                 }
             }
         } ?: submitFailedResult
+
+    override suspend fun awaitSurfaceSetup(): Boolean = useCaseSurfaceManager.awaitSetupCompletion()
 
     override fun close() {
         closed = true

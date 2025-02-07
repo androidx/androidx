@@ -58,7 +58,6 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          *
          * Various transformations that can be applied to a buffer.
          */
-        @Suppress("AcronymName")
         @IntDef(
             value =
                 [

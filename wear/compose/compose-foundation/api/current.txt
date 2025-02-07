@@ -9,9 +9,9 @@ package androidx.wear.compose.foundation {
     method public float getCenter();
     method public float getEnd();
     method public float getStart();
-    property public final float Center;
-    property public final float End;
-    property public final float Start;
+    property public float Center;
+    property public float End;
+    property public float Start;
   }
 
   @androidx.compose.runtime.Stable public interface ArcPaddingValues {
@@ -34,12 +34,12 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CompositionLocalsKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> getLocalReduceMotion();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalReduceMotion();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalSwipeToDismissBackgroundScrimColor();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalSwipeToDismissContentScrimColor();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> LocalReduceMotion;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalSwipeToDismissBackgroundScrimColor;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalSwipeToDismissContentScrimColor;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalReduceMotion;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalSwipeToDismissBackgroundScrimColor;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalSwipeToDismissContentScrimColor;
   }
 
   public interface CurvedAlignment {
@@ -54,9 +54,9 @@ package androidx.wear.compose.foundation {
     method public float getCenter();
     method public float getEnd();
     method public float getStart();
-    property public final float Center;
-    property public final float End;
-    property public final float Start;
+    property public float Center;
+    property public float End;
+    property public float Start;
   }
 
   @kotlin.jvm.JvmInline public static final value class CurvedAlignment.Radial {
@@ -68,9 +68,9 @@ package androidx.wear.compose.foundation {
     method public float getCenter();
     method public float getInner();
     method public float getOuter();
-    property public final float Center;
-    property public final float Inner;
-    property public final float Outer;
+    property public float Center;
+    property public float Inner;
+    property public float Outer;
   }
 
   public final class CurvedBoxKt {
@@ -98,10 +98,10 @@ package androidx.wear.compose.foundation {
     method public int getCounterClockwise();
     method public int getNormal();
     method public int getReversed();
-    property public final int Clockwise;
-    property public final int CounterClockwise;
-    property public final int Normal;
-    property public final int Reversed;
+    property public int Clockwise;
+    property public int CounterClockwise;
+    property public int Normal;
+    property public int Reversed;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public static final value class CurvedDirection.Radial {
@@ -111,8 +111,8 @@ package androidx.wear.compose.foundation {
   public static final class CurvedDirection.Radial.Companion {
     method public int getInsideOut();
     method public int getOutsideIn();
-    property public final int InsideOut;
-    property public final int OutsideIn;
+    property public int InsideOut;
+    property public int OutsideIn;
   }
 
   public final class CurvedDrawKt {
@@ -170,10 +170,12 @@ package androidx.wear.compose.foundation {
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
-    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
+    ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
+    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing, optional long letterSpacingCounterClockwise, optional long lineHeight);
     method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize);
     method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
-    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
+    method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
+    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing, optional long letterSpacingCounterClockwise, optional long lineHeight);
     method public long getBackground();
     method public long getColor();
     method public androidx.compose.ui.text.font.FontFamily? getFontFamily();
@@ -182,23 +184,27 @@ package androidx.wear.compose.foundation {
     method public androidx.compose.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.compose.ui.text.font.FontWeight? getFontWeight();
     method public long getLetterSpacing();
+    method public long getLetterSpacingCounterClockwise();
+    method public long getLineHeight();
     method public androidx.wear.compose.foundation.CurvedTextStyle merge(optional androidx.wear.compose.foundation.CurvedTextStyle? other);
     method public operator androidx.wear.compose.foundation.CurvedTextStyle plus(androidx.wear.compose.foundation.CurvedTextStyle other);
-    property public final long background;
-    property public final long color;
-    property public final androidx.compose.ui.text.font.FontFamily? fontFamily;
-    property public final long fontSize;
-    property public final androidx.compose.ui.text.font.FontStyle? fontStyle;
-    property public final androidx.compose.ui.text.font.FontSynthesis? fontSynthesis;
-    property public final androidx.compose.ui.text.font.FontWeight? fontWeight;
-    property public final long letterSpacing;
+    property public long background;
+    property public long color;
+    property public androidx.compose.ui.text.font.FontFamily? fontFamily;
+    property public long fontSize;
+    property public androidx.compose.ui.text.font.FontStyle? fontStyle;
+    property public androidx.compose.ui.text.font.FontSynthesis? fontSynthesis;
+    property public androidx.compose.ui.text.font.FontWeight? fontWeight;
+    property public long letterSpacing;
+    property public long letterSpacingCounterClockwise;
+    property public long lineHeight;
   }
 
   public final class ExpandableItemsDefaults {
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getCollapseAnimationSpec();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getExpandAnimationSpec();
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec;
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec;
+    property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec;
+    property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec;
     field public static final androidx.wear.compose.foundation.ExpandableItemsDefaults INSTANCE;
   }
 
@@ -214,8 +220,8 @@ package androidx.wear.compose.foundation {
     method public float getExpandProgress();
     method public boolean isExpanded();
     method public void setExpanded(boolean);
-    property public final float expandProgress;
-    property public final boolean expanded;
+    property public float expandProgress;
+    property public boolean expanded;
     field public static final androidx.wear.compose.foundation.ExpandableState.Companion Companion;
   }
 
@@ -239,13 +245,9 @@ package androidx.wear.compose.foundation {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.focus.FocusRequester rememberActiveFocusRequester();
   }
 
-  public fun interface ReduceMotion {
-    method @androidx.compose.runtime.Composable public boolean enabled();
-  }
-
   @kotlin.jvm.JvmInline public final value class RevealActionType {
     method public int getValue();
-    property public final int value;
+    property public int value;
     field public static final androidx.wear.compose.foundation.RevealActionType.Companion Companion;
   }
 
@@ -254,10 +256,10 @@ package androidx.wear.compose.foundation {
     method public int getPrimaryAction();
     method public int getSecondaryAction();
     method public int getUndoAction();
-    property public final int None;
-    property public final int PrimaryAction;
-    property public final int SecondaryAction;
-    property public final int UndoAction;
+    property public int None;
+    property public int PrimaryAction;
+    property public int SecondaryAction;
+    property public int UndoAction;
   }
 
   public interface RevealScope {
@@ -277,17 +279,17 @@ package androidx.wear.compose.foundation {
     method public boolean isAnimationRunning();
     method public void setLastActionType(int);
     method public suspend Object? snapTo(int targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final int currentValue;
-    property public final boolean isAnimationRunning;
-    property public final int lastActionType;
-    property public final float offset;
-    property public final java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> swipeAnchors;
-    property public final int targetValue;
+    property public int currentValue;
+    property public boolean isAnimationRunning;
+    property public int lastActionType;
+    property public float offset;
+    property public java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> swipeAnchors;
+    property public int targetValue;
   }
 
   @kotlin.jvm.JvmInline public final value class RevealValue {
     method public int getValue();
-    property public final int value;
+    property public int value;
     field public static final androidx.wear.compose.foundation.RevealValue.Companion Companion;
   }
 
@@ -299,13 +301,13 @@ package androidx.wear.compose.foundation {
     method @Deprecated public int getRevealing();
     method public int getRightRevealed();
     method public int getRightRevealing();
-    property public final int Covered;
-    property public final int LeftRevealed;
-    property public final int LeftRevealing;
-    property @Deprecated public final int Revealed;
-    property @Deprecated public final int Revealing;
-    property public final int RightRevealed;
-    property public final int RightRevealing;
+    property public int Covered;
+    property public int LeftRevealed;
+    property public int LeftRevealing;
+    property @Deprecated public int Revealed;
+    property @Deprecated public int Revealing;
+    property public int RightRevealed;
+    property public int RightRevealing;
   }
 
   public interface ScrollInfoProvider {
@@ -331,22 +333,22 @@ package androidx.wear.compose.foundation {
 
   @kotlin.jvm.JvmInline public final value class SwipeDirection {
     method public int getValue();
-    property public final int value;
+    property public int value;
     field public static final androidx.wear.compose.foundation.SwipeDirection.Companion Companion;
   }
 
   public static final class SwipeDirection.Companion {
     method public int getBoth();
     method public int getRightToLeft();
-    property public final int Both;
-    property public final int RightToLeft;
+    property public int Both;
+    property public int RightToLeft;
   }
 
   public final class SwipeToDismissBoxDefaults {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
     method public float getEdgeWidth();
-    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
-    property public final float EdgeWidth;
+    property public androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property public float EdgeWidth;
     field public static final androidx.wear.compose.foundation.SwipeToDismissBoxDefaults INSTANCE;
   }
 
@@ -358,10 +360,10 @@ package androidx.wear.compose.foundation {
     method public androidx.wear.compose.foundation.SwipeToDismissValue getTargetValue();
     method public boolean isAnimationRunning();
     method public suspend Object? snapTo(androidx.wear.compose.foundation.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final androidx.wear.compose.foundation.SwipeToDismissValue currentValue;
-    property public final boolean isAnimationRunning;
-    property public final float offset;
-    property public final androidx.wear.compose.foundation.SwipeToDismissValue targetValue;
+    property public androidx.wear.compose.foundation.SwipeToDismissValue currentValue;
+    property public boolean isAnimationRunning;
+    property public float offset;
+    property public androidx.wear.compose.foundation.SwipeToDismissValue targetValue;
   }
 
   public enum SwipeToDismissKeys {
@@ -411,8 +413,8 @@ package androidx.wear.compose.foundation.lazy {
   public static final class ScalingLazyListAnchorType.Companion {
     method public int getItemCenter();
     method public int getItemStart();
-    property public final int ItemCenter;
-    property public final int ItemStart;
+    property public int ItemCenter;
+    property public int ItemStart;
   }
 
   public sealed interface ScalingLazyListItemInfo {
@@ -485,16 +487,16 @@ package androidx.wear.compose.foundation.lazy {
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
-    property public final int centerItemIndex;
-    property public final int centerItemScrollOffset;
+    property public int centerItemIndex;
+    property public int centerItemScrollOffset;
     property public boolean isScrollInProgress;
-    property public final androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo layoutInfo;
+    property public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo layoutInfo;
     field public static final androidx.wear.compose.foundation.lazy.ScalingLazyListState.Companion Companion;
   }
 
   public static final class ScalingLazyListState.Companion {
     method public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.foundation.lazy.ScalingLazyListState,java.lang.Object> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.foundation.lazy.ScalingLazyListState,java.lang.Object> Saver;
+    property public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.foundation.lazy.ScalingLazyListState,java.lang.Object> Saver;
   }
 
   public final class ScalingLazyListStateKt {
@@ -530,24 +532,32 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.wear.compose.foundation.lazy.TransformingLazyColumnScopeMarker public sealed interface TransformingLazyColumnItemScope {
     method @androidx.compose.runtime.Composable public default void TransformExclusion(kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,kotlin.Unit> content);
     method public androidx.compose.ui.Modifier animateItem(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeInSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? placementSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeOutSpec);
-    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.drawscope.DrawScope);
-    method public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.GraphicsLayerScope);
+    method public long getScrollProgress(androidx.compose.ui.graphics.drawscope.DrawScope);
+    method public long getScrollProgress(androidx.compose.ui.graphics.GraphicsLayerScope);
     method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
-    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? scrollProgress;
-    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress? scrollProgress;
+    property public abstract long scrollProgress;
+    property public abstract long scrollProgress;
   }
 
   @kotlin.jvm.JvmInline public final value class TransformingLazyColumnItemScrollProgress {
     ctor public TransformingLazyColumnItemScrollProgress(float topOffsetFraction, float bottomOffsetFraction);
-    property public final float bottomOffsetFraction;
-    property public final float topOffsetFraction;
+    property public float bottomOffsetFraction;
+    property public boolean isSpecified;
+    property public boolean isUnspecified;
+    property public float topOffsetFraction;
+    field public static final androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion Companion;
+  }
+
+  public static final class TransformingLazyColumnItemScrollProgress.Companion {
+    method public long getUnspecified();
+    property public long Unspecified;
   }
 
   public final class TransformingLazyColumnKt {
     method @androidx.compose.runtime.Composable public static void TransformingLazyColumn(androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TransformingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope,kotlin.Unit> content);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope?> getLocalTransformingLazyColumnItemScope();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope?> LocalTransformingLazyColumnItemScope;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope?> LocalTransformingLazyColumnItemScope;
   }
 
   public sealed interface TransformingLazyColumnLayoutInfo {
@@ -571,8 +581,9 @@ package androidx.wear.compose.foundation.lazy {
   @kotlin.DslMarker public @interface TransformingLazyColumnScopeMarker {
   }
 
-  public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
+  @androidx.compose.runtime.Stable public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TransformingLazyColumnState();
+    ctor public TransformingLazyColumnState(optional int initialAnchorItemIndex, optional int initialAnchorItemScrollOffset);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getAnchorItemIndex();
@@ -582,16 +593,16 @@ package androidx.wear.compose.foundation.lazy {
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final int anchorItemIndex;
-    property public final int anchorItemScrollOffset;
+    property public int anchorItemIndex;
+    property public int anchorItemScrollOffset;
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public boolean isScrollInProgress;
-    property public final androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo layoutInfo;
+    property public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo layoutInfo;
   }
 
   public final class TransformingLazyColumnStateKt {
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnState rememberTransformingLazyColumnState();
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.TransformingLazyColumnState rememberTransformingLazyColumnState(optional int initialAnchorItemIndex, optional int initialAnchorItemScrollOffset);
   }
 
   public sealed interface TransformingLazyColumnVisibleItemInfo {
@@ -620,9 +631,9 @@ package androidx.wear.compose.foundation.pager {
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method public float getSwipeToDismissEdgeZoneFraction();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional @FloatRange(from=0.0, to=1.0) float snapPositionalThreshold);
-    property public final int BeyondViewportPageCount;
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> SnapAnimationSpec;
-    property public final float SwipeToDismissEdgeZoneFraction;
+    property public int BeyondViewportPageCount;
+    property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> SnapAnimationSpec;
+    property public float SwipeToDismissEdgeZoneFraction;
     field public static final androidx.wear.compose.foundation.pager.PagerDefaults INSTANCE;
   }
 

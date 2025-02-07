@@ -217,6 +217,7 @@ class BinaryCompatibilityValidation(
                 it.group = ABI_GROUP_NAME
                 it.dependsOn(extractReleaseTask)
                 it.runtimeClasspath.from(runtimeClasspath)
+                it.cacheEvenIfNoOutputs()
             }
         }
 

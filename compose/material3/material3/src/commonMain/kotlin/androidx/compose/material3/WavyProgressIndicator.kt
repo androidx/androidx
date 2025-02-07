@@ -70,6 +70,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
@@ -141,7 +142,7 @@ fun LinearWavyProgressIndicator(
     wavelength: Dp = WavyProgressIndicatorDefaults.LinearDeterminateWavelength,
     waveSpeed: Dp = wavelength // Match to 1 wavelength per second
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     val lastOffsetValue = remember { mutableFloatStateOf(0f) }
     val offsetAnimatable =
         remember(waveSpeed, wavelength) { Animatable(lastOffsetValue.floatValue) }
@@ -182,7 +183,9 @@ fun LinearWavyProgressIndicator(
         modifier
             .then(IncreaseVerticalSemanticsBounds)
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .size(
                 width = WavyProgressIndicatorDefaults.LinearContainerWidth,
@@ -195,7 +198,7 @@ fun LinearWavyProgressIndicator(
 
                 // Animate changes in the amplitude. As this requires a progress value, we do it
                 // inside the Spacer to avoid redundant recompositions.
-                val amplitudeForProgress = amplitude(progressValue).coerceIn(0f, 1f)
+                val amplitudeForProgress = amplitude(progressValue).fastCoerceIn(0f, 1f)
                 val animatedAmplitude =
                     amplitudeAnimatable
                         ?: Animatable(amplitudeForProgress, Float.VectorConverter).also {
@@ -366,7 +369,7 @@ fun LinearWavyProgressIndicator(
     // appear at the same time while the indicator animates.
     val progressFractions = floatArrayOf(0f, 0f, 0f, 0f)
     val progressDrawingCache = remember { LinearProgressDrawingCache() }
-    val coercedAmplitude = amplitude.coerceIn(0f, 1f)
+    val coercedAmplitude = amplitude.fastCoerceIn(0f, 1f)
     Spacer(
         modifier
             .then(IncreaseVerticalSemanticsBounds)
@@ -625,7 +628,7 @@ fun CircularWavyProgressIndicator(
             }
         }
     }
-    val coercedAmplitude = amplitude.coerceIn(0f, 1f)
+    val coercedAmplitude = amplitude.fastCoerceIn(0f, 1f)
     PathProgressIndicator(
         modifier = modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize),
         // Resolves the Path from a RoundedPolygon that represents the active indicator.
@@ -716,7 +719,7 @@ private fun PathProgressIndicator(
     wavelength: Dp,
     enableProgressMotion: Boolean
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     var amplitudeAnimatable by remember {
         mutableStateOf<Animatable<Float, AnimationVector1D>?>(null)
     }
@@ -726,7 +729,9 @@ private fun PathProgressIndicator(
     Spacer(
         modifier
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .drawWithCache {
                 val progressValue = coercedProgress()
@@ -734,7 +739,7 @@ private fun PathProgressIndicator(
 
                 // Animate changes in the amplitude. As this requires a progress value, we do it
                 // inside the Spacer to avoid redundant recompositions.
-                val amplitudeForProgress = amplitude(progressValue).coerceIn(0f, 1f)
+                val amplitudeForProgress = amplitude(progressValue).fastCoerceIn(0f, 1f)
                 val animatedAmplitude =
                     amplitudeAnimatable
                         ?: Animatable(amplitudeForProgress, Float.VectorConverter).also {
@@ -774,7 +779,7 @@ private fun PathProgressIndicator(
                     amplitude = animatedAmplitude.value,
                     waveOffset =
                         if (animatedAmplitude.value > 0f) {
-                            waveOffset().coerceIn(0f, 1f)
+                            waveOffset().fastCoerceIn(0f, 1f)
                         } else {
                             0f
                         },
@@ -928,7 +933,7 @@ private fun PathProgressIndicator(
                             amplitude = amplitude,
                             waveOffset =
                                 if (amplitude > 0f) {
-                                    waveOffset().coerceIn(0f, 1f)
+                                    waveOffset().fastCoerceIn(0f, 1f)
                                 } else {
                                     0f
                                 },
@@ -1516,9 +1521,10 @@ private class LinearProgressDrawingCache {
             }
             // Coerce the bar's head and tail to ensure we leave room for the drawing of the
             // stroke's caps.
-            val coerceRange = currentStrokeCapWidth..(width - currentStrokeCapWidth)
-            val adjustedBarHead = barHead.coerceIn(coerceRange)
-            val adjustedBarTail = barTail.coerceIn(coerceRange)
+            val adjustedBarHead =
+                barHead.fastCoerceIn(currentStrokeCapWidth, width - currentStrokeCapWidth)
+            val adjustedBarTail =
+                barTail.fastCoerceIn(currentStrokeCapWidth, width - currentStrokeCapWidth)
 
             // Update the progressPathToDraw
             if (abs(endProgressFraction - startProgressFraction) > 0) {
@@ -1903,7 +1909,7 @@ private class CircularProgressDrawingCache {
         // motion is enabled was repeated to allow us to call getSegment with offsets and then
         // rotate the progressPathToDraw in order to create a shifted path as the progress moves.
         if (currentProgressMotionEnabled) {
-            val coercedWaveOffset = waveOffset.coerceIn(0f, 1f)
+            val coercedWaveOffset = waveOffset.fastCoerceIn(0f, 1f)
             val startStopShift = coercedWaveOffset * progressPathLength
 
             progressPathMeasure.getSegment(

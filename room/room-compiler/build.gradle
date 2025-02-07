@@ -24,7 +24,7 @@
 
 import androidx.build.BuildOnServerKt
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -238,7 +238,7 @@ tasks.withType(Test).configureEach {
 
 androidx {
     name = "Room Compiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
     kotlinTarget = KotlinTarget.KOTLIN_2_0

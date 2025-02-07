@@ -28,6 +28,7 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.createFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.setSubspaceContent
+import androidx.xr.scenecore.ContentlessEntity
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Session
 import com.google.common.truth.Truth.assertThat
@@ -50,11 +51,11 @@ class SubspaceLayoutNodeTest {
 
     @Test
     fun subspaceLayoutNode_shouldParentNodesProperly() {
-        val parentEntity = testSession.createEntity("ParentEntity")
+        val parentEntity = ContentlessEntity.create(testSession, "ParentEntity")
         composeTestRule.setSubspaceContent {
             EntityLayout(entity = parentEntity) {
                 EntityLayout(
-                    entity = testSession.createEntity("ChildEntity"),
+                    entity = ContentlessEntity.create(testSession, "ChildEntity"),
                     modifier = SubspaceModifier.testTag("Child"),
                 )
             }
@@ -64,35 +65,7 @@ class SubspaceLayoutNodeTest {
                 composeTestRule
                     .onSubspaceNodeWithTag("Child")
                     .fetchSemanticsNode()
-                    .coreEntity
-                    ?.entity
-                    ?.getParent()
-            )
-            .isEqualTo(parentEntity)
-    }
-
-    @Test
-    fun subspaceLayoutNode_shouldParentNodesWhenThereIsAGapBetween() {
-        val parentEntity = testSession.createEntity("ParentEntity")
-        composeTestRule.setSubspaceContent {
-            EntityLayout(entity = parentEntity) {
-                EntityLayout(modifier = SubspaceModifier.testTag("Child")) {
-                    EntityLayout(
-                        entity = testSession.createEntity("GrandChildEntity"),
-                        modifier = SubspaceModifier.testTag("GrandChild"),
-                    )
-                }
-            }
-        }
-
-        assertThat(composeTestRule.onSubspaceNodeWithTag("Child").fetchSemanticsNode().coreEntity)
-            .isNull()
-        assertThat(
-                composeTestRule
-                    .onSubspaceNodeWithTag("GrandChild")
-                    .fetchSemanticsNode()
-                    .coreEntity
-                    ?.entity
+                    .semanticsEntity
                     ?.getParent()
             )
             .isEqualTo(parentEntity)
@@ -102,13 +75,13 @@ class SubspaceLayoutNodeTest {
     @SubspaceComposable
     private fun EntityLayout(
         modifier: SubspaceModifier = SubspaceModifier,
-        entity: Entity? = null,
+        entity: Entity,
         content: @Composable @SubspaceComposable () -> Unit = {},
     ) {
         SubspaceLayout(
             content = content,
             modifier = modifier,
-            coreEntity = entity?.let { CoreContentlessEntity(it) },
+            coreEntity = CoreContentlessEntity(entity),
         ) { _, _ ->
             layout(0, 0, 0) {}
         }

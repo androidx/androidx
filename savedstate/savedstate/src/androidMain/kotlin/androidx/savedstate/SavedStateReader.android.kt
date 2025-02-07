@@ -254,6 +254,19 @@ internal actual constructor(
         return source.getSizeF(key) ?: defaultValue()
     }
 
+    @Suppress("ArrayReturn")
+    public actual inline fun getSavedStateArray(key: String): Array<SavedState> {
+        return getParcelableArray(key)
+    }
+
+    @Suppress("ArrayReturn")
+    public actual inline fun getSavedStateArrayOrElse(
+        key: String,
+        defaultValue: () -> Array<SavedState>,
+    ): Array<SavedState> {
+        return getParcelableArrayOrElse(key, defaultValue)
+    }
+
     public actual inline fun getString(key: String): String {
         if (key !in this) keyNotFoundError(key)
         return source.getString(key) ?: valueNotFoundError(key)
@@ -288,6 +301,17 @@ internal actual constructor(
     ): List<CharSequence> {
         if (key !in this) defaultValue()
         return source.getCharSequenceArrayList(key) ?: defaultValue()
+    }
+
+    public actual inline fun getSavedStateList(key: String): List<SavedState> {
+        return getParcelableList(key)
+    }
+
+    public actual inline fun getSavedStateListOrElse(
+        key: String,
+        defaultValue: () -> List<SavedState>
+    ): List<SavedState> {
+        return getParcelableListOrElse(key, defaultValue)
     }
 
     public actual inline fun getStringList(key: String): List<String> {

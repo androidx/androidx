@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -44,7 +48,10 @@ import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealState
 import androidx.wear.compose.foundation.RevealValue
+import androidx.wear.compose.foundation.SwipeDirection
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToReveal
+import androidx.wear.compose.foundation.createAnchors
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -381,5 +388,67 @@ private fun ShowDialog(
                 }
             }
         }
+    }
+}
+
+/*
+ * This demos how swipe to reveal for both directions can be done using just the Foundation layer,
+ * but we would expect developers to use the Material or Material3 layers which make the task
+ * easier.
+ */
+@Composable
+fun SwipeToRevealDemoBothDirections() {
+    val revealState =
+        rememberRevealState(anchors = createAnchors(swipeDirection = SwipeDirection.Both))
+    val coroutineScope = rememberCoroutineScope()
+    SwipeToReveal(
+        primaryAction = {
+            Box(
+                modifier =
+                    Modifier.fillMaxSize().clickable {
+                        /* Add the primary action */
+                        coroutineScope.launch {
+                            if (revealState.currentValue == RevealValue.LeftRevealing) {
+                                revealState.animateTo(RevealValue.LeftRevealed)
+                            } else {
+                                revealState.animateTo(RevealValue.RightRevealed)
+                            }
+                        }
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "Delete")
+            }
+        },
+        modifier =
+            Modifier.semantics {
+                // Use custom actions to make the primary and secondary actions accessible
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction("Delete") {
+                            /* Add the primary action click handler */
+                            true
+                        }
+                    )
+            },
+        state = revealState,
+        undoAction = {
+            Chip(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    /* Add the undo action */
+                    coroutineScope.launch { revealState.animateTo(RevealValue.Covered) }
+                },
+                colors = ChipDefaults.secondaryChipColors(),
+                label = { Text(text = "Undo") }
+            )
+        }
+    ) {
+        Chip(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { /* the click action associated with chip */ },
+            colors = ChipDefaults.secondaryChipColors(),
+            label = { Text(text = "Swipe Me") }
+        )
     }
 }
