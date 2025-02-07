@@ -19,7 +19,6 @@ package androidx.wear.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -41,17 +40,17 @@ fun ButtonGroupSample() {
         ButtonGroup(Modifier.fillMaxWidth()) {
             Button(
                 onClick = {},
-                modifier = Modifier.enlargeOnPress(interactionSource1),
+                modifier = Modifier.animateWidth(interactionSource1),
                 interactionSource = interactionSource1
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("L") }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Text("L") }
             }
             Button(
                 onClick = {},
-                modifier = Modifier.enlargeOnPress(interactionSource2),
+                modifier = Modifier.animateWidth(interactionSource2),
                 interactionSource = interactionSource2
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("R") }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Text("R") }
             }
         }
     }
@@ -68,24 +67,24 @@ fun ButtonGroupThreeButtonsSample() {
         ButtonGroup(Modifier.fillMaxWidth()) {
             Button(
                 onClick = {},
-                modifier = Modifier.enlargeOnPress(interactionSource1),
+                modifier = Modifier.animateWidth(interactionSource1),
                 interactionSource = interactionSource1
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("A") }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Text("A") }
             }
             Button(
                 onClick = {},
-                modifier = Modifier.weight(1.5f).enlargeOnPress(interactionSource2),
+                modifier = Modifier.weight(1.5f).animateWidth(interactionSource2),
                 interactionSource = interactionSource2
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("B") }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Text("B") }
             }
             Button(
                 onClick = {},
-                modifier = Modifier.enlargeOnPress(interactionSource3),
+                modifier = Modifier.animateWidth(interactionSource3),
                 interactionSource = interactionSource3
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("C") }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Text("C") }
             }
         }
     }

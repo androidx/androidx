@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
@@ -90,7 +89,7 @@ internal abstract class JavacType(
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
         containerAnnotation: KClass<out Annotation>?
-    ): List<XAnnotationBox<T>> {
+    ): List<XAnnotation> {
         throw UnsupportedOperationException("No plan to support XAnnotationBox.")
     }
 
@@ -110,9 +109,8 @@ internal abstract class JavacType(
                     // TODO(b/313473892): Checking if an annotation needs to be unwrapped can be
                     //  expensive with the XProcessing API, especially if we don't really care about
                     //  annotation values, so do a quick check on the AnnotationMirror first to
-                    // decide
-                    //  if its repeatable. Remove this once we've optimized the general solution in
-                    //  unwrapRepeatedAnnotationsFromContainer()
+                    //  decide if its repeatable. Remove this once we've optimized the general
+                    //  solution in unwrapRepeatedAnnotationsFromContainer()
                     if (annotation.mirror.isRepeatable()) {
                         annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
                     } else {

@@ -75,10 +75,17 @@ internal constructor(
                 appendLine()
             }
             if (generatedSources.isEmpty()) {
-                appendLine("Generated files: NONE")
+                appendLine("Generated source files: NONE")
             } else {
-                appendLine("Generated files:")
+                appendLine("Generated source files:")
                 generatedSources.forEach { appendLine(it.relativePath) }
+            }
+            appendLine()
+            if (generatedResources.isEmpty()) {
+                appendLine("Generated resource files: NONE")
+            } else {
+                appendLine("Generated resource files:")
+                generatedResources.forEach { appendLine(it.relativePath) }
             }
             appendLine()
             appendLine("RAW OUTPUT:")
@@ -326,8 +333,8 @@ internal constructor(
     /**
      * Asserts that the given source file is generated.
      *
-     * Unlike Java compile testing, which does structural comparison, this method executes a line by
-     * line comparison and is only able to ignore spaces and empty lines.
+     * Unlike Java compile testing, which does structural comparison, this function executes a line
+     * by line comparison and is only able to ignore spaces and empty lines.
      *
      * @see generatedSourceFileWithPath
      */
@@ -351,14 +358,25 @@ internal constructor(
         }
     }
 
-    /** Asserts that a resource file with the given [relativePath] was generated. */
-    fun generatedResourceFileWithPath(relativePath: String): PrimitiveByteArraySubject {
+    /** Asserts that a binary resource file with the given [relativePath] was generated. */
+    fun generatedBinaryResourceFileWithPath(relativePath: String): PrimitiveByteArraySubject {
+        val match = generatedResourceFileWithPath(relativePath)
+        return Truth.assertThat(match.openInputStream().readAllBytes())
+    }
+
+    /** Asserts that a text resource file with the given [relativePath] was generated. */
+    fun generatedTextResourceFileWithPath(relativePath: String): StringSubject {
+        val match = generatedResourceFileWithPath(relativePath)
+        return Truth.assertThat(match.openInputStream().bufferedReader().readText())
+    }
+
+    private fun generatedResourceFileWithPath(relativePath: String): Resource {
         val match =
             compilationResult.generatedResources.firstOrNull { it.relativePath == relativePath }
         if (match == null) {
             failWithActual(simpleFact("Didn't generate file with path: $relativePath"))
         }
-        return Truth.assertThat(match!!.openInputStream().readAllBytes())
+        return checkNotNull(match)
     }
 
     /**

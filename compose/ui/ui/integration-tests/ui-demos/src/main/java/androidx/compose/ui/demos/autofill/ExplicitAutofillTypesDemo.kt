@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.boundsInWindow
@@ -49,7 +48,11 @@ fun ExplicitAutofillTypesDemo() {
 
     Column {
         Autofill(
-            autofillTypes = listOf(androidx.compose.ui.autofill.AutofillType.PersonFullName),
+            autofillTypes =
+                listOf(
+                    @Suppress("Deprecation")
+                    androidx.compose.ui.autofill.AutofillType.PersonFullName
+                ),
             onFill = { name = TextFieldValue(it) }
         ) {
             OutlinedTextField(
@@ -62,7 +65,10 @@ fun ExplicitAutofillTypesDemo() {
         Spacer(Modifier.height(10.dp))
 
         Autofill(
-            autofillTypes = listOf(androidx.compose.ui.autofill.AutofillType.EmailAddress),
+            autofillTypes =
+                listOf(
+                    @Suppress("Deprecation") androidx.compose.ui.autofill.AutofillType.EmailAddress
+                ),
             onFill = { email = TextFieldValue(it) }
         ) {
             OutlinedTextField(
@@ -76,14 +82,15 @@ fun ExplicitAutofillTypesDemo() {
 
 @Composable
 private fun Autofill(
-    autofillTypes: List<androidx.compose.ui.autofill.AutofillType>,
+    autofillTypes: List<@Suppress("Deprecation") androidx.compose.ui.autofill.AutofillType>,
     onFill: ((String) -> Unit),
     content: @Composable BoxScope.() -> Unit
 ) {
-    val autofill = @OptIn(ExperimentalComposeUiApi::class) LocalAutofill.current
-    val autofillTree = LocalAutofillTree.current
+    val autofill = @Suppress("Deprecation") LocalAutofill.current
+    val autofillTree = @Suppress("Deprecation") LocalAutofillTree.current
     val autofillNode =
         remember(autofillTypes, onFill) {
+            @Suppress("Deprecation")
             androidx.compose.ui.autofill.AutofillNode(
                 onFill = onFill,
                 autofillTypes = autofillTypes

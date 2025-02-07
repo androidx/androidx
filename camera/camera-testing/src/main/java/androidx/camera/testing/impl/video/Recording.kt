@@ -117,7 +117,20 @@ internal constructor(
     ): List<Status> {
         try {
             return if (statusCount > 0) {
-                listener.verifyStatus(eventCount = statusCount)
+                listener.verifyStatus(eventCount = statusCount).also {
+                    if (withAudio) {
+                        // Ensure audio is recorded.
+                        listener.verifyAcceptCall(
+                            Status::class.java,
+                            /*inOrder=*/ false,
+                            defaultVerifyStatusTimeoutMs,
+                            CallTimesAtLeast(1),
+                            ArgumentMatcher<VideoRecordEvent> {
+                                it.recordingStats.audioStats.audioBytesRecorded > 0L
+                            }
+                        )
+                    }
+                }
             } else emptyList()
         } catch (t: Throwable) {
             throw AssertionError("Failed on #verifyStatus", t)

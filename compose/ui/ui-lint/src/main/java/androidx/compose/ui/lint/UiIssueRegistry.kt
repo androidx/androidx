@@ -31,7 +31,9 @@ class UiIssueRegistry : IssueRegistry() {
         get() =
             listOf(
                 ComposedModifierDetector.UnnecessaryComposedModifier,
-                LocalContextConfigurationReadDetector.LocalContextConfigurationRead,
+                LocalContextResourcesConfigurationReadDetector.LocalContextConfigurationRead,
+                LocalContextResourcesConfigurationReadDetector.LocalContextResourcesRead,
+                ConfigurationScreenWidthHeightDetector.ConfigurationScreenWidthHeight,
                 ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
                 ModifierDeclarationDetector.ModifierFactoryReturnType,
                 ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,

@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
@@ -257,7 +258,7 @@ private fun LoadingIndicatorImpl(
     require(indicatorPolygons.size > 1) {
         "indicatorPolygons should have, at least, two RoundedPolygons"
     }
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     val path = remember { Path() }
     val scaleMatrix = remember { Matrix() }
     val morphSequence =
@@ -277,7 +278,12 @@ private fun LoadingIndicatorImpl(
         modifier =
             modifier
                 .semantics(mergeDescendants = true) {
-                    progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                    // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                    progressBarRangeInfo =
+                        ProgressBarRangeInfo(
+                            coercedProgress().takeUnless { it.isNaN() } ?: 0f,
+                            0f..1f
+                        )
                 }
                 .size(
                     width = LoadingIndicatorDefaults.ContainerWidth,

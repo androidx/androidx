@@ -22,17 +22,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -42,17 +33,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedDirection
@@ -61,34 +48,28 @@ import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.background
-import androidx.wear.compose.foundation.curvedComposable
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
-import androidx.wear.compose.foundation.weight
-import androidx.wear.compose.material3.TimeTextDefaults.CurvedTextSeparator
-import androidx.wear.compose.material3.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material3.TimeTextDefaults.timeFormat
+import androidx.wear.compose.material3.TimeTextDefaults.timeTextStyle
 import androidx.wear.compose.materialcore.currentTimeMillis
 import androidx.wear.compose.materialcore.is24HourFormat
-import androidx.wear.compose.materialcore.isRoundDevice
 import java.util.Calendar
 import java.util.Locale
 
 /**
- * Layout to show the current time and a label at the top of the screen. If device has a round
- * screen, then the time will be curved along the top edge of the screen, if rectangular - then the
- * text and the time will be straight.
+ * Layout to show the current time and a label, they will be drawn in a curve, following the top
+ * edge of the screen.
  *
  * Note that Wear Material UX guidance recommends that time text should not be larger than
- * [TimeTextDefaults.MaxSweepAngle] of the screen edge on round devices, which is enforced by
- * default. It is recommended that additional content, if any, is limited to short status messages
- * before the [TimeTextScope.time] using the MaterialTheme.colorScheme.primary color.
+ * [TimeTextDefaults.MaxSweepAngle] of the screen edge, which is enforced by default. It is
+ * recommended that additional content, if any, is limited to short status messages before the time
+ * using the MaterialTheme.colorScheme.primary color.
  *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/components/curved-text) guide.
- *
- * Different components of [TimeText] can be added through methods of [TimeTextScope].
  *
  * A simple [TimeText] which shows the current time:
  *
@@ -97,107 +78,52 @@ import java.util.Locale
  * A [TimeText] with a short app status message shown:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatus
+ *
+ * A [TimeText] with a long status message, that needs ellipsizing:
+ *
+ * @sample androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.
+ * @param backgroundColor The background color of the arc drawn behind the [TimeText].
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
- * @param timeTextStyle [TextStyle] for the time text itself.
- * @param contentColor [Color] of content of displayed through [TimeTextScope.text] and
- *   [TimeTextScope.composable].
  * @param contentPadding The spacing values between the container and the content.
- * @param content The content of the [TimeText] - displays the current time by default.
+ * @param content The content of the [TimeText] - displays the current time by default. This lambda
+ *   receives the current time as a String and should display it using curvedText. Note that if long
+ *   curved text is included here, it should specify [CurvedModifier.weight] on it so that the space
+ *   available is suitably allocated.
  */
 @Composable
 public fun TimeText(
     modifier: Modifier = Modifier,
     curvedModifier: CurvedModifier = CurvedModifier,
     maxSweepAngle: Float = TimeTextDefaults.MaxSweepAngle,
+    backgroundColor: Color = TimeTextDefaults.backgroundColor(),
     timeSource: TimeSource = TimeTextDefaults.rememberTimeSource(timeFormat()),
-    timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
-    contentColor: Color = MaterialTheme.colorScheme.primary,
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
-    content: TimeTextScope.() -> Unit = { time() }
+    content: CurvedScope.(String) -> Unit = { time -> timeTextCurvedText(time) }
 ) {
-    val timeText = timeSource.currentTime()
-    val backgroundColor = CurvedTextDefaults.backgroundColor()
+    val currentTime = timeSource.currentTime()
 
-    if (isRoundDevice()) {
-        CurvedLayout(modifier = modifier) {
-            curvedRow(
-                modifier =
-                    curvedModifier
-                        .sizeIn(maxSweepDegrees = maxSweepAngle)
-                        .padding(contentPadding.toArcPadding())
-                        .background(backgroundColor, StrokeCap.Round),
-                radialAlignment = CurvedAlignment.Radial.Center
-            ) {
-                CurvedTimeTextScope(timeText, timeTextStyle, maxSweepAngle, contentColor).apply {
-                    content()
-                    Show()
-                }
-            }
-        }
-    } else {
-        Box(modifier.fillMaxSize()) {
-            Row(
-                modifier =
-                    Modifier.align(Alignment.TopCenter)
-                        .background(backgroundColor, CircleShape)
-                        .padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                LinearTimeTextScope(timeText, timeTextStyle, contentColor).apply {
-                    content()
-                    Show()
-                }
-            }
+    CurvedLayout(modifier = modifier) {
+        curvedRow(
+            modifier =
+                curvedModifier
+                    .sizeIn(maxSweepDegrees = maxSweepAngle)
+                    .padding(contentPadding.toArcPadding())
+                    .background(backgroundColor, StrokeCap.Round),
+            radialAlignment = CurvedAlignment.Radial.Center
+        ) {
+            content(currentTime)
         }
     }
-}
-
-/** Receiver scope which is used by [TimeText]. */
-public sealed class TimeTextScope {
-    /**
-     * Adds a composable [Text] for non-round devices and [curvedText] for round devices to
-     * [TimeText] content. Typically used to add a short status message ahead of the time text.
-     *
-     * @param text The text to display.
-     * @param style configuration for the [text] such as color, font etc.
-     * @param weight Size the text's width proportional to its weight relative to other weighted
-     *   sibling elements in the TimeText. Specify NaN to make this text not have a weight
-     *   specified. The default value, [TimeTextDefaults.AutoTextWeight], makes this text have
-     *   weight 1f if it's the only one, and not have weight if there are two or more.
-     */
-    public abstract fun text(
-        text: String,
-        style: TextStyle? = null,
-        weight: Float = TimeTextDefaults.AutoTextWeight
-    )
-
-    /** Adds a text displaying current time. */
-    public abstract fun time()
-
-    /**
-     * Adds a separator in [TimeText].
-     *
-     * @param style configuration for the [separator] such as color, font etc.
-     */
-    public abstract fun separator(style: TextStyle? = null)
-
-    /**
-     * Adds a composable in content of [TimeText]. This can be used to display non-text information
-     * such as an icon.
-     *
-     * @param content Slot for the [composable] to be displayed.
-     */
-    public abstract fun composable(content: @Composable () -> Unit)
 }
 
 /** Contains the default values used by [TimeText]. */
 public object TimeTextDefaults {
     /** The default padding from the edge of the screen. */
     private val Padding = PaddingDefaults.edgePadding
+
     /** Default format for 24h clock. */
     public const val TimeFormat24Hours: String = "HH:mm"
 
@@ -228,8 +154,8 @@ public object TimeTextDefaults {
     }
 
     /**
-     * Creates a [TextStyle] with default parameters used for showing time on square screens. By
-     * default a copy of MaterialTheme.typography.arcMedium style is created.
+     * Creates a [CurvedTextStyle] with default parameters used for showing time. By default a copy
+     * of MaterialTheme.typography.arcMedium style is created.
      *
      * @param background The background color.
      * @param color The main color.
@@ -240,9 +166,9 @@ public object TimeTextDefaults {
         background: Color = Color.Unspecified,
         color: Color = MaterialTheme.colorScheme.onBackground,
         fontSize: TextUnit = TextUnit.Unspecified,
-    ): TextStyle =
+    ): CurvedTextStyle =
         MaterialTheme.typography.arcMedium +
-            TextStyle(color = color, background = background, fontSize = fontSize)
+            CurvedTextStyle(color = color, background = background, fontSize = fontSize)
 
     /**
      * Creates a default implementation of [TimeSource] and remembers it. Once the system time
@@ -262,46 +188,41 @@ public object TimeTextDefaults {
         remember(timeFormat) { DefaultTimeSource(timeFormat) }
 
     /**
-     * A default implementation of Separator shown between any text/composable and the time on
-     * non-round screens.
-     *
-     * @param modifier A default modifier for the separator.
-     * @param textStyle A [TextStyle] for the separator.
-     * @param contentPadding The spacing values between the container and the separator.
+     * The recommended background color to use when displaying curved text so it is visible on top
+     * of other content.
      */
-    @Composable
-    internal fun TextSeparator(
-        modifier: Modifier = Modifier,
-        textStyle: TextStyle = timeTextStyle(),
-        contentPadding: PaddingValues = PaddingValues(horizontal = 4.dp)
-    ) {
-        Text(text = "·", style = textStyle, modifier = modifier.padding(contentPadding))
-    }
+    @Composable public fun backgroundColor(): Color = CurvedTextDefaults.backgroundColor()
+}
 
-    /**
-     * A default implementation of Separator shown between any text/composable and the time on round
-     * screens.
-     *
-     * @param curvedTextStyle A [CurvedTextStyle] for the separator.
-     * @param contentArcPadding [ArcPaddingValues] for the separator text.
-     */
-    internal fun CurvedScope.CurvedTextSeparator(
-        curvedTextStyle: CurvedTextStyle? = null,
-        contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
+/**
+ * Default curved text to use in a [TimeText], for displaying the time
+ *
+ * @param time The time to display.
+ * @param style A [CurvedTextStyle] to override the style used.
+ */
+public fun CurvedScope.timeTextCurvedText(time: String, style: CurvedTextStyle? = null) {
+    basicCurvedText(
+        time,
     ) {
-        curvedText(
-            text = "·",
-            style = curvedTextStyle,
-            modifier = CurvedModifier.padding(contentArcPadding)
-        )
+        style?.let { timeTextStyle() + it } ?: timeTextStyle()
     }
+}
 
-    /**
-     * Weight value used to specify that the value is automatic. It will be 1f when there is one
-     * text, and no weight will be used if there are 2 or more texts. For the 2+ texts case, usually
-     * one of them should have weight manually specified to ensure its properly cut and ellipsized.
-     */
-    public val AutoTextWeight: Float = -1f
+/**
+ * A default implementation of Separator, to be shown between any text/composable and the time.
+ *
+ * @param curvedTextStyle A [CurvedTextStyle] for the separator.
+ * @param contentArcPadding [ArcPaddingValues] for the separator text.
+ */
+public fun CurvedScope.timeTextSeparator(
+    curvedTextStyle: CurvedTextStyle? = null,
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
+) {
+    curvedText(
+        text = "·",
+        style = curvedTextStyle,
+        modifier = CurvedModifier.padding(contentArcPadding)
+    )
 }
 
 public interface TimeSource {
@@ -313,122 +234,6 @@ public interface TimeSource {
      */
     @Composable public fun currentTime(): String
 }
-
-/** Implementation of [TimeTextScope] for round devices. */
-internal class CurvedTimeTextScope(
-    private val timeText: String,
-    private val timeTextStyle: TextStyle,
-    private val maxSweepAngle: Float,
-    contentColor: Color,
-) : TimeTextScope() {
-    private var textCount = 0
-    private val pending = mutableListOf<CurvedScope.() -> Unit>()
-    private val contentTextStyle = timeTextStyle.merge(contentColor)
-
-    override fun text(text: String, style: TextStyle?, weight: Float) {
-        textCount++
-        pending.add {
-            curvedText(
-                text = text,
-                overflow = TextOverflow.Ellipsis,
-                maxSweepAngle = maxSweepAngle,
-                style = CurvedTextStyle(style = contentTextStyle.merge(style)),
-                modifier =
-                    if (weight.isValidWeight()) CurvedModifier.weight(weight)
-                    // Note that we are creating a lambda here, but textCount is actually read
-                    // later, during the call to Show, when the pending list is fully constructed.
-                    else if (weight == TimeTextDefaults.AutoTextWeight && textCount <= 1)
-                        CurvedModifier.weight(1f)
-                    else CurvedModifier
-            )
-        }
-    }
-
-    override fun time() {
-        pending.add {
-            curvedText(
-                timeText,
-                maxSweepAngle = maxSweepAngle,
-                style = CurvedTextStyle(timeTextStyle)
-            )
-        }
-    }
-
-    override fun separator(style: TextStyle?) {
-        pending.add { CurvedTextSeparator(CurvedTextStyle(style = timeTextStyle.merge(style))) }
-    }
-
-    override fun composable(content: @Composable () -> Unit) {
-        pending.add {
-            curvedComposable {
-                CompositionLocalProvider(
-                    LocalContentColor provides contentTextStyle.color,
-                    LocalTextStyle provides contentTextStyle,
-                    content = content
-                )
-            }
-        }
-    }
-
-    fun CurvedScope.Show() {
-        pending.fastForEach { it() }
-    }
-}
-
-/** Implementation of [TimeTextScope] for non-round devices. */
-internal class LinearTimeTextScope(
-    private val timeText: String,
-    private val timeTextStyle: TextStyle,
-    contentColor: Color,
-) : TimeTextScope() {
-    private var textCount = 0
-    private val pending = mutableListOf<@Composable RowScope.() -> Unit>()
-    private val contentTextStyle = timeTextStyle.merge(contentColor)
-
-    override fun text(text: String, style: TextStyle?, weight: Float) {
-        textCount++
-        pending.add {
-            Text(
-                text = text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = contentTextStyle.merge(style),
-                modifier =
-                    if (weight.isValidWeight()) Modifier.weight(weight, fill = false)
-                    // Note that we are creating a lambda here, but textCount is actually read
-                    // later, during the call to Show, when the pending list is fully constructed.
-                    else if (weight == TimeTextDefaults.AutoTextWeight && textCount <= 1)
-                        Modifier.weight(1f, fill = false)
-                    else Modifier
-            )
-        }
-    }
-
-    override fun time() {
-        pending.add { Text(timeText, style = timeTextStyle) }
-    }
-
-    override fun separator(style: TextStyle?) {
-        pending.add { TextSeparator(textStyle = timeTextStyle.merge(style)) }
-    }
-
-    override fun composable(content: @Composable () -> Unit) {
-        pending.add {
-            CompositionLocalProvider(
-                LocalContentColor provides contentTextStyle.color,
-                LocalTextStyle provides contentTextStyle,
-                content = content
-            )
-        }
-    }
-
-    @Composable
-    fun RowScope.Show() {
-        pending.fastForEach { it() }
-    }
-}
-
-private fun Float.isValidWeight() = !isNaN() && this > 0f
 
 internal class DefaultTimeSource(timeFormat: String) : TimeSource {
     private val _timeFormat = timeFormat

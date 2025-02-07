@@ -92,36 +92,46 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
                 canvas: Canvas,
                 stroke: Stroke,
                 strokeToScreenTransform: AffineTransform,
-                animationProgress: Float,
+                textureAnimationProgress: Float,
             ) {
-                renderer?.draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+                renderer?.draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
             }
 
             override fun draw(
                 canvas: Canvas,
                 stroke: Stroke,
                 strokeToScreenTransform: Matrix,
-                animationProgress: Float,
+                textureAnimationProgress: Float,
             ) {
-                renderer?.draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+                renderer?.draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
             }
 
             override fun draw(
                 canvas: Canvas,
                 inProgressStroke: InProgressStroke,
                 strokeToScreenTransform: AffineTransform,
-                animationProgress: Float,
+                textureAnimationProgress: Float,
             ) {
-                renderer?.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+                renderer?.draw(
+                    canvas,
+                    inProgressStroke,
+                    strokeToScreenTransform,
+                    textureAnimationProgress
+                )
             }
 
             override fun draw(
                 canvas: Canvas,
                 inProgressStroke: InProgressStroke,
                 strokeToScreenTransform: Matrix,
-                animationProgress: Float,
+                textureAnimationProgress: Float,
             ) {
-                renderer?.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+                renderer?.draw(
+                    canvas,
+                    inProgressStroke,
+                    strokeToScreenTransform,
+                    textureAnimationProgress
+                )
             }
         }
 

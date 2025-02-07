@@ -19,12 +19,12 @@ package androidx.compose.ui.layout
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.spatial.RelativeLayoutBounds
-import kotlinx.coroutines.DisposableHandle
 
 /**
  * Invokes [callback] with the position of this layout node relative to the coordinate system of the
@@ -59,7 +59,7 @@ fun Modifier.onLayoutRectChanged(
     callback: (RelativeLayoutBounds) -> Unit
 ) = this then OnLayoutRectChangedElement(throttleMillis, debounceMillis, callback)
 
-private data class OnLayoutRectChangedElement(
+private class OnLayoutRectChangedElement(
     val throttleMillis: Long,
     val debounceMillis: Long,
     val callback: (RelativeLayoutBounds) -> Unit
@@ -79,6 +79,24 @@ private data class OnLayoutRectChangedElement(
         properties["debounceMillis"] = debounceMillis
         properties["callback"] = callback
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OnLayoutRectChangedElement) return false
+
+        if (throttleMillis != other.throttleMillis) return false
+        if (debounceMillis != other.debounceMillis) return false
+        if (callback !== other.callback) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = throttleMillis.hashCode()
+        result = 31 * result + debounceMillis.hashCode()
+        result = 31 * result + callback.hashCode()
+        return result
+    }
 }
 
 private class OnLayoutRectChangedNode(
@@ -86,10 +104,10 @@ private class OnLayoutRectChangedNode(
     var debounceMillis: Long,
     var callback: (RelativeLayoutBounds) -> Unit,
 ) : Modifier.Node() {
-    var handle: DisposableHandle? = null
+    var handle: RegistrationHandle? = null
 
     fun disposeAndRegister() {
-        handle?.dispose()
+        handle?.unregister()
         handle = registerOnLayoutRectChanged(throttleMillis, debounceMillis, callback)
     }
 
@@ -98,7 +116,7 @@ private class OnLayoutRectChangedNode(
     }
 
     override fun onDetach() {
-        handle?.dispose()
+        handle?.unregister()
     }
 }
 
@@ -129,7 +147,7 @@ fun DelegatableNode.registerOnLayoutRectChanged(
     throttleMillis: Long,
     debounceMillis: Long,
     callback: (RelativeLayoutBounds) -> Unit,
-): DisposableHandle {
+): RegistrationHandle {
     val layoutNode = requireLayoutNode()
     val id = layoutNode.semanticsId
     val rectManager = layoutNode.requireOwner().rectManager

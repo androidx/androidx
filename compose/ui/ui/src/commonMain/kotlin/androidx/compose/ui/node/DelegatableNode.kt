@@ -64,6 +64,10 @@ interface DelegatableNode {
      * can be retrieved inside a node by using [androidx.compose.ui.node.requireLayoutDirection].
      */
     fun onLayoutDirectionChange() {}
+
+    fun interface RegistrationHandle {
+        fun unregister()
+    }
 }
 
 internal val DelegatableNode.isDelegationRoot: Boolean

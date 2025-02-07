@@ -116,7 +116,7 @@ internal fun ViewStructure.populate(
     autofillType?.let { autofillApi.setAutofillType(this, it) }
 
     // Autofill Hints.
-    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it.toTypedArray()) }
+    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it) }
 
     // Dimensions.
     rectManager.rects.withRect(semanticsInfo.semanticsId) { left, top, right, bottom ->

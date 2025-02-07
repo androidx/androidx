@@ -56,7 +56,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -448,7 +447,6 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         assertThatOffset(actual).equalsWithTolerance(Offset(lineRightX, secondLineCenterY))
     }
 
-    @OptIn(ExperimentalTestApi::class)
     private fun checkMagnifierStayAtEndWhenDraggedBeyondScroll(
         handle: Handle,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr

@@ -16,9 +16,9 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.internal.Anchor as RuntimeAnchor
+import androidx.xr.runtime.internal.AnchorResourcesExhaustedException
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 import kotlin.coroutines.Continuation
@@ -34,7 +34,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * location in physical space, the numerical description of this position may update as ARCore for
  * XR updates its understanding of the physical world.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Anchor
 internal constructor(
     public val runtimeAnchor: RuntimeAnchor,
@@ -53,7 +52,12 @@ internal constructor(
         @JvmStatic
         public fun create(session: Session, pose: Pose): AnchorCreateResult {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val runtimeAnchor = session.runtime.perceptionManager.createAnchor(pose)
+            val runtimeAnchor: RuntimeAnchor
+            try {
+                runtimeAnchor = session.runtime.perceptionManager.createAnchor(pose)
+            } catch (e: AnchorResourcesExhaustedException) {
+                return AnchorCreateResourcesExhausted()
+            }
             return generateCreateResult(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
         }
 
@@ -74,7 +78,12 @@ internal constructor(
         @JvmStatic
         public fun load(session: Session, uuid: UUID): AnchorCreateResult {
             val perceptionStateExtender = getPerceptionStateExtender(session)
-            val runtimeAnchor = session.runtime.perceptionManager.loadAnchor(uuid)
+            val runtimeAnchor: RuntimeAnchor
+            try {
+                runtimeAnchor = session.runtime.perceptionManager.loadAnchor(uuid)
+            } catch (e: AnchorResourcesExhaustedException) {
+                return AnchorCreateResourcesExhausted()
+            }
             return generateCreateResult(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
         }
 
@@ -157,8 +166,8 @@ internal constructor(
 
     /** Detaches this anchor. This anchor will no longer be updated or tracked. */
     public fun detach() {
-        runtimeAnchor.detach()
         xrResourceManager.removeUpdatable(this)
+        xrResourceManager.queueAnchorToDetach(this)
     }
 
     override fun equals(other: Any?): Boolean {

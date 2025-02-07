@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.first
@@ -240,6 +241,7 @@ constructor(
     }
 }
 
+@Singleton
 internal class RetryingCameraStateOpenerImpl
 @Inject
 constructor(
@@ -249,7 +251,8 @@ constructor(
     private val timeSource: TimeSource,
     private val devicePolicyManager: DevicePolicyManagerWrapper,
     private val audioRestrictionController: AudioRestrictionController,
-    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
+    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?,
+    private val threads: Threads,
 ) : RetryingCameraStateOpener {
     override suspend fun openCameraWithRetry(
         cameraId: CameraId,
@@ -336,7 +339,7 @@ constructor(
         camera2DeviceCloser: Camera2DeviceCloser,
     ): AwaitOpenCameraResult {
         Log.debug { "$this#openAndAwaitCameraWithRetry($cameraId)" }
-        return runBlocking {
+        return runBlocking(threads.blockingDispatcher) {
             val androidCameraState = openCameraWithRetry(cameraId, camera2DeviceCloser).cameraState
             if (androidCameraState == null) {
                 Log.error { "Failed to open $cameraId!" }

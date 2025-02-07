@@ -126,6 +126,15 @@ internal constructor(
     public inline fun putCharSequenceList(key: String, value: List<CharSequence>)
 
     /**
+     * Stores a list of elements of [SavedState] associated with the specified key in the
+     * [SavedState].
+     *
+     * @param key The key to associate the value with.
+     * @param value The list of elements to store.
+     */
+    public inline fun putSavedStateList(key: String, value: List<SavedState>)
+
+    /**
      * Stores a list of elements of [String] associated with the specified key in the [SavedState].
      *
      * @param key The key to associate the value with.
@@ -194,6 +203,15 @@ internal constructor(
      * @param value The array of elements to store.
      */
     public inline fun putLongArray(key: String, value: LongArray)
+
+    /**
+     * Stores an [Array] of elements of [SavedState] associated with the specified key in the
+     * [SavedState].
+     *
+     * @param key The key to associate the value with.
+     * @param value The array of elements to store.
+     */
+    public inline fun putSavedStateArray(key: String, value: Array<SavedState>)
 
     /**
      * Stores an [Array] of elements of [String] associated with the specified key in the

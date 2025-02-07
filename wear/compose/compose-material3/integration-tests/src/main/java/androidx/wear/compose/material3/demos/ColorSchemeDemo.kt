@@ -66,7 +66,6 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.primaryContainer
             )
         }
-
         item { ListHeader { Text("Secondary Colors") } }
         item {
             ButtonWithColor(
@@ -103,7 +102,6 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.secondaryContainer
             )
         }
-
         item { ListHeader { Text("Tertiary Colors") } }
         item {
             ButtonWithColor(
@@ -140,7 +138,6 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.tertiaryContainer
             )
         }
-
         item { ListHeader { Text("Surface Colors") } }
         item {
             ButtonWithColor(
@@ -177,7 +174,6 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.surfaceContainer
             )
         }
-
         item { ListHeader { Text("Background Colors") } }
         item {
             ButtonWithColor(
@@ -193,7 +189,6 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.background
             )
         }
-
         item { ListHeader { Text("Outline Colors") } }
         item {
             ButtonWithColor(
@@ -209,12 +204,18 @@ fun ColorSchemeDemos() {
                 MaterialTheme.colorScheme.surfaceContainer
             )
         }
-
         item { ListHeader { Text("Error Colors") } }
         item {
             ButtonWithColor(
                 "Error",
                 MaterialTheme.colorScheme.error,
+                MaterialTheme.colorScheme.onError
+            )
+        }
+        item {
+            ButtonWithColor(
+                "ErrorDim",
+                MaterialTheme.colorScheme.errorDim,
                 MaterialTheme.colorScheme.onError
             )
         }

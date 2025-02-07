@@ -22,16 +22,16 @@ package androidx.room
  * Each entity must have at least 1 field annotated with [PrimaryKey]. You can also use
  * [primaryKeys] attribute to define the primary key.
  *
- * Each entity must either have a no-arg constructor or a constructor whose parameters match fields
- * (based on type and name). Constructor does not have to receive all fields as parameters but if a
- * field is not passed into the constructor, it should either be public or have a public setter. If
- * a matching constructor is available, Room will always use it. If you don't want it to use a
- * constructor, you can annotate it with [Ignore].
+ * Each entity must either have a no-arg constructor or a constructor whose parameters match
+ * properties (based on type and name). Constructor does not have to receive all properties as
+ * parameters but if a field is not passed into the constructor, it should either be public or have
+ * a public setter. If a matching constructor is available, Room will always use it. If you don't
+ * want it to use a constructor, you can annotate it with [Ignore].
  *
- * When a class is marked as an [Entity], all of its fields are persisted. If you would like to
- * exclude some of its fields, you can mark them with [Ignore].
+ * When a class is marked as an [Entity], all of its properties are persisted. If you would like to
+ * exclude some of its properties, you can mark them with [Ignore].
  *
- * If a field is `transient`, it is automatically ignored **unless** it is annotated with
+ * If a property is `transient`, it is automatically ignored **unless** it is annotated with
  * `ColumnInfo`, `Embedded` or `Relation`.
  *
  * Example:
@@ -92,10 +92,10 @@ public annotation class Entity(
      * The list of Primary Key column names.
      *
      * If you would like to define an auto generated primary key, you can use [PrimaryKey]
-     * annotation on the field with [PrimaryKey.autoGenerate] set to `true`.
+     * annotation on the property with [PrimaryKey.autoGenerate] set to `true`.
      *
-     * @return The primary key of this Entity. Can be empty if the class has a field annotated with
-     *   [PrimaryKey].
+     * @return The primary key of this Entity. Can be empty if the class has a property annotated
+     *   with [PrimaryKey].
      */
     val primaryKeys: Array<String> = [],
 
@@ -109,13 +109,13 @@ public annotation class Entity(
     /**
      * The list of column names that should be ignored by Room.
      *
-     * Normally, you can use [Ignore], but this is useful for ignoring fields inherited from
+     * Normally, you can use [Ignore], but this is useful for ignoring properties inherited from
      * parents.
      *
-     * Columns that are part of an [Embedded] field can not be individually ignored. To ignore
-     * columns from an inherited [Embedded] field, use the name of the field.
+     * Columns that are part of an [Embedded] property can not be individually ignored. To ignore
+     * columns from an inherited [Embedded] property, use the name of the property.
      *
-     * @return The list of field names.
+     * @return The list of property names.
      */
     val ignoredColumns: Array<String> = []
 )

@@ -29,7 +29,6 @@ import androidx.wear.protolayout.ModifiersBuilders.Modifiers
 import androidx.wear.protolayout.material3.ButtonGroupDefaults.DEFAULT_SPACER_SIZE_DP
 import androidx.wear.protolayout.material3.ButtonGroupDefaults.METADATA_TAG
 
-// TODO: b/356568440 - Put the above sample in proper samples file and link with @sample
 /**
  * ProtoLayout Material3 component-layout that places its children in a horizontal sequence.
  *
@@ -64,6 +63,8 @@ import androidx.wear.protolayout.material3.ButtonGroupDefaults.METADATA_TAG
  * @param spacing The amount of spacing between buttons
  * @param content The content for each child. The UX guidance is to use no more than 3 elements
  *   within a this button group.
+ * @sample androidx.wear.protolayout.material3.samples.dataCardSample
+ * @sample androidx.wear.protolayout.material3.samples.oneSlotButtonsSample
  */
 // TODO: b/346958146 - Link visuals once they are available.
 public fun MaterialScope.buttonGroup(
@@ -71,26 +72,26 @@ public fun MaterialScope.buttonGroup(
     height: ContainerDimension = expand(),
     @Dimension(unit = DP) spacing: Float = DEFAULT_SPACER_SIZE_DP,
     content: ButtonGroupScope.() -> Unit
-): LayoutElement =
-    Row.Builder()
-        .setWidth(width)
-        .setHeight(height)
-        .setModifiers(
-            Modifiers.Builder()
-                .setMetadata(
-                    ElementMetadata.Builder().setTagData(METADATA_TAG.toTagBytes()).build()
-                )
-                .build()
-        )
-        .also { row ->
-            // List of children
-            ButtonGroupScope(this)
-                .apply { content() }
-                .items
-                .addBetween(Spacer.Builder().setWidth(dp(spacing)).setHeight(expand()).build())
-                .forEach(row::addContent)
-        }
-        .build()
+): LayoutElement {
+    val row =
+        Row.Builder()
+            .setWidth(width)
+            .setHeight(height)
+            .setModifiers(
+                Modifiers.Builder()
+                    .setMetadata(
+                        ElementMetadata.Builder().setTagData(METADATA_TAG.toTagBytes()).build()
+                    )
+                    .build()
+            )
+    // List of children
+    ButtonGroupScope(this)
+        .apply { content() }
+        .items
+        .addBetween(Spacer.Builder().setWidth(dp(spacing)).setHeight(expand()).build())
+        .forEach(row::addContent)
+    return row.build()
+}
 
 /** Scope for the children of a [buttonGroup] */
 @MaterialScopeMarker

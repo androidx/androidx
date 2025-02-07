@@ -18,6 +18,7 @@ package androidx.xr.extensions.node;
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -107,6 +108,7 @@ class NodeTransactionImpl implements NodeTransaction {
 
     @Override
     @NonNull
+    @SuppressLint("ObsoleteSdkInt")
     public NodeTransaction setSurfacePackage(
             @Nullable Node node, @NonNull SurfacePackage surfacePackage) {
         // This method has been deprecated in the platform side.
@@ -129,6 +131,7 @@ class NodeTransactionImpl implements NodeTransaction {
 
     @Override
     @NonNull
+    @SuppressLint("ObsoleteSdkInt")
     public NodeTransaction setWindowBounds(
             @NonNull SurfacePackage surfacePackage, int widthPx, int heightPx) {
         // This method has been deprecated in the platform side.

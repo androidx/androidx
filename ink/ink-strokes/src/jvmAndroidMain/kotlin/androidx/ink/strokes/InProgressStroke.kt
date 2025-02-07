@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MeshFormat
@@ -43,7 +44,7 @@ import java.nio.ShortBuffer
  * 3. Call [finishInput] once there are no more inputs for this stroke (e.g. the user lifts the
  *    stylus from the screen).
  * 4. Continue to call [updateShape] and render after [finishInput] until [getNeedsUpdate] returns
- *    false (to allow any lingering brush animations to complete).
+ *    false (to allow any lingering brush shape animations to complete).
  * 5. Extract the completed stroke by calling [toImmutable].
  * 6. For best performance, reuse this object and go back to step 1 rather than allocating a new
  *    instance.
@@ -88,8 +89,21 @@ public class InProgressStroke {
      * method must be called at least once after construction before starting to call
      * [enqueueInputs] or [updateShape].
      */
-    public fun start(brush: Brush) {
-        nativeStart(nativePointer, brush.nativePointer)
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    public fun start(brush: Brush): Unit = start(brush, noiseSeed = 0)
+
+    /**
+     * Clears and starts a new stroke with the given [brush], using the given per-stroke seed value
+     * to help seed the brush's noise behaviors, if any.
+     *
+     * This includes clearing or resetting any existing inputs, mesh data, and updated region. This
+     * method (or [start]) must be called at least once after construction before starting to call
+     * [enqueueInputs] or [updateShape].
+     */
+    @ExperimentalInkCustomBrushApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    public fun start(brush: Brush, noiseSeed: Int) {
+        nativeStart(nativePointer, brush.nativePointer, noiseSeed)
         this.brush = brush
         version++
     }
@@ -134,16 +148,16 @@ public class InProgressStroke {
 
     /**
      * Updates the stroke geometry up to the given duration since the start of the stroke. This will
-     * will consume any inputs queued up by calls to [enqueueInputs], and cause brush animations (if
-     * any) to progress up to the specified time. Any stroke geometry resulting from
+     * will consume any inputs queued up by calls to [enqueueInputs], and cause brush shape
+     * animations (if any) to progress up to the specified time. Any stroke geometry resulting from
      * previously-predicted input from before the previous call to this method will be cleared.
      *
      * This method requires that:
      * * [start] has been previously called to set the current [brush].
      * * The value of [currentElapsedTimeMillis] passed into this method over the course of a single
      *   stroke must be non-decreasing and non-negative. Its default value causes all ongoing stroke
-     *   animations to be completed immediately. To have animations progress at their intended rate,
-     *   pass in values for this field that are in the same time base as the
+     *   shape animations to be completed immediately. To have shape animations progress at their
+     *   intended rate, pass in values for this field that are in the same time base as the
      *   [StrokeInput.elapsedTimeMillis] values being passed to [enqueueInputs], repeatedly until
      *   [isInputFinished] returns `true`.
      *
@@ -169,9 +183,9 @@ public class InProgressStroke {
      * Returns `true` if calling [updateShape] would have any effect on the stroke (and should thus
      * be called before the next render), or `false` if no calls to [updateShape] are currently
      * needed. Specifically:
-     * * If the brush has one or more timed animation behavior that are still active (which can be
-     *   true even after inputs are finished), returns `true`.
-     * * If there are no active animation behaviors, but there are pending inputs from an
+     * * If the brush has one or more timed shape animation behavior that are still active (which
+     *   can be true even after inputs are finished), returns `true`.
+     * * If there are no active shape animation behaviors, but there are pending inputs from an
      *   [enqueueInputs] call that have not yet been consumed by a call to [updateShape], returns
      *   `true`.
      * * Otherwise, returns `false`.
@@ -286,8 +300,12 @@ public class InProgressStroke {
     public fun resetUpdatedRegion(): Unit = nativeResetUpdatedRegion(nativePointer)
 
     /**
-     * Returns the number of outlines for the specified brush coat. Calls to functions that accept
-     * an outlineIndex must treat the result of this function as an upper bound.
+     * Returns the number of outlines for the specified brush coat.
+     *
+     * Calls to functions that accept an outlineIndex must treat the result of this function as an
+     * upper bound. Coats with discontinuous geometry will always have multiple outlines, but even
+     * continuous geometry may be drawn with multiple overlapping outlines when this improves
+     * rendering quality or performance.
      *
      * @param coatIndex Must be between 0 (inclusive) and the result of [getBrushCoatCount]
      *   (exclusive).
@@ -471,7 +489,8 @@ public class InProgressStroke {
 
     @UsedByNative private external fun nativeClear(nativePointer: Long)
 
-    @UsedByNative private external fun nativeStart(nativePointer: Long, brushNativePointer: Long)
+    @UsedByNative
+    private external fun nativeStart(nativePointer: Long, brushNativePointer: Long, noiseSeed: Int)
 
     /** Returns null on success or an error message string on failure. */
     @UsedByNative

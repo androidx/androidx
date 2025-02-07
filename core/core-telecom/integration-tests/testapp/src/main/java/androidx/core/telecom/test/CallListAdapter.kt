@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test
 
+import android.content.Context
 import android.media.AudioManager.AudioRecordingCallback
 import android.media.AudioRecord
 import android.os.Build
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
 class CallListAdapter(
     private var mList: ArrayList<CallRow>?,
     private var mAudioRecord: AudioRecord? = null,
-    private val mFileProvider: VoipAppFileProvider,
+    private val mContext: Context,
 ) : RecyclerView.Adapter<CallListAdapter.ViewHolder>() {
     var mCallIdToViewHolder: MutableMap<String, ViewHolder> = mutableMapOf()
     private val CONTROL_ACTION_FAILED_MSG = "[FAILED-T]"
@@ -230,16 +231,20 @@ class CallListAdapter(
             }
 
             // set the initial call icon image if non-null
-            setFileProviderIconImage(holder.fileProviderIconImage, ItemsViewModel.callObject)
+            val call = ItemsViewModel.callObject
+            setFileProviderIconImage(holder.fileProviderIconImage, call)
             // setup the button action
             holder.fileProviderIconButton.setOnClickListener {
                 // generate the next icon
-                val nextIconBitmap = CallIconGenerator.generateNextBitmap()
-                ItemsViewModel.callObject.setIconBitmap(nextIconBitmap)
+                call.setIconBitmap(CallIconGenerator.generateNextBitmap())
                 // write to file
-                mFileProvider.writeCallIconBitMapToFile(call = ItemsViewModel.callObject)
+                val uri =
+                    VoipAppFileProvider.writeCallIconBitMapToFile(context = mContext, call = call)
+                CoroutineScope(Dispatchers.Main).launch {
+                    call.mIconExtensionControl?.onUriChanged?.invoke(uri!!)
+                }
                 // read from the file and re-render ui
-                setFileProviderIconImage(holder.fileProviderIconImage, ItemsViewModel.callObject)
+                setFileProviderIconImage(holder.fileProviderIconImage, call)
             }
         }
     }
@@ -247,7 +252,7 @@ class CallListAdapter(
     fun setFileProviderIconImage(imageView: ImageView, callObject: VoipCall) {
         val iconUri = callObject.getIconUri()
         if (iconUri != null) {
-            val iconBitmap = mFileProvider.readCallIconUriFromFile(iconUri)
+            val iconBitmap = VoipAppFileProvider.readCallIconUriFromFile(mContext, iconUri)
             if (iconBitmap != null) {
                 CoroutineScope(Dispatchers.Main).launch { imageView.setImageBitmap(iconBitmap) }
             }

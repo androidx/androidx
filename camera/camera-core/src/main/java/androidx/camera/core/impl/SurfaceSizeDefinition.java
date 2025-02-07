@@ -125,7 +125,7 @@ public abstract class SurfaceSizeDefinition {
      * Returns the MAXIMUM size for the specified format, or {@code null} null if there is no
      * data for the format.
      */
-    public @NonNull Size getMaximumSize(int format) {
+    public @Nullable Size getMaximumSize(int format) {
         return getMaximumSizeMap().get(format);
     }
 

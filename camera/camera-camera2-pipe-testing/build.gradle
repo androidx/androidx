@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -50,8 +50,8 @@ dependencies {
 }
 
 android {
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
@@ -67,7 +67,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 androidx {
     name = "Camera2 Pipe Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "Testing components for the Camera2 Pipe Library, a library providing a " +

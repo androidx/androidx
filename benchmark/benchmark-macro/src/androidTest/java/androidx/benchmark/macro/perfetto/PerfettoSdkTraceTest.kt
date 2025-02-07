@@ -18,10 +18,10 @@ package androidx.benchmark.macro.perfetto
 
 import android.os.Build
 import androidx.benchmark.junit4.PerfettoTraceRule
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.trace

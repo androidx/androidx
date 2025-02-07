@@ -35,6 +35,6 @@ fun LayoutModifier.tag(tagData: ByteArray): LayoutModifier =
 fun LayoutModifier.tag(tag: String): LayoutModifier = tag(tag.toByteArray())
 
 internal class BaseMetadataElement(val tagData: ByteArray) : LayoutModifier.Element {
-    fun foldIn(initial: ElementMetadata.Builder?): ElementMetadata.Builder =
+    fun mergeTo(initial: ElementMetadata.Builder?): ElementMetadata.Builder =
         (initial ?: ElementMetadata.Builder()).setTagData(tagData)
 }

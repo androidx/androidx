@@ -42,21 +42,22 @@ class DatabaseTest {
                             mock(XTypeElement::class.java),
                             tableName = "TheTable",
                             type = mock(XType::class.java),
-                            fields = emptyList(),
-                            embeddedFields = emptyList(),
-                            primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
+                            properties = emptyList(),
+                            embeddedProperties = emptyList(),
+                            primaryKey =
+                                PrimaryKey(mock(XElement::class.java), Properties(), false),
                             indices =
                                 listOf(
                                     Index(
                                         name = "leIndex",
                                         unique = false,
-                                        fields = Fields(),
+                                        properties = Properties(),
                                         orders = emptyList()
                                     ),
                                     Index(
                                         name = "leIndex2",
                                         unique = true,
-                                        fields = Fields(),
+                                        properties = Properties(),
                                         orders = emptyList()
                                     )
                                 ),

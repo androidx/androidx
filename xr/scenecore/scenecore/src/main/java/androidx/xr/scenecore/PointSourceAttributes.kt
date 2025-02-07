@@ -16,15 +16,12 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-
 /**
  * PointSourceAttributes is used to configure a sound be spatialized as a 3D point.
  *
  * If the audio being played is stereo or multichannel AND the AudioAttributes USAGE_TYPE is
  * USAGE_MEDIA then the point provided will serve as the focal point of the media sound bed.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class PointSourceAttributes(public val entity: Entity) {
 
     internal val rtPointSourceAttributes: JxrPlatformAdapter.PointSourceAttributes =

@@ -284,6 +284,14 @@ class SlidingPaneLayoutTest {
         assertWithMessage("isUserResizingEnabled").that(view.isUserResizingEnabled).isTrue()
         assertWithMessage("isUserResizable").that(view.isUserResizable).isTrue()
     }
+
+    @Test
+    fun userResizingDividerWidthInflated() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.pane_spacing, null) as SlidingPaneLayout
+        assertWithMessage("paneSpacing is inflated").that(view.paneSpacing).isEqualTo(24)
+    }
 }
 
 private fun View.measureAndLayout(width: Int, height: Int) {

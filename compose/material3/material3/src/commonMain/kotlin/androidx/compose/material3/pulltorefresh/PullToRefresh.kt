@@ -78,8 +78,8 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -187,7 +187,7 @@ fun Modifier.pullToRefresh(
         )
 
 @OptIn(ExperimentalMaterial3Api::class)
-internal data class PullToRefreshElement(
+internal class PullToRefreshElement(
     val isRefreshing: Boolean,
     val onRefresh: () -> Unit,
     val enabled: Boolean,
@@ -221,6 +221,28 @@ internal data class PullToRefreshElement(
         properties["enabled"] = enabled
         properties["state"] = state
         properties["threshold"] = threshold
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PullToRefreshElement) return false
+
+        if (isRefreshing != other.isRefreshing) return false
+        if (enabled != other.enabled) return false
+        if (onRefresh !== other.onRefresh) return false
+        if (state != other.state) return false
+        if (threshold != other.threshold) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isRefreshing.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + onRefresh.hashCode()
+        result = 31 * result + state.hashCode()
+        result = 31 * result + threshold.hashCode()
+        return result
     }
 }
 
@@ -718,11 +740,15 @@ private fun CircularArrowProgressIndicator(
             targetValue = targetAlpha,
             animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
         )
+
     Canvas(
-        Modifier.semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
-            }
-            .size(SpinnerSize)
+        modifier =
+            Modifier.clearAndSetSemantics {
+                    if (progress() > 0f) {
+                        progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
+                    }
+                }
+                .size(SpinnerSize)
     ) {
         val values = ArrowValues(progress())
         val alpha = alphaState.value

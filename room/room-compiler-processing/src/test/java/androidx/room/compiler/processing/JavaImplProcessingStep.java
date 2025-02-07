@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -29,9 +29,8 @@ import java.util.Set;
  */
 @SuppressWarnings("deprecation") // On purpose overriding deprecated method.
 public class JavaImplProcessingStep implements XProcessingStep {
-    @NonNull
     @Override
-    public Set<XElement> process(@NonNull XProcessingEnv env,
+    public @NonNull Set<XElement> process(@NonNull XProcessingEnv env,
             @NonNull Map<String, ? extends Set<? extends XElement>> elementsByAnnotation) {
         return XProcessingStep.super.process(env, elementsByAnnotation);
     }
@@ -42,9 +41,8 @@ public class JavaImplProcessingStep implements XProcessingStep {
         XProcessingStep.super.processOver(env, elementsByAnnotation);
     }
 
-    @NonNull
     @Override
-    public Set<String> annotations() {
+    public @NonNull Set<String> annotations() {
         return Collections.emptySet();
     }
 }

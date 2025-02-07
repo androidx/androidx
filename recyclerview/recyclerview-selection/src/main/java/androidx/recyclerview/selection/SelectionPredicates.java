@@ -16,8 +16,9 @@
 
 package androidx.recyclerview.selection;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Utility class for creating SelectionPredicate instances. Provides default
@@ -34,7 +35,7 @@ public final class SelectionPredicates {
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      * @return
      */
-    public static @NonNull <K> SelectionPredicate<K> createSelectAnything() {
+    public static <K> @NonNull SelectionPredicate<K> createSelectAnything() {
         return new SelectionPredicate<K>() {
             @Override
             public boolean canSetStateForKey(@NonNull K key, boolean nextState) {
@@ -60,7 +61,7 @@ public final class SelectionPredicates {
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      * @return
      */
-    public static @NonNull <K> SelectionPredicate<K> createSelectSingleAnything() {
+    public static <K> @NonNull SelectionPredicate<K> createSelectSingleAnything() {
         return new SelectionPredicate<K>() {
             @Override
             public boolean canSetStateForKey(@NonNull K key, boolean nextState) {

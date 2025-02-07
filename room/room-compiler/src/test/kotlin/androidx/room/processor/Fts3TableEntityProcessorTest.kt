@@ -38,10 +38,10 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
-import androidx.room.vo.Field
-import androidx.room.vo.FieldGetter
-import androidx.room.vo.FieldSetter
-import androidx.room.vo.Fields
+import androidx.room.vo.Properties
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyGetter
+import androidx.room.vo.PropertySetter
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -68,13 +68,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 entity.type.asTypeName().toString(CodeLanguage.JAVA),
                 `is`("foo.bar.MyEntity")
             )
-            assertThat(entity.fields.size, `is`(1))
-            val field = entity.fields.first()
+            assertThat(entity.properties.size, `is`(1))
+            val field = entity.properties.first()
             val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
             assertThat(
                 field,
                 `is`(
-                    Field(
+                    Property(
                         element = field.element,
                         name = "rowId",
                         type = intType,
@@ -85,13 +85,13 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
             )
             assertThat(
                 field.setter,
-                `is`(FieldSetter("rowId", "setRowId", intType, CallType.METHOD))
+                `is`(PropertySetter("rowId", "setRowId", intType, CallType.FUNCTION))
             )
             assertThat(
                 field.getter,
-                `is`(FieldGetter("rowId", "getRowId", intType, CallType.METHOD))
+                `is`(PropertyGetter("rowId", "getRowId", intType, CallType.FUNCTION))
             )
-            assertThat(entity.primaryKey.fields, `is`(Fields(field)))
+            assertThat(entity.primaryKey.properties, `is`(Properties(field)))
             assertThat(entity.shadowTableName, `is`("MyEntity_content"))
             assertThat(entity.ftsVersion, `is`(FtsVersion.FTS3))
         }

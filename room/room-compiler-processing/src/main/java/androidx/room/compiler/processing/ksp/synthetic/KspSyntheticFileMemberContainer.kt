@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
@@ -96,7 +95,7 @@ internal class KspSyntheticFileMemberContainer(
         return true
     }
 
-    override fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotationBox<T>> {
+    override fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotation> {
         return emptyList()
     }
 

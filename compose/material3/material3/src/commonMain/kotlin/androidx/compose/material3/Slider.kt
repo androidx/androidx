@@ -289,6 +289,7 @@ fun Slider(
 ) {
     val state =
         remember(steps, valueRange) { SliderState(value, steps, onValueChangeFinished, valueRange) }
+    state.onValueChangeFinished = onValueChangeFinished
     state.onValueChange = onValueChange
     state.value = value
 

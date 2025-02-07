@@ -26,7 +26,6 @@ import androidx.xr.scenecore.JxrPlatformAdapter.GltfModelResource
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
-import java.util.UUID
 import java.util.function.Consumer
 import org.junit.Before
 import org.junit.Test
@@ -96,7 +95,7 @@ class SessionTest {
         val mockGltfModelResource = mock<GltfModelResource>()
         whenever(mockPlatformAdapter.loadGltfByAssetNameSplitEngine(anyString()))
             .thenReturn(Futures.immediateFuture(mockGltfModelResource))
-        val unused = session.createGltfResourceAsync("test.glb")
+        val unused = GltfModel.create(session, "test.glb")
 
         verify(mockPlatformAdapter).loadGltfByAssetNameSplitEngine("test.glb")
     }
@@ -106,8 +105,8 @@ class SessionTest {
         whenever(mockPlatformAdapter.loadGltfByAssetNameSplitEngine(anyString()))
             .thenReturn(Futures.immediateFuture(mock()))
         whenever(mockPlatformAdapter.createGltfEntity(any(), any(), any())).thenReturn(mock())
-        val gltfModelFuture = session.createGltfResourceAsync("test.glb")
-        val unused = session.createGltfEntity(gltfModelFuture.get())
+        val gltfModelFuture = GltfModel.create(session, "test.glb")
+        val unused = GltfModelEntity.create(session, gltfModelFuture.get())
 
         verify(mockPlatformAdapter).loadGltfByAssetNameSplitEngine(eq("test.glb"))
         verify(mockPlatformAdapter).createGltfEntity(any(), any(), any())
@@ -129,11 +128,12 @@ class SessionTest {
             )
             .thenReturn(mock())
         val unused =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 view,
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
-                "test"
+                "test",
             )
 
         verify(mockPlatformAdapter)
@@ -144,7 +144,7 @@ class SessionTest {
     fun createAnchorEntity_callsRuntimeCreateAnchorEntity() {
         whenever(mockPlatformAdapter.createAnchorEntity(any(), any(), any(), anyOrNull()))
             .thenReturn(mockAnchorEntity)
-        val unused = session.createAnchorEntity(Dimensions(), PlaneType.ANY, PlaneSemantic.ANY)
+        val unused = AnchorEntity.create(session, Dimensions(), PlaneType.ANY, PlaneSemantic.ANY)
 
         verify(mockPlatformAdapter).createAnchorEntity(any(), any(), any(), anyOrNull())
     }
@@ -205,7 +205,7 @@ class SessionTest {
     fun createActivityPanelEntity_callsRuntimeCreateActivityPanelEntity() {
         whenever(mockPlatformAdapter.createActivityPanelEntity(any(), any(), any(), any(), any()))
             .thenReturn(mock())
-        val unused = session.createActivityPanelEntity(Rect(0, 0, 640, 480), "test")
+        val unused = ActivityPanelEntity.create(session, Rect(0, 0, 640, 480), "test")
 
         verify(mockPlatformAdapter).createActivityPanelEntity(any(), any(), any(), any(), any())
     }
@@ -216,30 +216,6 @@ class SessionTest {
         val unusedAgain = session.mainPanelEntity
 
         verify(mockPlatformAdapter, times(1)).mainPanelEntity
-    }
-
-    @Test
-    fun createPersistedAnchorEntity_callsRuntimecreatePersistedAnchorEntity() {
-        whenever(mockPlatformAdapter.createPersistedAnchorEntity(any(), any()))
-            .thenReturn(mockAnchorEntity)
-        val unused = session.createPersistedAnchorEntity(UUID.randomUUID())
-
-        verify(mockPlatformAdapter).createPersistedAnchorEntity(any(), any())
-    }
-
-    @Test
-    fun unpersistAnchor_callsRuntimeunpersistAnchor_returnsTrue() {
-        val uuid = UUID.randomUUID()
-        whenever(mockPlatformAdapter.unpersistAnchor(uuid)).thenReturn(true)
-        assertThat(session.unpersistAnchor(uuid)).isTrue()
-        verify(mockPlatformAdapter).unpersistAnchor(uuid)
-    }
-
-    fun unpersistAnchor_callsRuntimeunpersistAnchor_returnsFalse() {
-        val uuid = UUID.randomUUID()
-        whenever(mockPlatformAdapter.unpersistAnchor(uuid)).thenReturn(false)
-        assertThat(session.unpersistAnchor(uuid)).isFalse()
-        verify(mockPlatformAdapter).unpersistAnchor(uuid)
     }
 
     @Test
@@ -263,11 +239,12 @@ class SessionTest {
             .thenReturn(mockPanelEntity)
         whenever(mockPanelEntity.addComponent(any())).thenReturn(true)
         val panelEntity =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 view,
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
-                "test"
+                "test",
             )
         assertThat(panelEntity.addComponent(interactableComponent)).isTrue()
 
@@ -296,11 +273,12 @@ class SessionTest {
             .thenReturn(mockRtPanelEntity)
         whenever(mockRtPanelEntity.addComponent(any())).thenReturn(true)
         val panelEntity =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 view,
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
-                "test"
+                "test",
             )
         assertThat(panelEntity.addComponent(movableComponent)).isTrue()
 
@@ -329,11 +307,12 @@ class SessionTest {
             .thenReturn(mockRtPanelEntity)
         whenever(mockRtPanelEntity.addComponent(any())).thenReturn(true)
         val panelEntity =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 view,
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
-                "test"
+                "test",
             )
         assertThat(panelEntity.addComponent(resizableComponent)).isTrue()
 
@@ -385,13 +364,14 @@ class SessionTest {
         whenever(mockPlatformAdapter.createActivityPanelEntity(any(), any(), any(), any(), any()))
             .thenReturn(mockActivityPanelEntity)
         val panelEntity =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 TextView(activity),
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
                 "test1",
             )
-        val activityPanelEntity = session.createActivityPanelEntity(Rect(0, 0, 640, 480), "test2")
+        val activityPanelEntity = ActivityPanelEntity.create(session, Rect(0, 0, 640, 480), "test2")
 
         assertThat(session.getEntitiesOfType(PanelEntity::class.java))
             .containsAtLeast(panelEntity, activityPanelEntity)
@@ -415,14 +395,15 @@ class SessionTest {
         whenever(mockPlatformAdapter.createAnchorEntity(any(), any(), any(), any()))
             .thenReturn(mockAnchorEntity)
         val panelEntity =
-            session.createPanelEntity(
+            PanelEntity.create(
+                session,
                 TextView(activity),
                 Dimensions(720f, 480f),
                 Dimensions(0.1f, 0.1f, 0.1f),
                 "test1",
             )
         val anchorEntity =
-            session.createAnchorEntity(Dimensions(), PlaneType.ANY, PlaneSemantic.ANY)
+            AnchorEntity.create(session, Dimensions(), PlaneType.ANY, PlaneSemantic.ANY)
 
         assertThat(session.getEntitiesOfType(Entity::class.java))
             .containsAtLeast(panelEntity, anchorEntity)

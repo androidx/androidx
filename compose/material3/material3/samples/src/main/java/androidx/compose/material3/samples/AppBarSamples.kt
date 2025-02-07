@@ -44,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -784,8 +785,8 @@ fun ExitAlwaysBottomAppBar() {
 }
 
 /**
- * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and appears when
- * the content scrolled down. The content is spaced around.
+ * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
+ * when the content scrolled down. The content is spaced around.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -801,7 +802,7 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            BottomAppBar(
+            FlexibleBottomAppBar(
                 horizontalArrangement = Arrangement.SpaceAround,
                 contentPadding = PaddingValues(horizontal = 0.dp),
                 scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
@@ -852,8 +853,8 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
 }
 
 /**
- * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and appears when
- * the content scrolled down. The content is spaced between.
+ * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
+ * when the content scrolled down. The content is spaced between.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -869,7 +870,7 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            BottomAppBar(
+            FlexibleBottomAppBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
                 content = {
@@ -919,8 +920,8 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
 }
 
 /**
- * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and appears when
- * the content scrolled down. The content is spaced evenly.
+ * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
+ * when the content scrolled down. The content is spaced evenly.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -936,7 +937,7 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            BottomAppBar(
+            FlexibleBottomAppBar(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 contentPadding = PaddingValues(horizontal = 0.dp),
                 scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
@@ -987,8 +988,8 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
 }
 
 /**
- * A sample for a [BottomAppBar] that collapses when the content is scrolled up, and appears when
- * the content scrolled down. The content arrangement is fixed.
+ * A sample for a [FlexibleBottomAppBar] that collapses when the content is scrolled up, and appears
+ * when the content scrolled down. The content arrangement is fixed.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -1004,8 +1005,8 @@ fun ExitAlwaysBottomAppBarFixed() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            BottomAppBar(
-                horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+            FlexibleBottomAppBar(
+                horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                 scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
                 content = {
                     IconButton(onClick = { /* doSomething() */ }) {
@@ -1054,8 +1055,8 @@ fun ExitAlwaysBottomAppBarFixed() {
 }
 
 /**
- * A sample for a vibrant [BottomAppBar] that collapses when the content is scrolled up, and appears
- * when the content scrolled down. The content arrangement is fixed.
+ * A sample for a vibrant [FlexibleBottomAppBar] that collapses when the content is scrolled up, and
+ * appears when the content scrolled down. The content arrangement is fixed.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -1071,8 +1072,8 @@ fun ExitAlwaysBottomAppBarFixedVibrant() {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            BottomAppBar(
-                horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+            FlexibleBottomAppBar(
+                horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                 scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
                 containerColor =
                     MaterialTheme.colorScheme.primaryContainer, // TODO(b/356885344): tokens

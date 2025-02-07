@@ -34,7 +34,7 @@ import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.Volume
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.setSubspaceContent
@@ -553,7 +553,7 @@ class ResizableModifierTest {
         assertEquals(DpVolumeSize.Zero.height, minHeight)
     }
 
-    private inline fun <reified T> SubspaceSemanticsNode.getLastComponent(): T {
+    private inline fun <reified T> SubspaceSemanticsInfo.getLastComponent(): T {
         assertNotNull(components)
         val component = components!!.last()
         assertIs<T>(component)

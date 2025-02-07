@@ -84,8 +84,8 @@ class MetricResultExtensionsTest {
             expected =
                 listOf(
                     // note, bar sorted first
-                    MetricResult("bar", listOf(1.0)),
-                    MetricResult("foo", listOf(0.0))
+                    MetricResult("bar", listOf(1.0), listOf(listOf(1.0))),
+                    MetricResult("foo", listOf(0.0), listOf(listOf(0.0)))
                 ),
             actual =
                 listOf(mapOf("foo" to listOf(0.0), "bar" to listOf(1.0)))
@@ -95,12 +95,14 @@ class MetricResultExtensionsTest {
 
     @Test
     fun mergeToSampledMetricResults_singleMeasurement() {
+        val expectedBar = listOf(101.0, 301.0, 201.0)
+        val expectedFoo = listOf(100.0, 300.0, 200.0)
         assertEquals(
             expected =
                 listOf(
                     // note, bar sorted first
-                    MetricResult("bar", listOf(101.0, 301.0, 201.0)),
-                    MetricResult("foo", listOf(100.0, 300.0, 200.0))
+                    MetricResult("bar", expectedBar, expectedBar.map { listOf(it) }),
+                    MetricResult("foo", expectedFoo, expectedFoo.map { listOf(it) })
                 ),
             actual =
                 listOf(
@@ -118,8 +120,16 @@ class MetricResultExtensionsTest {
             expected =
                 listOf(
                     // note, bar sorted first
-                    MetricResult("bar", List(6) { it.toDouble() }),
-                    MetricResult("foo", List(6) { it.toDouble() })
+                    MetricResult(
+                        "bar",
+                        List(6) { it.toDouble() },
+                        listOf(listOf(0.0), listOf(1.0, 2.0, 3.0, 4.0, 5.0))
+                    ),
+                    MetricResult(
+                        "foo",
+                        List(6) { it.toDouble() },
+                        listOf(listOf(0.0, 1.0, 2.0), listOf(3.0, 4.0, 5.0))
+                    )
                 ),
             actual =
                 listOf(

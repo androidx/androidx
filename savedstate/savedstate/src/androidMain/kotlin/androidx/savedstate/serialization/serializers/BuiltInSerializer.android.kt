@@ -117,7 +117,6 @@ public class CharSequenceSerializer : KSerializer<CharSequence> {
         encoder.run { savedState.write { putCharSequence(key, value) } }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun deserialize(decoder: Decoder): CharSequence {
         require(decoder is SavedStateDecoder) {
             decoderErrorMessage(descriptor.serialName, decoder)

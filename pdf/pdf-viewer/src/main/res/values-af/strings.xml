@@ -60,6 +60,5 @@
     <string name="page_broken" msgid="2968770793669433462">"Bladsy is vir die PDF-dokument gebreek"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Onvoldoende data om die PDF-dokument te verwerk"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"Kan nie PDF-lêer oopmaak nie"</string>
-    <!-- no translation found for clipboard_label (8943155331324944981) -->
-    <skip />
+    <string name="clipboard_label" msgid="8943155331324944981">"Inhoud gekopieer vanaf PDF"</string>
 </resources>

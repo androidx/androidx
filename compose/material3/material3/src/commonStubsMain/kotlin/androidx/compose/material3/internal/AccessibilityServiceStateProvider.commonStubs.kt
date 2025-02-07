@@ -24,4 +24,5 @@ import androidx.compose.runtime.State
 internal actual fun rememberAccessibilityServiceState(
     listenToTouchExplorationState: Boolean,
     listenToSwitchAccessState: Boolean,
+    listenToVoiceAccessState: Boolean,
 ): State<Boolean> = implementedInJetBrainsFork()

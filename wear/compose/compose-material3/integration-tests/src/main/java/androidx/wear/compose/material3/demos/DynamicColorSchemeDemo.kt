@@ -33,13 +33,14 @@ import androidx.wear.compose.material3.dynamicColorScheme
 @Composable
 fun DynamicColorSchemeDemos() {
     val dynamicColorScheme = dynamicColorScheme(LocalContext.current)
+
     MaterialTheme(colorScheme = dynamicColorScheme ?: ColorScheme()) {
         val hasDynamicColors = dynamicColorScheme != null
+
         ScalingLazyDemo {
             if (!hasDynamicColors) {
                 item { ListHeader { Text("Dynamic color is not available.") } }
             }
-
             item { ListHeader { Text("Primary Colors") } }
             item {
                 ButtonWithColor(
@@ -76,7 +77,6 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.primaryContainer
                 )
             }
-
             item { ListHeader { Text("Secondary Colors") } }
             item {
                 ButtonWithColor(
@@ -113,7 +113,6 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.secondaryContainer
                 )
             }
-
             item { ListHeader { Text("Tertiary Colors") } }
             item {
                 ButtonWithColor(
@@ -150,7 +149,6 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.tertiaryContainer
                 )
             }
-
             item { ListHeader { Text("Surface Colors") } }
             item {
                 ButtonWithColor(
@@ -187,7 +185,6 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.surfaceContainer
                 )
             }
-
             item { ListHeader { Text("Background Colors") } }
             item {
                 ButtonWithColor(
@@ -203,7 +200,6 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.background
                 )
             }
-
             item { ListHeader { Text("Outline Colors") } }
             item {
                 ButtonWithColor(
@@ -219,12 +215,18 @@ fun DynamicColorSchemeDemos() {
                     MaterialTheme.colorScheme.surfaceContainer
                 )
             }
-
             item { ListHeader { Text("Error Colors") } }
             item {
                 ButtonWithColor(
                     "Error",
                     MaterialTheme.colorScheme.error,
+                    MaterialTheme.colorScheme.onError
+                )
+            }
+            item {
+                ButtonWithColor(
+                    "ErrorDim",
+                    MaterialTheme.colorScheme.errorDim,
                     MaterialTheme.colorScheme.onError
                 )
             }

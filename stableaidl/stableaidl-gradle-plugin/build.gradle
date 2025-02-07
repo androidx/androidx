@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -85,7 +85,7 @@ gradlePlugin {
 
 androidx {
     name = "Stable AIDL Gradle Plugin"
-    type = LibraryType.GRADLE_PLUGIN
+    type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

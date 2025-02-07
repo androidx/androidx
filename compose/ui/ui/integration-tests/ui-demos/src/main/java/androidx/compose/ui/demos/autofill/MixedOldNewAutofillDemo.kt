@@ -32,7 +32,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.onFocusChanged
@@ -69,10 +68,11 @@ fun MixedOldNewAutofillDemo() {
         )
 
         // Text field using old autofill API.
-        val autofill = @OptIn(ExperimentalComposeUiApi::class) LocalAutofill.current
-        val autofillTree = LocalAutofillTree.current
+        val autofill = @Suppress("DEPRECATION") LocalAutofill.current
+        val autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
         val textState = rememberTextFieldState()
         val autofillNode = remember {
+            @Suppress("DEPRECATION")
             androidx.compose.ui.autofill.AutofillNode(
                 onFill = { textState.edit { replace(0, length, it) } },
                 autofillTypes = listOf(androidx.compose.ui.autofill.AutofillType.Password),

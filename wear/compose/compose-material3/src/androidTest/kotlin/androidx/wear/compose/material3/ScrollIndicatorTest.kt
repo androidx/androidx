@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material3
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
@@ -23,17 +25,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -356,6 +363,62 @@ class ScrollIndicatorTest {
             reverseLayout = true,
             itemsCount = 6
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun gives_indicator_custom_color() {
+        val customIndicatorColor = Color.Red
+        rule.setContentWithTheme {
+            Box {
+                val state = rememberScalingLazyListState()
+                ScalingLazyColumn(
+                    state = state,
+                    contentPadding = PaddingValues(100.dp),
+                    autoCentering = null,
+                    modifier = Modifier.background(Color.Black)
+                ) {
+                    items(10) {
+                        Text("item $it", modifier = Modifier.height(100.dp), color = Color.Blue)
+                    }
+                }
+                ScrollIndicator(
+                    state = state,
+                    modifier = Modifier.align(Alignment.CenterEnd).testTag(TEST_TAG),
+                    colors = ScrollIndicatorDefaults.colors(indicatorColor = customIndicatorColor)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(customIndicatorColor)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun gives_track_custom_color() {
+        val customTrackColor = Color.Red
+        rule.setContentWithTheme {
+            Box {
+                val state = rememberScalingLazyListState()
+                ScalingLazyColumn(
+                    state = state,
+                    contentPadding = PaddingValues(100.dp),
+                    autoCentering = null,
+                    modifier = Modifier.background(Color.Black)
+                ) {
+                    items(10) {
+                        Text("item $it", modifier = Modifier.height(100.dp), color = Color.Blue)
+                    }
+                }
+                ScrollIndicator(
+                    state = state,
+                    modifier = Modifier.align(Alignment.CenterEnd).testTag(TEST_TAG),
+                    colors = ScrollIndicatorDefaults.colors(trackColor = customTrackColor)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(customTrackColor)
     }
 
     private fun verifySlcScrollToCenter(expectedIndicatorSize: Float, itemsCount: Int) {

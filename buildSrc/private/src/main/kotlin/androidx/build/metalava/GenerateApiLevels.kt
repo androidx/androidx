@@ -52,14 +52,6 @@ fun getFilesForApiLevels(apiFiles: Collection<File>, currentVersion: Version): L
 }
 
 /**
- * Returns the version names to use for the past API files when generating API version metadata.
- * This assumes that all [apiFiles] have names that can be parsed as versions.
- */
-fun getVersionsForApiLevels(apiFiles: List<File>): List<Version> {
-    return apiFiles.map { Version.parseFilenameOrNull(it.name)!!.roundUp() }
-}
-
-/**
  * From the full set of versions, generates a sorted list of the versions to use when generating the
  * API levels metadata. For previous major-minor version cycles, this only includes the latest
  * signature file, because we only want one file per stable release. Does not include any files for
@@ -88,8 +80,6 @@ private fun filterVersions(
 }
 
 private fun sameMajorMinor(v1: Version, v2: Version) = v1.major == v2.major && v1.minor == v2.minor
-
-private fun Version.roundUp() = Version(this.major, this.minor, this.patch)
 
 /** Usage attribute to specify the version metadata component. */
 internal val Project.versionMetadataUsage: Usage

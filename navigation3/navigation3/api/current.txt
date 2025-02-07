@@ -10,9 +10,9 @@ package androidx.navigation3 {
     method public kotlin.reflect.KClass<T> getClazz();
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit> getContent();
     method public java.util.Map<java.lang.String,java.lang.Object> getFeatureMap();
-    property public final kotlin.reflect.KClass<T> clazz;
-    property public final kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
-    property public final java.util.Map<java.lang.String,java.lang.Object> featureMap;
+    property public kotlin.reflect.KClass<T> clazz;
+    property public kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
+    property public java.util.Map<java.lang.String,java.lang.Object> featureMap;
   }
 
   @kotlin.DslMarker public @interface EntryDsl {
@@ -27,9 +27,9 @@ package androidx.navigation3 {
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit> getContent();
     method public java.util.Map<java.lang.String,java.lang.Object> getFeatureMap();
     method public T getKey();
-    property public final kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
-    property public final java.util.Map<java.lang.String,java.lang.Object> featureMap;
-    property public final T key;
+    property public kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
+    property public java.util.Map<java.lang.String,java.lang.Object> featureMap;
+    property public T key;
   }
 
   @androidx.navigation3.EntryDsl public final class EntryProviderBuilder {
@@ -45,40 +45,37 @@ package androidx.navigation3 {
     method public static inline kotlin.jvm.functions.Function1<java.lang.Object,androidx.navigation3.NavEntry<? extends java.lang.Object?>> entryProvider(optional kotlin.jvm.functions.Function1<java.lang.Object,? extends androidx.navigation3.NavEntry<? extends java.lang.Object?>> fallback, kotlin.jvm.functions.Function1<? super androidx.navigation3.EntryProviderBuilder,kotlin.Unit> builder);
   }
 
-  public final class NavDisplay {
-    method public java.util.Map<java.lang.String,java.lang.Object> isDialog(boolean boolean);
-    method public java.util.Map<java.lang.String,java.lang.Object> transition(androidx.compose.animation.EnterTransition? enter, androidx.compose.animation.ExitTransition? exit);
-    field public static final androidx.navigation3.NavDisplay INSTANCE;
+  public final class LocalNavAnimatedContentScope_androidKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.animation.AnimatedContentScope> getLocalNavAnimatedContentScope();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.animation.AnimatedContentScope> LocalNavAnimatedContentScope;
   }
 
-  public final class NavDisplay_androidKt {
-    method @androidx.compose.runtime.Composable public static <T> void NavDisplay(java.util.List<? extends T> backstack, optional androidx.compose.ui.Modifier modifier, optional java.util.List<? extends androidx.navigation3.NavLocalProvider> localProviders, optional androidx.compose.ui.Alignment contentAlignment, optional androidx.compose.animation.SizeTransform? sizeTransform, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBack, kotlin.jvm.functions.Function1<? super T,? extends androidx.navigation3.NavEntry<? extends T>> entryProvider);
+  public final class NavBackStackProviderKt {
+    method @androidx.compose.runtime.Composable public static <T> void NavBackStackProvider(java.util.List<? extends T> backStack, kotlin.jvm.functions.Function1<? super T,? extends androidx.navigation3.NavEntry<? extends T>> entryProvider, optional java.util.List<? extends androidx.navigation3.NavLocalProvider> localProviders, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.navigation3.NavEntry<T>>,kotlin.Unit> content);
   }
 
-  public final class NavEntry<T> {
+  public class NavEntry<T> {
     ctor public NavEntry(T key, optional java.util.Map<java.lang.String,?> featureMap, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit> getContent();
     method public java.util.Map<java.lang.String,java.lang.Object> getFeatureMap();
     method public T getKey();
-    property public final kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
-    property public final java.util.Map<java.lang.String,java.lang.Object> featureMap;
-    property public final T key;
+    property public kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
+    property public java.util.Map<java.lang.String,java.lang.Object> featureMap;
+    property public T key;
+  }
+
+  public class NavEntryWrapper<T> extends androidx.navigation3.NavEntry<T> {
+    ctor public NavEntryWrapper(androidx.navigation3.NavEntry<T> navEntry);
+    method public final androidx.navigation3.NavEntry<T> getNavEntry();
+    property public kotlin.jvm.functions.Function1<T,kotlin.Unit> content;
+    property public java.util.Map<java.lang.String,java.lang.Object> featureMap;
+    property public T key;
+    property public final androidx.navigation3.NavEntry<T> navEntry;
   }
 
   public interface NavLocalProvider {
-    method @androidx.compose.runtime.Composable public default void ProvideToBackStack(java.util.List<?> backStack);
+    method @androidx.compose.runtime.Composable public default void ProvideToBackStack(java.util.List<?> backStack, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public <T> void ProvideToEntry(androidx.navigation3.NavEntry<T> entry);
-  }
-
-  public final class NavWrapperManager {
-    ctor public NavWrapperManager();
-    ctor public NavWrapperManager(optional java.util.List<? extends androidx.navigation3.NavLocalProvider> navLocalProviders);
-    method @androidx.compose.runtime.Composable public <T> void ContentForEntry(androidx.navigation3.NavEntry<T> entry);
-    method @androidx.compose.runtime.Composable public void PrepareBackStack(java.util.List<?> backStack);
-  }
-
-  public final class NavWrapperManagerKt {
-    method @androidx.compose.runtime.Composable public static androidx.navigation3.NavWrapperManager rememberNavWrapperManager(java.util.List<? extends androidx.navigation3.NavLocalProvider> navLocalProviders);
   }
 
   public final class SaveableStateNavLocalProvider implements androidx.navigation3.NavLocalProvider {
@@ -89,6 +86,16 @@ package androidx.navigation3 {
   public final class SavedStateNavLocalProvider implements androidx.navigation3.NavLocalProvider {
     method @androidx.compose.runtime.Composable public <T> void ProvideToEntry(androidx.navigation3.NavEntry<T> entry);
     field public static final androidx.navigation3.SavedStateNavLocalProvider INSTANCE;
+  }
+
+  public final class SinglePaneNavDisplay {
+    method public java.util.Map<java.lang.String,java.lang.Object> popTransition(androidx.compose.animation.EnterTransition? enter, androidx.compose.animation.ExitTransition? exit);
+    method public java.util.Map<java.lang.String,java.lang.Object> transition(androidx.compose.animation.EnterTransition? enter, androidx.compose.animation.ExitTransition? exit);
+    field public static final androidx.navigation3.SinglePaneNavDisplay INSTANCE;
+  }
+
+  public final class SinglePaneNavDisplay_androidKt {
+    method @androidx.compose.runtime.Composable public static <T> void SinglePaneNavDisplay(java.util.List<? extends T> backStack, optional androidx.compose.ui.Modifier modifier, optional java.util.List<? extends androidx.navigation3.NavLocalProvider> localProviders, optional androidx.compose.ui.Alignment contentAlignment, optional androidx.compose.animation.SizeTransform? sizeTransform, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional androidx.compose.animation.EnterTransition popEnterTransition, optional androidx.compose.animation.ExitTransition popExitTransition, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBack, kotlin.jvm.functions.Function1<? super T,? extends androidx.navigation3.NavEntry<? extends T>> entryProvider);
   }
 
 }

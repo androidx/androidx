@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doAnswer;
 import android.app.Instrumentation;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
@@ -49,6 +48,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,10 +65,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.disposables.CompositeDisposable;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -200,9 +200,8 @@ public class InvalidationTrackerTest {
             mShouldSpyOnInvalidation = shouldSpyOnInvalidation;
         }
 
-        @NonNull
         @Override
-        public InvalidationTracker getInvalidationTracker() {
+        public @NonNull InvalidationTracker getInvalidationTracker() {
             if (mShouldSpyOnInvalidation) {
                 if (mInvalidationTrackerSpy == null) {
                     mInvalidationTrackerSpy = Mockito.spy(super.getInvalidationTracker());
@@ -218,10 +217,8 @@ public class InvalidationTrackerTest {
     @Entity
     static class Item {
         @PrimaryKey
-        @NonNull
         public final long id;
-        @NonNull
-        public final String name;
+        public final @NonNull String name;
         Item(long id, String name) {
             this.id = id;
             this.name = name;

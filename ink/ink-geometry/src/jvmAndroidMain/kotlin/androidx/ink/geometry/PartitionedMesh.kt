@@ -135,7 +135,13 @@ public constructor(
         return meshesByGroup[groupIndex]
     }
 
-    /** Returns the number of outlines that comprise the render group at [groupIndex]. */
+    /**
+     * Returns the number of outlines of the mesh for the render group at [groupIndex].
+     *
+     * Groups with discontinuous geometry will always have multiple outlines, but even continuous
+     * geometry may be drawn with multiple overlapping outlines when this improves rendering quality
+     * or performance.
+     */
     @IntRange(from = 0)
     public fun getOutlineCount(@IntRange(from = 0) groupIndex: Int): Int {
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {

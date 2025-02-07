@@ -24,10 +24,10 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.DataClass
-import androidx.room.vo.Field
-import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyWithIndex
 import androidx.room.vo.RelationCollector
-import androidx.room.writer.FieldReadWriteWriter
+import androidx.room.writer.PropertyReadWriteWriter
 
 /**
  * Creates the entity from the given info.
@@ -47,12 +47,12 @@ class DataClassRowAdapter(
     private val indexAdapter: DataClassIndexAdapter
 
     // Set when statement is ready.
-    private lateinit var fieldsWithIndices: List<FieldWithIndex>
+    private lateinit var fieldsWithIndices: List<PropertyWithIndex>
 
     init {
-        val remainingFields = dataClass.fields.toMutableList()
+        val remainingFields = dataClass.properties.toMutableList()
         val unusedColumns = arrayListOf<String>()
-        val matchedFields: List<Field>
+        val matchedFields: List<Property>
         if (info != null) {
             matchedFields =
                 info.columns.mapNotNull { column ->
@@ -70,7 +70,7 @@ class DataClassRowAdapter(
                 context.logger.e(
                     ProcessorErrors.dataClassMissingNonNull(
                         dataClassTypeName = dataClass.typeName.toString(context.codeLanguage),
-                        missingDataClassFields = nonNulls.map { it.name },
+                        missingDataClassProperties = nonNulls.map { it.name },
                         allQueryColumns = info.columns.map { it.name }
                     )
                 )
@@ -120,7 +120,11 @@ class DataClassRowAdapter(
         fieldsWithIndices =
             indices.map { (column, indexVar) ->
                 val field = mapping.matchedFields.first { it.columnName == column }
-                FieldWithIndex(field = field, indexVar = indexVar, alwaysExists = info != null)
+                PropertyWithIndex(
+                    property = field,
+                    indexVar = indexVar,
+                    alwaysExists = info != null
+                )
             }
         emitRelationCollectorsReady(stmtVarName, scope)
     }
@@ -142,11 +146,11 @@ class DataClassRowAdapter(
     }
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
-        FieldReadWriteWriter.readFromStatement(
+        PropertyReadWriteWriter.readFromStatement(
             outVar = outVarName,
             outDataClass = dataClass,
             stmtVar = stmtVarName,
-            fieldsWithIndices = fieldsWithIndices,
+            propertiesWithIndices = fieldsWithIndices,
             relationCollectors = relationCollectors,
             scope = scope
         )
@@ -156,9 +160,9 @@ class DataClassRowAdapter(
 
     data class DataClassMapping(
         val dataClass: DataClass,
-        val matchedFields: List<Field>,
+        val matchedFields: List<Property>,
         val unusedColumns: List<String>,
-        val unusedFields: List<Field>
+        val unusedFields: List<Property>
     ) : Mapping() {
         override val usedColumns = matchedFields.map { it.columnName }
     }

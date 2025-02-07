@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.compose.ui.graphics.colorspace
 
@@ -853,10 +853,9 @@ internal constructor(
         var result = super.hashCode()
         result = 31 * result + whitePoint.hashCode()
         result = 31 * result + primaries.contentHashCode()
-        result = 31 * result + (if (min != +0.0f) min.toBits() else 0)
-        result = 31 * result + (if (max != +0.0f) max.toBits() else 0)
-        result =
-            (31 * result + if (transferParameters != null) transferParameters.hashCode() else 0)
+        result = 31 * result + (if (min != 0.0f) min.toBits() else 0)
+        result = 31 * result + (if (max != 0.0f) max.toBits() else 0)
+        result = (31 * result + (transferParameters?.hashCode() ?: 0))
         if (transferParameters == null) {
             result = 31 * result + oetfOrig.hashCode()
             result = 31 * result + eotfOrig.hashCode()

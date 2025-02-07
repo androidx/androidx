@@ -16,10 +16,10 @@
 
 package androidx.xr.compose.platform
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.ui.platform.LocalContext
+import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.scenecore.Session
 
 /**
@@ -27,7 +27,6 @@ import androidx.xr.scenecore.Session
  *
  * In non-XR environments, this composition local will return `null`.
  */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public val LocalSession: ProvidableCompositionLocal<Session?> =
     compositionLocalWithComputedDefaultOf {
         if (SpatialConfiguration.hasXrSpatialFeature(LocalContext.currentValue)) {
@@ -36,3 +35,15 @@ public val LocalSession: ProvidableCompositionLocal<Session?> =
             null
         }
     }
+
+private val mainPanelEntityMap: MutableMap<Session, CoreMainPanelEntity> = mutableMapOf()
+
+/**
+ * The [CoreMainPanelEntity] compose wrapper that represents the main panel for this [Session].
+ *
+ * In order to react to the main panel's size changes we need to add a listener to the main view.
+ * Tracking the instance of CoreMainPanelEntity allows us to limit the number of listeners added and
+ * makes it so we don't have to worry about disposing the instance every time it is used.
+ */
+internal val Session.coreMainPanelEntity: CoreMainPanelEntity
+    get() = mainPanelEntityMap.getOrPut(this) { CoreMainPanelEntity(this) }

@@ -687,8 +687,9 @@ public fun NavHost(
             // animating. In these cases the currentEntry will be null, and in those cases,
             // AnimatedContent will just skip attempting to transition the old entry.
             // See https://issuetracker.google.com/238686802
+            val isPredictiveBackCancelAnimation = transitionState.currentState == backStackEntry
             val currentEntry =
-                if (inPredictiveBack) {
+                if (inPredictiveBack || isPredictiveBackCancelAnimation) {
                     // We have to do this because the previous entry does not show up in
                     // visibleEntries
                     // even if we prepare it above as part of onBackStackChangeStarted

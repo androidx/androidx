@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +42,7 @@ dependencies {
 
 androidx {
     name = "Navigation Hilt Extension"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"

@@ -1976,8 +1976,8 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     @Config(minSdk = VERSION_CODES.Q)
-    public void inflateThenMutate_withClickableSizeChange_clickableModifier_extendClickTargetSize()
-    {
+    public void
+            inflateThenMutate_withClickableSizeChange_clickableModifier_extendClickTargetSize() {
         Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
         int parentSize = 50;
         ContainerDimension parentBoxSize =
@@ -2052,8 +2052,8 @@ public class ProtoLayoutInflaterTest {
 
         // Compute the mutation
         ViewGroupMutation mutation =
-                renderer.computeMutation(getRenderedMetadata(rootLayout),
-                        fingerprintedLayout(root2));
+                renderer.computeMutation(
+                        getRenderedMetadata(rootLayout), fingerprintedLayout(root2));
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
@@ -2374,8 +2374,8 @@ public class ProtoLayoutInflaterTest {
                                         .setSpacer(
                                                 ArcSpacer.newBuilder()
                                                         .setAngularLength(
-                                                                AngularDimension.newBuilder().setDp(
-                                                                        dp(spacerLength)))
+                                                                AngularDimension.newBuilder()
+                                                                        .setDp(dp(spacerLength)))
                                                         .setThickness(dp(thickness))));
         LayoutElement root =
                 LayoutElement.newBuilder()
@@ -2398,7 +2398,6 @@ public class ProtoLayoutInflaterTest {
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine:
         assertThat(spacer.getThickness()).isEqualTo((int) thickness);
     }
-
 
     @Test
     public void inflate_arc_withMaxAngleAndWeights() {
@@ -3144,14 +3143,16 @@ public class ProtoLayoutInflaterTest {
     @Test
     public void inflate_textView_fontFeatureSetting() {
         String textContents = "Text that is very large so it will go to many lines";
-        FontSetting.Builder randomSetting = FontSetting.newBuilder()
-                .setFeature(
-                        FontFeatureSetting.newBuilder()
-                                .setTag(ByteBuffer.wrap("rndm".getBytes(UTF_8)).getInt()));
-        FontSetting.Builder tnumSetting = FontSetting.newBuilder()
-                .setFeature(
-                        FontFeatureSetting.newBuilder()
-                                .setTag(ByteBuffer.wrap("tnum".getBytes(UTF_8)).getInt()));
+        FontSetting.Builder randomSetting =
+                FontSetting.newBuilder()
+                        .setFeature(
+                                FontFeatureSetting.newBuilder()
+                                        .setTag(ByteBuffer.wrap("rndm".getBytes(UTF_8)).getInt()));
+        FontSetting.Builder tnumSetting =
+                FontSetting.newBuilder()
+                        .setFeature(
+                                FontFeatureSetting.newBuilder()
+                                        .setTag(ByteBuffer.wrap("tnum".getBytes(UTF_8)).getInt()));
         Text.Builder text1 =
                 Text.newBuilder()
                         .setLineHeight(sp(16))
@@ -5557,33 +5558,28 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_boxWithFourAsymmetricalCorners() {
-        float[] rValues = new float[]{1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
-        Box.Builder boxBuilder = Box.newBuilder()
-                .setWidth(expand())
-                .setHeight(expand())
-                .setModifiers(Modifiers.newBuilder()
-                        .setBackground(
-                                ModifiersProto.Background.newBuilder()
-                                        .setCorner(
-                                                Corner.newBuilder()
-                                                        .setTopLeftRadius(
-                                                                CornerRadius.newBuilder()
-                                                                        .setX(dp(rValues[0]))
-                                                                        .setY(dp(rValues[1])))
-                                                        .setTopRightRadius(
-                                                                CornerRadius.newBuilder()
-                                                                        .setX(dp(rValues[2]))
-                                                                        .setY(dp(rValues[3])))
-                                                        .setBottomRightRadius(
-                                                                CornerRadius.newBuilder()
-                                                                        .setX(dp(rValues[4]))
-                                                                        .setY(dp(rValues[5])))
-                                                        .setBottomLeftRadius(
-                                                                CornerRadius.newBuilder()
-                                                                        .setX(dp(rValues[6]))
-                                                                        .setY(dp(rValues[7])))
-                                                        .build()))
-                        .build());
+        float[] rValues = new float[] {1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
+        Corner corner =
+                Corner.newBuilder()
+                        .setTopLeftRadius(
+                                CornerRadius.newBuilder().setX(dp(rValues[0])).setY(dp(rValues[1])))
+                        .setTopRightRadius(
+                                CornerRadius.newBuilder().setX(dp(rValues[2])).setY(dp(rValues[3])))
+                        .setBottomRightRadius(
+                                CornerRadius.newBuilder().setX(dp(rValues[4])).setY(dp(rValues[5])))
+                        .setBottomLeftRadius(
+                                CornerRadius.newBuilder().setX(dp(rValues[6])).setY(dp(rValues[7])))
+                        .build();
+        Box.Builder boxBuilder =
+                Box.newBuilder()
+                        .setWidth(expand())
+                        .setHeight(expand())
+                        .setModifiers(
+                                Modifiers.newBuilder()
+                                        .setBackground(
+                                                ModifiersProto.Background.newBuilder()
+                                                        .setCorner(corner))
+                                        .build());
         LayoutElement root = LayoutElement.newBuilder().setBox(boxBuilder).build();
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         assertThat(rootLayout.getChildCount()).isEqualTo(1);
@@ -5596,22 +5592,23 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_boxWithOneAsymmetricalCorner() {
-        float[] rValues = new float[]{1f, 1f, 3f, 4f, 1f, 1f, 1f, 1f};
-        Box.Builder boxBuilder = Box.newBuilder()
-                .setWidth(expand())
-                .setHeight(expand())
-                .setModifiers(Modifiers.newBuilder()
-                        .setBackground(
-                                ModifiersProto.Background.newBuilder()
-                                        .setCorner(
-                                                Corner.newBuilder()
-                                                        .setRadius(dp(rValues[0]))
-                                                        .setTopRightRadius(
-                                                                CornerRadius.newBuilder()
-                                                                        .setX(dp(rValues[2]))
-                                                                        .setY(dp(rValues[3])))
-                                                        .build()))
-                        .build());
+        float[] rValues = new float[] {1f, 1f, 3f, 4f, 1f, 1f, 1f, 1f};
+        Corner corner =
+                Corner.newBuilder()
+                        .setRadius(dp(rValues[0]))
+                        .setTopRightRadius(
+                                CornerRadius.newBuilder().setX(dp(rValues[2])).setY(dp(rValues[3])))
+                        .build();
+        Box.Builder boxBuilder =
+                Box.newBuilder()
+                        .setWidth(expand())
+                        .setHeight(expand())
+                        .setModifiers(
+                                Modifiers.newBuilder()
+                                        .setBackground(
+                                                ModifiersProto.Background.newBuilder()
+                                                        .setCorner(corner))
+                                        .build());
         LayoutElement root = LayoutElement.newBuilder().setBox(boxBuilder).build();
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         assertThat(rootLayout.getChildCount()).isEqualTo(1);
@@ -6328,16 +6325,17 @@ public class ProtoLayoutInflaterTest {
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
-                                        .addContents(ArcLayoutElement.newBuilder().setDashedLine(
-                                                dashedArcLine)))
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setDashedLine(dashedArcLine)))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
 
         if (arcLayout.getChildAt(0) instanceof SizedArcContainer) {
-            return (WearDashedArcLineView) ((SizedArcContainer) arcLayout.getChildAt(0)).getChildAt(
-                    0);
+            return (WearDashedArcLineView)
+                    ((SizedArcContainer) arcLayout.getChildAt(0)).getChildAt(0);
         }
         return (WearDashedArcLineView) arcLayout.getChildAt(0);
     }
@@ -6467,15 +6465,15 @@ public class ProtoLayoutInflaterTest {
                 .build();
     }
 
-    private Text.@NonNull Builder textAnimVisibility(AnimatedVisibility.Builder snapTo,
-            String text) {
+    private Text.@NonNull Builder textAnimVisibility(
+            AnimatedVisibility.Builder snapTo, String text) {
         return Text.newBuilder()
                 .setModifiers(Modifiers.newBuilder().setContentUpdateAnimation(snapTo.build()))
                 .setText(string(text).build());
     }
 
-    private Text.@NonNull Builder dynamicTextAnimVisibility(AnimatedVisibility.Builder snapTo,
-            String text) {
+    private Text.@NonNull Builder dynamicTextAnimVisibility(
+            AnimatedVisibility.Builder snapTo, String text) {
         return Text.newBuilder()
                 .setModifiers(Modifiers.newBuilder().setContentUpdateAnimation(snapTo.build()))
                 .setText(

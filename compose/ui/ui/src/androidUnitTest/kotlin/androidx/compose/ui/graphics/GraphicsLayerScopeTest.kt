@@ -58,6 +58,8 @@ class GraphicsLayerScopeTest {
             }
         scope.clip = true
         scope.size = Size(100f, 200f)
+        scope.blendMode = BlendMode.Xor
+        scope.colorFilter = LightingColorFilter(Color.LightGray, Color.Red)
         scope.reset()
         scope.assertCorrectDefaultValuesAreCorrect()
     }
@@ -87,5 +89,7 @@ class GraphicsLayerScopeTest {
         assertThat(shape).isEqualTo(RectangleShape)
         assertThat(clip).isEqualTo(false)
         assertThat(size).isEqualTo(Size.Unspecified)
+        assertThat(blendMode).isEqualTo(BlendMode.SrcOver)
+        assertThat(colorFilter).isNull()
     }
 }

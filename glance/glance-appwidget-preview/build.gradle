@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXComposePlugin")
@@ -55,7 +55,7 @@ android {
 
 androidx {
     name = "Glance AppWidget Preview"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceAppWidget components and its Glance @Composable to be previewable in the IDE."

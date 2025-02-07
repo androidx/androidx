@@ -106,11 +106,43 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
         assertThat(finishedStrokeCohorts[0]).hasSize(1)
         val stroke = finishedStrokeCohorts[0].values.iterator().next()
 
-        // Stroke units are set to pixels, so the stroke unit length should be 1/dpi inches, which
-        // is
-        // 2.54/dpi cm.
+        // Stroke units are set to view coordinate units which by default is screen pixels, so the
+        // stroke unit length should be 1/dpi inches, which is 2.54/dpi cm.
         val metrics = InstrumentationRegistry.getInstrumentation().context.resources.displayMetrics
         assertThat(stroke.inputs.getStrokeUnitLengthCm()).isWithin(1e-5f).of(2.54f / metrics.xdpi)
+    }
+
+    @Test
+    fun startAndFinishStroke_strokeUnitLengthFactorsInViewScale() {
+        val stylusInputStream =
+            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
+        activityScenarioRule.scenario.onActivity { activity ->
+            activity.inProgressStrokesView.scaleX = 0.5f
+            activity.inProgressStrokesView.scaleY = 0.5f
+            val downEvent = stylusInputStream.getDownEvent()
+            val strokeId =
+                activity.inProgressStrokesView.startStroke(
+                    downEvent,
+                    downEvent.getPointerId(0),
+                    basicBrush(TestColors.AVOCADO_GREEN),
+                )
+            val upEvent = stylusInputStream.getUpEvent()
+            activity.inProgressStrokesView.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        }
+
+        assertThatTakingScreenshotMatchesGolden("start_and_finish_scaled")
+        assertThat(finishedStrokeCohorts).hasSize(1)
+        assertThat(finishedStrokeCohorts[0]).hasSize(1)
+        val stroke = finishedStrokeCohorts[0].values.iterator().next()
+
+        // Stroke units are set to view coordinate units which by default is screen pixels, but the
+        // view
+        // is scaled down by half, so the stroke unit length should be 0.5/dpi inches, which is
+        // 0.5*2.54/dpi cm.
+        val metrics = InstrumentationRegistry.getInstrumentation().context.resources.displayMetrics
+        assertThat(stroke.inputs.getStrokeUnitLengthCm())
+            .isWithin(1e-5f)
+            .of(0.5f * 2.54f / metrics.xdpi)
     }
 
     @Test

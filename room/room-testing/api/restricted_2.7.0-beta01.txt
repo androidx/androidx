@@ -1,0 +1,20 @@
+// Signature format: 4.0
+package androidx.room.testing {
+
+  public class MigrationTestHelper extends org.junit.rules.TestWatcher {
+    ctor public MigrationTestHelper(android.app.Instrumentation instrumentation, java.io.File file, androidx.sqlite.SQLiteDriver driver, kotlin.reflect.KClass<? extends androidx.room.RoomDatabase> databaseClass, optional kotlin.jvm.functions.Function0<? extends androidx.room.RoomDatabase> databaseFactory, optional java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs);
+    ctor public MigrationTestHelper(android.app.Instrumentation instrumentation, Class<? extends androidx.room.RoomDatabase> databaseClass);
+    ctor public MigrationTestHelper(android.app.Instrumentation instrumentation, Class<? extends androidx.room.RoomDatabase> databaseClass, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> specs);
+    ctor public MigrationTestHelper(android.app.Instrumentation instrumentation, Class<? extends androidx.room.RoomDatabase> databaseClass, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> specs, optional androidx.sqlite.db.SupportSQLiteOpenHelper.Factory openFactory);
+    ctor @Deprecated public MigrationTestHelper(android.app.Instrumentation instrumentation, String assetsFolder);
+    ctor @Deprecated public MigrationTestHelper(android.app.Instrumentation instrumentation, String assetsFolder, optional androidx.sqlite.db.SupportSQLiteOpenHelper.Factory openFactory);
+    method public void closeWhenFinished(androidx.room.RoomDatabase db);
+    method public void closeWhenFinished(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public final androidx.sqlite.SQLiteConnection createDatabase(int version);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public androidx.sqlite.db.SupportSQLiteDatabase createDatabase(String name, int version) throws java.io.IOException;
+    method public final androidx.sqlite.SQLiteConnection runMigrationsAndValidate(int version, optional java.util.List<? extends androidx.room.migration.Migration> migrations);
+    method public androidx.sqlite.db.SupportSQLiteDatabase runMigrationsAndValidate(String name, int version, boolean validateDroppedTables, androidx.room.migration.Migration... migrations);
+  }
+
+}
+

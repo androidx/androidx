@@ -193,7 +193,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testSetSchema_schemaDescription_notSupported() throws Exception {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
                 Features.SCHEMA_SET_DESCRIPTION));
@@ -218,7 +218,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testSetSchema_propertyDescription_notSupported() throws Exception {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
                 Features.SCHEMA_SET_DESCRIPTION));
@@ -243,7 +243,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testSetSchema_updateSchemaDescription() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_SET_DESCRIPTION));
 
@@ -304,7 +304,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testSetSchema_updatePropertyDescription() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_SET_DESCRIPTION));
 

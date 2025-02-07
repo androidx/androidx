@@ -27,6 +27,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
+import androidx.compose.material.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -713,7 +714,8 @@ internal object AnchoredDraggableDefaults {
     val AnimationSpec = SpringSpec<Float>()
 }
 
-internal expect class AnchoredDragFinishedSignal() : CancellationException
+internal class AnchoredDragFinishedSignal :
+    PlatformOptimizedCancellationException("Anchored drag finished")
 
 private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit) {
     try {

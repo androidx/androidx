@@ -56,7 +56,7 @@ abstract class BenchmarkTestBase(
     }
 
     @Test
-    fun start() {
+    open fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = metrics,

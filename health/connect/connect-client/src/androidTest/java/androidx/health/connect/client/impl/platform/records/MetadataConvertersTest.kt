@@ -17,6 +17,7 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.TargetApi
+import android.health.connect.datatypes.Metadata.RECORDING_METHOD_UNKNOWN
 import android.os.Build
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
@@ -79,6 +80,7 @@ class MetadataConvertersTest {
     fun metadata_convertToPlatform_noDevice() {
         val metadata =
             Metadata(
+                recordingMethod = RECORDING_METHOD_UNKNOWN,
                 id = "someId",
                 dataOrigin = DataOrigin("origin package name"),
                 lastModifiedTime = Instant.ofEpochMilli(6666L),

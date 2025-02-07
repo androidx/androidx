@@ -1,1 +1,126 @@
 // Signature format: 4.0
+package androidx.xr.runtime.openxr {
+
+  public final class AnchorState {
+    ctor public AnchorState();
+    ctor public AnchorState(optional androidx.xr.runtime.internal.TrackingState trackingState, optional androidx.xr.runtime.math.Pose? pose);
+    method public androidx.xr.runtime.internal.TrackingState component1();
+    method public androidx.xr.runtime.math.Pose? component2();
+    method public androidx.xr.runtime.openxr.AnchorState copy(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.runtime.math.Pose? pose);
+    method public androidx.xr.runtime.math.Pose? getPose();
+    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    property public androidx.xr.runtime.math.Pose? pose;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
+  }
+
+  public interface ExportableAnchor {
+    method public android.os.IBinder getAnchorToken();
+    method public long getNativePointer();
+    property public abstract android.os.IBinder anchorToken;
+    property public abstract long nativePointer;
+  }
+
+  public final class HandState {
+    ctor public HandState();
+    ctor public HandState(optional boolean isActive, optional java.util.List<androidx.xr.runtime.math.Pose> handJoints);
+  }
+
+  public final class HitData {
+    ctor public HitData(androidx.xr.runtime.math.Pose pose, long id);
+    method public androidx.xr.runtime.math.Pose component1();
+    method public long component2();
+    method public androidx.xr.runtime.openxr.HitData copy(androidx.xr.runtime.math.Pose pose, long id);
+    method public long getId();
+    method public androidx.xr.runtime.math.Pose getPose();
+    property public long id;
+    property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  public final class OpenXrAnchor implements androidx.xr.runtime.openxr.ExportableAnchor {
+    method public void detach();
+    method public android.os.IBinder getAnchorToken();
+    method public long getNativePointer();
+    method public androidx.xr.runtime.internal.Anchor.PersistenceState getPersistenceState();
+    method public androidx.xr.runtime.math.Pose getPose();
+    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method public java.util.UUID? getUuid();
+    method public void persist();
+    method public void update(long xrTime);
+    property public android.os.IBinder anchorToken;
+    property public long nativePointer;
+    property public androidx.xr.runtime.internal.Anchor.PersistenceState persistenceState;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public java.util.UUID? uuid;
+  }
+
+  public final class OpenXrHand {
+    method public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
+    method public boolean isActive();
+    method public void update(long xrTime);
+    property public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
+    property public boolean isActive;
+  }
+
+  public final class OpenXrManager {
+    method public void configure();
+    method public void create();
+    method public void pause();
+    method public void resume();
+    method public void stop();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
+  }
+
+  public final class OpenXrPerceptionManager {
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.runtime.internal.Hand getLeftHand();
+    method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
+    method public androidx.xr.runtime.internal.Hand getRightHand();
+    method public java.util.Collection<androidx.xr.runtime.internal.Trackable> getTrackables();
+    method public java.util.List<androidx.xr.runtime.internal.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
+    method public androidx.xr.runtime.internal.Anchor loadAnchor(java.util.UUID uuid);
+    method public androidx.xr.runtime.internal.Anchor loadAnchorFromNativePointer(long nativePointer);
+    method public void unpersistAnchor(java.util.UUID uuid);
+    method public void update(long xrTime);
+    property public androidx.xr.runtime.internal.Hand leftHand;
+    property public androidx.xr.runtime.internal.Hand rightHand;
+    property public java.util.Collection<androidx.xr.runtime.internal.Trackable> trackables;
+  }
+
+  public final class OpenXrPlane {
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.runtime.math.Pose getCenterPose();
+    method public androidx.xr.runtime.math.Vector2 getExtents();
+    method public androidx.xr.runtime.internal.Plane.Label getLabel();
+    method public androidx.xr.runtime.internal.Plane? getSubsumedBy();
+    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method public androidx.xr.runtime.internal.Plane.Type getType();
+    method public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
+    method public void update(long xrTime);
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.Vector2 extents;
+    property public androidx.xr.runtime.internal.Plane.Label label;
+    property public androidx.xr.runtime.internal.Plane? subsumedBy;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public androidx.xr.runtime.internal.Plane.Type type;
+    property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
+  }
+
+  public final class OpenXrRuntime {
+    method public androidx.xr.runtime.openxr.OpenXrManager getLifecycleManager();
+    method public androidx.xr.runtime.openxr.OpenXrPerceptionManager getPerceptionManager();
+    property public androidx.xr.runtime.openxr.OpenXrManager lifecycleManager;
+    property public androidx.xr.runtime.openxr.OpenXrPerceptionManager perceptionManager;
+  }
+
+  public final class OpenXrRuntimeFactory {
+    ctor public OpenXrRuntimeFactory();
+    method public androidx.xr.runtime.internal.Runtime createRuntime(android.app.Activity activity);
+    field public static final androidx.xr.runtime.openxr.OpenXrRuntimeFactory.Companion Companion;
+  }
+
+  public static final class OpenXrRuntimeFactory.Companion {
+  }
+
+}
+

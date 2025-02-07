@@ -16,6 +16,9 @@
 
 package androidx.wear.protolayout.material3
 
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledProgressIndicatorColors
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledTonalProgressIndicatorColors
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledVariantProgressIndicatorColors
 import androidx.wear.protolayout.types.LayoutColor
 
 /**
@@ -28,6 +31,12 @@ import androidx.wear.protolayout.types.LayoutColor
  * @param labelColor the color used for label for the card.
  * @param secondaryIconColor the color used for icon in the data card type.
  * @param secondaryTextColor the color used for secondary label for the data card type.
+ * @param graphicProgressIndicatorColors the color used for the progress indicator set as graphic of
+ *   the card. If null, uses the default color defined in [circularProgressIndicator] and
+ *   [segmentedCircularProgressIndicator], which is [filledProgressIndicatorColors].
+ * @param graphicIconColor the color used for the icon to be put at the center of the progress
+ *   indicator to compose the graphic. If null, uses the default icon color, which is
+ *   [ColorScheme.primary].
  */
 public class CardColors(
     public val backgroundColor: LayoutColor,
@@ -37,6 +46,8 @@ public class CardColors(
     public val labelColor: LayoutColor = titleColor,
     public val secondaryIconColor: LayoutColor = titleColor,
     public val secondaryTextColor: LayoutColor = timeColor,
+    public val graphicProgressIndicatorColors: ProgressIndicatorColors? = null,
+    public val graphicIconColor: LayoutColor? = null
 )
 
 public object CardDefaults {
@@ -51,7 +62,9 @@ public object CardDefaults {
         CardColors(
             backgroundColor = theme.colorScheme.primary,
             titleColor = theme.colorScheme.onPrimary,
-            contentColor = theme.colorScheme.onPrimary.withOpacity(0.8f)
+            contentColor = theme.colorScheme.onPrimary.withOpacity(0.8f),
+            graphicProgressIndicatorColors = filledProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryContainer
         )
 
     /**
@@ -65,7 +78,9 @@ public object CardDefaults {
             backgroundColor = theme.colorScheme.surfaceContainer,
             titleColor = theme.colorScheme.onSurface,
             contentColor = theme.colorScheme.onSurfaceVariant,
-            secondaryIconColor = theme.colorScheme.primary
+            secondaryIconColor = theme.colorScheme.primary,
+            graphicProgressIndicatorColors = filledTonalProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryDim
         )
 
     /**
@@ -78,7 +93,9 @@ public object CardDefaults {
         CardColors(
             backgroundColor = theme.colorScheme.primaryContainer,
             titleColor = theme.colorScheme.onPrimaryContainer,
-            contentColor = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f)
+            contentColor = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f),
+            graphicProgressIndicatorColors = filledVariantProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryDim
         )
 
     /**

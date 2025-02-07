@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.platform
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.getValue
@@ -28,8 +27,9 @@ import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_AP
 import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
 import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_SPATIAL_AUDIO
 import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_UI
+import androidx.xr.scenecore.addSpatialCapabilitiesChangedListener
+import androidx.xr.scenecore.getSpatialCapabilities
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public val LocalSpatialCapabilities: CompositionLocal<SpatialCapabilities> =
     compositionLocalWithComputedDefaultOf {
         if (LocalHasXrSpatialFeature.currentValue) {
@@ -44,7 +44,6 @@ public val LocalSpatialCapabilities: CompositionLocal<SpatialCapabilities> =
 /**
  * Provides information and functionality related to the spatial capabilities of the application.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialCapabilities {
     /**
      * Indicates whether the application may create spatial UI elements (e.g. SpatialPanel).

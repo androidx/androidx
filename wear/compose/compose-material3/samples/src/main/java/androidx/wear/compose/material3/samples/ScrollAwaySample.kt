@@ -33,7 +33,9 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ScreenStage
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.curvedText
 import androidx.wear.compose.material3.scrollAway
+import androidx.wear.compose.material3.timeTextSeparator
 
 @Sampled
 @Composable
@@ -73,10 +75,10 @@ fun ScrollAwaySample() {
                         if (state.isScrollInProgress) ScreenStage.Scrolling else ScreenStage.Idle
                     }
                 ),
-            content = {
-                text("ScrollAway")
-                separator()
-                time()
+            content = { time ->
+                curvedText("ScrollAway")
+                timeTextSeparator()
+                curvedText(time)
             }
         )
     }

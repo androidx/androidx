@@ -30,24 +30,24 @@ import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isVoid
 import androidx.room.ext.isCollection
 import androidx.room.ext.isNotVoid
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
-import androidx.room.processor.ProcessorErrors.DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_PROPERTY
+import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_PROPERTY
+import androidx.room.processor.ProcessorErrors.DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room.processor.autovalue.AutoValueDataClassProcessorDelegate
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.DataClass
 import androidx.room.vo.DataClassFunction
-import androidx.room.vo.EmbeddedField
+import androidx.room.vo.EmbeddedProperty
 import androidx.room.vo.Entity
 import androidx.room.vo.EntityOrView
-import androidx.room.vo.Field
-import androidx.room.vo.FieldGetter
-import androidx.room.vo.FieldSetter
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyGetter
+import androidx.room.vo.PropertySetter
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
-import androidx.room.vo.findFieldByColumnName
+import androidx.room.vo.findPropertyByColumnName
 import com.google.auto.value.AutoValue
 
 /** Processes any class as if it is a data class. */
@@ -55,8 +55,8 @@ class DataClassProcessor
 private constructor(
     baseContext: Context,
     val element: XTypeElement,
-    val bindingScope: FieldProcessor.BindingScope,
-    val parent: EmbeddedField?,
+    val bindingScope: PropertyProcessor.BindingScope,
+    val parent: EmbeddedProperty?,
     val referenceStack: LinkedHashSet<String> = LinkedHashSet(),
     private val delegate: Delegate
 ) {
@@ -71,8 +71,8 @@ private constructor(
         fun createFor(
             context: Context,
             element: XTypeElement,
-            bindingScope: FieldProcessor.BindingScope,
-            parent: EmbeddedField?,
+            bindingScope: PropertyProcessor.BindingScope,
+            parent: EmbeddedProperty?,
             referenceStack: LinkedHashSet<String> = LinkedHashSet()
         ): DataClassProcessor {
             val (dataClassElement, delegate) =
@@ -121,8 +121,8 @@ private constructor(
             return delegate.createDataClass(
                 element = element,
                 declaredType = element.type,
-                fields = emptyList(),
-                embeddedFields = emptyList(),
+                properties = emptyList(),
+                embeddedProperties = emptyList(),
                 relations = emptyList(),
                 constructor = null
             )
@@ -131,7 +131,7 @@ private constructor(
 
         val declaredType = element.type
         // TODO handle conflicts with super: b/35568142
-        val allFields =
+        val allProperties =
             element
                 .getAllFieldsIncludingPrivateSupers()
                 .filter {
@@ -144,15 +144,15 @@ private constructor(
                                 Relation::class
                             ))
                 }
-                .groupBy { field ->
+                .groupBy { property ->
                     context.checker.check(
-                        PROCESSED_ANNOTATIONS.count { field.hasAnnotation(it) } < 2,
-                        field,
-                        ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_FIELD_ANNOTATION
+                        PROCESSED_ANNOTATIONS.count { property.hasAnnotation(it) } < 2,
+                        property,
+                        ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_PROPERTY_ANNOTATION
                     )
-                    if (field.hasAnnotation(Embedded::class)) {
+                    if (property.hasAnnotation(Embedded::class)) {
                         Embedded::class
-                    } else if (field.hasAnnotation(Relation::class)) {
+                    } else if (property.hasAnnotation(Relation::class)) {
                         Relation::class
                     } else {
                         null
@@ -160,39 +160,47 @@ private constructor(
                 }
 
         val ignoredColumns =
-            element.getAnnotation(androidx.room.Entity::class)?.value?.ignoredColumns?.toSet()
-                ?: emptySet()
-        val fieldBindingErrors = mutableMapOf<Field, String>()
-        val unfilteredMyFields =
-            allFields[null]?.map {
-                FieldProcessor(
+            element
+                .getAnnotation(androidx.room.Entity::class)
+                ?.get("ignoredColumns")
+                ?.asStringList()
+                ?.toSet() ?: emptySet()
+        val propertyBindingErrors = mutableMapOf<Property, String>()
+        val unfilteredMyProperties =
+            allProperties[null]?.map {
+                PropertyProcessor(
                         baseContext = context,
                         containing = declaredType,
                         element = it,
                         bindingScope = bindingScope,
-                        fieldParent = parent,
-                        onBindingError = { field, errorMsg -> fieldBindingErrors[field] = errorMsg }
+                        propertyParent = parent,
+                        onBindingError = { property, errorMsg ->
+                            propertyBindingErrors[property] = errorMsg
+                        }
                     )
                     .process()
             } ?: emptyList()
-        val myFields = unfilteredMyFields.filterNot { ignoredColumns.contains(it.columnName) }
-        myFields.forEach { field ->
-            fieldBindingErrors[field]?.let { context.logger.e(field.element, it) }
+        val myProperties =
+            unfilteredMyProperties.filterNot { ignoredColumns.contains(it.columnName) }
+        myProperties.forEach { property ->
+            propertyBindingErrors[property]?.let { context.logger.e(property.element, it) }
         }
-        val unfilteredEmbeddedFields =
-            allFields[Embedded::class]?.mapNotNull { processEmbeddedField(declaredType, it) }
+        val unfilteredEmbeddedProperties =
+            allProperties[Embedded::class]?.mapNotNull { processEmbeddedField(declaredType, it) }
                 ?: emptyList()
-        val embeddedFields =
-            unfilteredEmbeddedFields.filterNot { ignoredColumns.contains(it.field.columnName) }
+        val embeddedProperties =
+            unfilteredEmbeddedProperties.filterNot {
+                ignoredColumns.contains(it.property.columnName)
+            }
 
-        val subFields = embeddedFields.flatMap { it.dataClass.fields }
-        val fields = myFields + subFields
+        val subProperties = embeddedProperties.flatMap { it.dataClass.properties }
+        val propertys = myProperties + subProperties
 
-        val unfilteredCombinedFields =
-            unfilteredMyFields + unfilteredEmbeddedFields.map { it.field }
+        val unfilteredCombinedProperties =
+            unfilteredMyProperties + unfilteredEmbeddedProperties.map { it.property }
         val missingIgnoredColumns =
             ignoredColumns.filterNot { ignoredColumn ->
-                unfilteredCombinedFields.any { it.columnName == ignoredColumn }
+                unfilteredCombinedProperties.any { it.columnName == ignoredColumn }
             }
         context.checker.check(
             missingIgnoredColumns.isEmpty(),
@@ -201,26 +209,26 @@ private constructor(
         )
 
         val myRelationsList =
-            allFields[Relation::class]?.mapNotNull {
-                processRelationField(fields, declaredType, it)
+            allProperties[Relation::class]?.mapNotNull {
+                processRelationField(propertys, declaredType, it)
             } ?: emptyList()
 
-        val subRelations = embeddedFields.flatMap { it.dataClass.relations }
+        val subRelations = embeddedProperties.flatMap { it.dataClass.relations }
         val relations = myRelationsList + subRelations
 
-        fields
+        propertys
             .groupBy { it.columnName }
             .filter { it.value.size > 1 }
             .forEach {
                 context.logger.e(
                     element,
-                    ProcessorErrors.dataClassDuplicateFieldNames(
+                    ProcessorErrors.dataClassDuplicatePropertyNames(
                         it.key,
-                        it.value.map(Field::getPath)
+                        it.value.map(Property::getPath)
                     )
                 )
                 it.value.forEach {
-                    context.logger.e(it.element, DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME)
+                    context.logger.e(it.element, DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME)
                 }
             }
 
@@ -251,45 +259,45 @@ private constructor(
 
         // don't try to find a constructor for binding to statement.
         val constructor =
-            if (bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT) {
+            if (bindingScope == PropertyProcessor.BindingScope.BIND_TO_STMT) {
                 // we don't need to construct this data class.
                 null
             } else {
-                chooseConstructor(myFields, embeddedFields, relations)
+                chooseConstructor(myProperties, embeddedProperties, relations)
             }
 
-        assignGetters(myFields, getterCandidates)
-        assignSetters(myFields, setterCandidates, constructor)
+        assignGetters(myProperties, getterCandidates)
+        assignSetters(myProperties, setterCandidates, constructor)
 
-        embeddedFields.forEach {
-            assignGetter(it.field, getterCandidates)
-            assignSetter(it.field, setterCandidates, constructor)
+        embeddedProperties.forEach {
+            assignGetter(it.property, getterCandidates)
+            assignSetter(it.property, setterCandidates, constructor)
         }
 
         myRelationsList.forEach {
-            assignGetter(it.field, getterCandidates)
-            assignSetter(it.field, setterCandidates, constructor)
+            assignGetter(it.property, getterCandidates)
+            assignSetter(it.property, setterCandidates, constructor)
         }
 
         return delegate.createDataClass(
             element,
             declaredType,
-            fields,
-            embeddedFields,
+            propertys,
+            embeddedProperties,
             relations,
             constructor
         )
     }
 
     private fun chooseConstructor(
-        myFields: List<Field>,
-        embedded: List<EmbeddedField>,
+        myProperties: List<Property>,
+        embedded: List<EmbeddedProperty>,
         relations: List<androidx.room.vo.Relation>
     ): Constructor? {
         val constructors = delegate.findConstructors(element)
-        val fieldMap = myFields.associateBy { it.name }
-        val embeddedMap = embedded.associateBy { it.field.name }
-        val relationMap = relations.associateBy { it.field.name }
+        val propertyMap = myProperties.associateBy { it.name }
+        val embeddedMap = embedded.associateBy { it.property.name }
+        val relationMap = relations.associateBy { it.property.name }
         // list of param names -> matched params pairs for each failed constructor
         val failedConstructors = arrayListOf<FailedConstructor>()
         val goodConstructors =
@@ -302,41 +310,45 @@ private constructor(
                             val paramType = param.type
 
                             val matches =
-                                fun(field: Field?): Boolean {
-                                    return if (field == null) {
+                                fun(property: Property?): Boolean {
+                                    return if (property == null) {
                                         false
-                                    } else if (!field.nameWithVariations.contains(paramName)) {
+                                    } else if (!property.nameWithVariations.contains(paramName)) {
                                         false
                                     } else {
                                         // see: b/69164099
-                                        field.type.isAssignableFromWithoutVariance(paramType)
+                                        property.type.isAssignableFromWithoutVariance(paramType)
                                     }
                                 }
 
-                            val exactFieldMatch = fieldMap[paramName]
+                            val exactFieldMatch = propertyMap[paramName]
                             if (matches(exactFieldMatch)) {
-                                return@param Constructor.Param.FieldParam(exactFieldMatch!!)
+                                return@param Constructor.Param.PropertyParam(exactFieldMatch!!)
                             }
                             val exactEmbeddedMatch = embeddedMap[paramName]
-                            if (matches(exactEmbeddedMatch?.field)) {
+                            if (matches(exactEmbeddedMatch?.property)) {
                                 return@param Constructor.Param.EmbeddedParam(exactEmbeddedMatch!!)
                             }
                             val exactRelationMatch = relationMap[paramName]
-                            if (matches(exactRelationMatch?.field)) {
+                            if (matches(exactRelationMatch?.property)) {
                                 return@param Constructor.Param.RelationParam(exactRelationMatch!!)
                             }
 
-                            val matchingFields = myFields.filter { matches(it) }
-                            val embeddedMatches = embedded.filter { matches(it.field) }
-                            val relationMatches = relations.filter { matches(it.field) }
+                            val matchingProperties = myProperties.filter { matches(it) }
+                            val embeddedMatches = embedded.filter { matches(it.property) }
+                            val relationMatches = relations.filter { matches(it.property) }
                             when (
-                                matchingFields.size + embeddedMatches.size + relationMatches.size
+                                matchingProperties.size +
+                                    embeddedMatches.size +
+                                    relationMatches.size
                             ) {
                                 0 -> null
                                 1 ->
                                     when {
-                                        matchingFields.isNotEmpty() ->
-                                            Constructor.Param.FieldParam(matchingFields.first())
+                                        matchingProperties.isNotEmpty() ->
+                                            Constructor.Param.PropertyParam(
+                                                matchingProperties.first()
+                                            )
                                         embeddedMatches.isNotEmpty() ->
                                             Constructor.Param.EmbeddedParam(embeddedMatches.first())
                                         else ->
@@ -348,10 +360,10 @@ private constructor(
                                         ProcessorErrors.ambiguousConstructor(
                                             dataClass = element.qualifiedName,
                                             paramName = paramName,
-                                            matchingFields =
-                                                matchingFields.map { it.getPath() } +
-                                                    embeddedMatches.map { it.field.getPath() } +
-                                                    relationMatches.map { it.field.getPath() }
+                                            matchingProperties =
+                                                matchingProperties.map { it.getPath() } +
+                                                    embeddedMatches.map { it.property.getPath() } +
+                                                    relationMatches.map { it.property.getPath() }
                                         )
                                     )
                                     null
@@ -386,7 +398,7 @@ private constructor(
             goodConstructors.size > 1 -> {
                 // if the class is a Kotlin data class (not a POJO) then pick its primary
                 // constructor. This is better than picking the no-arg constructor and forcing
-                // users to define fields as
+                // users to define propertys as
                 // vars.
                 val primaryConstructor =
                     element.findPrimaryConstructor()?.let { primary ->
@@ -419,7 +431,7 @@ private constructor(
     private fun processEmbeddedField(
         declaredType: XType,
         variableElement: XFieldElement
-    ): EmbeddedField? {
+    ): EmbeddedProperty? {
         val asMemberType = variableElement.asMemberOf(declaredType)
         val asTypeElement = asMemberType.typeElement
         if (asTypeElement == null) {
@@ -434,10 +446,11 @@ private constructor(
             return null
         }
 
-        val fieldPrefix = variableElement.getAnnotation(Embedded::class)?.value?.prefix ?: ""
+        val embeddedAnnotation = variableElement.getAnnotation(Embedded::class)
+        val propertyPrefix = embeddedAnnotation?.get("prefix")?.asString() ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
-        val embeddedField =
-            Field(
+        val embeddedProperty =
+            Property(
                 variableElement,
                 variableElement.name,
                 type = asMemberType,
@@ -445,9 +458,9 @@ private constructor(
                 parent = parent
             )
         val subParent =
-            EmbeddedField(
-                field = embeddedField,
-                prefix = inheritedPrefix + fieldPrefix,
+            EmbeddedProperty(
+                property = embeddedProperty,
+                prefix = inheritedPrefix + propertyPrefix,
                 parent = parent
             )
         subParent.dataClass =
@@ -463,20 +476,21 @@ private constructor(
     }
 
     private fun processRelationField(
-        myFields: List<Field>,
+        myProperties: List<Property>,
         container: XType,
         relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
-        val annotation = relationElement.getAnnotation(Relation::class)!!
+        val annotation = relationElement.requireAnnotation(Relation::class)
 
-        val parentField = myFields.firstOrNull { it.columnName == annotation.value.parentColumn }
+        val parentColumnName = annotation.getAsString("parentColumn")
+        val parentField = myProperties.firstOrNull { it.columnName == parentColumnName }
         if (parentField == null) {
             context.logger.e(
                 relationElement,
-                ProcessorErrors.relationCannotFindParentEntityField(
+                ProcessorErrors.relationCannotFindParentEntityProperty(
                     entityName = element.qualifiedName,
-                    columnName = annotation.value.parentColumn,
-                    availableColumns = myFields.map { it.columnName }
+                    columnName = parentColumnName,
+                    availableColumns = myProperties.map { it.columnName }
                 )
             )
             return null
@@ -498,7 +512,7 @@ private constructor(
             return null
         }
 
-        val entityClassInput = annotation.getAsType("entity")
+        val entityClassInput = annotation["entity"]?.asType()
 
         // do we need to decide on the entity?
         val inferEntity = (entityClassInput == null || entityClassInput.isTypeOf(Any::class))
@@ -506,7 +520,7 @@ private constructor(
             if (inferEntity) {
                 typeElement
             } else {
-                entityClassInput!!.typeElement
+                entityClassInput.typeElement
             }
         if (entityElement == null) {
             // this should not happen as we check for declared above but for compile time
@@ -524,14 +538,15 @@ private constructor(
 
         val entity = EntityOrViewProcessor(context, entityElement, referenceStack).process()
 
-        // now find the field in the entity.
-        val entityField = entity.findFieldByColumnName(annotation.value.entityColumn)
+        // now find the property in the entity.
+        val entityColumnName = annotation.getAsString("entityColumn")
+        val entityField = entity.findPropertyByColumnName(entityColumnName)
         if (entityField == null) {
             context.logger.e(
                 relationElement,
-                ProcessorErrors.relationCannotFindEntityField(
+                ProcessorErrors.relationCannotFindEntityProperty(
                     entityName = entity.typeName.toString(context.codeLanguage),
-                    columnName = annotation.value.entityColumn,
+                    columnName = entityColumnName,
                     availableColumns = entity.columnNames
                 )
             )
@@ -539,8 +554,8 @@ private constructor(
         }
 
         // do we have a join entity?
-        val junctionAnnotation = annotation.getAsAnnotationBox<Junction>("associateBy")
-        val junctionClassInput = junctionAnnotation.getAsType("value")
+        val junctionAnnotation = annotation["associateBy"]?.asAnnotation()
+        val junctionClassInput = junctionAnnotation?.getAsType("value")
         val junctionElement: XTypeElement? =
             if (junctionClassInput != null && !junctionClassInput.isTypeOf(Any::class)) {
                 junctionClassInput.typeElement.also {
@@ -552,15 +567,16 @@ private constructor(
                 null
             }
         val junction =
-            junctionElement?.let {
-                val entityOrView = EntityOrViewProcessor(context, it, referenceStack).process()
+            if (junctionAnnotation != null && junctionElement != null) {
+                val entityOrView =
+                    EntityOrViewProcessor(context, junctionElement, referenceStack).process()
 
                 fun findAndValidateJunctionColumn(
                     columnName: String,
                     onMissingField: () -> Unit
-                ): Field? {
-                    val field = entityOrView.findFieldByColumnName(columnName)
-                    if (field == null) {
+                ): Property? {
+                    val property = entityOrView.findPropertyByColumnName(columnName)
+                    if (property == null) {
                         onMissingField()
                         return null
                     }
@@ -568,12 +584,12 @@ private constructor(
                         // warn about not having indices in the junction columns, only considering
                         // 1st column in composite primary key and indices, since order matters.
                         val coveredColumns =
-                            entityOrView.primaryKey.fields.columnNames.first() +
+                            entityOrView.primaryKey.properties.columnNames.first() +
                                 entityOrView.indices.map { it.columnNames.first() }
-                        if (!coveredColumns.contains(field.columnName)) {
+                        if (!coveredColumns.contains(property.columnName)) {
                             context.logger.w(
                                 Warning.MISSING_INDEX_ON_JUNCTION,
-                                field.element,
+                                property.element,
                                 ProcessorErrors.junctionColumnWithoutIndex(
                                     entityName =
                                         entityOrView.typeName.toString(context.codeLanguage),
@@ -582,12 +598,13 @@ private constructor(
                             )
                         }
                     }
-                    return field
+                    return property
                 }
 
+                val junctionParentColumnName = junctionAnnotation["parentColumn"]?.asString() ?: ""
                 val junctionParentColumn =
-                    if (junctionAnnotation.value.parentColumn.isNotEmpty()) {
-                        junctionAnnotation.value.parentColumn
+                    if (junctionParentColumnName.isNotEmpty()) {
+                        junctionParentColumnName
                     } else {
                         parentField.columnName
                     }
@@ -597,7 +614,7 @@ private constructor(
                         onMissingField = {
                             context.logger.e(
                                 junctionElement,
-                                ProcessorErrors.relationCannotFindJunctionParentField(
+                                ProcessorErrors.relationCannotFindJunctionParentProperty(
                                     entityName =
                                         entityOrView.typeName.toString(context.codeLanguage),
                                     columnName = junctionParentColumn,
@@ -607,9 +624,10 @@ private constructor(
                         }
                     )
 
+                val junctionEntityColumnName = junctionAnnotation["entityColumn"]?.asString() ?: ""
                 val junctionEntityColumn =
-                    if (junctionAnnotation.value.entityColumn.isNotEmpty()) {
-                        junctionAnnotation.value.entityColumn
+                    if (junctionEntityColumnName.isNotEmpty()) {
+                        junctionEntityColumnName
                     } else {
                         entityField.columnName
                     }
@@ -619,7 +637,7 @@ private constructor(
                         onMissingField = {
                             context.logger.e(
                                 junctionElement,
-                                ProcessorErrors.relationCannotFindJunctionEntityField(
+                                ProcessorErrors.relationCannotFindJunctionEntityProperty(
                                     entityName =
                                         entityOrView.typeName.toString(context.codeLanguage),
                                     columnName = junctionEntityColumn,
@@ -635,13 +653,15 @@ private constructor(
 
                 androidx.room.vo.Junction(
                     entity = entityOrView,
-                    parentField = junctionParentField,
-                    entityField = junctionEntityField
+                    parentProperty = junctionParentField,
+                    entityProperty = junctionEntityField
                 )
+            } else {
+                null
             }
 
-        val field =
-            Field(
+        val property =
+            Property(
                 element = relationElement,
                 name = relationElement.name,
                 type = relationElement.asMemberOf(container),
@@ -649,29 +669,30 @@ private constructor(
                 parent = parent
             )
 
+        val projectionNames = annotation["projection"]?.asStringList() ?: emptyList()
         val projection =
-            if (annotation.value.projection.isEmpty()) {
+            if (projectionNames.isEmpty()) {
                 // we need to infer the projection from inputs.
                 createRelationshipProjection(inferEntity, asType, entity, entityField, typeElement)
             } else {
                 // make sure projection makes sense
-                validateRelationshipProjection(annotation.value.projection, entity, relationElement)
-                annotation.value.projection.asList()
+                validateRelationshipProjection(projectionNames, entity, relationElement)
+                projectionNames
             }
         // if types don't match, row adapter prints a warning
         return androidx.room.vo.Relation(
             entity = entity,
             dataClassType = asType,
-            field = field,
-            parentField = parentField,
-            entityField = entityField,
+            property = property,
+            parentProperty = parentField,
+            entityProperty = entityField,
             junction = junction,
             projection = projection
         )
     }
 
     private fun validateRelationshipProjection(
-        projectionInput: Array<String>,
+        projectionInput: List<String>,
         entity: EntityOrView,
         relationElement: XVariableElement
     ) {
@@ -691,7 +712,7 @@ private constructor(
     /**
      * Create the projection column list based on the relationship args.
      *
-     * if entity field in the annotation is not specified, it is the method return type if it is
+     * if entity property in the annotation is not specified, it is the method return type if it is
      * specified in the annotation: still check the method return type, if the same, use it if not,
      * check to see if we can find a column Adapter, if so use the childField last resort, try to
      * parse it as a data class to infer it.
@@ -700,7 +721,7 @@ private constructor(
         inferEntity: Boolean,
         typeArg: XType,
         entity: EntityOrView,
-        entityField: Field,
+        entityField: Property,
         typeArgElement: XTypeElement
     ): List<String> {
         return if (inferEntity || typeArg.asTypeName() == entity.typeName) {
@@ -716,7 +737,7 @@ private constructor(
                     createFor(
                             context = context,
                             element = typeArgElement,
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                            bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                             parent = parent,
                             referenceStack = referenceStack
                         )
@@ -752,168 +773,173 @@ private constructor(
         return referenceRecursionList.joinToString(" -> ")
     }
 
-    private fun assignGetters(fields: List<Field>, getterCandidates: List<DataClassFunction>) {
-        fields.forEach { field -> assignGetter(field, getterCandidates) }
+    private fun assignGetters(
+        propertys: List<Property>,
+        getterCandidates: List<DataClassFunction>
+    ) {
+        propertys.forEach { property -> assignGetter(property, getterCandidates) }
     }
 
-    private fun assignGetter(field: Field, getterCandidates: List<DataClassFunction>) {
+    private fun assignGetter(property: Property, getterCandidates: List<DataClassFunction>) {
         val success =
             chooseAssignment(
-                field = field,
+                property = property,
                 candidates = getterCandidates,
-                nameVariations = field.getterNameWithVariations,
+                nameVariations = property.getterNameWithVariations,
                 getType = { method -> method.resolvedType.returnType },
                 assignFromField = {
-                    field.getter =
-                        FieldGetter(
-                            fieldName = field.name,
-                            jvmName = field.name,
-                            type = field.type,
-                            callType = CallType.FIELD
+                    property.getter =
+                        PropertyGetter(
+                            propertyName = property.name,
+                            jvmName = property.name,
+                            type = property.type,
+                            callType = CallType.PROPERTY
                         )
                 },
                 assignFromMethod = { match ->
-                    field.getter =
-                        FieldGetter(
-                            fieldName = field.name,
+                    property.getter =
+                        PropertyGetter(
+                            propertyName = property.name,
                             jvmName = match.element.jvmName,
                             type = match.resolvedType.returnType,
                             callType =
                                 if (match.element.isKotlinPropertyMethod()) {
-                                    CallType.SYNTHETIC_METHOD
+                                    CallType.SYNTHETIC_FUNCTION
                                 } else {
-                                    CallType.METHOD
+                                    CallType.FUNCTION
                                 }
                         )
                 },
                 reportAmbiguity = { matching ->
                     context.logger.e(
-                        field.element,
-                        ProcessorErrors.tooManyMatchingGetters(field, matching)
+                        property.element,
+                        ProcessorErrors.tooManyMatchingGetters(property, matching)
                     )
                 }
             )
         context.checker.check(
-            success || bindingScope == FieldProcessor.BindingScope.READ_FROM_STMT,
-            field.element,
-            CANNOT_FIND_GETTER_FOR_FIELD
+            success || bindingScope == PropertyProcessor.BindingScope.READ_FROM_STMT,
+            property.element,
+            CANNOT_FIND_GETTER_FOR_PROPERTY
         )
-        if (success && !field.getter.type.isSameType(field.type)) {
-            // getter's parameter type is not exactly the same as the field type.
+        if (success && !property.getter.type.isSameType(property.type)) {
+            // getter's parameter type is not exactly the same as the property type.
             // put a warning and update the value statement binder.
             context.logger.w(
                 warning = Warning.MISMATCHED_GETTER_TYPE,
-                element = field.element,
+                element = property.element,
                 msg =
                     ProcessorErrors.mismatchedGetter(
-                        fieldName = field.name,
+                        propertyName = property.name,
                         ownerType = element.type.asTypeName().toString(context.codeLanguage),
-                        getterType = field.getter.type.asTypeName().toString(context.codeLanguage),
-                        fieldType = field.typeName.toString(context.codeLanguage)
+                        getterType =
+                            property.getter.type.asTypeName().toString(context.codeLanguage),
+                        propertyType = property.typeName.toString(context.codeLanguage)
                     )
             )
-            field.statementBinder =
+            property.statementBinder =
                 context.typeAdapterStore.findStatementValueBinder(
-                    input = field.getter.type,
-                    affinity = field.affinity
+                    input = property.getter.type,
+                    affinity = property.affinity
                 )
         }
     }
 
     private fun assignSetters(
-        fields: List<Field>,
+        propertys: List<Property>,
         setterCandidates: List<DataClassFunction>,
         constructor: Constructor?
     ) {
-        fields.forEach { field -> assignSetter(field, setterCandidates, constructor) }
+        propertys.forEach { property -> assignSetter(property, setterCandidates, constructor) }
     }
 
     private fun assignSetter(
-        field: Field,
+        property: Property,
         setterCandidates: List<DataClassFunction>,
         constructor: Constructor?
     ) {
-        if (constructor != null && constructor.hasField(field)) {
-            field.setter =
-                FieldSetter(
-                    fieldName = field.name,
-                    jvmName = field.name,
-                    type = field.type,
+        if (constructor != null && constructor.hasProperty(property)) {
+            property.setter =
+                PropertySetter(
+                    propertyName = property.name,
+                    jvmName = property.name,
+                    type = property.type,
                     callType = CallType.CONSTRUCTOR
                 )
             return
         }
         val success =
             chooseAssignment(
-                field = field,
+                property = property,
                 candidates = setterCandidates,
-                nameVariations = field.setterNameWithVariations,
+                nameVariations = property.setterNameWithVariations,
                 getType = { method -> method.resolvedType.parameterTypes.first() },
                 assignFromField = {
-                    field.setter =
-                        FieldSetter(
-                            fieldName = field.name,
-                            jvmName = field.name,
-                            type = field.type,
-                            callType = CallType.FIELD
+                    property.setter =
+                        PropertySetter(
+                            propertyName = property.name,
+                            jvmName = property.name,
+                            type = property.type,
+                            callType = CallType.PROPERTY
                         )
                 },
                 assignFromMethod = { match ->
                     val paramType = match.resolvedType.parameterTypes.first()
-                    field.setter =
-                        FieldSetter(
-                            fieldName = field.name,
+                    property.setter =
+                        PropertySetter(
+                            propertyName = property.name,
                             jvmName = match.element.jvmName,
                             type = paramType,
                             callType =
                                 if (match.element.isKotlinPropertyMethod()) {
-                                    CallType.SYNTHETIC_METHOD
+                                    CallType.SYNTHETIC_FUNCTION
                                 } else {
-                                    CallType.METHOD
+                                    CallType.FUNCTION
                                 }
                         )
                 },
                 reportAmbiguity = { matching ->
                     context.logger.e(
-                        field.element,
-                        ProcessorErrors.tooManyMatchingSetter(field, matching)
+                        property.element,
+                        ProcessorErrors.tooManyMatchingSetter(property, matching)
                     )
                 }
             )
         context.checker.check(
-            success || bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT,
-            field.element,
-            CANNOT_FIND_SETTER_FOR_FIELD
+            success || bindingScope == PropertyProcessor.BindingScope.BIND_TO_STMT,
+            property.element,
+            CANNOT_FIND_SETTER_FOR_PROPERTY
         )
-        if (success && !field.setter.type.isSameType(field.type)) {
-            // setter's parameter type is not exactly the same as the field type.
+        if (success && !property.setter.type.isSameType(property.type)) {
+            // setter's parameter type is not exactly the same as the property type.
             // put a warning and update the value reader adapter.
             context.logger.w(
                 warning = Warning.MISMATCHED_SETTER_TYPE,
-                element = field.element,
+                element = property.element,
                 msg =
                     ProcessorErrors.mismatchedSetter(
-                        fieldName = field.name,
+                        propertyName = property.name,
                         ownerType = element.type.asTypeName().toString(context.codeLanguage),
-                        setterType = field.setter.type.asTypeName().toString(context.codeLanguage),
-                        fieldType = field.typeName.toString(context.codeLanguage)
+                        setterType =
+                            property.setter.type.asTypeName().toString(context.codeLanguage),
+                        propertyType = property.typeName.toString(context.codeLanguage)
                     )
             )
-            field.statementValueReader =
+            property.statementValueReader =
                 context.typeAdapterStore.findStatementValueReader(
-                    output = field.setter.type,
-                    affinity = field.affinity
+                    output = property.setter.type,
+                    affinity = property.affinity
                 )
         }
     }
 
     /**
      * Finds a setter/getter from available list of methods. It returns true if assignment is
-     * successful, false otherwise. At worst case, it sets to the field as if it is accessible so
+     * successful, false otherwise. At worst case, it sets to the property as if it is accessible so
      * that the rest of the compilation can continue.
      */
     private fun chooseAssignment(
-        field: Field,
+        property: Property,
         candidates: List<DataClassFunction>,
         nameVariations: List<String>,
         getType: (DataClassFunction) -> XType,
@@ -921,7 +947,7 @@ private constructor(
         assignFromMethod: (DataClassFunction) -> Unit,
         reportAmbiguity: (List<String>) -> Unit
     ): Boolean {
-        if (field.element.isPublic()) {
+        if (property.element.isPublic()) {
             assignFromField()
             return true
         }
@@ -933,17 +959,17 @@ private constructor(
                     // use names in source (rather than jvmName) for matching since that is what
                     // user
                     // sees in code
-                    field.type.isAssignableFromWithoutVariance(getType(it)) &&
-                        (field.nameWithVariations.contains(it.element.name) ||
+                    property.type.isAssignableFromWithoutVariance(getType(it)) &&
+                        (property.nameWithVariations.contains(it.element.name) ||
                             nameVariations.contains(it.element.name))
                 }
                 .groupBy { it.element.isPublic() }
         if (matching.isEmpty()) {
             // we always assign to avoid NPEs in the rest of the compilation.
             assignFromField()
-            // if field is not private, assume it works (if we are on the same package).
+            // if property is not private, assume it works (if we are on the same package).
             // if not, compiler will tell, we didn't have any better alternative anyways.
-            return !field.element.isPrivate()
+            return !property.element.isPrivate()
         }
         // first try public ones, then try non-public
         val match =
@@ -984,8 +1010,8 @@ private constructor(
         fun createDataClass(
             element: XTypeElement,
             declaredType: XType,
-            fields: List<Field>,
-            embeddedFields: List<EmbeddedField>,
+            properties: List<Property>,
+            embeddedProperties: List<EmbeddedProperty>,
             relations: List<androidx.room.vo.Relation>,
             constructor: Constructor?
         ): DataClass
@@ -1026,16 +1052,16 @@ private constructor(
         override fun createDataClass(
             element: XTypeElement,
             declaredType: XType,
-            fields: List<Field>,
-            embeddedFields: List<EmbeddedField>,
+            properties: List<Property>,
+            embeddedProperties: List<EmbeddedProperty>,
             relations: List<androidx.room.vo.Relation>,
             constructor: Constructor?
         ): DataClass {
             return DataClass(
                 element = element,
                 type = declaredType,
-                fields = fields,
-                embeddedFields = embeddedFields,
+                properties = properties,
+                embeddedProperties = embeddedProperties,
                 relations = relations,
                 constructor = constructor
             )
@@ -1050,16 +1076,16 @@ private constructor(
         override fun createDataClass(
             element: XTypeElement,
             declaredType: XType,
-            fields: List<Field>,
-            embeddedFields: List<EmbeddedField>,
+            properties: List<Property>,
+            embeddedProperties: List<EmbeddedProperty>,
             relations: List<androidx.room.vo.Relation>,
             constructor: Constructor?
         ): DataClass {
             return DataClass(
                 element = element,
                 type = declaredType,
-                fields = emptyList(),
-                embeddedFields = emptyList(),
+                properties = emptyList(),
+                embeddedProperties = emptyList(),
                 relations = emptyList(),
                 constructor = null
             )
@@ -1074,7 +1100,7 @@ private constructor(
         fun log(): String {
             val logPerParam =
                 params.withIndex().joinToString(", ") {
-                    "param:${it.value} -> matched field:" +
+                    "param:${it.value} -> matched property:" +
                         (matches[it.index]?.log() ?: "unmatched")
                 }
             return "$method -> [$logPerParam]"

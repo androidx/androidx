@@ -30,6 +30,8 @@ import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import java.security.InvalidAlgorithmParameterException
 
+private const val IDENTITY_CHECK = 1 shl 16
+
 /** Interactive test activity for the [BiometricPrompt] and [BiometricManager] APIs. */
 class BiometricPromptTestActivity : FragmentActivity() {
     private lateinit var binding: BiometricPromptTestActivityBinding
@@ -49,6 +51,9 @@ class BiometricPromptTestActivity : FragmentActivity() {
             }
             if (binding.allowDeviceCredentialCheckbox.isChecked) {
                 authenticators = authenticators or Authenticators.DEVICE_CREDENTIAL
+            }
+            if (binding.allowIdentityCheckbox.isChecked) {
+                authenticators = authenticators or IDENTITY_CHECK
             }
             return authenticators
         }

@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -78,5 +79,28 @@ class TransformingLazyColumnScrollProgressTest {
             )
         assertEquals(progress.topOffsetFraction, Float.NEGATIVE_INFINITY)
         assertEquals(progress.bottomOffsetFraction, Float.POSITIVE_INFINITY)
+    }
+
+    @Test
+    fun isSpecifiedIsReportedCorrectly() {
+        val progress =
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0f,
+                bottomOffsetFraction = 0f
+            )
+        assertTrue(progress.isSpecified)
+    }
+
+    @Test
+    fun isUnspecifiedIsReportedCorrectly() {
+        val progress = TransformingLazyColumnItemScrollProgress.Unspecified
+        assertTrue(progress.isUnspecified)
+    }
+
+    @Test
+    fun unpackingUnspecifiedValues() {
+        val progress = TransformingLazyColumnItemScrollProgress.Unspecified
+        assertEquals(progress.topOffsetFraction, Float.NaN)
+        assertEquals(progress.bottomOffsetFraction, Float.NaN)
     }
 }

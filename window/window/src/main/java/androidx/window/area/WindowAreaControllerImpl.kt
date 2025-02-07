@@ -41,9 +41,13 @@ import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.reflection.Consumer2
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Implementation of WindowAreaController for devices that do implement the WindowAreaComponent on
@@ -204,7 +208,18 @@ internal class WindowAreaControllerImpl(
             return
         }
 
-        startRearDisplayMode(activity, executor, windowAreaSessionCallback)
+        if (currentRearDisplayModeStatus == WINDOW_AREA_STATUS_UNKNOWN) {
+            Log.d(TAG, "Force updating currentRearDisplayModeStatus")
+            // currentRearDisplayModeStatus may be null if the client has not queried
+            // WindowAreaController.windowAreaInfos using this instance. In this case, we query
+            // it for a single value to force update currentRearDisplayModeStatus.
+            CoroutineScope(executor.asCoroutineDispatcher()).launch {
+                windowAreaInfos.first()
+                startRearDisplayMode(activity, executor, windowAreaSessionCallback)
+            }
+        } else {
+            startRearDisplayMode(activity, executor, windowAreaSessionCallback)
+        }
     }
 
     override fun presentContentOnWindowArea(
@@ -222,7 +237,26 @@ internal class WindowAreaControllerImpl(
             return
         }
 
-        startRearDisplayPresentationMode(activity, executor, windowAreaPresentationSessionCallback)
+        if (currentRearDisplayPresentationStatus == WINDOW_AREA_STATUS_UNKNOWN) {
+            Log.d(TAG, "Force updating currentRearDisplayPresentationStatus")
+            // currentRearDisplayModeStatus may be null if the client has not queried
+            // WindowAreaController.windowAreaInfos using this instance. In this case, we query
+            // it for a single value to force update currentRearDisplayPresentationStatus.
+            CoroutineScope(executor.asCoroutineDispatcher()).launch {
+                windowAreaInfos.first()
+                startRearDisplayPresentationMode(
+                    activity,
+                    executor,
+                    windowAreaPresentationSessionCallback
+                )
+            }
+        } else {
+            startRearDisplayPresentationMode(
+                activity,
+                executor,
+                windowAreaPresentationSessionCallback
+            )
+        }
     }
 
     private fun startRearDisplayMode(

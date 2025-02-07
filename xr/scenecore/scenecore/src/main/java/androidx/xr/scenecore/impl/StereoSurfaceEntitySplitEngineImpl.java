@@ -23,6 +23,7 @@ import androidx.xr.extensions.node.NodeTransaction;
 import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
 import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
 import androidx.xr.scenecore.JxrPlatformAdapter.StereoSurfaceEntity;
+import androidx.xr.scenecore.JxrPlatformAdapter.StereoSurfaceEntity.CanvasShape;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
@@ -42,11 +43,10 @@ final class StereoSurfaceEntitySplitEngineImpl extends AndroidXrEntity
     private final SplitEngineSubspaceManager mSplitEngineSubspaceManager;
     private final SubspaceNode mSubspace;
     // TODO: b/362520810 - Wrap impress nodes w/ Java class.
-    private final int mPanelImpressNode;
+    private final int mEntityImpressNode;
     private final int mSubspaceImpressNode;
     @StereoMode private int mStereoMode = StereoSurfaceEntity.StereoMode.SIDE_BY_SIDE;
-    // This are the default dimensions Impress starts with for the Quad mesh used as the canvas
-    private Dimensions mDimensions = new Dimensions(2.0f, 2.0f, 2.0f);
+    private CanvasShape mCanvasShape;
 
     StereoSurfaceEntitySplitEngineImpl(
             Entity parentEntity,
@@ -55,11 +55,13 @@ final class StereoSurfaceEntitySplitEngineImpl extends AndroidXrEntity
             XrExtensions extensions,
             EntityManager entityManager,
             ScheduledExecutorService executor,
-            @StereoMode int stereoMode) {
+            @StereoMode int stereoMode,
+            CanvasShape canvasShape) {
         super(extensions.createNode(), extensions, entityManager, executor);
         mImpressApi = impressApi;
         mSplitEngineSubspaceManager = splitEngineSubspaceManager;
         mStereoMode = stereoMode;
+        mCanvasShape = canvasShape;
         setParent(parentEntity);
 
         // TODO(b/377906324): - Punt this logic to the UI thread, so that applications can create
@@ -75,9 +77,36 @@ final class StereoSurfaceEntitySplitEngineImpl extends AndroidXrEntity
             // Make the Entity node a parent of the subspace node.
             transaction.setParent(mSubspace.subspaceNode, mNode).apply();
         }
+
+        // This is broken up into two steps to limit the size of the Impress Surface
+        mEntityImpressNode = mImpressApi.createStereoSurface(stereoMode);
+        setCanvasShape(mCanvasShape);
+
         // The CPM node hierarchy is: Entity CPM node --- parent of ---> Subspace CPM node.
-        mPanelImpressNode = impressApi.createStereoSurface(stereoMode);
-        impressApi.setImpressNodeParent(mPanelImpressNode, mSubspaceImpressNode);
+        // The Impress node hierarchy is: Subspace Impress node --- parent of ---> Entity Impress
+        // node.
+        impressApi.setImpressNodeParent(mEntityImpressNode, mSubspaceImpressNode);
+    }
+
+    @Override
+    public void setCanvasShape(CanvasShape canvasShape) {
+        // TODO(b/377906324): - Punt this logic to the UI thread, so that applications can call this
+        // method from any thread.
+        mCanvasShape = canvasShape;
+
+        if (mCanvasShape instanceof CanvasShape.Quad) {
+            CanvasShape.Quad q = (CanvasShape.Quad) mCanvasShape;
+            mImpressApi.setStereoSurfaceEntityCanvasShapeQuad(
+                    mEntityImpressNode, q.width, q.height);
+        } else if (mCanvasShape instanceof CanvasShape.Vr360Sphere) {
+            CanvasShape.Vr360Sphere s = (CanvasShape.Vr360Sphere) mCanvasShape;
+            mImpressApi.setStereoSurfaceEntityCanvasShapeSphere(mEntityImpressNode, s.radius);
+        } else if (mCanvasShape instanceof CanvasShape.Vr180Hemisphere) {
+            CanvasShape.Vr180Hemisphere h = (CanvasShape.Vr180Hemisphere) mCanvasShape;
+            mImpressApi.setStereoSurfaceEntityCanvasShapeHemisphere(mEntityImpressNode, h.radius);
+        } else {
+            throw new IllegalArgumentException("Unsupported canvas shape: " + mCanvasShape);
+        }
     }
 
     @SuppressWarnings("ObjectToString")
@@ -85,29 +114,20 @@ final class StereoSurfaceEntitySplitEngineImpl extends AndroidXrEntity
     public void dispose() {
         // TODO(b/377906324): - Punt this logic to the UI thread, so that applications can destroy
         // StereoSurface entities from any thread.
+        // The subspace impress node will be destroyed when the subspace is deleted.
         mSplitEngineSubspaceManager.deleteSubspace(mSubspace.subspaceId);
-        mImpressApi.destroyImpressNode(mSubspaceImpressNode);
         super.dispose();
     }
 
     @Override
     public void setStereoMode(@StereoMode int mode) {
         mStereoMode = mode;
-        mImpressApi.setStereoModeForStereoSurface(mPanelImpressNode, mode);
-    }
-
-    @Override
-    public void setDimensions(Dimensions dimensions) {
-        // TODO(b/377906324): - Punt this logic to the UI thread, so that applications can call this
-        // method from any thread.
-        mDimensions = dimensions;
-        mImpressApi.setCanvasDimensionsForStereoSurface(
-                mPanelImpressNode, dimensions.width, dimensions.height);
+        mImpressApi.setStereoModeForStereoSurface(mEntityImpressNode, mode);
     }
 
     @Override
     public Dimensions getDimensions() {
-        return mDimensions;
+        return mCanvasShape.getDimensions();
     }
 
     @Override
@@ -121,6 +141,13 @@ final class StereoSurfaceEntitySplitEngineImpl extends AndroidXrEntity
         // TODO(b/377906324) - Either cache the surface in the constructor, or change this interface
         // to
         // return a Future.
-        return mImpressApi.getSurfaceFromStereoSurface(mPanelImpressNode);
+        return mImpressApi.getSurfaceFromStereoSurface(mEntityImpressNode);
+    }
+
+    // Note this returns the Impress node for the entity, not the subspace. The subspace Impress
+    // node
+    // is the parent of the entity Impress node.
+    int getEntityImpressNode() {
+        return mEntityImpressNode;
     }
 }

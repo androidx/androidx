@@ -162,6 +162,9 @@ internal class ActiveCamera(
     suspend fun awaitClosed() {
         androidCameraState.awaitClosed()
     }
+
+    override fun toString(): String =
+        "ActiveCamera(cameraId=$cameraId)@${super.hashCode().toString(16)}"
 }
 
 /**
@@ -312,9 +315,16 @@ constructor(
                             when (it) {
                                 is RequestCloseById -> allCameraIds.contains(it.activeCameraId)
                                 is RequestOpen -> {
+                                    // A prewarm RequestOpen should never prune a regular
+                                    // RequestOpen. Here the logic is:
+                                    //
+                                    // - If the current request is a prewarm, it's always prunable.
+                                    // - Or, if the latter request is NOT a prewarm.
+                                    val isPrunableRequestOpen = request.isPrewarm || !it.isPrewarm
                                     val cameraId2 = it.virtualCamera.cameraId
                                     val allCameraIds2 = (it.sharedCameraIds + cameraId2).toSet()
-                                    cameraId == cameraId2 || allCameraIds != allCameraIds2
+                                    isPrunableRequestOpen &&
+                                        (cameraId == cameraId2 || allCameraIds != allCameraIds2)
                                 }
                                 else -> false
                             }
@@ -419,6 +429,10 @@ constructor(
         } else {
             if (!request.isPrewarm) {
                 realCamera.connectTo(request.virtualCamera, realCameraToken)
+            } else {
+                // Since prewarm requests don't connect to VirtualCameras, make sure to release our
+                // acquired token here to allow the camera to be closed if unused after a while.
+                realCameraToken.release()
             }
         }
     }

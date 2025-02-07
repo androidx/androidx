@@ -20,17 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
 /**
+ * Returns whether the operating system is in dark theme.
+ *
  * This function should be used to help build responsive UIs that follow the system setting, to
  * avoid harsh contrast changes when switching between applications.
  *
- * It is also recommended to provide user accessible overrides in your application, so users can
- * choose to force an always-light or always-dark theme. To do this, you should provide the current
- * theme value in a CompositionLocal or similar to components further down your hierarchy, only
- * calling this effect once at the top level if no user override has been set. This also helps avoid
- * multiple calls to this effect, which can be expensive as it queries system configuration.
- *
- * For example, to draw a white rectangle when in dark theme, and a black rectangle when in light
- * theme:
+ * It is recommended for this to be used at the top level of the application, to create theming
+ * objects such as a set of colors that can be provided through the hierarchy. This way, screens and
+ * components don't need to be aware of the system theme setting, they just consume properties from
+ * the theming object. This also makes it easier to support user-defined overrides, such as forcing
+ * light / dark theme regardless of the system setting.
  *
  * @sample androidx.compose.foundation.samples.DarkThemeSample
  * @return `true` if the system is considered to be in 'dark theme'.

@@ -93,9 +93,9 @@ public annotation class ForeignKey(
     /**
      * A foreign key constraint can be deferred until the transaction is complete. This is useful if
      * you are doing bulk inserts into the database in a single transaction. By default, foreign key
-     * constraints are immediate but you can change it by setting this field to `true`. You can also
-     * use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys) PRAGMA to
-     * defer them depending on your transaction.
+     * constraints are immediate but you can change it by setting this property to `true`. You can
+     * also use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys)
+     * PRAGMA to defer them depending on your transaction.
      *
      * @return Whether the foreign key constraint should be deferred until the transaction is
      *   complete. Defaults to `false`.
@@ -119,7 +119,7 @@ public annotation class ForeignKey(
          * [onDelete]) or modifying (for [onUpdate]) a parent key when there exists one or more
          * child keys mapped to it. The difference between the effect of a RESTRICT action and
          * normal foreign key constraint enforcement is that the RESTRICT action processing happens
-         * as soon as the field is updated - not at the end of the current statement as it would
+         * as soon as the property is updated - not at the end of the current statement as it would
          * with an immediate constraint, or at the end of the current transaction as it would with a
          * [deferred] constraint.
          *

@@ -232,7 +232,7 @@ class EntityManagerTest {
     }
 
     private fun createGltfEntity() {
-        gltfModel = session.createGltfResourceAsync("test.glb").get()
+        gltfModel = GltfModel.create(session, "test.glb").get()
         gltfModelEntity = GltfModelEntity.create(mockRuntime, entityManager, gltfModel)
     }
 

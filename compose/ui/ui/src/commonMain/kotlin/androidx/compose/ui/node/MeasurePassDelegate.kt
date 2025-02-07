@@ -453,41 +453,45 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
 
     /** Return true if the measured size has been changed */
     fun remeasure(constraints: Constraints): Boolean {
-        requirePrecondition(!layoutNode.isDeactivated) { "measure is called on a deactivated node" }
-        val owner = layoutNode.requireOwner()
-        val parent = layoutNode.parent
-        @Suppress("Deprecation")
-        layoutNode.canMultiMeasure =
-            layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
-        if (layoutNode.measurePending || measurementConstraints != constraints) {
-            alignmentLines.usedByModifierMeasurement = false
-            forEachChildAlignmentLinesOwner {
-                it.alignmentLines.usedDuringParentMeasurement = false
+        withComposeStackTrace(layoutNode) {
+            requirePrecondition(!layoutNode.isDeactivated) {
+                "measure is called on a deactivated node"
             }
-            measuredOnce = true
-            val outerPreviousMeasuredSize = outerCoordinator.size
-            measurementConstraints = constraints
-            performMeasure(constraints)
-            val sizeChanged =
-                outerCoordinator.size != outerPreviousMeasuredSize ||
-                    outerCoordinator.width != width ||
-                    outerCoordinator.height != height
-            // We are using the coerced coordinator size here to avoid double offset in layout
-            // coop.
-            measuredSize = IntSize(outerCoordinator.width, outerCoordinator.height)
-            return sizeChanged
-        } else {
-            // this node doesn't require being remeasured. however in order to make sure we have
-            // the final size we need to also make sure the whole subtree is remeasured as it
-            // can
-            // trigger extra remeasure request on our node. we do it now in order to report the
-            // final measured size to our parent without doing extra pass later.
-            owner.forceMeasureTheSubtree(layoutNode)
+            val owner = layoutNode.requireOwner()
+            val parent = layoutNode.parent
+            @Suppress("Deprecation")
+            layoutNode.canMultiMeasure =
+                layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
+            if (layoutNode.measurePending || measurementConstraints != constraints) {
+                alignmentLines.usedByModifierMeasurement = false
+                forEachChildAlignmentLinesOwner {
+                    it.alignmentLines.usedDuringParentMeasurement = false
+                }
+                measuredOnce = true
+                val outerPreviousMeasuredSize = outerCoordinator.size
+                measurementConstraints = constraints
+                performMeasure(constraints)
+                val sizeChanged =
+                    outerCoordinator.size != outerPreviousMeasuredSize ||
+                        outerCoordinator.width != width ||
+                        outerCoordinator.height != height
+                // We are using the coerced coordinator size here to avoid double offset in layout
+                // coop.
+                measuredSize = IntSize(outerCoordinator.width, outerCoordinator.height)
+                return sizeChanged
+            } else {
+                // this node doesn't require being remeasured. however in order to make sure we have
+                // the final size we need to also make sure the whole subtree is remeasured as it
+                // can
+                // trigger extra remeasure request on our node. we do it now in order to report the
+                // final measured size to our parent without doing extra pass later.
+                owner.forceMeasureTheSubtree(layoutNode)
 
-            // Restore the intrinsics usage for the sub-tree
-            layoutNode.resetSubtreeIntrinsicsUsage()
+                // Restore the intrinsics usage for the sub-tree
+                layoutNode.resetSubtreeIntrinsicsUsage()
+            }
+            return false
         }
-        return false
     }
 
     private fun trackMeasurementByParent(node: LayoutNode) {
@@ -576,46 +580,48 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
         layer: GraphicsLayer?
     ) {
-        isPlacedByParent = true
-        if (position != lastPosition || needsCoordinatesUpdate) {
-            if (
-                layoutNodeLayoutDelegate.coordinatesAccessedDuringModifierPlacement ||
-                    layoutNodeLayoutDelegate.coordinatesAccessedDuringPlacement ||
-                    needsCoordinatesUpdate
-            ) {
-                layoutPending = true
-                needsCoordinatesUpdate = false
+        withComposeStackTrace(layoutNode) {
+            isPlacedByParent = true
+            if (position != lastPosition || needsCoordinatesUpdate) {
+                if (
+                    layoutNodeLayoutDelegate.coordinatesAccessedDuringModifierPlacement ||
+                        layoutNodeLayoutDelegate.coordinatesAccessedDuringPlacement ||
+                        needsCoordinatesUpdate
+                ) {
+                    layoutPending = true
+                    needsCoordinatesUpdate = false
+                }
+                notifyChildrenUsingCoordinatesWhilePlacing()
             }
-            notifyChildrenUsingCoordinatesWhilePlacing()
-        }
 
-        // This can actually be called as soon as LookaheadMeasure is done, but devs may expect
-        // certain placement results (e.g. LayoutCoordinates) to be valid when lookahead
-        // placement
-        // takes place. If that's not the case, it will make sense to move this right after
-        // lookahead measure, before place.
-        if (lookaheadPassDelegate?.needsToBePlacedInApproach == true) {
-            // Lookahead placement first
-            val scope =
-                outerCoordinator.wrappedBy?.placementScope
-                    ?: layoutNode.requireOwner().placementScope
-            with(scope) {
-                lookaheadPassDelegate!!.let {
-                    // Since this is the root of the lookahead delegate tree, no parent will
-                    // reset the place order, therefore we have to do it manually.
-                    layoutNode.parent?.run { layoutDelegate.nextChildLookaheadPlaceOrder = 0 }
-                    it.placeOrder = androidx.compose.ui.node.LayoutNode.NotPlacedPlaceOrder
-                    it.place(position.x, position.y)
+            // This can actually be called as soon as LookaheadMeasure is done, but devs may expect
+            // certain placement results (e.g. LayoutCoordinates) to be valid when lookahead
+            // placement
+            // takes place. If that's not the case, it will make sense to move this right after
+            // lookahead measure, before place.
+            if (lookaheadPassDelegate?.needsToBePlacedInApproach == true) {
+                // Lookahead placement first
+                val scope =
+                    outerCoordinator.wrappedBy?.placementScope
+                        ?: layoutNode.requireOwner().placementScope
+                with(scope) {
+                    lookaheadPassDelegate!!.let {
+                        // Since this is the root of the lookahead delegate tree, no parent will
+                        // reset the place order, therefore we have to do it manually.
+                        layoutNode.parent?.run { layoutDelegate.nextChildLookaheadPlaceOrder = 0 }
+                        it.placeOrder = androidx.compose.ui.node.LayoutNode.NotPlacedPlaceOrder
+                        it.place(position.x, position.y)
+                    }
                 }
             }
-        }
 
-        checkPrecondition(lookaheadPassDelegate?.placedOnce != false) {
-            "Error: Placement happened before lookahead."
-        }
+            checkPrecondition(lookaheadPassDelegate?.placedOnce != false) {
+                "Error: Placement happened before lookahead."
+            }
 
-        // Post-lookahead (if any) placement
-        placeOuterCoordinator(position, zIndex, layerBlock, layer)
+            // Post-lookahead (if any) placement
+            placeOuterCoordinator(position, zIndex, layerBlock, layer)
+        }
     }
 
     private fun placeOuterCoordinator(
@@ -673,6 +679,8 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 // children `placeOrder`s are updated.
                 layoutNode.parent?.requestRelayout()
             }
+        } catch (e: Exception) {
+            layoutNode.rethrowWithComposeStackTrace(e)
         } finally {
             relayoutWithoutParentInProgress = false
         }

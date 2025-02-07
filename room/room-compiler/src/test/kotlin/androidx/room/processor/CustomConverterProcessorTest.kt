@@ -17,6 +17,8 @@
 package androidx.room.processor
 
 import androidx.kruth.assertThat
+import androidx.room.RoomKspProcessor
+import androidx.room.RoomProcessor
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
@@ -26,8 +28,16 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.compat.XConverters.applyToJavaPoet
 import androidx.room.compiler.codegen.compat.XConverters.toString
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFiler
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.CommonTypeNames.MUTABLE_LIST
 import androidx.room.ext.CommonTypeNames.STRING
@@ -36,9 +46,9 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -256,7 +266,7 @@ class CustomConverterProcessorTest {
                         .build()
                         .toString(CodeLanguage.JAVA)
             )
-        runProcessorTestWithK1(sources = listOf(baseConverter, extendingClass)) { invocation ->
+        runProcessorTest(sources = listOf(baseConverter, extendingClass)) { invocation ->
             val element =
                 invocation.processingEnv.requireTypeElement(extendingClassName.canonicalName)
             val converter =
@@ -339,7 +349,7 @@ class CustomConverterProcessorTest {
                 public class Container {}
                 """
             )
-        runProcessorTestWithK1(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source)) { invocation ->
             val result =
                 CustomConverterProcessor.findConverters(
                     invocation.context,
@@ -355,6 +365,147 @@ class CustomConverterProcessorTest {
                     hasErrorContaining(ProcessorErrors.typeConverterMustBeDeclared("int"))
                 }
             }
+        }
+    }
+
+    @Test
+    fun generatedConverter() {
+        class GenerateTypeConverterStep(private val language: CodeLanguage) : XProcessingStep {
+            private var generatedClass = false
+
+            override fun annotations() = setOf("androidx.room.Database")
+
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XElement> {
+                elementsByAnnotation["androidx.room.Database"]?.singleOrNull()?.let {
+                    databaseElement ->
+                    if (!generatedClass) {
+                        generatedClass = true
+                        when (language) {
+                            CodeLanguage.JAVA -> writeJava(env.filer, databaseElement)
+                            CodeLanguage.KOTLIN -> writeKotlin(env.filer, databaseElement)
+                        }
+                    }
+                }
+                return super.process(env, elementsByAnnotation, isLastRound)
+            }
+
+            private fun writeJava(filer: XFiler, databaseElement: XElement) {
+                filer
+                    .writeSource(
+                        packageName = "",
+                        fileNameWithoutExtension = "GeneratedTypeConverter",
+                        extension = "java",
+                        originatingElements = listOf(databaseElement)
+                    )
+                    .bufferedWriter()
+                    .use { output ->
+                        output.write(
+                            """
+                        import androidx.room.TypeConverter;
+                        
+                        public class GeneratedTypeConverter {
+                            @TypeConverter
+                            public TestId toId(long id) {
+                                return new TestId();
+                            }
+                            
+                            @TypeConverter
+                            public long fromId(TestId id) {
+                                return 1;
+                            }
+                        }
+                        """
+                                .trimIndent()
+                        )
+                    }
+            }
+
+            private fun writeKotlin(filer: XFiler, databaseElement: XElement) {
+                filer
+                    .writeSource(
+                        packageName = "",
+                        fileNameWithoutExtension = "GeneratedTypeConverter",
+                        extension = "kt",
+                        originatingElements = listOf(databaseElement)
+                    )
+                    .bufferedWriter()
+                    .use { output ->
+                        output.write(
+                            """
+                        import androidx.room.TypeConverter
+                        
+                        class GeneratedTypeConverter {
+                            @TypeConverter
+                            fun toId(id: Long): TestId = TestId()
+                            
+                            @TypeConverter
+                            fun fromId(id: TestId): Long = 1L
+                        }
+                        """
+                                .trimIndent()
+                        )
+                    }
+            }
+        }
+
+        val typeConverterProcessor =
+            object :
+                JavacBasicAnnotationProcessor(
+                    config =
+                        XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
+                ) {
+                override fun processingSteps() =
+                    listOf(GenerateTypeConverterStep(CodeLanguage.JAVA))
+            }
+        val typeConverterKspProvider = SymbolProcessorProvider {
+            object :
+                KspBasicAnnotationProcessor(
+                    symbolProcessorEnvironment = it,
+                    config =
+                        XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
+                ) {
+                override fun processingSteps() =
+                    listOf(GenerateTypeConverterStep(CodeLanguage.KOTLIN))
+            }
+        }
+
+        val databaseSrc =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
+            import androidx.room.*
+
+            class TestId
+
+            @Entity
+            data class TestEntity(@PrimaryKey val id: TestId)
+
+            @Dao
+            interface MyDao {
+                @Query("SELECT * FROM TestEntity")
+                fun getAll(): List<TestEntity>
+            }
+
+            @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
+            @TypeConverters(GeneratedTypeConverter::class)
+            abstract class MyDatabase : RoomDatabase() {
+                abstract fun getDao(): MyDao
+            }
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(
+            sources = listOf(databaseSrc),
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
+            javacProcessors = listOf(RoomProcessor(), typeConverterProcessor),
+            symbolProcessorProviders = listOf(RoomKspProcessor.Provider(), typeConverterKspProvider)
+        ) {
+            it.hasErrorCount(0)
         }
     }
 
@@ -399,7 +550,7 @@ class CustomConverterProcessorTest {
         vararg sources: Source,
         handler: (CustomTypeConverter?, XTestInvocation) -> Unit
     ) {
-        runProcessorTestWithK1(sources = sources.toList() + CONTAINER) { invocation ->
+        runProcessorTest(sources = sources.toList() + CONTAINER) { invocation ->
             val processed =
                 CustomConverterProcessor.findConverters(
                     invocation.context,

@@ -18,7 +18,6 @@
 
 package androidx.xr.runtime.java
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +33,6 @@ import kotlinx.coroutines.guava.future
  * @param coroutine the coroutine to convert to a [ListenableFuture].
  */
 @Suppress("AsyncSuffixFuture")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun <T> toFuture(
     session: Session,
     coroutine: suspend CoroutineScope.() -> T,

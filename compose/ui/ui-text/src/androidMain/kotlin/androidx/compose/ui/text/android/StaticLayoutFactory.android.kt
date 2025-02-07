@@ -189,6 +189,12 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
                         params.lineBreakWordStyle
                     )
                 }
+                if (Build.VERSION.SDK_INT >= 35) { // b/391378120
+                    // Due to a bug in API35, the useBoundsForWidth flag may become true if it was
+                    // true in the recycled object. To avoid unexpected line break behavior,
+                    // manually disable useBoundsForWidth every time we create a StaticLayout.
+                    StaticLayoutFactory35.disableUseBoundsForWidth(this)
+                }
             }
             .build()
     }
@@ -238,6 +244,14 @@ private object StaticLayoutFactory33 {
                 .setLineBreakWordStyle(lineBreakWordStyle)
                 .build()
         builder.setLineBreakConfig(lineBreakConfig)
+    }
+}
+
+@RequiresApi(35)
+private object StaticLayoutFactory35 {
+    @JvmStatic
+    fun disableUseBoundsForWidth(builder: Builder) {
+        builder.setUseBoundsForWidth(false)
     }
 }
 

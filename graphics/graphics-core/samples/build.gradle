@@ -15,7 +15,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,7 +38,7 @@ android {
 
 androidx {
     name = "Graphics-Core Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2023"
     description = "Contains samples of APIs included in the graphics-core Androidx library"
     mavenVersion = LibraryVersions.GRAPHICS_CORE

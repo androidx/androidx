@@ -67,6 +67,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertCountEquals
@@ -1761,6 +1762,61 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    fun premeasuringTwoPlaceables_allowsQueryingSizeAfter() {
+        val state = SubcomposeLayoutState()
+        var remeasuresCount = 0
+        val modifier =
+            Modifier.layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    remeasuresCount++
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                }
+                .fillMaxSize()
+        val content =
+            @Composable {
+                Box(modifier)
+                Box(modifier)
+            }
+        val constraints0 = Constraints(maxWidth = 100, minWidth = 100)
+        val constraints1 = Constraints(maxWidth = 200, minWidth = 200)
+        var needContent by mutableStateOf(false)
+
+        rule.setContent {
+            SubcomposeLayout(state) {
+                val placeables =
+                    if (needContent) {
+                        val measurables = subcompose(Unit, content)
+                        assertThat(measurables.size).isEqualTo(2)
+                        measurables.mapIndexed { index, measurable ->
+                            measurable.measure(if (index == 0) constraints0 else constraints1)
+                        }
+                    } else {
+                        emptyList()
+                    }
+                layout(10, 10) { placeables.forEach { it.place(0, 0) } }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(remeasuresCount).isEqualTo(0)
+            val handle = state.precompose(Unit, content)
+
+            assertThat(remeasuresCount).isEqualTo(0)
+            assertThat(handle.placeablesCount).isEqualTo(2)
+
+            assertThat(handle.getSize(0)).isEqualTo(IntSize.Zero)
+            handle.premeasure(0, constraints0)
+            assertThat(handle.getSize(0)).isEqualTo(IntSize(100, 0))
+
+            assertThat(remeasuresCount).isEqualTo(1)
+            assertThat(handle.getSize(1)).isEqualTo(IntSize.Zero)
+            handle.premeasure(1, constraints1)
+            assertThat(handle.getSize(1)).isEqualTo(IntSize(200, 0))
+            assertThat(remeasuresCount).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun premeasuringIncorrectIndexesCrashes() {
         val state = SubcomposeLayoutState()
         val content =
@@ -1780,6 +1836,27 @@ class SubcomposeLayoutTest {
             assertThrows(IndexOutOfBoundsException::class.java) {
                 handle.premeasure(2, Constraints())
             }
+        }
+    }
+
+    @Test
+    fun getMeasuredSizes_IncorrectIndexesCrashes() {
+        val state = SubcomposeLayoutState()
+        val content =
+            @Composable {
+                Box(Modifier.size(10.dp))
+                Box(Modifier.size(10.dp))
+            }
+
+        rule.setContent { SubcomposeLayout(state) { layout(10, 10) {} } }
+
+        rule.runOnIdle {
+            val handle = state.precompose(Unit, content)
+            handle.premeasure(0, Constraints())
+            handle.premeasure(1, Constraints())
+
+            assertThrows(IndexOutOfBoundsException::class.java) { handle.getSize(-1) }
+            assertThrows(IndexOutOfBoundsException::class.java) { handle.getSize(2) }
         }
     }
 

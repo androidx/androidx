@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.Runtime
 
 /**
@@ -25,7 +24,6 @@ import androidx.xr.runtime.internal.Runtime
  * @property lifecycleManager that manages the lifecycle of the OpenXR session.
  * @property perceptionManager that manages the perception capabilities of a runtime using OpenXR.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrRuntime
 internal constructor(
     override val lifecycleManager: OpenXrManager,

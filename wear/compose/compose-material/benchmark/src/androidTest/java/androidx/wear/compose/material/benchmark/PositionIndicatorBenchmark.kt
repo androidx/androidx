@@ -258,13 +258,13 @@ internal fun ComposeBenchmarkRule.changePositionBenchmark(
     runBenchmarkFor(caseFactory) {
         runOnUiThread { disposeContent() }
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 setupContent()
                 assertNoPendingChanges()
             }
             getTestCase().onChange()
             doFrame()
-            runWithTimingDisabled { disposeContent() }
+            runWithMeasurementDisabled { disposeContent() }
         }
     }
 }

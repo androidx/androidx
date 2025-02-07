@@ -28,7 +28,7 @@ public class HeartRateVariabilityRmssdRecord(
     override val zoneOffset: ZoneOffset?,
     /** Heart rate variability in milliseconds. Required field. Valid Range: 1-200. */
     public val heartRateVariabilityMillis: Double,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     init {

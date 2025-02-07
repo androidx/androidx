@@ -18,9 +18,10 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 public final class TestItemDetails extends ItemDetails<String> {
 

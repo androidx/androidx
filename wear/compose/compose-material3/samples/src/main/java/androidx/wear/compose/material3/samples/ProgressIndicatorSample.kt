@@ -21,7 +21,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,6 +42,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -49,7 +52,6 @@ import androidx.wear.compose.material3.ArcProgressIndicatorDefaults
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
-import androidx.wear.compose.material3.CircularProgressIndicatorStatic
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
@@ -57,6 +59,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.SegmentedCircularProgressIndicator
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.drawCircularProgressIndicator
 import kotlinx.coroutines.flow.collectLatest
 
 @Sampled
@@ -165,9 +168,11 @@ fun SmallValuesProgressIndicatorSample() {
 
 @Sampled
 @Composable
-fun CircularProgressIndicatorStaticSample() {
+fun CircularProgressIndicatorCustomAnimationSample() {
     val progress = remember { mutableFloatStateOf(0f) }
     val animatedProgress = remember { Animatable(0f) }
+    val colors =
+        ProgressIndicatorDefaults.colors(indicatorColor = Color.Green, trackColor = Color.White)
 
     LaunchedEffect(Unit) {
         snapshotFlow(progress::value).collectLatest {
@@ -187,12 +192,17 @@ fun CircularProgressIndicatorStaticSample() {
             label = { Text("Animate") },
         )
 
-        // Since CircularProgressIndicatorStatic does not have any built-in progress animations,
-        // we can implement a custom progress animation by using an Animatable progress value.
-        CircularProgressIndicatorStatic(
-            progress = animatedProgress::value,
-            startAngle = 120f,
-            endAngle = 60f,
+        // Draw the circular progress indicator with custom animation
+        Spacer(
+            Modifier.fillMaxSize().focusable().drawBehind {
+                drawCircularProgressIndicator(
+                    progress = animatedProgress.value,
+                    strokeWidth = 10.dp,
+                    colors = colors,
+                    startAngle = 120f,
+                    endAngle = 60f
+                )
+            }
         )
     }
 }

@@ -15,7 +15,6 @@
  */
 package androidx.wear.protolayout.material3
 
-import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.material3.tokens.ColorTokens
 import androidx.wear.protolayout.types.LayoutColor
 import androidx.wear.protolayout.types.argb
@@ -65,11 +64,13 @@ import androidx.wear.protolayout.types.argb
  * @property outlineVariant is the secondary color for secondary outline components
  * @property background color that appears behind other content
  * @property onBackground color is used for text and icons displayed on top of the background color
- * @property error color that indicates remove, delete, close or dismiss actions. Added as an
- *   errorContainer alternative that is slightly less alarming and urgent color.
- * @property onError color is used for text and icons displayed on top of the error color
+ * @property error color that indicates remove, delete, close or dismiss actions. Added as a
+ *   slightly less alarming and urgent alternative to errorContainer than the errorDim color
+ * @property errorDim color that indicates high priority errors or emergency actions, such as safety
+ *   alerts
  * @property errorContainer is color that indicates errors or emergency actions, such as safety
  *   alerts. This color is for use-cases that are more alarming and urgent than the error color.
+ * @property onError color is used for text and icons displayed on top of the error color
  * @property onErrorContainer is color used for text and icons on the errorContainer color
  */
 public class ColorScheme(
@@ -98,7 +99,8 @@ public class ColorScheme(
     public val background: LayoutColor = ColorTokens.BACKGROUND.argb,
     public val onBackground: LayoutColor = ColorTokens.ON_BACKGROUND.argb,
     public val error: LayoutColor = ColorTokens.ERROR.argb,
-    public val onError: LayoutColor = ColorTokens.ON_ERROR.argb,
+    public val errorDim: LayoutColor = ColorTokens.ERROR_DIM.argb,
     public val errorContainer: LayoutColor = ColorTokens.ERROR_CONTAINER.argb,
+    public val onError: LayoutColor = ColorTokens.ON_ERROR.argb,
     public val onErrorContainer: LayoutColor = ColorTokens.ON_ERROR_CONTAINER.argb,
 )

@@ -31,7 +31,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual class TableInfo
 actual constructor(
     /** The table name. */
@@ -102,7 +102,7 @@ actual constructor(
     }
 
     /** Holds the information about a database column. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     actual class Column
     actual constructor(
         /** The column name. */
@@ -153,7 +153,7 @@ actual constructor(
     }
 
     /** Holds the information about an SQLite foreign key */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     actual class ForeignKey
     actual constructor(
         @JvmField actual val referenceTable: String,
@@ -170,7 +170,7 @@ actual constructor(
     }
 
     /** Holds the information about an SQLite index */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     actual class Index
     actual constructor(
         @JvmField actual val name: String,

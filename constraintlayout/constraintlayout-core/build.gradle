@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -29,16 +29,15 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
 }
 
 androidx {
     name = "ConstraintLayout Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_CORE
     inceptionYear = "2022"
     description = "This library contains engines and algorithms for constraint based layout and complex animations (it is used by the ConstraintLayout library)"
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

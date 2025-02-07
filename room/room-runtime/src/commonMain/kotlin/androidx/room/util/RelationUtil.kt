@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * @param isRelationCollection - True if [V] is a [Collection] which means it is non null.
  * @param fetchBlock - A lambda for calling the generated _fetchRelationship function.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun <K : Any, V> recursiveFetchMap(
     map: MutableMap<K, V>,
     isRelationCollection: Boolean,
@@ -72,7 +72,7 @@ fun <K : Any, V> recursiveFetchMap(
 }
 
 /** Same as [recursiveFetchMap] but for [LongSparseArray]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun <V> recursiveFetchLongSparseArray(
     map: LongSparseArray<V>,
     isRelationCollection: Boolean,

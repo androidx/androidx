@@ -72,11 +72,11 @@ private fun processBitmap(@Suppress("UNUSED_PARAMETER") bitmap: Bitmap) {
 }
 
 @Sampled
-fun runWithTimingDisabledSample() {
+fun runWithMeasurementDisabledSample() {
     @Test
     fun bitmapProcessing() =
         benchmarkRule.measureRepeated {
-            val input: Bitmap = runWithTimingDisabled { constructTestBitmap() }
+            val input: Bitmap = runWithMeasurementDisabled { constructTestBitmap() }
             processBitmap(input)
         }
 }

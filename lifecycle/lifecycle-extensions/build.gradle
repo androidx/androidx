@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -58,7 +58,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Extensions"
-    type = LibraryType.INTERNAL_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.INTERNAL_LIBRARY_WITH_API_TASKS
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     failOnDeprecationWarnings = false

@@ -112,7 +112,8 @@ public fun hasText(value: LayoutString): LayoutElementMatcher =
         it is Text &&
             // TODO: b/375448507 - Add dynamic data evaluation and compare the current string value
             it.text?.toProto()?.value == value.staticValue &&
-            it.text?.toProto()?.dynamicValue == value.dynamicValue?.toDynamicStringProto()
+            it.text?.dynamicValue?.toDynamicStringProto() ==
+                value.dynamicValue?.toDynamicStringProto()
     }
 
 /**

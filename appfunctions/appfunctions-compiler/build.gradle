@@ -21,8 +21,10 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SdkHelperKt
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,14 +32,23 @@ plugins {
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
+androidx.configureAarAsJarForConfiguration("implementation")
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation("androidx.annotation:annotation:1.7.0")
     implementation(libs.kspApi)
     implementation(libs.kotlinPoet)
+    implementation(libs.kotlinReflect, {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    })
+
+    // Added for reusing AppFunctionMetadata classes.
+    implementationAarAsJar(project(":appfunctions:appfunctions-common"))
 
     testImplementationAarAsJar(project(":appfunctions:appfunctions-common"))
     testImplementationAarAsJar(project(":appfunctions:appfunctions-runtime"))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementation(libs.googleCompileTesting)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
@@ -48,12 +59,13 @@ def testGeneratedSourcesPath = "${layout.buildDirectory.get().asFile}/testGenera
 tasks.withType(Test).configureEach { test ->
     test.doFirst {
         systemProperty("test_output_dir", testGeneratedSourcesPath)
+        systemProperty("update_golden_files", System.getProperty("update_golden_files") ?: "false")
     }
 }
 
 androidx {
     name = "androidx.appfunctions:appfunctions-compiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2025"
     description = "AppFunction Compiler"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

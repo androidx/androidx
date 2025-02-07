@@ -17,19 +17,53 @@
 package androidx.benchmark
 
 import androidx.annotation.RestrictTo
+import androidx.benchmark.traceprocessor.Insight
+import androidx.benchmark.traceprocessor.PerfettoTrace
+
+/**
+ * Create a benchmark markdown trace deeplink
+ *
+ * LinkFormat isn't a TraceProcessor concept, which is why this functionality is here
+ */
+internal fun PerfettoTrace.Link.benchmarkMarkdownLink(linkFormat: LinkFormat): String =
+    when (linkFormat) {
+        LinkFormat.V2 -> Markdown.createFileLink(label = title, path = path)
+        LinkFormat.V3 -> markdownUriLink
+    }
+
+/**
+ * Create a insight category title markdown link
+ *
+ * LinkFormat isn't a TraceProcessor concept, which is why this functionality is here
+ */
+private fun Insight.Category.header(linkFormat: LinkFormat): String =
+    if (linkFormat == LinkFormat.V3 && titleUrl != null) {
+        Markdown.createLink(title, titleUrl!!)
+    } else {
+        title
+    } + postTitleLabel
 
 private fun List<Insight>.toObserved(linkFormat: LinkFormat): String {
     return this.joinToString(separator = " ", prefix = "seen in iterations: ") { insight ->
-        insight.deepLink.createMarkdownLink(insight.iterationIndex.toString(), linkFormat) +
-            "(${insight.observedLabel})"
+        insight.traceLink.benchmarkMarkdownLink(linkFormat) + "(${insight.observedLabel})"
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Create a list of [InsightSummary]s, each summarizing multiple [Insight]s with the same
+ * [Insight.Category]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
     return this.groupBy { it.category }
         .map { (category, insights) ->
-            InsightSummary(category, insights.sortedBy { it.iterationIndex })
+            InsightSummary(
+                category,
+                insights.sortedBy {
+                    // sort by iteration (embedded in title)
+                    it.traceLink.title.toInt()
+                }
+            )
         }
 }
 

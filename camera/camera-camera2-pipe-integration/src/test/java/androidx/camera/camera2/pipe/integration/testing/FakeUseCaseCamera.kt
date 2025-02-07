@@ -216,6 +216,10 @@ open class FakeUseCaseCameraRequestControl(
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
+    override suspend fun awaitSurfaceSetup(): Boolean {
+        return true
+    }
+
     override fun close() {}
 
     data class FocusMeteringParams(

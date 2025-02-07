@@ -51,7 +51,7 @@ internal fun Modifier.animateBounds(
         )
     )
 
-private data class AnimateBoundsElement(
+private class AnimateBoundsElement(
     private val animateFraction: () -> Float,
     private val animationSpec: FiniteAnimationSpec<IntRect>,
     private val lookaheadScope: LookaheadScope,
@@ -83,6 +83,28 @@ private data class AnimateBoundsElement(
 
     override fun InspectorInfo.inspectableProperties() {
         inspectorInfo()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnimateBoundsElement) return false
+
+        if (enabled != other.enabled) return false
+        if (animateFraction !== other.animateFraction) return false
+        if (animationSpec != other.animationSpec) return false
+        if (lookaheadScope != other.lookaheadScope) return false
+        if (inspectorInfo !== other.inspectorInfo) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = enabled.hashCode()
+        result = 31 * result + animateFraction.hashCode()
+        result = 31 * result + animationSpec.hashCode()
+        result = 31 * result + lookaheadScope.hashCode()
+        result = 31 * result + inspectorInfo.hashCode()
+        return result
     }
 }
 

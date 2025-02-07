@@ -227,7 +227,12 @@ internal class SharedElementInternalState(
 
     internal val shouldRenderInOverlay: Boolean
         get() =
-            shouldRenderBasedOnTarget && sharedElement.foundMatch && renderInOverlayDuringTransition
+            shouldRenderBasedOnTarget &&
+                sharedElement.foundMatch &&
+                // Render in overlay during transition only takes effect during transition (i.e.
+                // when transition is active)
+                renderInOverlayDuringTransition &&
+                sharedElement.scope.isTransitionActive
 
     val shouldRenderInPlace: Boolean
         get() = !sharedElement.foundMatch || (!shouldRenderInOverlay && shouldRenderBasedOnTarget)

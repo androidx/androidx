@@ -6,6 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.performance:performance-annotation>
-open annotation class dalvik.annotation.optimization/NeverInline : kotlin/Annotation { // dalvik.annotation.optimization/NeverInline|null[1]
-    constructor <init>() // dalvik.annotation.optimization/NeverInline.<init>|<init>(){}[1]
+open annotation class androidx.performance.annotation/AndroidNeverInline : kotlin/Annotation { // androidx.performance.annotation/AndroidNeverInline|null[1]
+    constructor <init>() // androidx.performance.annotation/AndroidNeverInline.<init>|<init>(){}[1]
 }

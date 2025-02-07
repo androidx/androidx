@@ -500,7 +500,7 @@ public fun ScalingLazyColumn(
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
 
         val actualScalingParams =
-            if (reduceMotion.enabled()) ReduceMotionScalingParams(scalingParams) else scalingParams
+            if (reduceMotion) ReduceMotionScalingParams(scalingParams) else scalingParams
 
         with(density) {
             val extraPadding = extraPaddingInPixels.toDp()

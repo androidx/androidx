@@ -16,9 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
@@ -35,9 +33,9 @@ import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.verticalScrollAxisRange
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
     itemProviderLambda: () -> LazyLayoutItemProvider,
@@ -77,16 +75,21 @@ internal fun TransformingLazyColumnSemanticState(
             get() =
                 state.layoutInfoState.value.let { it.beforeContentPadding + it.afterContentPadding }
 
-        override val scrollOffset: Float =
-            with(state.layoutInfoState.value) {
-                    if (anchorItemIndex == 0) {
-                        return@with anchorItemScrollOffset
+        override val scrollOffset: Float
+            get() =
+                with(state.layoutInfoState.value) {
+                        if (anchorItemIndex == 0) {
+                            return@with anchorItemScrollOffset
+                        }
+                        if (!canScrollForward) {
+                            return@with maxScrollOffset
+                        }
+                        visibleItemsAverageHeight * anchorItemIndex +
+                            anchorItemScrollOffset +
+                            itemSpacing * (anchorItemIndex - 1)
                     }
-                    visibleItemsAverageHeight * anchorItemIndex +
-                        anchorItemScrollOffset +
-                        itemSpacing * (anchorItemIndex - 1)
-                }
-                .toFloat()
+                    .toFloat()
+                    .coerceAtLeast(0f)
 
         override val maxScrollOffset: Float
             get() =
@@ -106,7 +109,6 @@ internal fun TransformingLazyColumnSemanticState(
         override suspend fun scrollToItem(index: Int) = state.scrollToItem(index)
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class LazyLayoutSemanticsModifierElement(
     val itemProviderLambda: () -> LazyLayoutItemProvider,
     val state: LazyLayoutSemanticState,
@@ -160,7 +162,6 @@ private class LazyLayoutSemanticsModifierElement(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class LazyLayoutSemanticsModifierNode(
     private var itemProviderLambda: () -> LazyLayoutItemProvider,
     private var state: LazyLayoutSemanticState,

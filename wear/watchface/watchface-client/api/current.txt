@@ -12,13 +12,13 @@ package androidx.wear.watchface.client {
     method public boolean getFixedComplicationDataSource();
     method public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public boolean isInitiallyEnabled();
-    property public final androidx.wear.watchface.complications.ComplicationSlotBounds? bounds;
-    property public final int boundsType;
-    property public final android.os.Bundle complicationConfigExtras;
-    property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
-    property public final boolean fixedComplicationDataSource;
-    property public final boolean isInitiallyEnabled;
-    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+    property public androidx.wear.watchface.complications.ComplicationSlotBounds? bounds;
+    property public int boundsType;
+    property public android.os.Bundle complicationConfigExtras;
+    property public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property public boolean fixedComplicationDataSource;
+    property public boolean isInitiallyEnabled;
+    property public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
   }
 
   public final class ComplicationSlotState {
@@ -38,26 +38,26 @@ package androidx.wear.watchface.client {
     method public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public boolean isEnabled();
     method public boolean isInitiallyEnabled();
-    property public final android.graphics.Rect bounds;
-    property public final int boundsType;
-    property public final android.os.Bundle complicationConfigExtras;
-    property public final androidx.wear.watchface.complications.data.ComplicationType currentType;
-    property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
-    property @Deprecated public final androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType;
-    property public final boolean fixedComplicationDataSource;
-    property public final boolean isEnabled;
-    property public final boolean isInitiallyEnabled;
-    property public final Integer? nameResourceId;
-    property public final Integer? screenReaderNameResourceId;
-    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+    property public android.graphics.Rect bounds;
+    property public int boundsType;
+    property public android.os.Bundle complicationConfigExtras;
+    property public androidx.wear.watchface.complications.data.ComplicationType currentType;
+    property public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property @Deprecated public androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType;
+    property public boolean fixedComplicationDataSource;
+    property public boolean isEnabled;
+    property public boolean isInitiallyEnabled;
+    property public Integer? nameResourceId;
+    property public Integer? screenReaderNameResourceId;
+    property public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
   }
 
   @Deprecated public final class DefaultComplicationDataSourcePolicyAndType {
     ctor @Deprecated public DefaultComplicationDataSourcePolicyAndType(androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy, androidx.wear.watchface.complications.data.ComplicationType type);
     method @Deprecated public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getPolicy();
     method @Deprecated public androidx.wear.watchface.complications.data.ComplicationType getType();
-    property @Deprecated public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
-    property @Deprecated public final androidx.wear.watchface.complications.data.ComplicationType type;
+    property @Deprecated public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
+    property @Deprecated public androidx.wear.watchface.complications.data.ComplicationType type;
   }
 
   public final class DeviceConfig {
@@ -66,15 +66,15 @@ package androidx.wear.watchface.client {
     method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean hasBurnInProtection();
     method public boolean hasLowBitAmbient();
-    property public final long analogPreviewReferenceTimeMillis;
-    property public final long digitalPreviewReferenceTimeMillis;
-    property public final boolean hasBurnInProtection;
-    property public final boolean hasLowBitAmbient;
+    property public long analogPreviewReferenceTimeMillis;
+    property public long digitalPreviewReferenceTimeMillis;
+    property public boolean hasBurnInProtection;
+    property public boolean hasLowBitAmbient;
   }
 
   public final class DisconnectReasons {
-    property public static final int ENGINE_DETACHED;
-    property public static final int ENGINE_DIED;
+    property public static int ENGINE_DETACHED;
+    property public static int ENGINE_DIED;
     field public static final int ENGINE_DETACHED = 2; // 0x2
     field public static final int ENGINE_DIED = 1; // 0x1
     field public static final androidx.wear.watchface.client.DisconnectReasons INSTANCE;
@@ -96,11 +96,11 @@ package androidx.wear.watchface.client {
     method public androidx.wear.watchface.style.UserStyleData getUserStyle();
     method public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
     method public boolean shouldCommitChanges();
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData> previewComplicationsData;
-    property public final android.graphics.Bitmap? previewImage;
-    property public final boolean shouldCommitChanges;
-    property public final androidx.wear.watchface.style.UserStyleData userStyle;
-    property public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
+    property public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData> previewComplicationsData;
+    property public android.graphics.Bitmap? previewImage;
+    property public boolean shouldCommitChanges;
+    property public androidx.wear.watchface.style.UserStyleData userStyle;
+    property public androidx.wear.watchface.client.WatchFaceId watchFaceId;
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {
@@ -178,9 +178,9 @@ package androidx.wear.watchface.client {
   }
 
   public static final class InteractiveWatchFaceClient.Companion {
-    property public static final int TAP_TYPE_CANCEL;
-    property public static final int TAP_TYPE_DOWN;
-    property public static final int TAP_TYPE_UP;
+    property public static int TAP_TYPE_CANCEL;
+    property public static int TAP_TYPE_DOWN;
+    property public static int TAP_TYPE_UP;
     field public static final int TAP_TYPE_CANCEL = 1; // 0x1
     field public static final int TAP_TYPE_DOWN = 0; // 0x0
     field public static final int TAP_TYPE_UP = 2; // 0x2
@@ -195,8 +195,8 @@ package androidx.wear.watchface.client {
     ctor @Deprecated public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
     method @Deprecated public android.graphics.Color? getBackgroundColor();
     method @Deprecated public android.graphics.Color? getForegroundColor();
-    property @Deprecated public final android.graphics.Color? backgroundColor;
-    property @Deprecated public final android.graphics.Color? foregroundColor;
+    property @Deprecated public android.graphics.Color? backgroundColor;
+    property @Deprecated public android.graphics.Color? foregroundColor;
   }
 
   public interface RemoteWatchFaceViewHost extends java.lang.AutoCloseable {
@@ -239,7 +239,7 @@ package androidx.wear.watchface.client {
   public final class WatchFaceId {
     ctor public WatchFaceId(String id);
     method public String getId();
-    property public final String id;
+    property public String id;
   }
 
   public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
@@ -269,8 +269,8 @@ package androidx.wear.watchface.client {
     ctor public WatchUiState(boolean inAmbientMode, int interruptionFilter);
     method public int getInterruptionFilter();
     method public boolean inAmbientMode();
-    property public final boolean inAmbientMode;
-    property public final int interruptionFilter;
+    property public boolean inAmbientMode;
+    property public int interruptionFilter;
   }
 
 }

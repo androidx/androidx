@@ -45,6 +45,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
 
+    androidTestImplementation(project(":collection:collection"))
+    androidTestImplementation(project(":collection:collection-ktx"))
 }
 
 android {

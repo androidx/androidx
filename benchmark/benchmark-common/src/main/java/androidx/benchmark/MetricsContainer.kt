@@ -30,6 +30,10 @@ internal class MetricsContainer(
 
     internal val names: List<String> = metrics.flatMap { it.names }
 
+    // used to micro-optimize lastIndex iteration (which method tracing
+    // shows to include a kotlin intrinsic null check)
+    private val lastMetricIndex = metrics.lastIndex
+
     /**
      * Each entry in the top level list is a multi-metric set of measurements.
      *
@@ -87,7 +91,7 @@ internal class MetricsContainer(
         repeatTiming[runNum * 2] = timeNs
 
         // reverse order so first metric sees least interference
-        for (i in metrics.lastIndex downTo 0) {
+        for (i in lastMetricIndex downTo 0) {
             metrics[i].captureStart(timeNs) // put the most sensitive metric first to avoid overhead
         }
     }
@@ -100,7 +104,7 @@ internal class MetricsContainer(
     fun captureStop() {
         val timeNs = System.nanoTime()
         var offset = 0
-        for (i in 0..metrics.lastIndex) { // stop in reverse order from start
+        for (i in 0..lastMetricIndex) { // stop in reverse order from start
             metrics[i].captureStop(timeNs, data[runNum], offset)
             offset += metrics[i].names.size
         }
@@ -114,7 +118,7 @@ internal class MetricsContainer(
      * Call when you want to not capture the following part of a run.
      */
     fun capturePaused() {
-        for (i in 0..metrics.lastIndex) { // like stop, pause in reverse order from start
+        for (i in 0..lastMetricIndex) { // like stop, pause in reverse order from start
             metrics[i].capturePaused()
         }
     }
@@ -125,7 +129,7 @@ internal class MetricsContainer(
      * Call when you want to resume capturing a capturePaused-ed run.
      */
     fun captureResumed() {
-        for (i in metrics.lastIndex downTo 0) { // same order as start
+        for (i in lastMetricIndex downTo 0) { // same order as start
             metrics[i].captureResumed()
         }
     }

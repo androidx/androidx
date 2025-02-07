@@ -100,7 +100,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
                     builder: XFunSpec.Builder
                 ) {
@@ -165,7 +165,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
                     builder: XFunSpec.Builder
                 ) {

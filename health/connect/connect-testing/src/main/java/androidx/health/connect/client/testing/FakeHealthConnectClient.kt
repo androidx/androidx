@@ -41,6 +41,7 @@ import androidx.health.connect.client.response.InsertRecordsResponse
 import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.platform.client.proto.DataProto
 import java.time.Clock
 import kotlin.reflect.KClass
 
@@ -63,7 +64,7 @@ import kotlin.reflect.KClass
  */
 @OptIn(ExperimentalFeatureAvailabilityApi::class)
 public class FakeHealthConnectClient(
-    private val packageName: String = DEFAULT_PACKAGE_NAME,
+    private var packageName: String = DEFAULT_PACKAGE_NAME,
     private val clock: Clock = Clock.systemDefaultZone(),
     override val permissionController: PermissionController = FakePermissionController()
 ) : HealthConnectClient {
@@ -130,6 +131,9 @@ public class FakeHealthConnectClient(
                         .toProto()
                         .toBuilder()
                         .setUid(recordId)
+                        .setDataOrigin(
+                            DataProto.DataOrigin.newBuilder().setApplicationId(packageName).build()
+                        )
                         .setUpdateTimeMillis(clock.millis())
                         .build()
                 )
@@ -151,7 +155,7 @@ public class FakeHealthConnectClient(
 
         // Check if all records belong to the package
         if (records.any { it.packageName != packageName }) {
-            throw SecurityException("Trying to delete records owned by another package")
+            throw SecurityException("Trying to update records owned by another package")
         }
 
         // Fake implementation
@@ -175,39 +179,23 @@ public class FakeHealthConnectClient(
         // Stubs
         overrides.deleteRecords?.next(Unit)
 
-        // Check if all records belong to the package
-        if (
-            recordIdsList
-                .asSequence()
-                .mapNotNull { idsToRecords[it]?.packageName }
-                .any { it != packageName }
-        ) {
-            throw SecurityException("Trying to delete records owned by another package")
-        }
-
-        // Check if all records belong to the package in clientRecordIdsList
-        if (
-            clientRecordIdsList
-                .asSequence()
-                .mapNotNull { idsToRecords[it.toRecordId(packageName)]?.packageName }
-                .any { it != packageName }
-        ) {
-            throw SecurityException("Trying to delete records owned by another package")
-        }
-
         // Fake implementation
-        recordIdsList.forEach { recordId ->
-            idsToRecords[recordId]?.let { deletedIdsToRecords[recordId] = it }
-            idsToRecords.remove(recordId)
-            removeUpsertion(recordId)
-            addDeletionChange(recordId)
-        }
-        clientRecordIdsList.forEach {
-            val recordId = it.toRecordId(packageName)
-            idsToRecords[recordId]?.let { deletedIdsToRecords[recordId] = it }
-            idsToRecords.remove(recordId)
-            addDeletionChange(recordId)
-        }
+        recordIdsList
+            .filter { idsToRecords[it]?.packageName == packageName }
+            .forEach { recordId ->
+                idsToRecords[recordId]?.let { deletedIdsToRecords[recordId] = it }
+                idsToRecords.remove(recordId)
+                removeUpsertion(recordId)
+                addDeletionChange(recordId)
+            }
+        clientRecordIdsList
+            .filter { idsToRecords[it.toRecordId(packageName)]?.packageName == packageName }
+            .forEach {
+                val recordId = it.toRecordId(packageName)
+                idsToRecords[recordId]?.let { deletedIdsToRecords[recordId] = it }
+                idsToRecords.remove(recordId)
+                addDeletionChange(recordId)
+            }
     }
 
     override suspend fun deleteRecords(
@@ -446,6 +434,10 @@ public class FakeHealthConnectClient(
             .filterValues { it is UpsertionChange && it.record.metadata.id == recordId }
             .keys
             .forEach { timeToChanges.remove(it) }
+    }
+
+    internal fun setPackageName(newPackage: String) {
+        packageName = newPackage
     }
 
     public companion object {

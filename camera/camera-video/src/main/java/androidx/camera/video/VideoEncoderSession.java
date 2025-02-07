@@ -18,6 +18,7 @@ package androidx.camera.video;
 
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
+import static androidx.camera.video.internal.config.VideoConfigUtil.workaroundDataSpaceIfRequired;
 
 import android.view.Surface;
 
@@ -105,7 +106,7 @@ final class VideoEncoderSession {
 
     @ExecutedBy("mSequentialExecutor")
     @NonNull ListenableFuture<Encoder> configure(@NonNull SurfaceRequest surfaceRequest,
-            @NonNull Timebase timebase, @NonNull MediaSpec mediaSpec,
+            @NonNull Timebase timebase, @NonNull MediaSpec mediaSpec, boolean mHasGlProcessing,
             @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles) {
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
@@ -125,8 +126,8 @@ final class VideoEncoderSession {
                 ListenableFuture<Encoder> configureFuture = CallbackToFutureAdapter.getFuture(
                         completer -> {
                             configureVideoEncoderInternal(surfaceRequest, timebase,
-                                    resolvedEncoderProfiles,
-                                    mediaSpec, completer);
+                                    resolvedEncoderProfiles, mediaSpec, mHasGlProcessing,
+                                    completer);
                             return "ConfigureVideoEncoderFuture " + VideoEncoderSession.this;
                         });
                 Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
@@ -282,6 +283,7 @@ final class VideoEncoderSession {
             @NonNull Timebase timebase,
             @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles,
             @NonNull MediaSpec mediaSpec,
+            boolean hasGlProcessing,
             CallbackToFutureAdapter.@NonNull Completer<Encoder> configureCompleter) {
         DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
         VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
@@ -297,6 +299,7 @@ final class VideoEncoderSession {
                 surfaceRequest.getResolution(),
                 dynamicRange,
                 surfaceRequest.getExpectedFrameRate());
+        config = workaroundDataSpaceIfRequired(config, hasGlProcessing);
 
         try {
             mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);

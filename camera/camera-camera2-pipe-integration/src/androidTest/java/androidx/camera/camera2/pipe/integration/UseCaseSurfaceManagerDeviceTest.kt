@@ -27,6 +27,7 @@ import android.os.HandlerThread
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloserImpl
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
@@ -238,6 +239,7 @@ class UseCaseSurfaceManagerDeviceTest {
                         useCaseThreads,
                         cameraPipe,
                         InactiveSurfaceCloserImpl(),
+                        SessionConfigAdapter(useCases = useCases)
                     )
             )
 

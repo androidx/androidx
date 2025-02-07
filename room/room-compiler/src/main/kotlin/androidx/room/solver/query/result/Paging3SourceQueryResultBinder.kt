@@ -178,7 +178,7 @@ class Paging3PagingSourceQueryResultBinder(
     ): XFunSpec {
         val resultVar = scope.getTmpVar("_result")
         return XFunSpec.overridingBuilder(
-                element = convertRowsOverrideInfo.method,
+                element = convertRowsOverrideInfo.function,
                 owner = convertRowsOverrideInfo.owner
             )
             .apply {

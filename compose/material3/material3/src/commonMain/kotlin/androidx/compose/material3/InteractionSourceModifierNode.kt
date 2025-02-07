@@ -107,7 +107,7 @@ private data class InteractionSourceModifierElement(
     }
 }
 
-private data class OnChildrenInteractionSourceChangeModifierElement(
+private class OnChildrenInteractionSourceChangeModifierElement(
     private val onChildrenInteractionSourceChange: (List<InteractionSource>) -> Unit
 ) : ModifierNodeElement<OnChildrenInteractionSourceChangeModifierNode>() {
     override fun create() =
@@ -120,6 +120,17 @@ private data class OnChildrenInteractionSourceChangeModifierElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "onChildrenInteractionSourceChangeModifierNode"
         properties["onChildrenInteractionSourceChange"] = onChildrenInteractionSourceChange
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OnChildrenInteractionSourceChangeModifierElement) return false
+
+        return onChildrenInteractionSourceChange === other.onChildrenInteractionSourceChange
+    }
+
+    override fun hashCode(): Int {
+        return onChildrenInteractionSourceChange.hashCode()
     }
 }
 

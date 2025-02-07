@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 
 /** Element for any text that is in a selection container. */
-internal data class SelectableTextAnnotatedStringElement(
+internal class SelectableTextAnnotatedStringElement(
     private val text: AnnotatedString,
     private val style: TextStyle,
     private val fontFamilyResolver: FontFamily.Resolver,

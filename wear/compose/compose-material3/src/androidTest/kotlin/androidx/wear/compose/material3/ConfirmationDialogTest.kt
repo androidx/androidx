@@ -660,10 +660,10 @@ class ConfirmationDialogTest {
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
-            expectedIconColor = MaterialTheme.colorScheme.errorContainer
+            expectedIconColor = MaterialTheme.colorScheme.errorDim
             // As we have .8 alpha, we have to merge this color with background
             expectedIconContainerColor =
-                MaterialTheme.colorScheme.onErrorContainer.copy(.8f).compositeOver(backgroundColor)
+                MaterialTheme.colorScheme.onError.copy(.8f).compositeOver(backgroundColor)
             expectedTextColor = MaterialTheme.colorScheme.onBackground
         }
 

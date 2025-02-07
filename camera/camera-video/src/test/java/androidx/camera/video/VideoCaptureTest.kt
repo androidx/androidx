@@ -2088,7 +2088,11 @@ class VideoCaptureTest {
             surfaceRequestCallback.invoke(surfaceRequest, Timebase.UPTIME)
         }
 
-        override fun onSurfaceRequested(surfaceRequest: SurfaceRequest, timebase: Timebase) {
+        override fun onSurfaceRequested(
+            surfaceRequest: SurfaceRequest,
+            timebase: Timebase,
+            hasGlProcessing: Boolean
+        ) {
             surfaceRequestCallback.invoke(surfaceRequest, timebase)
         }
 

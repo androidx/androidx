@@ -1012,6 +1012,52 @@ class SupportedSurfaceCombinationTest {
             .isEqualTo(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM))
     }
 
+    @Test
+    fun transformSurfaceConfigWithUnsupportedFormatRecordSize() {
+        setupCameraAndInitCameraX(
+            supportedFormats =
+                intArrayOf(ImageFormat.YUV_420_888, ImageFormat.JPEG, ImageFormat.PRIVATE)
+        )
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                DEFAULT_CAMERA_ID,
+                cameraManagerCompat!!,
+                mockCamcorderProfileHelper
+            )
+        val surfaceConfig =
+            supportedSurfaceCombination.transformSurfaceConfig(
+                CameraMode.DEFAULT,
+                JPEG_R,
+                RECORD_SIZE
+            )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.RECORD)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithUnsupportedFormatMaximumSize() {
+        setupCameraAndInitCameraX(
+            supportedFormats =
+                intArrayOf(ImageFormat.YUV_420_888, ImageFormat.JPEG, ImageFormat.PRIVATE)
+        )
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                context,
+                DEFAULT_CAMERA_ID,
+                cameraManagerCompat!!,
+                mockCamcorderProfileHelper
+            )
+        val surfaceConfig =
+            supportedSurfaceCombination.transformSurfaceConfig(
+                CameraMode.DEFAULT,
+                JPEG_R,
+                MAXIMUM_SIZE
+            )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
     // //////////////////////////////////////////////////////////////////////////////////////////
     //
     // Resolution selection tests for LEGACY-level guaranteed configurations
@@ -3634,7 +3680,15 @@ class SupportedSurfaceCombinationTest {
             Mockito.mock(StreamConfigurationMap::class.java).also { map ->
                 supportedSizes?.let {
                     // Sets up the supported sizes
-                    Mockito.`when`(map.getOutputSizes(anyInt())).thenReturn(it)
+                    Mockito.`when`(
+                            map.getOutputSizes(
+                                ArgumentMatchers.intThat { format ->
+                                    supportedFormats?.contains(format) != false
+                                }
+                            )
+                        )
+                        .thenReturn(it)
+
                     // ImageFormat.PRIVATE was supported since API level 23. Before that, the
                     // supported
                     // output sizes need to be retrieved via SurfaceTexture.class.

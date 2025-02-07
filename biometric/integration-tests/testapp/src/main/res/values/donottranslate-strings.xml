@@ -30,6 +30,7 @@
     <string name="biometric_strong_label">BIOMETRIC_STRONG</string>
     <string name="biometric_weak_label">BIOMETRIC_WEAK</string>
     <string name="device_credential_label">DEVICE_CREDENTIAL</string>
+    <string name="identity_check_label" > IDENTITY_CHECK</string>
 
     <string name="auth_type_label">Authentication type:</string>
     <string name="class2_biometric_label">Class 2 biometric</string>

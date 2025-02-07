@@ -66,10 +66,10 @@ class SkinTemperatureRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     val deltas: List<Delta>,
     val baseline: Temperature? = null,
     @SkinTemperatureMeasurementLocation val measurementLocation: Int = MEASUREMENT_LOCATION_UNKNOWN,
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {

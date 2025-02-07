@@ -35,9 +35,13 @@ import kotlin.jvm.JvmName
  * @param assertion A function to be executed.
  */
 @ExperimentalTestApi
-fun addGlobalAssertion(name: String, assertion: (SemanticsNodeInteraction) -> Unit) {
-    GlobalAssertionsCollection.put(name, assertion)
-}
+@Deprecated(
+    message =
+        "This API has been removed and its intended usage to run accessibility checks can now be done via `ComposeUiTest.enableAccessibilityChecks()` and `ComposeTestRule.enableAccessibilityChecks()`",
+    level = DeprecationLevel.ERROR,
+)
+@Suppress("UNUSED_PARAMETER")
+fun addGlobalAssertion(name: String, assertion: (SemanticsNodeInteraction) -> Unit) {}
 
 /**
  * Removes a named assertion from the collection of assertions to be executed before test actions.
@@ -45,9 +49,13 @@ fun addGlobalAssertion(name: String, assertion: (SemanticsNodeInteraction) -> Un
  * @param name An identifier that was previously used in a call to [addGlobalAssertion].
  */
 @ExperimentalTestApi
-fun removeGlobalAssertion(name: String) {
-    GlobalAssertionsCollection.remove(name)
-}
+@Deprecated(
+    message =
+        "This API has been removed and its intended usage to run accessibility checks can now be done via `ComposeUiTest.disableAccessibilityChecks()` and `ComposeTestRule.disableAccessibilityChecks()`",
+    level = DeprecationLevel.ERROR,
+)
+@Suppress("UNUSED_PARAMETER")
+fun removeGlobalAssertion(name: String) {}
 
 /**
  * Executes all of the assertions registered by [addGlobalAssertion]. This may be useful in a custom
@@ -56,8 +64,18 @@ fun removeGlobalAssertion(name: String) {
  * @return the [SemanticsNodeInteraction] that is the receiver of this method
  */
 @ExperimentalTestApi
+@Deprecated(
+    message =
+        "This API has been removed and its intended usage to run accessibility checks can now be done via `SemanticsNodeInteraction.tryPerformAccessibilityChecks()`",
+    level = DeprecationLevel.ERROR,
+    replaceWith =
+        ReplaceWith(
+            "tryPerformAccessibilityChecks()",
+            "androidx.compose.ui.test.tryPerformAccessibilityChecks"
+        )
+)
 fun SemanticsNodeInteraction.invokeGlobalAssertions(): SemanticsNodeInteraction {
-    GlobalAssertionsCollection.invoke(this)
+    tryPerformAccessibilityChecks()
     return this
 }
 
@@ -68,39 +86,18 @@ fun SemanticsNodeInteraction.invokeGlobalAssertions(): SemanticsNodeInteraction 
  * @return the [SemanticsNodeInteractionCollection] that is the receiver of this method
  */
 @ExperimentalTestApi
+@Deprecated(
+    message =
+        "This API has been removed and its intended usage to run accessibility checks can now be done via `SemanticsNodeInteraction.tryPerformAccessibilityChecks()`",
+    level = DeprecationLevel.ERROR,
+    replaceWith =
+        ReplaceWith(
+            "onFirst().tryPerformAccessibilityChecks()",
+            "androidx.compose.ui.test.tryPerformAccessibilityChecks, androidx.compose.ui.test.onFirst"
+        )
+)
 fun SemanticsNodeInteractionCollection.invokeGlobalAssertions():
     SemanticsNodeInteractionCollection {
-    GlobalAssertionsCollection.invoke(this)
+    onFirst().tryPerformAccessibilityChecks()
     return this
-}
-
-/** Assertions intended to be executed before test actions. */
-internal object GlobalAssertionsCollection {
-    const val TAG = "GlobalAssertions"
-
-    /** Map of assertion names to their functions */
-    private val globalAssertions = mutableMapOf<String, (SemanticsNodeInteraction) -> Unit>()
-
-    /** Implementation of [addGlobalAssertion] */
-    internal fun put(name: String, assertion: (SemanticsNodeInteraction) -> Unit) {
-        globalAssertions[name] = assertion
-    }
-
-    /** Implementation of [removeGlobalAssertion] */
-    internal fun remove(name: String) {
-        globalAssertions.remove(name)
-    }
-
-    /** Executes every assertion on the given node. */
-    internal fun invoke(sni: SemanticsNodeInteraction) {
-        for (entry in globalAssertions.entries) {
-            printToLog(TAG, "Executing \"${entry.key}\"")
-            entry.value.invoke(sni)
-        }
-    }
-
-    /** Executes every assertion on the first node of the given collection. */
-    internal fun invoke(snic: SemanticsNodeInteractionCollection) {
-        invoke(snic.onFirst())
-    }
 }

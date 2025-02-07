@@ -28,20 +28,3 @@ actual class PointerEventTimeoutCancellationException actual constructor(time: L
         return this
     }
 }
-
-internal actual class PointerInputResetException :
-    CancellationException("Pointer input was reset") {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}
-
-internal actual object CancelTimeoutCancellationException : CancellationException() {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}

@@ -28,7 +28,6 @@ import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
  * Class responsible for configuration of EGL related resources. This includes initialization of the
  * corresponding EGL Display as well as EGL Context, among other EGL related facilities.
  */
-@Suppress("AcronymName")
 class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
@@ -124,27 +123,27 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     }
 
     val eglSpec: EGLSpec
-        @Suppress("AcronymName") @JvmName("getEGLSpec") get() = mEglSpec
+        @JvmName("getEGLSpec") get() = mEglSpec
 
     /**
      * Returns the EGL version that is supported. This parameter is configured after [initialize] is
      * invoked.
      */
     val eglVersion: EGLVersion
-        @Suppress("AcronymName") @JvmName("getEGLVersion") get() = mEglVersion
+        @JvmName("getEGLVersion") get() = mEglVersion
 
     /**
      * Returns the current EGLContext. This parameter is configured after [initialize] is invoked
      */
     val eglContext: EGLContext?
-        @Suppress("AcronymName") @JvmName("getEGLContext") get() = mEglContext
+        @JvmName("getEGLContext") get() = mEglContext
 
     /**
      * Returns the [EGLConfig] used to load the current [EGLContext]. This is configured after
      * [createContext] is invoked.
      */
     val eglConfig: EGLConfig?
-        @Suppress("AcronymName") @JvmName("getEGLConfig") get() = mEglConfig
+        @JvmName("getEGLConfig") get() = mEglConfig
 
     /**
      * Determines whether the extension with the provided name is supported. The string provided is

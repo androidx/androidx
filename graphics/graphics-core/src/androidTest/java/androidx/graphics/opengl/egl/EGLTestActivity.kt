@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 const val TAG: String = "EGLTestActivity"
 
-@Suppress("AcronymName")
 class EGLTestActivity : Activity() {
 
     private val mGLRenderer = GLRenderer()

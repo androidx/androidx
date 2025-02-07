@@ -521,6 +521,7 @@ public final class ResourceBuilders {
         }
 
         /** Gets the trigger to start the animation. */
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public @Nullable Trigger getStartTrigger() {
             if (mImpl.hasStartTrigger()) {
                 return TriggerBuilders.triggerFromProto(mImpl.getStartTrigger());

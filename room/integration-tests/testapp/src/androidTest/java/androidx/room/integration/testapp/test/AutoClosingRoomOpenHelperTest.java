@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.database.Cursor;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.testing.TestLifecycleOwner;
@@ -40,7 +39,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.testutils.AssertionsKt;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -349,7 +348,7 @@ public class AutoClosingRoomOpenHelperTest {
         }
 
         @Override
-        public void onInvalidated(@NonNull @NotNull Set<String> tables) {
+        public void onInvalidated(@NonNull Set<String> tables) {
             mInvalidationCallback.run();
         }
     }

@@ -32,10 +32,11 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * An ImageView that can display, combine and filter images. <b>Added in 2.0</b>

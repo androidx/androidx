@@ -17,7 +17,6 @@
 package androidx.xr.compose.spatial
 
 import android.graphics.Rect
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -62,7 +61,6 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
  * @property spatialElevationLevel the resting level of the elevated popup. Defaults to
  *   [SpatialElevationLevel.Level3].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialPopupProperties(
     @get:Suppress("GetterSetterNames") public val focusable: Boolean = false,
     @get:Suppress("GetterSetterNames") public val dismissOnBackPress: Boolean = true,
@@ -134,7 +132,6 @@ private fun SpatialPopupProperties.toPopupProperties() =
  * @param content the composable content to be displayed within the popup.
  */
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SpatialPopup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntOffset = IntOffset(0, 0),
@@ -282,7 +279,6 @@ private fun getWindowVisibleDisplayFrame(): Rect {
  *   which is explicitly to be used for the [onGloballyPositioned] modifier of the Popup composable.
  */
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SpatialPopup(
     spatialElevationLevel: SpatialElevationLevel = SpatialElevationLevel.Level0,
     content: @Composable (onGloballyPositioned: (LayoutCoordinates) -> Unit) -> Unit,

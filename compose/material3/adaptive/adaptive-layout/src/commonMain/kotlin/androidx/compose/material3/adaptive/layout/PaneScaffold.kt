@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
@@ -84,13 +85,22 @@ sealed interface PaneScaffoldScope {
 
     /**
      * The modifier that should be applied on a drag handle composable so the drag handle can be
-     * dragged and operate on the provided [PaneExpansionState] properly. This modifier also sets up
-     * other behaviors a pane expansion drag handle is supposed to perform, like excluding system
-     * gestures and ensuring minimum touch target size.
+     * dragged and operate on the provided [PaneExpansionState] properly. By default this modifier
+     * supports two types of user interactions:
+     * 1. Dragging the handle horizontally within the pane scaffold.
+     * 2. Accessibility actions provided via [semanticsProperties].
+     *
+     * Besides that, this modifier also sets up other necessary behaviors of a pane expansion drag
+     * handle, like excluding system gestures and ensuring minimum touch target size.
      *
      * See usage samples at:
      *
      * @sample androidx.compose.material3.adaptive.samples.PaneExpansionDragHandleSample
+     * @param state the [PaneExpansionState] that controls the pane expansion of the associated pane
+     *   scaffold
+     * @param minTouchTargetSize the minimum touch target size of the drag handle
+     * @param interactionSource the [MutableInteractionSource] to address user interactions
+     * @param semanticsProperties the semantics setup working with accessibility services
      */
     @ExperimentalMaterial3AdaptiveApi
     // TODO(conradchen): Change this to a composable function with default semantics after
@@ -139,7 +149,11 @@ sealed interface PaneScaffoldPaneScope<Role> {
     val paneMotion: PaneMotion
 }
 
-internal abstract class PaneScaffoldScopeImpl : PaneScaffoldScope {
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal abstract class PaneScaffoldScopeImpl(
+    // TODO(conradchen): Add it to PaneScaffoldScope API in 1.2
+    val saveableStateHolder: SaveableStateHolder
+) : PaneScaffoldScope {
     override fun Modifier.preferredWidth(width: Dp): Modifier {
         require(width == Dp.Unspecified || width > 0.dp) { "invalid width" }
         return this.then(PreferredWidthElement(width))

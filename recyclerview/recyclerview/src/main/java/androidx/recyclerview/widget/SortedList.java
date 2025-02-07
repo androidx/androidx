@@ -18,8 +18,8 @@ package androidx.recyclerview.widget;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -160,7 +160,7 @@ public class SortedList<T> {
      *                       input array.
      * @see SortedList#addAll(T[] items)
      */
-    public void addAll(@NonNull T[] items, boolean mayModifyInput) {
+    public void addAll(T @NonNull [] items, boolean mayModifyInput) {
         throwIfInMutationOperation();
         if (items.length == 0) {
             return;
@@ -180,7 +180,7 @@ public class SortedList<T> {
      *
      * @param items Array of items to be added into the list.
      */
-    public void addAll(@NonNull T... items) {
+    public void addAll(T @NonNull ... items) {
         addAll(items, false);
     }
 
@@ -215,7 +215,7 @@ public class SortedList<T> {
      *                       input array.
      * @see #replaceAll(T[])
      */
-    public void replaceAll(@NonNull T[] items, boolean mayModifyInput) {
+    public void replaceAll(T @NonNull [] items, boolean mayModifyInput) {
         throwIfInMutationOperation();
 
         if (mayModifyInput) {
@@ -233,7 +233,7 @@ public class SortedList<T> {
      *
      * @param items Array of items to replace current items.
      */
-    public void replaceAll(@NonNull T... items) {
+    public void replaceAll(T @NonNull ... items) {
         replaceAll(items, false);
     }
 
@@ -266,7 +266,7 @@ public class SortedList<T> {
         }
     }
 
-    private void replaceAllInternal(@NonNull T[] newData) {
+    private void replaceAllInternal(T @NonNull [] newData) {
         final boolean forceBatchedUpdates = !(mCallback instanceof BatchedCallback);
         if (forceBatchedUpdates) {
             beginBatchedUpdates();
@@ -351,7 +351,7 @@ public class SortedList<T> {
      *
      * @return Number of deduplicated items at the beginning of the array.
      */
-    private int sortAndDedup(@NonNull T[] items) {
+    private int sortAndDedup(T @NonNull [] items) {
         if (items.length == 0) {
             return 0;
         }
@@ -919,8 +919,7 @@ public class SortedList<T> {
          * @param item2 The second item to check.
          * @return A payload object that represents the changes between the two items.
          */
-        @Nullable
-        public Object getChangePayload(T2 item1, T2 item2) {
+        public @Nullable Object getChangePayload(T2 item1, T2 item2) {
             return null;
         }
     }
@@ -1008,9 +1007,8 @@ public class SortedList<T> {
         }
 
         /** {@inheritDoc} */
-        @Nullable
         @Override
-        public Object getChangePayload(T2 item1, T2 item2) {
+        public @Nullable Object getChangePayload(T2 item1, T2 item2) {
             return mWrappedCallback.getChangePayload(item1, item2);
         }
 

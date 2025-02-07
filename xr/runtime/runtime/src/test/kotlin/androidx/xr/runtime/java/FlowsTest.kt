@@ -48,7 +48,11 @@ class FlowsTest {
     @Before
     fun setUp() {
         activityScenarioRule.scenario.onActivity { this.activity = it }
-        shadowOf(activity).grantPermissions("android.permission.SCENE_UNDERSTANDING")
+        shadowOf(activity)
+            .grantPermissions(
+                "android.permission.SCENE_UNDERSTANDING",
+                "android.permission.HAND_TRACKING",
+            )
 
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)

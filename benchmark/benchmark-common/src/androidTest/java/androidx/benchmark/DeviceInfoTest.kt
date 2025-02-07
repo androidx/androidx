@@ -62,6 +62,26 @@ class DeviceInfoTest {
     }
 
     @Test
+    fun willMethodTracingAffectMeasurements() {
+        // first clause - 26 through 30 (inclusive) affected
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(25, -1))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(26, -1L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(30, -1L))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(31, 310000000L))
+
+        // second clause - art API 34 regression
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 330000000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(33, 340000000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(33, 341513000L - 1))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 341513000L))
+
+        // third clause - art API 34 regression and internal build ID
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 990090000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(34, 990090000L))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(35, 990090000L))
+    }
+
+    @Test
     fun artMainlineVersion() =
         validateArtMainlineVersion(artMainlineVersion = DeviceInfo.artMainlineVersion)
 }

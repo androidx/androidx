@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, minSdk = 26)
 class AndroidPopulateViewStructureTest {
-    private val autofillTree = AutofillTree()
+    private val autofillTree = @Suppress("Deprecation") AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
     private lateinit var currentPackage: String
 
@@ -62,6 +62,7 @@ class AndroidPopulateViewStructureTest {
     fun populateViewStructure_oneChild() {
         // Arrange.
         val autofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = {},
                 autofillTypes = listOf(AutofillType.PersonFullName),
@@ -94,6 +95,7 @@ class AndroidPopulateViewStructureTest {
     fun populateViewStructure_twoChildren() {
         // Arrange.
         val nameAutofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = {},
                 autofillTypes = listOf(AutofillType.PersonFullName),
@@ -102,6 +104,7 @@ class AndroidPopulateViewStructureTest {
         autofillTree += nameAutofillNode
 
         val emailAutofillNode =
+            @Suppress("Deprecation")
             AutofillNode(
                 onFill = {},
                 autofillTypes = listOf(AutofillType.EmailAddress),

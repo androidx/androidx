@@ -60,9 +60,9 @@ public class ResourceResolvers {
             ResourceProto.@NonNull Resources protoResources,
             @Nullable AndroidImageResourceByResIdResolver androidImageResourceByResIdResolver,
             @Nullable AndroidAnimatedImageResourceByResIdResolver
-                            androidAnimatedImageResourceByResIdResolver,
+                    androidAnimatedImageResourceByResIdResolver,
             @Nullable AndroidSeekableAnimatedImageResourceByResIdResolver
-                            androidSeekableAnimatedImageResourceByResIdResolver,
+                    androidSeekableAnimatedImageResourceByResIdResolver,
             @Nullable InlineImageResourceResolver inlineImageResourceResolver,
             @Nullable AndroidImageResourceByContentUriResolver androidContentUriResolver) {
         this.mProtoResources = protoResources;
@@ -115,7 +115,8 @@ public class ResourceResolvers {
          *
          * @throws ResourceAccessException If the drawable cannot be found.
          */
-        @NonNull Drawable getDrawableOrThrow(@NonNull AndroidSeekableAnimatedImageResourceByResId resource)
+        @NonNull Drawable getDrawableOrThrow(
+                @NonNull AndroidSeekableAnimatedImageResourceByResId resource)
                 throws ResourceAccessException;
     }
 
@@ -133,7 +134,8 @@ public class ResourceResolvers {
     /** Interface that can provide a Drawable for an AndroidContentUriResource. */
     public interface AndroidImageResourceByContentUriResolver {
         /** Get the drawable as specified by {@code resource}, to be loaded asynchronously. */
-        @NonNull ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByContentUri resource);
+        @NonNull ListenableFuture<Drawable> getDrawable(
+                @NonNull AndroidImageResourceByContentUri resource);
     }
 
     /** Get an empty builder to build {@link ResourceResolvers} with. */
@@ -199,7 +201,7 @@ public class ResourceResolvers {
                             "Resource " + protoResourceId + " is not defined in resources bundle"));
         }
 
-                ListenableFuture<Drawable> drawableFutureOrNull =
+        ListenableFuture<Drawable> drawableFutureOrNull =
                 getDrawableForImageResource(imageResource);
         if (drawableFutureOrNull == null) {
             return Futures.immediateFailedFuture(

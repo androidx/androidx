@@ -25,11 +25,11 @@ package androidx.ink.brush {
     method public androidx.ink.brush.BrushFamily getFamily();
     method public float getSize();
     method public androidx.ink.brush.Brush.Builder toBuilder();
-    property @ColorInt public final int colorIntArgb;
-    property @ColorLong public final long colorLong;
-    property @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) public final float epsilon;
-    property public final androidx.ink.brush.BrushFamily family;
-    property @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) public final float size;
+    property @ColorInt public int colorIntArgb;
+    property @ColorLong public long colorLong;
+    property @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) public float epsilon;
+    property public androidx.ink.brush.BrushFamily family;
+    property @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) public float size;
     field public static final androidx.ink.brush.Brush.Companion Companion;
   }
 
@@ -71,7 +71,7 @@ package androidx.ink.brush {
   }
 
   public final class InputToolType {
-    property public final int value;
+    property public int value;
     field public static final androidx.ink.brush.InputToolType.Companion Companion;
     field public static final androidx.ink.brush.InputToolType MOUSE;
     field public static final androidx.ink.brush.InputToolType STYLUS;
@@ -80,25 +80,29 @@ package androidx.ink.brush {
   }
 
   public static final class InputToolType.Companion {
-    property public final androidx.ink.brush.InputToolType MOUSE;
-    property public final androidx.ink.brush.InputToolType STYLUS;
-    property public final androidx.ink.brush.InputToolType TOUCH;
-    property public final androidx.ink.brush.InputToolType UNKNOWN;
+    property public androidx.ink.brush.InputToolType MOUSE;
+    property public androidx.ink.brush.InputToolType STYLUS;
+    property public androidx.ink.brush.InputToolType TOUCH;
+    property public androidx.ink.brush.InputToolType UNKNOWN;
   }
 
   public final class StockBrushes {
+    method public static androidx.ink.brush.BrushFamily getDashedLineLatest();
+    method public static androidx.ink.brush.BrushFamily getDashedLineV1();
     method public static androidx.ink.brush.BrushFamily getHighlighterLatest();
     method public static androidx.ink.brush.BrushFamily getHighlighterV1();
     method public static androidx.ink.brush.BrushFamily getMarkerLatest();
     method public static androidx.ink.brush.BrushFamily getMarkerV1();
     method public static androidx.ink.brush.BrushFamily getPressurePenLatest();
     method public static androidx.ink.brush.BrushFamily getPressurePenV1();
-    property public static final androidx.ink.brush.BrushFamily highlighterLatest;
-    property public static final androidx.ink.brush.BrushFamily highlighterV1;
-    property public static final androidx.ink.brush.BrushFamily markerLatest;
-    property public static final androidx.ink.brush.BrushFamily markerV1;
-    property public static final androidx.ink.brush.BrushFamily pressurePenLatest;
-    property public static final androidx.ink.brush.BrushFamily pressurePenV1;
+    property public static androidx.ink.brush.BrushFamily dashedLineLatest;
+    property public static androidx.ink.brush.BrushFamily dashedLineV1;
+    property public static androidx.ink.brush.BrushFamily highlighterLatest;
+    property public static androidx.ink.brush.BrushFamily highlighterV1;
+    property public static androidx.ink.brush.BrushFamily markerLatest;
+    property public static androidx.ink.brush.BrushFamily markerV1;
+    property public static androidx.ink.brush.BrushFamily pressurePenLatest;
+    property public static androidx.ink.brush.BrushFamily pressurePenV1;
     field public static final androidx.ink.brush.StockBrushes INSTANCE;
   }
 

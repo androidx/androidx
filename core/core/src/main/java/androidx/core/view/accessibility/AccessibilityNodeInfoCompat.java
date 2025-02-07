@@ -1648,6 +1648,8 @@ public class AccessibilityNodeInfoCompat {
     private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat."
                     + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
+    private static final String IS_REQUIRED_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.IS_REQUIRED_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -2177,21 +2179,54 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Key used to request and locate extra data for text character location. This key requests that
      * an array of {@link android.graphics.RectF}s be added to the extras. This request is made with
-     * {@link #refreshWithExtraData(String, Bundle)}. The arguments taken by this request are two
-     * integers: {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
+     * The arguments taken by this request are two integers:
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
      * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index must be valid
      * inside the CharSequence returned by {@link #getText()}, and the length must be positive.
      * <p>
      * The data can be retrieved from the {@code Bundle} returned by {@link #getExtras()} using this
      * string as a key for {@link Bundle#getParcelableArray(String)}. The
-     * {@link android.graphics.RectF} will be null for characters that either do not exist or are
-     * off the screen.
+     * {@link android.graphics.RectF} will be {@code null} for characters that either do not exist
+     * or are off the screen.
+     * <p>
+     * Note that character locations returned are modified by changes in display magnification.
      *
-     * {@see #refreshWithExtraData(String, Bundle)}
+     * {@see android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY =
             "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
+
+    /**
+     * Key used to request and locate extra data for text character location in
+     * window coordinates. This key requests that an array of
+     * {@link android.graphics.RectF}s be added to the extras. This request is made with
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
+     * The arguments taken by this request are two integers:
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index
+     * must be valid inside the CharSequence returned by {@link #getText()}, and
+     * the length must be positive.
+     * <p>
+     * Providers may advertise that they support text characters in window coordinates using
+     * {@link #setAvailableExtraData(List)}. Services may check if an implementation supports text
+     * characters in window coordinates with {@link #getAvailableExtraData()}.
+     * <p>
+     * The data can be retrieved from the {@code Bundle} returned by
+     * {@link #getExtras()} using this string as a key for
+     * {@link Bundle#getParcelableArray(String, Class)}. The
+     * {@link android.graphics.RectF} will be {@code null} for characters that either do
+     * not exist or are outside of the window bounds.
+     * <p>
+     * Note that character locations in window bounds are not modified by
+     * changes in display magnification.
+     *
+     * {@see android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}
+     */
+    @SuppressWarnings("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_IN_WINDOW_KEY =
+            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_IN_WINDOW_KEY";
 
     /**
      * Integer argument specifying the start index of the requested text location data. Must be
@@ -2974,6 +3009,30 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setChecked(boolean checked) {
         mInfo.setChecked(checked);
+    }
+
+    /**
+     * Gets whether a node representing a form field requires input or selection.
+     *
+     * @return {@code true} if {@code this} node represents a form field that requires input or
+     *     selection, {@code false} otherwise.
+     */
+    public boolean isFieldRequired() {
+        return mInfo.getExtras().getBoolean(IS_REQUIRED_KEY);
+    }
+
+    /**
+     * Sets whether {@code this} node represents a form field that requires input or selection.
+     *
+     * <p><strong>Note:</strong> Cannot be called from an AccessibilityService. This class is made
+     * immutable before being delivered to an AccessibilityService.
+     *
+     * @param required {@code true} if input or selection of this node should be required, {@code
+     *     false} otherwise.
+     * @throws IllegalStateException If called from an AccessibilityService
+     */
+    public void setFieldRequired(boolean required) {
+        mInfo.getExtras().putBoolean(IS_REQUIRED_KEY, required);
     }
 
     /**
@@ -4254,7 +4313,7 @@ public class AccessibilityNodeInfoCompat {
      * <p>
      * Some data that is useful for some accessibility services is expensive to compute, and would
      * place undue overhead on apps to compute all the time. That data can be requested with
-     * {@link #refreshWithExtraData(String, Bundle)}.
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
      *
      * @return An unmodifiable list of keys corresponding to extra data that can be requested.
      * @see #EXTRA_DATA_RENDERING_INFO_KEY
@@ -5026,6 +5085,7 @@ public class AccessibilityNodeInfoCompat {
 
         builder.append("; checkable: ").append(isCheckable());
         builder.append("; checked: ").append(isChecked());
+        builder.append("; fieldRequired: ").append(isFieldRequired());
         builder.append("; focusable: ").append(isFocusable());
         builder.append("; focused: ").append(isFocused());
         builder.append("; selected: ").append(isSelected());

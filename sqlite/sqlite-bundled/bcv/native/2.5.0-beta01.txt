@@ -1,0 +1,26 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.sqlite:sqlite-bundled>
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_CREATE // androidx.sqlite.driver.bundled/SQLITE_OPEN_CREATE|{}SQLITE_OPEN_CREATE[0]
+    final fun <get-SQLITE_OPEN_CREATE>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_CREATE.<get-SQLITE_OPEN_CREATE>|<get-SQLITE_OPEN_CREATE>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_EXRESCODE // androidx.sqlite.driver.bundled/SQLITE_OPEN_EXRESCODE|{}SQLITE_OPEN_EXRESCODE[0]
+    final fun <get-SQLITE_OPEN_EXRESCODE>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_EXRESCODE.<get-SQLITE_OPEN_EXRESCODE>|<get-SQLITE_OPEN_EXRESCODE>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_FULLMUTEX // androidx.sqlite.driver.bundled/SQLITE_OPEN_FULLMUTEX|{}SQLITE_OPEN_FULLMUTEX[0]
+    final fun <get-SQLITE_OPEN_FULLMUTEX>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_FULLMUTEX.<get-SQLITE_OPEN_FULLMUTEX>|<get-SQLITE_OPEN_FULLMUTEX>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_MEMORY // androidx.sqlite.driver.bundled/SQLITE_OPEN_MEMORY|{}SQLITE_OPEN_MEMORY[0]
+    final fun <get-SQLITE_OPEN_MEMORY>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_MEMORY.<get-SQLITE_OPEN_MEMORY>|<get-SQLITE_OPEN_MEMORY>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_NOFOLLOW // androidx.sqlite.driver.bundled/SQLITE_OPEN_NOFOLLOW|{}SQLITE_OPEN_NOFOLLOW[0]
+    final fun <get-SQLITE_OPEN_NOFOLLOW>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_NOFOLLOW.<get-SQLITE_OPEN_NOFOLLOW>|<get-SQLITE_OPEN_NOFOLLOW>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_NOMUTEX // androidx.sqlite.driver.bundled/SQLITE_OPEN_NOMUTEX|{}SQLITE_OPEN_NOMUTEX[0]
+    final fun <get-SQLITE_OPEN_NOMUTEX>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_NOMUTEX.<get-SQLITE_OPEN_NOMUTEX>|<get-SQLITE_OPEN_NOMUTEX>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_READONLY // androidx.sqlite.driver.bundled/SQLITE_OPEN_READONLY|{}SQLITE_OPEN_READONLY[0]
+    final fun <get-SQLITE_OPEN_READONLY>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_READONLY.<get-SQLITE_OPEN_READONLY>|<get-SQLITE_OPEN_READONLY>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_READWRITE // androidx.sqlite.driver.bundled/SQLITE_OPEN_READWRITE|{}SQLITE_OPEN_READWRITE[0]
+    final fun <get-SQLITE_OPEN_READWRITE>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_READWRITE.<get-SQLITE_OPEN_READWRITE>|<get-SQLITE_OPEN_READWRITE>(){}[0]
+final const val androidx.sqlite.driver.bundled/SQLITE_OPEN_URI // androidx.sqlite.driver.bundled/SQLITE_OPEN_URI|{}SQLITE_OPEN_URI[0]
+    final fun <get-SQLITE_OPEN_URI>(): kotlin/Int // androidx.sqlite.driver.bundled/SQLITE_OPEN_URI.<get-SQLITE_OPEN_URI>|<get-SQLITE_OPEN_URI>(){}[0]

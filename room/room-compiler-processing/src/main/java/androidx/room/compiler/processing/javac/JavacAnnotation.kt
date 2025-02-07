@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -64,9 +63,5 @@ internal class JavacAnnotation(val env: JavacProcessingEnv, val mirror: Annotati
                 annotationValue
             )
         }
-    }
-
-    override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
-        return mirror.box(env, annotationClass)
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.compose.ui.spatial
 
@@ -98,17 +98,21 @@ internal class RectList {
      * keep this in mind if you call this method and have cached any of those values in a local
      * variable, you may need to refresh them.
      */
-    internal fun allocateItemsIndex(): Int {
+    private inline fun allocateItemsIndex(): Int {
         val currentItems = items
         val currentSize = itemsSize
         itemsSize = currentSize + LongsPerItem
         val actualSize = currentItems.size
         if (actualSize <= currentSize + LongsPerItem) {
-            val newSize = max(actualSize * 2, currentSize + LongsPerItem)
-            items = currentItems.copyOf(newSize)
-            stack = stack.copyOf(newSize)
+            resizeStorage(actualSize, currentSize, currentItems)
         }
         return currentSize
+    }
+
+    private fun resizeStorage(actualSize: Int, currentSize: Int, currentItems: LongArray) {
+        val newSize = max(actualSize * 2, currentSize + LongsPerItem)
+        items = currentItems.copyOf(newSize)
+        stack = stack.copyOf(newSize)
     }
 
     /**

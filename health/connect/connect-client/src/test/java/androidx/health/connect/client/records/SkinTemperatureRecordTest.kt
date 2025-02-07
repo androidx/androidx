@@ -16,6 +16,8 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,6 +38,7 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 deltas = emptyList()
             )
         }
@@ -49,6 +52,7 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 baseline = Temperature.celsius(-0.1),
                 deltas = emptyList()
             )
@@ -63,6 +67,7 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 baseline = Temperature.celsius(100.1),
                 deltas = emptyList()
             )
@@ -83,6 +88,7 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 deltas = listOf(delta)
             )
         }
@@ -102,6 +108,7 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 deltas = listOf(delta)
             )
         }
@@ -135,6 +142,7 @@ class SkinTemperatureRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     deltas =
                         listOf(
                             SkinTemperatureRecord.Delta(
@@ -150,6 +158,7 @@ class SkinTemperatureRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     deltas =
                         listOf(
                             SkinTemperatureRecord.Delta(
@@ -169,6 +178,7 @@ class SkinTemperatureRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                         deltas =
                             listOf(
                                 SkinTemperatureRecord.Delta(
@@ -185,6 +195,7 @@ class SkinTemperatureRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                         deltas =
                             listOf(
                                 SkinTemperatureRecord.Delta(

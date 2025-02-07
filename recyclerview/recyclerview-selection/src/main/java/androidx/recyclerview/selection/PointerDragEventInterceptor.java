@@ -20,9 +20,10 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * OnItemTouchListener that detects and delegates drag events to a drag listener,

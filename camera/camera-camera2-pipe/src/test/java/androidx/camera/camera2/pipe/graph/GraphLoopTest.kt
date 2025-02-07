@@ -142,6 +142,21 @@ class GraphLoopTest {
         }
 
     @Test
+    fun abortRemovesStartRepeating() =
+        testScope.runTest {
+            graphLoop.requestProcessor = grp1
+            graphLoop.repeatingRequest = request1
+            graphLoop.abort()
+            assertThat(csp1.events).isEmpty()
+
+            advanceUntilIdle()
+
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isAbort).isTrue()
+            verify(mockListener, never()).onAborted(request1)
+        }
+
+    @Test
     fun abortBeforeRequestProcessorDoesNotInvokeAbortOnRequestProcessor() =
         testScope.runTest {
             graphLoop.submit(listOf(request1))
@@ -440,11 +455,8 @@ class GraphLoopTest {
             graphLoop.abort()
             advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events.size).isEqualTo(1)
             assertThat(csp1.events[0].isAbort).isTrue()
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request3)
-            assertThat(csp1.events[1].requiredParameters).isEmpty()
         }
 
     @Test

@@ -33,8 +33,6 @@ import android.view.ViewGroup;
 import android.widget.EdgeEffect;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.widget.EdgeEffectCompat;
@@ -45,6 +43,8 @@ import androidx.test.filters.SdkSuppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -865,9 +865,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     private static class TestEdgeEffectFactory extends RecyclerView.EdgeEffectFactory {
         TestEdgeEffect mTop, mBottom, mLeft, mRight;
 
-        @NonNull
         @Override
-        protected EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
+        protected @NonNull EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
             TestEdgeEffect effect = new TestEdgeEffect(view.getContext());
             switch (direction) {
                 case DIRECTION_LEFT:

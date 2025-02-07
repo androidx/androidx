@@ -58,7 +58,7 @@ class ProfileInstallerTranscodeBenchmark {
         block: (DeviceProfileWriter) -> Unit
     ): DeviceProfileWriter {
         var transcoder: DeviceProfileWriter? = null
-        runWithTimingDisabled {
+        runWithMeasurementDisabled {
             transcoder =
                 DeviceProfileWriter(
                         assets,

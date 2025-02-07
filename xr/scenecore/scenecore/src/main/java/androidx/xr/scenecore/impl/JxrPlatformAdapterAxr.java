@@ -20,13 +20,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.SurfaceControlViewHost;
-import android.view.SurfaceControlViewHost.SurfacePackage;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -107,6 +104,7 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
     private final ImpressApi mImpressApi;
     private final Map<Consumer<SpatialCapabilities>, Executor>
             mSpatialCapabilitiesChangedListeners = new ConcurrentHashMap<>();
+    private final ListenableFuture<ExrImageResource> mNullSkyboxResourceFuture;
 
     @Nullable private Activity mActivity;
     private SplitEngineSubspaceManager mSplitEngineSubspaceManager;
@@ -161,12 +159,14 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
         mEntityManager = entityManager;
         mPerceptionLibrary = perceptionLibrary;
         mTaskWindowLeashNode = taskWindowLeashNode;
+        mNullSkyboxResourceFuture = loadExrImageByAssetName("images/black_skybox.exr");
         mEnvironment =
                 new SpatialEnvironmentImpl(
                         activity,
                         extensions,
                         rootSceneNode,
                         mLazySpatialStateProvider,
+                        mNullSkyboxResourceFuture,
                         useSplitEngine);
         mActivitySpace =
                 new ActivitySpaceImpl(
@@ -764,11 +764,12 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
     @NonNull
     public StereoSurfaceEntity createStereoSurfaceEntity(
             @StereoSurfaceEntity.StereoMode int stereoMode,
-            @NonNull Dimensions dimensions,
+            @NonNull JxrPlatformAdapter.StereoSurfaceEntity.CanvasShape canvasShape,
             @NonNull Pose pose,
             @NonNull Entity parentEntity) {
         if (mUseSplitEngine) {
-            return createStereoSurfaceEntitySplitEngine(stereoMode, dimensions, pose, parentEntity);
+            return createStereoSurfaceEntitySplitEngine(
+                    stereoMode, canvasShape, pose, parentEntity);
         } else {
             throw new UnsupportedOperationException(
                     "StereoSurfaceEntity is not supported without SplitEngine.");
@@ -786,37 +787,16 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
             @SuppressWarnings("ContextFirst") @NonNull Context context,
             @NonNull Entity parent) {
 
-        // TODO(b/352630140):  Move this into a static factory method of PanelEntityImpl.
-
-        SurfaceControlViewHost surfaceControlViewHost =
-                new SurfaceControlViewHost(
-                        context, Objects.requireNonNull(context.getDisplay()), new Binder());
-        surfaceControlViewHost.setView(view, surfaceDimensionsPx.width, surfaceDimensionsPx.height);
         Node node = mExtensions.createNode();
-        SurfacePackage surfacePackage =
-                Objects.requireNonNull(surfaceControlViewHost.getSurfacePackage());
-
-        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
-            transaction
-                    .setName(node, name)
-                    .setSurfacePackage(node, surfacePackage)
-                    .setWindowBounds(
-                            surfacePackage, surfaceDimensionsPx.width, surfaceDimensionsPx.height)
-                    .setVisibility(node, true)
-                    // Corner radius must be zeroed as the value is inherited from the parent node
-                    // otherwise.
-                    .setCornerRadius(node, 0f)
-                    .apply();
-        }
-        surfacePackage.release();
-
         PanelEntity panelEntity =
                 new PanelEntityImpl(
                         node,
+                        view,
                         mExtensions,
                         mEntityManager,
-                        surfaceControlViewHost,
                         surfaceDimensionsPx,
+                        name,
+                        context,
                         mExecutor);
         panelEntity.setParent(parent);
         panelEntity.setPose(pose);
@@ -906,19 +886,12 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
         ActivityPanel activityPanel =
                 mExtensions.createActivityPanel(
                         hostActivity, new ActivityPanelLaunchParameters(windowBoundsRect));
-        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
-            transaction
-                    .setVisibility(activityPanel.getNode(), true)
-                    .setName(activityPanel.getNode(), name)
-                    // Corner radius must be zeroed as the value is inherited from the parent node
-                    // otherwise.
-                    .setCornerRadius(activityPanel.getNode(), 0f)
-                    .apply();
-        }
+
         activityPanel.setWindowBounds(windowBoundsRect);
         ActivityPanelEntityImpl activityPanelEntity =
                 new ActivityPanelEntityImpl(
                         activityPanel.getNode(),
+                        name,
                         mExtensions,
                         mEntityManager,
                         activityPanel,
@@ -1134,7 +1107,7 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
 
     private StereoSurfaceEntity createStereoSurfaceEntitySplitEngine(
             @StereoSurfaceEntity.StereoMode int stereoMode,
-            Dimensions dimensions,
+            JxrPlatformAdapter.StereoSurfaceEntity.CanvasShape canvasShape,
             Pose pose,
             @NonNull Entity parentEntity) {
 
@@ -1150,9 +1123,9 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
                         mExtensions,
                         mEntityManager,
                         mExecutor,
-                        stereoMode);
+                        stereoMode,
+                        canvasShape);
         entity.setPose(pose);
-        entity.setDimensions(dimensions);
         return entity;
     }
 

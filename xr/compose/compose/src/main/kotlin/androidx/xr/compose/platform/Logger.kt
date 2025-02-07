@@ -19,13 +19,11 @@ package androidx.xr.compose.platform
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
-import androidx.annotation.RestrictTo
 
 /**
  * Logger for Subspace Compose. This is a simple wrapper around Log.v that is only enabled if the
  * androidx.xr.compose.platform.Logger metadata flag is set in the AndroidManifest.xml.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object Logger {
     private const val METADATA_KEY = "androidx.xr.compose.platform.Logger"
     private var isDebug: Boolean = false

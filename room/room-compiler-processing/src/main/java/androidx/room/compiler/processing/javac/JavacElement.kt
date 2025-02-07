@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XHasModifiers
@@ -44,23 +43,20 @@ internal abstract class JavacElement(
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
         containerAnnotation: KClass<out Annotation>?
-    ): List<XAnnotationBox<T>> {
+    ): List<XAnnotation> {
         // if there is a container annotation and annotation is repeated, we'll get the container.
         if (containerAnnotation != null) {
-            MoreElements.getAnnotationMirror(element, containerAnnotation.java)
-                .orNull()
-                ?.box(env, containerAnnotation.java)
-                ?.let { containerBox ->
-                    // found a container, return
-                    return containerBox.getAsAnnotationBoxArray<T>("value").toList()
-                }
+            MoreElements.getAnnotationMirror(element, containerAnnotation.java).orNull()?.let {
+                container ->
+                // found a container, return
+                return JavacAnnotation(env, container).getAsAnnotationList("value")
+            }
         }
         // if there is no container annotation or annotation is not repeated, we'll see the
         // individual value
-        return MoreElements.getAnnotationMirror(element, annotation.java)
-            .orNull()
-            ?.box(env, annotation.java)
-            ?.let { listOf(it) } ?: emptyList()
+        return MoreElements.getAnnotationMirror(element, annotation.java).orNull()?.let {
+            listOf(JavacAnnotation(env, it))
+        } ?: emptyList()
     }
 
     override fun getAllAnnotations(): List<XAnnotation> {

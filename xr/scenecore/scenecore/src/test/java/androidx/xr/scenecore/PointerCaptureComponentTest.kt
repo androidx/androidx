@@ -76,7 +76,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun addComponent_addsRuntimeComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -89,7 +89,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun addComponent_failsIfAlreadyAttached() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -100,7 +100,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun stateListener_propagatesCorrectlyFromRuntime() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
         val stateListenerCaptor =
@@ -134,7 +134,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun inputEventListener_propagatesFromRuntime() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
         val inputListenerCaptor = argumentCaptor<JxrPlatformAdapter.InputEventListener>()
@@ -171,7 +171,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun removeComponent_removesRuntimeComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =

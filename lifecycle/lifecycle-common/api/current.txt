@@ -26,7 +26,7 @@ package androidx.lifecycle {
     method public androidx.lifecycle.Lifecycle.State getTargetState();
     method public static androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
     method public static androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
-    property public final androidx.lifecycle.Lifecycle.State targetState;
+    property public androidx.lifecycle.Lifecycle.State targetState;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;
@@ -66,6 +66,8 @@ package androidx.lifecycle {
   public final class LifecycleKt {
     method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
     method public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
+    property public static androidx.lifecycle.LifecycleCoroutineScope coroutineScope;
+    property public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> eventFlow;
   }
 
   public interface LifecycleObserver {
@@ -78,6 +80,7 @@ package androidx.lifecycle {
 
   public final class LifecycleOwnerKt {
     method public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+    property public static androidx.lifecycle.LifecycleCoroutineScope lifecycleScope;
   }
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {

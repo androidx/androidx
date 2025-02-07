@@ -33,11 +33,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.TestUtil;
+import androidx.core.content.IntentCompat;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -205,6 +207,15 @@ public class AuthTabIntentTest {
         assertEquals(pendingSession, authTabIntent.getPendingSession());
         assertEquals(pendingSession.getId(),
                 authTabIntent.intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Test
+    public void testPutsCloseButtonIcon() {
+        Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Intent intent = new AuthTabIntent.Builder().setCloseButtonIcon(bitmap).build().intent;
+        assertEquals(bitmap,
+                IntentCompat.getParcelableExtra(intent, CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON,
+                        Bitmap.class));
     }
 
     private void assertNullSessionInExtras(Intent intent) {

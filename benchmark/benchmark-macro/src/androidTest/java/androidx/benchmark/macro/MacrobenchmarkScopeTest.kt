@@ -108,9 +108,9 @@ class MacrobenchmarkScopeTest {
                 baselineProfileMode = BaselineProfileMode.Disable,
                 warmupIterations = warmupIterations
             )
-        assertEquals(MacrobenchmarkScope.KillFlushMode.None, scope.killFlushMode)
+        assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         compilation.resetAndCompile(scope) {
-            assertEquals(MacrobenchmarkScope.KillFlushMode.FlushArtProfiles, scope.killFlushMode)
+            assertTrue(scope.killMode.flushArtProfiles)
             executions += 1
 
             // on first iter, kill doesn't kill anything, so profiles are not yet flushed
@@ -120,7 +120,7 @@ class MacrobenchmarkScopeTest {
             scope.pressHome()
             scope.startActivityAndWait()
         }
-        assertEquals(MacrobenchmarkScope.KillFlushMode.None, scope.killFlushMode)
+        assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertEquals(warmupIterations, executions)
     }
 
@@ -137,14 +137,11 @@ class MacrobenchmarkScopeTest {
                 baselineProfileMode = BaselineProfileMode.Disable,
                 warmupIterations = 2
             )
-        assertEquals(MacrobenchmarkScope.KillFlushMode.None, scope.killFlushMode)
+        assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertContains(
             assertFailsWith<IllegalStateException> {
                     compilation.resetAndCompile(scope) {
-                        assertEquals(
-                            MacrobenchmarkScope.KillFlushMode.FlushArtProfiles,
-                            scope.killFlushMode
-                        )
+                        assertTrue(scope.killMode.flushArtProfiles)
                         assertFalse(scope.hasFlushedArtProfiles)
                         // not launching process so profiles can't flush, should fail after this
                         executions++
@@ -153,7 +150,7 @@ class MacrobenchmarkScopeTest {
                 .message!!,
             "never flushed profiles in any process"
         )
-        assertEquals(MacrobenchmarkScope.KillFlushMode.None, scope.killFlushMode)
+        assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertEquals(2, executions)
     }
 

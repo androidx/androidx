@@ -23,15 +23,7 @@
     target package, but this removes the need for documenting that setup step, and detecting
     misconfiguration.
     -->
-
-    <!-- usesCleartextTraffic is required for perfetto trace shell processor http server-->
-    <application android:networkSecurityConfig="@xml/network_security_config" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-
-    <!-- Internet permission is required for perfetto trace shell processor http server but
-        it's used to reach localhost only-->
-    <uses-permission android:name="android.permission.INTERNET" />
-
 </manifest>

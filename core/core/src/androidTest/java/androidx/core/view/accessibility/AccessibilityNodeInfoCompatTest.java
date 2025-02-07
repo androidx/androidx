@@ -292,6 +292,15 @@ public class AccessibilityNodeInfoCompatTest {
     }
 
     @Test
+    public void testGetSetFieldRequired() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setFieldRequired(true);
+        assertThat(nodeCompat.isFieldRequired()).isTrue();
+        nodeCompat.setFieldRequired(false);
+        assertThat(nodeCompat.isFieldRequired()).isFalse();
+    }
+
+    @Test
     public void testGetSetAccessibilityDataSensitive() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
 

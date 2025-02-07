@@ -71,6 +71,7 @@ class TestUseCaseCamera(
             threads,
             cameraPipe,
             NoOpInactiveSurfaceCloser,
+            SessionConfigAdapter(useCases = useCases),
         ),
 ) : UseCaseCamera {
     val cameraMetadata =
@@ -152,6 +153,7 @@ class TestUseCaseCamera(
                         templateParamsOverride = NoOpTemplateParamsOverride,
                     ),
                 useCaseGraphConfig = useCaseCameraGraphConfig,
+                useCaseSurfaceManager = useCaseSurfaceManager,
                 threads = threads,
             )
             .apply {

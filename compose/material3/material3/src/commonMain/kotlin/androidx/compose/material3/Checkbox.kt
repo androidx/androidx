@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
@@ -96,6 +97,7 @@ fun Checkbox(
     colors: CheckboxColors = CheckboxDefaults.colors(),
     interactionSource: MutableInteractionSource? = null
 ) {
+    val strokeWidthPx = with(LocalDensity.current) { floor(CheckboxDefaults.StrokeWidth.toPx()) }
     TriStateCheckbox(
         state = ToggleableState(checked),
         onClick =
@@ -104,6 +106,72 @@ fun Checkbox(
             } else {
                 null
             },
+        checkmarkStroke = Stroke(width = strokeWidthPx, cap = StrokeCap.Square),
+        outlineStroke = Stroke(width = strokeWidthPx),
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        interactionSource = interactionSource
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/checkbox/overview" class="external"
+ * target="_blank">Material Design checkbox</a>.
+ *
+ * Checkboxes allow users to select one or more items from a set. Checkboxes can turn an option on
+ * or off.
+ *
+ * ![Checkbox
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/checkbox.png)
+ *
+ * This Checkbox function offers greater flexibility in visual customization. Using the [Stroke]
+ * parameters, you can control the appearance of both the checkmark and the box that surrounds it.
+ *
+ * A sample of a `Checkbox` that uses a [Stroke] with rounded [StrokeCap] and
+ * [androidx.compose.ui.graphics.StrokeJoin]:
+ *
+ * @sample androidx.compose.material3.samples.CheckboxRoundedStrokesSample
+ * @param checked whether this checkbox is checked or unchecked
+ * @param onCheckedChange called when this checkbox is clicked. If `null`, then this checkbox will
+ *   not be interactable, unless something else handles its input events and updates its state.
+ * @param checkmarkStroke stroke for the checkmark.
+ * @param outlineStroke stroke for the checkmark's box outline. Note that this stroke is applied
+ *   when drawing the outline's rounded rectangle, so attributions such as
+ *   [androidx.compose.ui.graphics.StrokeJoin] will be ignored.
+ * @param modifier the [Modifier] to be applied to this checkbox
+ * @param enabled controls the enabled state of this checkbox. When `false`, this component will not
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [CheckboxColors] that will be used to resolve the colors used for this checkbox in
+ *   different states. See [CheckboxDefaults.colors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this checkbox. You can use this to change the checkbox's appearance
+ *   or preview the checkbox in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
+ * @see [TriStateCheckbox] if you require support for an indeterminate state.
+ */
+@Composable
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    checkmarkStroke: Stroke,
+    outlineStroke: Stroke,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: CheckboxColors = CheckboxDefaults.colors(),
+    interactionSource: MutableInteractionSource? = null
+) {
+    TriStateCheckbox(
+        state = ToggleableState(checked),
+        onClick =
+            if (onCheckedChange != null) {
+                { onCheckedChange(!checked) }
+            } else {
+                null
+            },
+        checkmarkStroke = checkmarkStroke,
+        outlineStroke = outlineStroke,
         modifier = modifier,
         enabled = enabled,
         colors = colors,
@@ -148,6 +216,68 @@ fun TriStateCheckbox(
     colors: CheckboxColors = CheckboxDefaults.colors(),
     interactionSource: MutableInteractionSource? = null
 ) {
+    val strokeWidthPx = with(LocalDensity.current) { floor(CheckboxDefaults.StrokeWidth.toPx()) }
+    TriStateCheckbox(
+        state = state,
+        onClick = onClick,
+        checkmarkStroke = Stroke(width = strokeWidthPx, cap = StrokeCap.Square),
+        outlineStroke = Stroke(width = strokeWidthPx),
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        interactionSource = interactionSource
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/checkbox/guidelines" class="external"
+ * target="_blank">Material Design checkbox</a> parent.
+ *
+ * Checkboxes can have a parent-child relationship with other checkboxes. When the parent checkbox
+ * is checked, all child checkboxes are checked. If a parent checkbox is unchecked, all child
+ * checkboxes are unchecked. If some, but not all, child checkboxes are checked, the parent checkbox
+ * becomes an indeterminate checkbox.
+ *
+ * ![Checkbox
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/indeterminate-checkbox.png)
+ *
+ * This Checkbox function offers greater flexibility in visual customization. Using the [Stroke]
+ * parameters, you can control the appearance of both the checkmark and the box that surrounds it.
+ *
+ * A sample of a `TriStateCheckbox` that uses a [Stroke] with rounded [StrokeCap] and
+ * [androidx.compose.ui.graphics.StrokeJoin]:
+ *
+ * @sample androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
+ * @param state whether this checkbox is checked, unchecked, or in an indeterminate state
+ * @param onClick called when this checkbox is clicked. If `null`, then this checkbox will not be
+ *   interactable, unless something else handles its input events and updates its [state].
+ * @param checkmarkStroke stroke for the checkmark.
+ * @param outlineStroke stroke for the checkmark's box outline. Note that this stroke is applied
+ *   when drawing the outline's rounded rectangle, so attributions such as
+ *   [androidx.compose.ui.graphics.StrokeJoin] will be ignored.
+ * @param modifier the [Modifier] to be applied to this checkbox
+ * @param enabled controls the enabled state of this checkbox. When `false`, this component will not
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [CheckboxColors] that will be used to resolve the colors used for this checkbox in
+ *   different states. See [CheckboxDefaults.colors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this checkbox. You can use this to change the checkbox's appearance
+ *   or preview the checkbox in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
+ * @see [Checkbox] if you want a simple component that represents Boolean state
+ */
+@Composable
+fun TriStateCheckbox(
+    state: ToggleableState,
+    onClick: (() -> Unit)?,
+    checkmarkStroke: Stroke,
+    outlineStroke: Stroke,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: CheckboxColors = CheckboxDefaults.colors(),
+    interactionSource: MutableInteractionSource? = null
+) {
     val toggleableModifier =
         if (onClick != null) {
             Modifier.triStateToggleable(
@@ -175,7 +305,9 @@ fun TriStateCheckbox(
                 )
                 .then(toggleableModifier)
                 .padding(CheckboxDefaultPadding),
-        colors = colors
+        colors = colors,
+        checkmarkStroke = checkmarkStroke,
+        outlineStroke = outlineStroke
     )
 }
 
@@ -255,6 +387,12 @@ object CheckboxDefaults {
                     )
                     .also { defaultCheckboxColorsCached = it }
         }
+
+    /**
+     * The default stroke width for a [Checkbox]. This width will be used for the checkmark when the
+     * `Checkbox` is in a checked or indeterminate states, or for the outline when it's unchecked.
+     */
+    val StrokeWidth = 2.dp
 }
 
 @Composable
@@ -262,7 +400,9 @@ private fun CheckboxImpl(
     enabled: Boolean,
     value: ToggleableState,
     modifier: Modifier,
-    colors: CheckboxColors
+    colors: CheckboxColors,
+    checkmarkStroke: Stroke,
+    outlineStroke: Stroke,
 ) {
     val transition = updateTransition(value)
     val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
@@ -306,31 +446,24 @@ private fun CheckboxImpl(
     val boxColor = colors.boxColor(enabled, value)
     val borderColor = colors.borderColor(enabled, value)
     Canvas(modifier.wrapContentSize(Alignment.Center).requiredSize(CheckboxSize)) {
-        val strokeWidthPx = floor(StrokeWidth.toPx())
         drawBox(
             boxColor = boxColor.value,
             borderColor = borderColor.value,
             radius = RadiusSize.toPx(),
-            strokeWidth = strokeWidthPx
+            stroke = outlineStroke
         )
         drawCheck(
             checkColor = checkColor.value,
             checkFraction = checkDrawFraction.value,
             crossCenterGravitation = checkCenterGravitationShiftFraction.value,
-            strokeWidthPx = strokeWidthPx,
+            stroke = checkmarkStroke,
             drawingCache = checkCache
         )
     }
 }
 
-private fun DrawScope.drawBox(
-    boxColor: Color,
-    borderColor: Color,
-    radius: Float,
-    strokeWidth: Float
-) {
-    val halfStrokeWidth = strokeWidth / 2.0f
-    val stroke = Stroke(strokeWidth)
+private fun DrawScope.drawBox(boxColor: Color, borderColor: Color, radius: Float, stroke: Stroke) {
+    val halfStrokeWidth = stroke.width / 2.0f
     val checkboxSize = size.width
     if (boxColor == borderColor) {
         drawRoundRect(
@@ -342,15 +475,15 @@ private fun DrawScope.drawBox(
     } else {
         drawRoundRect(
             boxColor,
-            topLeft = Offset(strokeWidth, strokeWidth),
-            size = Size(checkboxSize - strokeWidth * 2, checkboxSize - strokeWidth * 2),
-            cornerRadius = CornerRadius(max(0f, radius - strokeWidth)),
+            topLeft = Offset(stroke.width, stroke.width),
+            size = Size(checkboxSize - stroke.width * 2, checkboxSize - stroke.width * 2),
+            cornerRadius = CornerRadius(max(0f, radius - stroke.width)),
             style = Fill
         )
         drawRoundRect(
             borderColor,
             topLeft = Offset(halfStrokeWidth, halfStrokeWidth),
-            size = Size(checkboxSize - strokeWidth, checkboxSize - strokeWidth),
+            size = Size(checkboxSize - stroke.width, checkboxSize - stroke.width),
             cornerRadius = CornerRadius(radius - halfStrokeWidth),
             style = stroke
         )
@@ -361,10 +494,9 @@ private fun DrawScope.drawCheck(
     checkColor: Color,
     checkFraction: Float,
     crossCenterGravitation: Float,
-    strokeWidthPx: Float,
+    stroke: Stroke,
     drawingCache: CheckDrawingCache
 ) {
-    val stroke = Stroke(width = strokeWidthPx, cap = StrokeCap.Square)
     val width = size.width
     val checkCrossX = 0.4f
     val checkCrossY = 0.7f
@@ -380,13 +512,13 @@ private fun DrawScope.drawCheck(
     val gravitatedRightY = lerp(rightY, 0.5f, crossCenterGravitation)
 
     with(drawingCache) {
-        checkPath.reset()
+        checkPath.rewind()
         checkPath.moveTo(width * leftX, width * gravitatedLeftY)
         checkPath.lineTo(width * gravitatedCrossX, width * gravitatedCrossY)
         checkPath.lineTo(width * rightX, width * gravitatedRightY)
         // TODO: replace with proper declarative non-android alternative when ready (b/158188351)
         pathMeasure.setPath(checkPath, false)
-        pathToDraw.reset()
+        pathToDraw.rewind()
         pathMeasure.getSegment(0f, pathMeasure.length * checkFraction, pathToDraw, true)
     }
     drawPath(drawingCache.pathToDraw, checkColor, style = stroke)
@@ -607,5 +739,4 @@ private const val SnapAnimationDelay = 100
 // TODO(b/188529841): Update the padding and size when the Checkbox spec is finalized.
 private val CheckboxDefaultPadding = 2.dp
 private val CheckboxSize = 20.dp
-private val StrokeWidth = 2.dp
 private val RadiusSize = 2.dp

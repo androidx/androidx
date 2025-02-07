@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Compose UI Animation Core Classes Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Animation Core Classes"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

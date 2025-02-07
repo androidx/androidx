@@ -95,12 +95,12 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(caseFactory: () -> LazyBe
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingRecompositionMeasureOrLayout()
                 getTestCase().setUp()
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
                     doFrame()
                 }
@@ -110,7 +110,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(caseFactory: () -> LazyBe
 
             performToggle(getTestCase()) // move
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().afterToggleCheck()
                 getTestCase().tearDown()
                 assertNoPendingRecompositionMeasureOrLayout()
@@ -148,7 +148,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 // reset the state and draw
                 getTestCase().setUp()
                 getTestCase().beforeToggleCheck()
@@ -164,7 +164,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().afterToggleCheck()
                 getTestCase().tearDown()
                 drawFinish()

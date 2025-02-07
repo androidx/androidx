@@ -19,8 +19,6 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -34,6 +32,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,8 +130,7 @@ public class InvalidationTrackerBehavioralTest {
         // Usually there should not be a problem; termination is delayed only when there is a
         // problem.
         mExecutorService.submit(new Runnable() {
-            @Nullable
-            volatile CountDownLatch mLatch = null;
+            volatile @Nullable CountDownLatch mLatch = null;
 
             // Releases latch when change notification received, increments
             // spuriousInvalidations when notification received without a recent change

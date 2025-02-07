@@ -31,6 +31,17 @@ internal class XrResources {
     private val _updatables = CopyOnWriteArrayList<Updatable>()
     val updatables: List<Updatable> = _updatables
 
+    /** The data of hands */
+    val leftHand: OpenXrHand
+    val rightHand: OpenXrHand
+
+    init {
+        this.leftHand = OpenXrHand(isLeftHand = true)
+        this.rightHand = OpenXrHand(isLeftHand = false)
+        _updatables.add(this.leftHand)
+        _updatables.add(this.rightHand)
+    }
+
     internal fun addTrackable(trackableId: Long, trackable: Trackable) {
         _trackablesMap[trackableId] = trackable
     }

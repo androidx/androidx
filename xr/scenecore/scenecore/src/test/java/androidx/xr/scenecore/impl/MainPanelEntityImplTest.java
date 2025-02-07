@@ -32,6 +32,7 @@ import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.testing.FakeImpressApi;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
 import androidx.xr.scenecore.testing.FakeXrExtensions;
+import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNode;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer;
@@ -101,5 +102,14 @@ public class MainPanelEntityImplTest {
         mMainPanelEntity.setSize(kTestDimensions);
         assertThat(mFakeExtensions.getMainWindowWidth()).isEqualTo((int) kTestDimensions.width);
         assertThat(mFakeExtensions.getMainWindowWidth()).isEqualTo((int) kTestDimensions.height);
+    }
+
+    @Test
+    public void createActivityPanelEntity_setsCornersTo32Dp() {
+        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter. Validate that the
+        // corner radius is set to 32dp.
+        assertThat(mMainPanelEntity.getCornerRadius()).isEqualTo(32.0f);
+        FakeNode fakeNode = (FakeNode) mMainPanelEntity.getNode();
+        assertThat(fakeNode.getCornerRadius()).isEqualTo(32.0f);
     }
 }

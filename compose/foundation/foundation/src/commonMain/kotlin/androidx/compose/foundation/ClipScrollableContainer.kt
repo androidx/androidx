@@ -61,7 +61,7 @@ fun Modifier.clipScrollableContainer(orientation: Orientation) =
  */
 internal val MaxSupportedElevation = 30.dp
 
-internal object HorizontalScrollableClipShape : Shape {
+private object HorizontalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -79,7 +79,7 @@ internal object HorizontalScrollableClipShape : Shape {
     }
 }
 
-internal object VerticalScrollableClipShape : Shape {
+private object VerticalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,

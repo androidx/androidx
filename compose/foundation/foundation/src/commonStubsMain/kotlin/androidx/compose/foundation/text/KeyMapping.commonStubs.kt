@@ -40,6 +40,7 @@ internal actual object MappedKeys {
     actual val MoveEnd: Key = implementedInJetBrainsFork()
     actual val Insert: Key = implementedInJetBrainsFork()
     actual val Enter: Key = implementedInJetBrainsFork()
+    actual val NumPadEnter: Key = implementedInJetBrainsFork()
     actual val Backspace: Key = implementedInJetBrainsFork()
     actual val Delete: Key = implementedInJetBrainsFork()
     actual val Paste: Key = implementedInJetBrainsFork()

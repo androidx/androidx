@@ -53,7 +53,7 @@ import androidx.compose.ui.util.fastFirst
  * A common use case is to display a badge with navigation bar items. For more information, see
  * [Navigation Bar](https://m3.material.io/components/navigation-bar/overview)
  *
- * A simple icon with badge example looks like:
+ * Simple icons with badge examples look like:
  *
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
  * @param badge the badge to be displayed - typically a [Badge]

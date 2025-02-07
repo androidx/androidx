@@ -29,10 +29,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalImageVectorCache
 import androidx.compose.ui.platform.LocalResourceIdCache
+import androidx.compose.ui.platform.LocalResources
 
 /**
  * Create a [Painter] from an Android resource id. This can load either an instance of
@@ -57,9 +57,7 @@ import androidx.compose.ui.platform.LocalResourceIdCache
 fun painterResource(@DrawableRes id: Int): Painter {
     val context = LocalContext.current
 
-    // Query the current configuration in order to recompose during configuration changes
-    LocalConfiguration.current
-    val res = context.resources
+    val res = LocalResources.current
     val resourceIdCache = LocalResourceIdCache.current
     val value = resourceIdCache.resolveResourcePath(res, id)
 

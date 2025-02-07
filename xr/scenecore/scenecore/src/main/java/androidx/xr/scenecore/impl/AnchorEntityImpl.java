@@ -18,11 +18,13 @@ package androidx.xr.scenecore.impl;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.content.pm.PackageManager;
 import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.xr.extensions.XrExtensions;
 import androidx.xr.extensions.node.Node;
 import androidx.xr.extensions.node.NodeTransaction;
@@ -59,6 +61,8 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
     public static final Duration PERSIST_STATE_CHECK_DELAY = Duration.ofMillis(500);
     public static final String ANCHOR_NODE_NAME = "AnchorNode";
     private static final String TAG = "AnchorEntityImpl";
+    private static final String SCENE_UNDERSTANDING_PERMISSION =
+            "android.permission.SCENE_UNDERSTANDING";
     private final ActivitySpaceImpl mActivitySpace;
     private final AndroidXrEntity mActivitySpaceRoot;
     private final PerceptionLibrary mPerceptionLibrary;
@@ -68,6 +72,7 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
     private Anchor mAnchor;
     private UUID mUuid = null;
     private PersistStateChangeListener mPersistStateChangeListener;
+    private final OpenXrActivityPoseHelper mOpenXrActivityPoseHelper;
 
     private static class AnchorCreationData {
 
@@ -251,8 +256,26 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
             mActivitySpaceRoot = null;
         }
 
+        if (mActivitySpace != null && mActivitySpaceRoot != null) {
+            mOpenXrActivityPoseHelper =
+                    new OpenXrActivityPoseHelper(
+                            (ActivitySpaceImpl) activitySpace, (AndroidXrEntity) activitySpaceRoot);
+        } else {
+            mOpenXrActivityPoseHelper = null;
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                        perceptionLibrary.getActivity(), SCENE_UNDERSTANDING_PERMISSION)
+                == PackageManager.PERMISSION_DENIED) {
+            Log.e(
+                    TAG,
+                    "Scene understanding permission is not granted. Anchor is in"
+                            + " PERMISSIONS_NOT_GRANTED state.");
+            mState = State.PERMISSIONS_NOT_GRANTED;
+        }
+
         // Return early if the state is already in an error state.
-        if (mState == State.ERROR) {
+        if (mState == State.ERROR || mState == State.PERMISSIONS_NOT_GRANTED) {
             return;
         }
 
@@ -471,6 +494,9 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
     @Override
     public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
         mOnStateChangedListener = onStateChangedListener;
+        if (mState == State.PERMISSIONS_NOT_GRANTED) {
+            onStateChangedListener.onStateChanged(State.PERMISSIONS_NOT_GRANTED);
+        }
     }
 
     @Override
@@ -561,11 +587,10 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
         throw new UnsupportedOperationException("Cannot set 'scale' on an AnchorEntity.");
     }
 
-    // TODO: b/360168321 Use the OpenXrPosableHelper when retrieving the pose in activity space.
     @Override
     public Pose getPoseInActivitySpace() {
         synchronized (this) {
-            if (mActivitySpace == null) {
+            if (mActivitySpace == null || mOpenXrActivityPoseHelper == null) {
                 throw new IllegalStateException(
                         "Cannot get pose in Activity Space with a null Activity Space.");
             }
@@ -578,45 +603,24 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
                 return new Pose();
             }
 
-            // ActivitySpace and the anchor have unit scale and the anchor has no direct parent so
-            // we can
-            // just compose the two poses without scaling.
-            final Pose openXrToAnchor = this.getPoseInOpenXrReferenceSpace();
-            final Pose openXrToActivitySpace = mActivitySpace.getPoseInOpenXrReferenceSpace();
-            if (openXrToActivitySpace == null || openXrToAnchor == null) {
-                Log.e(
-                        TAG,
-                        "Cannot retrieve pose in underlying space despite anchor being anchored."
-                                + " Returning identity pose.");
-                return new Pose();
-            }
-
-            final Pose activitySpaceToOpenXr = openXrToActivitySpace.getInverse();
-            return activitySpaceToOpenXr.compose(openXrToAnchor);
+            return mOpenXrActivityPoseHelper.getPoseInActivitySpace(
+                    getPoseInOpenXrReferenceSpace());
         }
     }
 
     // TODO: b/360168321 Use the OpenXrPosableHelper when retrieving the pose in world space.
     @Override
     public Pose getActivitySpacePose() {
-        if (mActivitySpaceRoot == null) {
+        if (mOpenXrActivityPoseHelper == null) {
             throw new IllegalStateException(
-                    "Cannot get pose in World Space Pose with a null World Space Entity.");
+                    "Cannot get pose in Activity Space. Anchor initialized in Error state.");
         }
-
-        // ActivitySpace and the anchor have unit scale and the anchor has no direct parent so we
-        // can
-        // just
-        // compose the two poses without scaling.
-        final Pose activitySpaceToAnchor = this.getPoseInActivitySpace();
-        final Pose worldSpaceToActivitySpace =
-                mActivitySpaceRoot.getPoseInActivitySpace().getInverse();
-        return worldSpaceToActivitySpace.compose(activitySpaceToAnchor);
+        return mOpenXrActivityPoseHelper.getActivitySpacePose(getPoseInOpenXrReferenceSpace());
     }
 
     @Override
     public Vector3 getActivitySpaceScale() {
-        return getWorldSpaceScale().div(mActivitySpace.getWorldSpaceScale());
+        return mOpenXrActivityPoseHelper.getActivitySpaceScale(getWorldSpaceScale());
     }
 
     @Override

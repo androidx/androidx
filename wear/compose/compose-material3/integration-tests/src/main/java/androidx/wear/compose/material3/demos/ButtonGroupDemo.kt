@@ -59,14 +59,14 @@ fun ButtonGroupDemo() {
         ButtonGroup(Modifier.fillMaxWidth()) {
             Button(
                 onClick = {},
-                Modifier.enlargeOnPress(interactionSource1),
+                Modifier.animateWidth(interactionSource1),
                 interactionSource = interactionSource1
             ) {
                 Text("<", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             FilledIconButton(
                 onClick = {},
-                Modifier.enlargeOnPress(interactionSource2),
+                Modifier.animateWidth(interactionSource2),
                 interactionSource = interactionSource2
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -79,7 +79,7 @@ fun ButtonGroupDemo() {
             }
             Button(
                 onClick = {},
-                Modifier.enlargeOnPress(interactionSource3),
+                Modifier.animateWidth(interactionSource3),
                 interactionSource = interactionSource3
             ) {
                 Text(">", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
@@ -145,7 +145,7 @@ private fun ButtonGroupScope.MyIconToggleButton(
             modifier
                 .height(IconToggleButtonDefaults.SmallButtonSize)
                 .fillMaxWidth()
-                .enlargeOnPress(interactionSource),
+                .animateWidth(interactionSource),
         onCheckedChange = { checked = !checked },
         shapes = shapes,
         interactionSource = interactionSource
@@ -168,7 +168,7 @@ private fun ButtonGroupScope.MyTextToggleButton(
             modifier
                 .height(TextToggleButtonDefaults.DefaultButtonSize)
                 .fillMaxWidth()
-                .enlargeOnPress(interactionSource),
+                .animateWidth(interactionSource),
         onCheckedChange = { checked = !checked },
         shapes = shapes,
         interactionSource = interactionSource

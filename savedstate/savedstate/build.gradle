@@ -8,7 +8,7 @@
 
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -18,7 +18,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     desktop()
     ios()
     linux()
@@ -32,6 +32,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.8.0")
                 api(projectOrArtifact(":lifecycle:lifecycle-common"))
+                api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinSerializationCore)
             }
         }
@@ -165,7 +166,7 @@ android {
 
 androidx {
     name = "Saved State"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     samples(project(":savedstate:savedstate-samples"))
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"

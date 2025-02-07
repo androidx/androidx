@@ -16,10 +16,11 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Sample entity

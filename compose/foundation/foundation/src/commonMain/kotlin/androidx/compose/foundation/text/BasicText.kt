@@ -84,7 +84,8 @@ import kotlin.math.floor
  * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
  *   fits in the available space and lays the text out with this size. This performs multiple layout
  *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style].
+ *   through [style]. See [TextAutoSize] and
+ *   [androidx.compose.foundation.samples.TextAutoSizeBasicTextSample].
  */
 @Composable
 fun BasicText(
@@ -172,10 +173,11 @@ fun BasicText(
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's used
  *   to insert composables into text layout. Check [InlineTextContent] for more information.
  * @param color Overrides the text color provided in [style]
- * @param textAutoSize Enable auto sizing for this text composable. Finds the biggest font size that
+ * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
  *   fits in the available space and lays the text out with this size. This performs multiple layout
  *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style].
+ *   through [style]. See [TextAutoSize] and
+ *   [androidx.compose.foundation.samples.TextAutoSizeBasicTextSample].
  */
 @Composable
 fun BasicText(
@@ -189,7 +191,7 @@ fun BasicText(
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     color: ColorProducer? = null,
-    textAutoSize: TextAutoSize? = null
+    autoSize: TextAutoSize? = null
 ) {
     validateMinMaxLines(minLines = minLines, maxLines = maxLines)
     val selectionRegistrar = LocalSelectionRegistrar.current
@@ -226,7 +228,7 @@ fun BasicText(
                     selectionController = selectionController,
                     color = color,
                     onShowTranslation = null,
-                    autoSize = textAutoSize
+                    autoSize = autoSize
                 ),
             EmptyMeasurePolicy
         )
@@ -257,7 +259,7 @@ fun BasicText(
                         substitutionValue.original
                     }
             },
-            autoSize = textAutoSize
+            autoSize = autoSize
         )
     }
 }

@@ -55,7 +55,13 @@ class ComposableStateFlowValueDetector : Detector(), SourceCodeScanner {
                             StateFlowValueCalledInComposition,
                             node,
                             context.getNameLocation(node),
-                            "StateFlow.value should not be called within composition"
+                            "StateFlow.value should not be called within composition",
+                            fix()
+                                .replace()
+                                .text("value")
+                                .with("collectAsState().value")
+                                .imports("androidx.compose.runtime.collectAsState")
+                                .build()
                         )
                     }
                 }

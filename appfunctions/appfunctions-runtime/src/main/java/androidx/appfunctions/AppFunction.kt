@@ -23,6 +23,11 @@ package androidx.appfunctions
  * applications with proper permission (e.g., an assistant). For instance, a note-taking app could
  * expose a function allowing an assistant to create notes based on user commands.
  *
+ * The enclosing class of the function would be instantiated whenever an AppFunction within the
+ * class is called. If the enclosing class requires constructor parameters or custom instantiation,
+ * add a custom factory in [AppFunctionConfiguration.Builder.addEnclosingClassFactory]. This allows
+ * you to inject dependencies or handle more complex object creation scenarios.
+ *
  * When a function is annotated with `@AppFunction`, the compiler will automatically:
  * * Generate an XML file within the APK. This file describes the signatures of all
  *   `@AppFunction`-annotated functions within the application.
@@ -54,6 +59,8 @@ package androidx.appfunctions
  * **IMPORTANT:** By default, functions annotated with `@AppFunction` are executed on the main
  * thread. For operations that may take a significant amount of time, it is crucial to use a
  * coroutine dispatcher that runs on a background thread.
+ *
+ * @see AppFunctionConfiguration.Builder.addEnclosingClassFactory
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION)

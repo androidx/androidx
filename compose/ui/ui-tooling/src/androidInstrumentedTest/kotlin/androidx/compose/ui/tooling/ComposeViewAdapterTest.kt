@@ -624,7 +624,6 @@ class ComposeViewAdapterTest {
             composeViewAdapter.init(
                 "androidx.compose.ui.tooling.TestInvalidationPreviewKt",
                 "CounterPreview",
-                forceCompositionInvalidation = false,
                 onDraw = { onDrawCounter++ }
             )
         }
@@ -641,24 +640,6 @@ class ComposeViewAdapterTest {
             }
             Thread.sleep(250)
         }
-    }
-
-    /** Check re-composition happens when forced. */
-    @Test
-    fun testInvalidation() {
-        compositionCount.set(0)
-        val drawCountDownLatch = CountDownLatch(10)
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.compose.ui.tooling.TestInvalidationPreviewKt",
-                "CounterPreview",
-                forceCompositionInvalidation = true,
-                onDraw = { drawCountDownLatch.countDown() }
-            )
-        }
-        activityTestRule.runOnUiThread { assertEquals(1, compositionCount.get()) }
-        // Draw will keep happening so, eventually this will hit 0
-        assertTrue(drawCountDownLatch.await(10, TimeUnit.SECONDS))
     }
 
     @Test

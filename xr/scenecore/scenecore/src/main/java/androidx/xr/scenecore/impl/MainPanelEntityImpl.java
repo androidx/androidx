@@ -21,6 +21,7 @@ import android.graphics.Rect;
 
 import androidx.xr.extensions.XrExtensions;
 import androidx.xr.extensions.node.Node;
+import androidx.xr.extensions.node.NodeTransaction;
 import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
 import androidx.xr.scenecore.JxrPlatformAdapter.PanelEntity;
@@ -52,6 +53,11 @@ final class MainPanelEntityImpl extends BasePanelEntity implements PanelEntity {
         // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         Rect bounds = getBoundsFromWindowManager();
         super.setPixelDimensions(new PixelDimensions(bounds.width(), bounds.height()));
+        float cornerRadius = getDefaultCornerRadiusInMeters();
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setCornerRadius(node, cornerRadius).apply();
+        }
+        setCornerRadiusValue(cornerRadius);
     }
 
     private Rect getBoundsFromWindowManager() {

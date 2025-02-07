@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("AcronymName") // SQL is a known term and should remain capitalized
 @file:JvmName("SQLite")
 
 package androidx.sqlite
@@ -53,13 +52,11 @@ public const val SQLITE_DATA_NULL: Int = 5
 public annotation class DataType
 
 /** Executes a single SQL statement that returns no values. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public fun SQLiteConnection.execSQL(sql: String) {
     prepare(sql).use { it.step() }
 }
 
 /** Throws a [SQLiteException] with its message formed by the given [errorCode] amd [errorMsg]. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {
     val message = buildString {
         append("Error code: $errorCode")

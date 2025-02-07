@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -55,6 +55,7 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation("androidx.fragment:fragment-testing:1.4.1")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -82,7 +83,7 @@ android {
 
 androidx {
     name = "Biometric"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "The Biometric library is a static library that you can add to your Android application. It invokes BiometricPrompt on devices running P and greater, and on older devices will show a compat dialog. Compatible on devices running API 14 or later."
     samples(project(":biometric:biometric-samples"))

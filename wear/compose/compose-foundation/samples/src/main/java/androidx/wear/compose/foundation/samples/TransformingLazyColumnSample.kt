@@ -106,34 +106,36 @@ fun TransformingLazyColumnLettersSample() {
             Text(
                 alphabet[index],
                 modifier =
-                    Modifier.transformedHeight { originalHeight, scrollProgression ->
-                            if (scrollProgression.topOffsetFraction < 0f)
-                                (originalHeight * scrollProgression.bottomOffsetFraction /
-                                        (scrollProgression.bottomOffsetFraction -
-                                            scrollProgression.topOffsetFraction))
+                    Modifier.transformedHeight { measuredHeight, scrollProgress ->
+                            if (scrollProgress.topOffsetFraction < 0f)
+                                (measuredHeight * scrollProgress.bottomOffsetFraction /
+                                        (scrollProgress.bottomOffsetFraction -
+                                            scrollProgress.topOffsetFraction))
                                     .roundToInt()
-                            else originalHeight
+                            else measuredHeight
                         }
                         .graphicsLayer {
-                            val itemProgression = scrollProgress ?: return@graphicsLayer
-                            rotationY =
-                                -180f +
-                                    (itemProgression.topOffsetFraction +
-                                        itemProgression.bottomOffsetFraction) * 180f
-                            val scale =
-                                (itemProgression.bottomOffsetFraction -
-                                    max(itemProgression.topOffsetFraction, 0f)) /
-                                    (itemProgression.bottomOffsetFraction -
-                                        itemProgression.topOffsetFraction)
-                            scaleY = scale
-                            translationY = size.height * (scale - 1f) / 2f
+                            with(scrollProgress) {
+                                if (isUnspecified) {
+                                    return@graphicsLayer
+                                }
+                                rotationY =
+                                    -180f + (topOffsetFraction + bottomOffsetFraction) * 180f
+                                val scale =
+                                    (bottomOffsetFraction - max(topOffsetFraction, 0f)) /
+                                        (bottomOffsetFraction - topOffsetFraction)
+                                scaleY = scale
+                                translationY = size.height * (scale - 1f) / 2f
+                            }
                         }
                         .drawBehind {
-                            val colorProgress =
-                                scrollProgress?.let {
-                                    (it.topOffsetFraction + it.bottomOffsetFraction) / 2f
-                                } ?: 0f
-                            drawCircle(rainbowColor(colorProgress))
+                            with(scrollProgress) {
+                                if (isUnspecified) {
+                                    return@drawBehind
+                                }
+                                val colorProgress = (topOffsetFraction + bottomOffsetFraction) / 2f
+                                drawCircle(rainbowColor(colorProgress))
+                            }
                         }
                         .padding(20.dp)
             )
@@ -180,20 +182,24 @@ fun TransformingLazyColumnImplicitSample() {
                     itemScope?.let {
                         with(it) {
                             Modifier.graphicsLayer {
-                                    val itemProgression = scrollProgress ?: return@graphicsLayer
-                                    val scale =
-                                        (itemProgression.bottomOffsetFraction -
-                                            max(itemProgression.topOffsetFraction, 0f)) /
-                                            (itemProgression.bottomOffsetFraction -
-                                                itemProgression.topOffsetFraction)
-                                    scaleX = scale
+                                    with(scrollProgress) {
+                                        if (isUnspecified) {
+                                            return@graphicsLayer
+                                        }
+                                        scaleX =
+                                            (bottomOffsetFraction - max(topOffsetFraction, 0f)) /
+                                                (bottomOffsetFraction - topOffsetFraction)
+                                    }
                                 }
                                 .drawBehind {
-                                    val colorProgress =
-                                        scrollProgress?.let {
-                                            (it.topOffsetFraction + it.bottomOffsetFraction) / 2f
-                                        } ?: 0f
-                                    drawRect(rainbowColor(colorProgress))
+                                    with(scrollProgress) {
+                                        if (isUnspecified) {
+                                            return@drawBehind
+                                        }
+                                        val colorProgress =
+                                            (topOffsetFraction + bottomOffsetFraction) / 2f
+                                        drawRect(rainbowColor(colorProgress))
+                                    }
                                 }
                         }
                     } ?: Modifier.background(Color.Green)

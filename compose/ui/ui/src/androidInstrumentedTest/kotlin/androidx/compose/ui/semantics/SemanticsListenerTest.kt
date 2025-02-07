@@ -42,7 +42,6 @@ import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -183,7 +182,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { addModifier = true }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -220,7 +219,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { removeModifier = true }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -248,7 +247,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { text = AnnotatedString("text2") }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -281,7 +280,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { text = AnnotatedString("text2") }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -319,7 +318,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -347,7 +346,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { text = "text2" }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -376,7 +375,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { text = "text3" }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -417,7 +416,7 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.runOnIdle { text = "text2" }
 
         // Assert.
-        val semanticsId = rule.onNodeWithTag("item").semanticsId
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -455,8 +454,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.onNodeWithTag("item2").requestFocus()
 
         // Assert.
-        val item1 = rule.onNodeWithTag("item1").semanticsId
-        val item2 = rule.onNodeWithTag("item2").semanticsId
+        val item1 = rule.onNodeWithTag("item1").semanticsId()
+        val item2 = rule.onNodeWithTag("item2").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -497,8 +496,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.onNodeWithTag("item2").requestFocus()
 
         // Assert.
-        val item1 = rule.onNodeWithTag("item1").semanticsId
-        val item2 = rule.onNodeWithTag("item2").semanticsId
+        val item1 = rule.onNodeWithTag("item1").semanticsId()
+        val item2 = rule.onNodeWithTag("item2").semanticsId()
         rule.runOnIdle {
             if (isSemanticAutofillEnabled) {
                 assertThat(events)
@@ -542,10 +541,6 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
     }
 
     data class Event<T>(val semanticsId: Int, val prevSemantics: T?, val newSemantics: T?)
-
-    // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
-    private val SemanticsNodeInteraction.semanticsId: Int
-        get() = fetchSemanticsNode().id
 
     @Composable
     private fun FocusableBox(

@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ android {
 
 androidx {
     name = "WindowManager Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2022"
     description = "Code samples for WindowManager Jetpack library."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

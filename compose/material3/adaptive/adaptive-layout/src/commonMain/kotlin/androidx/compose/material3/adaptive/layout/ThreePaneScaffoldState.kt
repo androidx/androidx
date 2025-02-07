@@ -102,16 +102,11 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      * animations running after running [snapTo].
      *
      * @param targetState The [ThreePaneScaffoldValue] state to snap to.
-     * @param isPredictiveBackInProgress whether this snap is associated with a predictive back
-     *   gesture on the scaffold.
      * @see SeekableTransitionState.snapTo
      */
-    suspend fun snapTo(
-        targetState: ThreePaneScaffoldValue,
-        isPredictiveBackInProgress: Boolean = false,
-    ) {
+    suspend fun snapTo(targetState: ThreePaneScaffoldValue) {
         mutatorMutex.mutate {
-            this.isPredictiveBackInProgress = isPredictiveBackInProgress
+            this.isPredictiveBackInProgress = false
             transitionState.snapTo(targetState)
         }
     }
@@ -154,8 +149,12 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
         isPredictiveBackInProgress: Boolean = false,
     ) {
         mutatorMutex.mutate {
-            this.isPredictiveBackInProgress = isPredictiveBackInProgress
-            transitionState.animateTo(targetState, animationSpec)
+            try {
+                this.isPredictiveBackInProgress = isPredictiveBackInProgress
+                transitionState.animateTo(targetState, animationSpec)
+            } finally {
+                this.isPredictiveBackInProgress = false
+            }
         }
     }
 }

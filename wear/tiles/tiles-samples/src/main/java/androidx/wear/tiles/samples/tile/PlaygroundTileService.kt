@@ -27,7 +27,12 @@ import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId
 import androidx.wear.protolayout.ResourceBuilders.ImageResource
 import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32
 import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
+import androidx.wear.protolayout.expression.dynamicDataMapOf
+import androidx.wear.protolayout.expression.intAppDataKey
+import androidx.wear.protolayout.expression.mapTo
+import androidx.wear.protolayout.material3.AvatarButtonStyle.Companion.largeAvatarButtonStyle
 import androidx.wear.protolayout.material3.ButtonDefaults.filledVariantButtonColors
 import androidx.wear.protolayout.material3.CardColors
 import androidx.wear.protolayout.material3.CardDefaults.filledTonalCardColors
@@ -35,9 +40,12 @@ import androidx.wear.protolayout.material3.CardDefaults.filledVariantCardColors
 import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.recommendedAnimationSpec
 import androidx.wear.protolayout.material3.DataCardStyle.Companion.extraLargeDataCardStyle
 import androidx.wear.protolayout.material3.DataCardStyle.Companion.smallCompactDataCardStyle
+import androidx.wear.protolayout.material3.GraphicDataCardDefaults.constructGraphic
 import androidx.wear.protolayout.material3.MaterialScope
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MAX_PRIMARY_LAYOUT_MARGIN
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.smallTextButtonStyle
 import androidx.wear.protolayout.material3.appCard
+import androidx.wear.protolayout.material3.avatarButton
 import androidx.wear.protolayout.material3.avatarImage
 import androidx.wear.protolayout.material3.button
 import androidx.wear.protolayout.material3.buttonGroup
@@ -56,6 +64,9 @@ import androidx.wear.protolayout.material3.textEdgeButton
 import androidx.wear.protolayout.modifiers.LayoutModifier
 import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.contentDescription
+import androidx.wear.protolayout.modifiers.loadAction
+import androidx.wear.protolayout.types.LayoutString
+import androidx.wear.protolayout.types.asLayoutConstraint
 import androidx.wear.protolayout.types.layoutString
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
@@ -63,6 +74,7 @@ import androidx.wear.tiles.TileService
 import androidx.wear.tiles.samples.R
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import kotlin.random.Random
 
 private const val RESOURCES_VERSION = "0"
 
@@ -120,23 +132,48 @@ private fun tile(
             .build()
     )
 
+private fun getFooValue(): Int = Random.nextInt(1000)
+
 private fun tileLayout(
     requestParams: RequestBuilders.TileRequest,
     context: Context,
 ): LayoutElementBuilders.LayoutElement =
     materialScope(context = context, deviceConfiguration = requestParams.deviceConfiguration) {
+        val fooKey = intAppDataKey("foo")
+        val dynamicFooValue = DynamicInt32.from(fooKey).format()
         primaryLayout(
             mainSlot = { graphicDataCardSample() },
+            margins = MAX_PRIMARY_LAYOUT_MARGIN,
             bottomSlot = {
                 textEdgeButton(
-                    onClick = clickable(),
+                    onClick =
+                        clickable(
+                            action = loadAction(dynamicDataMapOf(fooKey mapTo getFooValue()))
+                        ),
                     modifier = LayoutModifier.contentDescription("EdgeButton"),
                 ) {
-                    text("Edge".layoutString)
+                    text(
+                        LayoutString(
+                            staticValue = "Edge ---",
+                            dynamicValue = dynamicFooValue,
+                            "999".asLayoutConstraint()
+                        )
+                    )
                 }
             }
         )
     }
+
+private fun MaterialScope.avatarButtonSample() =
+    avatarButton(
+        onClick = clickable(),
+        modifier = LayoutModifier.contentDescription("Avatar button"),
+        avatarContent = { avatarImage(AVATAR_ID) },
+        style = largeAvatarButtonStyle(),
+        horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_END,
+        labelContent = { text("Primary label overflowing".layoutString) },
+        secondaryLabelContent = { text("Secondary label overflowing".layoutString) },
+    )
 
 private fun MaterialScope.pillShapeButton() =
     button(
@@ -244,11 +281,17 @@ private fun MaterialScope.graphicDataCardSample() =
             )
         },
         graphic = {
-            segmentedCircularProgressIndicator(
-                segmentCount = 6,
-                startAngleDegrees = 200F,
-                endAngleDegrees = 520F,
-                dynamicProgress = DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
+            constructGraphic(
+                mainContent = {
+                    segmentedCircularProgressIndicator(
+                        segmentCount = 6,
+                        startAngleDegrees = 200F,
+                        endAngleDegrees = 520F,
+                        dynamicProgress =
+                            DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
+                    )
+                },
+                iconContent = { icon(ICON_ID) }
             )
         }
     )
@@ -283,8 +326,8 @@ private fun MaterialScope.graphicDataCardSampleWithFallbackProgressIndicator(con
                     segmentCount = 6,
                     startAngleDegrees = 200F,
                     endAngleDegrees = 520F,
-                    dynamicProgress = DynamicFloat.animate(0.0F, 1.0F, recommendedAnimationSpec),
-                    size = dp(75F)
+                    dynamicProgress = DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
+                    size = dp(55F)
                 )
             }
         }

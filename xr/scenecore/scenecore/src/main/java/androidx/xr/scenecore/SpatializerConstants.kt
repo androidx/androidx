@@ -20,7 +20,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /** Constants for spatialized audio. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatializerConstants {
 
     public companion object {

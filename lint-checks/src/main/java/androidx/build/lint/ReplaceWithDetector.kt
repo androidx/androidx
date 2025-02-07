@@ -107,8 +107,10 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
             }
 
         var location = context.getLocation(usage)
-        val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
-        val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
+        val includeReceiver = expressionWithReceiverRegex.matches(expression)
+        val includeArguments =
+            expressionWithArgumentRegex.matches(expression) ||
+                expressionWithAssignmentRegex.matches(expression)
 
         if (referenced is PsiMethod && usage is UCallExpression) {
             // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
@@ -237,11 +239,12 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
         // Append after any existing imports, after the package declaration, or at the beginning of
         // the file if there are no imports and no package declaration.
-        val appendLocation =
-            (lastImport ?: packageElem)?.let { context.getLocation(it) }
+        val location =
+            (lastImport ?: packageElem)
+                ?.let { context.getLocation(it).end }
+                ?.let { Location.create(context.file, it, it) }
                 ?: Location.create(context.file, context.getContents(), 0, 0)
-        val replaceBuilder = replace().range(appendLocation).end().with(importsText)
-        return replaceBuilder.autoFix()
+        return replace().range(location).with(importsText).autoFix()
     }
 
     companion object {
@@ -250,6 +253,10 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                 ReplaceWithDetector::class.java,
                 Scope.JAVA_FILE_SCOPE,
             )
+
+        private val expressionWithReceiverRegex = Regex("^\\w+\\.\\w+.*$")
+        private val expressionWithArgumentRegex = Regex("^.*\\w+\\(.*\\)$")
+        private val expressionWithAssignmentRegex = Regex("^.*\\w+\\s*=\\s*.*$")
 
         const val KOTLIN_DEPRECATED_ANNOTATION = "kotlin.Deprecated"
         const val JAVA_REPLACE_WITH_ANNOTATION = "androidx.annotation.ReplaceWith"

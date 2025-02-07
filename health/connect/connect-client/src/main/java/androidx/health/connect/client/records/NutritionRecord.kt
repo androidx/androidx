@@ -32,6 +32,7 @@ public class NutritionRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     /** Biotin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
     public val biotin: Mass? = null,
     /** Caffeine in [Mass] unit. Optional field. Valid range: 0-100 grams. */
@@ -125,7 +126,6 @@ public class NutritionRecord(
      * @see MealType
      */
     @property:MealTypes public val mealType: Int = MealType.MEAL_TYPE_UNKNOWN,
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {

@@ -41,6 +41,7 @@ class TrivialStartupBenchmark(
             compilationMode = compilationMode,
             startupMode = startupMode,
             packageName = "androidx.compose.integration.macrobenchmark.target",
+            iterations = 1
         ) {
             action = "androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
         }
@@ -48,6 +49,10 @@ class TrivialStartupBenchmark(
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilation={1}")
         @JvmStatic
-        fun parameters() = createStartupCompilationParams()
+        fun parameters() =
+            createStartupCompilationParams(
+                startupModes = listOf(StartupMode.COLD),
+                compilationModes = listOf(CompilationMode.None())
+            )
     }
 }

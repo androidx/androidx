@@ -44,7 +44,7 @@ class DeleteFunctionProcessor(
 
         val (entities, params) =
             delegate.extractParams(
-                targetEntityType = annotation?.getAsType("entity"),
+                targetEntityType = annotation?.get("entity")?.asType(),
                 missingParamError = ProcessorErrors.DELETE_MISSING_PARAMS,
                 onValidatePartialEntity = { _, _ -> }
             )

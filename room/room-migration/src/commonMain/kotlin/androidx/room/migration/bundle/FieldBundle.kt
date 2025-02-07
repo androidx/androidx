@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/** Data class that holds the schema information for an [androidx.room.Entity] field. */
+/** Data class that holds the schema information for an [androidx.room.Entity] property. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FieldBundle(

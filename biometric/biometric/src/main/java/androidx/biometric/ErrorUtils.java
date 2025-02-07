@@ -51,6 +51,11 @@ class ErrorUtils {
             case BiometricPrompt.ERROR_NEGATIVE_BUTTON:
             case BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL:
             case BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED:
+            case BiometricPrompt.ERROR_IDENTITY_CHECK_NOT_ACTIVE:
+            case BiometricPrompt.ERROR_NOT_ENABLED_FOR_APPS:
+            case BiometricPrompt.ERROR_CONTENT_VIEW_MORE_OPTIONS_BUTTON:
+            case BiometricPrompt.ERROR_LOCK_OUT_ERROR_DIALOG_DISMISSED:
+            case BiometricPrompt.ERROR_BIOMETRIC_HARDWARE_ERROR_DIALOG_DISMISSED:
                 return true;
             default:
                 return false;

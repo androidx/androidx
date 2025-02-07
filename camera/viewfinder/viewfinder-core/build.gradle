@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -51,7 +51,7 @@ android {
 
 androidx {
     name = "Camera Viewfinder Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     samples(project(":camera:viewfinder:viewfinder-core:viewfinder-core-samples"))
     inceptionYear = "2023"
     description = "Core dependencies for Viewfinder"

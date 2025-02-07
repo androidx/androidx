@@ -35,7 +35,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.test.R;
 import androidx.recyclerview.test.RecyclerViewTestActivity;
@@ -46,6 +45,7 @@ import androidx.test.rule.ActivityTestRule;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -272,7 +272,7 @@ public class FocusSearchNavigationTest {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
             holder.itemView.setTag("pos " + position);
         }
 

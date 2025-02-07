@@ -30,7 +30,7 @@ import kotlin.jvm.JvmName
  * See (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#last_insert_rowid]
  * for details.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun getLastInsertedRowId(connection: SQLiteConnection): Long {
     if (getTotalChangedRows(connection) == 0) {
         return -1
@@ -48,7 +48,7 @@ fun getLastInsertedRowId(connection: SQLiteConnection): Long {
  * See the (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#changes] for
  * details.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 fun getTotalChangedRows(connection: SQLiteConnection): Int {
     return connection.prepare("SELECT changes()").use {
         it.step()

@@ -20,8 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;

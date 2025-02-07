@@ -49,8 +49,6 @@ import android.view.animation.Interpolator;
 import android.widget.TextView;
 
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.core.motion.utils.KeyCache;
 import androidx.constraintlayout.core.widgets.ConstraintAnchor;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
@@ -68,12 +66,14 @@ import androidx.constraintlayout.widget.Constraints;
 import androidx.constraintlayout.widget.R;
 import androidx.core.view.NestedScrollingParent3;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 /**
  * A subclass of ConstraintLayout that supports animating between
@@ -3161,7 +3161,7 @@ public class MotionLayout extends ConstraintLayout implements
     public void onNestedPreScroll(@NonNull View target,
                                   int dx,
                                   int dy,
-                                  @NonNull int[] consumed,
+                                  int @NonNull [] consumed,
                                   int type) {
 
         MotionScene scene = mScene;

@@ -35,13 +35,12 @@ import static org.mockito.Mockito.when;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
-import android.os.Binder;
 import android.os.IBinder;
 import android.view.Display;
-import android.view.SurfaceControlViewHost;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.test.rule.GrantPermissionRule;
 import androidx.xr.extensions.node.Mat4f;
 import androidx.xr.extensions.node.Node;
 import androidx.xr.extensions.node.Quatf;
@@ -93,8 +92,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
-import java.util.Objects;
-
 @RunWith(RobolectricTestRunner.class)
 public class MovableComponentImplTest {
     private final ActivityController<Activity> mActivityController =
@@ -120,10 +117,15 @@ public class MovableComponentImplTest {
 
     @Rule public final Expect expect = Expect.create();
 
+    @Rule
+    public GrantPermissionRule mGrantPermissionRule =
+            GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
+
     @Before
     public void setUp() {
         when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
                 .thenReturn(immediateFuture(mock(Session.class)));
+        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
         mFakeRuntime =
                 JxrPlatformAdapterAxr.create(
                         mActivity,
@@ -156,21 +158,17 @@ public class MovableComponentImplTest {
         Context displayContext = mActivity.createDisplayContext(display);
         View view = new View(displayContext);
         view.setLayoutParams(new LayoutParams(640, 480));
-        SurfaceControlViewHost surfaceControlViewHost =
-                new SurfaceControlViewHost(
-                        displayContext,
-                        Objects.requireNonNull(displayContext.getDisplay()),
-                        new Binder());
-        surfaceControlViewHost.setView(view, 10, 10);
         Node node = mFakeExtensions.createNode();
 
         PanelEntityImpl panelEntity =
                 new PanelEntityImpl(
                         node,
+                        view,
                         mFakeExtensions,
                         mEntityManager,
-                        surfaceControlViewHost,
                         new PixelDimensions(10, 10),
+                        "panelShadow",
+                        displayContext,
                         mFakeExecutor);
         panelEntity.setParent(mActivitySpaceImpl);
         return panelEntity;

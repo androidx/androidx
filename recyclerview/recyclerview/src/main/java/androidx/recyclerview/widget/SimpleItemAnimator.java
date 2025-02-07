@@ -20,8 +20,8 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A wrapper class for ItemAnimator that records View bounds and decides whether it should run
@@ -81,12 +81,12 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * @see #setSupportsChangeAnimations(boolean)
      */
     @Override
-    public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+    public boolean canReuseUpdatedViewHolder(RecyclerView.@NonNull ViewHolder viewHolder) {
         return !mSupportsChangeAnimations || viewHolder.isInvalid();
     }
 
     @Override
-    public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animateDisappearance(RecyclerView.@NonNull ViewHolder viewHolder,
             @NonNull ItemHolderInfo preLayoutInfo, @Nullable ItemHolderInfo postLayoutInfo) {
         int oldLeft = preLayoutInfo.left;
         int oldTop = preLayoutInfo.top;
@@ -110,7 +110,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animateAppearance(RecyclerView.@NonNull ViewHolder viewHolder,
             @Nullable ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
         if (preLayoutInfo != null && (preLayoutInfo.left != postLayoutInfo.left
                 || preLayoutInfo.top != postLayoutInfo.top)) {
@@ -129,7 +129,7 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animatePersistence(RecyclerView.@NonNull ViewHolder viewHolder,
             @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
         if (preLayoutInfo.left != postLayoutInfo.left || preLayoutInfo.top != postLayoutInfo.top) {
             if (DEBUG) {
@@ -144,8 +144,8 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
+    public boolean animateChange(RecyclerView.@NonNull ViewHolder oldHolder,
+            RecyclerView.@NonNull ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
             @NonNull ItemHolderInfo postLayoutInfo) {
         if (DEBUG) {
             Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldHolder.itemView);

@@ -19,7 +19,11 @@ package androidx.appfunctions.compiler
 import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.logException
 import androidx.appfunctions.compiler.processors.AppFunctionIdProcessor
+import androidx.appfunctions.compiler.processors.AppFunctionIndexXmlProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor
+import androidx.appfunctions.compiler.processors.AppFunctionInvokerProcessor
+import androidx.appfunctions.compiler.processors.AppFunctionLegacyIndexXmlProcessor
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableProcessor
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -53,8 +57,24 @@ class AppFunctionCompiler(
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
             val idProcessor = AppFunctionIdProcessor(environment.codeGenerator)
             val inventoryProcessor = AppFunctionInventoryProcessor(environment.codeGenerator)
+            val invokerProcessor = AppFunctionInvokerProcessor(environment.codeGenerator)
+            // We generate both XML formats supported by old and new AppSearch indexer respectively
+            // as it can't be guaranteed that the device will have the latest version of AppSearch.
+            // TODO: Add compiler option to disable legacy xml generator.
+            val legacyIndexXmlProcessor =
+                AppFunctionLegacyIndexXmlProcessor(environment.codeGenerator)
+            val indexXmlProcessor = AppFunctionIndexXmlProcessor(environment.codeGenerator)
+            val entityProcessor =
+                AppFunctionSerializableProcessor(environment.codeGenerator, environment.logger)
             return AppFunctionCompiler(
-                listOf(idProcessor, inventoryProcessor),
+                listOf(
+                    idProcessor,
+                    inventoryProcessor,
+                    invokerProcessor,
+                    legacyIndexXmlProcessor,
+                    indexXmlProcessor,
+                    entityProcessor
+                ),
                 environment.logger,
             )
         }

@@ -18,8 +18,9 @@ package androidx.recyclerview.selection;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * No-op implementation of OnItemTouchListener suitable for use as a default

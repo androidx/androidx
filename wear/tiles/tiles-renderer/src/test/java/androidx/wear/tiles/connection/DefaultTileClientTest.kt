@@ -24,6 +24,7 @@ import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
+import androidx.wear.tiles.InteractionEventsCallback
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourcesCallback
 import androidx.wear.tiles.ResourcesData
@@ -376,5 +377,12 @@ public class DefaultTileClientTest {
         override fun processRecentInteractionEvents(
             events: MutableList<TileInteractionEventData>?
         ) {}
+
+        override fun onRecentInteractionEvents(
+            events: List<TileInteractionEventData?>?,
+            callback: InteractionEventsCallback?
+        ) {
+            callback!!.finish()
+        }
     }
 }

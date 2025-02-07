@@ -28,10 +28,10 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -71,7 +71,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.roundToInt
@@ -123,6 +122,8 @@ import kotlin.math.sqrt
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
  * @param content Slot for composable body content displayed on the Button. Either an Icon or Text.
+ *   Note that when using an Icon is recommended to remove any extra spacing the icon may have,
+ *   either processing the image or using something like the list sample.
  */
 // TODO(b/261838497) Add Material3 UX guidance links
 @Composable
@@ -148,15 +149,12 @@ public fun EdgeButton(
             ShapeHelper(density).apply {
                 // Compute the inner size using only the screen size and the buttonSize parameter
                 val size = with(density) { DpSize(screenWidthDp, preferredHeight).toSize() }
-                update(size)
+                updateIfNeeded(size)
             }
         }
 
-    val containerSize = remember { mutableStateOf(Size.Zero) }
-    val containerShapeHelper = remember {
-        derivedStateOf { ShapeHelper(density).apply { update(containerSize.value) } }
-    }
-    val shape = remember { derivedStateOf { EdgeButtonShape(containerShapeHelper.value) } }
+    val containerShapeHelper = remember { ShapeHelper(density) }
+    val shape = remember { EdgeButtonShape(containerShapeHelper) }
 
     val containerFadeStartPx = with(LocalDensity.current) { CONTAINER_FADE_START_DP.toPx() }
     val containerFadeEndPx = with(LocalDensity.current) { CONTAINER_FADE_END_DP.toPx() }
@@ -171,8 +169,7 @@ public fun EdgeButton(
                 .layout { measurable, constraints ->
                     // Compute the actual size of the button, and save it for later.
                     // We take the max width available, and the height is determined by the
-                    // buttonSize
-                    // coerced to the constraints at this point.
+                    // buttonSize coerced to the constraints at this point.
                     // We behave similar to .fillMaxWidth().height(buttonSize)
                     val buttonWidthPx =
                         if (constraints.hasBoundedWidth) {
@@ -186,7 +183,6 @@ public fun EdgeButton(
                             buttonWidthPx,
                             buttonHeightPx.coerceIn(constraints.minHeight, constraints.maxHeight)
                         )
-                    containerSize.value = size.toSize()
 
                     val placeable =
                         measurable.measure(
@@ -195,39 +191,36 @@ public fun EdgeButton(
                     layout(size.width, size.height) { placeable.place(0, 0) }
                 }
                 .graphicsLayer {
+
                     // Container fades when button height goes from 18dp to 0dp
-                    val height = containerSize.value.height
                     alpha =
                         easing
                             .transform(
-                                (height - containerFadeEndPx) /
+                                (size.height - containerFadeEndPx) /
                                     ((containerFadeStartPx - containerFadeEndPx))
                             )
                             .coerceIn(0f, 1f)
                 }
                 .then(
                     // BorderModifier
-                    if (border != null) Modifier.border(border = border, shape = shape.value)
+                    if (border != null) Modifier.border(border = border, shape = shape)
                     else Modifier
                 )
-                .clip(shape = shape.value)
+                .clip(shape = shape)
                 .paint(
                     painter = colors.containerPainter(enabled = enabled),
                     contentScale = ContentScale.Crop
                 )
                 .graphicsLayer {
                     // Compose the content in an offscreen layer, so we can apply the gradient mask
-                    // to
-                    // it.
+                    // to it.
                     compositingStrategy = CompositingStrategy.Offscreen
                 }
                 .drawWithContent {
-                    val height = containerSize.value.height
-
                     val alpha =
                         easing
                             .transform(
-                                (height - contentFadeEndPx) /
+                                (size.height - contentFadeEndPx) /
                                     ((contentFadeStartPx - contentFadeEndPx))
                             )
                             .coerceIn(0f, 1f)
@@ -254,7 +247,7 @@ public fun EdgeButton(
                     indication = ripple(),
                     interactionSource = interactionSource,
                 )
-                .sizeAndOffset { containerShapeHelper.value.contentWindow }
+                .sizeAndOffset(containerShapeHelper)
                 .scaleAndAlignContent(buttonSize)
                 // Limit the content size to the expected width for the button size.
                 .requiredSizeIn(
@@ -285,15 +278,11 @@ public value class EdgeButtonSize internal constructor(internal val maximumHeigh
     /** Size of the Edge button surrounded by default paddings. */
     internal fun maximumHeightPlusPadding() = maximumHeight + VERTICAL_PADDING * 2
 
-    /** Inner padding inside [EdgeButton]. */
-    internal fun verticalContentPadding() =
-        when (this) {
-            ExtraSmall -> Pair(10.dp, 12.dp)
-            Small -> Pair(8.dp, 12.dp)
-            Medium -> Pair(14.dp, 20.dp)
-            Large -> Pair(18.dp, 22.dp)
-            else -> Pair(14.dp, 20.dp)
-        }
+    /**
+     * Inner padding inside [EdgeButton]. We use a slightly bigger bottom padding so the content is
+     * offset a bit, which works better on the asymmetrical shape of the Edge Button
+     */
+    internal fun verticalContentPadding() = 6.dp to 8.dp
 
     public companion object {
         /** The Size to be applied for an extra small [EdgeButton]. */
@@ -339,48 +328,81 @@ public object EdgeButtonDefaults {
         }
 }
 
-private fun Modifier.sizeAndOffset(rectFn: (Constraints) -> Rect) =
-    layout { measurable, constraints ->
-        val rect = rectFn(constraints)
-        val placeable =
-            measurable.measure(
-                Constraints(
-                    rect.width.roundToInt(),
-                    rect.width.roundToInt(),
-                    rect.height.roundToInt(),
-                    rect.height.roundToInt()
-                )
+private fun Modifier.sizeAndOffset(helper: ShapeHelper) = layout { measurable, constraints ->
+    val constraintsSize =
+        Size(
+            (if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth)
+                .toFloat(),
+            (if (constraints.hasBoundedHeight) constraints.maxHeight else constraints.minHeight)
+                .toFloat()
+        )
+    helper.updateIfNeeded(constraintsSize)
+    val rect = helper.contentWindow
+    val placeable =
+        measurable.measure(
+            Constraints(
+                rect.width.roundToInt(),
+                rect.width.roundToInt(),
+                rect.height.roundToInt(),
+                rect.height.roundToInt()
             )
-        val wrapperWidth = placeable.width.coerceIn(constraints.minWidth, constraints.maxWidth)
-        val wrapperHeight = placeable.height.coerceIn(constraints.minHeight, constraints.maxHeight)
+        )
+    val wrapperWidth = placeable.width.coerceIn(constraints.minWidth, constraints.maxWidth)
+    val wrapperHeight = placeable.height.coerceIn(constraints.minHeight, constraints.maxHeight)
 
-        layout(wrapperWidth, wrapperHeight) {
-            placeable.placeWithLayer(0, 0) {
-                translationX = rect.left
-                translationY = rect.top
-            }
+    layout(wrapperWidth, wrapperHeight) {
+        placeable.placeWithLayer(0, 0) {
+            translationX = rect.left
+            translationY = rect.top
         }
     }
+}
 
+/**
+ * Helper class to compute all values needed to draw an EdgeButton shape. The edge button shape is
+ * made using a rounded rectangle at the top half and an ellipsis at the bottom half. (Note that
+ * when edge buttons get too small, the shapes morph into a rounded rectangle, to implement this the
+ * lower half is actually two quarter ellipses connected by a line, the line is 0 size to produce an
+ * edge button shape and it grows until it makes the quarter ellipsis into quarter circles) All
+ * clients should call `updateIfNeeded` first, to provide the size to compute the shape for, if this
+ * value is the same as in the previous call (which we expect to happen most of the time), no
+ * computation takes place and the values computed last time can be reused.
+ *
+ * @param density used to convert between dp and px
+ */
 internal class ShapeHelper(private val density: Density) {
     private val extraSmallHeightPx =
         with(density) { EdgeButtonSize.ExtraSmall.maximumHeight.toPx() }
     private val bottomPaddingPx = with(density) { EdgeButtonVerticalPadding.toPx() }
     private val extraSmallEllipsisHeightPx = with(density) { EXTRA_SMALL_ELLIPSIS_HEIGHT.toPx() }
     private val targetSidePadding = with(density) { TARGET_SIDE_PADDING.toPx() }
+    private var lastSize: Size? = null
 
-    internal val lastSize: MutableState<Size?> = mutableStateOf(null)
+    // Distance on the x axis between the first pixel of the screen and the first pixel of the edge,
+    // button. Same distance applies on the right side.
     internal var sidePadding: Float = 0f
+
+    // This goes from 0f when the button is at least as tall as an extra small button (46.dp or
+    // bigger), to 1f when height becomes 0.
+    // This drives: the morph from edge button shape to rounded rectangle and the height
+    // calculation.
     internal var finalFadeProgress: Float = 0f
+
+    // How tall is the ellipsis we use to draw the bottom half of the edge button.
     internal var ellipsisHeight: Float = 0f
+
+    // Radius of the rounded corners on the top part of the edge button.
     internal var r: Float = 0f
 
-    internal var contentWindow: Rect = Rect(0f, 0f, 0f, 0f)
+    // Rect that represents the space usable for content inside the edge button.
+    internal var contentWindow: Rect by mutableStateOf(Rect(0f, 0f, 0f, 0f))
 
     fun contentWidthDp() = with(density) { contentWindow.width.toDp() }
 
-    fun update(size: Size) {
-        lastSize.value = size
+    fun updateIfNeeded(size: Size) {
+        if (size == lastSize || size.height == 0f) return
+
+        lastSize = size
 
         finalFadeProgress = (1f - size.height / extraSmallHeightPx).coerceAtLeast(0f)
         ellipsisHeight =
@@ -418,6 +440,7 @@ internal class EdgeButtonShape(private val helper: ShapeHelper) : Shape {
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
+        helper.updateIfNeeded(size)
         val path =
             Path().apply {
                 with(helper) {

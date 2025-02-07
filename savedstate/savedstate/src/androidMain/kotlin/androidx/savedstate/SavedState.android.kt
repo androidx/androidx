@@ -36,3 +36,10 @@ public actual inline fun savedState(
         }
     return bundleOf(*pairs).apply { write(builderAction) }
 }
+
+public actual inline fun savedState(
+    initialState: SavedState,
+    builderAction: SavedStateWriter.() -> Unit,
+): SavedState {
+    return SavedState(initialState).apply { write(builderAction) }
+}

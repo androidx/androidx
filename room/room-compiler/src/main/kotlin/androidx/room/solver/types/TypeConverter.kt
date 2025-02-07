@@ -23,8 +23,8 @@ import androidx.room.solver.CodeGenScope
 abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Cost.CONVERTER) {
     /**
      * Should generate the code that will covert [inputVarName] of type [from] to [outputVarName] of
-     * type [to]. This method *should not* declare the [outputVarName] as it is already declared by
-     * the caller.
+     * type [to]. This function *should not* declare the [outputVarName] as it is already declared
+     * by the caller.
      */
     protected abstract fun doConvert(
         inputVarName: String,
@@ -33,7 +33,7 @@ abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Co
     )
 
     /**
-     * A type converter can optionally override this method if they can handle the case where they
+     * A type converter can optionally override this function if they can handle the case where they
      * don't need a temporary output variable (e.g. no op conversion or null checks).
      *
      * @return The variable name where the result is saved.
@@ -66,7 +66,7 @@ abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Co
      * The comparison happens in buckets such that having 10 upcasts is still cheaper than having 1
      * nullSafeWrapper.
      *
-     * Internally, this class uses an IntArray to keep its fields to optimize for readability in
+     * Internally, this class uses an IntArray to keep its properties to optimize for readability in
      * operators.
      */
     class Cost

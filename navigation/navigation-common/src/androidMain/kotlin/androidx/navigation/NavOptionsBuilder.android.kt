@@ -235,8 +235,8 @@ public class PopUpToBuilder {
      * Whether the back stack and the state of all destinations between the current destination and
      * the [NavOptionsBuilder.popUpTo] ID should be saved for later restoration via
      * [NavOptionsBuilder.restoreState] or the `restoreState` attribute using the same
-     * [NavOptionsBuilder.popUpTo] ID (note: this matching ID is true whether [inclusive] is true or
-     * false).
+     * [NavOptionsBuilder.popUpTo] ID (note: this matching ID is true if [inclusive] is true. If
+     * [inclusive] is false, this matching ID is the id of the last destination that is popped).
      */
     @get:Suppress("GetterOnBuilder", "GetterSetterNames")
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")

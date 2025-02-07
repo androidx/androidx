@@ -3620,6 +3620,110 @@ class CompositionTests {
         advance()
     }
 
+    // Regression test for b/383769314
+    @Test
+    fun testRememberNotRecomputedInElidedGroupAfterMovableGroup() = compositionTest {
+        var baseKey by mutableIntStateOf(0)
+        var rememberInvocations = 0
+
+        compose {
+            key(baseKey) { remember { baseKey.toString() } }
+
+            key(Unit) {}
+
+            remember {
+                assertEquals(
+                    1,
+                    ++rememberInvocations,
+                    "Remember block should be invoked exactly once"
+                )
+            }
+        }
+
+        baseKey++
+        advance()
+
+        assertEquals(1, rememberInvocations, "Remember block should be invoked exactly once")
+    }
+
+    // Regression test for b/383769314
+    @Test
+    fun testRememberNotRecomputedInElidedGroupAfterNestedMovableGroup() = compositionTest {
+        var baseKey by mutableIntStateOf(0)
+        var rememberInvocations = 0
+
+        compose {
+            key(baseKey) { remember { baseKey.toString() } }
+
+            key(Unit) { key(Unit) {} }
+
+            remember {
+                assertEquals(
+                    1,
+                    ++rememberInvocations,
+                    "Remember block should be invoked exactly once"
+                )
+            }
+        }
+
+        baseKey++
+        advance()
+
+        assertEquals(1, rememberInvocations, "Remember block should be invoked exactly once")
+    }
+
+    // Regression test for b/383769314
+    @Test
+    fun testInvalidateCapturingLambdaInElidedGroupAfterMovableGroup() = compositionTest {
+        var baseKey by mutableIntStateOf(0)
+        var lastOuterSeen = ""
+        var lastInnerSeen = ""
+
+        compose {
+            val captor = key(baseKey) { remember { baseKey.toString() } }
+
+            key(Unit) {}
+
+            lastOuterSeen = captor
+            Container { lastInnerSeen = captor }
+        }
+
+        assertEquals("0", lastOuterSeen, "Outer scope did not compose")
+        assertEquals("0", lastInnerSeen, "Inner scope did not compose")
+
+        baseKey++
+        advance()
+
+        assertEquals("1", lastOuterSeen, "Outer scope did not recompose")
+        assertEquals("1", lastInnerSeen, "Inner scope did not recompose")
+    }
+
+    // Regression test for b/383769314
+    @Test
+    fun testInvalidateCapturingLambdaInElidedGroupAfterNestedMovableGroup() = compositionTest {
+        var baseKey by mutableIntStateOf(0)
+        var lastOuterSeen = ""
+        var lastInnerSeen = ""
+
+        compose {
+            val captor = key(baseKey) { remember { baseKey.toString() } }
+
+            key(Unit) { key(Unit) {} }
+
+            lastOuterSeen = captor
+            Container { lastInnerSeen = captor }
+        }
+
+        assertEquals("0", lastOuterSeen, "Outer scope did not compose")
+        assertEquals("0", lastInnerSeen, "Inner scope did not compose")
+
+        baseKey++
+        advance()
+
+        assertEquals("1", lastOuterSeen, "Outer scope did not recompose")
+        assertEquals("1", lastInnerSeen, "Inner scope did not recompose")
+    }
+
     enum class MyEnum {
         First,
         Second

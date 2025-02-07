@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.core
 
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -38,16 +40,17 @@ internal object Threading {
      * Throws [IllegalStateException] when the execution of the [block] times out.
      */
     fun <T> runBlockingChecked(
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
         dispatcher: CoroutineDispatcher,
         timeoutMs: Long,
         block: suspend () -> T
     ): T {
-        return runBlocking {
+        return runBlocking(coroutineContext) {
             val result = runAsyncSupervised(dispatcher, block)
             try {
                 withTimeout(timeoutMs) { result.await() }
             } catch (e: TimeoutCancellationException) {
-                Log.error { "Timed out after ${timeoutMs}ms!" }
+                Log.error(e) { "Timed out after ${timeoutMs}ms!" }
                 // For some reason, if TimeoutCancellationException is thrown, runBlocking can
                 // suspend indefinitely. Catch it and rethrow IllegalStateException.
                 throw IllegalStateException("Timed out after ${timeoutMs}ms!")
@@ -62,11 +65,12 @@ internal object Threading {
      * Returns null when the execution of the [block] times out.
      */
     fun <T> runBlockingCheckedOrNull(
+        coroutineContext: CoroutineContext = EmptyCoroutineContext,
         dispatcher: CoroutineDispatcher,
         timeoutMs: Long,
         block: suspend () -> T
     ): T? {
-        return runBlocking {
+        return runBlocking(coroutineContext) {
             val result = runAsyncSupervised(dispatcher, block)
             withTimeoutOrNull(timeoutMs) { result.await() }
         }

@@ -16,15 +16,12 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-
 /**
  * The User object is used to retrieve information about the user. This includes the Head and The
  * CameraViews.
  *
  * @param runtime The JxrPlatformAdapter for the Session.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialUser(private val runtime: JxrPlatformAdapter) {
     private var cachedLeftCamera: CameraView? = null
     private var cachedRightCamera: CameraView? = null

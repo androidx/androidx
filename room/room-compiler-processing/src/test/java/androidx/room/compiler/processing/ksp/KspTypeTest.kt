@@ -80,6 +80,62 @@ class KspTypeTest {
     }
 
     @Test
+    fun assignability_nullability() {
+        val src =
+            Source.java(
+                "Subject",
+                """
+            public class Subject {
+                public Integer method() {
+                    return 0;
+                }
+            }
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) {
+            // nullability assignability is only relevant in KSP
+            if (!it.isKsp) return@runProcessorTest
+
+            val nonNullString = it.processingEnv.requireType(XTypeName.STRING)
+            val nullableString = nonNullString.makeNullable()
+
+            assertThat(nonNullString.isAssignableFrom(nullableString)).isFalse()
+            assertThat(nullableString.isAssignableFrom(nonNullString)).isTrue()
+
+            val primitiveInt = it.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
+            val nonNullInt =
+                it.processingEnv.requireType(XTypeName.BOXED_INT.copy(nullable = false))
+            val nullableInt = nonNullInt.makeNullable()
+            val unknownInt =
+                it.processingEnv
+                    .requireTypeElement("Subject")
+                    .getDeclaredMethods()
+                    .single()
+                    .returnType
+
+            assertThat(primitiveInt.isAssignableFrom(primitiveInt)).isTrue()
+            assertThat(primitiveInt.isAssignableFrom(nonNullInt)).isTrue()
+            assertThat(primitiveInt.isAssignableFrom(nullableInt)).isFalse()
+            // when nullability is unknown, it is ignored for assignability
+            // https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types
+            assertThat(primitiveInt.isAssignableFrom(unknownInt)).isTrue()
+
+            assertThat(nonNullInt.isAssignableFrom(primitiveInt)).isTrue()
+            assertThat(nonNullInt.isAssignableFrom(nonNullInt)).isTrue()
+            assertThat(nonNullInt.isAssignableFrom(nullableInt)).isFalse()
+            // when nullability is unknown, it is ignored for assignability
+            // https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types
+            assertThat(nonNullInt.isAssignableFrom(unknownInt)).isTrue()
+
+            assertThat(nullableInt.isAssignableFrom(primitiveInt)).isTrue()
+            assertThat(nullableInt.isAssignableFrom(nonNullInt)).isTrue()
+            assertThat(nullableInt.isAssignableFrom(nullableInt)).isTrue()
+            assertThat(nullableInt.isAssignableFrom(unknownInt)).isTrue()
+        }
+    }
+
+    @Test
     fun errorType() {
         val src =
             Source.kotlin(
@@ -92,17 +148,18 @@ class KspTypeTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(listOf(src)) { invocation ->
+        runProcessorTest(
+            listOf(src),
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+        ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
+            val iDontExist = XClassName.get("", "IDontExist")
             subject.getField("errorType").type.let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
-                assertThat(type.asTypeName().java).isEqualTo(ERROR_JTYPE_NAME)
-                assertThat(type.typeElement!!.asClassName().java).isEqualTo(ERROR_JTYPE_NAME)
-                if (invocation.isKsp) {
-                    assertThat(type.asTypeName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
-                    assertThat(type.typeElement!!.asClassName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
-                }
+                assertThat(type.asTypeName()).isEqualTo(iDontExist)
+                assertThat(type.typeElement!!.asClassName()).isEqualTo(iDontExist)
             }
 
             subject.getField("listOfErrorType").type.let { type ->
@@ -110,10 +167,7 @@ class KspTypeTest {
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.isError()).isTrue()
-                    assertThat(typeArg.asTypeName().java).isEqualTo(ERROR_JTYPE_NAME)
-                    if (invocation.isKsp) {
-                        assertThat(typeArg.asTypeName().kotlin).isEqualTo(ERROR_KTYPE_NAME)
-                    }
+                    assertThat(typeArg.asTypeName()).isEqualTo(iDontExist)
                 }
             }
             invocation.assertCompilationResult { compilationDidFail() }
@@ -569,15 +623,18 @@ class KspTypeTest {
             """
                     .trimIndent()
             )
-        runKspTest(listOf(src)) { invocation ->
+        runKspTest(
+            listOf(src),
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+        ) { invocation ->
             val typeElement = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val exception =
                 assertThrows(IllegalStateException::class) { typeElement.type.superTypes }
             exception
                 .hasMessageThat()
                 .isEqualTo(
-                    "Class foo.bar.Baz should have only one super class." +
-                        " Found 2 (foo.bar.A, error.NonExistentClass)."
+                    "Class foo.bar.Baz should have only one super class. Found 2 (foo.bar.A, C)."
                 )
             invocation.assertCompilationResult { compilationDidFail() }
         }

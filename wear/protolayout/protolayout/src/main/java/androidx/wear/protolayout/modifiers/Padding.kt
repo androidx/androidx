@@ -139,7 +139,7 @@ internal class BasePaddingElement(
     val rtlAware: Boolean = true
 ) : LayoutModifier.Element {
 
-    fun foldIn(initial: Padding.Builder?): Padding.Builder =
+    fun mergeTo(initial: Padding.Builder?): Padding.Builder =
         (initial ?: Padding.Builder()).apply {
             if (!start.isNaN()) {
                 setStart(start.dp)

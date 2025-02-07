@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXI
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
+import static androidx.appsearch.testutil.AppSearchTestUtils.calculateDigest;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
@@ -36,7 +37,9 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.builtintypes.PotentialAction;
 import androidx.appsearch.builtintypes.Thing;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -53,6 +56,7 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -2893,8 +2897,10 @@ public abstract class AnnotationProcessorTestBase {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             EmailWithEmbedding email = (EmailWithEmbedding) o;
-            return Objects.equals(mNamespace, email.mNamespace) && Objects.equals(mId,
-                    email.mId) && Objects.equals(mSender, email.mSender)
+            return Objects.equals(mNamespace, email.mNamespace)
+                    && Objects.equals(mId, email.mId)
+                    && Objects.equals(mCreationTimestampMillis, email.mCreationTimestampMillis)
+                    && Objects.equals(mSender, email.mSender)
                     && Objects.equals(mSenderEmbedding, email.mSenderEmbedding)
                     && Objects.equals(mTitleEmbedding, email.mTitleEmbedding)
                     && Objects.equals(mReceiverEmbeddings, email.mReceiverEmbeddings)
@@ -2919,6 +2925,44 @@ public abstract class AnnotationProcessorTestBase {
             email.mTitleEmbedding = embedding2;
             email.mReceiverEmbeddings = Collections.singletonList(embedding3);
             email.mBodyEmbeddings = new EmbeddingVector[]{embedding3, embedding4};
+            return email;
+        }
+    }
+
+    @Document
+    static class EmailWithQuantizedEmbedding extends EmailWithEmbedding {
+        @Document.EmbeddingProperty(indexingType = 1, quantizationType = 1)
+        EmbeddingVector mTitleQuantizedEmbedding;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            EmailWithQuantizedEmbedding email = (EmailWithQuantizedEmbedding) o;
+            return Objects.equals(mTitleQuantizedEmbedding, email.mTitleQuantizedEmbedding);
+        }
+
+        public static EmailWithQuantizedEmbedding createSampleDoc() {
+            EmbeddingVector embedding1 =
+                    new EmbeddingVector(new float[]{1, 2, 3}, "model1");
+            EmbeddingVector embedding2 =
+                    new EmbeddingVector(new float[]{-1, -2, -3}, "model2");
+            EmbeddingVector embedding3 =
+                    new EmbeddingVector(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, "model3");
+            EmbeddingVector embedding4 =
+                    new EmbeddingVector(new float[]{-0.1f, -0.2f, -0.3f, -0.4f}, "model3");
+            EmbeddingVector embedding5 =
+                    new EmbeddingVector(new float[]{1, 2}, "model4");
+            EmailWithQuantizedEmbedding email = new EmailWithQuantizedEmbedding();
+            email.mNamespace = "namespace";
+            email.mId = "id";
+            email.mCreationTimestampMillis = 1000;
+            email.mSender = "sender";
+            email.mSenderEmbedding = embedding1;
+            email.mTitleEmbedding = embedding2;
+            email.mReceiverEmbeddings = Collections.singletonList(embedding3);
+            email.mBodyEmbeddings = new EmbeddingVector[]{embedding3, embedding4};
+            email.mTitleQuantizedEmbedding = embedding5;
             return email;
         }
     }
@@ -3011,6 +3055,168 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(results.get(0).getRankingSignal()).isEqualTo(3);
         // Convert GenericDocument to EmailWithEmbedding and check values.
         outputDocument = results.get(0).getDocument(EmailWithEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
+    }
+
+    @Test
+    public void testEmbeddingQuantization() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_QUANTIZATION));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(EmailWithQuantizedEmbedding.class)
+                .build()).get();
+
+        // Create and add a document
+        EmailWithQuantizedEmbedding email = new EmailWithQuantizedEmbedding();
+        email.mNamespace = "namespace";
+        email.mId = "id";
+        email.mCreationTimestampMillis = 1000;
+        EmbeddingVector embedding = new EmbeddingVector(new float[]{0, 1.45f, 255}, "my_model");
+        email.mTitleEmbedding = embedding;
+        email.mTitleQuantizedEmbedding = embedding;
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(email)
+                        .build()));
+
+        EmbeddingVector queryEmbedding = new EmbeddingVector(new float[]{1, 1, 1}, "my_model");
+        // titleEmbedding is unquantized, so it should have an embedding score
+        // 0 + 1.45 + 255 = 256.45.
+        SearchResults searchResults = mSession.search(
+                "titleEmbedding:semanticSearch(getEmbeddingParameter(0), -1000, 1000)",
+                new SearchSpec.Builder()
+                        .setDefaultEmbeddingSearchMetricType(
+                                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                        .addEmbeddingParameters(queryEmbedding)
+                        .setRankingStrategy(
+                                "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                        .setListFilterQueryLanguageEnabled(true)
+                        .build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.0001).of(256.45);
+        // Convert GenericDocument to EmailWithQuantizedEmbedding and check values.
+        EmailWithQuantizedEmbedding outputDocument = results.get(0).getDocument(
+                EmailWithQuantizedEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
+
+        // titleQuantizedEmbedding is quantized, so it should have an embedding score
+        // 0 + 1 + 255 = 256.
+        searchResults = mSession.search(
+                "titleQuantizedEmbedding:semanticSearch(getEmbeddingParameter(0), -1000, 1000)",
+                new SearchSpec.Builder()
+                        .setDefaultEmbeddingSearchMetricType(
+                                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                        .addEmbeddingParameters(queryEmbedding)
+                        .setRankingStrategy(
+                                "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
+                        .setListFilterQueryLanguageEnabled(true)
+                        .build());
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.0001).of(256);
+        // Convert GenericDocument to EmailWithQuantizedEmbedding and check values.
+        outputDocument = results.get(0).getDocument(EmailWithQuantizedEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
+    }
+
+    @Document
+    static class EmailWithBlobHandle {
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
+
+        @Document.StringProperty
+        String mSender;
+
+        // Default non-indexable embedding
+        @Document.BlobHandleProperty
+        AppSearchBlobHandle mBlobHandle;
+
+        @Document.BlobHandleProperty
+        Collection<AppSearchBlobHandle> mBlobHandleCollection;
+
+        @Document.BlobHandleProperty
+        AppSearchBlobHandle[] mBlobHandleArr;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            EmailWithBlobHandle email = (EmailWithBlobHandle) o;
+            return Objects.equals(mNamespace, email.mNamespace)
+                    && Objects.equals(mId, email.mId)
+                    && Objects.equals(mSender, email.mSender)
+                    && Objects.equals(mCreationTimestampMillis, email.mCreationTimestampMillis)
+                    && Objects.equals(mBlobHandle, email.mBlobHandle)
+                    && Objects.equals(mBlobHandleCollection, email.mBlobHandleCollection)
+                    && Arrays.equals(mBlobHandleArr, email.mBlobHandleArr);
+        }
+
+        public static EmailWithBlobHandle createSampleDoc() throws NoSuchAlgorithmException {
+            byte[] digest = calculateDigest(new byte[] {(byte) 1});
+            AppSearchBlobHandle blobHandle1 = AppSearchBlobHandle.createWithSha256(
+                    digest, TEST_PACKAGE_NAME, DB_NAME_1, "namespace1");
+            AppSearchBlobHandle blobHandle2 = AppSearchBlobHandle.createWithSha256(
+                    digest, TEST_PACKAGE_NAME, DB_NAME_1, "namespace2");
+            AppSearchBlobHandle blobHandle3 = AppSearchBlobHandle.createWithSha256(
+                    digest, TEST_PACKAGE_NAME, DB_NAME_1, "namespace3");
+            EmailWithBlobHandle email = new EmailWithBlobHandle();
+            email.mNamespace = "namespace";
+            email.mId = "id";
+            email.mCreationTimestampMillis = 1000;
+            email.mSender = "sender";
+            email.mBlobHandle = blobHandle1;
+            email.mBlobHandleCollection = Collections.singletonList(blobHandle1);
+            email.mBlobHandleArr = new AppSearchBlobHandle[]{blobHandle1, blobHandle2, blobHandle3};
+            return email;
+        }
+    }
+
+    @Test
+    public void testBlobHandleGenericDocumentConversion() throws Exception {
+        EmailWithBlobHandle inEmail = EmailWithBlobHandle.createSampleDoc();
+        GenericDocument genericDocument1 = GenericDocument.fromDocumentClass(inEmail);
+        GenericDocument genericDocument2 = GenericDocument.fromDocumentClass(inEmail);
+        EmailWithBlobHandle outEmail = genericDocument2.toDocumentClass(EmailWithBlobHandle.class);
+
+        assertThat(inEmail).isNotSameInstanceAs(outEmail);
+        assertThat(inEmail).isEqualTo(outEmail);
+        assertThat(genericDocument1).isNotSameInstanceAs(genericDocument2);
+        assertThat(genericDocument1).isEqualTo(genericDocument2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
+    public void testBlobHandleSearch() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.BLOB_STORAGE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(EmailWithBlobHandle.class)
+                .build()).get();
+
+        // Create and add a document
+        EmailWithBlobHandle email = EmailWithBlobHandle.createSampleDoc();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(email)
+                        .build()));
+
+        // An empty query should retrieve this document.
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder().build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        // Convert GenericDocument to EmailWithBlobHandle and check values.
+        EmailWithBlobHandle outputDocument = results.get(0).getDocument(EmailWithBlobHandle.class);
         assertThat(outputDocument).isEqualTo(email);
     }
 }

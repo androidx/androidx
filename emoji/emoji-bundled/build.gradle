@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,7 +30,7 @@ dependencies {
 
 androidx {
     name = "Emoji Bundled"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.EMOJI
     inceptionYear = "2017"
     description = "Library bundled with assets to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."

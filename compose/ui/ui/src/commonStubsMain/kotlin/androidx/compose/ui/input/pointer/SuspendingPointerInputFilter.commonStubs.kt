@@ -20,7 +20,3 @@ import kotlinx.coroutines.CancellationException
 
 actual class PointerEventTimeoutCancellationException actual constructor(time: Long) :
     CancellationException("Timed out waiting for $time ms")
-
-internal actual class PointerInputResetException : CancellationException("Pointer input was reset")
-
-internal actual object CancelTimeoutCancellationException : CancellationException("")

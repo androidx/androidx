@@ -19,7 +19,6 @@ package androidx.sqlite.db
  * A query with typed bindings. It is better to use this API instead of
  * [android.database.sqlite.SQLiteDatabase.rawQuery] because it allows binding type safe parameters.
  */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public interface SupportSQLiteQuery {
     /** The SQL query. This query can have placeholders(?) for bind arguments. */
     public val sql: String

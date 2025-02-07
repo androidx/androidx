@@ -19,18 +19,19 @@ package androidx.room.solver
 import androidx.kruth.assertThat
 import androidx.room.RoomKspProcessor
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context.BooleanProcessorOptions.USE_NULL_AWARE_CONVERTER
 import androidx.room.processor.CustomConverterProcessor
 import androidx.room.processor.DaoProcessor
-import androidx.room.runKspTestWithK1
-import androidx.room.runProcessorTestWithK1
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
@@ -47,7 +48,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class NullabilityAwareTypeConverterStoreTest {
     @get:Rule val tmpFolder = TemporaryFolder()
-    val source =
+    val kotlinSource =
         Source.kotlin(
             "Foo.kt",
             """
@@ -83,6 +84,24 @@ class NullabilityAwareTypeConverterStoreTest {
                     TODO()
                 }
             }
+        """
+                .trimIndent()
+        )
+    val javaSource =
+        Source.java(
+            "MyPlatformConverters",
+            """
+        import androidx.room.TypeConverter;
+        public class MyPlatformConverters {
+            @TypeConverter
+            public static MyClass boxedIntegerToPlatformMyClass(Integer input) {
+                throw new UnsupportedOperationException();
+            }
+            @TypeConverter
+            public static Integer platformMyClassToBoxedInteger(MyClass input) {
+                throw new UnsupportedOperationException();
+            }
+        }
         """
                 .trimIndent()
         )
@@ -203,6 +222,38 @@ class NullabilityAwareTypeConverterStoreTest {
                 // we don't have a converter that would convert it from String?
                 Cursor to MyClass!: stringToMyClass
                 MyClass! to Cursor: myClassToString
+            """
+                .trimIndent()
+        )
+    }
+
+    @Test
+    fun withMyPlatformConverters() {
+        val myClassName = XClassName.get("", "MyClass")
+        val result =
+            collectConversionResults(
+                fromToPairs =
+                    listOf(
+                        XTypeName.PRIMITIVE_INT to myClassName.copy(nullable = false),
+                        XTypeName.PRIMITIVE_INT to myClassName.copy(nullable = true),
+                        myClassName.copy(nullable = false) to XTypeName.PRIMITIVE_INT,
+                        myClassName.copy(nullable = true) to XTypeName.PRIMITIVE_INT,
+                    ),
+                selectedConverters = listOf("MyPlatformConverters")
+            )
+        assertResult(
+            result.trim(),
+            """
+                JAVAC
+                int! to MyClass!: (int! as Integer) / boxedIntegerToPlatformMyClass
+                int! to MyClass?: (int! as Integer) / boxedIntegerToPlatformMyClass
+                MyClass! to int!: platformMyClassToBoxedInteger / (Integer as int!)
+                MyClass? to int!: platformMyClassToBoxedInteger / (Integer as int!)
+                KSP
+                int! to MyClass!: (int! as Integer) / boxedIntegerToPlatformMyClass
+                int! to MyClass?: (int! as Integer) / boxedIntegerToPlatformMyClass
+                MyClass! to int!: platformMyClassToBoxedInteger / checkNotNull(Integer?)
+                MyClass? to int!: platformMyClassToBoxedInteger / checkNotNull(Integer?)
             """
                 .trimIndent()
         )
@@ -406,7 +457,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = listOf(user, day, converters, dao),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -605,7 +656,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = listOf(source),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -681,7 +732,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runKspTestWithK1(
+        runKspTest(
             sources = listOf(converters),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -739,7 +790,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runKspTestWithK1(sources = listOf(source)) { invocation ->
+        runKspTest(sources = listOf(source)) { invocation ->
             val store = invocation.createStore("TimeConverter", "AwesomenessConverter")
             val instantType = invocation.processingEnv.requireType("java.time.Instant")
             val stringType = invocation.processingEnv.requireType("java.lang.String")
@@ -752,48 +803,53 @@ class NullabilityAwareTypeConverterStoreTest {
 
     /** Collect results for conversion from String to our type */
     private fun collectStringConversionResults(vararg selectedConverters: String): String {
-        val result = StringBuilder()
-        runProcessorTestWithK1(
-            sources = listOf(source),
-            options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
-        ) { invocation ->
-            val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
-            val myClassTypeElement = invocation.processingEnv.requireTypeElement("MyClass")
-            val stringTypeElement = invocation.processingEnv.requireTypeElement("java.lang.String")
-
-            result.appendLine(invocation.processingEnv.backend.name)
+        val stringName = XTypeName.STRING
+        val myClassName = XClassName.get("", "MyClass")
+        val fromToPairs = buildList {
             listOf(
-                    stringTypeElement.type.makeNullable(),
-                    stringTypeElement.type.makeNonNullable(),
+                    stringName.copy(nullable = true),
+                    stringName.copy(nullable = false),
                 )
-                .forEach { stringType ->
+                .forEach { string ->
                     listOf(
-                            myClassTypeElement.type.makeNullable(),
-                            myClassTypeElement.type.makeNonNullable()
+                            myClassName.copy(nullable = true),
+                            myClassName.copy(nullable = false),
                         )
-                        .forEach { myClassType ->
-                            val fromString =
-                                store.findTypeConverter(input = stringType, output = myClassType)
-                            val toString =
-                                store.findTypeConverter(input = myClassType, output = stringType)
-                            result.apply {
-                                append(stringType.toSignature())
-                                append(" to ")
-                                append(myClassType.toSignature())
-                                append(": ")
-                                appendLine(fromString?.toSignature() ?: "null")
-                            }
-
-                            result.apply {
-                                append(myClassType.toSignature())
-                                append(" to ")
-                                append(stringType.toSignature())
-                                append(": ")
-                                appendLine(toString?.toSignature() ?: "null")
-                            }
+                        .forEach { myClass ->
+                            add(string to myClass)
+                            add(myClass to string)
                         }
                 }
+        }
+        return collectConversionResults(fromToPairs, selectedConverters.toList())
+    }
+
+    /** Collect results for conversion from a type to another type */
+    private fun collectConversionResults(
+        fromToPairs: List<Pair<XTypeName, XTypeName>>,
+        selectedConverters: List<String>
+    ): String {
+        val result = StringBuilder()
+        runProcessorTest(
+            sources = listOf(kotlinSource, javaSource),
+            options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
+        ) { invocation ->
+            val store = invocation.createStore(*selectedConverters.toTypedArray())
+            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
+
+            result.appendLine(invocation.processingEnv.backend.name)
+            fromToPairs.forEach { (fromTypeName, toTypeName) ->
+                val fromType = invocation.processingEnv.requireType(fromTypeName)
+                val toType = invocation.processingEnv.requireType(toTypeName)
+                val converter = store.findTypeConverter(input = fromType, output = toType)
+                result.apply {
+                    append(fromType.toSignature())
+                    append(" to ")
+                    append(toType.toSignature())
+                    append(": ")
+                    appendLine(converter?.toSignature() ?: "null")
+                }
+            }
         }
         return result.toString()
     }
@@ -801,8 +857,8 @@ class NullabilityAwareTypeConverterStoreTest {
     /** Collect results for conversion from an unknown cursor type to our type */
     private fun collectCursorResults(vararg selectedConverters: String): String {
         val result = StringBuilder()
-        runProcessorTestWithK1(
-            sources = listOf(source),
+        runProcessorTest(
+            sources = listOf(kotlinSource, javaSource),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
             val store = invocation.createStore(*selectedConverters)

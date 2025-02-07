@@ -520,6 +520,13 @@ public abstract class AnnotatedGetterOrField {
                         env,
                         /* allowRepeated= */true);
                 break;
+            case BLOB_HANDLE_PROPERTY:
+                requireTypeIsOneOf(
+                        getterOrField,
+                        List.of(helper.mBlobHandleType),
+                        env,
+                        /* allowRepeated= */true);
+                break;
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
         }

@@ -19,6 +19,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.node.RootForTest.ExceptionHandler
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
@@ -71,4 +72,28 @@ interface RootForTest {
      * get to idle, e.g. during a `waitForIdle` call.
      */
     fun measureAndLayoutForTest() {}
+
+    /**
+     * Sets exception handler for measure / layout / draw passes. The exception handler observes
+     * exceptions in those passes and can prevent them from being thrown.
+     */
+    fun setExceptionHandler(exceptionHandler: ExceptionHandler?) {}
+
+    /**
+     * Called after exception was caught during UI operations. The callback is expected to return
+     * true if the exception is handled by the test or false otherwise.
+     */
+    fun interface ExceptionHandler {
+        /**
+         * Handle exception caught by the exception handler.
+         *
+         * @param e Caught exception
+         * @return true if the exception is handled by the test or false otherwise
+         */
+        fun handleException(e: Throwable): Boolean
+    }
+}
+
+internal fun ExceptionHandler?.handleOrThrow(e: Throwable) {
+    if (this == null || !handleException(e)) throw e
 }

@@ -1,0 +1,11 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigation:navigation-runtime>
+open annotation class androidx.navigation/NavDeepLinkSaveStateControl : kotlin/Annotation { // androidx.navigation/NavDeepLinkSaveStateControl|null[0]
+    constructor <init>() // androidx.navigation/NavDeepLinkSaveStateControl.<init>|<init>(){}[0]
+}

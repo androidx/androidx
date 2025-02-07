@@ -29,11 +29,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
@@ -397,8 +398,7 @@ public class PreviewChannel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see TvContractCompat.Channels#COLUMN_DESCRIPTION
          */
-        @NonNull
-        public Builder setDescription(@Nullable CharSequence description) {
+        public @NonNull Builder setDescription(@Nullable CharSequence description) {
             if (description == null) {
                 mValues.remove(Channels.COLUMN_DESCRIPTION);
             } else {

@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -461,11 +461,11 @@ class DataClassProcessorTargetFunctionTest {
     }
 
     private fun singleRun(vararg sources: Source, handler: ((XTestInvocation) -> Unit)? = null) {
-        runProcessorTestWithK1(sources = sources.toList()) { invocation ->
+        runProcessorTest(sources = sources.toList()) { invocation ->
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()
@@ -507,11 +507,11 @@ class DataClassProcessorTargetFunctionTest {
         val autoValueDataClassSource =
             Source.java(AUTOVALUE_MY_DATA_CLASS.canonicalName, autoValueDataClassCode)
         val all = sources.toList() + dataClassSource + autoValueDataClassSource
-        return runProcessorTestWithK1(sources = all) { invocation ->
+        return runProcessorTest(sources = all) { invocation ->
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null
                 )
                 .process()

@@ -96,7 +96,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                     }
                     if (mPageIndicator.setRangeAndZoom(
                             computeImportantRange(newValue), newValue.zoom, newValue.stable)) {
-                        setVisible();
+                        showScrubber();
                     }
                     updateFastScrollbar(newValue.scrollY / newValue.zoom);
                 }
@@ -123,7 +123,6 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         setWillNotDraw(false);
 
         mDragHandle = LayoutInflater.from(context).inflate(R.layout.fastscroll_handle, this, false);
-        mDragHandle.setAlpha(0F);
         mOriginalTranslateX = mDragHandle.getTranslationX();
 
         Resources res = getContext().getResources();
@@ -264,40 +263,60 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         return super.onTouchEvent(ev);
     }
 
-    /** Set view as visible. */
-    public void setVisible() {
+    /**
+     * Shows the scrubber (drag handle and page indicator) elements.
+     */
+    public void showScrubber() {
+        if (mPaginationModel != null && mPaginationModel.getNumPages() <= 1) {
+            hideScrubber();
+            return;
+        }
+        if (!mIsScrubberVisible) return;
         mDragHandle.setAlpha(1);
-        mDragHandle.animate().setStartDelay(FADE_DELAY_MS).alpha(0F).start();
+        mPageIndicator.show();
+        if (mState != State.DRAG) {
+            mPageIndicator.getView().animate().setStartDelay(FADE_DELAY_MS).alpha(0F).start();
+            mDragHandle.animate().setStartDelay(FADE_DELAY_MS).alpha(0F).start();
+        }
     }
 
     /**
-     *  Sets the visibility state of the scrubber and the associated page indicator.
+     * Hides the scrubber (drag handle and page indicator) elements.
+     */
+    public void hideScrubber() {
+        mDragHandle.setAlpha(0f);
+        mPageIndicator.hide();
+        mDragHandle.animate().cancel();
+    }
+
+    /**
+     * Sets the visibility state of the drag handle and the associated page indicator.
      */
     public void setScrubberVisibility(boolean visibility) {
         mIsScrubberVisible = visibility;
-        if (mIsScrubberVisible) {
-            setState(State.VISIBLE);
-            mPageIndicator.show();
+        if (!mIsScrubberVisible) {
+            hideScrubber();
         } else {
-            setState(State.NONE);
-            mPageIndicator.hide();
+            showScrubber();
         }
     }
 
     private void setState(State state) {
         switch (state) {
             case NONE:
-                mDragHandle.setAlpha(0F);
+                hideScrubber();
                 if (mDragged) {
                     // TODO: Tracker fast scroll.
                     mDragged = false;
                 }
                 break;
             case VISIBLE:
-                setVisible();
+                showScrubber();
                 break;
             case DRAG:
-                mDragHandle.animate().alpha(1).start();
+                if (mIsScrubberVisible) {
+                    mDragHandle.animate().alpha(1).start();
+                }
                 mDragged = true;
                 break;
         }
@@ -313,7 +332,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         // retracted vs rotate. Hence to avoid corner cases we just disable the
         // scroller when size changed, and wait until the scroll position is recomputed
         // before showing it back.
-        setState(State.NONE);
+        hideScrubber();
     }
 
     @Override
@@ -394,18 +413,12 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
             return;
         }
 
-        if (!mIsScrubberVisible) {
-            setState(State.NONE);
-            mPageIndicator.hide();
-            return;
-        }
-
         requireZoomViewAndPaginationModel();
         mCurrentPosition = position;
 
         boolean showScrollThumb = mPaginationModel.getEstimatedFullHeight()
                 > mZoomView.getViewportHeight() / mZoomView.getZoom() * MIN_SCREENS_TO_SHOW;
-        if (!showScrollThumb) {
+        if (!showScrollThumb || !mIsScrubberVisible) {
             if (mState != State.NONE) {
                 setState(State.NONE);
             }
@@ -422,7 +435,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
             mThumbY = MathUtils.clamp(tempThumbY, mTrackTopMargin,
                     getHeight() - mTrackBottomMargin);
             updateDragHandleAndIndicator(mThumbY);
-            if (mState != State.VISIBLE) {
+            if (mState != State.VISIBLE && mIsScrubberVisible) {
                 setState(State.VISIBLE);
             }
         }
@@ -437,12 +450,8 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         view.setTranslationY(transY);
         View indicatorView = mPageIndicator.getView();
         indicatorView.setY(newPosition - ((float) indicatorView.getHeight() / 2));
-        if (!mIsScrubberVisible) {
-            setState(State.NONE);
-            mPageIndicator.hide();
-        } else {
-            mPageIndicator.show();
-            setVisible();
+        if (mIsScrubberVisible) {
+            showScrubber();
         }
     }
 
@@ -507,6 +516,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         mCurrentPosition = 0;
         setState(State.NONE);
         mDragged = false;
+        hideScrubber();
 
         // Reset PageIndicator
         mPageIndicator.reset();

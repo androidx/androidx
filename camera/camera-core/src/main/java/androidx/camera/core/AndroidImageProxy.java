@@ -58,7 +58,7 @@ final class AndroidImageProxy implements ImageProxy {
                 image.getTimestamp(),
                 0,
                 new Matrix(),
-                FlashState.FLASH_STATE_UNKNOWN);
+                FlashState.UNKNOWN);
     }
 
     @Override

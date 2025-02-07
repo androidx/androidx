@@ -44,14 +44,14 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                     XCodeBlock.of(
                         "%T.INSTANCE.%L(%L)",
                         custom.className,
-                        custom.getMethodName(scope.language),
+                        custom.getFunctionName(scope.language),
                         inputVarName
                     )
                 CodeLanguage.KOTLIN ->
                     XCodeBlock.of(
                         "%T.%L(%L)",
                         custom.className,
-                        custom.getMethodName(scope.language),
+                        custom.getFunctionName(scope.language),
                         inputVarName
                     )
             }
@@ -59,7 +59,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             XCodeBlock.of(
                 "%T.%L(%L)",
                 custom.className,
-                custom.getMethodName(scope.language),
+                custom.getFunctionName(scope.language),
                 inputVarName
             )
         } else {
@@ -67,14 +67,14 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                 XCodeBlock.of(
                     "%N().%L(%L)",
                     providedTypeConverter(scope),
-                    custom.getMethodName(scope.language),
+                    custom.getFunctionName(scope.language),
                     inputVarName
                 )
             } else {
                 XCodeBlock.of(
                     "%N.%L(%L)",
                     typeConverter(scope),
-                    custom.getMethodName(scope.language),
+                    custom.getFunctionName(scope.language),
                     inputVarName
                 )
             }
@@ -127,7 +127,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
                     builder: XFunSpec.Builder
                 ) {

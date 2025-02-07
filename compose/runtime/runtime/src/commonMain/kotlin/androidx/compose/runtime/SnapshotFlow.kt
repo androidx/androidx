@@ -35,6 +35,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 /**
+ * The default coroutine context to use when calling [collectAsState]. Set this composition local to
+ * change the default context on which flow collection into state objects should occur.
+ *
+ * By default, this takes the value of [EmptyCoroutineContext].
+ */
+val LocalCollectAsStateCoroutineContext =
+    staticCompositionLocalOf<CoroutineContext> { EmptyCoroutineContext }
+
+/**
  * Collects values from this [StateFlow] and represents its latest value via [State]. The
  * [StateFlow.value] is used as an initial value. Every time there would be new value posted into
  * the [StateFlow] the returned [State] will be updated causing recomposition of every [State.value]
@@ -45,8 +54,9 @@ import kotlinx.coroutines.withContext
  */
 @Suppress("StateFlowValueCalledInComposition")
 @Composable
-fun <T> StateFlow<T>.collectAsState(context: CoroutineContext = EmptyCoroutineContext): State<T> =
-    collectAsState(value, context)
+fun <T> StateFlow<T>.collectAsState(
+    context: CoroutineContext = LocalCollectAsStateCoroutineContext.current
+): State<T> = collectAsState(value, context)
 
 /**
  * Collects values from this [Flow] and represents its latest value via [State]. Every time there
@@ -60,7 +70,7 @@ fun <T> StateFlow<T>.collectAsState(context: CoroutineContext = EmptyCoroutineCo
 @Composable
 fun <T : R, R> Flow<T>.collectAsState(
     initial: R,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = LocalCollectAsStateCoroutineContext.current
 ): State<R> =
     produceState(initial, this, context) {
         if (context == EmptyCoroutineContext) {

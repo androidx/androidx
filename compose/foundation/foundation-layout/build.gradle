@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -33,7 +33,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -113,7 +113,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Layouts"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true
@@ -123,8 +123,8 @@ androidx {
 }
 
 android {
-    compileSdk 35
-    namespace "androidx.compose.foundation.layout"
+    compileSdk = 35
+    namespace = "androidx.compose.foundation.layout"
     buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }

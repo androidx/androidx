@@ -78,7 +78,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
     fun modelObservation() {
         assumeTrue(Build.VERSION.SDK_INT != 29)
         benchmarkRule.measureRepeatedOnMainThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 nodes.forEach { node -> stateObserver.clear(node) }
                 random = Random(0)
             }
@@ -92,7 +92,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
         val list = mutableListOf<Any>()
         repeat(10) { list += nodes[random.nextInt(ScopeCount)] }
         benchmarkRule.measureRepeatedOnMainThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 random = Random(0)
                 nodes.forEach { node -> stateObserver.clear(node) }
             }
@@ -119,7 +119,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
                 repeat(10) { derivedState.value }
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 states.forEach { it.value += 1 }
                 Snapshot.sendApplyNotifications()
             }
@@ -142,7 +142,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
         }
 
         benchmarkRule.measureRepeatedOnMainThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 random = Random(0)
                 nodes.forEach { node -> stateObserver.clear(node) }
             }
@@ -158,7 +158,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
         benchmarkRule.measureRepeatedOnMainThread {
             stateObserver.clearIf { node -> node in nodeSet }
             random = Random(0)
-            runWithTimingDisabled { setupObservations() }
+            runWithMeasurementDisabled { setupObservations() }
         }
     }
 
@@ -167,7 +167,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
         assumeTrue(Build.VERSION.SDK_INT != 29)
         benchmarkRule.measureRepeatedOnMainThread {
             repeat(nodes.size) { i -> stateObserver.clearIf { node -> (node as Int) < i } }
-            runWithTimingDisabled { setupObservations() }
+            runWithMeasurementDisabled { setupObservations() }
         }
     }
 
@@ -180,7 +180,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
         benchmarkRule.measureRepeatedOnMainThread {
             random = Random(0)
             stateObserver.notifyChanges(states, snapshot)
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 stateObserver.clear()
                 setupObservations()
             }

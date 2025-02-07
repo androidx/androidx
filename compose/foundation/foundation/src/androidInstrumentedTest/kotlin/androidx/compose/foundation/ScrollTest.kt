@@ -669,8 +669,12 @@ class ScrollTest(private val config: Config) {
                     Horizontal -> Modifier.horizontalScroll(state)
                 }.toList()
 
-            val scrollableContainer = modifiers[0] as InspectableValue
-            val scroll = modifiers[1] as InspectableValue
+            val clip = modifiers[0] as InspectableValue
+            val scrollableContainer = modifiers[1] as InspectableValue
+            val scroll = modifiers[2] as InspectableValue
+
+            assertThat(clip.nameFallback).isEqualTo("graphicsLayer")
+
             assertThat(scrollableContainer.nameFallback).isEqualTo("scrollingContainer")
             assertThat(scrollableContainer.valueOverride).isNull()
             assertThat(scrollableContainer.inspectableElements.map { it.name }.asIterable())
@@ -703,8 +707,11 @@ class ScrollTest(private val config: Config) {
                     Horizontal -> Modifier.horizontalScroll(state, overscrollEffect = null)
                 }.toList()
 
-            val scrollableContainer = modifiers[0] as InspectableValue
-            val scroll = modifiers[1] as InspectableValue
+            val clip = modifiers[0] as InspectableValue
+            val scrollableContainer = modifiers[1] as InspectableValue
+            val scroll = modifiers[2] as InspectableValue
+
+            assertThat(clip.nameFallback).isEqualTo("graphicsLayer")
 
             assertThat(scrollableContainer.nameFallback).isEqualTo("scrollingContainer")
             assertThat(scrollableContainer.valueOverride).isNull()

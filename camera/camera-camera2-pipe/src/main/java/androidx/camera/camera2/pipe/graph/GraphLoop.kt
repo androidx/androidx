@@ -44,7 +44,7 @@ internal class GraphLoop(
     private val requiredParameters: Map<*, Any?>,
     private val graphListeners: List<Request.Listener>,
     private val graphState3A: GraphState3A?,
-    private val listeners: List<GraphLoop.Listener>,
+    private val listeners: List<Listener>,
     private val shutdownScope: CoroutineScope,
     dispatcher: CoroutineDispatcher
 ) : Closeable {
@@ -363,6 +363,9 @@ internal class GraphLoop(
                         is AbortCaptures -> it.requestProcessor === command.requestProcessor
                         is SubmitCapture -> {
                             abortRequests(it.requests)
+                            true
+                        }
+                        is StartRepeating -> {
                             true
                         }
                         is SubmitParameters -> {

@@ -18,7 +18,6 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
-import androidx.build.checkapi.CompilationInputs
 import androidx.build.getLibraryByName
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
@@ -169,7 +168,6 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     "MissingBuildMethod",
                     "SetterReturnsThis",
                     "OverlappingConstants",
-                    "IllegalStateException",
                     "ListenerLast",
                     "ExecutorRegistration",
                     "StreamFiles",
@@ -187,6 +185,12 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                 )
                 .joinToString()
         )
+    // Acronyms that can be used in their all-caps form. "SQ" is included to allow "SQLite".
+    val allowedAcronyms = listOf("SQL", "SQ", "URL", "EGL", "GL", "KHR")
+    for (acronym in allowedAcronyms) {
+        args.add("--api-lint-allowed-acronym")
+        args.add(acronym)
+    }
     val javaOnlyIssues = listOf("MissingJvmstatic", "ArrayReturn", "ValueClassDefinition")
     val javaOnlyErrorLevel =
         if (targetsJavaConsumers) {
@@ -201,24 +205,23 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
 
 /** Returns the args needed to generate a version history JSON from the previous API files. */
 internal fun getGenerateApiLevelsArgs(
+    apiDir: File,
     apiFiles: List<File>,
     currentVersion: Version,
     outputLocation: File
 ): List<String> {
-    val versions = getVersionsForApiLevels(apiFiles)
-
     return buildList {
         add("--generate-api-version-history")
         add(outputLocation.absolutePath)
-        if (versions.isNotEmpty()) {
-            add("--api-version-names")
-            add(versions.joinToString(" "))
-        }
         add("--current-version")
         add(currentVersion.toString())
         if (apiFiles.isNotEmpty()) {
             add("--api-version-signature-files")
             add(apiFiles.joinToString(":"))
+            add("--api-version-signature-pattern")
+            // Select the version from the files. The `*` wildcard matches and ignores any
+            // pre-release suffix.
+            add("$apiDir/{version:major.minor.patch}*.txt")
         }
     }
 }
@@ -243,8 +246,8 @@ sealed class ApiLintMode {
  */
 internal fun generateApi(
     metalavaClasspath: FileCollection,
-    projectXml: File?,
-    files: CompilationInputs,
+    projectXml: File,
+    sourcePaths: Collection<File>,
     apiLocation: ApiLocation,
     apiLintMode: ApiLintMode,
     includeRestrictToLibraryGroupApis: Boolean,
@@ -268,7 +271,7 @@ internal fun generateApi(
         generateApi(
             metalavaClasspath,
             projectXml,
-            files,
+            sourcePaths,
             apiLocation,
             generateApiMode,
             apiLintMode,
@@ -287,8 +290,8 @@ internal fun generateApi(
  */
 private fun generateApi(
     metalavaClasspath: FileCollection,
-    projectXml: File?,
-    files: CompilationInputs,
+    projectXml: File,
+    sourcePaths: Collection<File>,
     outputLocation: ApiLocation,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
@@ -300,10 +303,8 @@ private fun generateApi(
 ) {
     val args =
         getGenerateApiArgs(
-            files.bootClasspath,
-            files.dependencyClasspath,
             projectXml,
-            files.sourcePaths.files,
+            sourcePaths,
             outputLocation,
             generateApiMode,
             apiLintMode,
@@ -318,9 +319,7 @@ private fun generateApi(
  * [GenerateApiMode.PublicApi].
  */
 fun getGenerateApiArgs(
-    bootClasspath: FileCollection,
-    dependencyClasspath: FileCollection,
-    projectXml: File?,
+    projectXml: File,
     sourcePaths: Collection<File>,
     outputLocation: ApiLocation?,
     generateApiMode: GenerateApiMode,
@@ -333,18 +332,9 @@ fun getGenerateApiArgs(
         mutableListOf(
             "--source-path",
             sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+            "--project",
+            projectXml.path
         )
-
-    // If there's a project xml file, the classpath isn't needed
-    args +=
-        if (projectXml != null) {
-            listOf("--project", projectXml.path)
-        } else {
-            listOf(
-                "--classpath",
-                (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator)
-            )
-        }
 
     args += listOf("--format=v4", "--warnings-as-errors")
 

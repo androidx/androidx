@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -55,7 +55,7 @@ android {
 
 androidx {
     name = "Motion Prediction"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.INPUT_MOTIONPREDICTION
     inceptionYear = "2022"
     description = "reduce the latency of input interactions by predicting future MotionEvents"

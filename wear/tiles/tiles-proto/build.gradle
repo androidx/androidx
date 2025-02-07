@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ dependencies {
 
 androidx {
     name = "Wear Tiles Proto"
-    type = LibraryType.PUBLISHED_PROTO_LIBRARY
+    type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     inceptionYear = "2020"
     description = "Jarjar the generated proto dependency for use by wear-tiles."
 }

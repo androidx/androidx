@@ -2,7 +2,7 @@
 package androidx.lifecycle.viewmodel.navigation3 {
 
   public final class ViewModelStoreNavLocalProvider implements androidx.navigation3.NavLocalProvider {
-    method @androidx.compose.runtime.Composable public void ProvideToBackStack(java.util.List<?> backStack);
+    method @androidx.compose.runtime.Composable public void ProvideToBackStack(java.util.List<?> backStack, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public <T> void ProvideToEntry(androidx.navigation3.NavEntry<T> entry);
     field public static final androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavLocalProvider INSTANCE;
   }

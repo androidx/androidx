@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.ui.test.junit4.AndroidComposeTestRule#getAccessibilityValidator():
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.getAccessibilityValidator()
+RemovedMethod: androidx.compose.ui.test.junit4.AndroidComposeTestRule#setAccessibilityValidator(com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator):
+    Removed method androidx.compose.ui.test.junit4.AndroidComposeTestRule.setAccessibilityValidator(com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator)
+RemovedMethod: androidx.compose.ui.test.junit4.ComposeTestRule#disableAccessibilityChecks():
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.disableAccessibilityChecks()
+RemovedMethod: androidx.compose.ui.test.junit4.ComposeTestRule#enableAccessibilityChecks():
+    Removed method androidx.compose.ui.test.junit4.ComposeTestRule.enableAccessibilityChecks()

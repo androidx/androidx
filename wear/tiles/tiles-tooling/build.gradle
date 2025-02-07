@@ -5,8 +5,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -46,7 +46,7 @@ android {
 
 androidx {
     name = "Android Wear Tiles Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "A set of tools that are used to preview Tile components in Android Studio"
     legacyDisableKotlinStrictApiMode = true

@@ -18,11 +18,11 @@ package androidx.privacysandbox.ui.client.test
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.IBinder
 import android.os.SystemClock
 import android.view.View
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import com.google.common.truth.Truth
 import java.util.concurrent.CountDownLatch
@@ -35,7 +35,8 @@ class TestSandboxedUiAdapter(private val signalOptions: Set<String> = setOf("opt
     var internalClient: SandboxedUiAdapter.SessionClient? = null
     var testSession: TestSession? = null
     var isZOrderOnTop = true
-    var inputToken: IBinder? = null
+    var sessionConstants: SessionConstants? = null
+
     // When set to true, the onSessionOpened callback will only be invoked when specified
     // by the test. This is to test race conditions when the session is being loaded.
     var delayOpenSessionCallback = false
@@ -46,7 +47,7 @@ class TestSandboxedUiAdapter(private val signalOptions: Set<String> = setOf("opt
 
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -61,7 +62,7 @@ class TestSandboxedUiAdapter(private val signalOptions: Set<String> = setOf("opt
             }
             isSessionOpened = true
             this.isZOrderOnTop = isZOrderOnTop
-            this.inputToken = windowInputToken
+            this.sessionConstants = sessionConstants
             openSessionLatch.countDown()
         }
     }
@@ -100,6 +101,13 @@ class TestSandboxedUiAdapter(private val signalOptions: Set<String> = setOf("opt
                 sessionClosedLatch.await(SandboxedSdkViewTest.TIMEOUT, TimeUnit.MILLISECONDS)
             )
             .isFalse()
+    }
+
+    internal fun assertSessionClosed() {
+        Truth.assertThat(
+                sessionClosedLatch.await(SandboxedSdkViewTest.TIMEOUT, TimeUnit.MILLISECONDS)
+            )
+            .isTrue()
     }
 
     inner class TestSession(context: Context, override val signalOptions: Set<String>) :

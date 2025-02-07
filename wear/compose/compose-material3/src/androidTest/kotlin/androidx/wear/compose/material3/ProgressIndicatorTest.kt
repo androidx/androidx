@@ -17,13 +17,17 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -33,6 +37,7 @@ import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -259,17 +264,14 @@ class CircularProgressIndicatorTest {
     }
 }
 
-class CircularProgressIndicatorContentTest {
+class DrawCircularProgressIndicatorTest {
 
     @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
-                progress = { 0.5f },
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            CircularProgressIndicatorStatic(progress = 0.5f, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -285,7 +287,7 @@ class CircularProgressIndicatorContentTest {
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = { progress.value }
+                progress = progress.value
             )
         }
 
@@ -302,7 +304,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 1f },
+                progress = 1f,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -325,7 +327,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0f },
+                progress = 0f,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -348,7 +350,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.5f },
+                progress = 0.5f,
                 startAngle = 0f,
                 endAngle = 180f,
                 colors =
@@ -377,7 +379,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.02f },
+                progress = 0.02f,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -403,7 +405,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.5f },
+                progress = 0.5f,
                 strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -429,7 +431,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.5f },
+                progress = 0.5f,
                 strokeWidth = CircularProgressIndicatorDefaults.largeStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -456,7 +458,7 @@ class CircularProgressIndicatorContentTest {
         setContentWithTheme {
             CircularProgressIndicatorStatic(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.5f },
+                progress = 0.5f,
                 enabled = false,
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -481,6 +483,36 @@ class CircularProgressIndicatorContentTest {
             ScreenConfiguration(SCREEN_SIZE_LARGE) { composable() }
         }
     }
+}
+
+@Composable
+internal fun CircularProgressIndicatorStatic(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    allowProgressOverflow: Boolean = false,
+    startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
+    endAngle: Float = startAngle,
+    colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
+    strokeWidth: Dp = CircularProgressIndicatorDefaults.largeStrokeWidth,
+    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
+    enabled: Boolean = true
+) {
+    Spacer(
+        modifier.fillMaxSize().focusable().drawWithCache {
+            onDrawWithContent {
+                drawCircularProgressIndicator(
+                    progress = progress,
+                    allowProgressOverflow = allowProgressOverflow,
+                    startAngle = startAngle,
+                    endAngle = endAngle,
+                    strokeWidth = strokeWidth,
+                    colors = colors,
+                    gapSize = gapSize,
+                    enabled = enabled
+                )
+            }
+        }
+    )
 }
 
 private val COMPONENT_SIZE = 204.dp

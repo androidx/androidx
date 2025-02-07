@@ -29,6 +29,7 @@ import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.Stack
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.tooling.CompositionErrorContext
 
 /**
  * Used as a placeholder for paused compositions to ensure the remembers are dispatch in the correct
@@ -56,8 +57,10 @@ internal class PausedCompositionRemembers(private val abandoning: MutableSet<Rem
 }
 
 /** Helper for collecting remember observers for later strictly ordered dispatch. */
-internal class RememberEventDispatcher(private val abandoning: MutableSet<RememberObserver>) :
-    RememberManager {
+internal class RememberEventDispatcher(
+    private val abandoning: MutableSet<RememberObserver>,
+    private val traceContext: CompositionErrorContext?
+) : RememberManager {
     private val remembering = mutableVectorOf<RememberObserverHolder>()
     private var currentRememberingList = remembering
     private val leaving = mutableVectorOf<Any>()
@@ -152,17 +155,19 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
                 val releasing = releasing
                 for (i in leaving.size - 1 downTo 0) {
                     val instance = leaving[i]
-                    if (instance is RememberObserverHolder) {
-                        val wrapped = instance.wrapped
-                        abandoning.remove(wrapped)
-                        wrapped.onForgotten()
-                    }
-                    if (instance is ComposeNodeLifecycleCallback) {
-                        // node callbacks are in the same queue as forgets to ensure ordering
-                        if (releasing != null && instance in releasing) {
-                            instance.onRelease()
-                        } else {
-                            instance.onDeactivate()
+                    withComposeStackTrace(instance) {
+                        if (instance is RememberObserverHolder) {
+                            val wrapped = instance.wrapped
+                            abandoning.remove(wrapped)
+                            wrapped.onForgotten()
+                        }
+                        if (instance is ComposeNodeLifecycleCallback) {
+                            // node callbacks are in the same queue as forgets to ensure ordering
+                            if (releasing != null && instance in releasing) {
+                                instance.onRelease()
+                            } else {
+                                instance.onDeactivate()
+                            }
                         }
                     }
                 }
@@ -179,7 +184,7 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
         list.forEach { instance ->
             val wrapped = instance.wrapped
             abandoning.remove(wrapped)
-            wrapped.onRemembered()
+            withComposeStackTrace(instance) { wrapped.onRemembered() }
         }
     }
 
@@ -293,6 +298,13 @@ internal class RememberEventDispatcher(private val abandoning: MutableSet<Rememb
             }
         }
     }
+
+    private inline fun <T> withComposeStackTrace(instance: Any, block: () -> T): T =
+        try {
+            block()
+        } catch (e: Throwable) {
+            throw e.also { traceContext?.apply { e.attachComposeStackTrace(instance) } }
+        }
 }
 
 private fun <T> MutableList<T>.swap(a: Int, b: Int) {

@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -84,7 +84,7 @@ android {
 
 androidx {
     name = "Android Graphics Path"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_PATH
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"

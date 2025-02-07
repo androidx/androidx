@@ -23,6 +23,7 @@ package androidx.benchmark
  */
 @ExperimentalBenchmarkConfigApi
 class MicrobenchmarkConfig
+@JvmOverloads
 constructor(
     /**
      * Timing metrics for primary phase, post-warmup

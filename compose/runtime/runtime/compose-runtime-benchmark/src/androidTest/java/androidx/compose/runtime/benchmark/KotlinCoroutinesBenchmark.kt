@@ -48,34 +48,36 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
     @Test
     fun launch1() {
         benchmarkRule.measureRepeated {
-            val coroutineScope = runWithTimingDisabled { CoroutineScope(dispatcher) }
+            val coroutineScope = runWithMeasurementDisabled { CoroutineScope(dispatcher) }
             coroutineScope.launch { noopForever() }
-            runWithTimingDisabled { coroutineScope.cancel() }
+            runWithMeasurementDisabled { coroutineScope.cancel() }
         }
     }
 
     @Test
     fun launch10() {
         benchmarkRule.measureRepeated {
-            val coroutineScope = runWithTimingDisabled { CoroutineScope(dispatcher) }
+            val coroutineScope = runWithMeasurementDisabled { CoroutineScope(dispatcher) }
             repeat(10) { coroutineScope.launch { noopForever() } }
-            runWithTimingDisabled { coroutineScope.cancel() }
+            runWithMeasurementDisabled { coroutineScope.cancel() }
         }
     }
 
     @Test
     fun launch100() {
         benchmarkRule.measureRepeated {
-            val coroutineScope = runWithTimingDisabled { CoroutineScope(dispatcher) }
+            val coroutineScope = runWithMeasurementDisabled { CoroutineScope(dispatcher) }
             repeat(100) { coroutineScope.launch { noopForever() } }
-            runWithTimingDisabled { coroutineScope.cancel() }
+            runWithMeasurementDisabled { coroutineScope.cancel() }
         }
     }
 
     @Test
     fun cancelJob() {
         benchmarkRule.measureRepeated {
-            val job = runWithTimingDisabled { CoroutineScope(dispatcher).launch { noopForever() } }
+            val job = runWithMeasurementDisabled {
+                CoroutineScope(dispatcher).launch { noopForever() }
+            }
             job.cancel()
         }
     }
@@ -83,7 +85,7 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
     @Test
     fun cancelCoroutineScopeWithoutJobs() {
         benchmarkRule.measureRepeated {
-            val scope = runWithTimingDisabled { CoroutineScope(dispatcher) }
+            val scope = runWithMeasurementDisabled { CoroutineScope(dispatcher) }
             scope.cancel()
         }
     }
@@ -91,7 +93,7 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
     @Test
     fun cancelCoroutineScopeWithJobs1() {
         benchmarkRule.measureRepeated {
-            val scope = runWithTimingDisabled {
+            val scope = runWithMeasurementDisabled {
                 CoroutineScope(dispatcher).apply {
                     launch { noopForever() }
                     InstrumentationRegistry.getInstrumentation().waitForIdleSync()
@@ -104,7 +106,7 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
     @Test
     fun cancelCoroutineScopeWithJobs10() {
         benchmarkRule.measureRepeated {
-            val scope = runWithTimingDisabled {
+            val scope = runWithMeasurementDisabled {
                 CoroutineScope(dispatcher).apply {
                     repeat(10) { launch { noopForever() } }
                     InstrumentationRegistry.getInstrumentation().waitForIdleSync()
@@ -117,7 +119,7 @@ class KotlinCoroutinesBenchmark(private val dispatcher: CoroutineDispatcher) {
     @Test
     fun cancelCoroutineScopeWithJobs100() {
         benchmarkRule.measureRepeated {
-            val scope = runWithTimingDisabled {
+            val scope = runWithMeasurementDisabled {
                 CoroutineScope(dispatcher).apply {
                     repeat(100) { launch { noopForever() } }
                     InstrumentationRegistry.getInstrumentation().waitForIdleSync()

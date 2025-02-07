@@ -111,7 +111,7 @@ fun LinearProgressIndicator(
     Canvas(
         modifier
             .increaseSemanticsBounds()
-            .progressSemantics(coercedProgress)
+            .progressSemantics(coercedProgress.takeUnless { it.isNaN() } ?: 0f)
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
         val strokeWidth = size.height
@@ -339,7 +339,11 @@ fun CircularProgressIndicator(
 ) {
     val coercedProgress = progress.fastCoerceIn(0f, 1f)
     val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
-    Canvas(modifier.progressSemantics(coercedProgress).size(CircularIndicatorDiameter)) {
+    Canvas(
+        modifier
+            .progressSemantics(coercedProgress.takeUnless { it.isNaN() } ?: 0f)
+            .size(CircularIndicatorDiameter)
+    ) {
         // Start at 12 O'clock
         val startAngle = 270f
         val sweep = coercedProgress * 360f

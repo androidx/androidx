@@ -74,7 +74,7 @@ class FocusableInLazyListBenchmark {
     ) {
         runBenchmarkFor({ LazyListTestCase(itemCount) { state -> content(state) } }) {
             measureRepeatedOnUiThread {
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     doFramesUntilNoChangesPending()
                     getTestCase().toggleState()
                 }
@@ -83,9 +83,9 @@ class FocusableInLazyListBenchmark {
                 requestLayout()
                 measure()
                 layout()
-                runWithTimingDisabled { drawPrepare() }
+                runWithMeasurementDisabled { drawPrepare() }
                 draw()
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     drawFinish()
                     assertNoPendingChanges()
                     disposeContent()

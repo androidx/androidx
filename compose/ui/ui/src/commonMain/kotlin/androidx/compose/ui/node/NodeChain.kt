@@ -41,7 +41,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         private set
 
     internal val isUpdating: Boolean
-        get() = head.parent != null
+        get() = SentinelHead.child != null
 
     private val aggregateChildKindSet: Int
         get() = head.aggregateChildKindSet

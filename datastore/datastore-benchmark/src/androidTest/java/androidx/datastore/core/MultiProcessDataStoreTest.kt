@@ -60,7 +60,7 @@ class MultiProcessDataStoreTest {
                     ) {
                         testFile
                     }
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     Assert.assertNotNull(store)
                     newScope.cancel()
                     newScope = TestScope(UnconfinedTestDispatcher())
@@ -92,7 +92,7 @@ class MultiProcessDataStoreTest {
             runBlocking {
                 val result = store.data.first()
 
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     assertEquals(1, result)
                     job.cancelAndJoin()
                     reinitDataStore()
@@ -118,7 +118,7 @@ class MultiProcessDataStoreTest {
             benchmark.measureRepeated {
                 runBlocking(scope.coroutineContext) {
                     val data = store.data.first()
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         val exp: Byte = 1
                         Assert.assertEquals(exp, data)
                     }
@@ -143,7 +143,7 @@ class MultiProcessDataStoreTest {
                 runBlocking(scope.coroutineContext) {
                     store.updateData { 1 }
                     val data = store.data.first()
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         val exp: Byte = 1
                         Assert.assertEquals(exp, data)
                     }
@@ -170,7 +170,7 @@ class MultiProcessDataStoreTest {
                     val newValue = (++counter).toByte()
                     store.updateData { newValue }
                     val data = store.data.first()
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         val exp: Byte = newValue
                         Assert.assertEquals(exp, data)
                     }

@@ -133,7 +133,7 @@ private constructor(
          * - Controlling which parts of multi-stage work are measured (e.g. View measure/layout)
          * - Disabling timing during per-loop verification
          *
-         * @sample androidx.benchmark.samples.runWithTimingDisabledSample
+         * @sample androidx.benchmark.samples.runWithMeasurementDisabledSample
          */
         public inline fun <T> runWithTimingDisabled(block: () -> T): T {
             getOuterState().pauseTiming()

@@ -83,7 +83,10 @@ value class Dp(val value: Float) : Comparable<Dp> {
         /** Infinite dp dimension. */
         @Stable val Infinity = Dp(Float.POSITIVE_INFINITY)
 
-        /** Constant that means unspecified Dp */
+        /**
+         * Constant that means unspecified Dp. Instead of comparing a [Dp] value to this constant,
+         * consider using [isSpecified] and [isUnspecified] instead.
+         */
         @Stable val Unspecified = Dp(Float.NaN)
     }
 }

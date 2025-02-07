@@ -43,4 +43,5 @@
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"ਤਸਦੀਕ ਕਰੋ"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"ਖਾਰਜ ਕਰੋ"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"ਫ਼ੋਨ \'ਤੇ ਖੋਲ੍ਹੋ"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="7845336918219306426">"\'ਫ਼ੋਨ \'ਤੇ ਖੋਲ੍ਹੋ\' ਪ੍ਰਤੀਕ"</string>
 </resources>

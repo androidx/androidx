@@ -23,7 +23,6 @@ import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -39,6 +38,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
 import org.junit.Rule
@@ -88,6 +88,14 @@ class IconToggleButtonBenchmark(private val type: IconToggleButtonType) {
     fun iconToggleButton_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(iconToggleButtonTestCaseFactory)
     }
+
+    @Test
+    fun toggle_recomposeMeasureLayout() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory = iconToggleButtonTestCaseFactory,
+            assertOneRecomposition = false
+        )
+    }
 }
 
 internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) :
@@ -125,12 +133,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 IconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes =
-                        IconButtonShapes(
-                            shape = IconButtonDefaults.smallRoundShape,
-                            pressedShape = IconButtonDefaults.smallPressedShape,
-                            checkedShape = IconButtonDefaults.smallSquareShape
-                        )
+                    shapes = IconButtonDefaults.toggleableShapes()
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -138,12 +141,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 FilledIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes =
-                        IconButtonShapes(
-                            shape = IconButtonDefaults.smallRoundShape,
-                            pressedShape = IconButtonDefaults.smallPressedShape,
-                            checkedShape = IconButtonDefaults.smallSquareShape
-                        )
+                    shapes = IconButtonDefaults.toggleableShapes()
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -151,12 +149,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 FilledTonalIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes =
-                        IconButtonShapes(
-                            shape = IconButtonDefaults.smallRoundShape,
-                            pressedShape = IconButtonDefaults.smallPressedShape,
-                            checkedShape = IconButtonDefaults.smallSquareShape
-                        )
+                    shapes = IconButtonDefaults.toggleableShapes()
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -164,12 +157,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 OutlinedIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes =
-                        IconButtonShapes(
-                            shape = IconButtonDefaults.smallRoundShape,
-                            pressedShape = IconButtonDefaults.smallPressedShape,
-                            checkedShape = IconButtonDefaults.smallSquareShape
-                        )
+                    shapes = IconButtonDefaults.toggleableShapes()
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }

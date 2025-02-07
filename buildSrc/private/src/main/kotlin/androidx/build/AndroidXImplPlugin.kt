@@ -142,7 +142,7 @@ abstract class AndroidXImplPlugin
 @Inject
 constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Project> {
     @get:Inject abstract val registry: BuildEventsListenerRegistry
-    @Suppress("UnstableApiUsage") @get:Inject abstract val buildFeatures: BuildFeatures
+    @get:Inject abstract val buildFeatures: BuildFeatures
 
     override fun apply(project: Project) {
         if (project.isRoot)
@@ -508,7 +508,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     val defaultTargetVersionForNonAndroidTargets =
                         project.provider {
                             getDefaultTargetJavaVersion(
-                                    libraryType = androidXExtension.type,
+                                    softwareType = androidXExtension.type,
                                     projectName = project.name,
                                     targetName = name
                                 )
@@ -518,9 +518,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                         defaultTargetVersionForNonAndroidTargets.map { JvmTarget.fromTarget(it) }
                     compilations.configureEach { compilation ->
                         compilation.compileJavaTaskProvider?.configure { javaCompile ->
-                            println(
-                                "target javac ${defaultTargetVersionForNonAndroidTargets.get()}"
-                            )
                             javaCompile.targetCompatibility =
                                 defaultTargetVersionForNonAndroidTargets.get()
                             javaCompile.sourceCompatibility =
@@ -702,8 +699,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             finalizeDsl {
                 // Propagate the compileSdk value into minCompileSdk. Must be done after the DSL in
                 // build.gradle files (that sets compileSdk in the first place) is evaluated.
+
                 kotlinMultiplatformAndroidTarget.aarMetadata.minCompileSdk =
                     kotlinMultiplatformAndroidTarget.compileSdk
+
+                project.setUpBlankProguardFileForKmpAarIfNeeded(
+                    kotlinMultiplatformAndroidTarget.optimization.consumerKeepRules
+                )
             }
         }
         project.disableStrictVersionConstraints()
@@ -729,7 +731,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 taskProvider.configure { task -> task.dependsOn(it.compileTaskProvider) }
             }
         }
-
         project.afterEvaluate {
             project.addToBuildOnServer("assembleAndroidMain")
             project.addToBuildOnServer("lint")
@@ -920,13 +921,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 it.buildTypes.configureEach { buildType ->
                     if (buildType.name == buildTypeForTests && !project.hasBenchmarkPlugin())
                         (buildType as TestBuildType).isDebuggable = true
-                    val blankProguardRules =
-                        project
-                            .getSupportRootFolder()
-                            .resolve("buildSrc/blank-proguard-rules/proguard-rules.pro")
-                    if (buildType.consumerProguardFiles.isEmpty()) {
-                        buildType.consumerProguardFiles.add(blankProguardRules)
-                    }
+                    project.setUpBlankProguardFileForAarIfNeeded(buildType)
                 }
             }
             beforeVariants(selector().withBuildType("debug")) { variant -> variant.enable = false }
@@ -1031,6 +1026,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
+        project.setUpBlankProguardFileForJarIfNeeded(javaExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
         project.hideJavadocTask()
@@ -1074,9 +1070,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         afterEvaluate {
             val mavenGroup = androidXExtension.mavenGroup
             val isProbablyPublished =
-                androidXExtension.type == LibraryType.PUBLISHED_LIBRARY ||
+                androidXExtension.type == SoftwareType.PUBLISHED_LIBRARY ||
                     androidXExtension.type ==
-                        LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+                        SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
             if (mavenGroup != null && isProbablyPublished && androidXExtension.shouldPublish()) {
                 validateProjectMavenGroup(mavenGroup.group)
                 validateProjectMavenName(androidXExtension.name.get(), mavenGroup.group)
@@ -1393,7 +1389,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 if (!parsed.shouldRelease()) {
                     continue
                 }
-                if (parsed.libraryType == LibraryType.SAMPLES) {
+                if (parsed.softwareType == SoftwareType.SAMPLES) {
                     // a SAMPLES project knows how to publish, but we don't intend to actually
                     // publish it
                     continue
@@ -1475,7 +1471,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 }
 
 internal fun getDefaultTargetJavaVersion(
-    libraryType: LibraryType,
+    softwareType: SoftwareType,
     projectName: String? = null,
     targetName: String? = null
 ): JavaVersion {
@@ -1484,7 +1480,7 @@ internal fun getDefaultTargetJavaVersion(
         projectName != null && projectName.contains("room-compiler-processing") -> VERSION_11
         projectName != null && projectName.contains("desktop") -> VERSION_11
         targetName != null && (targetName == "desktop" || targetName == "jvmStubs") -> VERSION_11
-        libraryType.compilationTarget == CompilationTarget.HOST -> VERSION_17
+        softwareType.compilationTarget == CompilationTarget.HOST -> VERSION_17
         else -> VERSION_1_8
     }
 }
@@ -1651,8 +1647,8 @@ fun Project.validateProjectParser(androidXExtension: AndroidXExtension) {
     project.gradle.taskGraph.whenReady {
         val parsed = project.parse()
         val errorPrefix = "ProjectParser error parsing ${project.path}."
-        check(androidXExtension.type == parsed.libraryType) {
-            "$errorPrefix Incorrectly computed libraryType = ${parsed.libraryType} " +
+        check(androidXExtension.type == parsed.softwareType) {
+            "$errorPrefix Incorrectly computed libraryType = ${parsed.softwareType} " +
                 "instead of ${androidXExtension.type}"
         }
         check(androidXExtension.shouldPublish() == parsed.shouldPublish()) {

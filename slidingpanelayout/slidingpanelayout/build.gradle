@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -16,7 +16,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core-ktx:1.1.0")
-    api("androidx.customview:customview:1.1.0")
+    api(project(":customview:customview"))
     implementation("androidx.window:window:1.2.0")
     implementation("androidx.transition:transition:1.4.1")
 
@@ -32,7 +32,7 @@ dependencies {
 
 androidx {
     name = "Sliding Pane Layout"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "SlidingPaneLayout offers a responsive, two pane layout that automatically switches between overlapping panes on smaller devices to a side by side view on larger devices."
     legacyDisableKotlinStrictApiMode = true

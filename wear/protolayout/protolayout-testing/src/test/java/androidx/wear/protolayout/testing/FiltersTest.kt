@@ -37,6 +37,9 @@ import androidx.wear.protolayout.ModifiersBuilders.Modifiers
 import androidx.wear.protolayout.ModifiersBuilders.Semantics
 import androidx.wear.protolayout.TypeBuilders.StringProp
 import androidx.wear.protolayout.expression.DynamicBuilders
+import androidx.wear.protolayout.expression.dynamicDataMapOf
+import androidx.wear.protolayout.expression.intAppDataKey
+import androidx.wear.protolayout.expression.mapTo
 import androidx.wear.protolayout.layout.basicText
 import androidx.wear.protolayout.modifiers.loadAction
 import androidx.wear.protolayout.types.LayoutString
@@ -79,15 +82,21 @@ class FiltersTest {
     }
 
     @Test
-    fun hasClickable_doesNotMatch() {
-        val clickable = Clickable.Builder().setOnClick(loadAction()).build()
-        val action = loadAction {}
+    fun hasClickable_withStateMap_doesNotMatch() {
         val testElement =
             Column.Builder()
-                .setModifiers(Modifiers.Builder().setClickable(clickable).build())
+                .setModifiers(
+                    Modifiers.Builder()
+                        .setClickable(Clickable.Builder().setOnClick(loadAction()).build())
+                        .build()
+                )
                 .build()
 
-        assertThat(hasClickable(action = action).matches(testElement)).isFalse()
+        assertThat(
+                hasClickable(action = loadAction(dynamicDataMapOf(intAppDataKey("key") mapTo 42)))
+                    .matches(testElement)
+            )
+            .isFalse()
     }
 
     @Test

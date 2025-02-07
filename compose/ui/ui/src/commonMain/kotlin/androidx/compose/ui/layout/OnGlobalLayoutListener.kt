@@ -17,10 +17,10 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.spatial.RelativeLayoutBounds
-import kotlinx.coroutines.DisposableHandle
 
 /**
  * Registers a [callback] to be executed with the position of this modifier node relative to the
@@ -57,7 +57,7 @@ fun DelegatableNode.registerOnGlobalLayoutListener(
     throttleMillis: Long,
     debounceMillis: Long,
     callback: (RelativeLayoutBounds) -> Unit
-): DisposableHandle {
+): RegistrationHandle {
     val layoutNode = requireLayoutNode()
     val id = layoutNode.semanticsId
     val rectManager = layoutNode.requireOwner().rectManager

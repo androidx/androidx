@@ -43,7 +43,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -310,7 +309,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun inputSelection_changesSelectionState() {
         val state = TextFieldState("hello")
@@ -326,7 +324,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(state.selection).isEqualTo(TextRange(2, 3)) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun inputSelection_changesSelectionState_appliesFilter() {
         val state = TextFieldState("hello", initialSelection = TextRange(5))
@@ -420,7 +417,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText))
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_paste() {
         val state = TextFieldState("Here World!")
@@ -440,7 +436,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_paste_appliesFilter() {
         val state = TextFieldState("Here World!")
@@ -471,7 +466,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_copy() = runTest {
         val state = TextFieldState("Hello World!")

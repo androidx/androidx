@@ -764,7 +764,12 @@ private val IndicatorVerticalPaddingNoLabel: Dp =
     (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
         NavigationRailBaselineItemTokens.IconSize) / 2
 
-/** Interface that allows libraries to override the behavior of the [NavigationRail] component. */
+/**
+ * Interface that allows libraries to override the behavior of the [NavigationRail] component.
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [LocalNavigationRailComponentOverride] in the Compose hierarchy.
+ */
 @ExperimentalMaterial3ComponentOverrideApi
 interface NavigationRailComponentOverride {
     /** Behavior function that is called by the [NavigationRail] component. */
@@ -772,7 +777,7 @@ interface NavigationRailComponentOverride {
 }
 
 /**
- * Parameters available to NavigationRail.
+ * Parameters available to [NavigationRail].
  *
  * @param modifier the [Modifier] to be applied to this navigation rail
  * @param containerColor the color used for the background of this navigation rail. Use
@@ -795,7 +800,11 @@ internal constructor(
     val content: @Composable ColumnScope.() -> Unit,
 )
 
-/** [NavigationRailComponentOverride] used when no override is specified. */
+/**
+ * [NavigationRailComponentOverride] used when no override is specified.
+ *
+ * This override provides the default behavior of the [NavigationRail] component.
+ */
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultNavigationRailComponentOverride : NavigationRailComponentOverride {
     @Composable

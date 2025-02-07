@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,7 +50,7 @@ dependencies {
 
 androidx {
     name = "Glance AppWidget Protos"
-    type = LibraryType.PUBLISHED_PROTO_LIBRARY
+    type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     inceptionYear = "2021"
     description = "Protos for use with glance app widgets."
 }

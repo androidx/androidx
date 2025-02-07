@@ -23,6 +23,7 @@ package androidx.browser.auth {
   }
 
   @SuppressCompatibility @androidx.browser.auth.ExperimentalAuthTab public class AuthTabIntent {
+    method public android.graphics.Bitmap? getCloseButtonIcon();
     method public static androidx.browser.auth.AuthTabColorSchemeParams getColorSchemeParams(android.content.Intent, @IntRange(from=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT, to=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK) int);
     method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public androidx.browser.auth.AuthTabSession.PendingSession? getPendingSession();
     method public androidx.browser.auth.AuthTabSession? getSession();
@@ -50,6 +51,7 @@ package androidx.browser.auth {
   public static final class AuthTabIntent.Builder {
     ctor public AuthTabIntent.Builder();
     method public androidx.browser.auth.AuthTabIntent build();
+    method public androidx.browser.auth.AuthTabIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public androidx.browser.auth.AuthTabIntent.Builder setColorScheme(@IntRange(from=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM, to=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK) int);
     method public androidx.browser.auth.AuthTabIntent.Builder setColorSchemeParams(@IntRange(from=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT, to=androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK) int, androidx.browser.auth.AuthTabColorSchemeParams);
     method public androidx.browser.auth.AuthTabIntent.Builder setDefaultColorSchemeParams(androidx.browser.auth.AuthTabColorSchemeParams);

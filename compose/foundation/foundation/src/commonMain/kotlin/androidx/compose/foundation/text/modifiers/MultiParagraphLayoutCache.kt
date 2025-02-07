@@ -135,6 +135,7 @@ internal class MultiParagraphLayoutCache(
             } else {
                 constraints
             }
+
         if (!layoutCache.newLayoutWillBeDifferent(finalConstraints, layoutDirection)) {
             if (finalConstraints == layoutCache!!.layoutInput.constraints) return false
             // we need to regen the input, constraints aren't the same
@@ -239,10 +240,18 @@ internal class MultiParagraphLayoutCache(
         val localWidth = cachedIntrinsicHeightInputWidth
         val localHeght = cachedIntrinsicHeight
         if (width == localWidth && localWidth != -1) return localHeght
+        val constraints = Constraints(0, width, 0, Constraints.Infinity)
+        val finalConstraints =
+            if (minLines > 1) {
+                useMinLinesConstrainer(constraints, layoutDirection)
+            } else {
+                constraints
+            }
         val result =
-            layoutText(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
+            layoutText(finalConstraints, layoutDirection)
                 .height
                 .ceilToIntPx()
+                .coerceAtLeast(finalConstraints.minHeight)
 
         cachedIntrinsicHeightInputWidth = width
         cachedIntrinsicHeight = result
@@ -360,14 +369,6 @@ internal class MultiParagraphLayoutCache(
         // breaks can't change, height can't change
         return false
     }
-
-    /**
-     * Compute the maxWidth for text layout from [Constraints]
-     *
-     * Falls back to [paragraphIntrinsics.maxIntrinsicWidth] when not exact constraints.
-     */
-    private fun maxWidth(constraints: Constraints): Int =
-        finalMaxWidth(constraints, softWrap, overflow, paragraphIntrinsics!!.maxIntrinsicWidth)
 
     private fun markDirty() {
         paragraphIntrinsics = null

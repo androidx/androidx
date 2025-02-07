@@ -13,890 +13,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.appfunctions.metadata
 
-import com.google.common.truth.Truth
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata.Companion.TYPE_INT
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata.Companion.TYPE_LONG
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata.Companion.TYPE_STRING
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class AppFunctionMetadataTest {
+
     @Test
-    fun testCreateAppFunctionMetadata_peripheralProperties() {
+    fun appFunctionMetadata_equalsAndHashCode() {
+        val schema =
+            AppFunctionSchemaMetadata(category = "testCategory", name = "testName", version = 1L)
+        val parameters = emptyList<AppFunctionParameterMetadata>()
+        val response =
+            AppFunctionResponseMetadata(
+                valueType = AppFunctionPrimitiveTypeMetadata(type = TYPE_STRING, isNullable = false)
+            )
+
+        val metadata1 =
+            AppFunctionMetadata(
+                id = " id",
+                isEnabledByDefault = true,
+                schema = schema,
+                parameters = parameters,
+                response = response,
+            )
+        val metadata2 =
+            AppFunctionMetadata(
+                id = " id",
+                isEnabledByDefault = true,
+                schema = schema,
+                parameters = parameters,
+                response = response,
+            )
+        val metadata3 =
+            AppFunctionMetadata(
+                id = " id",
+                isEnabledByDefault = false,
+                schema = schema,
+                parameters = parameters,
+                response = response,
+            )
+
+        assertThat(metadata1).isEqualTo(metadata2)
+        assertThat(metadata1.hashCode()).isEqualTo(metadata2.hashCode())
+        assertThat(metadata1).isNotEqualTo(metadata3)
+        assertThat(metadata1.hashCode()).isNotEqualTo(metadata3.hashCode())
+    }
+
+    @Test
+    fun appFunctionMetadata_toAppFunctionMetadataDocument_returnsCorrectDocument() {
+        val id = "fakeFunctionIdentifier"
+        val isEnabledByDefault = true
+        val schemaMetadata =
+            AppFunctionSchemaMetadata(category = "testCategory", name = "testName", version = 1L)
+        val primitiveTypeInt = AppFunctionPrimitiveTypeMetadata(TYPE_INT, true)
+        val primitiveTypeLong = AppFunctionPrimitiveTypeMetadata(TYPE_LONG, true)
+        val parameters =
+            listOf<AppFunctionParameterMetadata>(
+                AppFunctionParameterMetadata(
+                    name = "prop1",
+                    isRequired = false,
+                    dataType = primitiveTypeInt
+                ),
+                AppFunctionParameterMetadata(
+                    name = "prop2",
+                    isRequired = true,
+                    dataType = primitiveTypeLong
+                ),
+            )
+        val response =
+            AppFunctionResponseMetadata(
+                valueType = AppFunctionPrimitiveTypeMetadata(type = TYPE_STRING, isNullable = false)
+            )
+        val primitiveType1 = AppFunctionPrimitiveTypeMetadata(TYPE_INT, false)
+        val primitiveType2 = AppFunctionPrimitiveTypeMetadata(TYPE_STRING, true)
+        val components =
+            AppFunctionComponentsMetadata(
+                mapOf(
+                    "dataType1" to primitiveType1,
+                    "dataType2" to primitiveType2,
+                )
+            )
         val appFunctionMetadata =
             AppFunctionMetadata(
-                id = "androidx.appfunctions.common.metadata#empty",
-                isEnabledByDefault = true,
-                isRestrictToTrustedCaller = false,
-                displayNameRes = 100,
-                schema =
-                    AppFunctionSchemaMetadata(
-                        schemaCategory = "exampleCategory",
-                        schemaName = "exampleName",
-                        schemaVersion = 200L
-                    ),
-                parameters = listOf<AppFunctionParameterMetadata>(),
-                response =
-                    AppFunctionResponseMetadata(
-                        isNullable = false,
-                        dataType =
-                            AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.UNIT)
-                    ),
-                components = AppFunctionComponentsMetadata(dataTypes = emptyList())
+                id = id,
+                isEnabledByDefault = isEnabledByDefault,
+                schema = schemaMetadata,
+                parameters = parameters,
+                response = response,
+                components = components
             )
 
-        Truth.assertThat(appFunctionMetadata.id)
-            .isEqualTo("androidx.appfunctions.common.metadata#empty")
-        Truth.assertThat(appFunctionMetadata.isEnabledByDefault).isTrue()
-        Truth.assertThat(appFunctionMetadata.isRestrictToTrustedCaller).isFalse()
-        Truth.assertThat(appFunctionMetadata.displayNameRes).isEqualTo(100)
-        Truth.assertThat(appFunctionMetadata.schema)
-            .isEqualTo(
-                AppFunctionSchemaMetadata(
-                    schemaCategory = "exampleCategory",
-                    schemaName = "exampleName",
-                    schemaVersion = 200L
-                )
-            )
-        Truth.assertThat(appFunctionMetadata.parameters).isEmpty()
-        Truth.assertThat(appFunctionMetadata.response)
-            .isEqualTo(
-                AppFunctionResponseMetadata(
-                    isNullable = false,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.UNIT)
-                )
-            )
-        Truth.assertThat(appFunctionMetadata.components)
-            .isEqualTo(AppFunctionComponentsMetadata(dataTypes = emptyList()))
-    }
+        val actualAppFunctionMetadataDocument = appFunctionMetadata.toAppFunctionMetadataDocument()
 
-    @Test
-    fun testCreateAppFunctionMetadata_primitiveParameters() {
-        val appFunctionMetadata =
-            createTestAppFunctionMetadata(
-                parameters =
-                    listOf<AppFunctionParameterMetadata>(
-                        AppFunctionParameterMetadata(
-                            name = "requiredInt",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.INT)
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalInt",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.INT)
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredLong",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.LONG)
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalLong",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.LONG)
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredDouble",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.DOUBLE
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalDouble",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.DOUBLE
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredFloat",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.FLOAT
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalFloat",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.FLOAT
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredBoolean",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.BOOLEAN
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalBoolean",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.BOOLEAN
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredString",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.STRING
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalString",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.STRING
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "requiredBytesArray",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.BYTES
-                                )
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "optionalBytesArray",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.BYTES
-                                )
-                        ),
-                    ),
+        val expectedAppFunctionMetadataDocument =
+            AppFunctionMetadataDocument(
+                id = id,
+                isEnabledByDefault = isEnabledByDefault,
+                schema = schemaMetadata.toAppFunctionSchemaMetadataDocument(),
+                parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
+                response = response.toAppFunctionResponseMetadataDocument(),
+                components = components.toAppFunctionComponentsMetadataDocument()
             )
-
-        Truth.assertThat(appFunctionMetadata.parameters)
-            .containsExactly(
-                AppFunctionParameterMetadata(
-                    name = "requiredInt",
-                    isRequired = true,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.INT)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalInt",
-                    isRequired = false,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.INT)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredLong",
-                    isRequired = true,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.LONG)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalLong",
-                    isRequired = false,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.LONG)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredDouble",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.DOUBLE)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalDouble",
-                    isRequired = false,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.DOUBLE)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredFloat",
-                    isRequired = true,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.FLOAT)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalFloat",
-                    isRequired = false,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.FLOAT)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredBoolean",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.BOOLEAN)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalBoolean",
-                    isRequired = false,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.BOOLEAN)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredString",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.STRING)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalString",
-                    isRequired = false,
-                    dataType =
-                        AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.STRING)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "requiredBytesArray",
-                    isRequired = true,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.BYTES)
-                ),
-                AppFunctionParameterMetadata(
-                    name = "optionalBytesArray",
-                    isRequired = false,
-                    dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.BYTES)
-                ),
-            )
-    }
-
-    @Test
-    fun testCreateAppFunctionMetadata_primitiveArrayParameters() {
-        val appFunctionMetadata =
-            createTestAppFunctionMetadata(
-                parameters =
-                    listOf(
-                        AppFunctionParameterMetadata(
-                            name = "nonNullIntList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.INT
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableIntList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.INT
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullLongList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.LONG
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableLongList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.LONG
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullDoubleList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.DOUBLE
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableDoubleList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.DOUBLE
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullFloatList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.FLOAT
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableFloatList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.FLOAT
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullBooleanList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.BOOLEAN
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableBooleanList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.BOOLEAN
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullStringList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.STRING
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableStringList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.STRING
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nonNullByteArrayList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.BYTES
-                                                )
-                                        )
-                                ),
-                        ),
-                        AppFunctionParameterMetadata(
-                            name = "nullableByteArrayList",
-                            isRequired = true,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = true,
-                                            dataType =
-                                                AppFunctionDataTypeMetadata(
-                                                    type = AppFunctionDataTypeMetadata.BYTES
-                                                )
-                                        )
-                                ),
-                        ),
-                    )
-            )
-
-        Truth.assertThat(appFunctionMetadata.parameters)
-            .containsExactly(
-                AppFunctionParameterMetadata(
-                    name = "nonNullIntList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.INT
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableIntList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.INT
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullLongList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.LONG
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableLongList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.LONG
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullDoubleList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.DOUBLE
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableDoubleList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.DOUBLE
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullFloatList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.FLOAT
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableFloatList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.FLOAT
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullBooleanList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.BOOLEAN
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableBooleanList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.BOOLEAN
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullStringList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.STRING
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableStringList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.STRING
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nonNullByteArrayList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.BYTES
-                                        )
-                                )
-                        ),
-                ),
-                AppFunctionParameterMetadata(
-                    name = "nullableByteArrayList",
-                    isRequired = true,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = true,
-                                    dataType =
-                                        AppFunctionDataTypeMetadata(
-                                            type = AppFunctionDataTypeMetadata.BYTES
-                                        )
-                                )
-                        ),
-                ),
-            )
-    }
-
-    @Test
-    fun testCreateAppFunctionMetadata_objectParameters() {
-        val appFunctionMetadata =
-            createTestAppFunctionMetadata(
-                components =
-                    AppFunctionComponentsMetadata(
-                        dataTypes =
-                            listOf(
-                                AppFunctionDataTypeMetadata(
-                                    id = "androidx.appfunctions.common.TestClass",
-                                    type = AppFunctionDataTypeMetadata.OBJECT,
-                                    properties =
-                                        listOf(
-                                            AppFunctionParameterMetadata(
-                                                name = "testProperty",
-                                                isRequired = true,
-                                                dataType =
-                                                    AppFunctionDataTypeMetadata(
-                                                        type = AppFunctionDataTypeMetadata.INT
-                                                    )
-                                            )
-                                        )
-                                )
-                            )
-                    ),
-                parameters =
-                    listOf(
-                        AppFunctionParameterMetadata(
-                            name = "testClass",
-                            isRequired = false,
-                            referenceDataType =
-                                "#components/dataSchemas/androidx.appfunctions.common.TestClass"
-                        )
-                    )
-            )
-
-        Truth.assertThat(appFunctionMetadata.components.dataTypes)
-            .containsExactly(
-                AppFunctionDataTypeMetadata(
-                    id = "androidx.appfunctions.common.TestClass",
-                    type = AppFunctionDataTypeMetadata.OBJECT,
-                    properties =
-                        listOf(
-                            AppFunctionParameterMetadata(
-                                name = "testProperty",
-                                isRequired = true,
-                                dataType =
-                                    AppFunctionDataTypeMetadata(
-                                        type = AppFunctionDataTypeMetadata.INT
-                                    )
-                            )
-                        )
-                )
-            )
-        Truth.assertThat(appFunctionMetadata.parameters)
-            .containsExactly(
-                AppFunctionParameterMetadata(
-                    name = "testClass",
-                    isRequired = false,
-                    referenceDataType =
-                        "#components/dataSchemas/androidx.appfunctions.common.TestClass"
-                )
-            )
-    }
-
-    @Test
-    fun testCreateAppFunctionMetadata_objectArrayParameter() {
-        val appFunctionMetadata =
-            createTestAppFunctionMetadata(
-                components =
-                    AppFunctionComponentsMetadata(
-                        dataTypes =
-                            listOf(
-                                AppFunctionDataTypeMetadata(
-                                    id = "androidx.appfunctions.common.TestClass",
-                                    type = AppFunctionDataTypeMetadata.OBJECT,
-                                    properties =
-                                        listOf(
-                                            AppFunctionParameterMetadata(
-                                                name = "testProperty",
-                                                isRequired = true,
-                                                dataType =
-                                                    AppFunctionDataTypeMetadata(
-                                                        type = AppFunctionDataTypeMetadata.INT
-                                                    )
-                                            )
-                                        )
-                                )
-                            )
-                    ),
-                parameters =
-                    listOf(
-                        AppFunctionParameterMetadata(
-                            name = "testClass",
-                            isRequired = false,
-                            dataType =
-                                AppFunctionDataTypeMetadata(
-                                    type = AppFunctionDataTypeMetadata.ARRAY,
-                                    itemType =
-                                        AppFunctionItemTypeMetadata(
-                                            isNullable = false,
-                                            referenceDataType =
-                                                "#components/dataSchemas/" +
-                                                    "androidx.appfunctions.common.TestClass"
-                                        )
-                                )
-                        )
-                    )
-            )
-
-        Truth.assertThat(appFunctionMetadata.components.dataTypes)
-            .containsExactly(
-                AppFunctionDataTypeMetadata(
-                    id = "androidx.appfunctions.common.TestClass",
-                    type = AppFunctionDataTypeMetadata.OBJECT,
-                    properties =
-                        listOf(
-                            AppFunctionParameterMetadata(
-                                name = "testProperty",
-                                isRequired = true,
-                                dataType =
-                                    AppFunctionDataTypeMetadata(
-                                        type = AppFunctionDataTypeMetadata.INT
-                                    )
-                            )
-                        )
-                )
-            )
-        Truth.assertThat(appFunctionMetadata.parameters)
-            .containsExactly(
-                AppFunctionParameterMetadata(
-                    name = "testClass",
-                    isRequired = false,
-                    dataType =
-                        AppFunctionDataTypeMetadata(
-                            type = AppFunctionDataTypeMetadata.ARRAY,
-                            itemType =
-                                AppFunctionItemTypeMetadata(
-                                    isNullable = false,
-                                    referenceDataType =
-                                        "#components/dataSchemas/" +
-                                            "androidx.appfunctions.common.TestClass"
-                                )
-                        )
-                )
-            )
-    }
-
-    private fun createTestAppFunctionMetadata(
-        id: String = "androidx.appfunctions.common.metadata#defaultId",
-        isEnabledByDefault: Boolean = true,
-        isRestrictToTrustedCaller: Boolean = false,
-        displayNameRes: Long = 0L,
-        schemaMetadata: AppFunctionSchemaMetadata? = null,
-        parameters: List<AppFunctionParameterMetadata> = emptyList(),
-        response: AppFunctionResponseMetadata =
-            AppFunctionResponseMetadata(
-                isNullable = false,
-                dataType = AppFunctionDataTypeMetadata(type = AppFunctionDataTypeMetadata.UNIT)
-            ),
-        components: AppFunctionComponentsMetadata =
-            AppFunctionComponentsMetadata(dataTypes = emptyList())
-    ): AppFunctionMetadata {
-        return AppFunctionMetadata(
-            id = id,
-            isEnabledByDefault = isEnabledByDefault,
-            isRestrictToTrustedCaller = isRestrictToTrustedCaller,
-            displayNameRes = displayNameRes,
-            schema = schemaMetadata,
-            parameters = parameters,
-            response = response,
-            components = components
-        )
+        assertThat(actualAppFunctionMetadataDocument).isEqualTo(expectedAppFunctionMetadataDocument)
     }
 }

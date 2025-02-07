@@ -24,6 +24,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
+import androidx.compose.runtime.collection.fastCopyInto
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
@@ -137,7 +138,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         val resizeAmount = opCodesSize.coerceAtMost(OperationsMaxResizeAmount)
         @Suppress("UNCHECKED_CAST")
         val newOpCodes = arrayOfNulls<Operation>(opCodesSize + resizeAmount) as Array<Operation>
-        opCodes = opCodes.copyInto(newOpCodes, 0, 0, opCodesSize)
+        opCodes = opCodes.fastCopyInto(newOpCodes, 0, 0, opCodesSize)
     }
 
     private inline fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
@@ -162,7 +163,7 @@ internal class Operations : OperationsDebugStringFormattable() {
 
     private fun resizeObjectArgs(currentSize: Int, requiredSize: Int) {
         val newObjectArgs = arrayOfNulls<Any>(determineNewSize(currentSize, requiredSize))
-        objectArgs.copyInto(newObjectArgs, 0, 0, currentSize)
+        objectArgs.fastCopyInto(newObjectArgs, 0, 0, currentSize)
         objectArgs = newObjectArgs
     }
 
@@ -291,7 +292,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         other.pushOp(op)
 
         // Move the objects then null out our contents
-        objectArgs.copyInto(
+        objectArgs.fastCopyInto(
             destination = other.objectArgs,
             destinationOffset = other.objectArgsSize - op.objects,
             startIndex = objectArgsSize - op.objects,
@@ -341,11 +342,12 @@ internal class Operations : OperationsDebugStringFormattable() {
     fun executeAndFlushAllPendingOperations(
         applier: Applier<*>,
         slots: SlotWriter,
-        rememberManager: RememberManager
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?
     ) {
         drain {
             with(operation) {
-                execute(applier = applier, slots = slots, rememberManager = rememberManager)
+                executeWithComposeStackTrace(applier, slots, rememberManager, errorContext)
             }
         }
     }

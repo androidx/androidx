@@ -336,6 +336,8 @@ public class BrushBehavior(
                     "INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED"
                 INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED ->
                     "INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED"
+                DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH ->
+                    "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH"
                 else -> "INVALID"
             }
 
@@ -577,6 +579,13 @@ public class BrushBehavior(
             @JvmField
             public val INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
                 Source(36)
+            /**
+             * The distance left to be traveled from a given input to the current last input of the
+             * stroke, as a fraction of the current total length of the stroke. This value changes
+             * for each input as the stroke is drawn.
+             */
+            @JvmField
+            public val DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH: Source = Source(37)
             private const val PREFIX = "BrushBehavior.Source."
         }
     }
@@ -601,6 +610,7 @@ public class BrushBehavior(
                     "POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE"
                 POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE ->
                     "POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE"
+                TEXTURE_ANIMATION_PROGRESS_OFFSET -> "TEXTURE_ANIMATION_PROGRESS_OFFSET"
                 HUE_OFFSET_IN_RADIANS -> "HUE_OFFSET_IN_RADIANS"
                 SATURATION_MULTIPLIER -> "SATURATION_MULTIPLIER"
                 LUMINOSITY -> "LUMINOSITY"
@@ -684,6 +694,13 @@ public class BrushBehavior(
              */
             @JvmField
             public val POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE: Target = Target(10)
+            /**
+             * Adds the target modifier to the initial texture animation progress value of the
+             * current particle (which is relevant only for strokes with an animated texture). The
+             * final progress offset is not clamped, but is effectively normalized (mod 1). If
+             * multiple behaviors have this target, they stack additively.
+             */
+            @JvmField public val TEXTURE_ANIMATION_PROGRESS_OFFSET: Target = Target(11)
 
             // The following are targets for tip color adjustments, including opacity. Renderers can
             // apply
@@ -696,24 +713,24 @@ public class BrushBehavior(
              * towards violet. The final hue offset is not clamped, but is effectively normalized
              * (mod 2π). If multiple behaviors have this target, they stack additively.
              */
-            @JvmField public val HUE_OFFSET_IN_RADIANS: Target = Target(11)
+            @JvmField public val HUE_OFFSET_IN_RADIANS: Target = Target(12)
             /**
              * Scales the saturation of the base brush color. If multiple behaviors have one of
              * these targets, they stack multiplicatively. The final saturation multiplier is
              * clamped to [0, 2].
              */
-            @JvmField public val SATURATION_MULTIPLIER: Target = Target(12)
+            @JvmField public val SATURATION_MULTIPLIER: Target = Target(13)
             /**
              * Target the luminosity of the color. An offset of +/-100% corresponds to changing the
              * luminosity by up to +/-100%.
              */
-            @JvmField public val LUMINOSITY: Target = Target(13)
+            @JvmField public val LUMINOSITY: Target = Target(14)
             /**
              * Scales the opacity of the base brush color. If multiple behaviors have one of these
              * targets, they stack multiplicatively. The final opacity multiplier is clamped to
              * [0, 2].
              */
-            @JvmField public val OPACITY_MULTIPLIER: Target = Target(14)
+            @JvmField public val OPACITY_MULTIPLIER: Target = Target(15)
 
             private const val PREFIX = "BrushBehavior.Target."
         }
@@ -1009,6 +1026,50 @@ public class BrushBehavior(
         /** Appends a native `BrushBehavior::ConstantNode` to a native brush behavior struct. */
         @UsedByNative
         private external fun nativeAppendConstantNode(nativeBehaviorPointer: Long, value: Float)
+    }
+
+    /** A [ValueNode] that produces a smooth random function. */
+    public class NoiseNode
+    constructor(
+        public val seed: Int,
+        public val varyOver: DampingSource,
+        public val basePeriod: Float,
+    ) : ValueNode(emptyList()) {
+        init {
+            require(basePeriod.isFinite() && basePeriod > 0.0f) {
+                "basePeriod must be finite and positive, was $basePeriod"
+            }
+        }
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendNoiseNode(nativeBehaviorPointer, seed, varyOver.value, basePeriod)
+        }
+
+        override fun toString(): String =
+            "NoiseNode($seed, ${varyOver.toSimpleString()}, $basePeriod)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is NoiseNode) return false
+            return seed == other.seed &&
+                varyOver == other.varyOver &&
+                basePeriod == other.basePeriod
+        }
+
+        override fun hashCode(): Int {
+            var result = seed.hashCode()
+            result = 31 * result + varyOver.hashCode()
+            result = 31 * result + basePeriod.hashCode()
+            return result
+        }
+
+        /** Appends a native `BrushBehavior::NoiseNode` to a native brush behavior struct. */
+        @UsedByNative
+        private external fun nativeAppendNoiseNode(
+            nativeBehaviorPointer: Long,
+            seed: Int,
+            varyOver: Int,
+            basePeriod: Float,
+        )
     }
 
     /**

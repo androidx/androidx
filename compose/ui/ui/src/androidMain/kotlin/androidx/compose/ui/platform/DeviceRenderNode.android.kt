@@ -17,8 +17,10 @@
 package androidx.compose.ui.platform
 
 import android.graphics.Outline
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
@@ -52,6 +54,8 @@ internal interface DeviceRenderNode {
     var clipToBounds: Boolean
     var alpha: Float
     var renderEffect: RenderEffect?
+    var blendMode: BlendMode
+    var colorFilter: ColorFilter?
     val hasDisplayList: Boolean
     var compositingStrategy: CompositingStrategy
 
@@ -116,5 +120,7 @@ internal data class DeviceRenderNodeData(
     var clipToBounds: Boolean,
     var alpha: Float,
     var renderEffect: RenderEffect?,
+    var blendMode: BlendMode,
+    var colorFilter: ColorFilter?,
     var compositingStrategy: CompositingStrategy
 )

@@ -31,6 +31,8 @@ open class View {
     var name: String = ""
     val children = mutableListOf<View>()
     val attributes = mutableMapOf<String, Any>()
+    var onAttach = {}
+    var onDetach = {}
 
     // Used to validated insert/remove constraints
     private var parent: View? = null
@@ -57,6 +59,7 @@ open class View {
             )
         }
         view.parent = this
+        view.onAttach()
         children.add(index, view)
     }
 
@@ -64,10 +67,14 @@ open class View {
         if (index < children.count()) {
             if (count == 1) {
                 val removedChild = children.removeAt(index)
+                removedChild.onDetach()
                 removedChild.parent = null
             } else {
                 val removedChildren = children.subList(index, index + count)
-                removedChildren.forEach { child -> child.parent = null }
+                removedChildren.forEach { child ->
+                    child.onDetach()
+                    child.parent = null
+                }
                 removedChildren.clear()
             }
         }

@@ -23,8 +23,8 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
-    lintOptions {
-        disable "WrongThread"
+    lint {
+        disable.add("WrongThread")
     }
     namespace = "com.example.android.appcompat"
 }

@@ -30,7 +30,7 @@ public class ElevationGainedRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Elevation in [Length] units. Required field. Valid range: -1000000-1000000 meters. */
     public val elevation: Length,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

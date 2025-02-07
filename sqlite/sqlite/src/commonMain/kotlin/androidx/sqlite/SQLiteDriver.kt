@@ -17,7 +17,6 @@
 package androidx.sqlite
 
 /** An interface to open database connections. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public interface SQLiteDriver {
     /**
      * Opens a new database connection.

@@ -1,0 +1,95 @@
+// Signature format: 4.0
+package androidx.tracing.driver {
+
+  public final class AndroidTraceSink extends androidx.tracing.driver.TraceSink {
+    ctor public AndroidTraceSink(android.content.Context context);
+    ctor public AndroidTraceSink(android.content.Context context, java.io.File traceFile);
+    ctor public AndroidTraceSink(android.content.Context context, okio.BufferedSink bufferedSink, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public void close();
+    method public void emit(androidx.tracing.driver.PooledTracePacketArray pooledPacketArray);
+    method public void flush();
+  }
+
+  public final class ClockSource_androidKt {
+    method public static inline long nanoTime();
+  }
+
+  public class CounterTrack extends androidx.tracing.driver.Track {
+    ctor public CounterTrack(String name, androidx.tracing.driver.Track parent, optional boolean hasPreamble);
+    method public final void emitDoubleCounterPacket(double value);
+    method public final void emitLongCounterPacket(long value);
+    method public androidx.tracing.driver.PooledTracePacket? preamblePacket();
+  }
+
+  public abstract class EventTrack extends androidx.tracing.driver.Track {
+    ctor public EventTrack(androidx.tracing.driver.TraceContext context, boolean hasPreamble, long uuid, androidx.tracing.driver.Track? parent);
+    method public final androidx.tracing.driver.PooledTracePacket? beginPacket(String name, optional java.util.List<java.lang.Long> flowIds);
+    method public final void emitInstantPacket();
+    method public final androidx.tracing.driver.PooledTracePacket? endPacket(String name);
+    method public final inline <T> T trace(String name, kotlin.jvm.functions.Function0<? extends T> block);
+    method public final suspend <T> Object? traceFlow(String name, optional long flowId, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+  }
+
+  public abstract class Poolable<T extends androidx.tracing.driver.Poolable<T>> {
+    method public abstract void recycle();
+  }
+
+  public final class PooledTracePacket extends androidx.tracing.driver.Poolable<androidx.tracing.driver.PooledTracePacket> {
+    method public void encodeTracePacket(com.squareup.wire.ProtoWriter writer);
+    method public void recycle();
+  }
+
+  public final class PooledTracePacketArray extends androidx.tracing.driver.Poolable<androidx.tracing.driver.PooledTracePacketArray> {
+    method public androidx.tracing.driver.PooledTracePacket?[] getPooledTracePacketArray();
+    method public void recycle();
+    property public androidx.tracing.driver.PooledTracePacket?[] pooledTracePacketArray;
+  }
+
+  public class ProcessTrack extends androidx.tracing.driver.EventTrack {
+    ctor public ProcessTrack(androidx.tracing.driver.TraceContext context, int id, String name, optional boolean hasPreamble);
+    method public androidx.tracing.driver.CounterTrack CounterTrack(String name);
+    method public androidx.tracing.driver.ThreadTrack ThreadTrack(int id, String name);
+    method public androidx.tracing.driver.PooledTracePacket? preamblePacket();
+  }
+
+  public class ThreadTrack extends androidx.tracing.driver.EventTrack {
+    ctor public ThreadTrack(int id, String name, androidx.tracing.driver.ProcessTrack process, optional boolean hasPreamble);
+    method public androidx.tracing.driver.PooledTracePacket? preamblePacket();
+  }
+
+  public class TraceContext implements java.io.Closeable {
+    ctor public TraceContext(int sequenceId, androidx.tracing.driver.TraceSink sink, boolean isEnabled);
+    method public void close();
+    method public final void flush();
+    method public final int getSequenceId();
+    method public final androidx.tracing.driver.TraceSink getSink();
+    method public final boolean isEnabled();
+    property public final boolean isEnabled;
+    property public final int sequenceId;
+    property public final androidx.tracing.driver.TraceSink sink;
+  }
+
+  public final class TraceDriver {
+    ctor public TraceDriver(int sequenceId, androidx.tracing.driver.TraceSink sink, optional boolean isEnabled);
+    method public androidx.tracing.driver.ProcessTrack ProcessTrack(int id, String name);
+    method public androidx.tracing.driver.TraceContext getContext();
+    property public androidx.tracing.driver.TraceContext context;
+  }
+
+  public abstract class TraceSink implements java.io.Closeable {
+    ctor public TraceSink();
+    method public abstract void emit(androidx.tracing.driver.PooledTracePacketArray pooledPacketArray);
+    method public abstract void flush();
+  }
+
+  public final class Tracing_androidKt {
+    method public static androidx.tracing.driver.ProcessTrack currentProcessTrack(android.content.Context context, androidx.tracing.driver.TraceDriver traceDriver);
+  }
+
+  public abstract class Track {
+    ctor public Track(androidx.tracing.driver.TraceContext context, boolean hasPreamble, long uuid, androidx.tracing.driver.Track? parent);
+    method public abstract androidx.tracing.driver.PooledTracePacket? preamblePacket();
+  }
+
+}
+

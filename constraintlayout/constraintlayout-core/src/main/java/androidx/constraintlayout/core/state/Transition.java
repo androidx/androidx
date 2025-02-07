@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.core.state;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.Motion;
@@ -34,6 +33,8 @@ import androidx.constraintlayout.core.motion.utils.TypedValues;
 import androidx.constraintlayout.core.motion.utils.Utils;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;

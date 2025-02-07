@@ -334,6 +334,7 @@ public final class AppSearchImpl implements Closeable {
                     .setEnableScorableProperties(Flags.enableScorableProperty())
                     .setEnableQualifiedIdJoinIndexV3AndDeletePropagateFrom(
                             Flags.enableDeletePropagationType())
+                    .setIcuDataFileAbsolutePath(mConfig.getIcuDataFileAbsolutePath())
                     .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);

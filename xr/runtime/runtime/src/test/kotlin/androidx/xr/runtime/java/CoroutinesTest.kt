@@ -25,7 +25,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -48,7 +47,11 @@ class CoroutinesTest {
     @Before
     fun setUp() {
         activityScenarioRule.scenario.onActivity { this.activity = it }
-        shadowOf(activity).grantPermissions("android.permission.SCENE_UNDERSTANDING")
+        shadowOf(activity)
+            .grantPermissions(
+                "android.permission.SCENE_UNDERSTANDING",
+                "android.permission.HAND_TRACKING",
+            )
 
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)

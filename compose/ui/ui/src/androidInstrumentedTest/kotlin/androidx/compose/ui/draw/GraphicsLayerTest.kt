@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.LightingColorFilter
 import androidx.compose.ui.graphics.OffsetEffect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RenderEffect
@@ -435,6 +436,102 @@ class GraphicsLayerTest {
             // should be completely clipped out
             assertEquals(0f, bounds.width)
             assertEquals(0f, bounds.height)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testColorFilter() {
+        val testTag = "colorFilterTag"
+        rule.setContent {
+            Box(modifier = Modifier.testTag(testTag).wrapContentSize()) {
+                Box(modifier = Modifier.requiredSize(10.dp).background(Color.Green))
+                Box(
+                    modifier =
+                        Modifier.requiredSize(10.dp)
+                            .graphicsLayer(
+                                colorFilter = LightingColorFilter(Color.White, Color.Red)
+                            )
+                            .background(Color.Black)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
+            assertColor(Color.Red, 0, 0)
+            assertColor(Color.Red, 0, height - 1)
+            assertColor(Color.Red, width / 2 - 10, height / 2)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testColorFilterAsScope() {
+        val testTag = "colorFilterTag"
+        rule.setContent {
+            Box(modifier = Modifier.testTag(testTag).wrapContentSize()) {
+                Box(modifier = Modifier.requiredSize(10.dp).background(Color.Green))
+                Box(
+                    modifier =
+                        Modifier.requiredSize(10.dp)
+                            .graphicsLayer {
+                                colorFilter = LightingColorFilter(Color.White, Color.Red)
+                            }
+                            .background(Color.Black)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
+            assertColor(Color.Red, 0, 0)
+            assertColor(Color.Red, 0, height - 1)
+            assertColor(Color.Red, width / 2 - 10, height / 2)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testBlendMode() {
+        val testTag = "blendModeTag"
+        rule.setContent {
+            Box(modifier = Modifier.testTag(testTag).wrapContentSize()) {
+                Box(modifier = Modifier.requiredSize(10.dp).background(Color.Yellow))
+                Box(
+                    modifier =
+                        Modifier.requiredSize(10.dp)
+                            .graphicsLayer(blendMode = BlendMode.Dst)
+                            .background(Color.Blue)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
+            assertColor(Color.Yellow, 0, 0)
+            assertColor(Color.Yellow, 0, height - 1)
+            assertColor(Color.Yellow, width / 2 - 10, height / 2)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testBlendModeAsScope() {
+        val testTag = "blendModeTag"
+        rule.setContent {
+            Box(modifier = Modifier.testTag(testTag).wrapContentSize()) {
+                Box(modifier = Modifier.requiredSize(10.dp).background(Color.Yellow))
+                Box(
+                    modifier =
+                        Modifier.requiredSize(10.dp)
+                            .graphicsLayer { blendMode = BlendMode.Dst }
+                            .background(Color.Blue)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
+            assertColor(Color.Yellow, 0, 0)
+            assertColor(Color.Yellow, 0, height - 1)
+            assertColor(Color.Yellow, width / 2 - 10, height / 2)
         }
     }
 

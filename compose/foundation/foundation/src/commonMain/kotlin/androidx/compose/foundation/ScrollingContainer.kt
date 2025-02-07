@@ -24,22 +24,15 @@ import androidx.compose.foundation.gestures.ScrollableNode
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.node.invalidatePlacement
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 
 // TODO b/316559454 to make it public
@@ -60,19 +53,20 @@ internal fun Modifier.scrollingContainer(
     overscrollEffect: OverscrollEffect?,
     bringIntoViewSpec: BringIntoViewSpec? = null
 ): Modifier {
-    return this.then(
-        ScrollingContainerElement(
-            state = state,
-            orientation = orientation,
-            enabled = enabled,
-            reverseScrolling = reverseScrolling,
-            flingBehavior = flingBehavior,
-            interactionSource = interactionSource,
-            bringIntoViewSpec = bringIntoViewSpec,
-            useLocalOverscrollFactory = useLocalOverscrollFactory,
-            overscrollEffect = overscrollEffect
+    return clipScrollableContainer(orientation)
+        .then(
+            ScrollingContainerElement(
+                state = state,
+                orientation = orientation,
+                enabled = enabled,
+                reverseScrolling = reverseScrolling,
+                flingBehavior = flingBehavior,
+                interactionSource = interactionSource,
+                bringIntoViewSpec = bringIntoViewSpec,
+                useLocalOverscrollFactory = useLocalOverscrollFactory,
+                overscrollEffect = overscrollEffect
+            )
         )
-    )
 }
 
 /**
@@ -175,11 +169,7 @@ private class ScrollingContainerNode(
     private var bringIntoViewSpec: BringIntoViewSpec?,
     private var useLocalOverscrollFactory: Boolean,
     private var userProvidedOverscrollEffect: OverscrollEffect?
-) :
-    DelegatingNode(),
-    LayoutModifierNode,
-    CompositionLocalConsumerModifierNode,
-    ObserverModifierNode {
+) : DelegatingNode(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
     override val shouldAutoInvalidate = false
     private var scrollableNode: ScrollableNode? = null
     private var overscrollNode: DelegatableNode? = null
@@ -193,15 +183,6 @@ private class ScrollingContainerNode(
         } else {
             userProvidedOverscrollEffect
         }
-
-    // Needs to be mutated to properly update the underlying layer, which relies on instance
-    // equality
-    private var layerBlock: GraphicsLayerScope.() -> Unit = {
-        clip = true
-        shape =
-            if (orientation == Orientation.Vertical) VerticalScrollableClipShape
-            else HorizontalScrollableClipShape
-    }
 
     override fun onAttach() {
         shouldReverseDirection = shouldReverseDirection()
@@ -225,17 +206,6 @@ private class ScrollingContainerNode(
 
     override fun onDetach() {
         overscrollNode?.let { undelegate(it) }
-    }
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-        // Note: this is functionally the same as Modifier.clip, but inlined to reduce nodes.
-        return layout(placeable.width, placeable.height) {
-            placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
-        }
     }
 
     override fun onLayoutDirectionChange() {
@@ -268,16 +238,7 @@ private class ScrollingContainerNode(
         bringIntoViewSpec: BringIntoViewSpec?
     ) {
         this.state = state
-        if (this.orientation != orientation) {
-            this.orientation = orientation
-            this.layerBlock = {
-                clip = true
-                shape =
-                    if (orientation == Orientation.Vertical) VerticalScrollableClipShape
-                    else HorizontalScrollableClipShape
-            }
-            invalidatePlacement()
-        }
+        this.orientation = orientation
         var useLocalOverscrollFactoryChanged = false
         if (this.useLocalOverscrollFactory != useLocalOverscrollFactory) {
             useLocalOverscrollFactoryChanged = true

@@ -32,22 +32,22 @@ package androidx.work {
     method public androidx.work.WorkerFactory getWorkerFactory();
     method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerInitializationExceptionHandler();
     method @SuppressCompatibility @androidx.work.ExperimentalConfigurationApi public boolean isMarkingJobsAsImportantWhileForeground();
-    property public final androidx.work.Clock clock;
-    property public final int contentUriTriggerWorkersLimit;
-    property public final String? defaultProcessName;
-    property public final java.util.concurrent.Executor executor;
-    property public final androidx.core.util.Consumer<java.lang.Throwable>? initializationExceptionHandler;
-    property public final androidx.work.InputMergerFactory inputMergerFactory;
-    property @SuppressCompatibility @androidx.work.ExperimentalConfigurationApi public final boolean isMarkingJobsAsImportantWhileForeground;
-    property public final int maxJobSchedulerId;
-    property public final int minJobSchedulerId;
-    property public final androidx.work.RunnableScheduler runnableScheduler;
-    property public final androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
-    property public final java.util.concurrent.Executor taskExecutor;
-    property public final kotlin.coroutines.CoroutineContext workerCoroutineContext;
-    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerExecutionExceptionHandler;
-    property public final androidx.work.WorkerFactory workerFactory;
-    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerInitializationExceptionHandler;
+    property public androidx.work.Clock clock;
+    property public int contentUriTriggerWorkersLimit;
+    property public String? defaultProcessName;
+    property public java.util.concurrent.Executor executor;
+    property public androidx.core.util.Consumer<java.lang.Throwable>? initializationExceptionHandler;
+    property public androidx.work.InputMergerFactory inputMergerFactory;
+    property @SuppressCompatibility @androidx.work.ExperimentalConfigurationApi public boolean isMarkingJobsAsImportantWhileForeground;
+    property public int maxJobSchedulerId;
+    property public int minJobSchedulerId;
+    property public androidx.work.RunnableScheduler runnableScheduler;
+    property public androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
+    property public java.util.concurrent.Executor taskExecutor;
+    property public kotlin.coroutines.CoroutineContext workerCoroutineContext;
+    property public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerExecutionExceptionHandler;
+    property public androidx.work.WorkerFactory workerFactory;
+    property public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerInitializationExceptionHandler;
     field public static final androidx.work.Configuration.Companion Companion;
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
@@ -75,7 +75,7 @@ package androidx.work {
   }
 
   public static final class Configuration.Companion {
-    property public static final int MIN_SCHEDULER_LIMIT;
+    property public static int MIN_SCHEDULER_LIMIT;
   }
 
   public static interface Configuration.Provider {
@@ -97,11 +97,11 @@ package androidx.work {
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
-    property @RequiresApi(24) @androidx.room.ColumnInfo(name="trigger_max_content_delay") public final long contentTriggerMaxDelayMillis;
-    property @RequiresApi(24) @androidx.room.ColumnInfo(name="trigger_content_update_delay") public final long contentTriggerUpdateDelayMillis;
-    property @RequiresApi(24) @androidx.room.ColumnInfo(name="content_uri_triggers") public final java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
-    property @RequiresApi(21) public final android.net.NetworkRequest? requiredNetworkRequest;
-    property @androidx.room.ColumnInfo(name="required_network_type") public final androidx.work.NetworkType requiredNetworkType;
+    property @RequiresApi(24) @androidx.room.ColumnInfo(name="trigger_max_content_delay") public long contentTriggerMaxDelayMillis;
+    property @RequiresApi(24) @androidx.room.ColumnInfo(name="trigger_content_update_delay") public long contentTriggerUpdateDelayMillis;
+    property @RequiresApi(24) @androidx.room.ColumnInfo(name="content_uri_triggers") public java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
+    property @RequiresApi(21) public android.net.NetworkRequest? requiredNetworkRequest;
+    property @androidx.room.ColumnInfo(name="required_network_type") public androidx.work.NetworkType requiredNetworkType;
     field public static final androidx.work.Constraints.Companion Companion;
     field public static final androidx.work.Constraints NONE;
   }
@@ -123,15 +123,15 @@ package androidx.work {
   }
 
   public static final class Constraints.Companion {
-    property public final androidx.work.Constraints NONE;
+    property public androidx.work.Constraints NONE;
   }
 
   public static final class Constraints.ContentUriTrigger {
     ctor public Constraints.ContentUriTrigger(android.net.Uri uri, boolean isTriggeredForDescendants);
     method public android.net.Uri getUri();
     method public boolean isTriggeredForDescendants();
-    property public final boolean isTriggeredForDescendants;
-    property public final android.net.Uri uri;
+    property public boolean isTriggeredForDescendants;
+    property public android.net.Uri uri;
   }
 
   public abstract class CoroutineWorker extends androidx.work.ListenableWorker {
@@ -167,7 +167,7 @@ package androidx.work {
     method public String[]? getStringArray(String key);
     method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
-    property public final java.util.Map<java.lang.String,java.lang.Object?> keyValueMap;
+    property public java.util.Map<java.lang.String,java.lang.Object?> keyValueMap;
     field public static final androidx.work.Data.Companion Companion;
     field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
@@ -196,8 +196,8 @@ package androidx.work {
 
   public static final class Data.Companion {
     method @androidx.room.TypeConverter public androidx.work.Data fromByteArray(byte[] bytes);
-    property public final androidx.work.Data EMPTY;
-    property public static final int MAX_DATA_BYTES;
+    property public androidx.work.Data EMPTY;
+    property public static int MAX_DATA_BYTES;
   }
 
   public final class DataKt {
@@ -362,8 +362,8 @@ package androidx.work {
   }
 
   public static final class PeriodicWorkRequest.Companion {
-    property public static final long MIN_PERIODIC_FLEX_MILLIS;
-    property public static final long MIN_PERIODIC_INTERVAL_MILLIS;
+    property public static long MIN_PERIODIC_FLEX_MILLIS;
+    property public static long MIN_PERIODIC_INTERVAL_MILLIS;
   }
 
   public final class PeriodicWorkRequestKt {
@@ -415,18 +415,18 @@ package androidx.work {
     method public androidx.work.WorkInfo.State getState();
     method @RequiresApi(31) public int getStopReason();
     method public java.util.Set<java.lang.String> getTags();
-    property public final androidx.work.Constraints constraints;
-    property public final int generation;
-    property public final java.util.UUID id;
-    property public final long initialDelayMillis;
-    property public final long nextScheduleTimeMillis;
-    property public final androidx.work.Data outputData;
-    property public final androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo;
-    property public final androidx.work.Data progress;
-    property @IntRange(from=0L) public final int runAttemptCount;
-    property public final androidx.work.WorkInfo.State state;
-    property @RequiresApi(31) public final int stopReason;
-    property public final java.util.Set<java.lang.String> tags;
+    property public androidx.work.Constraints constraints;
+    property public int generation;
+    property public java.util.UUID id;
+    property public long initialDelayMillis;
+    property public long nextScheduleTimeMillis;
+    property public androidx.work.Data outputData;
+    property public androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo;
+    property public androidx.work.Data progress;
+    property @IntRange(from=0L) public int runAttemptCount;
+    property public androidx.work.WorkInfo.State state;
+    property @RequiresApi(31) public int stopReason;
+    property public java.util.Set<java.lang.String> tags;
     field public static final androidx.work.WorkInfo.Companion Companion;
     field public static final int STOP_REASON_APP_STANDBY = 12; // 0xc
     field public static final int STOP_REASON_BACKGROUND_RESTRICTION = 11; // 0xb
@@ -449,37 +449,37 @@ package androidx.work {
   }
 
   public static final class WorkInfo.Companion {
-    property public static final int STOP_REASON_APP_STANDBY;
-    property public static final int STOP_REASON_BACKGROUND_RESTRICTION;
-    property public static final int STOP_REASON_CANCELLED_BY_APP;
-    property public static final int STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW;
-    property public static final int STOP_REASON_CONSTRAINT_CHARGING;
-    property public static final int STOP_REASON_CONSTRAINT_CONNECTIVITY;
-    property public static final int STOP_REASON_CONSTRAINT_DEVICE_IDLE;
-    property public static final int STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW;
-    property public static final int STOP_REASON_DEVICE_STATE;
-    property public static final int STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED;
-    property public static final int STOP_REASON_FOREGROUND_SERVICE_TIMEOUT;
-    property public static final int STOP_REASON_NOT_STOPPED;
-    property public static final int STOP_REASON_PREEMPT;
-    property public static final int STOP_REASON_QUOTA;
-    property public static final int STOP_REASON_SYSTEM_PROCESSING;
-    property public static final int STOP_REASON_TIMEOUT;
-    property public static final int STOP_REASON_UNKNOWN;
-    property public static final int STOP_REASON_USER;
+    property public static int STOP_REASON_APP_STANDBY;
+    property public static int STOP_REASON_BACKGROUND_RESTRICTION;
+    property public static int STOP_REASON_CANCELLED_BY_APP;
+    property public static int STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW;
+    property public static int STOP_REASON_CONSTRAINT_CHARGING;
+    property public static int STOP_REASON_CONSTRAINT_CONNECTIVITY;
+    property public static int STOP_REASON_CONSTRAINT_DEVICE_IDLE;
+    property public static int STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW;
+    property public static int STOP_REASON_DEVICE_STATE;
+    property public static int STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED;
+    property public static int STOP_REASON_FOREGROUND_SERVICE_TIMEOUT;
+    property public static int STOP_REASON_NOT_STOPPED;
+    property public static int STOP_REASON_PREEMPT;
+    property public static int STOP_REASON_QUOTA;
+    property public static int STOP_REASON_SYSTEM_PROCESSING;
+    property public static int STOP_REASON_TIMEOUT;
+    property public static int STOP_REASON_UNKNOWN;
+    property public static int STOP_REASON_USER;
   }
 
   public static final class WorkInfo.PeriodicityInfo {
     ctor public WorkInfo.PeriodicityInfo(long repeatIntervalMillis, long flexIntervalMillis);
     method public long getFlexIntervalMillis();
     method public long getRepeatIntervalMillis();
-    property public final long flexIntervalMillis;
-    property public final long repeatIntervalMillis;
+    property public long flexIntervalMillis;
+    property public long repeatIntervalMillis;
   }
 
   public enum WorkInfo.State {
     method public boolean isFinished();
-    property public final boolean isFinished;
+    property public boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;
     enum_constant public static final androidx.work.WorkInfo.State ENQUEUED;
@@ -560,10 +560,10 @@ package androidx.work {
     method public java.util.List<androidx.work.WorkInfo.State> getStates();
     method public java.util.List<java.lang.String> getTags();
     method public java.util.List<java.lang.String> getUniqueWorkNames();
-    property public final java.util.List<java.util.UUID> ids;
-    property public final java.util.List<androidx.work.WorkInfo.State> states;
-    property public final java.util.List<java.lang.String> tags;
-    property public final java.util.List<java.lang.String> uniqueWorkNames;
+    property public java.util.List<java.util.UUID> ids;
+    property public java.util.List<androidx.work.WorkInfo.State> states;
+    property public java.util.List<java.lang.String> tags;
+    property public java.util.List<java.lang.String> uniqueWorkNames;
     field public static final androidx.work.WorkQuery.Companion Companion;
   }
 
@@ -624,9 +624,9 @@ package androidx.work {
   }
 
   public static final class WorkRequest.Companion {
-    property public static final long DEFAULT_BACKOFF_DELAY_MILLIS;
-    property public static final long MAX_BACKOFF_MILLIS;
-    property public static final long MIN_BACKOFF_MILLIS;
+    property public static long DEFAULT_BACKOFF_DELAY_MILLIS;
+    property public static long MAX_BACKOFF_MILLIS;
+    property public static long MIN_BACKOFF_MILLIS;
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
@@ -641,9 +641,9 @@ package androidx.work {
     method public Throwable getThrowable();
     method public String getWorkerClassName();
     method public androidx.work.WorkerParameters getWorkerParameters();
-    property public final Throwable throwable;
-    property public final String workerClassName;
-    property public final androidx.work.WorkerParameters workerParameters;
+    property public Throwable throwable;
+    property public String workerClassName;
+    property public androidx.work.WorkerParameters workerParameters;
   }
 
   public abstract class WorkerFactory {

@@ -42,7 +42,7 @@ fun LayoutModifier.opacity(
 internal class BaseOpacityElement(val staticValue: Float, val dynamicValue: DynamicFloat? = null) :
     LayoutModifier.Element {
     @SuppressLint("ProtoLayoutMinSchema")
-    fun foldIn(initial: FloatProp.Builder?): FloatProp.Builder =
+    fun mergeTo(initial: FloatProp.Builder?): FloatProp.Builder =
         (initial ?: FloatProp.Builder(staticValue)).apply {
             dynamicValue?.let { setDynamicValue(it) }
         }

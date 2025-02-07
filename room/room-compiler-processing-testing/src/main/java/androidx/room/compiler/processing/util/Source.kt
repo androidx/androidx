@@ -80,7 +80,7 @@ sealed class Source {
         }
 
         /**
-         * Convenience method to convert JFO's to the Source objects in XProcessing so that we can
+         * Convenience function to convert JFO's to the Source objects in XProcessing so that we can
          * convert room tests to the common API w/o major code refactor
          */
         fun fromJavaFileObject(javaFileObject: JavaFileObject): Source {

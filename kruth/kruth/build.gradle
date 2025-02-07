@@ -24,7 +24,7 @@
 
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -108,7 +108,7 @@ androidXMultiplatform {
             dependsOn(nonJvmTest)
             dependencies {
                 // https://youtrack.jetbrains.com/issue/KT-71032
-                implementation("org.jetbrains.kotlin:kotlin-test:2.1.0")
+                implementation(libs.kotlinTestForWasmTests)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
             }
@@ -156,7 +156,7 @@ androidXMultiplatform {
 
 androidx {
     legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
-    type = LibraryType.SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS // Used to diff against Google Truth
+    type = SoftwareType.SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS // Used to diff against Google Truth
     doNotDocumentReason = "Not shipped externally"
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

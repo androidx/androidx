@@ -14,9 +14,9 @@ package androidx.paging.compose {
     method public T? peek(int index);
     method public void refresh();
     method public void retry();
-    property public final int itemCount;
-    property public final androidx.paging.ItemSnapshotList<T> itemSnapshotList;
-    property public final androidx.paging.CombinedLoadStates loadState;
+    property public int itemCount;
+    property public androidx.paging.ItemSnapshotList<T> itemSnapshotList;
+    property public androidx.paging.CombinedLoadStates loadState;
   }
 
   public final class LazyPagingItemsKt {

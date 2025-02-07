@@ -112,4 +112,27 @@ class PreCallEndpointsTest {
         val res = currentPreCallEndpoints.maybeRemoveCallEndpoint(defaultSpeaker)
         assertEquals(PreCallEndpointsUpdater.STOP_TRACKING_REMOVED_ENDPOINT, res)
     }
+
+    /**
+     * This test verifies that the updateClient() function returns an immutable list. It checks that
+     * attempting to modify the returned list (using reversed()) does not alter its contents.
+     */
+    @SmallTest
+    @Test
+    fun testPreCallEndpointUpdaterEmitsImmutableList() {
+        // Given: a PreCallEndpointsUpdater
+        val sendChannel = Channel<List<CallEndpointCompat>>(Channel.BUFFERED)
+        val currentPreCallEndpoints =
+            PreCallEndpointsUpdater(mutableListOf(defaultEarpiece, defaultSpeaker), sendChannel)
+        // When: an update is emitted to the client
+        val finalList = currentPreCallEndpoints.updateClient()
+        assertEquals(defaultSpeaker, finalList[0])
+        assertEquals(defaultEarpiece, finalList[1])
+        // Then: verify the list is immutable
+        finalList.reversed()
+        assertEquals(defaultSpeaker, finalList[0])
+        assertEquals(defaultEarpiece, finalList[1])
+        // cleanup
+        sendChannel.close()
+    }
 }

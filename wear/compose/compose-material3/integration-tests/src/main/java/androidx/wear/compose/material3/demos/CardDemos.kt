@@ -238,7 +238,7 @@ private fun ImageContent() {
             modifier = Modifier.weight(1f).aspectRatio(16f / 9f).clip(RoundedCornerShape(16.dp)),
             painter = painterResource(id = R.drawable.card_content_image),
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = "Large blank image"
         )
         Spacer(modifier = Modifier.width(imageEndPaddingDp))
     }
@@ -255,7 +255,7 @@ private fun MultipleImagesContent() {
                     .clip(RoundedCornerShape(16.dp)),
             painter = painterResource(id = R.drawable.card_content_image),
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = "Medium blank image"
         )
         Spacer(Modifier.width(4.dp))
         Image(
@@ -266,7 +266,7 @@ private fun MultipleImagesContent() {
                     .clip(RoundedCornerShape(16.dp)),
             painter = painterResource(id = R.drawable.card_content_image),
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = "Small blank image"
         )
     }
 }

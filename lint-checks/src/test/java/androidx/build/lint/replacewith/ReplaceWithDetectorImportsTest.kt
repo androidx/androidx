@@ -202,18 +202,18 @@ src/MethodWithNoImportsOrPackage.java:39: Information: Replacement available [Re
         val expectedFixDiffs =
             """
 Fix for src/MethodWithNoImportsOrPackage.java line 35: Replace with `newMethod(null)`:
-@@ -35 +35
+@@ -1 +1
++ import androidx.annotation.Deprecated;
+@@ -35 +36
 -         oldMethodSingleImport(null);
 +         newMethod(null);
-@@ -42 +42
-+ import androidx.annotation.Deprecated;
 Fix for src/MethodWithNoImportsOrPackage.java line 39: Replace with `newMethod(null)`:
-@@ -39 +39
--         oldMethodMultiImport(null);
-+         newMethod(null);
-@@ -42 +42
+@@ -1 +1
 + import androidx.annotation.Deprecated;
 + import androidx.annotation.NonNull;
+@@ -39 +41
+-         oldMethodMultiImport(null);
++         newMethod(null);
         """
                 .trimIndent()
 

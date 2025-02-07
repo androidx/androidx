@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 
 plugins {
@@ -48,21 +48,19 @@ dependencies {
     implementation("androidx.compose.ui:ui-unit:1.2.1")
     implementation("androidx.compose.ui:ui-util:1.2.1")
     implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
-    implementation("com.google.ar:impress:0.0.1")
+    implementation("com.google.ar:impress:0.0.2")
 }
 
 android {
     defaultConfig {
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdkVersion 24
     }
     namespace = "androidx.xr.compose.testing"
 }
 
 androidx {
     name = "XR Compose Testing"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Libraries to aid in unit testing Compose for XR clients."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

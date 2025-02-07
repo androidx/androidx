@@ -25,7 +25,7 @@
     <string name="desc_password" msgid="6636473611443746739">"pole hasła"</string>
     <string name="desc_password_incorrect" msgid="4718823067483963845">"nieprawidłowe hasło"</string>
     <string name="desc_password_incorrect_message" msgid="4676206571020946870">"Błędne hasło. Spróbuj ponownie."</string>
-    <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"strona <xliff:g id="PAGE">%1$d</xliff:g> z <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"powiększenie <xliff:g id="FIRST">%1$d</xliff:g> procent"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Idź do strony <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>

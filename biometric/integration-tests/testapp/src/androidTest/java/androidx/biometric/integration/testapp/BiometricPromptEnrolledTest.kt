@@ -16,9 +16,10 @@
 
 package androidx.biometric.integration.testapp
 
-import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Build
-import androidx.test.core.app.ApplicationProvider
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -30,7 +31,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.hamcrest.Matchers.containsString
-import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -41,67 +41,84 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BiometricPromptEnrolledTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityRule = androidx.test.rule.ActivityTestRule(BiometricPromptTestActivity::class.java)
-
     @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
-    private lateinit var context: Context
+    // TODO(b/391721281): Find a better alternative to [device.pressBack()]
     private lateinit var device: UiDevice
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         assumeTrue(hasEnrolledBiometric(context))
         assumeFalse(isDeviceLocked(context))
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
-    @After
-    fun tearDown() {
-        if (::device.isInitialized) {
-            changeOrientation(activityRule.activity, device, landscape = false)
-            navigateToHomeScreen(device)
-            device.pressBack()
-        }
-    }
-
     @Test
     fun testBiometricOnlyAuth_SendsError_WhenBackPressed() {
-        onView(withId(R.id.authenticate_button)).perform(click())
-        device.pressBack()
-        onView(withId(R.id.log_text_view))
-            .check(matches(withText(containsString("onAuthenticationError"))))
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { _ ->
+            sendsError_WhenBackPressed()
+        }
     }
 
     @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenBackPressed() {
-        onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
-        testBiometricOnlyAuth_SendsError_WhenBackPressed()
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { _ ->
+            onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
+            sendsError_WhenBackPressed()
+        }
     }
 
-    @Test
-    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation() {
+    private fun sendsError_WhenBackPressed() {
         onView(withId(R.id.authenticate_button)).perform(click())
-        changeOrientation(activityRule.activity, device, landscape = true)
         device.pressBack()
         onView(withId(R.id.log_text_view))
             .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
+    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation() {
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            sendsError_WhenBackPressedAfterRotation(scenario)
+        }
+    }
+
+    @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenBackPressedAfterRotation() {
-        onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
-        testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation()
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
+            sendsError_WhenBackPressedAfterRotation(scenario)
+        }
+    }
+
+    private fun sendsError_WhenBackPressedAfterRotation(scenario: ActivityScenario<*>) {
+        onView(withId(R.id.authenticate_button)).perform(click())
+        scenario.rotateDevice(toLandscape = true)
+        device.pressBack()
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
     fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            sendsError_WhenBackPressedAfterRepeatedRotation(scenario)
+        }
+    }
+
+    @Test
+    fun testBiometricOrCredentialAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
+            sendsError_WhenBackPressedAfterRepeatedRotation(scenario)
+        }
+    }
+
+    private fun sendsError_WhenBackPressedAfterRepeatedRotation(scenario: ActivityScenario<*>) {
         onView(withId(R.id.authenticate_button)).perform(click())
         for (i in 1..3) {
-            changeOrientation(activityRule.activity, device, landscape = true)
-            changeOrientation(activityRule.activity, device, landscape = false)
+            scenario.rotateDevice(toLandscape = true)
+            scenario.rotateDevice(toLandscape = false)
         }
         device.pressBack()
         onView(withId(R.id.log_text_view))
@@ -109,18 +126,10 @@ class BiometricPromptEnrolledTest {
     }
 
     @Test
-    fun testBiometricOrCredentialAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
-        onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
-        testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRepeatedRotation()
-    }
-
-    @Test
     fun testBiometricOnlyAuth_SendsError_WhenCanceledOnConfigurationChange() {
-        onView(withId(R.id.cancel_config_change_checkbox)).perform(click())
-        onView(withId(R.id.authenticate_button)).perform(click())
-        changeOrientation(activityRule.activity, device, landscape = true)
-        onView(withId(R.id.log_text_view))
-            .check(matches(withText(containsString("onAuthenticationError"))))
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            sendsError_WhenCanceledOnConfigurationChange(scenario)
+        }
     }
 
     @Test
@@ -128,17 +137,25 @@ class BiometricPromptEnrolledTest {
         // Prompt isn't canceled on configuration change for some devices on API 29 (b/202975762).
         assumeFalse(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
 
-        onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
-        testBiometricOnlyAuth_SendsError_WhenCanceledOnConfigurationChange()
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
+            sendsError_WhenCanceledOnConfigurationChange(scenario)
+        }
+    }
+
+    private fun sendsError_WhenCanceledOnConfigurationChange(scenario: ActivityScenario<*>) {
+        onView(withId(R.id.cancel_config_change_checkbox)).perform(click())
+        onView(withId(R.id.authenticate_button)).perform(click())
+        scenario.rotateDevice(toLandscape = true)
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
     fun testBiometricOnlyAuth_SendsError_WhenActivityBackgrounded() {
-        onView(withId(R.id.authenticate_button)).perform(click())
-        navigateToHomeScreen(device)
-        bringToForeground(activityRule.activity)
-        onView(withId(R.id.log_text_view))
-            .check(matches(withText(containsString("onAuthenticationError"))))
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            sendsError_WhenActivityBackgrounded(scenario)
+        }
     }
 
     @Test
@@ -146,7 +163,35 @@ class BiometricPromptEnrolledTest {
         // Prompt is not dismissed when backgrounded for Pixel devices on API 29 (b/162022588).
         assumeFalse(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
 
-        onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
-        testBiometricOnlyAuth_SendsError_WhenActivityBackgrounded()
+        ActivityScenario.launch(BiometricPromptTestActivity::class.java).use { scenario ->
+            onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
+            sendsError_WhenActivityBackgrounded(scenario)
+        }
+    }
+
+    private fun sendsError_WhenActivityBackgrounded(scenario: ActivityScenario<*>) {
+        onView(withId(R.id.authenticate_button)).perform(click())
+        // This actually stops the activity. Use this to bring the activity to background.
+        scenario.moveToState(Lifecycle.State.CREATED)
+        // Bring activity to foreground to check the text
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
+    }
+
+    // TODO(b/391721281): Use [ScreenOrientationRule] instead. Somehow
+    // DeviceControllerOperationException happens with [onDevice().setScreenOrientation()]
+    private fun ActivityScenario<*>.rotateDevice(toLandscape: Boolean) {
+        val orientation =
+            if (toLandscape) {
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+
+        onActivity { activity -> activity.requestedOrientation = orientation }
+
+        // Wait for the rotation to complete
+        device.waitForIdle()
     }
 }

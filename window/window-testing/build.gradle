@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -62,7 +62,7 @@ dependencies {
 
 androidx {
     name = "WindowManager Testing Extensions"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager Test Library"
     legacyDisableKotlinStrictApiMode = true

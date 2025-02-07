@@ -122,6 +122,7 @@ public class StateListDrawableCompat extends DrawableContainerCompat {
      * Inflate this Drawable from an XML resource optionally styled by a theme.
      * This can't be called more than once for each Drawable.
      *
+     * @param context The context in which the inflation takes place
      * @param r Resources used to resolve attribute values
      * @param parser XML parser from which to inflate this Drawable
      * @param attrs Base set of attribute values

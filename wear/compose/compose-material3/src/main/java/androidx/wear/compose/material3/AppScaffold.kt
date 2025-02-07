@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 @Composable
 public fun AppScaffold(
     modifier: Modifier = Modifier,
-    timeText: @Composable () -> Unit = { TimeText { time() } },
+    timeText: @Composable () -> Unit = { TimeText() },
     content: @Composable BoxScope.() -> Unit,
 ) {
     CompositionLocalProvider(

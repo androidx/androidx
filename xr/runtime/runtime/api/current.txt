@@ -1,4 +1,84 @@
 // Signature format: 4.0
+package androidx.xr.runtime {
+
+  public final class CoreState {
+    ctor public CoreState(kotlin.time.ComparableTimeMark timeMark);
+    method public kotlin.time.ComparableTimeMark component1();
+    method public androidx.xr.runtime.CoreState copy(kotlin.time.ComparableTimeMark timeMark);
+    method public kotlin.time.ComparableTimeMark getTimeMark();
+    property public kotlin.time.ComparableTimeMark timeMark;
+  }
+
+  public final class Session {
+    method public androidx.xr.runtime.SessionConfigureResult configure();
+    method public static androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity);
+    method public static androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    method public void destroy();
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
+    method public void pause();
+    method public androidx.xr.runtime.SessionResumeResult resume();
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> state;
+    field public static final androidx.xr.runtime.Session.Companion Companion;
+  }
+
+  public static final class Session.Companion {
+    method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity);
+    method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+  }
+
+  public final class SessionConfigureConfigurationNotSupported extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureConfigurationNotSupported();
+  }
+
+  public abstract sealed class SessionConfigureResult {
+  }
+
+  public final class SessionConfigureSuccess extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureSuccess();
+  }
+
+  public final class SessionCreatePermissionsNotGranted extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreatePermissionsNotGranted(java.util.List<java.lang.String> permissions);
+    method public java.util.List<java.lang.String> getPermissions();
+    property public java.util.List<java.lang.String> permissions;
+  }
+
+  public abstract sealed class SessionCreateResult {
+  }
+
+  public final class SessionCreateSuccess extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateSuccess(androidx.xr.runtime.Session session);
+    method public androidx.xr.runtime.Session getSession();
+    property public androidx.xr.runtime.Session session;
+  }
+
+  public final class SessionResumePermissionsNotGranted extends androidx.xr.runtime.SessionResumeResult {
+    ctor public SessionResumePermissionsNotGranted(java.util.List<java.lang.String> permissions);
+    method public java.util.List<java.lang.String> getPermissions();
+    property public java.util.List<java.lang.String> permissions;
+  }
+
+  public abstract sealed class SessionResumeResult {
+  }
+
+  public final class SessionResumeSuccess extends androidx.xr.runtime.SessionResumeResult {
+    ctor public SessionResumeSuccess();
+  }
+
+}
+
+package androidx.xr.runtime.java {
+
+  public final class Coroutines {
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T> toFuture(androidx.xr.runtime.Session session, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> coroutine);
+  }
+
+  public final class Flows {
+    method public static <T> io.reactivex.rxjava3.core.Observable<T> toObservable(androidx.xr.runtime.Session session, kotlinx.coroutines.flow.Flow<? extends T> flow);
+  }
+
+}
+
 package androidx.xr.runtime.math {
 
   public final class MathHelper {
@@ -27,14 +107,14 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Matrix4 getTranspose();
     method public boolean isTrs();
     method public operator androidx.xr.runtime.math.Matrix4 times(androidx.xr.runtime.math.Matrix4 other);
-    property public final float[] data;
-    property public final androidx.xr.runtime.math.Matrix4 inverse;
-    property public final boolean isTrs;
-    property public final androidx.xr.runtime.math.Pose pose;
-    property public final androidx.xr.runtime.math.Quaternion rotation;
-    property public final androidx.xr.runtime.math.Vector3 scale;
-    property public final androidx.xr.runtime.math.Vector3 translation;
-    property public final androidx.xr.runtime.math.Matrix4 transpose;
+    property public float[] data;
+    property public androidx.xr.runtime.math.Matrix4 inverse;
+    property public boolean isTrs;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.math.Quaternion rotation;
+    property public androidx.xr.runtime.math.Vector3 scale;
+    property public androidx.xr.runtime.math.Vector3 translation;
+    property public androidx.xr.runtime.math.Matrix4 transpose;
     field public static final androidx.xr.runtime.math.Matrix4.Companion Companion;
     field public static final androidx.xr.runtime.math.Matrix4 Identity;
     field public static final androidx.xr.runtime.math.Matrix4 Zero;
@@ -47,8 +127,8 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Matrix4 fromScale(float scale);
     method public androidx.xr.runtime.math.Matrix4 fromTranslation(androidx.xr.runtime.math.Vector3 translation);
     method public androidx.xr.runtime.math.Matrix4 fromTrs(androidx.xr.runtime.math.Vector3 translation, androidx.xr.runtime.math.Quaternion rotation, androidx.xr.runtime.math.Vector3 scale);
-    property public final androidx.xr.runtime.math.Matrix4 Identity;
-    property public final androidx.xr.runtime.math.Matrix4 Zero;
+    property public androidx.xr.runtime.math.Matrix4 Identity;
+    property public androidx.xr.runtime.math.Matrix4 Zero;
   }
 
   public final class Pose {
@@ -77,15 +157,15 @@ package androidx.xr.runtime.math {
     method public infix androidx.xr.runtime.math.Vector3 transformPoint(androidx.xr.runtime.math.Vector3 point);
     method public infix androidx.xr.runtime.math.Vector3 transformVector(androidx.xr.runtime.math.Vector3 vector);
     method public androidx.xr.runtime.math.Pose translate(androidx.xr.runtime.math.Vector3 translation);
-    property public final inline androidx.xr.runtime.math.Vector3 backward;
-    property public final inline androidx.xr.runtime.math.Vector3 down;
-    property public final inline androidx.xr.runtime.math.Vector3 forward;
-    property public final androidx.xr.runtime.math.Pose inverse;
-    property public final inline androidx.xr.runtime.math.Vector3 left;
-    property public final inline androidx.xr.runtime.math.Vector3 right;
-    property public final androidx.xr.runtime.math.Quaternion rotation;
-    property public final androidx.xr.runtime.math.Vector3 translation;
-    property public final inline androidx.xr.runtime.math.Vector3 up;
+    property public inline androidx.xr.runtime.math.Vector3 backward;
+    property public inline androidx.xr.runtime.math.Vector3 down;
+    property public inline androidx.xr.runtime.math.Vector3 forward;
+    property public androidx.xr.runtime.math.Pose inverse;
+    property public inline androidx.xr.runtime.math.Vector3 left;
+    property public inline androidx.xr.runtime.math.Vector3 right;
+    property public androidx.xr.runtime.math.Quaternion rotation;
+    property public androidx.xr.runtime.math.Vector3 translation;
+    property public inline androidx.xr.runtime.math.Vector3 up;
     field public static final androidx.xr.runtime.math.Pose.Companion Companion;
     field public static final androidx.xr.runtime.math.Pose Identity;
   }
@@ -95,7 +175,7 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target);
     method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target, optional androidx.xr.runtime.math.Vector3 up);
     method public androidx.xr.runtime.math.Pose lerp(androidx.xr.runtime.math.Pose start, androidx.xr.runtime.math.Pose end, float ratio);
-    property public final androidx.xr.runtime.math.Pose Identity;
+    property public androidx.xr.runtime.math.Pose Identity;
   }
 
   public final class Quaternion {
@@ -136,13 +216,13 @@ package androidx.xr.runtime.math {
     method public operator androidx.xr.runtime.math.Quaternion times(float c);
     method public androidx.xr.runtime.math.Quaternion toNormalized();
     method public inline operator androidx.xr.runtime.math.Quaternion unaryMinus();
-    property public final kotlin.Pair<androidx.xr.runtime.math.Vector3,java.lang.Float> axisAngle;
-    property public final androidx.xr.runtime.math.Vector3 eulerAngles;
-    property public final inline androidx.xr.runtime.math.Quaternion inverse;
-    property public final float w;
-    property public final float x;
-    property public final float y;
-    property public final float z;
+    property public kotlin.Pair<androidx.xr.runtime.math.Vector3,java.lang.Float> axisAngle;
+    property public androidx.xr.runtime.math.Vector3 eulerAngles;
+    property public inline androidx.xr.runtime.math.Quaternion inverse;
+    property public float w;
+    property public float x;
+    property public float y;
+    property public float z;
     field public static final androidx.xr.runtime.math.Quaternion.Companion Companion;
     field public static final androidx.xr.runtime.math.Quaternion Identity;
   }
@@ -158,7 +238,7 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Quaternion fromRotation(androidx.xr.runtime.math.Vector3 start, androidx.xr.runtime.math.Vector3 end);
     method public androidx.xr.runtime.math.Quaternion lerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
     method public androidx.xr.runtime.math.Quaternion slerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
-    property public final androidx.xr.runtime.math.Quaternion Identity;
+    property public androidx.xr.runtime.math.Quaternion Identity;
   }
 
   public final class Ray {
@@ -167,8 +247,8 @@ package androidx.xr.runtime.math {
     ctor public Ray(optional androidx.xr.runtime.math.Vector3 origin, optional androidx.xr.runtime.math.Vector3 direction);
     method public androidx.xr.runtime.math.Vector3 getDirection();
     method public androidx.xr.runtime.math.Vector3 getOrigin();
-    property public final androidx.xr.runtime.math.Vector3 direction;
-    property public final androidx.xr.runtime.math.Vector3 origin;
+    property public androidx.xr.runtime.math.Vector3 direction;
+    property public androidx.xr.runtime.math.Vector3 origin;
   }
 
   public final class Vector2 {
@@ -198,10 +278,10 @@ package androidx.xr.runtime.math {
     method public inline operator androidx.xr.runtime.math.Vector2 times(float c);
     method public androidx.xr.runtime.math.Vector2 toNormalized();
     method public inline operator androidx.xr.runtime.math.Vector2 unaryMinus();
-    property public final inline float length;
-    property public final inline float lengthSquared;
-    property public final float x;
-    property public final float y;
+    property public inline float length;
+    property public inline float lengthSquared;
+    property public float x;
+    property public float y;
     field public static final androidx.xr.runtime.math.Vector2.Companion Companion;
     field public static final androidx.xr.runtime.math.Vector2 Down;
     field public static final androidx.xr.runtime.math.Vector2 Left;
@@ -216,12 +296,12 @@ package androidx.xr.runtime.math {
     method public float angularDistance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
     method public float distance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
     method public androidx.xr.runtime.math.Vector2 lerp(androidx.xr.runtime.math.Vector2 start, androidx.xr.runtime.math.Vector2 end, float ratio);
-    property public final androidx.xr.runtime.math.Vector2 Down;
-    property public final androidx.xr.runtime.math.Vector2 Left;
-    property public final androidx.xr.runtime.math.Vector2 One;
-    property public final androidx.xr.runtime.math.Vector2 Right;
-    property public final androidx.xr.runtime.math.Vector2 Up;
-    property public final androidx.xr.runtime.math.Vector2 Zero;
+    property public androidx.xr.runtime.math.Vector2 Down;
+    property public androidx.xr.runtime.math.Vector2 Left;
+    property public androidx.xr.runtime.math.Vector2 One;
+    property public androidx.xr.runtime.math.Vector2 Right;
+    property public androidx.xr.runtime.math.Vector2 Up;
+    property public androidx.xr.runtime.math.Vector2 Zero;
   }
 
   public final class Vector3 {
@@ -258,11 +338,11 @@ package androidx.xr.runtime.math {
     method public operator androidx.xr.runtime.math.Vector3 times(float c);
     method public androidx.xr.runtime.math.Vector3 toNormalized();
     method public operator androidx.xr.runtime.math.Vector3 unaryMinus();
-    property public final inline float length;
-    property public final inline float lengthSquared;
-    property public final float x;
-    property public final float y;
-    property public final float z;
+    property public inline float length;
+    property public inline float lengthSquared;
+    property public float x;
+    property public float y;
+    property public float z;
     field public static final androidx.xr.runtime.math.Vector3 Backward;
     field public static final androidx.xr.runtime.math.Vector3.Companion Companion;
     field public static final androidx.xr.runtime.math.Vector3 Down;
@@ -283,14 +363,14 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Vector3 max(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
     method public androidx.xr.runtime.math.Vector3 min(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
     method public androidx.xr.runtime.math.Vector3 projectOnPlane(androidx.xr.runtime.math.Vector3 vector, androidx.xr.runtime.math.Vector3 planeNormal);
-    property public final androidx.xr.runtime.math.Vector3 Backward;
-    property public final androidx.xr.runtime.math.Vector3 Down;
-    property public final androidx.xr.runtime.math.Vector3 Forward;
-    property public final androidx.xr.runtime.math.Vector3 Left;
-    property public final androidx.xr.runtime.math.Vector3 One;
-    property public final androidx.xr.runtime.math.Vector3 Right;
-    property public final androidx.xr.runtime.math.Vector3 Up;
-    property public final androidx.xr.runtime.math.Vector3 Zero;
+    property public androidx.xr.runtime.math.Vector3 Backward;
+    property public androidx.xr.runtime.math.Vector3 Down;
+    property public androidx.xr.runtime.math.Vector3 Forward;
+    property public androidx.xr.runtime.math.Vector3 Left;
+    property public androidx.xr.runtime.math.Vector3 One;
+    property public androidx.xr.runtime.math.Vector3 Right;
+    property public androidx.xr.runtime.math.Vector3 Up;
+    property public androidx.xr.runtime.math.Vector3 Zero;
   }
 
 }

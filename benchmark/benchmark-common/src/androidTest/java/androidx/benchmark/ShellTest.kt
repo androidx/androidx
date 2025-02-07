@@ -263,10 +263,20 @@ class ShellTest {
         val backgroundProcess = getBackgroundSpinningProcess()
         assertTrue(backgroundProcess.isAlive())
         assertFailsWith<IllegalStateException> {
-            Shell.killProcessesAndWait(listOf(backgroundProcess)) {
+            Shell.killProcessesAndWait(listOf(backgroundProcess), waitPollMaxCount = 5) {
                 // noop, process not killed!
             }
         }
+
+        var failureMessage = ""
+        Shell.killProcessesAndWait(
+            listOf(backgroundProcess),
+            waitPollMaxCount = 5,
+            onFailure = { error -> failureMessage = error }
+        ) {
+            // noop, process not killed!
+        }
+        assertTrue(failureMessage.startsWith("Failed to stop "))
         assertTrue(backgroundProcess.isAlive())
     }
 

@@ -139,6 +139,36 @@ class PagingDataPresenterTest {
         }
 
     @Test
+    fun retrySentBeforeCollection() =
+        testScope.run {
+            val presenter = SimplePresenter()
+            val receiver = UiReceiverFake()
+
+            presenter.retry()
+
+            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+
+            assertEquals(1, receiver.retryEvents.size)
+
+            job.cancel()
+        }
+
+    @Test
+    fun refreshSentBeforeCollection() =
+        testScope.runTest {
+            val presenter = SimplePresenter()
+            val receiver = UiReceiverFake()
+
+            presenter.refresh()
+
+            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+
+            assertEquals(1, receiver.refreshEvents.size)
+
+            job.cancel()
+        }
+
+    @Test
     fun uiReceiverSetImmediately() =
         testScope.runTest {
             val presenter = SimplePresenter()
@@ -2471,7 +2501,6 @@ class PagingDataPresenterTest {
             val job1 = launch {
                 presenter.collectFrom(PagingData(flow, uiReceiver2, dummyHintReceiver))
             }
-            presenter.refresh()
             assertThat(uiReceiver.refreshEvents).hasSize(0)
             assertThat(uiReceiver2.refreshEvents).hasSize(1)
             job1.cancel()

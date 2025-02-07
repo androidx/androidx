@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("AcronymName")
-
 package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
@@ -89,7 +87,6 @@ inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): E
  * }
  * ```
  */
-@Suppress("AcronymName")
 class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs: IntArray) {
 
     /**
@@ -197,7 +194,6 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * EGL Attributes to create an 8 bit EGL config for red, green, blue, and alpha channels as
          * well as an 8 bit stencil size
          */
-        @Suppress("AcronymName")
         @JvmField
         val RGBA_8888 = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
@@ -215,7 +211,6 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * EGL Attributes to create a 10 bit EGL config for red, green, blue, channels and a 2 bit
          * alpha channels. This does not include any bits for depth and stencil buffers.
          */
-        @Suppress("AcronymName")
         @JvmField
         val RGBA_1010102 = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
@@ -232,7 +227,6 @@ class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs:
          * EGL Attributes to create a 16 bit floating point EGL config for red, green, blue and
          * alpha channels without a depth or stencil channel.
          */
-        @Suppress("AcronymName")
         @JvmField
         val RGBA_F16 = EGLConfigAttributes {
             EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT

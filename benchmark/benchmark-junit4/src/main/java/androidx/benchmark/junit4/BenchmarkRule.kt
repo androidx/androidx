@@ -148,8 +148,12 @@ constructor(
          * - Controlling which parts of multi-stage work are measured (e.g. View measure/layout)
          * - Per-loop verification
          *
-         * @sample androidx.benchmark.samples.runWithTimingDisabledSample
+         * @sample androidx.benchmark.samples.runWithMeasurementDisabledSample
          */
+        @Deprecated(
+            "Renamed to runWithMeasurementDisabled to clarify all measurements are paused",
+            replaceWith = ReplaceWith("runWithMeasurementDisabled")
+        )
         inline fun <T> runWithTimingDisabled(block: () -> T): T {
             return runWithMeasurementDisabled(block)
         }

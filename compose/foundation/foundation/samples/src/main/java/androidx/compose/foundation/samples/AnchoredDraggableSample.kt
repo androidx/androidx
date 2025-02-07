@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.forEach
@@ -53,6 +54,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -68,6 +70,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 private enum class AnchoredDraggableSampleValue {
     Start,
@@ -370,6 +373,67 @@ fun AnchoredDraggableDynamicAnchorsSample() {
         },
     ) {
         Text("Swipe to expand Drawer")
+    }
+}
+
+/**
+ * Showcases how to perform a programmatic fling through [AnchoredDraggableState] and
+ * [AnchoredDraggableDefaults.flingBehavior]. Note that this is an advanced use case.
+ */
+@Composable
+fun AnchoredDraggableProgrammaticFlingSample() {
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
+    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(state)
+    Column(
+        Modifier.fillMaxWidth()
+            .onSizeChanged { layoutSize ->
+                state.updateAnchors(
+                    DraggableAnchors {
+                        Start at 0f
+                        Center at layoutSize.width * .5f
+                        End at layoutSize.width.toFloat()
+                    }
+                )
+            }
+            .visualizeDraggableAnchors(state, Orientation.Horizontal)
+    ) {
+        Box(
+            Modifier.size(60.dp)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
+                .anchoredDraggable(
+                    state = state,
+                    orientation = Orientation.Horizontal,
+                    flingBehavior = flingBehavior
+                )
+                .background(Color.Red)
+        )
+        val scope = rememberCoroutineScope()
+        Button(
+            onClick = {
+                scope.launch {
+                    // We first obtain the lock on the state
+                    state.anchoredDrag {
+                        // The ScrollScope's lifecycle is tied to the AnchoredDragScope we receive
+                        //  from anchoredDrag. It is used to bridge AnchoredDraggable and
+                        //  FlingBehavior.
+                        val scrollFlingScope =
+                            object : ScrollScope {
+                                override fun scrollBy(pixels: Float): Float {
+                                    dragTo(state.offset + pixels)
+                                    return pixels
+                                }
+                            }
+                        // Perform a fling with the fling behavior and scroll scope
+                        with(flingBehavior) { scrollFlingScope.performFling(100f) }
+                    }
+                }
+            }
+        ) {
+            Text("Click to call performFling")
+        }
     }
 }
 

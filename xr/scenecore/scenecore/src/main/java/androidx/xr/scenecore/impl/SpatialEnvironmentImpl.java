@@ -39,6 +39,7 @@ import androidx.xr.scenecore.JxrPlatformAdapter.SpatialEnvironment;
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
 import com.google.ar.imp.apibindings.ImpressApi;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.Collections;
@@ -46,6 +47,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -90,11 +92,16 @@ final class SpatialEnvironmentImpl implements SpatialEnvironment {
     private final Set<Consumer<Float>> mOnPassthroughOpacityChangedListeners =
             Collections.synchronizedSet(new HashSet<>());
 
+    // Assets used to turn the skybox black when devs pass in null for the skybox.
+    private ListenableFuture<ExrImageResource> mNullSkyboxResourceFuture;
+    private ExrImageResource mNullSkyboxResource = null;
+
     SpatialEnvironmentImpl(
             @NonNull Activity activity,
             @NonNull XrExtensions xrExtensions,
             @NonNull Node rootSceneNode,
             @NonNull Supplier<SpatialState> spatialStateProvider,
+            @NonNull ListenableFuture<ExrImageResource> nullSkyboxResourceFuture,
             boolean useSplitEngine) {
         mActivity = activity;
         mXrExtensions = xrExtensions;
@@ -104,6 +111,7 @@ final class SpatialEnvironmentImpl implements SpatialEnvironment {
         mSkyboxNode = xrExtensions.createNode();
         mUseSplitEngine = useSplitEngine;
         mSpatialStateProvider = spatialStateProvider;
+        mNullSkyboxResourceFuture = nullSkyboxResourceFuture;
 
         try (NodeTransaction transaction = xrExtensions.createNodeTransaction()) {
             transaction
@@ -390,8 +398,10 @@ final class SpatialEnvironmentImpl implements SpatialEnvironment {
             try (NodeTransaction transaction = mXrExtensions.createNodeTransaction()) {
                 transaction.setParent(prevGeometrySubspaceSplitEngine.subspaceNode, null).apply();
             }
+            // Destroying the subspace will also destroy the underlying Impress node for the
+            // Environment
+            // geometry.
             mSplitEngineSubspaceManager.deleteSubspace(prevGeometrySubspaceSplitEngine.subspaceId);
-            mImpressApi.destroyImpressNode(prevGeometrySubspaceImpressNode);
 
             prevGeometrySubspaceSplitEngine = null;
             prevGeometrySubspaceImpressNode = -1;
@@ -452,11 +462,27 @@ final class SpatialEnvironmentImpl implements SpatialEnvironment {
             }
         }
 
-        if (!Objects.equals(newSkybox, prevSkybox)) {
-            // TODO: b/371221872 - If the preference object is non-null but contains a null skybox,
-            // we
-            // should set a black skybox. (This may require a change to the attach/detach logic
-            // below.)
+        // TODO: b/392948759 - Fix StrictMode violations triggered whenever skybox is set.
+        if (!Objects.equals(newSkybox, prevSkybox)
+                || (mSpatialEnvironmentPreference == null && newPreference != null)) {
+            // If the preference object is non-null but contains a null skybox, we set a black
+            // skybox.
+            if (mNullSkyboxResourceFuture == null) {
+                Log.e(TAG, "Failed to get null skybox resource.");
+            } else if (newSkybox == null && newPreference != null) {
+                // Lazy initialization of the null skybox resource.
+                if (mNullSkyboxResource == null) {
+                    try {
+                        mNullSkyboxResource = mNullSkyboxResourceFuture.get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        Log.e(TAG, "Failed to get null skybox resource.");
+                    }
+                }
+                // Set the skybox to a black texture
+                if (mNullSkyboxResource != null) {
+                    newSkybox = mNullSkyboxResource;
+                }
+            }
             applySkybox((ExrImageResourceImpl) newSkybox);
         }
 
@@ -568,6 +594,8 @@ final class SpatialEnvironmentImpl implements SpatialEnvironment {
         mIsSpatialEnvironmentPreferenceActive = false;
         mOnPassthroughOpacityChangedListeners.clear();
         mOnSpatialEnvironmentChangedListeners.clear();
+        mNullSkyboxResourceFuture = null;
+        mNullSkyboxResource = null;
         // TODO: b/376934871 - Check async results.
         mXrExtensions.detachSpatialEnvironment(mActivity, (result) -> {}, Runnable::run);
         mActivity = null;

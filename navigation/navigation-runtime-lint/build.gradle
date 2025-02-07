@@ -23,7 +23,7 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -51,7 +51,7 @@ dependencies {
 
 androidx {
     name = "Navigation Runtime Lint"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2022"
     description = "Lint checks for Navigation Runtime"
 }

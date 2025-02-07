@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.modifiers
 
+import androidx.wear.protolayout.modifiers.LayoutModifier.Element
 import java.util.Objects
 
 /**
@@ -28,14 +29,12 @@ import java.util.Objects
 interface LayoutModifier {
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
-     * each element from outside in.
+     * each element from left to right.
      *
-     * Elements wrap one another in a chain from left to right; an [Element] that appears to the
-     * left of another in a `+` expression or in [operation]'s parameter order affects all of the
-     * elements that appear after it. [foldIn] may be used to accumulate a value starting from the
-     * parent or head of the modifier chain to the final wrapped child.
+     * [foldRight] may be used to accumulate a value starting from the head of the modifier chain to
+     * the final modifier element.
      */
-    fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
+    fun <R> foldRight(initial: R, operation: (R, Element) -> R): R
 
     /**
      * Concatenates this modifier with another.
@@ -47,7 +46,7 @@ interface LayoutModifier {
 
     /** A single element contained within a [LayoutModifier] chain. */
     interface Element : LayoutModifier {
-        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
+        override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
     }
 
@@ -58,7 +57,7 @@ interface LayoutModifier {
      */
     companion object : LayoutModifier {
         @Suppress("MissingJvmstatic")
-        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
+        override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R = initial
 
         @Suppress("MissingJvmstatic")
         override infix fun then(other: LayoutModifier): LayoutModifier = other
@@ -68,24 +67,24 @@ interface LayoutModifier {
 }
 
 /**
- * A node in a [LayoutModifier] chain. A CombinedModifier always contains at least two elements; a
- * * Modifier [outer] that wraps around the Modifier [inner].
+ * A node in a [LayoutModifier] chain. A [CombinedLayoutModifier] always contains at least two
+ * elements.
  */
 internal class CombinedLayoutModifier(
-    private val outer: LayoutModifier,
-    private val inner: LayoutModifier
+    private val left: LayoutModifier,
+    private val right: LayoutModifier
 ) : LayoutModifier {
-    override fun <R> foldIn(initial: R, operation: (R, LayoutModifier.Element) -> R): R =
-        inner.foldIn(outer.foldIn(initial, operation), operation)
+    override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R =
+        right.foldRight(left.foldRight(initial, operation), operation)
 
     override fun equals(other: Any?): Boolean =
-        other is CombinedLayoutModifier && outer == other.outer && inner == other.inner
+        other is CombinedLayoutModifier && left == other.left && right == other.right
 
-    override fun hashCode(): Int = Objects.hash(outer, inner)
+    override fun hashCode(): Int = Objects.hash(left, right)
 
     override fun toString(): String =
         "[" +
-            foldIn("") { acc, element ->
+            foldRight("") { acc, element ->
                 if (acc.isEmpty()) element.toString() else "$acc, $element"
             } +
             "]"

@@ -17,7 +17,6 @@
 package androidx.xr.compose.platform
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
@@ -36,13 +35,11 @@ import androidx.xr.scenecore.Session
 internal const val XR_IMMERSIVE_FEATURE = "android.software.xr.immersive"
 
 /** CompositionLocal indicating whether the system XR Spatial feature is enabled. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public val LocalHasXrSpatialFeature: ProvidableCompositionLocal<Boolean> =
     compositionLocalWithComputedDefaultOf {
         SpatialConfiguration.hasXrSpatialFeature(LocalContext.currentValue)
     }
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public val LocalSpatialConfiguration: CompositionLocal<SpatialConfiguration> =
     compositionLocalWithComputedDefaultOf {
         if (LocalHasXrSpatialFeature.currentValue) {
@@ -58,7 +55,6 @@ public val LocalSpatialConfiguration: CompositionLocal<SpatialConfiguration> =
 /**
  * Provides information and functionality related to the spatial configuration of the application.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialConfiguration {
     /**
      * A volume whose width, height, and depth represent the space available to the application.

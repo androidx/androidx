@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.Publish
 
 plugins {
@@ -48,7 +48,7 @@ dependencies {
 android {
     compileSdk = 35
     defaultConfig {
-        minSdk = 32
+        minSdk = 34
     }
     namespace = "androidx.xr.compose.material3"
 }
@@ -56,7 +56,7 @@ android {
 androidx {
     name = "Compose Material3 XR"
     description = "Compose Material3 components for XR"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     kotlinTarget = KotlinTarget.KOTLIN_1_9
     // TODO: b/326456246

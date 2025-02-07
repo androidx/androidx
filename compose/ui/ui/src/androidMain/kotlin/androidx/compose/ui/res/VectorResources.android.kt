@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.vector.compat.isAtEnd
 import androidx.compose.ui.graphics.vector.compat.parseCurrentVectorNode
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import java.lang.ref.WeakReference
 import org.xmlpull.v1.XmlPullParserException
 
@@ -47,7 +48,7 @@ import org.xmlpull.v1.XmlPullParserException
 @Composable
 fun ImageVector.Companion.vectorResource(@DrawableRes id: Int): ImageVector {
     val context = LocalContext.current
-    val res = resources()
+    val res = LocalResources.current
     val theme = context.theme
 
     return remember(id, res, theme, res.configuration) { vectorResource(theme, res, id) }

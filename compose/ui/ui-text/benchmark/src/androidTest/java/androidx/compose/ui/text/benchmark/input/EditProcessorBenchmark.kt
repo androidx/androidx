@@ -85,7 +85,7 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
     @Test
     fun scenarioTest() {
         benchmarkRule.measureRepeated {
-            val ep = runWithTimingDisabled {
+            val ep = runWithMeasurementDisabled {
                 EditProcessor().apply {
                     reset(
                         TextFieldValue(text = initText.text, selection = TextRange(5)),

@@ -109,7 +109,7 @@ internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Dem
         @Composable { it: @Composable () -> Unit ->
             // Only material3 demos benefit from the Material3 ScreenScaffold
             if (category.materialVersion == 3) {
-                val timeText = @Composable { androidx.wear.compose.material3.TimeText { time() } }
+                val timeText = @Composable { androidx.wear.compose.material3.TimeText() }
                 androidx.wear.compose.material3.ScreenScaffold(
                     scrollState = state,
                     timeText = remember { timeText },

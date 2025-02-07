@@ -17,6 +17,8 @@
 package androidx.pdf.view.fastscroll
 
 import android.content.Context
+import android.content.res.Resources
+import android.util.DisplayMetrics
 import androidx.pdf.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,6 +27,8 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -72,7 +76,15 @@ class FastScrollCalculatorTest {
 
     @Test
     fun computeThumbPosition() = runTest {
-        val calculator = FastScrollCalculator(context)
+        val mockContext = mock<Context>()
+        val mockResources = mock<Resources>()
+
+        val displayMetrics = DisplayMetrics()
+        displayMetrics.density = 2f
+        whenever(mockContext.resources).thenReturn(mockResources)
+        whenever(mockResources.displayMetrics).thenReturn(displayMetrics)
+
+        val calculator = FastScrollCalculator(mockContext)
 
         val fastScrollY =
             calculator.computeThumbPosition(
@@ -83,7 +95,7 @@ class FastScrollCalculatorTest {
                 estimatedFullHeight = 1000
             )
 
-        val expectedScrollValue = 107
+        val expectedScrollValue = 100
         assertEquals(expectedScrollValue, fastScrollY)
     }
 }

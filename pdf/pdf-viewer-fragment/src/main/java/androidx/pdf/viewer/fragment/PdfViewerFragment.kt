@@ -16,6 +16,7 @@
 
 package androidx.pdf.viewer.fragment
 
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Configuration
@@ -27,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.core.os.BundleCompat
@@ -853,9 +855,9 @@ public open class PdfViewerFragment : Fragment() {
     private fun resetViewsAndModels(fileUri: Uri) {
         if (pdfLoader != null) {
             pdfLoaderCallbacks?.uri = fileUri
-            paginatedView?.resetModels()
             destroyContentModel()
         }
+        paginatedView?.resetModels()
         fastScrollView?.resetContents()
         findInFileView?.resetFindInFile()
     }
@@ -1001,11 +1003,29 @@ public open class PdfViewerFragment : Fragment() {
             annotationButton?.hide()
             return
         }
-        val intent = AnnotationUtils.getAnnotationIntent(localUri!!)
-        intent.setData(localUri)
-        intent.putExtra(EXTRA_PDF_FILE_NAME, getFileName(localUri!!))
-        intent.putExtra(EXTRA_STARTING_PAGE, getStartingPageNumber())
-        startActivity(intent)
+        try {
+            val intent = AnnotationUtils.getAnnotationIntent(localUri!!)
+            intent.setData(localUri)
+            intent.putExtra(EXTRA_PDF_FILE_NAME, getFileName(localUri!!))
+            intent.putExtra(EXTRA_STARTING_PAGE, getStartingPageNumber())
+            startActivity(intent)
+        } catch (error: Exception) {
+            when (error) {
+                is ActivityNotFoundException,
+                is NullPointerException -> hideAnnotationButtonAndShowToast()
+                else -> throw error
+            }
+        }
+    }
+
+    private fun hideAnnotationButtonAndShowToast() {
+        annotationButton?.hide()
+        Toast.makeText(
+                context,
+                context?.resources?.getString(R.string.cannot_edit_pdf),
+                Toast.LENGTH_SHORT
+            )
+            .show()
     }
 
     private fun getStartingPageNumber(): Int {

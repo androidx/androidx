@@ -33,7 +33,7 @@ class ThreadingTest {
     fun runBlockingCheckedThrowsOnTimeout() = runTest {
         val latch = CountDownLatch(1)
         assertThrows<IllegalStateException> {
-            Threading.runBlockingChecked(Dispatchers.IO, 500L) {
+            Threading.runBlockingChecked(Dispatchers.IO, Dispatchers.IO, 500L) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
@@ -43,7 +43,7 @@ class ThreadingTest {
     @Test
     fun runBlockingCheckedDoesNotThrowWhenNotTimedOut() = runTest {
         val latch = CountDownLatch(1)
-        Threading.runBlockingChecked(Dispatchers.IO, 10_000L) {
+        Threading.runBlockingChecked(Dispatchers.IO, Dispatchers.IO, 10_000L) {
             latch.await(500, TimeUnit.MILLISECONDS)
         }
     }
@@ -52,7 +52,7 @@ class ThreadingTest {
     fun runBlockingCheckedOrNullReturnsNullOnTimeout() = runTest {
         val latch = CountDownLatch(1)
         val result =
-            Threading.runBlockingCheckedOrNull(Dispatchers.IO, 500L) {
+            Threading.runBlockingCheckedOrNull(Dispatchers.IO, Dispatchers.IO, 500L) {
                 // Simulate a long call that should time out.
                 latch.await(10, TimeUnit.SECONDS)
             }
@@ -63,7 +63,7 @@ class ThreadingTest {
     fun runBlockingCheckedOrNullReturnsNonNullWhenNotTimeout() = runTest {
         val latch = CountDownLatch(1)
         val result =
-            Threading.runBlockingCheckedOrNull(Dispatchers.IO, 10_000L) {
+            Threading.runBlockingCheckedOrNull(Dispatchers.IO, Dispatchers.IO, 10_000L) {
                 // Simulate a long call that should time out.
                 latch.await(500, TimeUnit.MILLISECONDS)
             }

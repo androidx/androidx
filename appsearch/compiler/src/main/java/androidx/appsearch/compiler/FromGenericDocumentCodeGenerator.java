@@ -202,9 +202,9 @@ class FromGenericDocumentCodeGenerator {
         //       unboxing.
         //
         //   1b: ListCallArraysAsList
-        //       List contains String or EmbeddingVector. We have to convert this from
-        //       an array of String[] or EmbeddingVector[], but no conversion of the
-        //       collection elements is needed. We can use Arrays#asList for this.
+        //       List contains String, EmbeddingVector or AppSearchBlobHandle. We have to convert
+        //       this from an array of String[], EmbeddingVector[] or AppSearchBlobHandle[], but no
+        //       conversion of the collection elements is needed. We can use Arrays#asList for this.
         //
         //   1c: ListForLoopCallFromGenericDocument
         //       List contains a class which is annotated with @Document.
@@ -225,8 +225,8 @@ class FromGenericDocumentCodeGenerator {
         //       of unboxing.
         //
         //   2b: ArrayUseDirectly
-        //       Array is of type String[], long[], double[], boolean[], byte[][] or
-        //       EmbeddingVector[].
+        //       Array is of type String[], long[], double[], boolean[], byte[][],
+        //       EmbeddingVector[] or AppSearchBlobHandle[]
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallFromGenericDocument
@@ -244,8 +244,8 @@ class FromGenericDocumentCodeGenerator {
 
         // Scenario 3: Single valued fields
         //   3a: FieldUseDirectlyWithNullCheck
-        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-        //       EmbeddingVector.
+        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[],
+        //       EmbeddingVector or AppSearchBlobHandle.
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
@@ -408,6 +408,19 @@ class FromGenericDocumentCodeGenerator {
                     default:
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
                 }
+            case BLOB_HANDLE_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<AppSearchBlobHandle>: 1b
+                        return listCallArraysAsList(annotation, getterOrField);
+                    case ARRAY:
+                        // AppSearchBlobHandle[]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE:
+                        // AppSearchBlobHandle: 3a
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
         }
@@ -470,9 +483,9 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 1b: ListCallArraysAsList
-    //     List contains String or EmbeddingVector. We have to convert this from
-    //     an array of String[] or EmbeddingVector[], but no conversion of the
-    //     collection elements is needed. We can use Arrays#asList for this.
+    //     List contains String, EmbeddingVector or AppSearchBlobHandle. We have to convert this
+    //     from an array of String[], EmbeddingVector[] or AppSearchBlobHandle[], but no conversion
+    //     of the collection elements is needed. We can use Arrays#asList for this.
     private @NonNull CodeBlock listCallArraysAsList(
             @NonNull DataPropertyAnnotation annotation,
             @NonNull AnnotatedGetterOrField getterOrField) {
@@ -594,8 +607,8 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 2b: ArrayUseDirectly
-    //     Array is of type String[], long[], double[], boolean[], byte[][] or
-    //     EmbeddingVector[].
+    //     Array is of type String[], long[], double[], boolean[], byte[][], EmbeddingVector[]
+    //     or AppSearchBlobHandle[].
     private @NonNull CodeBlock arrayUseDirectly(
             @NonNull DataPropertyAnnotation annotation,
             @NonNull AnnotatedGetterOrField getterOrField) {
@@ -680,8 +693,8 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 3a: FieldUseDirectlyWithNullCheck
-    //     Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-    //     EmbeddingVector.
+    //     Field is of type String, Long, Integer, Double, Float, Boolean, byte[], EmbeddingVector
+    //     or AppSearchBlobHandle.
     //     We can use this field directly, after testing for null. The java compiler will box
     //     or unbox as needed.
     private @NonNull CodeBlock fieldUseDirectlyWithNullCheck(

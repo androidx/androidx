@@ -26,7 +26,7 @@ import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
-import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.PropertyWithIndex
 import java.util.Locale
 
 class EntityStatementConverterWriter(private val entity: Entity) :
@@ -37,7 +37,7 @@ class EntityStatementConverterWriter(private val entity: Entity) :
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
 
-    override fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
+    override fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
         builder.apply {
             val stmtParamName = "statement"
             addParameter(stmtParamName, SQLiteDriverTypeNames.STATEMENT)
@@ -52,7 +52,7 @@ class EntityStatementConverterWriter(private val entity: Entity) :
         scope.builder.apply {
             addLocalVariable(entityVar, entity.typeName)
             val fieldsWithIndices =
-                entity.fields.map {
+                entity.properties.map {
                     val indexVar =
                         scope.getTmpVar(
                             "_columnIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
@@ -64,13 +64,13 @@ class EntityStatementConverterWriter(private val entity: Entity) :
                         assignExpr =
                             XCodeBlock.of("%M(%N, %S)", packageMember, stmtParamName, it.columnName)
                     )
-                    FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = false)
+                    PropertyWithIndex(property = it, indexVar = indexVar, alwaysExists = false)
                 }
-            FieldReadWriteWriter.readFromStatement(
+            PropertyReadWriteWriter.readFromStatement(
                 outVar = entityVar,
                 outDataClass = entity,
                 stmtVar = stmtParamName,
-                fieldsWithIndices = fieldsWithIndices,
+                propertiesWithIndices = fieldsWithIndices,
                 relationCollectors = emptyList(), // no relationship for entities
                 scope = scope
             )

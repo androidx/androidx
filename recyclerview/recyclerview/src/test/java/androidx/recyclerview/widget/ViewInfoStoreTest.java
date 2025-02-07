@@ -30,12 +30,12 @@ import static org.junit.Assert.assertTrue;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

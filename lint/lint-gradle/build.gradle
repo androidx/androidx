@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -43,7 +43,7 @@ dependencies {
 
 androidx {
     name = "Gradle lint checks"
-    type = LibraryType.STANDALONE_PUBLISHED_LINT
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2024"
     description = "Lint checks to verify usage of Gradle APIs."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

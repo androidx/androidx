@@ -137,6 +137,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         )
     }
 
+    /** Hides the ToolBoxView with a fade-out animation. */
+    public fun hide() {
+        // When we expand toolbox view by adding new views, we need to update the hide animation
+        editButton.hide()
+    }
+
+    /** Shows the ToolBoxView with a fade-in animation. */
+    public fun show() {
+        // When we expand toolbox view by adding new views, we need to update the show animation
+        editButton.show()
+    }
+
     public companion object {
         public const val EXTRA_PDF_FILE_NAME: String =
             "androidx.pdf.viewer.fragment.extra.PDF_FILE_NAME"

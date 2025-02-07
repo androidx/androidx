@@ -68,6 +68,7 @@ internal class CaptureSessionState(
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val timeSource: TimeSource,
     private val cameraGraphFlags: CameraGraph.Flags,
+    private val blockingDispatcher: CoroutineDispatcher,
     private val backgroundDispatcher: CoroutineDispatcher,
     private val scope: CoroutineScope
 ) : CameraCaptureSessionWrapper.StateCallback {
@@ -316,6 +317,7 @@ internal class CaptureSessionState(
             // camera framework. If we really cannot get a configured session after a timeout, just
             // proceed with the rest of the shutdown.
             Threading.runBlockingCheckedOrNull(
+                blockingDispatcher,
                 backgroundDispatcher,
                 CAPTURE_SESSION_TIMEOUT_MS,
             ) {
@@ -357,6 +359,7 @@ internal class CaptureSessionState(
             // [2] b/379855962
             if (cameraGraphFlags.abortCapturesOnStop) {
                 Threading.runBlockingCheckedOrNull(
+                    blockingDispatcher,
                     backgroundDispatcher,
                     ABORT_CAPTURES_TIMEOUT_MS
                 ) {
@@ -387,7 +390,11 @@ internal class CaptureSessionState(
             // [2] b/277675483
             // [3] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
             if (cameraGraphFlags.closeCaptureSessionOnDisconnect) {
-                Threading.runBlockingCheckedOrNull(backgroundDispatcher, CLOSE_SESSION_TIMEOUT_MS) {
+                Threading.runBlockingCheckedOrNull(
+                    blockingDispatcher,
+                    backgroundDispatcher,
+                    CLOSE_SESSION_TIMEOUT_MS,
+                ) {
                     Debug.trace("$this CameraCaptureSessionWrapper#close") {
                         Log.debug { "Closing capture session for $this" }
                         captureSession.session.close()

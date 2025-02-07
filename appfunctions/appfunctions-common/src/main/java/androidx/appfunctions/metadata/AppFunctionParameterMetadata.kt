@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,76 +18,61 @@ package androidx.appfunctions.metadata
 
 import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
-import java.util.Objects
 
-// TODO: Make it public once API surface is finalize
-/**
- * Represent a parameter's metadata.
- *
- * Example:
- * ```
- * // param1 and param2 are value parameters
- * fun sampleFunction(param1: Int, param2: String) { ... }
- *
- * // property1 is a parameter in constructor
- * class SampleClass(val property1: String)
- * ```
- */
-@Document
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppFunctionParameterMetadata
-internal constructor(
-    @Document.Namespace public val namespace: String,
-    @Document.Id public val id: String,
+/** Represent a function parameter. */
+public class AppFunctionParameterMetadata(
     /** The name of the parameter. */
-    @Document.StringProperty public val name: String,
-    /** Indicates whether the parameter is required. */
-    @Document.StringProperty public val isRequired: Boolean,
+    public val name: String,
+    /** Determines whether this parameter is mandatory. */
+    public val isRequired: Boolean,
     /** The data type of the parameter. */
-    @Document.DocumentProperty public val dataType: AppFunctionDataTypeMetadata? = null,
-    /** The reference data type of the parameter. */
-    @Document.StringProperty public val referenceDataType: String? = null,
+    public val dataType: AppFunctionDataTypeMetadata,
 ) {
-    /**
-     * @param name The name of the parameter.
-     * @param isRequired Indicates whether the parameter is required.
-     * @param dataType The data type of the parameter.
-     * @param referenceDataType The reference data type of the parameter.
-     */
-    public constructor(
-        name: String,
-        isRequired: Boolean,
-        dataType: AppFunctionDataTypeMetadata? = null,
-        referenceDataType: String? = null,
-    ) : this(
-        APP_FUNCTION_NAMESPACE,
-        APP_FUNCTION_ID_EMPTY,
-        name,
-        isRequired,
-        dataType,
-        referenceDataType
-    )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AppFunctionParameterMetadata) return false
+        if (javaClass != other?.javaClass) return false
 
-        return this.namespace == other.namespace &&
-            this.id == other.id &&
-            this.isRequired == other.isRequired &&
-            this.dataType == other.dataType &&
-            this.referenceDataType == other.referenceDataType
+        other as AppFunctionParameterMetadata
+
+        if (name != other.name) return false
+        if (isRequired != other.isRequired) return false
+        if (dataType != other.dataType) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(namespace, id, isRequired, dataType, referenceDataType)
+        var result = name.hashCode()
+        result = 31 * result + isRequired.hashCode()
+        result = 31 * result + dataType.hashCode()
+        return result
     }
 
     override fun toString(): String {
-        return "AppFunctionValueParameterMetadata(namespace=$namespace, " +
-            "id=$id, " +
+        return "AppFunctionParameterMetadata(" +
+            "name=$name, " +
             "isRequired=$isRequired, " +
-            "dataType=$dataType, " +
-            "referenceDataType=$referenceDataType)"
+            "dataType=$dataType" +
+            ")"
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun toAppFunctionParameterMetadataDocument(): AppFunctionParameterMetadataDocument {
+        return AppFunctionParameterMetadataDocument(
+            name = name,
+            isRequired = isRequired,
+            dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument()
+        )
     }
 }
+
+/** Represents the persistent storage format of [AppFunctionParameterMetadata]. */
+@Document
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class AppFunctionParameterMetadataDocument(
+    @Document.Namespace public val namespace: String = APP_FUNCTION_NAMESPACE,
+    @Document.Id public val id: String = APP_FUNCTION_ID_EMPTY,
+    @Document.StringProperty public val name: String,
+    @Document.BooleanProperty public val isRequired: Boolean,
+    @Document.DocumentProperty public val dataTypeMetadata: AppFunctionDataTypeMetadataDocument
+)

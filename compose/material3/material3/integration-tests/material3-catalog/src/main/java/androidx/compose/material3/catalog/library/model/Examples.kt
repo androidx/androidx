@@ -24,7 +24,7 @@ import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSui
 import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
-import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldWithNavigationSample
+import androidx.compose.material3.adaptive.samples.NavigableListDetailPaneScaffoldSample
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
@@ -43,6 +43,7 @@ import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
 import androidx.compose.material3.samples.CenteredHorizontalFloatingToolbarWithFabSample
 import androidx.compose.material3.samples.CenteredVerticalFloatingToolbarWithFabSample
+import androidx.compose.material3.samples.CheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
@@ -64,7 +65,7 @@ import androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSa
 import androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
 import androidx.compose.material3.samples.DismissibleModalWideNavigationRailSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
-import androidx.compose.material3.samples.DockedSearchBarSample
+import androidx.compose.material3.samples.DockedSearchBarScaffoldSample
 import androidx.compose.material3.samples.EditableExposedDropdownMenuSample
 import androidx.compose.material3.samples.ElevatedAssistChipSample
 import androidx.compose.material3.samples.ElevatedButtonSample
@@ -105,6 +106,7 @@ import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonMenuSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
+import androidx.compose.material3.samples.FullScreenSearchBarScaffoldSample
 import androidx.compose.material3.samples.HorizontalFloatingToolbarAsScaffoldFabSample
 import androidx.compose.material3.samples.HorizontalFloatingToolbarWithFabSample
 import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
@@ -191,7 +193,6 @@ import androidx.compose.material3.samples.ScrollableVerticalFloatingToolbarSampl
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.compose.material3.samples.ScrollingPrimaryTextTabs
 import androidx.compose.material3.samples.ScrollingSecondaryTextTabs
-import androidx.compose.material3.samples.SearchBarSample
 import androidx.compose.material3.samples.SecondaryIconTabs
 import androidx.compose.material3.samples.SecondaryTextTabs
 import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
@@ -203,6 +204,7 @@ import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
+import androidx.compose.material3.samples.SimpleSearchBarSample
 import androidx.compose.material3.samples.SimpleTextFieldSample
 import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
@@ -248,6 +250,7 @@ import androidx.compose.material3.samples.ToggleButtonSample
 import androidx.compose.material3.samples.ToggleButtonWithIconSample
 import androidx.compose.material3.samples.TonalSplitButtonSample
 import androidx.compose.material3.samples.TonalToggleButtonSample
+import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.material3.samples.VerticalFloatingToolbarWithFabSample
@@ -291,11 +294,11 @@ val AdaptiveExamples =
             ListDetailPaneScaffoldSampleWithExtraPane()
         },
         Example(
-            name = "ListDetailPaneScaffoldWithNavigationSample",
+            name = "NavigableListDetailPaneScaffoldSample",
             description = AdaptiveExampleDescription,
             sourceUrl = AdaptiveExampleSourceUrl
         ) {
-            ListDetailPaneScaffoldWithNavigationSample()
+            NavigableListDetailPaneScaffoldSample()
         }
     )
 
@@ -585,12 +588,26 @@ val CheckboxesExamples =
             CheckboxWithTextSample()
         },
         Example(
+            name = "CheckboxRoundedStrokesSample",
+            description = CheckboxesExampleDescription,
+            sourceUrl = CheckboxesExampleSourceUrl
+        ) {
+            CheckboxRoundedStrokesSample()
+        },
+        Example(
             name = "TriStateCheckboxSample",
             description = CheckboxesExampleDescription,
             sourceUrl = CheckboxesExampleSourceUrl
         ) {
             TriStateCheckboxSample()
-        }
+        },
+        Example(
+            name = "TriStateCheckboxRoundedStrokesSample",
+            description = CheckboxesExampleDescription,
+            sourceUrl = CheckboxesExampleSourceUrl
+        ) {
+            TriStateCheckboxRoundedStrokesSample()
+        },
     )
 
 private const val ChipsExampleDescription = "Chips examples"
@@ -1606,18 +1623,25 @@ private const val SearchBarExampleSourceUrl = "$SampleSourceUrl/SearchBarSamples
 val SearchBarExamples =
     listOf(
         Example(
-            name = "SearchBarSample",
+            name = "SimpleSearchBarSample",
             description = SearchBarExampleDescription,
             sourceUrl = SearchBarExampleSourceUrl
         ) {
-            SearchBarSample()
+            SimpleSearchBarSample()
         },
         Example(
-            name = "DockedSearchBarSample",
+            name = "FullScreenSearchBarScaffoldSample",
             description = SearchBarExampleDescription,
             sourceUrl = SearchBarExampleSourceUrl
         ) {
-            DockedSearchBarSample()
+            FullScreenSearchBarScaffoldSample()
+        },
+        Example(
+            name = "DockedSearchBarScaffoldSample",
+            description = SearchBarExampleDescription,
+            sourceUrl = SearchBarExampleSourceUrl
+        ) {
+            DockedSearchBarScaffoldSample()
         }
     )
 

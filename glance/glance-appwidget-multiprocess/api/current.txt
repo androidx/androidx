@@ -8,11 +8,11 @@ package androidx.glance.appwidget.multiprocess {
     method public android.content.ComponentName getInvisibleActionTrampolineActivity();
     method public android.content.ComponentName getRemoteViewsService();
     method public android.content.ComponentName getRemoteWorkerService();
-    property public final android.content.ComponentName actionCallbackBroadcastReceiver;
-    property public final android.content.ComponentName actionTrampolineActivity;
-    property public final android.content.ComponentName invisibleActionTrampolineActivity;
-    property public final android.content.ComponentName remoteViewsService;
-    property public final android.content.ComponentName remoteWorkerService;
+    property public android.content.ComponentName actionCallbackBroadcastReceiver;
+    property public android.content.ComponentName actionTrampolineActivity;
+    property public android.content.ComponentName invisibleActionTrampolineActivity;
+    property public android.content.ComponentName remoteViewsService;
+    property public android.content.ComponentName remoteWorkerService;
     field public static final androidx.glance.appwidget.multiprocess.MultiProcessConfig.Companion Companion;
   }
 

@@ -49,4 +49,5 @@
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"Potwierdź"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Zamknij"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Otwórz na telefonie"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="7845336918219306426">"Ikona Otwórz na telefonie"</string>
 </resources>

@@ -29,7 +29,7 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
-import androidx.room.vo.Field
+import androidx.room.vo.Property
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -65,8 +65,8 @@ object ProcessorErrors {
     const val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_FUNCTIONS =
         "Cannot use unbound generics in" +
             " upsert functions. It must be bound to a type through base Dao class."
-    const val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS =
-        "Cannot use unbound fields in entities."
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_PROPERTIES =
+        "Cannot use unbound properties in entities."
     const val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES =
         "Cannot use unbound generics in Dao classes." +
             " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -74,16 +74,16 @@ object ProcessorErrors {
     const val CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY =
         "Cannot use @MapColumn and " +
             " @MapInfo annotation in the same function. Please prefer using @MapColumn only."
-    const val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
-    const val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
+    const val CANNOT_FIND_GETTER_FOR_PROPERTY = "Cannot find getter for property."
+    const val CANNOT_FIND_SETTER_FOR_PROPERTY = "Cannot find setter for property."
     const val MISSING_PRIMARY_KEY =
-        "An entity must have at least 1 field annotated with @PrimaryKey"
+        "An entity must have at least 1 property annotated with @PrimaryKey"
     const val AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT =
         "If a primary key is annotated with" +
             " autoGenerate, its type must be int, Integer, long or Long."
-    const val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS =
+    const val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_PROPERTIES =
         "When @PrimaryKey annotation is used on a" +
-            " field annotated with @Embedded, the embedded class should have only 1 field."
+            " property annotated with @Embedded, the embedded class should have only 1 property."
     const val INVALID_INDEX_ORDERS_SIZE =
         "The number of entries in @Index#orders() should be " +
             "equal to the amount of columns defined in the @Index value."
@@ -124,7 +124,7 @@ object ProcessorErrors {
         "@Database annotation must specify list" + " of entities"
     const val COLUMN_NAME_CANNOT_BE_EMPTY =
         "Column name cannot be blank. If you don't want to set it" +
-            ", just remove the @ColumnInfo annotation or use @ColumnInfo.INHERIT_FIELD_NAME."
+            ", just remove the @ColumnInfo annotation or use @ColumnInfo.INHERIT_PROPERTY_NAME."
 
     const val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY =
         "Entity table name cannot be blank. If you don't want" +
@@ -265,7 +265,7 @@ object ProcessorErrors {
             ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
             " directly or indirectly (via @Relation, for example) access at least one table. For" +
             " @RawQuery, you should specify the list of tables to be observed via the" +
-            " observedEntities field."
+            " observedEntities property."
 
     const val RECURSIVE_REFERENCE_DETECTED =
         "Recursive referencing through @Embedded and/or @Relation " + "detected: %s"
@@ -274,31 +274,33 @@ object ProcessorErrors {
         "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
 
-    fun tooManyMatchingGetters(field: Field, functionNames: List<String>): String {
-        return TOO_MANY_MATCHING_GETTERS.format(field, functionNames.joinToString(", "))
+    fun tooManyMatchingGetters(property: Property, functionNames: List<String>): String {
+        return TOO_MANY_MATCHING_GETTERS.format(property, functionNames.joinToString(", "))
     }
 
     private const val TOO_MANY_MATCHING_SETTERS =
         "Ambiguous setter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
 
-    fun tooManyMatchingSetter(field: Field, functionNames: List<String>): String {
-        return TOO_MANY_MATCHING_SETTERS.format(field, functionNames.joinToString(", "))
+    fun tooManyMatchingSetter(property: Property, functionNames: List<String>): String {
+        return TOO_MANY_MATCHING_SETTERS.format(property, functionNames.joinToString(", "))
     }
 
     const val CANNOT_FIND_COLUMN_TYPE_ADAPTER =
-        "Cannot figure out how to save this field into" +
+        "Cannot figure out how to save this property into" +
             " database. You can consider adding a type converter for it."
 
     const val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP =
         "Kotlin value classes are only supported " +
             "in Room using KSP and generating Kotlin (room.generateKotlin=true)."
 
-    const val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
+    const val CANNOT_FIND_STMT_BINDER =
+        "Cannot figure out how to bind this property into a statement."
 
-    const val CANNOT_FIND_STMT_READER = "Cannot figure out how to read this field from a statement."
+    const val CANNOT_FIND_STMT_READER =
+        "Cannot figure out how to read this property from a statement."
 
-    const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null field"
+    const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null property"
 
     private const val MISSING_PARAMETER_FOR_BIND =
         "Each bind variable in the query must have a" +
@@ -345,23 +347,23 @@ object ProcessorErrors {
 
     fun dataClassMissingNonNull(
         dataClassTypeName: String,
-        missingDataClassFields: List<String>,
+        missingDataClassProperties: List<String>,
         allQueryColumns: List<String>
     ): String {
         return """
-        The columns returned by the query does not have the fields
-        [${missingDataClassFields.joinToString(",")}] in $dataClassTypeName even though they are
+        The columns returned by the query does not have the properties
+        [${missingDataClassProperties.joinToString(",")}] in $dataClassTypeName even though they are
         annotated as non-null or primitive.
         Columns returned by the query: [${allQueryColumns.joinToString(",")}]
         """
             .trim()
     }
 
-    fun queryFieldDataClassMismatch(
+    fun queryPropertyDataClassMismatch(
         dataClassTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        dataClassUnusedFields: Map<String, List<Field>>,
+        dataClassUnusedProperties: Map<String, List<Property>>,
     ): String {
         val unusedColumnsWarning =
             if (unusedColumns.isNotEmpty()) {
@@ -373,7 +375,7 @@ object ProcessorErrors {
                     }
                 """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
-                used by $dataClassNames. You can use @ColumnInfo annotation on the fields to specify
+                used by $dataClassNames. You can use @ColumnInfo annotation on the properties to specify
                 the mapping.
                 You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room
                 to rewrite your query to avoid fetching unused columns.
@@ -382,11 +384,11 @@ object ProcessorErrors {
             } else {
                 ""
             }
-        val unusedFieldsWarning =
-            dataClassUnusedFields.map { (dataClassName, unusedFields) ->
+        val unusedPropertiesWarning =
+            dataClassUnusedProperties.map { (dataClassName, unusedProperties) ->
                 """
-                $dataClassName has some fields
-                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by
+                $dataClassName has some properties
+                [${unusedProperties.joinToString(", ") { it.columnName }}] which are not returned by
                 the query. If they are not supposed to be read from the result, you can mark them
                 with @Ignore annotation.
             """
@@ -394,7 +396,7 @@ object ProcessorErrors {
             }
         return """
             $unusedColumnsWarning
-            ${unusedFieldsWarning.joinToString(separator = " ")}
+            ${unusedPropertiesWarning.joinToString(separator = " ")}
             You can suppress this warning by annotating the function with
             @SuppressWarnings(RoomWarnings.QUERY_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
@@ -424,16 +426,16 @@ object ProcessorErrors {
         return "Invalid type converter type: $typeName. Type converters must be a class."
     }
 
-    // TODO must print field paths.
-    const val DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME = "Field has non-unique column name."
+    // TODO must print property paths.
+    const val DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME = "Property has non-unique column name."
 
-    fun dataClassDuplicateFieldNames(columnName: String, fieldPaths: List<String>): String {
-        return "Multiple fields have the same columnName: $columnName." +
-            " Field names: ${fieldPaths.joinToString(", ")}."
+    fun dataClassDuplicatePropertyNames(columnName: String, propertyPaths: List<String>): String {
+        return "Multiple properties have the same columnName: $columnName." +
+            " Property names: ${propertyPaths.joinToString(", ")}."
     }
 
-    fun embeddedPrimaryKeyIsDropped(entityQName: String, fieldName: String): String {
-        return "Primary key constraint on $fieldName is ignored when being merged into " +
+    fun embeddedPrimaryKeyIsDropped(entityQName: String, propertyName: String): String {
+        return "Primary key constraint on $propertyName is ignored when being merged into " +
             entityQName
     }
 
@@ -456,15 +458,19 @@ object ProcessorErrors {
             "${indexPaths.joinToString(", ")}."
     }
 
-    fun droppedEmbeddedFieldIndex(fieldPath: String, grandParent: String): String {
+    fun droppedEmbeddedPropertyIndex(propertyPath: String, grandParent: String): String {
         return "The index will be dropped when being merged into $grandParent" +
-            "($fieldPath). You must re-declare it in $grandParent if you want to index this" +
-            " field in $grandParent."
+            "($propertyPath). You must re-declare it in $grandParent if you want to index this" +
+            " property in $grandParent."
     }
 
-    fun droppedEmbeddedIndex(entityName: String, fieldPath: String, grandParent: String): String {
+    fun droppedEmbeddedIndex(
+        entityName: String,
+        propertyPath: String,
+        grandParent: String
+    ): String {
         return "Indices defined in $entityName will be dropped when it is merged into" +
-            " $grandParent ($fieldPath). You can re-declare them in $grandParent."
+            " $grandParent ($propertyPath). You can re-declare them in $grandParent."
     }
 
     fun droppedSuperClassIndex(childEntity: String, superEntity: String): String {
@@ -473,12 +479,12 @@ object ProcessorErrors {
             " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    fun droppedSuperClassFieldIndex(
-        fieldName: String,
+    fun droppedSuperClassPropertyIndex(
+        propertyName: String,
         childEntity: String,
         superEntity: String
     ): String {
-        return "Index defined on field `$fieldName` in $superEntity will NOT be re-used in" +
+        return "Index defined on property `$propertyName` in $superEntity will NOT be re-used in" +
             " $childEntity. " +
             "If you want to inherit it, you must re-declare it in $childEntity." +
             " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
@@ -486,7 +492,7 @@ object ProcessorErrors {
 
     const val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
 
-    fun relationCannotFindEntityField(
+    fun relationCannotFindEntityProperty(
         entityName: String,
         columnName: String,
         availableColumns: List<String>
@@ -495,7 +501,7 @@ object ProcessorErrors {
             " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindParentEntityField(
+    fun relationCannotFindParentEntityProperty(
         entityName: String,
         columnName: String,
         availableColumns: List<String>
@@ -504,7 +510,7 @@ object ProcessorErrors {
             " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindJunctionEntityField(
+    fun relationCannotFindJunctionEntityProperty(
         entityName: String,
         columnName: String,
         availableColumns: List<String>
@@ -513,7 +519,7 @@ object ProcessorErrors {
             "$entityName. Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindJunctionParentField(
+    fun relationCannotFindJunctionParentProperty(
         entityName: String,
         columnName: String,
         availableColumns: List<String>
@@ -569,8 +575,8 @@ object ProcessorErrors {
             .trim()
     }
 
-    val CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_FIELD_ANNOTATION =
-        "A field can be annotated with only" +
+    val CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_PROPERTY_ANNOTATION =
+        "A property can be annotated with only" +
             " one of the following:" +
             DataClassProcessor.PROCESSED_ANNOTATIONS.joinToString(",") { it.java.simpleName }
 
@@ -729,13 +735,13 @@ object ProcessorErrors {
     fun ambiguousConstructor(
         dataClass: String,
         paramName: String,
-        matchingFields: List<String>
+        matchingProperties: List<String>
     ): String {
         return """
-            Ambiguous constructor. The parameter ($paramName) in $dataClass matches multiple fields:
-            [${matchingFields.joinToString(",")}]. If you don't want to use this constructor,
+            Ambiguous constructor. The parameter ($paramName) in $dataClass matches multiple properties:
+            [${matchingProperties.joinToString(",")}]. If you don't want to use this constructor,
             you can annotate it with @Ignore. If you want Room to use this constructor, you can
-            rename the parameters to exactly match the field name to fix the ambiguity.
+            rename the parameters to exactly match the property name to fix the ambiguity.
             """
             .trim()
     }
@@ -743,7 +749,7 @@ object ProcessorErrors {
     val MISSING_DATA_CLASS_CONSTRUCTOR =
         """
             Entities and data classes must have a usable public constructor. You can have an empty
-            constructor or a constructor whose parameters match the fields (by name and type).
+            constructor or a constructor whose parameters match the properties (by name and type).
             """
             .trim()
 
@@ -770,8 +776,8 @@ object ProcessorErrors {
     const val PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE =
         "For now, Room only supports PagingSource with" + " Value that is not of Collection type."
 
-    fun primaryKeyNull(field: String): String {
-        return "You must annotate primary keys with @NonNull. \"$field\" is nullable. SQLite " +
+    fun primaryKeyNull(property: String): String {
+        return "You must annotate primary keys with @NonNull. \"$property\" is nullable. SQLite " +
             "considers this a " +
             "bug and Room does not allow it. See SQLite docs for details: " +
             "https://www.sqlite.org/lang_createtable.html"
@@ -796,9 +802,9 @@ object ProcessorErrors {
 
     fun rawQueryBadEntity(typeName: String): String {
         return """
-            observedEntities field in RawQuery must either reference a class that is annotated
-            with @Entity or it should reference a data class that either contains @Embedded fields 
-            that are annotated with @Entity or @Relation fields.
+            observedEntities property in RawQuery must either reference a class that is annotated
+            with @Entity or it should reference a data class that either contains
+            @Embedded properties that are annotated with @Entity or @Relation properties.
             $typeName does not have these properties, did you mean another class?
             """
             .trim()
@@ -820,26 +826,27 @@ object ProcessorErrors {
     const val FOREIGN_KEYS_IN_FTS_ENTITY = "Foreign Keys not allowed in FTS Entity."
 
     const val MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID =
-        "The field with column name 'rowid' in " +
+        "The property with column name 'rowid' in " +
             "an FTS entity must be annotated with @PrimaryKey."
 
     const val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY =
         "An FTS entity can only have a single primary key."
 
     const val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME =
-        "The single primary key field in an FTS entity " +
+        "The single primary key property in an FTS entity " +
             "must either be named 'rowid' or must be annotated with @ColumnInfo(name = \"rowid\")"
 
     const val INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY =
-        "The single @PrimaryKey annotated field in an " + "FTS entity must be of INTEGER affinity."
+        "The single @PrimaryKey annotated property in an " +
+            "FTS entity must be of INTEGER affinity."
 
-    fun missingLanguageIdField(columnName: String) =
+    fun missingLanguageIdProperty(columnName: String) =
         "The specified 'languageid' column: \"$columnName\", was not found."
 
     const val INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY =
-        "The 'languageid' field must be of INTEGER " + "affinity."
+        "The 'languageid' property must be of INTEGER " + "affinity."
 
-    fun missingNotIndexedField(missingNotIndexedColumns: List<String>) =
+    fun missingNotIndexedProperty(missingNotIndexedColumns: List<String>) =
         "Non-existent columns are specified to be not indexed in notIndexed: " +
             missingNotIndexedColumns.joinToString(",")
 
@@ -852,8 +859,12 @@ object ProcessorErrors {
         "External content entity referenced in " +
             "a Fts4 annotation must be a @Entity class. $className is not an entity"
 
-    fun missingFtsContentField(ftsClassName: String, columnName: String, contentClassName: String) =
-        "External Content FTS Entity '$ftsClassName' has declared field with column name " +
+    fun missingFtsContentProperty(
+        ftsClassName: String,
+        columnName: String,
+        contentClassName: String
+    ) =
+        "External Content FTS Entity '$ftsClassName' has declared property with column name " +
             "'$columnName' that was not found in the external content entity " +
             "'$contentClassName'."
 
@@ -862,10 +873,10 @@ object ProcessorErrors {
             "'$contentClassName' that is not present in the same @Database. Maybe you " +
             "forgot to add it to the entities section of the @Database?"
 
-    fun cannotFindAsEntityField(entityName: String) =
+    fun cannotFindAsEntityProperty(entityName: String) =
         "Cannot find a column in the entity " +
-            "$entityName that matches with this partial entity field. If you don't wish to use " +
-            "the field then you can annotate it with @Ignore."
+            "$entityName that matches with this partial entity property. If you don't wish to use " +
+            "the property then you can annotate it with @Ignore."
 
     const val INVALID_TARGET_ENTITY_IN_SHORTCUT_FUNCTION =
         "Target entity declared in @Insert, @Update " + "or @Delete must be annotated with @Entity."
@@ -889,17 +900,17 @@ object ProcessorErrors {
         partialEntityName: String,
         primaryKeyNames: List<String>
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
-            "primary key is auto generated then the fields are optional."
+            "primary key is auto generated then the properties are optional."
 
     fun missingPrimaryKeysInPartialEntityForUpsert(
         partialEntityName: String,
         primaryKeyNames: List<String>
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an UPSERT. If your single " +
-            "primary key is auto generated then the fields are optional."
+            "primary key is auto generated then the properties are optional."
 
     fun missingRequiredColumnsInPartialEntity(
         partialEntityName: String,
@@ -913,7 +924,7 @@ object ProcessorErrors {
         partialEntityName: String,
         primaryKeyNames: List<String>
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an UPDATE."
 
     fun noColumnsInPartialEntity(partialEntityName: String) =
@@ -955,27 +966,27 @@ object ProcessorErrors {
             "functions that converts the Flow into a Channel."
 
     fun mismatchedGetter(
-        fieldName: String,
+        propertyName: String,
         ownerType: String,
         getterType: String,
-        fieldType: String
+        propertyType: String
     ) =
         """
-            $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
-            This mismatch might cause unexpected $fieldName values in the database when $ownerType
+            $ownerType's $propertyName property has type $propertyType but its getter returns $getterType.
+            This mismatch might cause unexpected $propertyName values in the database when $ownerType
             is inserted into database.
         """
             .trim()
 
     fun mismatchedSetter(
-        fieldName: String,
+        propertyName: String,
         ownerType: String,
         setterType: String,
-        fieldType: String
+        propertyType: String
     ) =
         """
-            $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
-            This mismatch might cause unexpected $fieldName values when $ownerType is read from the
+            $ownerType's $propertyName property has type $propertyType but its setter accepts $setterType.
+            This mismatch might cause unexpected $propertyName values when $ownerType is read from the
             database.
         """
             .trim()
@@ -998,7 +1009,7 @@ object ProcessorErrors {
     }
 
     const val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE =
-        "The type of an Embedded field must be a " + "class or an interface."
+        "The type of an Embedded property must be a " + "class or an interface."
     const val RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE =
         "Entity type in a Relation must be a class " + "or an interface."
 

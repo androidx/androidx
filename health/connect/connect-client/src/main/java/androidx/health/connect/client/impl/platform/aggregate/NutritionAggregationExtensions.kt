@@ -25,6 +25,7 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
@@ -54,6 +55,24 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
         ),
         ResultGroupedByPeriodAggregator(
             createLocalTimeRange(aggregateRequest.timeRangeFilter),
+            aggregateRequest.timeRangeSlicer
+        ) {
+            TransFatTotalAggregationProcessor(it)
+        }
+    )
+}
+
+internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
+    aggregateRequest: AggregateGroupByDurationRequest
+): List<AggregationResultGroupedByDurationWithMinTime> {
+    return aggregate(
+        ReadRecordsRequest(
+            NutritionRecord::class,
+            aggregateRequest.timeRangeFilter.withBufferedStart(),
+            aggregateRequest.dataOriginFilter
+        ),
+        ResultGroupedByDurationAggregator(
+            createTimeRange(aggregateRequest.timeRangeFilter),
             aggregateRequest.timeRangeSlicer
         ) {
             TransFatTotalAggregationProcessor(it)

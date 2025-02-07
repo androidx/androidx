@@ -20,7 +20,9 @@ import androidx.room.Fts3
 import androidx.room.Fts4
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.FtsOptions.TOKENIZER_SIMPLE
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.parser.FtsVersion
@@ -30,12 +32,12 @@ import androidx.room.processor.EntityProcessor.Companion.extractIndices
 import androidx.room.processor.EntityProcessor.Companion.extractTableName
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.Entity
-import androidx.room.vo.Field
-import androidx.room.vo.Fields
 import androidx.room.vo.FtsEntity
 import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
+import androidx.room.vo.Properties
+import androidx.room.vo.Property
 import androidx.room.vo.columnNames
 
 class FtsTableEntityProcessor
@@ -52,6 +54,31 @@ internal constructor(
     }
 
     private fun doProcess(): FtsEntity {
+        if (!element.validate()) {
+            context.reportMissingTypeReference(element.qualifiedName)
+            return FtsEntity(
+                element = element,
+                tableName = element.name,
+                type = element.type,
+                properties = emptyList(),
+                embeddedProperties = emptyList(),
+                primaryKey = PrimaryKey.MISSING,
+                constructor = null,
+                shadowTableName = null,
+                ftsVersion = FtsVersion.FTS3,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = TOKENIZER_SIMPLE,
+                        tokenizerArgs = emptyList(),
+                        contentEntity = null,
+                        languageIdColumnName = "",
+                        matchInfo = MatchInfo.FTS3,
+                        notIndexedColumns = emptyList(),
+                        prefixSizes = emptyList(),
+                        preferredOrder = Order.ASC
+                    )
+            )
+        }
         context.checker.hasAnnotation(
             element,
             androidx.room.Entity::class,
@@ -60,7 +87,7 @@ internal constructor(
         val entityAnnotation = element.getAnnotation(androidx.room.Entity::class)
         val tableName: String
         if (entityAnnotation != null) {
-            tableName = extractTableName(element, entityAnnotation.value)
+            tableName = extractTableName(element, entityAnnotation)
             context.checker.check(
                 extractIndices(entityAnnotation, tableName).isEmpty(),
                 element,
@@ -79,7 +106,7 @@ internal constructor(
             DataClassProcessor.createFor(
                     context = context,
                     element = element,
-                    bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                    bindingScope = PropertyProcessor.BindingScope.TWO_WAY,
                     parent = null,
                     referenceStack = referenceStack
                 )
@@ -89,9 +116,9 @@ internal constructor(
 
         val (ftsVersion, ftsOptions) =
             if (element.hasAnnotation(androidx.room.Fts3::class)) {
-                FtsVersion.FTS3 to getFts3Options(element.getAnnotation(Fts3::class)!!)
+                FtsVersion.FTS3 to getFts3Options(element.requireAnnotation(Fts3::class))
             } else {
-                FtsVersion.FTS4 to getFts4Options(element.getAnnotation(Fts4::class)!!)
+                FtsVersion.FTS4 to getFts4Options(element.requireAnnotation(Fts4::class))
             }
 
         val shadowTableName =
@@ -106,14 +133,14 @@ internal constructor(
                 "${tableName}_content"
             }
 
-        val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.fields)
-        findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
+        val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.properties)
+        findAndValidateLanguageId(pojo.properties, ftsOptions.languageIdColumnName)
 
         val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
         context.checker.check(
             missingNotIndexed.isEmpty(),
             element,
-            ProcessorErrors.missingNotIndexedField(missingNotIndexed)
+            ProcessorErrors.missingNotIndexedProperty(missingNotIndexed)
         )
 
         context.checker.check(
@@ -127,8 +154,8 @@ internal constructor(
                 element = element,
                 tableName = tableName,
                 type = pojo.type,
-                fields = pojo.fields,
-                embeddedFields = pojo.embeddedFields,
+                properties = pojo.properties,
+                embeddedProperties = pojo.embeddedProperties,
                 primaryKey = primaryKey,
                 constructor = pojo.constructor,
                 ftsVersion = ftsVersion,
@@ -141,10 +168,10 @@ internal constructor(
         return entity
     }
 
-    private fun getFts3Options(annotation: XAnnotationBox<Fts3>) =
+    private fun getFts3Options(annotation: XAnnotation) =
         FtsOptions(
-            tokenizer = annotation.value.tokenizer,
-            tokenizerArgs = annotation.value.tokenizerArgs.asList(),
+            tokenizer = annotation["tokenizer"]?.asString() ?: TOKENIZER_SIMPLE,
+            tokenizerArgs = annotation["tokenizerArgs"]?.asStringList() ?: emptyList(),
             contentEntity = null,
             languageIdColumnName = "",
             matchInfo = MatchInfo.FTS4,
@@ -153,17 +180,20 @@ internal constructor(
             preferredOrder = Order.ASC
         )
 
-    private fun getFts4Options(annotation: XAnnotationBox<Fts4>): FtsOptions {
-        val contentEntity: Entity? = getContentEntity(annotation.getAsType("contentEntity"))
+    private fun getFts4Options(annotation: XAnnotation): FtsOptions {
+        val contentEntity: Entity? = getContentEntity(annotation["contentEntity"]?.asType())
         return FtsOptions(
-            tokenizer = annotation.value.tokenizer,
-            tokenizerArgs = annotation.value.tokenizerArgs.asList(),
+            tokenizer = annotation["tokenizer"]?.asString() ?: TOKENIZER_SIMPLE,
+            tokenizerArgs = annotation["tokenizerArgs"]?.asStringList() ?: emptyList(),
             contentEntity = contentEntity,
-            languageIdColumnName = annotation.value.languageId,
-            matchInfo = annotation.value.matchInfo,
-            notIndexedColumns = annotation.value.notIndexed.asList(),
-            prefixSizes = annotation.value.prefix.asList(),
-            preferredOrder = annotation.value.order
+            languageIdColumnName = annotation["languageId"]?.asString() ?: "",
+            matchInfo =
+                annotation["matchInfo"]?.asEnum()?.let { MatchInfo.valueOf(it.name) }
+                    ?: MatchInfo.FTS4,
+            notIndexedColumns = annotation["notIndexed"]?.asStringList() ?: emptyList(),
+            prefixSizes = annotation["prefix"]?.asIntList() ?: emptyList(),
+            preferredOrder =
+                annotation["order"]?.asEnum()?.let { Order.valueOf(it.name) } ?: Order.ASC,
         )
     }
 
@@ -195,35 +225,35 @@ internal constructor(
     }
 
     private fun findAndValidatePrimaryKey(
-        entityAnnotation: XAnnotationBox<androidx.room.Entity>?,
-        fields: List<Field>
+        entityAnnotation: XAnnotation?,
+        properties: List<Property>
     ): PrimaryKey {
         val keysFromEntityAnnotation =
-            entityAnnotation?.value?.primaryKeys?.mapNotNull { pkColumnName ->
-                val field = fields.firstOrNull { it.columnName == pkColumnName }
+            entityAnnotation?.get("primaryKeys")?.asStringList()?.mapNotNull { pkColumnName ->
+                val property = properties.firstOrNull { it.columnName == pkColumnName }
                 context.checker.check(
-                    field != null,
+                    property != null,
                     element,
                     ProcessorErrors.primaryKeyColumnDoesNotExist(
                         pkColumnName,
-                        fields.map { it.columnName }
+                        properties.map { it.columnName }
                     )
                 )
-                field?.let { pkField ->
+                property?.let { pkProperty ->
                     PrimaryKey(
-                        declaredIn = pkField.element.enclosingElement,
-                        fields = Fields(pkField),
+                        declaredIn = pkProperty.element.enclosingElement,
+                        properties = Properties(pkProperty),
                         autoGenerateId = true
                     )
                 }
             } ?: emptyList()
 
         val keysFromPrimaryKeyAnnotations =
-            fields.mapNotNull { field ->
-                if (field.element.hasAnnotation(androidx.room.PrimaryKey::class)) {
+            properties.mapNotNull { property ->
+                if (property.element.hasAnnotation(androidx.room.PrimaryKey::class)) {
                     PrimaryKey(
-                        declaredIn = field.element.enclosingElement,
-                        fields = Fields(field),
+                        declaredIn = property.element.enclosingElement,
+                        properties = Properties(property),
                         autoGenerateId = true
                     )
                 } else {
@@ -232,7 +262,7 @@ internal constructor(
             }
         val primaryKeys = keysFromEntityAnnotation + keysFromPrimaryKeyAnnotations
         if (primaryKeys.isEmpty()) {
-            fields
+            properties
                 .firstOrNull { it.columnName == "rowid" }
                 ?.let {
                     context.checker.check(
@@ -255,7 +285,7 @@ internal constructor(
             ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME
         )
         context.checker.check(
-            primaryKey.fields.first().affinity == SQLTypeAffinity.INTEGER,
+            primaryKey.properties.first().affinity == SQLTypeAffinity.INTEGER,
             primaryKey.declaredIn ?: element,
             ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY
         )
@@ -269,16 +299,16 @@ internal constructor(
         }
 
         // Verify external content columns are a superset of those defined in the FtsEntity
-        ftsEntity.nonHiddenFields
+        ftsEntity.nonHiddenProperties
             .filterNot {
-                contentEntity.fields.any { contentField ->
-                    contentField.columnName == it.columnName
+                contentEntity.properties.any { contentProperty ->
+                    contentProperty.columnName == it.columnName
                 }
             }
             .forEach {
                 context.logger.e(
                     it.element,
-                    ProcessorErrors.missingFtsContentField(
+                    ProcessorErrors.missingFtsContentProperty(
                         element.qualifiedName,
                         it.columnName,
                         contentEntity.element.qualifiedName
@@ -288,24 +318,27 @@ internal constructor(
     }
 
     private fun findAndValidateLanguageId(
-        fields: List<Field>,
+        properties: List<Property>,
         languageIdColumnName: String
     ): LanguageId {
         if (languageIdColumnName.isEmpty()) {
             return LanguageId.MISSING
         }
 
-        val languageIdField = fields.firstOrNull { it.columnName == languageIdColumnName }
-        if (languageIdField == null) {
-            context.logger.e(element, ProcessorErrors.missingLanguageIdField(languageIdColumnName))
+        val languageIdProperty = properties.firstOrNull { it.columnName == languageIdColumnName }
+        if (languageIdProperty == null) {
+            context.logger.e(
+                element,
+                ProcessorErrors.missingLanguageIdProperty(languageIdColumnName)
+            )
             return LanguageId.MISSING
         }
 
         context.checker.check(
-            languageIdField.affinity == SQLTypeAffinity.INTEGER,
-            languageIdField.element,
+            languageIdProperty.affinity == SQLTypeAffinity.INTEGER,
+            languageIdProperty.element,
             ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY
         )
-        return LanguageId(languageIdField.element, languageIdField)
+        return LanguageId(languageIdProperty.element, languageIdProperty)
     }
 }

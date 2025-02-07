@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +40,8 @@ internal class TransformingLazyColumnMeasureResult(
     override val totalItemsCount: Int,
     /** The spacing between items in the direction of scrolling. */
     val itemSpacing: Int,
+    /** Constraints used to measure children. */
+    val childConstraints: Constraints,
     /** Density of the last measure. */
     val density: Density,
     override val beforeContentPadding: Int,

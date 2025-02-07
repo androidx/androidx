@@ -37,7 +37,7 @@ class ReplaceWithDetectorPropertyTest {
             """
 src/replacewith/PropertyJava.java:42: Information: Replacement available [ReplaceWith]
         clazz.setMethodDeprecated("value");
-              ~~~~~~~~~~~~~~~~~~~
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 src/replacewith/PropertyJava.java:43: Information: Replacement available [ReplaceWith]
         clazz.getMethodDeprecated();
               ~~~~~~~~~~~~~~~~~~~
@@ -52,7 +52,7 @@ src/replacewith/PropertyJava.java:43: Information: Replacement available [Replac
 Fix for src/replacewith/PropertyJava.java line 42: Replace with `otherProperty = "value"`:
 @@ -42 +42
 -         clazz.setMethodDeprecated("value");
-+         clazz.otherProperty = "value"("value");
++         clazz.otherProperty = "value";
 Fix for src/replacewith/PropertyJava.java line 43: Replace with `otherProperty`:
 @@ -43 +43
 -         clazz.getMethodDeprecated();

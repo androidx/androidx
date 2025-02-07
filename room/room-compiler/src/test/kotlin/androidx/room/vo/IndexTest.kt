@@ -65,9 +65,9 @@ class IndexTest {
         )
     }
 
-    private fun mockField(columnName: String): Field {
+    private fun mockField(columnName: String): Property {
         val (element, type) = mockElementAndType()
-        return Field(
+        return Property(
             element = element,
             name = columnName + "_field",
             affinity = SQLTypeAffinity.TEXT,

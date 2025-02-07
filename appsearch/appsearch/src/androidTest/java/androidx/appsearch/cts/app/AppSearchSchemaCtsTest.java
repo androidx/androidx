@@ -520,7 +520,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testEquals_failure_differentDescription() {
         AppSearchSchema.Builder schemaBuilder =
                 new AppSearchSchema.Builder("Email")
@@ -540,7 +540,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testEquals_failure_differentPropertyDescription() {
         AppSearchSchema schema1 =
                 new AppSearchSchema.Builder("Email")
@@ -626,7 +626,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)  // setDescription
     public void testAppSearchSchema_toString() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("testSchema")

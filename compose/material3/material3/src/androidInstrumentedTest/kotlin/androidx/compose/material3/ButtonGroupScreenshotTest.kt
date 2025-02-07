@@ -17,7 +17,9 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -84,7 +86,223 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("buttonGroup_darkTheme")
     }
 
-    @Ignore("b/355413615")
+    @Test
+    fun connectedButtonGroup_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_lightTheme")
+    }
+
+    @Test
+    fun connectedButtonGroup_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_darkTheme")
+    }
+
+    @Test
+    fun connectedButtonGroup_startSelected_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_startSelected_lightTheme")
+    }
+
+    @Test
+    fun connectedButtonGroup_middleSelected_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_middleSelected_lightTheme")
+    }
+
+    @Test
+    fun connectedButtonGroup_endSelected_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = false,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_endSelected_lightTheme")
+    }
+
+    @Test
+    fun connectedButtonGroup_allSelected_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                Row(
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    ) {
+                        Text("Work")
+                    }
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    ) {
+                        Text("Restaurant")
+                    }
+                    ToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* Do nothing */ },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ) {
+                        Text("Coffee")
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("connectedButtonGroup_allSelected_lightTheme")
+    }
+
+    @Ignore
     @Test
     fun buttonGroup_firstPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {

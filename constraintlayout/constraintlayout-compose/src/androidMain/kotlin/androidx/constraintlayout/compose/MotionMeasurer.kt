@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -41,7 +42,7 @@ import androidx.constraintlayout.core.state.WidgetFrame
 import androidx.constraintlayout.core.widgets.Optimizer
 
 @ExperimentalMotionApi
-internal class MotionMeasurer(density: Density) : Measurer(density) {
+internal class MotionMeasurer(density: Density) : Measurer2(density) {
     private val DEBUG = false
     private var lastProgressInInterpolation = 0f
     val transition = Transition { with(density) { it.dp.toPx() } }
@@ -84,11 +85,13 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         constraintSetEnd: ConstraintSet,
         @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
         measurables: List<Measurable>,
+        placeableMap: MutableMap<Measurable, Placeable>, // Initialized by caller, filled by us
         optimizationLevel: Int,
         progress: Float,
         compositionSource: CompositionSource,
         invalidateOnConstraintsCallback: ShouldInvalidateCallback?
     ): IntSize {
+        placeables = placeableMap
         val needsRemeasure =
             needsRemeasure(
                 constraints = constraints,
@@ -226,7 +229,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
                 measurable.measure(
                     Constraints.fixed(interpolatedFrame.width(), interpolatedFrame.height())
                 )
-            frameCache[measurable] = interpolatedFrame
+            frameCache[measurable.anyOrNullId] = interpolatedFrame
         }
 
         if (layoutInformationReceiver?.getLayoutInformationMode() == LayoutInfoFlags.BOUNDS) {

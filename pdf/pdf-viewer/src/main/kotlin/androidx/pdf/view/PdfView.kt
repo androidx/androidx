@@ -40,6 +40,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.toRectF
@@ -85,7 +86,7 @@ public open class PdfView
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     View(context, attrs, defStyle) {
 
-    private val fastScrollVerticalThumbDrawable: Drawable?
+    public val fastScrollVerticalThumbDrawable: Drawable?
     private val fastScrollVerticalTrackDrawable: Drawable?
     private val fastScrollPageIndicatorBackgroundDrawable: Drawable?
 
@@ -105,9 +106,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         set(value) {
             checkMainThread()
             value?.let {
-                val reset = field != null && field?.uri != value.uri
+                if (field == value) return
                 field = it
-                if (reset) reset()
+                reset()
                 onDocumentSet()
             }
         }
@@ -174,13 +175,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     /** The [ActionMode.Callback2] for selection */
     public var selectionActionModeCallback: DefaultSelectionActionModeCallback =
-        DefaultSelectionActionModeCallback()
+        DefaultSelectionActionModeCallback(this)
 
     /** The currently selected PDF content, as [Selection] */
     public val currentSelection: Selection?
         get() {
             return selectionStateManager?.selectionModel?.value?.selection
         }
+
+    @VisibleForTesting
+    public val currentPageIndicatorLabel: String
+        get() = fastScroller?.fastScrollDrawer?.currentPageIndicatorLabel ?: ""
 
     /** Listener interface to receive updates when the [currentSelection] changes */
     public interface OnSelectionChangedListener {
@@ -215,6 +220,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private var awaitingFirstLayout: Boolean = true
     private var scrollPositionToRestore: PointF? = null
     private var zoomToRestore: Float? = null
+    @VisibleForTesting internal var isInitialZoomDone: Boolean = false
+
+    /**
+     * Flag to indicate if we need to override fast scroll visibility. This is true when the search
+     * is visible
+     */
+    private var shouldOverrideFastScrollVisibility: Boolean = false
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var isFastScrollerVisible: Boolean = false
+        private set
+
     /**
      * The width of the PdfView before the last layout change (e.g., before rotation). Used to
      * preserve the zoom level when the device is rotated.
@@ -230,6 +247,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private val scroller = RelativeScroller(context)
     /** Whether we are in a fling movement. This is used to detect the end of that movement */
     private var isFling = false
+
+    /**
+     * Returns true if neither zoom nor scroll are actively changing. Does not account for
+     * externally-driven changes in position (e.g. a animating scrollY or zoom)
+     */
+    private val positionIsStable: Boolean
+        get() {
+            val zoomIsChanging = gestureTracker.matches(GestureTracker.Gesture.ZOOM)
+            val scrollIsChanging =
+                gestureTracker.matches(
+                    GestureTracker.Gesture.DRAG,
+                    GestureTracker.Gesture.DRAG_X,
+                    GestureTracker.Gesture.DRAG_Y
+                ) || isFling
+            return !zoomIsChanging && !scrollIsChanging
+        }
 
     // To avoid allocations during drawing
     private val visibleAreaRect = Rect()
@@ -250,9 +283,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     @VisibleForTesting
     internal var isTouchExplorationEnabled: Boolean =
         Accessibility.get().isTouchExplorationEnabled(context)
-        set(value) {
-            field = value
-        }
 
     private var selectionStateManager: SelectionStateManager? = null
     private val selectionRenderer = SelectionRenderer(context)
@@ -309,6 +339,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             localPageLayoutManager.increaseReach(position.pageNum)
             deferredScrollPosition = position
             deferredScrollPage = null
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun overrideFastScrollerVisibility(isVisible: Boolean) {
+        shouldOverrideFastScrollVisibility = !isVisible
+        if (isVisible) {
+            maybeShowFastScroller()
+        } else {
+            maybeHideFastScroller()
         }
     }
 
@@ -437,7 +477,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         canvas.restore()
 
         val documentPageCount = pdfDocument?.pageCount ?: 0
-        if (documentPageCount > 1) {
+        if (documentPageCount > 1 && !shouldOverrideFastScrollVisibility) {
             fastScroller?.drawScroller(
                 canvas,
                 scrollY,
@@ -458,7 +498,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private fun maybeShowFastScroller() {
-        fastScroller?.show { postInvalidate() }
+        if (!shouldOverrideFastScrollVisibility) {
+            isFastScrollerVisible = true
+            fastScroller?.show { postInvalidate() }
+        }
+    }
+
+    private fun maybeHideFastScroller() {
+        isFastScrollerVisible = false
+        fastScroller?.hide { postInvalidate() }
     }
 
     private fun maybeDragSelectionHandle(event: MotionEvent?): Boolean {
@@ -481,7 +529,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         super.onScrollChanged(l, t, oldl, oldt)
         // TODO(b/390003204): Prevent showing of the scrubber when the document only been
         //  translated on the x-axis
-        maybeShowFastScroller()
+        if (t != oldt) {
+            maybeShowFastScroller()
+        }
         onViewportChanged()
     }
 
@@ -514,13 +564,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         super.onDetachedFromWindow()
         stopCollectingData()
         awaitingFirstLayout = true
-        pageManager?.onDetached()
+        pageManager?.cleanup()
     }
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
         val state = PdfViewSavedState(superState)
         state.zoom = zoom
+        state.isInitialZoomDone = isInitialZoomDone
         state.viewWidth = width
         state.contentCenterX = toContentX(viewportWidth.toFloat() / 2f)
         state.contentCenterY = toContentY(viewportHeight.toFloat() / 2f)
@@ -553,11 +604,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             postInvalidateOnAnimation()
         } else if (isFling) {
             isFling = false
-            // Once the fling has ended, prompt the page manager to start fetching data for pages
-            // that we don't fetch during a fling
-            pageManager?.maybeUpdatePageState(visiblePages, zoom, isFling)
             // We hide the action mode during a fling, so reveal it when the fling is over
             updateSelectionActionModeVisibility()
+            // Once the fling has ended, prompt the page manager to start fetching data for pages
+            // that we don't fetch during a fling
+            maybeUpdatePageVisibility()
         }
     }
 
@@ -605,7 +656,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
     }
 
-    private fun getDefaultZoom(): Float {
+    @VisibleForTesting
+    internal fun getDefaultZoom(): Float {
         if (contentWidth == 0 || viewportWidth == 0) return DEFAULT_INIT_ZOOM
         val widthZoom = viewportWidth.toFloat() / contentWidth
         return MathUtils.clamp(widthZoom, minZoom, maxZoom)
@@ -649,6 +701,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             scrollPositionToRestore = positionToRestore
             zoomToRestore = localStateToRestore.zoom
             oldWidth = localStateToRestore.viewWidth
+            isInitialZoomDone = localStateToRestore.isInitialZoomDone
         } else {
             scrollToRestoredPosition(positionToRestore, localStateToRestore.zoom)
         }
@@ -671,6 +724,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * Launches a tree of coroutines to collect data from helper classes while we're attached to a
      * visible window
      */
+    @MainThread
     private fun startCollectingData() {
         val mainScope =
             CoroutineScope(HandlerCompat.createAsync(handler.looper).asCoroutineDispatcher())
@@ -684,7 +738,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     launch {
                         manager.dimensions.collect { onPageDimensionsReceived(it.first, it.second) }
                     }
-                    launch { manager.visiblePages.collect { onVisiblePagesChanged() } }
+                    launch { manager.visiblePages.collect { maybeUpdatePageVisibility() } }
+                }
+            // Don't let two copies of this run concurrently
+            val visiblePagesToJoin = visiblePagesCollector?.apply { cancel() }
+            visiblePagesCollector =
+                mainScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    manager.visiblePages.collect {
+                        // Prevent 2 copies from running concurrently
+                        visiblePagesToJoin?.join()
+                        maybeUpdatePageVisibility()
+                    }
                 }
         }
         pageManager?.let { manager ->
@@ -821,13 +885,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         onViewportChanged()
         // Don't fetch new Bitmaps while the user is actively zooming, to avoid jank and rendering
         // churn
-        if (!gestureTracker.matches(GestureTracker.Gesture.ZOOM)) {
-            pageManager?.maybeUpdatePageState(visiblePages, zoom, isFling)
-        }
+        if (positionIsStable) maybeUpdatePageVisibility()
     }
 
     private fun onViewportChanged() {
         pageLayoutManager?.onViewportChanged(scrollY, height, zoom)
+        if (positionIsStable) maybeUpdatePageVisibility()
         accessibilityPageHelper?.invalidateRoot()
         updateSelectionActionModeVisibility()
     }
@@ -886,18 +949,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         return RectF(viewport).intersects(leftEdge, topEdge, rightEdge, bottomEdge)
     }
 
-    /**
-     * Invoked by gesture handlers to let this view know that its position has stabilized, i.e. it's
-     * not actively changing due to user input
-     */
-    internal fun onStableZoom() {
-        pageManager?.maybeUpdatePageState(visiblePages, zoom, isFling)
-    }
-
     private fun reset() {
         // Stop any in progress fling when we open a new document
         scroller.forceFinished(true)
         scrollTo(0, 0)
+        pageManager?.cleanup()
         zoom = DEFAULT_INIT_ZOOM
         pageManager = null
         pageLayoutManager = null
@@ -905,20 +961,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         stopCollectingData()
     }
 
-    /** React to a change in visible pages (load new pages and clean up old ones) */
-    private fun onVisiblePagesChanged() {
-        pageManager?.maybeUpdatePageState(visiblePages, zoom, isFling)
+    private fun maybeUpdatePageVisibility() {
+        val visiblePageAreas =
+            pageLayoutManager?.getVisiblePageAreas(visiblePages, getVisibleAreaInContentCoords())
+                ?: return
+        pageManager?.updatePageVisibilities(visiblePageAreas, zoom, positionIsStable)
     }
 
     /** React to a page's dimensions being made available */
     private fun onPageDimensionsReceived(pageNum: Int, size: Point) {
-        pageManager?.onPageSizeReceived(
-            pageNum,
-            size,
-            visiblePages.contains(pageNum),
-            zoom,
-            isFling
-        )
+        val pageLocation =
+            if (visiblePages.contains(pageNum)) {
+                pageLayoutManager?.getPageLocation(pageNum, getVisibleAreaInContentCoords())
+            } else {
+                null
+            }
+        pageManager?.addPage(pageNum, size, zoom, isFling, pageLocation)
         // Learning the dimensions of a page can change our understanding of the content that's in
         // the viewport
         pageLayoutManager?.onViewportChanged(scrollY, height, zoom)
@@ -927,7 +985,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         // centering if it's needed. It doesn't override any restored state because we're scrolling
         // to the current scroll position.
         if (pageNum == 0) {
-            this.zoom = getDefaultZoom()
+            if (!isInitialZoomDone) {
+                this.zoom = getDefaultZoom()
+                isInitialZoomDone = true
+            }
             scrollTo(scrollX, scrollY)
         }
 
@@ -1029,10 +1090,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         get() = pageLayoutManager?.paginationModel?.totalEstimatedHeight ?: 0
 
     /** The default [ActionMode.Callback2] for selection */
-    public open inner class DefaultSelectionActionModeCallback : ActionMode.Callback2() {
+    public open class DefaultSelectionActionModeCallback(private val pdfView: PdfView) :
+        ActionMode.Callback2() {
         @CallSuper
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            selectionActionMode = mode
+            pdfView.selectionActionMode = mode
 
             // Inflate the menu resource providing context menu items.
             val inflater = mode.menuInflater
@@ -1049,20 +1111,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             if (item.itemId == R.id.action_selectAll) {
                 // We can't select all if we don't know what page the selection is on, or if
                 // we don't know the size of that page
-                val page = currentSelection?.bounds?.first()?.pageNum ?: return false
-                val pageSize = pageLayoutManager?.getPageSize(page) ?: return false
-                selectionStateManager?.selectAllTextOnPageAsync(page, pageSize)
+                val page = pdfView.currentSelection?.bounds?.first()?.pageNum ?: return false
+                val pageSize = pdfView.pageLayoutManager?.getPageSize(page) ?: return false
+                pdfView.selectionStateManager?.selectAllTextOnPageAsync(page, pageSize)
                 return true
             } else if (item.itemId == R.id.action_copy) {
                 // We can't copy the current selection if no text is selected
-                val text = (currentSelection as? TextSelection)?.text ?: return false
+                val text = (pdfView.currentSelection as? TextSelection)?.text ?: return false
                 copyToClipboard(text)
+                pdfView.clearSelection()
                 return true
             }
             return false
         }
 
         private fun copyToClipboard(text: String) {
+            val context = pdfView.context
             val manager = context.getSystemService(ClipboardManager::class.java)
             val clip = ClipData.newPlainText(context.getString(R.string.clipboard_label), text)
             manager.setPrimaryClip(clip)
@@ -1075,11 +1139,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
             // If we don't know about page layout, defer to the default implementation
             val localPageLayoutManager =
-                pageLayoutManager ?: return super.onGetContentRect(mode, view, outRect)
-            val viewport = getVisibleAreaInContentCoords()
+                pdfView.pageLayoutManager ?: return super.onGetContentRect(mode, view, outRect)
+            val viewport = pdfView.getVisibleAreaInContentCoords()
             val viewportF = viewport.toRectF()
-            val firstSelection = currentSelection?.bounds?.first()
-            val lastSelection = currentSelection?.bounds?.last()
+            val firstSelection = pdfView.currentSelection?.bounds?.first()
+            val lastSelection = pdfView.currentSelection?.bounds?.last()
 
             // Try to position the context menu near the first selection if it's visible
             if (firstSelection != null) {
@@ -1090,7 +1154,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                         viewportF.intersects(it.left, it.top, it.right, it.bottom)
                     } == true
                 ) {
-                    outRect.set(boundsInView.toViewRect())
+                    outRect.set(pdfView.toViewRect(boundsInView))
                     return
                 }
             }
@@ -1104,24 +1168,24 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                         viewportF.intersects(it.left, it.top, it.right, it.bottom)
                     } == true
                 ) {
-                    outRect.set(boundsInView.toViewRect())
+                    outRect.set(pdfView.toViewRect(boundsInView))
                     return
                 }
             }
 
             // Else, center the context menu in view
-            val centerX = (x + width / 2).roundToInt()
-            val centerY = (x + height / 2).roundToInt()
+            val centerX = (pdfView.x + pdfView.width / 2).roundToInt()
+            val centerY = (pdfView.x + pdfView.height / 2).roundToInt()
             outRect.set(centerX, centerY, centerX + 1, centerY + 1)
         }
     }
 
-    private fun RectF.toViewRect(): Rect {
+    private fun toViewRect(contentRect: RectF): Rect {
         return Rect(
-            toViewCoord(left, zoom, scrollX).roundToInt(),
-            toViewCoord(top, zoom, scrollY).roundToInt(),
-            toViewCoord(right, zoom, scrollX).roundToInt(),
-            toViewCoord(bottom, zoom, scrollY).roundToInt(),
+            toViewCoord(contentRect.left, zoom, scrollX).roundToInt(),
+            toViewCoord(contentRect.top, zoom, scrollY).roundToInt(),
+            toViewCoord(contentRect.right, zoom, scrollX).roundToInt(),
+            toViewCoord(contentRect.bottom, zoom, scrollY).roundToInt(),
         )
     }
 
@@ -1175,7 +1239,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
         override fun onGestureEnd(gesture: GestureTracker.Gesture?) {
-            if (gesture == GestureTracker.Gesture.ZOOM) onStableZoom()
+            // Update page visibility after scroll / zoom gestures end, because we avoid fetching
+            // certain data while those gestures are in progress
+            if (gesture in ZOOM_OR_SCROLL_GESTURES) maybeUpdatePageVisibility()
             totalX = 0f
             totalY = 0f
             straightenCurrentVerticalScroll = true
@@ -1382,6 +1448,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         private const val MIN_SCROLL_TO_SWITCH_DP = 30
 
         private const val DEFAULT_PAGE_PREFETCH_RADIUS: Int = 2
+
+        private val ZOOM_OR_SCROLL_GESTURES =
+            setOf(
+                GestureTracker.Gesture.ZOOM,
+                GestureTracker.Gesture.DRAG,
+                GestureTracker.Gesture.DRAG_X,
+                GestureTracker.Gesture.DRAG_Y
+            )
 
         private fun checkMainThread() {
             check(Looper.myLooper() == Looper.getMainLooper()) {

@@ -29,7 +29,7 @@ import androidx.sqlite.SQLiteException
  *   using the given insertionAdapter to perform insertion and updateAdapter to perform update when
  *   the insertion fails
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 class EntityUpsertAdapter<T>(
     private val entityInsertAdapter: EntityInsertAdapter<T>,
     private val updateAdapter: EntityDeleteOrUpdateAdapter<T>

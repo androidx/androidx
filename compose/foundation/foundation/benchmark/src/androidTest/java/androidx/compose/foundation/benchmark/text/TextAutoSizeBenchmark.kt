@@ -130,7 +130,7 @@ private class AutoSizeTextInColumnTestCase(
     @Composable
     override fun MeasuredContent() {
         for (text in texts) {
-            BasicText(text = text, textAutoSize = autoSize, modifier = Modifier.height(30.dp))
+            BasicText(text = text, autoSize = autoSize, modifier = Modifier.height(30.dp))
         }
     }
 

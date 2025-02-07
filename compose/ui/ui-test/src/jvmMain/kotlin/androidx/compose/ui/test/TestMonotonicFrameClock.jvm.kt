@@ -135,7 +135,7 @@ class TestMonotonicFrameClock(
         frameDeferringInterceptor.runWithoutResumingCoroutines {
             // This is set after acquiring the lock in case the virtual time was advanced while
             // waiting for it.
-            val frameTime: Long
+            var frameTime = -1L // it's re-initialized below
             val toRun =
                 synchronized(lock) {
                     check(scheduledFrameDispatch) { "frame dispatch not scheduled" }

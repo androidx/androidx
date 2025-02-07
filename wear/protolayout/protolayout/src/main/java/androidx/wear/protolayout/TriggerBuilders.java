@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.TriggerProto;
 
@@ -66,6 +67,7 @@ public final class TriggerBuilders {
      * that the layout becomes visible.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
+    @ProtoLayoutExperimental
     public static @NonNull Trigger createOnVisibleOnceTrigger() {
         return new OnVisibleOnceTrigger.Builder().build();
     }
@@ -138,6 +140,7 @@ public final class TriggerBuilders {
      * the first time.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
+    @ProtoLayoutExperimental
     public static final class OnVisibleOnceTrigger implements Trigger {
         private final TriggerProto.OnVisibleOnceTrigger mImpl;
         private final @Nullable Fingerprint mFingerprint;
@@ -377,6 +380,7 @@ public final class TriggerBuilders {
 
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @ProtoLayoutExperimental
     public static @NonNull Trigger triggerFromProto(
             TriggerProto.@NonNull Trigger proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasOnVisibleTrigger()) {
@@ -394,6 +398,7 @@ public final class TriggerBuilders {
         throw new IllegalStateException("Proto was not a recognised instance of Trigger");
     }
 
+    @ProtoLayoutExperimental
     static @NonNull Trigger triggerFromProto(TriggerProto.@NonNull Trigger proto) {
         return triggerFromProto(proto, null);
     }

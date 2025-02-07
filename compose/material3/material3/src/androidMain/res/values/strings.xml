@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,6 +85,10 @@
     <string name="m3c_bottom_sheet_dismiss_description">Dismiss bottom sheet</string>
     <!-- Describes the expand action visual for bottom sheet. -->
     <string name="m3c_bottom_sheet_expand_description">Expand bottom sheet</string>
+    <!-- Spoken for the collapse action for a floating toolbar action. -->
+    <string name="m3c_floating_toolbar_collapse">Collapse toolbar</string>
+    <!-- Spoken for the expand action for a floating toolbar action. -->
+    <string name="m3c_floating_toolbar_expand">Expand toolbar</string>
     <!-- Spoken description of a tooltip -->
     <string name="m3c_tooltip_pane_description">Tooltip</string>
     <string name="m3c_tooltip_long_press_label">Show tooltip</string>
@@ -113,6 +116,14 @@
     <string name="m3c_time_picker_minute_text_field">for minutes</string>
     <!-- A label for a textfield that allows the user to input hours. It reads: Edit Box, for hour -->
     <string name="m3c_time_picker_hour_text_field">for hour</string>
+    <!-- Accessibility string used for describing the button in time picker that changes the dialog to text input mode. [CHAR LIMIT=NONE] -->
+    <string name="m3c_time_picker_toggle_keyboard">Switch to text input mode for the time input</string>
+    <!-- Accessibility string used for describing the button in time picker that changes the dialog to circular clock mode. [CHAR LIMIT=NONE] -->
+    <string name="m3c_time_picker_toggle_touch">Switch to clock mode for the time input</string>
+    <!-- Title for a dialog that allows the user to select the time with a clock time picker. -->
+    <string name="m3c_time_picker_dialog_title">Select Time</string>
+    <!-- Title for a dialog that allows the user to enter the time with a text input. -->
+    <string name="m3c_time_input_dialog_title">Enter Time</string>
     <!-- Spoken content description of an element which will close the modal rail when clicked. -->
     <string name="m3c_wide_navigation_rail_close_rail">"Close rail"</string>
     <!-- Accessibility pane title for the modal rail. -->

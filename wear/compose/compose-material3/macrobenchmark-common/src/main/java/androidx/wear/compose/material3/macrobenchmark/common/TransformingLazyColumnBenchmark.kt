@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common
 
-import android.graphics.Point
+import android.os.SystemClock
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.test.uiautomator.By
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
@@ -73,12 +72,7 @@ val TransformingLazyColumnBenchmark =
                                     modifier =
                                         Modifier.fillMaxWidth()
                                             // Apply Material 3 Motion transformations.
-                                            .scrollTransform(
-                                                this,
-                                                backgroundColor =
-                                                    MaterialTheme.colorScheme.surfaceContainer,
-                                                shape = MaterialTheme.shapes.small
-                                            )
+                                            .scrollTransform(this)
                                             .padding(10.dp)
                                 )
                             }
@@ -89,12 +83,13 @@ val TransformingLazyColumnBenchmark =
 
         override val exercise: MacrobenchmarkScope.() -> Unit
             get() = {
-                val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
-                // Setting a gesture margin is important otherwise gesture nav is triggered.
-                list.setGestureMargin(device.displayWidth / 5)
-                repeat(5) {
-                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
+                val swipeStartY = device.displayHeight * 9 / 10 // scroll up
+                val swipeEndY = device.displayHeight / 2
+                val midX = device.displayWidth / 2
+                repeat(20) {
+                    device.swipe(midX, swipeStartY, midX, swipeEndY, 5)
                     device.waitForIdle()
+                    SystemClock.sleep(500)
                 }
             }
     }

@@ -84,7 +84,7 @@ private class RxCompletablePreparedQueryResultBinderProvider(context: Context, r
 
     /**
      * Since Completable has no type argument, the supported return type is Unit (non-nullable)
-     * since the 'createCompletable" factory method take a Kotlin lambda.
+     * since the 'createCompletable" factory function take a Kotlin lambda.
      */
     override fun extractTypeArg(declared: XType): XType =
         context.processingEnv.requireType(KotlinTypeNames.UNIT)

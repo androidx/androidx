@@ -29,7 +29,6 @@ import java.util.concurrent.Executor
  * Only one PointerCaptureComponent can be attached to an entity at a given time. If a second one
  * tries to attach to an entity, it will fail.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class PointerCaptureComponent
 private constructor(
     private val platformAdapter: JxrPlatformAdapter,

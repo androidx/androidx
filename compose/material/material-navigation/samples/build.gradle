@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -43,7 +43,7 @@ dependencies {
 
 androidx {
     name = "Compose Material Navigation Integration Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Samples for Compose Material integration with Navigation"

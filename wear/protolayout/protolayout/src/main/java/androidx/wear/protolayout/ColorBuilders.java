@@ -241,17 +241,28 @@ public final class ColorBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-468737254);
 
             /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @param color the color for this stop. Only opaque colors are supported. Any
+             *     transparent colors will have their alpha component set to 0xFF (opaque).
+             * @param offset the relative offset for this color, between 0 and 1. This determines
+             *     where the color is positioned relative to a gradient space.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            public Builder(@NonNull ColorProp color, @NonNull FloatProp offset) {
+                setColor(color);
+                setOffset(offset);
+            }
+
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            Builder() {}
+
+            /**
              * Sets the color for this stop. Only opaque colors are supported. Any transparent
              * colors will have their alpha component set to 0xFF (opaque).
-             *
-             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull Builder setColor(@NonNull ColorProp color) {
-                if (color.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "ColorStop.Builder.setColor doesn't support dynamic values.");
-                }
                 mImpl.setColor(color.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
@@ -268,10 +279,6 @@ public final class ColorBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull Builder setOffset(@NonNull FloatProp offset) {
-                if (offset.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "ColorStop.Builder.setOffset doesn't support dynamic values.");
-                }
                 float value = offset.getValue();
                 if (value < 0f || value > 1f) {
                     throw new IllegalArgumentException(
@@ -282,25 +289,6 @@ public final class ColorBuilders {
                         2, checkNotNull(offset.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
-
-            /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @param color the color for this stop. Only opaque colors are supported. Any
-             *     transparent colors will have their alpha component set to 0xFF (opaque). Note
-             *     that this parameter only supports static values.
-             * @param offset the relative offset for this color, between 0 and 1. This determines
-             *     where the color is positioned relative to a gradient space. Note that this
-             *     parameter only supports static values.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 300)
-            public Builder(@NonNull ColorProp color, @NonNull FloatProp offset) {
-                this.setColor(color);
-                this.setOffset(offset);
-            }
-
-            /** Creates an instance of {@link Builder}. */
-            Builder() {}
 
             /** Builds an instance from accumulated values. */
             public @NonNull ColorStop build() {
@@ -457,15 +445,9 @@ public final class ColorBuilders {
              * angle is the angle where the line starts. The value represents a relative position in
              * the line's length span. Values greater than 360 degrees correspond to upper layers of
              * the arc line as it wraps over itself.
-             *
-             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             public @NonNull Builder setStartAngle(@NonNull DegreesProp startAngle) {
-                if (startAngle.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "SweepGradient.Builder.setStartAngle doesn't support dynamic values.");
-                }
                 mImpl.setStartAngle(startAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(startAngle.getFingerprint()).aggregateValueAsInt());
@@ -480,15 +462,9 @@ public final class ColorBuilders {
              * angle is the angle where the line starts. The value represents a relative position in
              * the line's length span. Values greater than 360 degrees correspond to upper layers of
              * the arc line as it wraps over itself.
-             *
-             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             public @NonNull Builder setEndAngle(@NonNull DegreesProp endAngle) {
-                if (endAngle.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "SweepGradient.Builder.setEndAngle doesn't support dynamic values.");
-                }
                 mImpl.setEndAngle(endAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(endAngle.getFingerprint()).aggregateValueAsInt());
@@ -600,8 +576,7 @@ public final class ColorBuilders {
          * Gets the starting x position of the linear gradient. Defaults to the left side of the
          * element.
          */
-        @Nullable
-        public OffsetDimension getStartX() {
+        public @Nullable OffsetDimension getStartX() {
             if (mImpl.hasStartX()) {
                 return DimensionBuilders.offsetDimensionFromProto(mImpl.getStartX());
             } else {

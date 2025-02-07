@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.extensions
 
+import android.net.Uri
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.util.ExperimentalAppActions
 
@@ -121,4 +122,18 @@ public interface ExtensionInitializationScope {
         initialCallSilenceState: Boolean,
         onLocalSilenceUpdate: (suspend (Boolean) -> Unit),
     ): LocalCallSilenceExtension
+
+    /**
+     * Adds the call icon extension to a call, which allows the application to specify a custom icon
+     * to be displayed on remote surfaces (e.g., automotive displays, smartwatches) during an active
+     * call. This provides a way to visually represent the call with a specific app, service, or
+     * context.
+     *
+     * @param initialCallIconUri The initial [Uri] of the icon to be displayed. This URI should
+     *   point to a valid image resource that can be loaded and displayed by remote surfaces.
+     *   Consider using a Content Provider URI for accessing resources within your application.
+     * @return The interface used by this application to further update the call icon extension
+     *   state to remote surfaces. This allows dynamically changing the icon during the call.
+     */
+    public fun addCallIconExtension(initialCallIconUri: Uri): CallIconExtension
 }

@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.impl.CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA;
+
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCaptureSession.StateCallback;
 import android.os.Handler;
@@ -158,12 +160,18 @@ public abstract class SurfaceConfig {
                 configSize = ConfigSize.PREVIEW;
             } else if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getRecordSize())) {
                 configSize = ConfigSize.RECORD;
-            } else if (sizeArea <= SizeUtil.getArea(
-                    surfaceSizeDefinition.getMaximumSize(imageFormat))) {
-                configSize = ConfigSize.MAXIMUM;
             } else {
+                Size maximumSize = surfaceSizeDefinition.getMaximumSize(imageFormat);
                 Size ultraMaximumSize = surfaceSizeDefinition.getUltraMaximumSize(imageFormat);
-                if (ultraMaximumSize != null && sizeArea <= SizeUtil.getArea(ultraMaximumSize)) {
+                // On some devices, when extensions is on, some extra formats might be supported
+                // for extensions. But those formats are not supported in the normal mode. In
+                // that case, MaximumSize could be null. Directly make configSize as MAXIMUM for
+                // the case.
+                if ((maximumSize == null || sizeArea <= SizeUtil.getArea(maximumSize))
+                        && cameraMode != ULTRA_HIGH_RESOLUTION_CAMERA) {
+                    configSize = ConfigSize.MAXIMUM;
+                } else if (ultraMaximumSize != null && sizeArea <= SizeUtil.getArea(
+                        ultraMaximumSize)) {
                     configSize = ConfigSize.ULTRA_MAXIMUM;
                 }
             }

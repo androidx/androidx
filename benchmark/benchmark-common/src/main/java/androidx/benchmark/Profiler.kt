@@ -32,6 +32,7 @@ import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
+import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.benchmark.vmtrace.ArtTrace
 import java.io.File
 import java.io.FileOutputStream
@@ -202,31 +203,34 @@ internal fun startRuntimeMethodTracing(
     InstrumentationResults.reportAdditionalFileToCopy("profiling_trace", path)
 
     val bufferSize = 16 * 1024 * 1024
-    if (sampled) {
-        val intervalUs = (1_000_000.0 / Arguments.profilerSampleFrequencyHz).toInt()
-        Debug.startMethodTracingSampling(path, bufferSize, intervalUs)
-    } else {
-        // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version supports
-        // it. Note that this doesn't affect trace parsing, since this doesn't affect wall clock,
-        // it only removes the expensive thread time clock which our parser doesn't use.
-        // TODO: switch to platform-defined constant once available (b/329499422)
-        Debug.startMethodTracing(path, bufferSize, 0x10)
-    }
 
+    // Note: The last thing this method does is start profiling,
+    // since we want to capture as little benchmark infra as possible
     return if (sampled) {
+        val intervalUs = (1_000_000.0 / Arguments.profilerSampleFrequencyHz).toInt()
         Profiler.ResultFile.of(
-            outputRelativePath = traceFileName,
-            label = "Stack Sampling (legacy) Trace",
-            type = ProfilerOutput.Type.StackSamplingTrace,
-            source = profiler
-        )
+                outputRelativePath = traceFileName,
+                label = "Stack Sampling (legacy) Trace",
+                type = ProfilerOutput.Type.StackSamplingTrace,
+                source = profiler
+            )
+            .also { Debug.startMethodTracingSampling(path, bufferSize, intervalUs) }
     } else {
         Profiler.ResultFile.of(
-            outputRelativePath = traceFileName,
-            label = "Method Trace",
-            type = ProfilerOutput.Type.MethodTrace,
-            source = profiler
-        )
+                outputRelativePath = traceFileName,
+                label = "Method Trace",
+                type = ProfilerOutput.Type.MethodTrace,
+                source = profiler
+            )
+            .also {
+                // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version
+                // supports
+                // it. Note that this doesn't affect trace parsing, since this doesn't affect wall
+                // clock,
+                // it only removes the expensive thread time clock which our parser doesn't use.
+                // TODO: switch to platform-defined constant once available (b/329499422)
+                Debug.startMethodTracing(path, bufferSize, 0x10)
+            }
     }
 }
 
@@ -273,6 +277,41 @@ internal object MethodTracing : Profiler() {
     override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
         ArtTrace(profilerTrace)
             .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append= */ true))
+    }
+
+    fun queryMetrics(session: TraceProcessor.Session): List<MetricResult> {
+        // NOTE: This query assumes that method trace only wraps a single measurement iteration
+        val row =
+            session
+                .query(
+                    """
+                    CREATE OR REPLACE PERFETTO FUNCTION is_unmeasured(slice_id INT)
+                        RETURNS INT AS
+                        SELECT MIN(1, COUNT(*))
+                        FROM ancestor_slice(${'$'}slice_id)
+                        WHERE
+                          NAME = '${ArtTrace.RUN_WITH_MEASUREMENT_DISABLED_FULLNAME}' OR
+                          NAME = 'java.lang.invoke.MethodType.makeImpl: (Ljava/lang/Class;[Ljava/lang/Class;Z)Ljava/lang/invoke/MethodType;';
+
+                    SELECT COUNT(*) as methodCount, is_unmeasured from (
+                      SELECT
+                        name,
+                        is_unmeasured(slice.id) AS is_unmeasured
+                      FROM slice
+                      WHERE track_id like (
+                        SELECT id FROM track WHERE name LIKE 'Instr:%(Method Trace)' OR name = 'main (Method Trace)'
+                      )
+                      AND is_unmeasured = false
+                    ) GROUP BY is_unmeasured
+                """
+                        .trimIndent()
+                )
+                .firstOrNull()
+        return if (row != null) {
+            listOf(MetricResult("methodCount", data = listOf(row.long("methodCount").toDouble())))
+        } else {
+            emptyList()
+        }
     }
 
     var hasBeenUsed: Boolean = false

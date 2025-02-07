@@ -67,8 +67,9 @@ public class AudioRestrictionControllerImpl @Inject constructor() : AudioRestric
         get() = synchronized(lock) { field }
         set(value: AudioRestrictionMode) {
             synchronized(lock) {
+                val previousMode = computeAudioRestrictionMode()
                 field = value
-                updateListenersMode()
+                updateListenersMode(previousMode)
             }
         }
 
@@ -80,15 +81,17 @@ public class AudioRestrictionControllerImpl @Inject constructor() : AudioRestric
         mode: AudioRestrictionMode
     ) {
         synchronized(lock) {
+            val previousMode = computeAudioRestrictionMode()
             audioRestrictionModeMap[cameraGraph] = mode
-            updateListenersMode()
+            updateListenersMode(previousMode)
         }
     }
 
     override fun removeCameraGraph(cameraGraph: CameraGraph) {
         synchronized(lock) {
+            val previousMode = computeAudioRestrictionMode()
             audioRestrictionModeMap.remove(cameraGraph)
-            updateListenersMode()
+            updateListenersMode(previousMode)
         }
     }
 
@@ -128,10 +131,12 @@ public class AudioRestrictionControllerImpl @Inject constructor() : AudioRestric
     }
 
     @GuardedBy("lock")
-    private fun updateListenersMode() {
+    private fun updateListenersMode(previousMode: AudioRestrictionMode? = null) {
         val mode = computeAudioRestrictionMode()
-        for (listener in activeListeners) {
-            listener.onCameraAudioRestrictionUpdated(mode)
+        if (previousMode != null && mode != previousMode) {
+            for (listener in activeListeners) {
+                listener.onCameraAudioRestrictionUpdated(mode)
+            }
         }
     }
 }

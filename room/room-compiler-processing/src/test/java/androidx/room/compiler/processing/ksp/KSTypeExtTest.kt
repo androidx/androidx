@@ -28,6 +28,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -157,12 +158,17 @@ class KSTypeExtTest {
             """
                     .trimIndent()
             )
-        runKspTest(sources = listOf(subjectSrc)) { invocation ->
+        runKspTest(
+            sources = listOf(subjectSrc),
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+        ) { invocation ->
             val subject = invocation.kspResolver.requireClass("Foo")
+            val doesNotExist = JClassName.get("", "DoesNotExist")
             assertThat(subject.propertyType("errorField").asJTypeName(invocation.kspResolver))
-                .isEqualTo(ERROR_JTYPE_NAME)
+                .isEqualTo(doesNotExist)
             assertThat(subject.propertyType("listOfError").asJTypeName(invocation.kspResolver))
-                .isEqualTo(ParameterizedTypeName.get(List::class.className(), ERROR_JTYPE_NAME))
+                .isEqualTo(ParameterizedTypeName.get(List::class.className(), doesNotExist))
             assertThat(
                     subject
                         .propertyType("mutableMapOfDontExist")
@@ -172,7 +178,7 @@ class KSTypeExtTest {
                     ParameterizedTypeName.get(
                         Map::class.className(),
                         String::class.className(),
-                        ERROR_JTYPE_NAME
+                        doesNotExist
                     )
                 )
             invocation.assertCompilationResult { compilationDidFail() }

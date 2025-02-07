@@ -429,7 +429,7 @@ object ToggleButtonDefaults {
      */
     val IconSize = ButtonSmallTokens.IconSize
 
-    /** The default content padding used by all toglge buttons. */
+    /** The default content padding used by all toggle buttons. */
     val ContentPadding =
         PaddingValues(
             start = ToggleButtonStartPadding,

@@ -26,7 +26,6 @@ import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.material3.CompactButtonStyle.COMPACT_BUTTON_HEIGHT_DP
 import androidx.wear.protolayout.modifiers.LayoutModifier
 import androidx.wear.protolayout.modifiers.backgroundColor
-import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.contentDescription
 import androidx.wear.protolayout.testing.LayoutElementAssertionsProvider
 import androidx.wear.protolayout.testing.hasClickable
@@ -78,6 +77,15 @@ class ButtonTest {
         LayoutElementAssertionsProvider(DEFAULT_BUTTON)
             .onRoot()
             .assert(hasWidth(wrapWithMinTapTargetDimension()))
+            .assert(hasHeight(wrapWithMinTapTargetDimension()))
+            .assert(hasTag(ButtonDefaults.METADATA_TAG_BUTTON))
+    }
+
+    @Test
+    fun avatarButton_size_default() {
+        LayoutElementAssertionsProvider(DEFAULT_AVATAR_BUTTON)
+            .onRoot()
+            .assert(hasWidth(expand()))
             .assert(hasHeight(wrapWithMinTapTargetDimension()))
             .assert(hasTag(ButtonDefaults.METADATA_TAG_BUTTON))
     }
@@ -164,6 +172,27 @@ class ButtonTest {
     }
 
     @Test
+    fun avatarButton_hasLabel_asText() {
+        LayoutElementAssertionsProvider(DEFAULT_AVATAR_BUTTON)
+            .onElement(hasText(TEXT))
+            .assertExists()
+    }
+
+    @Test
+    fun avatarButton_hasSecondaryLabel_asText() {
+        LayoutElementAssertionsProvider(DEFAULT_AVATAR_BUTTON)
+            .onElement(hasText(TEXT2))
+            .assertExists()
+    }
+
+    @Test
+    fun avatarButton_hasAvatar_asImage() {
+        LayoutElementAssertionsProvider(DEFAULT_AVATAR_BUTTON)
+            .onElement(hasImage(IMAGE_ID))
+            .assertExists()
+    }
+
+    @Test
     fun compactButton_hasLabel_asText() {
         LayoutElementAssertionsProvider(DEFAULT_COMPACT_BUTTON)
             .onElement(hasText(TEXT))
@@ -246,8 +275,6 @@ class ButtonTest {
                 .setScreenHeightDp(192)
                 .build()
 
-        private val CLICKABLE = clickable(id = "id")
-
         private const val CONTENT_DESCRIPTION = "This is a button"
 
         private const val IMAGE_ID = "image"
@@ -292,6 +319,17 @@ class ButtonTest {
                     labelContent = { text(TEXT.layoutString) },
                     secondaryLabelContent = { text(TEXT2.layoutString) },
                     iconContent = { icon(ICON_ID) }
+                )
+            }
+
+        private val DEFAULT_AVATAR_BUTTON =
+            materialScope(CONTEXT, DEVICE_CONFIGURATION) {
+                avatarButton(
+                    onClick = CLICKABLE,
+                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION),
+                    labelContent = { text(TEXT.layoutString) },
+                    secondaryLabelContent = { text(TEXT2.layoutString) },
+                    avatarContent = { icon(IMAGE_ID) }
                 )
             }
 

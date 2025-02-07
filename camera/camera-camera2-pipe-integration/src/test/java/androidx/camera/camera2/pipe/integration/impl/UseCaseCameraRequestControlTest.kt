@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeCapturePipeline
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseSurfaceManager
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -88,6 +89,7 @@ class UseCaseCameraRequestControlTest {
             capturePipeline = FakeCapturePipeline(),
             state = fakeUseCaseCameraState,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
+            useCaseSurfaceManager = FakeUseCaseSurfaceManager(threads = useCaseThreads),
             threads = useCaseThreads,
         )
 

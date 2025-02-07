@@ -42,7 +42,6 @@ interface PooledConnection {
 }
 
 /** Executes a single SQL statement that returns no values. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 suspend fun PooledConnection.execSQL(sql: String) {
     usePrepared(sql) { it.step() }
 }
@@ -78,7 +77,6 @@ interface Transactor : PooledConnection {
      *
      * @see Transactor.withTransaction
      */
-    @Suppress("AcronymName") // SQL is a known term and should remain capitalized
     enum class SQLiteTransactionType {
         /**
          * The transaction mode that does not start the actual transaction until the database is

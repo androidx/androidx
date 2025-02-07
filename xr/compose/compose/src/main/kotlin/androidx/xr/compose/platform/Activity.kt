@@ -20,7 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.activity.ComponentActivity
-import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -43,29 +43,38 @@ private val activityToSpatialComposeScene = mutableMapOf<Activity, SpatialCompos
  * itself as a subspace, allowing it to control its own panel (i.e. move and resize within its
  * subspace 3D bounds) and show additional spatial content around it.
  *
- * @param session A custom session to be provided for testing purposes. If null, a suitable session
- *   for production use will be created.
- * @param enableXrForTesting When set, this method will assume it is running on Android XR even if
- *   it is not. Should only be used for testing, it will cause crashes on non-Android XR devices.
  * @param content A `@Composable` function declaring the spatial UI content.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun ComponentActivity.setSubspaceContent(
-    session: Session? = null,
-    enableXrForTesting: Boolean = false,
+    content: @Composable @SubspaceComposable () -> Unit
+) {
+    // Do nothing if we aren't running on an XR device.
+    if (SpatialConfiguration.hasXrSpatialFeature(this)) {
+        setSubspaceContent(session = defaultSession, content = content)
+    }
+}
+
+/**
+ * Composes the provided composable [content] into this activity's subspace.
+ *
+ * This method only takes effect in Android XR. Calling it will cause the activity to register
+ * itself as a subspace, allowing it to control its own panel (i.e. move and resize within its
+ * subspace 3D bounds) and show additional spatial content around it.
+ *
+ * @param session The JXR session to use for this subspace.
+ * @param content A `@Composable` function declaring the spatial UI content.
+ */
+@VisibleForTesting
+public fun ComponentActivity.setSubspaceContent(
+    session: Session,
     content: @Composable @SubspaceComposable () -> Unit,
 ) {
-    // Do nothing if we aren't running on an XR device or in an XR test.
-    if (!SpatialConfiguration.hasXrSpatialFeature(this) && !enableXrForTesting) {
-        return
-    }
-    val jxrSession = session ?: defaultSession
-    val spatialComposeScene = getOrCreateSpatialSceneForActivity(jxrSession)
+    val spatialComposeScene = getOrCreateSpatialSceneForActivity(session)
 
     spatialComposeScene.setContent {
-        DisposableEffect(jxrSession) {
-            jxrSession.mainPanelEntity.setHidden(true)
-            onDispose { jxrSession.mainPanelEntity.setHidden(false) }
+        DisposableEffect(session) {
+            session.mainPanelEntity.setHidden(true)
+            onDispose { session.mainPanelEntity.setHidden(false) }
         }
 
         // TODO(b/354009078) Why does rendering content in full space mode break presubmits.

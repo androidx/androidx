@@ -73,4 +73,6 @@ object Illuminant {
     val E = WhitePoint(0.33333f, 0.33333f)
 
     internal val D50Xyz = floatArrayOf(0.964212f, 1.0f, 0.825188f)
+
+    internal fun newD50Xyz() = floatArrayOf(0.964212f, 1.0f, 0.825188f)
 }

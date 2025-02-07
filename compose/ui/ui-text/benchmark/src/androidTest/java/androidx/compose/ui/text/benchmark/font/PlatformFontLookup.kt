@@ -60,7 +60,9 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
     @Test
     fun forceUncached() {
         benchmarkRule.measureRepeated {
-            val fontFamilyResolver = runWithTimingDisabled { emptyCacheFontFamilyResolver(context) }
+            val fontFamilyResolver = runWithMeasurementDisabled {
+                emptyCacheFontFamilyResolver(context)
+            }
             fontFamilyResolver.resolve(fontFamily, fontWeight)
         }
     }
@@ -68,7 +70,9 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
     @Test
     fun cached() {
         benchmarkRule.measureRepeated {
-            val fontFamilyResolver = runWithTimingDisabled { createFontFamilyResolver(context) }
+            val fontFamilyResolver = runWithMeasurementDisabled {
+                createFontFamilyResolver(context)
+            }
             fontFamilyResolver.resolve(fontFamily, fontWeight)
         }
     }

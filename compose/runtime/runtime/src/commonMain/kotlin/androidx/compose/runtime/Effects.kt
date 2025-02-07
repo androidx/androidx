@@ -19,10 +19,12 @@ package androidx.compose.runtime
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
+import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.jvm.JvmField
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -262,10 +264,18 @@ fun DisposableEffect(
 }
 
 internal class LaunchedEffectImpl(
-    parentCoroutineContext: CoroutineContext,
+    private val parentCoroutineContext: CoroutineContext,
     private val task: suspend CoroutineScope.() -> Unit
-) : RememberObserver {
-    private val scope = CoroutineScope(parentCoroutineContext)
+) : RememberObserver, CoroutineExceptionHandler {
+    private val scope =
+        CoroutineScope(
+            parentCoroutineContext +
+                if (parentCoroutineContext[CompositionErrorContextImpl] != null) {
+                    this
+                } else {
+                    EmptyCoroutineContext
+                }
+        )
     private var job: Job? = null
 
     override fun onRemembered() {
@@ -282,6 +292,18 @@ internal class LaunchedEffectImpl(
     override fun onAbandoned() {
         job?.cancel(LeftCompositionCancellationException())
         job = null
+    }
+
+    // CoroutineExceptionHandler implementation to save on allocations
+    override val key: CoroutineContext.Key<*>
+        get() = CoroutineExceptionHandler.Key
+
+    override fun handleException(context: CoroutineContext, exception: Throwable) {
+        context[CompositionErrorContextImpl]?.apply {
+            exception.attachComposeStackTrace(this@LaunchedEffectImpl)
+        }
+        parentCoroutineContext[CoroutineExceptionHandler]?.handleException(context, exception)
+            ?: throw exception
     }
 }
 
@@ -442,6 +464,24 @@ internal class RememberedCoroutineScope(
             if (
                 localCoroutineContext == null || localCoroutineContext === CancelledCoroutineContext
             ) {
+                val traceContext = parentContext[CompositionErrorContextImpl]
+                val exceptionHandler =
+                    if (traceContext != null) {
+                        // If trace context is present, override exception handler, so all child
+                        // jobs would have the composable trace appended.
+                        // On exception, call overlay -> parent and throw if neither are present.
+                        CoroutineExceptionHandler { c, e ->
+                            traceContext.apply {
+                                e.attachComposeStackTrace(this@RememberedCoroutineScope)
+                            }
+                            overlayContext[CoroutineExceptionHandler]?.handleException(c, e)
+                                ?: parentContext[CoroutineExceptionHandler]?.handleException(c, e)
+                                ?: throw e
+                        }
+                    } else {
+                        EmptyCoroutineContext
+                    }
+
                 // Yes, we're leaking our lock here by using the instance of the object
                 // that also gets handled by user code as a CoroutineScope as an intentional
                 // tradeoff for avoiding the allocation of a dedicated lock object.
@@ -453,7 +493,8 @@ internal class RememberedCoroutineScope(
                     if (localCoroutineContext == null) {
                         val parentContext = parentContext
                         val childJob = Job(parentContext[Job])
-                        localCoroutineContext = parentContext + childJob + overlayContext
+                        localCoroutineContext =
+                            parentContext + childJob + overlayContext + exceptionHandler
                     } else if (localCoroutineContext === CancelledCoroutineContext) {
                         // Lazily initialize the child job here, already cancelled.
                         // Assemble the CoroutineContext exactly as otherwise expected.
@@ -462,7 +503,8 @@ internal class RememberedCoroutineScope(
                             Job(parentContext[Job]).apply {
                                 cancel(ForgottenCoroutineScopeException())
                             }
-                        localCoroutineContext = parentContext + cancelledChildJob + overlayContext
+                        localCoroutineContext =
+                            parentContext + cancelledChildJob + overlayContext + exceptionHandler
                     }
                     _coroutineContext = localCoroutineContext
                 }

@@ -53,13 +53,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_POSTAL_CODE
 import androidx.autofill.HintConstants.AUTOFILL_HINT_SMS_OTP
 import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
 
-/**
- * Gets the Android specific [AutofillHint][android.view.ViewStructure.setAutofillHints]
- * corresponding to the [ContentType].
- */
-actual class ContentType private constructor(internal val contentHints: Set<String>) {
-    actual constructor(contentHint: String) : this(setOf(contentHint))
-
+actual sealed interface ContentType {
     actual companion object {
         // Define constants for predefined autofill hints
         actual val Username = ContentType(AUTOFILL_HINT_USERNAME)
@@ -103,8 +97,18 @@ actual class ContentType private constructor(internal val contentHints: Set<Stri
         actual val SmsOtpCode = ContentType(AUTOFILL_HINT_SMS_OTP)
     }
 
-    operator fun plus(other: ContentType): ContentType {
-        val combinedValues = contentHints + other.contentHints
-        return ContentType(combinedValues)
+    operator fun plus(other: ContentType): ContentType
+}
+
+private class AndroidContentType(val androidAutofillHints: Set<String>) : ContentType {
+    override operator fun plus(other: ContentType): ContentType {
+        other as AndroidContentType
+        val combinedValues = androidAutofillHints + other.androidAutofillHints
+        return AndroidContentType(combinedValues)
     }
 }
+
+fun ContentType(contentHint: String): ContentType = AndroidContentType(setOf(contentHint))
+
+internal val ContentType.contentHints: Array<String>
+    get() = (this as AndroidContentType).androidAutofillHints.toTypedArray()

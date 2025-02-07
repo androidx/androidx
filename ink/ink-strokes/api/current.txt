@@ -7,7 +7,7 @@ package androidx.ink.strokes {
   }
 
   public static final class ImmutableStrokeInputBatch.Companion {
-    property public final androidx.ink.strokes.ImmutableStrokeInputBatch EMPTY;
+    property public androidx.ink.strokes.ImmutableStrokeInputBatch EMPTY;
   }
 
   public final class InProgressStroke {
@@ -37,11 +37,15 @@ package androidx.ink.strokes {
     method public androidx.ink.strokes.Stroke toImmutable();
     method public Object updateShape(optional long currentElapsedTimeMillis);
     method public void updateShapeOrThrow(optional long currentElapsedTimeMillis);
-    property public final androidx.ink.brush.Brush? brush;
+    property public androidx.ink.brush.Brush? brush;
     field public static final androidx.ink.strokes.InProgressStroke.Companion Companion;
   }
 
   public static final class InProgressStroke.Companion {
+  }
+
+  public final class MeshCreation {
+    method public static androidx.ink.geometry.PartitionedMesh createClosedShape(androidx.ink.strokes.StrokeInputBatch);
   }
 
   public final class MutableStrokeInputBatch extends androidx.ink.strokes.StrokeInputBatch {
@@ -73,9 +77,9 @@ package androidx.ink.strokes {
     method public androidx.ink.brush.Brush getBrush();
     method public androidx.ink.strokes.ImmutableStrokeInputBatch getInputs();
     method public androidx.ink.geometry.PartitionedMesh getShape();
-    property public final androidx.ink.brush.Brush brush;
-    property public final androidx.ink.strokes.ImmutableStrokeInputBatch inputs;
-    property public final androidx.ink.geometry.PartitionedMesh shape;
+    property public androidx.ink.brush.Brush brush;
+    property public androidx.ink.strokes.ImmutableStrokeInputBatch inputs;
+    property public androidx.ink.geometry.PartitionedMesh shape;
     field public static final androidx.ink.strokes.Stroke.Companion Companion;
   }
 
@@ -107,17 +111,17 @@ package androidx.ink.strokes {
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure);
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians);
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians, optional float orientationRadians);
-    property public final long elapsedTimeMillis;
-    property public final boolean hasOrientation;
-    property public final boolean hasPressure;
-    property public final boolean hasTilt;
-    property public final float orientationRadians;
-    property public final float pressure;
-    property public final float strokeUnitLengthCm;
-    property public final float tiltRadians;
-    property public final androidx.ink.brush.InputToolType toolType;
-    property public final float x;
-    property public final float y;
+    property public long elapsedTimeMillis;
+    property public boolean hasOrientation;
+    property public boolean hasPressure;
+    property public boolean hasTilt;
+    property public float orientationRadians;
+    property public float pressure;
+    property public float strokeUnitLengthCm;
+    property public float tiltRadians;
+    property public androidx.ink.brush.InputToolType toolType;
+    property public float x;
+    property public float y;
     field public static final androidx.ink.strokes.StrokeInput.Companion Companion;
     field public static final float NO_ORIENTATION = -1.0f;
     field public static final float NO_PRESSURE = -1.0f;
@@ -132,10 +136,10 @@ package androidx.ink.strokes {
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure);
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians);
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians, optional float orientationRadians);
-    property public static final float NO_ORIENTATION;
-    property public static final float NO_PRESSURE;
-    property public static final float NO_STROKE_UNIT_LENGTH;
-    property public static final float NO_TILT;
+    property public static float NO_ORIENTATION;
+    property public static float NO_PRESSURE;
+    property public static float NO_STROKE_UNIT_LENGTH;
+    property public static float NO_TILT;
   }
 
   public abstract class StrokeInputBatch {

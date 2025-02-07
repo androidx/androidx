@@ -19,6 +19,7 @@ package androidx.savedstate
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.savedstate.SavedStateCodecTestUtils.encodeDecode
+import androidx.savedstate.serialization.SavedStateConfig
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import androidx.savedstate.serialization.serializers.SavedStateSerializer
@@ -26,15 +27,21 @@ import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration
+import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.IntArraySerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import kotlinx.serialization.serializer
 
 @ExperimentalSerializationApi
@@ -233,7 +240,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(isNull("1")).isTrue()
         }
 
-        MyColor(0, 128, 255).encodeDecode(MyColorIntArraySerializer) {
+        MyColor(0, 128, 255).encodeDecode(serializer = MyColorIntArraySerializer) {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntArray("")).isEqualTo(intArrayOf(0, 128, 255))
         }
@@ -312,11 +319,11 @@ internal class SavedStateCodecTest : RobolectricTest() {
 
         // Custom list is not a list.
         val myDelegatedList = MyDelegatedList(arrayListOf(1, 3, 5))
-        myDelegatedList.encodeDecode(serializer<MyDelegatedList<Int>>()) {
+        myDelegatedList.encodeDecode(serializer = serializer<MyDelegatedList<Int>>()) {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntList("values")).isEqualTo(listOf(1, 3, 5))
         }
-        myDelegatedList.encodeDecode(serializer<List<Int>>()) {
+        myDelegatedList.encodeDecode(serializer = serializer<List<Int>>()) {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntList("")).isEqualTo(listOf(1, 3, 5))
         }
@@ -577,6 +584,116 @@ internal class SavedStateCodecTest : RobolectricTest() {
         // encoding.
         assertThat(decodeFromSavedState<Int>(savedState)).isEqualTo(0)
     }
+
+    @Test
+    fun encodingClassesWithoutSerializersThrowsException() {
+        assertThrows<SerializationException> {
+                MyColor(1, 3, 5).encodeDecode {
+                    assertThat(size()).isEqualTo(1)
+                    assertThat(getIntArray("")).isEqualTo(intArrayOf(1, 3, 5))
+                }
+            }
+            .hasMessageThat()
+            .contains("Serializer for class 'MyColor' is not found.")
+    }
+
+    @Test
+    fun canEncodeWithContextualSerialization() {
+        val config = SavedStateConfig {
+            serializersModule = SerializersModule {
+                contextual(MyColor::class, MyColorIntArraySerializer)
+            }
+        }
+
+        // Specifying `ContextualSerializer` explicitly.
+        MyColor(1, 3, 5).encodeDecode(
+            config = config,
+            serializer = ContextualSerializer(MyColor::class)
+        ) {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getIntArray("")).isEqualTo(intArrayOf(1, 3, 5))
+        }
+    }
+
+    @Test
+    fun canEncodeTopLevelObjectsWithImplicitContextualSerialization() {
+        val config = SavedStateConfig {
+            serializersModule = SerializersModule {
+                contextual(MyColor::class, MyColorIntArraySerializer)
+            }
+        }
+
+        // Fallback to contextual serializer as `MyColor` doesn't have an associated serializer.
+        MyColor(1, 3, 5).encodeDecode(config = config) {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getIntArray("")).isEqualTo(intArrayOf(1, 3, 5))
+        }
+    }
+
+    @Test
+    fun canEncodeWithPolymorphicSerialization() {
+        val config = SavedStateConfig {
+            serializersModule = SerializersModule {
+                polymorphic(Shape::class) {
+                    subclass(Circle::class, Circle.serializer())
+                    subclass(Rectangle::class, Rectangle.serializer())
+                }
+            }
+        }
+
+        Circle(3).encodeDecode<Shape>(
+            config = config,
+            // This is needed only in Kotlin/Native.
+            serializer = PolymorphicSerializer(Shape::class)
+        ) {
+            assertThat(size()).isEqualTo(2)
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.Circle")
+            getSavedState("value").read {
+                assertThat(size()).isEqualTo(1)
+                assertThat(getInt("radius")).isEqualTo(3)
+            }
+        }
+        Rectangle(3, 5).encodeDecode<Shape>(
+            config = config,
+            // This is needed only in Kotlin/Native.
+            serializer = PolymorphicSerializer(Shape::class)
+        ) {
+            assertThat(size()).isEqualTo(2)
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.Rectangle")
+            getSavedState("value").read {
+                assertThat(size()).isEqualTo(2)
+                assertThat(getInt("width")).isEqualTo(3)
+                assertThat(getInt("height")).isEqualTo(5)
+            }
+        }
+    }
+
+    // Encode a `List<Any>` with `SerializersModule`.
+    @Test
+    fun canUseContextualSerializationWithPolymorphicSerialization() {
+        val config = SavedStateConfig {
+            serializersModule = SerializersModule {
+                contextual(Any::class, PolymorphicSerializer(Any::class))
+                polymorphic(Any::class) {
+                    subclass(String::class)
+                    subclass(Int::class)
+                }
+            }
+        }
+        listOf("foo", 123).encodeDecode<List<Any>>(config = config) {
+            assertThat(size()).isEqualTo(2)
+            getSavedState("0").read {
+                assertThat(size()).isEqualTo(2)
+                assertThat(getString("type")).isEqualTo("kotlin.String")
+                assertThat(getString("value")).isEqualTo("foo")
+            }
+            getSavedState("1").read {
+                assertThat(size()).isEqualTo(2)
+                assertThat(getString("type")).isEqualTo("kotlin.Int")
+                assertThat(getInt("value")).isEqualTo(123)
+            }
+        }
+    }
 }
 
 @Serializable
@@ -626,7 +743,7 @@ object MyObject {
     val foo = "bar"
 }
 
-@Serializable private data class MyColor(val r: Int, val g: Int, val b: Int)
+private data class MyColor(val r: Int, val g: Int, val b: Int)
 
 @OptIn(ExperimentalSerializationApi::class)
 private object MyColorIntArraySerializer : KSerializer<MyColor> {
@@ -650,3 +767,9 @@ private sealed class F {
 }
 
 @Serializable private data class G(val i: Int) : F()
+
+interface Shape
+
+@Serializable data class Circle(val radius: Int) : Shape
+
+@Serializable data class Rectangle(val width: Int, val height: Int) : Shape

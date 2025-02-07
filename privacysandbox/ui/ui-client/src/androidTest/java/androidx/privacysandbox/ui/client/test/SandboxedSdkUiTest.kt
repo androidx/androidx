@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -540,6 +541,117 @@ class SandboxedSdkUiTest {
         // Return to the first activity. The onScreenGeometry should now be non-empty.
         sandboxedSdkViewUiInfo = session?.runAndRetrieveNextUiChange { uiDevice.pressBack() }
         assertThat(sandboxedSdkViewUiInfo?.onScreenGeometry?.isEmpty).isFalse()
+    }
+
+    @Test
+    fun sessionRemainsOpenWhenSandboxedSdkUiIsDetachedAndNotReleased() {
+        var attached by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            ReusableContentHost(attached) {
+                SandboxedSdkUi(
+                    sandboxedUiAdapter = testSandboxedUiAdapter,
+                    modifier = Modifier.requiredSize(size),
+                    providerUiOnTop = providerUiOnTop,
+                    sandboxedSdkViewEventListener = eventListener
+                )
+            }
+        }
+
+        testSandboxedUiAdapter.assertSessionOpened()
+
+        attached = false
+        testSandboxedUiAdapter.assertSessionNotClosed()
+
+        attached = true
+        testSandboxedUiAdapter.assertSessionNotClosed()
+    }
+
+    @Test
+    fun sessionClosesWhenSandboxedSdkUiIsRemovedFromComposition() {
+        var showContent by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showContent) {
+                SandboxedSdkUi(
+                    sandboxedUiAdapter = testSandboxedUiAdapter,
+                    modifier = Modifier.requiredSize(size),
+                    providerUiOnTop = providerUiOnTop,
+                    sandboxedSdkViewEventListener = eventListener
+                )
+            }
+        }
+
+        testSandboxedUiAdapter.assertSessionOpened()
+
+        showContent = false
+        composeTestRule.waitForIdle()
+
+        testSandboxedUiAdapter.assertSessionClosed()
+    }
+
+    @Test
+    fun reAddEventListenerWhenSandboxedSdkUiIsReAttachedInLazyList() {
+        var attached by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            ReusableContentHost(attached) {
+                SandboxedSdkUi(
+                    sandboxedUiAdapter = testSandboxedUiAdapter,
+                    modifier = Modifier.requiredSize(size),
+                    providerUiOnTop = providerUiOnTop,
+                    sandboxedSdkViewEventListener = eventListener
+                )
+            }
+        }
+
+        // When session is open, the events are received
+        assertThat(eventListener.uiDisplayedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+
+        attached = false
+        composeTestRule.waitForIdle()
+
+        attached = true
+        composeTestRule.waitForIdle()
+
+        // When SandboxedSdkUi is re-attached event listener is added back
+        assertThat(eventListener.uiDisplayedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun onUiClosedWhenSandboxedSdkUiIsRemovedFromComposition() {
+        var showContent by mutableStateOf(true)
+        var attached by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showContent) {
+                ReusableContentHost(attached) {
+                    SandboxedSdkUi(
+                        sandboxedUiAdapter = testSandboxedUiAdapter,
+                        modifier = Modifier.requiredSize(size),
+                        providerUiOnTop = providerUiOnTop,
+                        sandboxedSdkViewEventListener = eventListener
+                    )
+                }
+            }
+        }
+
+        // verify onUiDisplayed() is called
+        assertThat(eventListener.uiDisplayedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+
+        // detach SandboxedSdkUi from composition hierarchy of ReusableContentHost
+        attached = false
+        composeTestRule.waitForIdle()
+
+        // verify onUiClosed() is not called
+        assertThat(eventListener.sessionClosedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+
+        // remove SandboxedSdkUi from composition hierarchy
+        showContent = false
+        composeTestRule.waitForIdle()
+
+        // verify onUiClosed() is called
+        assertThat(eventListener.sessionClosedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     private fun addNodeToLayout() {

@@ -39,10 +39,10 @@ package androidx.ink.authoring {
     method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform, optional android.graphics.Matrix strokeToWorldTransform);
     method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush);
     method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush, optional android.graphics.Matrix strokeToViewTransform);
-    property @VisibleForTesting public final androidx.test.espresso.idling.CountingIdlingResource? inProgressStrokeCounter;
-    property public final android.graphics.Path? maskPath;
-    property public final android.graphics.Matrix motionEventToViewTransform;
-    property public final kotlin.jvm.functions.Function0<androidx.ink.rendering.android.canvas.CanvasStrokeRenderer> rendererFactory;
+    property @VisibleForTesting public androidx.test.espresso.idling.CountingIdlingResource? inProgressStrokeCounter;
+    property public android.graphics.Path? maskPath;
+    property public android.graphics.Matrix motionEventToViewTransform;
+    property public kotlin.jvm.functions.Function0<androidx.ink.rendering.android.canvas.CanvasStrokeRenderer> rendererFactory;
   }
 
 }

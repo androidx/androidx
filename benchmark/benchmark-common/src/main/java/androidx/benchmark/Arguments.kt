@@ -70,7 +70,6 @@ object Arguments {
 
     val enableCompilation: Boolean
     val killProcessDelayMillis: Long
-    val enableStartupProfiles: Boolean
     val dryRunMode: Boolean
     val dropShadersEnable: Boolean
     val dropShadersThrowOnFailure: Boolean
@@ -324,9 +323,6 @@ object Arguments {
 
         saveProfileWaitMillis =
             arguments.getBenchmarkArgument("saveProfileWaitMillis")?.toLong() ?: 1_000L
-
-        enableStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
 
         dropShadersEnable =
             arguments.getBenchmarkArgument("dropShaders.enable")?.toBoolean() ?: true

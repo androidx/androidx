@@ -18,6 +18,7 @@ package androidx.health.connect.client.impl.platform.aggregate
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.health.connect.datatypes.Metadata.RECORDING_METHOD_MANUAL_ENTRY
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.health.connect.client.HealthConnectClient
@@ -32,6 +33,7 @@ import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -117,6 +119,7 @@ class HealthConnectClientAggregationExtensionsTest {
                 BloodPressureRecord(
                     time = START_TIME,
                     zoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     diastolic = 70.millimetersOfMercury,
                     systolic = 110.millimetersOfMercury
                 ),
@@ -125,6 +128,7 @@ class HealthConnectClientAggregationExtensionsTest {
                     endTime = START_TIME + 30.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     samples =
                         listOf(
                             CyclingPedalingCadenceRecord.Sample(
@@ -143,13 +147,15 @@ class HealthConnectClientAggregationExtensionsTest {
                     transFat = 0.3.grams,
                     calcium = 0.1.grams,
                     startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC
+                    endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 ),
                 SpeedRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 15.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     samples =
                         listOf(
                             SpeedRecord.Sample(
@@ -167,6 +173,7 @@ class HealthConnectClientAggregationExtensionsTest {
                     endTime = START_TIME + 10.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     samples =
                         listOf(
                             StepsCadenceRecord.Sample(time = START_TIME + 3.minutes, rate = 170.0)
@@ -311,7 +318,8 @@ class HealthConnectClientAggregationExtensionsTest {
                         endTime = startTime + 5.seconds,
                         count = 10L,
                         startZoneOffset = ZoneOffset.UTC,
-                        endZoneOffset = ZoneOffset.UTC
+                        endZoneOffset = ZoneOffset.UTC,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                     )
                 }
             )

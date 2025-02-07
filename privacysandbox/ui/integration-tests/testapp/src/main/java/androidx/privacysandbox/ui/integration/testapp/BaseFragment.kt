@@ -35,6 +35,9 @@ import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.C
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testsdkprovider.ISdkApi
 import androidx.privacysandbox.ui.integration.testsdkprovider.ISdkApiFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -82,6 +85,13 @@ abstract class BaseFragment : Fragment() {
         setEventListener(TestEventListener(this))
     }
 
+    fun handleOptionsFromIntent(options: FragmentOptions) {
+        currentMediationOption = options.mediation
+        currentAdType = options.adType
+        shouldDrawViewabilityLayer = options.drawViewability
+        providerUiOnTop = options.isZOrderOnTop
+    }
+
     /**
      * Returns the list of [SandboxedSdkView]s that are currently displayed inside this fragment.
      *
@@ -113,10 +123,11 @@ abstract class BaseFragment : Fragment() {
         drawViewabilityLayer: Boolean,
         waitInsideOnDraw: Boolean = false
     ) {
-        runBlocking {
+        CoroutineScope(Dispatchers.Main).launch {
             val sdkBundle =
                 sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw, drawViewabilityLayer)
             sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
+            sandboxedSdkView.orderProviderUiAboveClientUi(providerUiOnTop)
         }
     }
 

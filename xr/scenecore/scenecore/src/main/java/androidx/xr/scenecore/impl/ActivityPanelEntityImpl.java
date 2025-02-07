@@ -25,6 +25,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.xr.extensions.XrExtensions;
 import androidx.xr.extensions.node.Node;
+import androidx.xr.extensions.node.NodeTransaction;
 import androidx.xr.extensions.space.ActivityPanel;
 import androidx.xr.scenecore.JxrPlatformAdapter.ActivityPanelEntity;
 import androidx.xr.scenecore.JxrPlatformAdapter.PixelDimensions;
@@ -42,6 +43,7 @@ class ActivityPanelEntityImpl extends BasePanelEntity implements ActivityPanelEn
 
     ActivityPanelEntityImpl(
             Node node,
+            String name,
             XrExtensions extensions,
             EntityManager entityManager,
             ActivityPanel activityPanel,
@@ -51,7 +53,16 @@ class ActivityPanelEntityImpl extends BasePanelEntity implements ActivityPanelEn
         // We need to notify our base class of the pixelDimensions, even though the Extensions are
         // initialized in the factory method. (ext.ActivityPanel.setWindowBounds, etc)
         super.setPixelDimensions(windowBoundsPx);
+        float cornerRadius = getDefaultCornerRadiusInMeters();
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction
+                    .setVisibility(activityPanel.getNode(), true)
+                    .setName(activityPanel.getNode(), name)
+                    .setCornerRadius(activityPanel.getNode(), cornerRadius)
+                    .apply();
+        }
         mActivityPanel = activityPanel;
+        super.setCornerRadiusValue(cornerRadius);
     }
 
     @Override

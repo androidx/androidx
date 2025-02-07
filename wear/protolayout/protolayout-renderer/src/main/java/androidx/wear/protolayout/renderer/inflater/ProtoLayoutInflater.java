@@ -26,6 +26,7 @@ import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.getParentNodePosId;
+import static androidx.wear.protolayout.renderer.inflater.PropHelpers.handleProp;
 
 import static com.google.common.util.concurrent.Futures.immediateFailedFuture;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
@@ -105,7 +106,6 @@ import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.TextAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
-import androidx.wear.protolayout.proto.ColorProto.ColorProp;
 import androidx.wear.protolayout.proto.DimensionProto.AngularDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ArcLineLength;
 import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
@@ -326,10 +326,12 @@ public final class ProtoLayoutInflater {
 
     @VisibleForTesting static final String WEIGHT_AXIS_TAG = "wght";
     @VisibleForTesting static final String WIDTH_AXIS_TAG = "wdth";
+    @VisibleForTesting static final String ROUNDNESS_AXIS_TAG = "ROND";
     @VisibleForTesting static final String TABULAR_OPTION_TAG = "tnum";
 
     private static final ImmutableSet<String> SUPPORTED_FONT_SETTING_TAGS =
-            ImmutableSet.of(WEIGHT_AXIS_TAG, WIDTH_AXIS_TAG, TABULAR_OPTION_TAG);
+            ImmutableSet.of(
+                    WEIGHT_AXIS_TAG, WIDTH_AXIS_TAG, ROUNDNESS_AXIS_TAG, TABULAR_OPTION_TAG);
 
     /**
      * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
@@ -356,9 +358,7 @@ public final class ProtoLayoutInflater {
         private final Optional<PipelineMaker> mPipelineMaker;
 
         InflateResult(
-                ViewGroup inflateParent,
-                View firstChild,
-                Optional<PipelineMaker> pipelineMaker) {
+                ViewGroup inflateParent, View firstChild, Optional<PipelineMaker> pipelineMaker) {
             this.inflateParent = inflateParent;
             this.firstChild = firstChild;
             this.mPipelineMaker = pipelineMaker;
@@ -2162,7 +2162,6 @@ public final class ProtoLayoutInflater {
         return view;
     }
 
-
     private static int textAlignToAndroidGravity(TextAlignment alignment) {
         // Vertical center alignment is usually a default and text will be centered vertically.
         // However, we need it explicitly for cases when max lines are adjusted and shrank, so there
@@ -2829,6 +2828,7 @@ public final class ProtoLayoutInflater {
 
         handleProp(
                 text.getText(),
+                mUiContext.getResources().getConfiguration().getLocales().get(0),
                 t -> {
                     // Underlines are applied using a Spannable here, rather than setting paint bits
                     // (or
@@ -3321,8 +3321,8 @@ public final class ProtoLayoutInflater {
      * @return Returns the drawable if it is successfully set to the image view; otherwise returns
      *     null to indicate the failure of setting drawable.
      */
-    private @Nullable Drawable setImageDrawable(ImageView imageView, Drawable drawable,
-            String protoResId) {
+    private @Nullable Drawable setImageDrawable(
+            ImageView imageView, Drawable drawable, String protoResId) {
         if (drawable != null) {
             mInflaterStatsLogger.logDrawableUsage(drawable);
         }
@@ -3441,8 +3441,8 @@ public final class ProtoLayoutInflater {
                 lineView.setMaxSweepAngleDegrees(sizeForLayout);
             }
             View wrappedView =
-                    applyModifiersToArcLayoutView(lineView, line.getModifiers(), posId,
-                            pipelineMaker);
+                    applyModifiersToArcLayoutView(
+                            lineView, line.getModifiers(), posId, pipelineMaker);
             return addLineViewToParentArc(
                     parentViewWrapper,
                     wrappedView,
@@ -3511,7 +3511,7 @@ public final class ProtoLayoutInflater {
                 angularAlignmentProtoToAngularAlignment(length.getAngularAlignmentForLayout()),
                 /* arcLayoutWeight= */ 0
                 // Zero weight in ArcLayout means the view should not be stretched.
-        );
+                );
     }
 
     private InflatedView addLineViewToParentArc(
@@ -3523,8 +3523,8 @@ public final class ProtoLayoutInflater {
             float arcLayoutWeight) {
         SizedArcContainer sizeWrapper = null;
         SizedArcContainer.LayoutParams sizedLayoutParams =
-                new SizedArcContainer.LayoutParams(LayoutParams.MATCH_PARENT,
-                        LayoutParams.MATCH_PARENT);
+                new SizedArcContainer.LayoutParams(
+                        LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         if (sizeForLayout != null) {
             sizeWrapper = new SizedArcContainer(mUiContext);
             sizeWrapper.setArcDirection(arcLineDirection);
@@ -3540,8 +3540,8 @@ public final class ProtoLayoutInflater {
 
         // A WearDashedArcLineView or WearCurvedLineView must always be the same width/height as its
         // parent, so it can draw the line properly inside of those bounds.
-        ArcLayout.LayoutParams layoutParams = new ArcLayout.LayoutParams(
-                generateDefaultLayoutParams());
+        ArcLayout.LayoutParams layoutParams =
+                new ArcLayout.LayoutParams(generateDefaultLayoutParams());
         layoutParams.width = LayoutParams.MATCH_PARENT;
         layoutParams.height = LayoutParams.MATCH_PARENT;
         layoutParams.setWeight(arcLayoutWeight);
@@ -3621,7 +3621,7 @@ public final class ProtoLayoutInflater {
             int index = FIRST_CHILD_INDEX;
             for (ArcLayoutElement child : arc.getContentsList()) {
                 String childPosId = ProtoLayoutDiffer.createNodePosId(arcPosId, index++);
-                                InflatedView childView =
+                InflatedView childView =
                         inflateArcLayoutElement(
                                 new ParentViewWrapper(arcLayout, layoutParams),
                                 child,
@@ -4016,7 +4016,9 @@ public final class ProtoLayoutInflater {
             case DASHED_LINE:
                 inflatedView =
                         inflateDashedArcLine(
-                                parentViewWrapper, element.getDashedLine(), nodePosId,
+                                parentViewWrapper,
+                                element.getDashedLine(),
+                                nodePosId,
                                 pipelineMaker);
                 break;
 
@@ -4235,152 +4237,6 @@ public final class ProtoLayoutInflater {
 
         return new InflatedView(
                 space, parentViewWrapper.getParentProperties().applyPendingChildLayoutParams(lp));
-    }
-
-    /**
-     * Either yield the constant value stored in stringProp, or register for updates if it is
-     * dynamic property.
-     *
-     * <p>If both are set, this routine will yield the constant value if and only if this renderer
-     * has a dynamic pipeline (i.e. {code mDataPipeline} is non-null), otherwise it will only
-     * subscribe for dynamic updates. If the dynamic pipeline ever yields an invalid value (via
-     * {@code onStateInvalid}), then stringProp's static valid will be used instead.
-     */
-    private void handleProp(
-            StringProp stringProp,
-            Consumer<String> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (stringProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker
-                        .get()
-                        .addPipelineFor(
-                                stringProp.getDynamicValue(),
-                                stringProp.getValue(),
-                                mUiContext.getResources().getConfiguration().getLocales().get(0),
-                                posId,
-                                consumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                consumer.accept(stringProp.getValue());
-            }
-        } else {
-            consumer.accept(stringProp.getValue());
-        }
-    }
-
-    private void handleProp(
-            DegreesProp degreesProp,
-            Consumer<Float> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (degreesProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker
-                        .get()
-                        .addPipelineFor(degreesProp, degreesProp.getValue(), posId, consumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                consumer.accept(degreesProp.getValue());
-            }
-        } else {
-            consumer.accept(degreesProp.getValue());
-        }
-    }
-
-    private void handleProp(
-            DpProp dpProp,
-            Consumer<Float> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        handleProp(dpProp, consumer, consumer, posId, pipelineMaker);
-    }
-
-    private void handleProp(
-            DpProp dpProp,
-            Consumer<Float> staticValueConsumer,
-            Consumer<Float> dynamicValueConsumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (dpProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker
-                        .get()
-                        .addPipelineFor(dpProp, dpProp.getValue(), posId, dynamicValueConsumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                staticValueConsumer.accept(dpProp.getValue());
-            }
-        } else {
-            staticValueConsumer.accept(dpProp.getValue());
-        }
-    }
-
-    private void handleProp(
-            ColorProp colorProp,
-            Consumer<Integer> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (colorProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker.get().addPipelineFor(colorProp, colorProp.getArgb(), posId, consumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                consumer.accept(colorProp.getArgb());
-            }
-        } else {
-            consumer.accept(colorProp.getArgb());
-        }
-    }
-
-    private void handleProp(
-            BoolProp boolProp,
-            Consumer<Boolean> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (boolProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker.get().addPipelineFor(boolProp, boolProp.getValue(), posId, consumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                consumer.accept(boolProp.getValue());
-            }
-        } else {
-            consumer.accept(boolProp.getValue());
-        }
-    }
-
-    private void handleProp(
-            FloatProp floatProp,
-            Consumer<Float> consumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        handleProp(floatProp, consumer, consumer, posId, pipelineMaker);
-    }
-
-    private void handleProp(
-            FloatProp floatProp,
-            Consumer<Float> staticValueConsumer,
-            Consumer<Float> dynamicValueconsumer,
-            String posId,
-            Optional<PipelineMaker> pipelineMaker) {
-        if (floatProp.hasDynamicValue() && pipelineMaker.isPresent()) {
-            try {
-                pipelineMaker
-                        .get()
-                        .addPipelineFor(
-                                floatProp.getDynamicValue(),
-                                floatProp.getValue(),
-                                posId,
-                                dynamicValueconsumer);
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error building pipeline", ex);
-                staticValueConsumer.accept(floatProp.getValue());
-            }
-        } else {
-            staticValueConsumer.accept(floatProp.getValue());
-        }
     }
 
     /**
@@ -4670,7 +4526,7 @@ public final class ProtoLayoutInflater {
             Log.w(TAG, "No previous fingerprint available.");
             return null;
         }
-                LayoutDiff diff =
+        LayoutDiff diff =
                 ProtoLayoutDiffer.getDiff(prevRenderedMetadata.getTreeFingerprint(), targetLayout);
         if (diff == null) {
             Log.w(TAG, "getDiff failed");
@@ -4708,7 +4564,7 @@ public final class ProtoLayoutInflater {
                 }
 
                 // The parent node might also have been updated.
-                                ViewProperties possibleUpdatedParentInfo =
+                ViewProperties possibleUpdatedParentInfo =
                         layoutInfoBuilder.getViewPropertiesFor(parentNodePosId);
                 parentInfo =
                         possibleUpdatedParentInfo != null
@@ -4959,6 +4815,7 @@ public final class ProtoLayoutInflater {
         if (semantics.hasContentDescription()) {
             handleProp(
                     semantics.getContentDescription(),
+                    mUiContext.getResources().getConfiguration().getLocales().get(0),
                     view::setContentDescription,
                     posId,
                     pipelineMaker);
@@ -4970,6 +4827,7 @@ public final class ProtoLayoutInflater {
         if (semantics.hasStateDescription()) {
             handleProp(
                     semantics.getStateDescription(),
+                    mUiContext.getResources().getConfiguration().getLocales().get(0),
                     (state) -> ViewCompat.setStateDescription(view, state),
                     posId,
                     pipelineMaker);

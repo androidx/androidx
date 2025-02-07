@@ -60,6 +60,5 @@
     <string name="page_broken" msgid="2968770793669433462">"Неисправна страница за PDF документ"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Недовољно података за обраду PDF документа"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"Отварање PDF фајла није успело"</string>
-    <!-- no translation found for clipboard_label (8943155331324944981) -->
-    <skip />
+    <string name="clipboard_label" msgid="8943155331324944981">"Садржај је копиран из PDF-а"</string>
 </resources>

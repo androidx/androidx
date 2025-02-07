@@ -450,10 +450,8 @@ package androidx.mediarouter.media {
     method public int getSelectionState(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @MainThread public boolean isConnected();
     method public boolean isGroupable(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public boolean isTransferable(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public boolean isUnselectable(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @MainThread public int removeRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method @MainThread public int updateRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>);
     field public static final int ADD_ROUTE_FAILED_REASON_ALREADY_IN_GROUP = 3; // 0x3
     field public static final int ADD_ROUTE_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION = 5; // 0x5
     field public static final int ADD_ROUTE_FAILED_REASON_NOT_GROUPABLE = 2; // 0x2
@@ -465,10 +463,6 @@ package androidx.mediarouter.media {
     field public static final int REMOVE_ROUTE_FAILED_REASON_NOT_UNSELECTABLE = 2; // 0x2
     field public static final int REMOVE_ROUTE_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 5; // 0x5
     field public static final int REMOVE_ROUTE_SUCCESSFUL = 1; // 0x1
-    field public static final int UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION = 4; // 0x4
-    field public static final int UPDATE_ROUTES_FAILED_REASON_NOT_TRANSFERABLE = 2; // 0x2
-    field public static final int UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 3; // 0x3
-    field public static final int UPDATE_ROUTES_SUCCESSFUL = 1; // 0x1
   }
 
   public static interface MediaRouter.OnPrepareTransferListener {

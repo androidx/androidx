@@ -1060,7 +1060,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 ProtoLayoutInflater.clearRenderedMetadata(checkNotNull(prevInflateParent));
             }
 
-                        RenderedMetadata prevRenderedMetadata =
+            RenderedMetadata prevRenderedMetadata =
                     prevInflateParent != null
                             ? ProtoLayoutInflater.getRenderedMetadata(prevInflateParent)
                             : null;

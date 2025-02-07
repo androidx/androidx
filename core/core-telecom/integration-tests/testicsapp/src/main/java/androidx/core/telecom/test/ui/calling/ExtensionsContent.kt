@@ -17,6 +17,7 @@
 package androidx.core.telecom.test.ui.calling
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -58,7 +61,8 @@ import kotlinx.coroutines.launch
 
 data class ExtensionUiState(
     val localCallSilenceUiState: LocalCallSilenceExtensionUiState?,
-    val participantUiState: ParticipantExtensionUiState?
+    val participantUiState: ParticipantExtensionUiState?,
+    val callIconUiState: CallIconExtensionUiState?
 )
 
 @OptIn(ExperimentalAppActions::class)
@@ -87,7 +91,8 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
                             onKickParticipant = { CallControlResult.Success() }
                         )
                     )
-                )
+                ),
+                CallIconExtensionUiState(null)
             )
         )
 }
@@ -99,43 +104,77 @@ fun ExtensionsContent(
     @PreviewParameter(ExtensionProvider::class) extensionUiState: ExtensionUiState,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(6.dp)) {
-        Text("Local Call Silence")
-        if (extensionUiState.localCallSilenceUiState == null) {
-            Text(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                text = "<Local Call Silence is NOT supported>"
-            )
-        } else {
-            val scope = rememberCoroutineScope()
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedIconButton(
-                    onClick = {
-                        scope.launch {
-                            val lcsData = extensionUiState.localCallSilenceUiState
-                            val isSilenced = !lcsData.isLocallySilenced
-                            val res = lcsData.extension?.requestLocalCallSilenceUpdate(isSilenced)
-                            if (res == CallControlResult.Success()) {
-                                // update the InCallService UI
-                                lcsData.onInCallServiceUiUpdate(isSilenced)
+
+        // Call Icon + Local Call Silence
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f).padding(6.dp)) {
+                Text("Call Icon")
+                if (extensionUiState.callIconUiState == null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.android),
+                            contentDescription = "Default Image",
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            bitmap = extensionUiState.callIconUiState.bitmap!!.asImageBitmap(),
+                            contentDescription = "Bitmap Image",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                }
+            }
+            Column(modifier = Modifier.weight(1f).padding(6.dp)) {
+                Text("Local Call Silence")
+                if (extensionUiState.localCallSilenceUiState == null) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        text = "<Local Call Silence is NOT supported>"
+                    )
+                } else {
+                    val scope = rememberCoroutineScope()
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedIconButton(
+                            onClick = {
+                                scope.launch {
+                                    val lcsData = extensionUiState.localCallSilenceUiState
+                                    val isSilenced = !lcsData.isLocallySilenced
+                                    val res =
+                                        lcsData.extension?.requestLocalCallSilenceUpdate(isSilenced)
+                                    if (res == CallControlResult.Success()) {
+                                        // update the InCallService UI
+                                        lcsData.onInCallServiceUiUpdate(isSilenced)
+                                    }
+                                }
+                            }
+                        ) {
+                            if (extensionUiState.localCallSilenceUiState.isLocallySilenced) {
+                                Icon(
+                                    modifier = Modifier.size(48.dp),
+                                    painter = painterResource(R.drawable.mic_off_24px),
+                                    contentDescription = "call is locally silenced"
+                                )
+                            } else {
+                                Icon(
+                                    modifier = Modifier.size(48.dp),
+                                    painter = painterResource(R.drawable.mic),
+                                    contentDescription = "call mic is hot"
+                                )
                             }
                         }
-                    }
-                ) {
-                    if (extensionUiState.localCallSilenceUiState.isLocallySilenced) {
-                        Icon(
-                            modifier = Modifier.size(48.dp),
-                            painter = painterResource(R.drawable.mic_off_24px),
-                            contentDescription = "call is locally silenced"
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier.size(48.dp),
-                            painter = painterResource(R.drawable.mic),
-                            contentDescription = "call mic is hot"
-                        )
                     }
                 }
             }

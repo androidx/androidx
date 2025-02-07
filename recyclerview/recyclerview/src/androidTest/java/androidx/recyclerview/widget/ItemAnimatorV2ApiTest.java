@@ -29,12 +29,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.hamcrest.CoreMatchers;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -613,27 +613,25 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
             return canReUseCallback.canReUse(viewHolder, payloads);
         }
 
-        @NonNull
         @Override
-        public ItemHolderInfo recordPreLayoutInformation(@NonNull RecyclerView.State state,
-                @NonNull RecyclerView.ViewHolder viewHolder,
+        public @NonNull ItemHolderInfo recordPreLayoutInformation(RecyclerView.@NonNull State state,
+                RecyclerView.@NonNull ViewHolder viewHolder,
                 @AdapterChanges int changeFlags, @NonNull List<Object> payloads) {
             LoggingInfo loggingInfo = new LoggingInfo(viewHolder, changeFlags, payloads);
             preLayoutInfoMap.put(viewHolder, loggingInfo);
             return loggingInfo;
         }
 
-        @NonNull
         @Override
-        public ItemHolderInfo recordPostLayoutInformation(@NonNull RecyclerView.State state,
-                @NonNull RecyclerView.ViewHolder viewHolder) {
+        public @NonNull ItemHolderInfo recordPostLayoutInformation(
+                RecyclerView.@NonNull State state, RecyclerView.@NonNull ViewHolder viewHolder) {
             LoggingInfo loggingInfo = new LoggingInfo(viewHolder, 0, null);
             postLayoutInfoMap.put(viewHolder, loggingInfo);
             return loggingInfo;
         }
 
         @Override
-        public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder,
+        public boolean animateDisappearance(RecyclerView.@NonNull ViewHolder viewHolder,
                 @NonNull ItemHolderInfo preLayoutInfo,
                 @Nullable ItemHolderInfo postLayoutInfo) {
             animateDisappearanceList.add(new AnimateDisappearance(viewHolder,
@@ -646,7 +644,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         }
 
         @Override
-        public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder,
+        public boolean animateAppearance(RecyclerView.@NonNull ViewHolder viewHolder,
                 ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
             animateAppearanceList.add(
                     new AnimateAppearance(viewHolder, (LoggingInfo) preInfo, (LoggingInfo) postInfo));
@@ -657,7 +655,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         }
 
         @Override
-        public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
+        public boolean animatePersistence(RecyclerView.@NonNull ViewHolder viewHolder,
                 @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
             animatePersistenceList.add(new AnimatePersistence(viewHolder, (LoggingInfo) preInfo,
                     (LoggingInfo) postInfo));
@@ -668,8 +666,8 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         }
 
         @Override
-        public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-                @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
+        public boolean animateChange(RecyclerView.@NonNull ViewHolder oldHolder,
+                RecyclerView.@NonNull ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
                 @NonNull ItemHolderInfo postInfo) {
             animateChangeList.add(new AnimateChange(oldHolder, newHolder, (LoggingInfo) preInfo,
                     (LoggingInfo) postInfo));
@@ -691,7 +689,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         }
 
         @Override
-        public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
+        public void endAnimation(RecyclerView.@NonNull ViewHolder item) {
         }
 
         @Override

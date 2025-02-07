@@ -47,7 +47,7 @@ import androidx.compose.ui.util.fastRoundToInt
  * coordinates of [TextLayoutResult] to make it relatively easier to calculate the offset between
  * exact touch coordinates and where they map on the [TextLayoutResult].
  */
-internal data class TextFieldTextLayoutModifier(
+internal class TextFieldTextLayoutModifier(
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textStyle: TextStyle,
@@ -78,6 +78,30 @@ internal data class TextFieldTextLayoutModifier(
 
     override fun InspectorInfo.inspectableProperties() {
         // no inspector info
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TextFieldTextLayoutModifier) return false
+
+        if (singleLine != other.singleLine) return false
+        if (textLayoutState != other.textLayoutState) return false
+        if (textFieldState != other.textFieldState) return false
+        if (textStyle != other.textStyle) return false
+        if (onTextLayout !== other.onTextLayout) return false
+        if (keyboardOptions != other.keyboardOptions) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = singleLine.hashCode()
+        result = 31 * result + textLayoutState.hashCode()
+        result = 31 * result + textFieldState.hashCode()
+        result = 31 * result + textStyle.hashCode()
+        result = 31 * result + (onTextLayout?.hashCode() ?: 0)
+        result = 31 * result + keyboardOptions.hashCode()
+        return result
     }
 }
 

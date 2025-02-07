@@ -117,7 +117,9 @@ public fun CurvedScope.curvedText(
                 fontStyle = fontStyle,
                 fontSynthesis = fontSynthesis,
                 background = background,
-                letterSpacing = 0.em // keep backward compatibility.
+                // keep backward compatibility, add no letter spacing .
+                letterSpacing = 0.em,
+                letterSpacingCounterClockwise = 0.em
             )
         )
     }

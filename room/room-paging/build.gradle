@@ -17,7 +17,7 @@
 
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -27,7 +27,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvm()
     mac()
     linux()
@@ -103,7 +103,7 @@ dependencies {
 
 androidx {
     name = "Room Paging"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Room Paging integration"
     kotlinTarget = KotlinTarget.KOTLIN_2_0

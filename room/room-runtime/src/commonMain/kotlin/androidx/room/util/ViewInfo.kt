@@ -26,7 +26,7 @@ import kotlin.jvm.JvmStatic
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 expect class ViewInfo(name: String, sql: String?) {
     /** The view name */
     val name: String

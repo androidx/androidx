@@ -154,14 +154,14 @@ package androidx.health.services.client.data {
   }
 
   public static final class BatchingMode.Companion {
-    property public final androidx.health.services.client.data.BatchingMode HEART_RATE_5_SECONDS;
+    property public androidx.health.services.client.data.BatchingMode HEART_RATE_5_SECONDS;
   }
 
   public final class ComparisonType {
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.ComparisonType.Companion Companion;
     field public static final androidx.health.services.client.data.ComparisonType GREATER_THAN;
     field public static final androidx.health.services.client.data.ComparisonType GREATER_THAN_OR_EQUAL;
@@ -171,11 +171,11 @@ package androidx.health.services.client.data {
   }
 
   public static final class ComparisonType.Companion {
-    property public final androidx.health.services.client.data.ComparisonType GREATER_THAN;
-    property public final androidx.health.services.client.data.ComparisonType GREATER_THAN_OR_EQUAL;
-    property public final androidx.health.services.client.data.ComparisonType LESS_THAN;
-    property public final androidx.health.services.client.data.ComparisonType LESS_THAN_OR_EQUAL;
-    property public final androidx.health.services.client.data.ComparisonType UNKNOWN;
+    property public androidx.health.services.client.data.ComparisonType GREATER_THAN;
+    property public androidx.health.services.client.data.ComparisonType GREATER_THAN_OR_EQUAL;
+    property public androidx.health.services.client.data.ComparisonType LESS_THAN;
+    property public androidx.health.services.client.data.ComparisonType LESS_THAN_OR_EQUAL;
+    property public androidx.health.services.client.data.ComparisonType UNKNOWN;
   }
 
   public final class CumulativeDataPoint<T extends java.lang.Number> extends androidx.health.services.client.data.DataPoint<T> {
@@ -183,9 +183,9 @@ package androidx.health.services.client.data {
     method public java.time.Instant getEnd();
     method public java.time.Instant getStart();
     method public T getTotal();
-    property public final java.time.Instant end;
-    property public final java.time.Instant start;
-    property public final T total;
+    property public java.time.Instant end;
+    property public java.time.Instant start;
+    property public T total;
   }
 
   public abstract class DataPoint<T> {
@@ -207,11 +207,11 @@ package androidx.health.services.client.data {
     method public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> getIntervalDataPoints();
     method public java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?>> getSampleDataPoints();
     method public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object?>> getStatisticalDataPoints();
-    property public final java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object?>> cumulativeDataPoints;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
-    property public final java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> intervalDataPoints;
-    property public final java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?>> sampleDataPoints;
-    property public final java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object?>> statisticalDataPoints;
+    property public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object?>> cumulativeDataPoints;
+    property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
+    property public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> intervalDataPoints;
+    property public java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?>> sampleDataPoints;
+    property public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object?>> statisticalDataPoints;
   }
 
   public abstract class DataType<T, D extends androidx.health.services.client.data.DataPoint<T>> {
@@ -289,78 +289,78 @@ package androidx.health.services.client.data {
   }
 
   public static final class DataType.Companion {
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION_STATS;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> ACTIVE_EXERCISE_DURATION_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> CALORIES;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> CALORIES_DAILY;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> CALORIES_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DECLINE_DISTANCE;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DECLINE_DISTANCE_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> DECLINE_DURATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> DECLINE_DURATION_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE_DAILY;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DISTANCE_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN_DAILY;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_GAIN_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_LOSS;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_LOSS_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLAT_GROUND_DISTANCE;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> FLAT_GROUND_DISTANCE_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> FLAT_GROUND_DURATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> FLAT_GROUND_DURATION_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLOORS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLOORS_DAILY;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> FLOORS_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> GOLF_SHOT_COUNT;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> GOLF_SHOT_COUNT_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.SampleDataPoint<java.lang.Long>> GROUND_CONTACT_TIME;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> GROUND_CONTACT_TIME_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> HEART_RATE_BPM;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> HEART_RATE_BPM_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> INCLINE_DISTANCE;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> INCLINE_DISTANCE_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> INCLINE_DURATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> INCLINE_DURATION_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<androidx.health.services.client.data.LocationData,androidx.health.services.client.data.SampleDataPoint<androidx.health.services.client.data.LocationData>> LOCATION;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> PACE;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> PACE_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> REP_COUNT;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> REP_COUNT_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> RESTING_EXERCISE_DURATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RESTING_EXERCISE_DURATION_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> RUNNING_STEPS;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RUNNING_STEPS_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> SPEED;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> SPEED_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> STEPS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> STEPS_DAILY;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.SampleDataPoint<java.lang.Long>> STEPS_PER_MINUTE;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> STEPS_PER_MINUTE_STATS;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> STEPS_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> STRIDE_LENGTH;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> STRIDE_LENGTH_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_STROKES;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_STROKES_TOTAL;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VERTICAL_OSCILLATION;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VERTICAL_OSCILLATION_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VERTICAL_RATIO;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VERTICAL_RATIO_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VO2_MAX;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VO2_MAX_STATS;
-    property public final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> WALKING_STEPS;
-    property public final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> WALKING_STEPS_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION_STATS;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> ACTIVE_EXERCISE_DURATION_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> CALORIES;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> CALORIES_DAILY;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> CALORIES_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DECLINE_DISTANCE;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DECLINE_DISTANCE_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> DECLINE_DURATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> DECLINE_DURATION_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE_DAILY;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DISTANCE_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN_DAILY;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_GAIN_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_LOSS;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_LOSS_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLAT_GROUND_DISTANCE;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> FLAT_GROUND_DISTANCE_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> FLAT_GROUND_DURATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> FLAT_GROUND_DURATION_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLOORS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> FLOORS_DAILY;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> FLOORS_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> GOLF_SHOT_COUNT;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> GOLF_SHOT_COUNT_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.SampleDataPoint<java.lang.Long>> GROUND_CONTACT_TIME;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> GROUND_CONTACT_TIME_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> HEART_RATE_BPM;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> HEART_RATE_BPM_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> INCLINE_DISTANCE;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> INCLINE_DISTANCE_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> INCLINE_DURATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> INCLINE_DURATION_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<androidx.health.services.client.data.LocationData,androidx.health.services.client.data.SampleDataPoint<androidx.health.services.client.data.LocationData>> LOCATION;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> PACE;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> PACE_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> REP_COUNT;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> REP_COUNT_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> RESTING_EXERCISE_DURATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RESTING_EXERCISE_DURATION_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> RUNNING_STEPS;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> RUNNING_STEPS_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> SPEED;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> SPEED_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> STEPS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> STEPS_DAILY;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.SampleDataPoint<java.lang.Long>> STEPS_PER_MINUTE;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> STEPS_PER_MINUTE_STATS;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> STEPS_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> STRIDE_LENGTH;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> STRIDE_LENGTH_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_LAP_COUNT_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> SWIMMING_STROKES;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> SWIMMING_STROKES_TOTAL;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VERTICAL_OSCILLATION;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VERTICAL_OSCILLATION_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VERTICAL_RATIO;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VERTICAL_RATIO_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> VO2_MAX;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> VO2_MAX_STATS;
+    property public androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> WALKING_STEPS;
+    property public androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> WALKING_STEPS_TOTAL;
   }
 
   public static final class DataType.TimeType {
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.DataType.TimeType.Companion Companion;
     field public static final androidx.health.services.client.data.DataType.TimeType INTERVAL;
     field public static final androidx.health.services.client.data.DataType.TimeType SAMPLE;
@@ -368,9 +368,9 @@ package androidx.health.services.client.data {
   }
 
   public static final class DataType.TimeType.Companion {
-    property public final androidx.health.services.client.data.DataType.TimeType INTERVAL;
-    property public final androidx.health.services.client.data.DataType.TimeType SAMPLE;
-    property public final androidx.health.services.client.data.DataType.TimeType UNKNOWN;
+    property public androidx.health.services.client.data.DataType.TimeType INTERVAL;
+    property public androidx.health.services.client.data.DataType.TimeType SAMPLE;
+    property public androidx.health.services.client.data.DataType.TimeType UNKNOWN;
   }
 
   public final class DataTypeAvailability implements androidx.health.services.client.data.Availability {
@@ -378,7 +378,7 @@ package androidx.health.services.client.data {
     method public int getId();
     method public String getName();
     property public int id;
-    property public final String name;
+    property public String name;
     field public static final androidx.health.services.client.data.DataTypeAvailability ACQUIRING;
     field public static final androidx.health.services.client.data.DataTypeAvailability AVAILABLE;
     field public static final androidx.health.services.client.data.DataTypeAvailability.Companion Companion;
@@ -389,11 +389,11 @@ package androidx.health.services.client.data {
 
   public static final class DataTypeAvailability.Companion {
     method public androidx.health.services.client.data.DataTypeAvailability? fromId(int id);
-    property public final androidx.health.services.client.data.DataTypeAvailability ACQUIRING;
-    property public final androidx.health.services.client.data.DataTypeAvailability AVAILABLE;
-    property public final androidx.health.services.client.data.DataTypeAvailability UNAVAILABLE;
-    property public final androidx.health.services.client.data.DataTypeAvailability UNAVAILABLE_DEVICE_OFF_BODY;
-    property public final androidx.health.services.client.data.DataTypeAvailability UNKNOWN;
+    property public androidx.health.services.client.data.DataTypeAvailability ACQUIRING;
+    property public androidx.health.services.client.data.DataTypeAvailability AVAILABLE;
+    property public androidx.health.services.client.data.DataTypeAvailability UNAVAILABLE;
+    property public androidx.health.services.client.data.DataTypeAvailability UNAVAILABLE_DEVICE_OFF_BODY;
+    property public androidx.health.services.client.data.DataTypeAvailability UNKNOWN;
   }
 
   public final class DataTypeCondition<T extends java.lang.Number, D extends androidx.health.services.client.data.DataType<T, ? extends androidx.health.services.client.data.DataPoint<T>>> {
@@ -401,9 +401,9 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ComparisonType getComparisonType();
     method public D getDataType();
     method public T getThreshold();
-    property public final androidx.health.services.client.data.ComparisonType comparisonType;
-    property public final D dataType;
-    property public final T threshold;
+    property public androidx.health.services.client.data.ComparisonType comparisonType;
+    property public D dataType;
+    property public T threshold;
   }
 
   public final class DebouncedDataTypeCondition<T extends java.lang.Number, D extends androidx.health.services.client.data.DataType<T, ? extends androidx.health.services.client.data.DataPoint<T>>> {
@@ -414,11 +414,11 @@ package androidx.health.services.client.data {
     method public int getDurationAtThresholdSeconds();
     method public int getInitialDelaySeconds();
     method public T getThreshold();
-    property public final androidx.health.services.client.data.ComparisonType comparisonType;
-    property public final D dataType;
-    property public final int durationAtThresholdSeconds;
-    property public final int initialDelaySeconds;
-    property public final T threshold;
+    property public androidx.health.services.client.data.ComparisonType comparisonType;
+    property public D dataType;
+    property public int durationAtThresholdSeconds;
+    property public int initialDelaySeconds;
+    property public T threshold;
     field public static final androidx.health.services.client.data.DebouncedDataTypeCondition.Companion Companion;
   }
 
@@ -431,7 +431,7 @@ package androidx.health.services.client.data {
     method public static <T extends java.lang.Number> androidx.health.services.client.data.DebouncedGoal<T> createAggregateDebouncedGoal(androidx.health.services.client.data.DebouncedDataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,androidx.health.services.client.data.StatisticalDataPoint<T>>> condition);
     method public static <T extends java.lang.Number> androidx.health.services.client.data.DebouncedGoal<T> createSampleDebouncedGoal(androidx.health.services.client.data.DebouncedDataTypeCondition<T,androidx.health.services.client.data.DeltaDataType<T,androidx.health.services.client.data.SampleDataPoint<T>>> condition);
     method public androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> getDebouncedDataTypeCondition();
-    property public final androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> debouncedDataTypeCondition;
+    property public androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> debouncedDataTypeCondition;
     field public static final androidx.health.services.client.data.DebouncedGoal.Companion Companion;
   }
 
@@ -452,10 +452,10 @@ package androidx.health.services.client.data {
     method public java.util.Set<androidx.health.services.client.data.BatchingMode> getSupportedBatchingModeOverrides();
     method public java.util.Set<androidx.health.services.client.data.ExerciseType> getSupportedExerciseTypes();
     method public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> getTypeToCapabilities();
-    property public final java.util.Set<androidx.health.services.client.data.ExerciseType> autoPauseAndResumeEnabledExercises;
-    property public final java.util.Set<androidx.health.services.client.data.BatchingMode> supportedBatchingModeOverrides;
-    property public final java.util.Set<androidx.health.services.client.data.ExerciseType> supportedExerciseTypes;
-    property public final java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities;
+    property public java.util.Set<androidx.health.services.client.data.ExerciseType> autoPauseAndResumeEnabledExercises;
+    property public java.util.Set<androidx.health.services.client.data.BatchingMode> supportedBatchingModeOverrides;
+    property public java.util.Set<androidx.health.services.client.data.ExerciseType> supportedExerciseTypes;
+    property public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities;
   }
 
   public final class ExerciseConfig {
@@ -479,17 +479,17 @@ package androidx.health.services.client.data {
     method public float getSwimmingPoolLengthMeters();
     method public boolean isAutoPauseAndResumeEnabled();
     method public boolean isGpsEnabled();
-    property public final java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
-    property public final java.util.List<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> debouncedGoals;
-    property public final java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> exerciseEventTypes;
-    property public final java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals;
-    property public final android.os.Bundle exerciseParams;
-    property public final androidx.health.services.client.data.ExerciseType exerciseType;
-    property public final androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig;
-    property public final boolean isAutoPauseAndResumeEnabled;
-    property public final boolean isGpsEnabled;
-    property @FloatRange(from=0.0) public final float swimmingPoolLengthMeters;
+    property public java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides;
+    property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
+    property public java.util.List<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> debouncedGoals;
+    property public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> exerciseEventTypes;
+    property public java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals;
+    property public android.os.Bundle exerciseParams;
+    property public androidx.health.services.client.data.ExerciseType exerciseType;
+    property public androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig;
+    property public boolean isAutoPauseAndResumeEnabled;
+    property public boolean isGpsEnabled;
+    property @FloatRange(from=0.0) public float swimmingPoolLengthMeters;
     field public static final androidx.health.services.client.data.ExerciseConfig.Companion Companion;
     field public static final float SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f;
   }
@@ -511,7 +511,7 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseConfig.Companion {
     method public androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
-    property public static final float SWIMMING_POOL_LENGTH_UNSPECIFIED;
+    property public static float SWIMMING_POOL_LENGTH_UNSPECIFIED;
   }
 
   public abstract class ExerciseEvent {
@@ -539,8 +539,8 @@ package androidx.health.services.client.data {
   }
 
   public static final class ExerciseEventType.Companion {
-    property public final androidx.health.services.client.data.ExerciseEventType<androidx.health.services.client.data.GolfShotEventCapabilities> GOLF_SHOT_EVENT;
-    property public final androidx.health.services.client.data.ExerciseEventType<androidx.health.services.client.data.ExerciseEventCapabilities> UNKNOWN;
+    property public androidx.health.services.client.data.ExerciseEventType<androidx.health.services.client.data.GolfShotEventCapabilities> GOLF_SHOT_EVENT;
+    property public androidx.health.services.client.data.ExerciseEventType<androidx.health.services.client.data.ExerciseEventCapabilities> UNKNOWN;
   }
 
   public final class ExerciseGoal<T extends java.lang.Number> implements android.os.Parcelable {
@@ -552,9 +552,9 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseGoalType getExerciseGoalType();
     method public T? getPeriod();
     method public void writeToParcel(android.os.Parcel dest, int flags);
-    property public final androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> dataTypeCondition;
-    property public final androidx.health.services.client.data.ExerciseGoalType exerciseGoalType;
-    property public final T? period;
+    property public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> dataTypeCondition;
+    property public androidx.health.services.client.data.ExerciseGoalType exerciseGoalType;
+    property public T? period;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> CREATOR;
     field public static final androidx.health.services.client.data.ExerciseGoal.Companion Companion;
   }
@@ -563,15 +563,15 @@ package androidx.health.services.client.data {
     method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestone(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> condition, T period);
     method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal<T> goal, T newThreshold);
     method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> condition);
-    property public final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> CREATOR;
+    property public android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> CREATOR;
   }
 
   public final class ExerciseGoalType {
     method public static androidx.health.services.client.data.ExerciseGoalType? fromId(int id);
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.ExerciseGoalType.Companion Companion;
     field public static final androidx.health.services.client.data.ExerciseGoalType MILESTONE;
     field public static final androidx.health.services.client.data.ExerciseGoalType ONE_TIME_GOAL;
@@ -579,16 +579,16 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseGoalType.Companion {
     method public androidx.health.services.client.data.ExerciseGoalType? fromId(int id);
-    property public final androidx.health.services.client.data.ExerciseGoalType MILESTONE;
-    property public final androidx.health.services.client.data.ExerciseGoalType ONE_TIME_GOAL;
+    property public androidx.health.services.client.data.ExerciseGoalType MILESTONE;
+    property public androidx.health.services.client.data.ExerciseGoalType ONE_TIME_GOAL;
   }
 
   public final class ExerciseInfo {
     ctor public ExerciseInfo(int exerciseTrackedStatus, androidx.health.services.client.data.ExerciseType exerciseType);
     method public int getExerciseTrackedStatus();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
-    property public final int exerciseTrackedStatus;
-    property public final androidx.health.services.client.data.ExerciseType exerciseType;
+    property public int exerciseTrackedStatus;
+    property public androidx.health.services.client.data.ExerciseType exerciseType;
   }
 
   public final class ExerciseLapSummary {
@@ -598,11 +598,11 @@ package androidx.health.services.client.data {
     method public int getLapCount();
     method public androidx.health.services.client.data.DataPointContainer getLapMetrics();
     method public java.time.Instant getStartTime();
-    property public final java.time.Duration activeDuration;
-    property public final java.time.Instant endTime;
-    property public final int lapCount;
-    property public final androidx.health.services.client.data.DataPointContainer lapMetrics;
-    property public final java.time.Instant startTime;
+    property public java.time.Duration activeDuration;
+    property public java.time.Instant endTime;
+    property public int lapCount;
+    property public androidx.health.services.client.data.DataPointContainer lapMetrics;
+    property public java.time.Instant startTime;
   }
 
   public final class ExerciseState {
@@ -613,12 +613,12 @@ package androidx.health.services.client.data {
     method public boolean isEnding();
     method public boolean isPaused();
     method public boolean isResuming();
-    property public final int id;
-    property public final boolean isEnded;
-    property public final boolean isEnding;
-    property public final boolean isPaused;
-    property public final boolean isResuming;
-    property public final String name;
+    property public int id;
+    property public boolean isEnded;
+    property public boolean isEnding;
+    property public boolean isPaused;
+    property public boolean isResuming;
+    property public String name;
     field public static final androidx.health.services.client.data.ExerciseState ACTIVE;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSED;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSING;
@@ -635,25 +635,25 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseState.Companion {
     method public androidx.health.services.client.data.ExerciseState? fromId(int id);
-    property public final androidx.health.services.client.data.ExerciseState ACTIVE;
-    property public final androidx.health.services.client.data.ExerciseState AUTO_PAUSED;
-    property public final androidx.health.services.client.data.ExerciseState AUTO_PAUSING;
-    property public final androidx.health.services.client.data.ExerciseState AUTO_RESUMING;
-    property public final androidx.health.services.client.data.ExerciseState ENDED;
-    property public final androidx.health.services.client.data.ExerciseState ENDING;
-    property public final androidx.health.services.client.data.ExerciseState PREPARING;
-    property public final androidx.health.services.client.data.ExerciseState USER_PAUSED;
-    property public final androidx.health.services.client.data.ExerciseState USER_PAUSING;
-    property public final androidx.health.services.client.data.ExerciseState USER_RESUMING;
-    property public final androidx.health.services.client.data.ExerciseState USER_STARTING;
+    property public androidx.health.services.client.data.ExerciseState ACTIVE;
+    property public androidx.health.services.client.data.ExerciseState AUTO_PAUSED;
+    property public androidx.health.services.client.data.ExerciseState AUTO_PAUSING;
+    property public androidx.health.services.client.data.ExerciseState AUTO_RESUMING;
+    property public androidx.health.services.client.data.ExerciseState ENDED;
+    property public androidx.health.services.client.data.ExerciseState ENDING;
+    property public androidx.health.services.client.data.ExerciseState PREPARING;
+    property public androidx.health.services.client.data.ExerciseState USER_PAUSED;
+    property public androidx.health.services.client.data.ExerciseState USER_PAUSING;
+    property public androidx.health.services.client.data.ExerciseState USER_RESUMING;
+    property public androidx.health.services.client.data.ExerciseState USER_STARTING;
   }
 
   public final class ExerciseStateInfo {
     ctor public ExerciseStateInfo(androidx.health.services.client.data.ExerciseState exerciseState, int exerciseEndReason);
     method public int getEndReason();
     method public androidx.health.services.client.data.ExerciseState getState();
-    property public final int endReason;
-    property public final androidx.health.services.client.data.ExerciseState state;
+    property public int endReason;
+    property public androidx.health.services.client.data.ExerciseState state;
     field public static final androidx.health.services.client.data.ExerciseStateInfo.Companion Companion;
   }
 
@@ -664,8 +664,8 @@ package androidx.health.services.client.data {
     method public static androidx.health.services.client.data.ExerciseType fromId(int id);
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.ExerciseType ALPINE_SKIING;
     field public static final androidx.health.services.client.data.ExerciseType BACKPACKING;
     field public static final androidx.health.services.client.data.ExerciseType BACK_EXTENSION;
@@ -756,91 +756,91 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseType.Companion {
     method public androidx.health.services.client.data.ExerciseType fromId(int id);
-    property public final androidx.health.services.client.data.ExerciseType ALPINE_SKIING;
-    property public final androidx.health.services.client.data.ExerciseType BACKPACKING;
-    property public final androidx.health.services.client.data.ExerciseType BACK_EXTENSION;
-    property public final androidx.health.services.client.data.ExerciseType BADMINTON;
-    property public final androidx.health.services.client.data.ExerciseType BARBELL_SHOULDER_PRESS;
-    property public final androidx.health.services.client.data.ExerciseType BASEBALL;
-    property public final androidx.health.services.client.data.ExerciseType BASKETBALL;
-    property public final androidx.health.services.client.data.ExerciseType BENCH_PRESS;
-    property public final androidx.health.services.client.data.ExerciseType BIKING;
-    property public final androidx.health.services.client.data.ExerciseType BIKING_STATIONARY;
-    property public final androidx.health.services.client.data.ExerciseType BOOT_CAMP;
-    property public final androidx.health.services.client.data.ExerciseType BOXING;
-    property public final androidx.health.services.client.data.ExerciseType BURPEE;
-    property public final androidx.health.services.client.data.ExerciseType CALISTHENICS;
-    property public final androidx.health.services.client.data.ExerciseType CRICKET;
-    property public final androidx.health.services.client.data.ExerciseType CROSS_COUNTRY_SKIING;
-    property public final androidx.health.services.client.data.ExerciseType CRUNCH;
-    property public final androidx.health.services.client.data.ExerciseType DANCING;
-    property public final androidx.health.services.client.data.ExerciseType DEADLIFT;
-    property public final androidx.health.services.client.data.ExerciseType ELLIPTICAL;
-    property public final androidx.health.services.client.data.ExerciseType EXERCISE_CLASS;
-    property public final androidx.health.services.client.data.ExerciseType FENCING;
-    property public final androidx.health.services.client.data.ExerciseType FOOTBALL_AMERICAN;
-    property public final androidx.health.services.client.data.ExerciseType FOOTBALL_AUSTRALIAN;
-    property public final androidx.health.services.client.data.ExerciseType FORWARD_TWIST;
-    property public final androidx.health.services.client.data.ExerciseType FRISBEE_DISC;
-    property public final androidx.health.services.client.data.ExerciseType GOLF;
-    property public final androidx.health.services.client.data.ExerciseType GUIDED_BREATHING;
-    property public final androidx.health.services.client.data.ExerciseType GYMNASTICS;
-    property public final androidx.health.services.client.data.ExerciseType HANDBALL;
-    property public final androidx.health.services.client.data.ExerciseType HIGH_INTENSITY_INTERVAL_TRAINING;
-    property public final androidx.health.services.client.data.ExerciseType HIKING;
-    property public final androidx.health.services.client.data.ExerciseType HORSE_RIDING;
-    property public final androidx.health.services.client.data.ExerciseType ICE_HOCKEY;
-    property public final androidx.health.services.client.data.ExerciseType ICE_SKATING;
-    property public final androidx.health.services.client.data.ExerciseType INLINE_SKATING;
-    property public final androidx.health.services.client.data.ExerciseType JUMPING_JACK;
-    property public final androidx.health.services.client.data.ExerciseType JUMP_ROPE;
-    property public final androidx.health.services.client.data.ExerciseType LAT_PULL_DOWN;
-    property public final androidx.health.services.client.data.ExerciseType LUNGE;
-    property public final androidx.health.services.client.data.ExerciseType MARTIAL_ARTS;
-    property public final androidx.health.services.client.data.ExerciseType MEDITATION;
-    property public final androidx.health.services.client.data.ExerciseType MOUNTAIN_BIKING;
-    property public final androidx.health.services.client.data.ExerciseType ORIENTEERING;
-    property public final androidx.health.services.client.data.ExerciseType PADDLING;
-    property public final androidx.health.services.client.data.ExerciseType PARA_GLIDING;
-    property public final androidx.health.services.client.data.ExerciseType PILATES;
-    property public final androidx.health.services.client.data.ExerciseType PLANK;
-    property public final androidx.health.services.client.data.ExerciseType RACQUETBALL;
-    property public final androidx.health.services.client.data.ExerciseType ROCK_CLIMBING;
-    property public final androidx.health.services.client.data.ExerciseType ROLLER_HOCKEY;
-    property public final androidx.health.services.client.data.ExerciseType ROLLER_SKATING;
-    property public final androidx.health.services.client.data.ExerciseType ROWING;
-    property public final androidx.health.services.client.data.ExerciseType ROWING_MACHINE;
-    property public final androidx.health.services.client.data.ExerciseType RUGBY;
-    property public final androidx.health.services.client.data.ExerciseType RUNNING;
-    property public final androidx.health.services.client.data.ExerciseType RUNNING_TREADMILL;
-    property public final androidx.health.services.client.data.ExerciseType SAILING;
-    property public final androidx.health.services.client.data.ExerciseType SCUBA_DIVING;
-    property public final androidx.health.services.client.data.ExerciseType SKATING;
-    property public final androidx.health.services.client.data.ExerciseType SKIING;
-    property public final androidx.health.services.client.data.ExerciseType SNOWBOARDING;
-    property public final androidx.health.services.client.data.ExerciseType SNOWSHOEING;
-    property public final androidx.health.services.client.data.ExerciseType SOCCER;
-    property public final androidx.health.services.client.data.ExerciseType SOFTBALL;
-    property public final androidx.health.services.client.data.ExerciseType SQUASH;
-    property public final androidx.health.services.client.data.ExerciseType SQUAT;
-    property public final androidx.health.services.client.data.ExerciseType STAIR_CLIMBING;
-    property public final androidx.health.services.client.data.ExerciseType STAIR_CLIMBING_MACHINE;
-    property public final androidx.health.services.client.data.ExerciseType STRENGTH_TRAINING;
-    property public final androidx.health.services.client.data.ExerciseType STRETCHING;
-    property public final androidx.health.services.client.data.ExerciseType SURFING;
-    property public final androidx.health.services.client.data.ExerciseType SWIMMING_OPEN_WATER;
-    property public final androidx.health.services.client.data.ExerciseType SWIMMING_POOL;
-    property public final androidx.health.services.client.data.ExerciseType TABLE_TENNIS;
-    property public final androidx.health.services.client.data.ExerciseType TENNIS;
-    property public final androidx.health.services.client.data.ExerciseType UNKNOWN;
-    property public final androidx.health.services.client.data.ExerciseType UPPER_TWIST;
-    property public final androidx.health.services.client.data.ExerciseType VOLLEYBALL;
-    property public final androidx.health.services.client.data.ExerciseType WALKING;
-    property public final androidx.health.services.client.data.ExerciseType WATER_POLO;
-    property public final androidx.health.services.client.data.ExerciseType WEIGHTLIFTING;
-    property public final androidx.health.services.client.data.ExerciseType WORKOUT;
-    property public final androidx.health.services.client.data.ExerciseType YACHTING;
-    property public final androidx.health.services.client.data.ExerciseType YOGA;
+    property public androidx.health.services.client.data.ExerciseType ALPINE_SKIING;
+    property public androidx.health.services.client.data.ExerciseType BACKPACKING;
+    property public androidx.health.services.client.data.ExerciseType BACK_EXTENSION;
+    property public androidx.health.services.client.data.ExerciseType BADMINTON;
+    property public androidx.health.services.client.data.ExerciseType BARBELL_SHOULDER_PRESS;
+    property public androidx.health.services.client.data.ExerciseType BASEBALL;
+    property public androidx.health.services.client.data.ExerciseType BASKETBALL;
+    property public androidx.health.services.client.data.ExerciseType BENCH_PRESS;
+    property public androidx.health.services.client.data.ExerciseType BIKING;
+    property public androidx.health.services.client.data.ExerciseType BIKING_STATIONARY;
+    property public androidx.health.services.client.data.ExerciseType BOOT_CAMP;
+    property public androidx.health.services.client.data.ExerciseType BOXING;
+    property public androidx.health.services.client.data.ExerciseType BURPEE;
+    property public androidx.health.services.client.data.ExerciseType CALISTHENICS;
+    property public androidx.health.services.client.data.ExerciseType CRICKET;
+    property public androidx.health.services.client.data.ExerciseType CROSS_COUNTRY_SKIING;
+    property public androidx.health.services.client.data.ExerciseType CRUNCH;
+    property public androidx.health.services.client.data.ExerciseType DANCING;
+    property public androidx.health.services.client.data.ExerciseType DEADLIFT;
+    property public androidx.health.services.client.data.ExerciseType ELLIPTICAL;
+    property public androidx.health.services.client.data.ExerciseType EXERCISE_CLASS;
+    property public androidx.health.services.client.data.ExerciseType FENCING;
+    property public androidx.health.services.client.data.ExerciseType FOOTBALL_AMERICAN;
+    property public androidx.health.services.client.data.ExerciseType FOOTBALL_AUSTRALIAN;
+    property public androidx.health.services.client.data.ExerciseType FORWARD_TWIST;
+    property public androidx.health.services.client.data.ExerciseType FRISBEE_DISC;
+    property public androidx.health.services.client.data.ExerciseType GOLF;
+    property public androidx.health.services.client.data.ExerciseType GUIDED_BREATHING;
+    property public androidx.health.services.client.data.ExerciseType GYMNASTICS;
+    property public androidx.health.services.client.data.ExerciseType HANDBALL;
+    property public androidx.health.services.client.data.ExerciseType HIGH_INTENSITY_INTERVAL_TRAINING;
+    property public androidx.health.services.client.data.ExerciseType HIKING;
+    property public androidx.health.services.client.data.ExerciseType HORSE_RIDING;
+    property public androidx.health.services.client.data.ExerciseType ICE_HOCKEY;
+    property public androidx.health.services.client.data.ExerciseType ICE_SKATING;
+    property public androidx.health.services.client.data.ExerciseType INLINE_SKATING;
+    property public androidx.health.services.client.data.ExerciseType JUMPING_JACK;
+    property public androidx.health.services.client.data.ExerciseType JUMP_ROPE;
+    property public androidx.health.services.client.data.ExerciseType LAT_PULL_DOWN;
+    property public androidx.health.services.client.data.ExerciseType LUNGE;
+    property public androidx.health.services.client.data.ExerciseType MARTIAL_ARTS;
+    property public androidx.health.services.client.data.ExerciseType MEDITATION;
+    property public androidx.health.services.client.data.ExerciseType MOUNTAIN_BIKING;
+    property public androidx.health.services.client.data.ExerciseType ORIENTEERING;
+    property public androidx.health.services.client.data.ExerciseType PADDLING;
+    property public androidx.health.services.client.data.ExerciseType PARA_GLIDING;
+    property public androidx.health.services.client.data.ExerciseType PILATES;
+    property public androidx.health.services.client.data.ExerciseType PLANK;
+    property public androidx.health.services.client.data.ExerciseType RACQUETBALL;
+    property public androidx.health.services.client.data.ExerciseType ROCK_CLIMBING;
+    property public androidx.health.services.client.data.ExerciseType ROLLER_HOCKEY;
+    property public androidx.health.services.client.data.ExerciseType ROLLER_SKATING;
+    property public androidx.health.services.client.data.ExerciseType ROWING;
+    property public androidx.health.services.client.data.ExerciseType ROWING_MACHINE;
+    property public androidx.health.services.client.data.ExerciseType RUGBY;
+    property public androidx.health.services.client.data.ExerciseType RUNNING;
+    property public androidx.health.services.client.data.ExerciseType RUNNING_TREADMILL;
+    property public androidx.health.services.client.data.ExerciseType SAILING;
+    property public androidx.health.services.client.data.ExerciseType SCUBA_DIVING;
+    property public androidx.health.services.client.data.ExerciseType SKATING;
+    property public androidx.health.services.client.data.ExerciseType SKIING;
+    property public androidx.health.services.client.data.ExerciseType SNOWBOARDING;
+    property public androidx.health.services.client.data.ExerciseType SNOWSHOEING;
+    property public androidx.health.services.client.data.ExerciseType SOCCER;
+    property public androidx.health.services.client.data.ExerciseType SOFTBALL;
+    property public androidx.health.services.client.data.ExerciseType SQUASH;
+    property public androidx.health.services.client.data.ExerciseType SQUAT;
+    property public androidx.health.services.client.data.ExerciseType STAIR_CLIMBING;
+    property public androidx.health.services.client.data.ExerciseType STAIR_CLIMBING_MACHINE;
+    property public androidx.health.services.client.data.ExerciseType STRENGTH_TRAINING;
+    property public androidx.health.services.client.data.ExerciseType STRETCHING;
+    property public androidx.health.services.client.data.ExerciseType SURFING;
+    property public androidx.health.services.client.data.ExerciseType SWIMMING_OPEN_WATER;
+    property public androidx.health.services.client.data.ExerciseType SWIMMING_POOL;
+    property public androidx.health.services.client.data.ExerciseType TABLE_TENNIS;
+    property public androidx.health.services.client.data.ExerciseType TENNIS;
+    property public androidx.health.services.client.data.ExerciseType UNKNOWN;
+    property public androidx.health.services.client.data.ExerciseType UPPER_TWIST;
+    property public androidx.health.services.client.data.ExerciseType VOLLEYBALL;
+    property public androidx.health.services.client.data.ExerciseType WALKING;
+    property public androidx.health.services.client.data.ExerciseType WATER_POLO;
+    property public androidx.health.services.client.data.ExerciseType WEIGHTLIFTING;
+    property public androidx.health.services.client.data.ExerciseType WORKOUT;
+    property public androidx.health.services.client.data.ExerciseType YACHTING;
+    property public androidx.health.services.client.data.ExerciseType YOGA;
   }
 
   public final class ExerciseTypeCapabilities {
@@ -854,12 +854,12 @@ package androidx.health.services.client.data {
     method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
     method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
     method public boolean getSupportsAutoPauseAndResume();
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes;
-    property public final java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedDebouncedGoals;
-    property public final java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> supportedExerciseEvents;
-    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
-    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
-    property public final boolean supportsAutoPauseAndResume;
+    property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes;
+    property public java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedDebouncedGoals;
+    property public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> supportedExerciseEvents;
+    property public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
+    property public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
+    property public boolean supportsAutoPauseAndResume;
   }
 
   public abstract class ExerciseTypeConfig {
@@ -881,14 +881,14 @@ package androidx.health.services.client.data {
     method public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> getLatestMilestoneMarkerSummaries();
     method public java.time.Instant? getStartTime();
     method public java.time.Duration getUpdateDurationFromBoot();
-    property public final androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint;
-    property public final androidx.health.services.client.data.ExerciseConfig? exerciseConfig;
-    property public final androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo;
-    property public final java.util.Set<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Number>> latestAchievedDebouncedGoals;
-    property public final java.util.Set<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> latestAchievedGoals;
-    property public final androidx.health.services.client.data.DataPointContainer latestMetrics;
-    property public final java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries;
-    property public final java.time.Instant? startTime;
+    property public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint;
+    property public androidx.health.services.client.data.ExerciseConfig? exerciseConfig;
+    property public androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo;
+    property public java.util.Set<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Number>> latestAchievedDebouncedGoals;
+    property public java.util.Set<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> latestAchievedGoals;
+    property public androidx.health.services.client.data.DataPointContainer latestMetrics;
+    property public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries;
+    property public java.time.Instant? startTime;
     field public static final androidx.health.services.client.data.ExerciseUpdate.Companion Companion;
   }
 
@@ -896,8 +896,8 @@ package androidx.health.services.client.data {
     ctor public ExerciseUpdate.ActiveDurationCheckpoint(java.time.Instant time, java.time.Duration activeDuration);
     method public java.time.Duration getActiveDuration();
     method public java.time.Instant getTime();
-    property public final java.time.Duration activeDuration;
-    property public final java.time.Instant time;
+    property public java.time.Duration activeDuration;
+    property public java.time.Instant time;
   }
 
   public static final class ExerciseUpdate.Companion {
@@ -907,12 +907,12 @@ package androidx.health.services.client.data {
     ctor public GolfExerciseTypeConfig();
     ctor public GolfExerciseTypeConfig(optional androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo);
     method public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
-    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;
+    property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;
   }
 
   public static final class GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo {
     method public int getPlaceInfoId();
-    property public final int placeInfoId;
+    property public int placeInfoId;
     field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.Companion Companion;
     field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY;
     field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN;
@@ -921,18 +921,18 @@ package androidx.health.services.client.data {
   }
 
   public static final class GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.Companion {
-    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY;
-    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN;
-    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX;
-    property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED;
+    property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY;
+    property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN;
+    property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX;
+    property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED;
   }
 
   public final class GolfShotEvent extends androidx.health.services.client.data.ExerciseEvent {
     ctor public GolfShotEvent(java.time.Duration durationSinceBoot, androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType swingType);
     method public java.time.Duration getDurationSinceBoot();
     method public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType getSwingType();
-    property public final java.time.Duration durationSinceBoot;
-    property public final androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType swingType;
+    property public java.time.Duration durationSinceBoot;
+    property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType swingType;
   }
 
   public static final class GolfShotEvent.GolfShotSwingType {
@@ -944,10 +944,10 @@ package androidx.health.services.client.data {
   }
 
   public static final class GolfShotEvent.GolfShotSwingType.Companion {
-    property public final androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType FULL;
-    property public final androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType PARTIAL;
-    property public final androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType PUTT;
-    property public final androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType UNKNOWN;
+    property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType FULL;
+    property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType PARTIAL;
+    property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType PUTT;
+    property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType UNKNOWN;
   }
 
   public final class GolfShotEventCapabilities extends androidx.health.services.client.data.ExerciseEventCapabilities {
@@ -955,7 +955,7 @@ package androidx.health.services.client.data {
     method public boolean isSupported();
     method public boolean isSwingTypeClassificationSupported();
     property public boolean isSupported;
-    property public final boolean isSwingTypeClassificationSupported;
+    property public boolean isSwingTypeClassificationSupported;
   }
 
   public final class HealthEvent {
@@ -963,37 +963,37 @@ package androidx.health.services.client.data {
     method public java.time.Instant getEventTime();
     method public androidx.health.services.client.data.DataPointContainer getMetrics();
     method public androidx.health.services.client.data.HealthEvent.Type getType();
-    property public final java.time.Instant eventTime;
-    property public final androidx.health.services.client.data.DataPointContainer metrics;
-    property public final androidx.health.services.client.data.HealthEvent.Type type;
+    property public java.time.Instant eventTime;
+    property public androidx.health.services.client.data.DataPointContainer metrics;
+    property public androidx.health.services.client.data.HealthEvent.Type type;
   }
 
   public static final class HealthEvent.Type {
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.HealthEvent.Type.Companion Companion;
     field public static final androidx.health.services.client.data.HealthEvent.Type FALL_DETECTED;
     field public static final androidx.health.services.client.data.HealthEvent.Type UNKNOWN;
   }
 
   public static final class HealthEvent.Type.Companion {
-    property public final androidx.health.services.client.data.HealthEvent.Type FALL_DETECTED;
-    property public final androidx.health.services.client.data.HealthEvent.Type UNKNOWN;
+    property public androidx.health.services.client.data.HealthEvent.Type FALL_DETECTED;
+    property public androidx.health.services.client.data.HealthEvent.Type UNKNOWN;
   }
 
   public final class HeartRateAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
     ctor public HeartRateAccuracy(androidx.health.services.client.data.HeartRateAccuracy.SensorStatus sensorStatus);
     method public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus getSensorStatus();
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus sensorStatus;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus sensorStatus;
   }
 
   public static final class HeartRateAccuracy.SensorStatus {
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_HIGH;
     field public static final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_LOW;
     field public static final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_MEDIUM;
@@ -1004,12 +1004,12 @@ package androidx.health.services.client.data {
   }
 
   public static final class HeartRateAccuracy.SensorStatus.Companion {
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_HIGH;
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_LOW;
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_MEDIUM;
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus NO_CONTACT;
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus UNKNOWN;
-    property public final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus UNRELIABLE;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_HIGH;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_LOW;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_MEDIUM;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus NO_CONTACT;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus UNKNOWN;
+    property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus UNRELIABLE;
   }
 
   public final class IntervalDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
@@ -1022,20 +1022,20 @@ package androidx.health.services.client.data {
     method public java.time.Duration getStartDurationFromBoot();
     method public java.time.Instant getStartInstant(java.time.Instant bootInstant);
     method public T getValue();
-    property public final androidx.health.services.client.data.DataPointAccuracy? accuracy;
+    property public androidx.health.services.client.data.DataPointAccuracy? accuracy;
     property public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> dataType;
-    property public final java.time.Duration endDurationFromBoot;
-    property public final android.os.Bundle metadata;
-    property public final java.time.Duration startDurationFromBoot;
-    property public final T value;
+    property public java.time.Duration endDurationFromBoot;
+    property public android.os.Bundle metadata;
+    property public java.time.Duration startDurationFromBoot;
+    property public T value;
   }
 
   public final class LocationAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
     ctor public LocationAccuracy(@FloatRange(from=0.0) double horizontalPositionErrorMeters, optional @FloatRange(from=0.0) double verticalPositionErrorMeters);
     method public double getHorizontalPositionErrorMeters();
     method public double getVerticalPositionErrorMeters();
-    property @FloatRange(from=0.0) public final double horizontalPositionErrorMeters;
-    property @FloatRange(from=0.0) public final double verticalPositionErrorMeters;
+    property @FloatRange(from=0.0) public double horizontalPositionErrorMeters;
+    property @FloatRange(from=0.0) public double verticalPositionErrorMeters;
     field public static final androidx.health.services.client.data.LocationAccuracy.Companion Companion;
   }
 
@@ -1047,7 +1047,7 @@ package androidx.health.services.client.data {
     method public int getId();
     method public String getName();
     property public int id;
-    property public final String name;
+    property public String name;
     field public static final androidx.health.services.client.data.LocationAvailability ACQUIRED_TETHERED;
     field public static final androidx.health.services.client.data.LocationAvailability ACQUIRED_UNTETHERED;
     field public static final androidx.health.services.client.data.LocationAvailability ACQUIRING;
@@ -1059,12 +1059,12 @@ package androidx.health.services.client.data {
 
   public static final class LocationAvailability.Companion {
     method public androidx.health.services.client.data.LocationAvailability? fromId(int id);
-    property public final androidx.health.services.client.data.LocationAvailability ACQUIRED_TETHERED;
-    property public final androidx.health.services.client.data.LocationAvailability ACQUIRED_UNTETHERED;
-    property public final androidx.health.services.client.data.LocationAvailability ACQUIRING;
-    property public final androidx.health.services.client.data.LocationAvailability NO_GNSS;
-    property public final androidx.health.services.client.data.LocationAvailability UNAVAILABLE;
-    property public final androidx.health.services.client.data.LocationAvailability UNKNOWN;
+    property public androidx.health.services.client.data.LocationAvailability ACQUIRED_TETHERED;
+    property public androidx.health.services.client.data.LocationAvailability ACQUIRED_UNTETHERED;
+    property public androidx.health.services.client.data.LocationAvailability ACQUIRING;
+    property public androidx.health.services.client.data.LocationAvailability NO_GNSS;
+    property public androidx.health.services.client.data.LocationAvailability UNAVAILABLE;
+    property public androidx.health.services.client.data.LocationAvailability UNKNOWN;
   }
 
   public final class LocationData {
@@ -1073,10 +1073,10 @@ package androidx.health.services.client.data {
     method public double getBearing();
     method public double getLatitude();
     method public double getLongitude();
-    property public final double altitude;
-    property public final double bearing;
-    property @FloatRange(from=-90.0, to=90.0) public final double latitude;
-    property @FloatRange(from=-180.0, to=180.0) public final double longitude;
+    property public double altitude;
+    property public double bearing;
+    property @FloatRange(from=-90.0, to=90.0) public double latitude;
+    property @FloatRange(from=-180.0, to=180.0) public double longitude;
     field public static final double ALTITUDE_UNAVAILABLE = (0.0/0.0);
     field public static final double BEARING_UNAVAILABLE = (0.0/0.0);
   }
@@ -1084,7 +1084,7 @@ package androidx.health.services.client.data {
   public final class MeasureCapabilities {
     ctor public MeasureCapabilities(java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesMeasure);
     method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesMeasure();
-    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesMeasure;
+    property public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesMeasure;
   }
 
   public final class MilestoneMarkerSummary {
@@ -1094,17 +1094,17 @@ package androidx.health.services.client.data {
     method public java.time.Instant getEndTime();
     method public java.time.Instant getStartTime();
     method public androidx.health.services.client.data.DataPointContainer getSummaryMetrics();
-    property public final androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> achievedGoal;
-    property public final java.time.Duration activeDuration;
-    property public final java.time.Instant endTime;
-    property public final java.time.Instant startTime;
-    property public final androidx.health.services.client.data.DataPointContainer summaryMetrics;
+    property public androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> achievedGoal;
+    property public java.time.Duration activeDuration;
+    property public java.time.Instant endTime;
+    property public java.time.Instant startTime;
+    property public androidx.health.services.client.data.DataPointContainer summaryMetrics;
   }
 
   public final class PassiveGoal {
     ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> dataTypeCondition);
     method public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> getDataTypeCondition();
-    property public final androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> dataTypeCondition;
+    property public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> dataTypeCondition;
   }
 
   public final class PassiveListenerConfig {
@@ -1114,10 +1114,10 @@ package androidx.health.services.client.data {
     method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
     method public boolean shouldUserActivityInfoBeRequested();
-    property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
-    property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
-    property public final boolean shouldUserActivityInfoBeRequested;
+    property public java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
+    property public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
+    property public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
+    property public boolean shouldUserActivityInfoBeRequested;
     field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;
   }
 
@@ -1140,18 +1140,18 @@ package androidx.health.services.client.data {
     method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesPassiveMonitoring();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getSupportedHealthEventTypes();
     method public java.util.Set<androidx.health.services.client.data.UserActivityState> getSupportedUserActivityStates();
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveMonitoring;
-    property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes;
-    property public final java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates;
+    property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveGoals;
+    property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveMonitoring;
+    property public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes;
+    property public java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates;
   }
 
   public final class PassiveMonitoringUpdate {
     ctor public PassiveMonitoringUpdate(androidx.health.services.client.data.DataPointContainer dataPoints, java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates);
     method public androidx.health.services.client.data.DataPointContainer getDataPoints();
     method public java.util.List<androidx.health.services.client.data.UserActivityInfo> getUserActivityInfoUpdates();
-    property public final androidx.health.services.client.data.DataPointContainer dataPoints;
-    property public final java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates;
+    property public androidx.health.services.client.data.DataPointContainer dataPoints;
+    property public java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates;
   }
 
   public final class SampleDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
@@ -1162,11 +1162,11 @@ package androidx.health.services.client.data {
     method public java.time.Duration getTimeDurationFromBoot();
     method public java.time.Instant getTimeInstant(java.time.Instant bootInstant);
     method public T getValue();
-    property public final androidx.health.services.client.data.DataPointAccuracy? accuracy;
+    property public androidx.health.services.client.data.DataPointAccuracy? accuracy;
     property public androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> dataType;
-    property public final android.os.Bundle metadata;
-    property public final java.time.Duration timeDurationFromBoot;
-    property public final T value;
+    property public android.os.Bundle metadata;
+    property public java.time.Duration timeDurationFromBoot;
+    property public T value;
   }
 
   public final class StatisticalDataPoint<T extends java.lang.Number> extends androidx.health.services.client.data.DataPoint<T> {
@@ -1176,11 +1176,11 @@ package androidx.health.services.client.data {
     method public T getMax();
     method public T getMin();
     method public java.time.Instant getStart();
-    property public final T average;
-    property public final java.time.Instant end;
-    property public final T max;
-    property public final T min;
-    property public final java.time.Instant start;
+    property public T average;
+    property public java.time.Instant end;
+    property public T max;
+    property public T min;
+    property public java.time.Instant start;
     field public static final androidx.health.services.client.data.StatisticalDataPoint.Companion Companion;
   }
 
@@ -1196,9 +1196,9 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseInfo? getExerciseInfo();
     method public java.time.Instant getStateChangeTime();
     method public androidx.health.services.client.data.UserActivityState getUserActivityState();
-    property public final androidx.health.services.client.data.ExerciseInfo? exerciseInfo;
-    property public final java.time.Instant stateChangeTime;
-    property public final androidx.health.services.client.data.UserActivityState userActivityState;
+    property public androidx.health.services.client.data.ExerciseInfo? exerciseInfo;
+    property public java.time.Instant stateChangeTime;
+    property public androidx.health.services.client.data.UserActivityState userActivityState;
     field public static final androidx.health.services.client.data.UserActivityInfo.Companion Companion;
   }
 
@@ -1213,8 +1213,8 @@ package androidx.health.services.client.data {
     ctor public UserActivityState(int id, String name);
     method public int getId();
     method public String getName();
-    property public final int id;
-    property public final String name;
+    property public int id;
+    property public String name;
     field public static final androidx.health.services.client.data.UserActivityState.Companion Companion;
     field public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_ASLEEP;
     field public static final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_EXERCISE;
@@ -1223,18 +1223,18 @@ package androidx.health.services.client.data {
   }
 
   public static final class UserActivityState.Companion {
-    property public final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_ASLEEP;
-    property public final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_EXERCISE;
-    property public final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_PASSIVE;
-    property public final androidx.health.services.client.data.UserActivityState USER_ACTIVITY_UNKNOWN;
+    property public androidx.health.services.client.data.UserActivityState USER_ACTIVITY_ASLEEP;
+    property public androidx.health.services.client.data.UserActivityState USER_ACTIVITY_EXERCISE;
+    property public androidx.health.services.client.data.UserActivityState USER_ACTIVITY_PASSIVE;
+    property public androidx.health.services.client.data.UserActivityState USER_ACTIVITY_UNKNOWN;
   }
 
   public final class WarmUpConfig {
     ctor public WarmUpConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes);
     method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
-    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
-    property public final androidx.health.services.client.data.ExerciseType exerciseType;
+    property public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
+    property public androidx.health.services.client.data.ExerciseType exerciseType;
   }
 
 }

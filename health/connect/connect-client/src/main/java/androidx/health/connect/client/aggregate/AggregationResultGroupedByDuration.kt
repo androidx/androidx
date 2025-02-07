@@ -41,4 +41,30 @@ constructor(
     init {
         require(startTime.isBefore(endTime)) { "start time must be before end time" }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AggregationResultGroupedByDuration
+
+        if (result != other.result) return false
+        if (startTime != other.startTime) return false
+        if (endTime != other.endTime) return false
+        if (zoneOffset != other.zoneOffset) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var hash = result.hashCode()
+        hash = 31 * hash + startTime.hashCode()
+        hash = 31 * hash + endTime.hashCode()
+        hash = 31 * hash + zoneOffset.hashCode()
+        return hash
+    }
+
+    override fun toString(): String {
+        return "AggregationResultGroupedByDuration(result=$result, startTime=$startTime, endTime=$endTime, zoneOffset=$zoneOffset)"
+    }
 }

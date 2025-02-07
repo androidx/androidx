@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.filters.MediumTest
 import org.junit.Assume.assumeTrue
 import org.junit.Test

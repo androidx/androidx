@@ -103,6 +103,28 @@ class UserResizeModeTest {
     }
 
     @Test
+    fun layoutWithPaneSpacing() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val leftPane = spl[0]
+        val rightPane = spl[1]
+
+        spl.paneSpacing = 20
+        spl.isUserResizingEnabled = true
+        spl.measureAndLayoutForTest(width = 100)
+
+        assertWithMessage("leftPane width").that(leftPane.width).isEqualTo(40)
+        assertWithMessage("rightPane width").that(rightPane.width).isEqualTo(40)
+
+        // userResizeMode is disabled, paneSpacing should still be the same.
+        spl.isUserResizingEnabled = false
+        spl.measureAndLayoutForTest(width = 100)
+
+        assertWithMessage("leftPane width").that(leftPane.width).isEqualTo(40)
+        assertWithMessage("rightPane width").that(rightPane.width).isEqualTo(40)
+    }
+
+    @Test
     fun layoutTooSmallForPadding() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val spl = createTestSpl(context)
@@ -130,6 +152,30 @@ class UserResizeModeTest {
         spl.measureAndLayoutForTest(0, 0)
 
         assertAllZeroSize()
+    }
+
+    @Test
+    fun layoutTooSmallForPaneSpacing() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val leftPane = spl[0]
+        val rightPane = spl[1]
+        val splWidth = 100
+
+        spl.paneSpacing = 200
+        spl.measureAndLayoutForTest(splWidth, 0)
+
+        assertWithMessage("SlidingPaneLayout width").that(spl.width).isEqualTo(splWidth)
+        assertWithMessage("leftPane width is zero").that(leftPane.width).isEqualTo(0)
+        assertWithMessage("rightPane width is zero").that(rightPane.width).isEqualTo(0)
+
+        assertWithMessage("leftPane left is zero").that(leftPane.left).isEqualTo(0)
+        assertWithMessage("rightPane left is width").that(rightPane.left).isEqualTo(splWidth)
+
+        // SlidingPaneLayout switch to overlapping mode if paneSpacing is too large.
+        spl.isOverlappingEnabled = true
+        spl.measureAndLayoutForTest(splWidth, 0)
+        assertWithMessage("SlidingPaneLayout is slideable").that(spl.isSlideable).isTrue()
     }
 
     @Test
@@ -253,6 +299,23 @@ class UserResizeModeTest {
     }
 
     @Test
+    fun visualDividerPositionClipsChildren_hasPaneSpacing() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.splitDividerPosition = 35
+        spl.paneSpacing = 10
+        spl.drawToBitmap()
+        assertWithMessage("left child clip")
+            .that((spl[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(0, 0, 30, 100))
+        spl.splitDividerPosition = 65
+        spl.drawToBitmap()
+        assertWithMessage("right child clip")
+            .that(((spl[1] as ViewGroup)[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(20, 0, 50, 100))
+    }
+
+    @Test
     fun disablingDividerClippingDoesNotClipChildren() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val spl = createTestSpl(context)
@@ -291,6 +354,30 @@ class UserResizeModeTest {
         spl.measureAndLayoutForTest()
         assertWithMessage("first child expected width").that(spl[0].width).isEqualTo(70)
         assertWithMessage("second child expected width").that(spl[1].width).isEqualTo(30)
+    }
+
+    @Test
+    fun paneSpacingAffectsLayout() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        assertWithMessage("layout requested after SlidingPaneLayout creation")
+            .that(spl.isLayoutRequested)
+            .isFalse()
+        spl.splitDividerPosition = 35
+        assertWithMessage("layout requested by splitDividerPosition change")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("first child expected width").that(spl[0].width).isEqualTo(35)
+        assertWithMessage("second child expected width").that(spl[1].width).isEqualTo(65)
+
+        spl.paneSpacing = 10
+        assertWithMessage("layout requested by splitDividerPosition change (2)")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("first child expected width").that(spl[0].width).isEqualTo(30)
+        assertWithMessage("second child expected width").that(spl[1].width).isEqualTo(60)
     }
 
     @Test
@@ -336,6 +423,39 @@ class UserResizeModeTest {
     }
 
     @Test
+    fun zeroSpaceForOnePane_paneSpacingTakeChildWidth() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val splWidth = 100
+        val paneSpacing = 20
+        spl.paneSpacing = 20
+        spl.splitDividerPosition = 10
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("left pane has zero width").that(spl[0].width).isEqualTo(0)
+
+        spl.splitDividerPosition = 5
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("left pane has zero width").that(spl[0].width).isEqualTo(0)
+        assertWithMessage("right pane takes remaining width")
+            .that(spl[1].width)
+            .isEqualTo(splWidth - paneSpacing)
+
+        spl.splitDividerPosition = 90
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("left pane takes remaining width")
+            .that(spl[0].width)
+            .isEqualTo(splWidth - paneSpacing)
+        assertWithMessage("right pane has zero width").that(spl[1].width).isEqualTo(0)
+
+        spl.splitDividerPosition = 95
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("left pane takes remaining width")
+            .that(spl[0].width)
+            .isEqualTo(splWidth - paneSpacing)
+        assertWithMessage("right pane has zero width").that(spl[1].width).isEqualTo(0)
+    }
+
+    @Test
     fun zeroSpaceForOnePanePaddedLayout() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val spl = createTestSpl(context)
@@ -346,6 +466,49 @@ class UserResizeModeTest {
         spl.splitDividerPosition = spl.width
         spl.measureAndLayoutForTest()
         assertWithMessage("right pane has zero width").that(spl[1].width).isEqualTo(0)
+    }
+
+    @Test
+    fun visualDividerPositionRange() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val splWidth = 100
+        spl.splitDividerPosition = 0
+        spl.setPadding(4, 0, 8, 0)
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("visualDividerPosition is clamped to view left")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(4)
+        spl.splitDividerPosition = spl.width
+
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("visualDividerPosition is clamped to view right")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(splWidth - 8)
+    }
+
+    @Test
+    fun visualDividerPositionRange_hasPaneSpacing() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val splWidth = 100
+        val paneSpacing = 19
+        val paneSpacingLeftHalf = 9
+        val paneSpacingRightHalf = 10
+        spl.splitDividerPosition = 0
+        spl.setPadding(4, 0, 8, 0)
+        spl.paneSpacing = paneSpacing
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("visualDividerPosition is clamped to view left")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(4 + paneSpacingLeftHalf)
+
+        spl.splitDividerPosition = spl.width
+
+        spl.measureAndLayoutForTest(width = splWidth)
+        assertWithMessage("visualDividerPosition is clamped to view right")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(splWidth - 8 - paneSpacingRightHalf)
     }
 
     @Test

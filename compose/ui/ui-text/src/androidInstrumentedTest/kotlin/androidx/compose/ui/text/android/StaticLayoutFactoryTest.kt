@@ -18,6 +18,7 @@ package androidx.compose.ui.text.android
 import android.app.Instrumentation
 import android.graphics.Typeface
 import android.text.Layout
+import android.text.StaticLayout
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
@@ -571,6 +572,19 @@ class StaticLayoutFactoryTest {
             width = Int.MAX_VALUE,
             lineSpacingExtra = -1f
         )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 35)
+    fun create_useBoundsForWidth_disabled() {
+        StaticLayout.Builder.obtain("a", 0, 1, TextPaint(), 1024)
+            .setUseBoundsForWidth(true)
+            .build() // build method recycles the builder.
+
+        val layout =
+            StaticLayoutFactory.create(text = "abc", paint = TextPaint(), width = Int.MAX_VALUE)
+
+        assertThat(layout.useBoundsForWidth).isFalse()
     }
 
     fun getPaintWithCharWidth(width: Float) =

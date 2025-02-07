@@ -27,18 +27,12 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * `VoipAppFileProvider` is a custom implementation of `FileProvider` designed to handle file
- * operations specifically for storing and retrieving bitmaps associated with `VoipCall` objects. It
- * ensures that bitmaps are stored in a private directory accessible only to the app.
+ * `VoipAppFileProvider` is a helper class for the`FileProvider` designed to handle file operations
+ * specifically for storing and retrieving bitmaps associated with `VoipCall` objects. It ensures
+ * that bitmaps are stored in a private directory accessible only to the app.
  */
 @OptIn(ExperimentalAppActions::class)
-class VoipAppFileProvider() : FileProvider() {
-    /** The directory where files (bitmaps) will be stored. */
-    var mVoipAppDirectory: File? = null
-
-    /** The application context. */
-    var mContext: Context? = null
-
+class VoipAppFileProvider() {
     companion object {
         val TAG: String = VoipAppFileProvider::class.java.simpleName
 
@@ -52,72 +46,70 @@ class VoipAppFileProvider() : FileProvider() {
          * The name of the subdirectory within the app's files directory where bitmaps will be
          * stored.
          */
-        const val FILE_DIR_NAME = "files"
-    }
+        const val FILE_DIR_NAME = "images"
 
-    /**
-     * Initializes the `VoipAppFileProvider` with the given application context.
-     *
-     * This method sets up the file directory where bitmaps will be stored. It creates the directory
-     * if it doesn't exist.
-     *
-     * @param context The application context.
-     * @return The initialized `VoipAppFileProvider` instance.
-     */
-    fun init(context: Context): VoipAppFileProvider {
-        mContext = context
-        val internalStorageDir = context.filesDir
-        mVoipAppDirectory = File(internalStorageDir, FILE_DIR_NAME)
-        if (!mVoipAppDirectory!!.exists()) {
-            mVoipAppDirectory!!.mkdirs()
-            if (mVoipAppDirectory!!.exists()) {
-                Log.i(TAG, "Files directory created successfully")
-            } else {
-                Log.e(TAG, "Failed to create files directory")
+        /**
+         * Creates the directory for storing files if it doesn't exist.
+         *
+         * @param context The application context.
+         * @return The created directory `File` object or throws an exception if creation failed.
+         */
+        private fun createDirectory(context: Context): File {
+            val dir = File(context.filesDir, FILE_DIR_NAME)
+            if (!dir.exists()) {
+                val success = dir.mkdirs()
+                if (success) {
+                    Log.i(TAG, "Files directory created successfully")
+                } else {
+                    Log.e(TAG, "Failed to create files directory")
+                    throw IllegalStateException("Failed to create directory: $dir")
+                }
             }
+            return dir
         }
-        return this
-    }
 
-    /**
-     * Writes a bitmap associated with a `VoipCall` to a file and updates the call's icon URI.
-     *
-     * @param call The `VoipCall` object containing the bitmap to be written.
-     * @return The URI of the newly created file, or null if an error occurred.
-     */
-    fun writeCallIconBitMapToFile(call: VoipCall): Uri? {
-        return try {
-            val fileName = call.getIconFileName()
-            val bitmap = call.getIconBitmap()
-            val imageFile = File(mVoipAppDirectory, "$fileName.png")
-            val outputStream = FileOutputStream(imageFile)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
-            val uri = getUriForFile(mContext!!, FILE_PROVIDER_AUTHORITIES, imageFile)
-            call.setIconUri(uri)
-            Log.d(TAG, "wrote imageFile=[$imageFile]. uri=[$uri], dir=[$mVoipAppDirectory]")
-            return uri
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+        /**
+         * Writes a bitmap associated with a `VoipCall` to a file and updates the call's icon URI.
+         * This method now lazily creates the directory if it doesn't exist.
+         *
+         * @param context The application context.
+         * @param call The `VoipCall` object containing the bitmap to be written.
+         * @return The URI of the newly created file, or null if an error occurred.
+         */
+        fun writeCallIconBitMapToFile(context: Context, call: VoipCall): Uri? =
+            try {
+                val directory = createDirectory(context)
+                val imageFile = File(directory, "${call.getIconFileName()}.png")
 
-    /**
-     * Reads a bitmap from a file specified by its URI.
-     *
-     * @param uri The URI of the file to read.
-     * @return The bitmap read from the file, or null if an error occurred.
-     */
-    fun readCallIconUriFromFile(uri: Uri): Bitmap? {
-        return try {
-            val inputStream = mContext!!.contentResolver.openInputStream(uri)
-            val b = BitmapFactory.decodeStream(inputStream)
-            return b
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+                FileOutputStream(imageFile).use { outputStream ->
+                    call.getIconBitmap().compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                }
+
+                val uri = FileProvider.getUriForFile(context, FILE_PROVIDER_AUTHORITIES, imageFile)
+                call.setIconUri(uri)
+
+                Log.d(TAG, "directory=[$directory] --> imageFile=[$imageFile] = uri=[$uri]")
+                uri
+            } catch (e: Exception) {
+                Log.e(TAG, "Error writing bitmap to file", e)
+                null
+            }
+
+        /**
+         * Reads a bitmap from a file specified by its URI.
+         *
+         * @param context The application context.
+         * @param uri The URI of the file to read.
+         * @return The bitmap read from the file, or null if an error occurred.
+         */
+        fun readCallIconUriFromFile(context: Context, uri: Uri): Bitmap? =
+            try {
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    BitmapFactory.decodeStream(inputStream)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading bitmap from file", e)
+                null
+            }
     }
 }

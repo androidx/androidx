@@ -447,13 +447,31 @@ public interface CameraInfo {
      * Returns the {@link LiveData} of the torch strength level.
      *
      * <p>The value of the {@link LiveData} will be the default torch strength level of this
-     * device if {@link CameraControl#setTorchStrengthLevelAsync(int)} hasn't been called.
+     * device if {@link CameraControl#setTorchStrengthLevel(int)} hasn't been called.
      *
      * <p>The value of the {@link LiveData} will be {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if
      * the device doesn't have a flash unit or doesn't support configuring torch strength.
      */
     default @NonNull LiveData<Integer> getTorchStrengthLevel() {
         return new MutableLiveData<>(TORCH_STRENGTH_LEVEL_UNSUPPORTED);
+    }
+
+    /**
+     * Returns if configuring torch strength is supported on the device.
+     *
+     * <p>If supported, {@link CameraControl#setTorchStrengthLevel(int)} can be used to configure
+     * torch strength.
+     *
+     * <p>If not supported, {@link #getMaxTorchStrengthLevel()} and
+     * {@link #getTorchStrengthLevel()} will return {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED}
+     * when called.
+     *
+     * @return {@code true} if configuring torch strength is supported on the device, otherwise
+     * {@code false}.
+     * @see CameraControl#setTorchStrengthLevel(int)
+     */
+    default boolean isTorchStrengthSupported() {
+        return false;
     }
 
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,

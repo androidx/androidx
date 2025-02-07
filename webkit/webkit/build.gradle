@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 
 plugins {
@@ -70,7 +70,7 @@ android {
 
 androidx {
     name = "WebKit"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "The WebKit Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
     additionalDeviceTestApkKeys.add("chrome")

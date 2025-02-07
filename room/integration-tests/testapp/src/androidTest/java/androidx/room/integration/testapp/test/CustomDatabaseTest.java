@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.SystemClock;
 
-import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.database.Customer;
@@ -39,6 +38,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
@@ -77,10 +77,9 @@ public class CustomDatabaseTest {
      */
     private static class RethrowExceptionFactory implements SupportSQLiteOpenHelper.Factory {
 
-        @NonNull
         @Override
-        public SupportSQLiteOpenHelper create(
-                @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
+        public @NonNull SupportSQLiteOpenHelper create(
+                SupportSQLiteOpenHelper.@NonNull Configuration configuration) {
             final FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
             final SupportSQLiteOpenHelper helper = factory.create(configuration);
             SupportSQLiteOpenHelper helperMock = mock(SupportSQLiteOpenHelper.class,

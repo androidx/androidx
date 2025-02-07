@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap.Companion.Round
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
@@ -33,6 +34,7 @@ import androidx.wear.compose.foundation.curvedBox
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.CurvedTextDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.curvedText
@@ -64,7 +66,11 @@ fun CurvedTextBottom() {
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
             }
-            curvedText("Error - network lost")
+            curvedText(
+                "Network lost",
+                maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

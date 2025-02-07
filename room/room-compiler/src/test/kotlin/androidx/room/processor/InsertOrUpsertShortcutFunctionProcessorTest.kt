@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
@@ -35,7 +36,6 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.runProcessorTestWithK1
 import androidx.room.solver.shortcut.result.InsertOrUpsertFunctionAdapter
 import androidx.room.testing.context
 import androidx.room.vo.InsertOrUpsertShortcutFunction
@@ -257,13 +257,21 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 @${annotation.java.canonicalName}
                 abstract public void insertUsers(User[] users);
                 """
-        ) { insertionUpsertion, _ ->
+        ) { insertionUpsertion, invocation ->
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insertUsers")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    XTypeName.getArrayName(COMMON.USER_TYPE_NAME.copy(nullable = true))
+                    XTypeName.getArrayName(
+                            if (invocation.isKsp2) {
+                                XTypeName.getProducerExtendsName(
+                                    COMMON.USER_TYPE_NAME.copy(nullable = true)
+                                )
+                            } else {
+                                COMMON.USER_TYPE_NAME.copy(nullable = true)
+                            }
+                        )
                         .copy(nullable = true)
                 )
 
@@ -952,7 +960,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
             additionalSources = listOf(usernameSource)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.cannotFindAsEntityField("foo.bar.User"))
+                hasErrorContaining(ProcessorErrors.cannotFindAsEntityProperty("foo.bar.User"))
             }
         }
     }
@@ -1145,7 +1153,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 COMMON.RX3_SINGLE
             )
 
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
@@ -1200,7 +1208,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 COMMON.GUAVA_ROOM
             )
 
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->

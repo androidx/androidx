@@ -158,6 +158,9 @@
     <!-- Error Message on PDF File Load Error -->
     <string name="error_cannot_open_pdf">Can\'t open PDF file</string>
 
+    <!-- Error Message on Failure to start Edit Mode -->
+    <string name="cannot_edit_pdf">This PDF can\'t be edited</string>
+
     <!-- User visible label attached to text copied from a PDF when submitting it to the system
          clipboard -->
     <string name="clipboard_label">Content copied from PDF</string>

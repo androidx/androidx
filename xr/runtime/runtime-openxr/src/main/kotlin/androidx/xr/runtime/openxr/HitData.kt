@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 
 /**
@@ -25,5 +24,4 @@ import androidx.xr.runtime.math.Pose
  * @property pose The pose of the hit result.
  * @property id The id of the trackable that was hit. It is the address of the native object.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public data class HitData(val pose: Pose, val id: Long) {}

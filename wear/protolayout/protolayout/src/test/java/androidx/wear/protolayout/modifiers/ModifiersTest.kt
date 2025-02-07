@@ -23,11 +23,12 @@ import androidx.wear.protolayout.DimensionBuilders.dp
 import androidx.wear.protolayout.ModifiersBuilders.Corner
 import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_BUTTON
 import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_NONE
-import androidx.wear.protolayout.expression.AppDataKey
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
-import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
+import androidx.wear.protolayout.expression.dynamicDataMapOf
+import androidx.wear.protolayout.expression.intAppDataKey
+import androidx.wear.protolayout.expression.mapTo
+import androidx.wear.protolayout.expression.stringAppDataKey
 import androidx.wear.protolayout.types.LayoutColor
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -145,18 +146,11 @@ class ModifiersTest {
         val id = "ID"
         val minTouchWidth = 51f
         val minTouchHeight = 52f
-        val statePair1 = Pair(AppDataKey<DynamicInt32>("Int"), DynamicDataValue.fromInt(42))
-        val statePair2 =
-            Pair(AppDataKey<DynamicString>("String"), DynamicDataValue.fromString("42"))
+        val statePair1 = intAppDataKey("Int") mapTo 42
+        val statePair2 = stringAppDataKey("String") mapTo "42"
 
         val modifiers =
-            LayoutModifier.clickable(
-                    loadAction {
-                        addKeyToValueMapping(statePair1.first, statePair1.second)
-                        addKeyToValueMapping(statePair2.first, statePair2.second)
-                    },
-                    id
-                )
+            LayoutModifier.clickable(loadAction(dynamicDataMapOf(statePair1, statePair2)), id)
                 .minimumTouchTargetSize(minTouchWidth, minTouchHeight)
                 .toProtoLayoutModifiers()
 
@@ -166,7 +160,7 @@ class ModifiersTest {
         assertThat(modifiers.clickable?.onClick).isInstanceOf(LoadAction::class.java)
         val action = modifiers.clickable?.onClick as LoadAction
         assertThat(action.requestState?.keyToValueMapping)
-            .containsExactlyEntriesIn(mapOf(statePair1, statePair2))
+            .containsExactlyEntriesIn(mapOf(statePair1.asPair(), statePair2.asPair()))
     }
 
     @Test
@@ -174,17 +168,13 @@ class ModifiersTest {
         val id = "ID"
         val minTouchWidth = 51f
         val minTouchHeight = 52f
-        val statePair1 = Pair(AppDataKey<DynamicInt32>("Int"), DynamicDataValue.fromInt(42))
-        val statePair2 =
-            Pair(AppDataKey<DynamicString>("String"), DynamicDataValue.fromString("42"))
+        val statePair1 = intAppDataKey("Int") mapTo 42
+        val statePair2 = stringAppDataKey("String") mapTo "42"
 
         val modifiers =
             LayoutModifier.clickable(
                     clickable(
-                        loadAction {
-                            addKeyToValueMapping(statePair1.first, statePair1.second)
-                            addKeyToValueMapping(statePair2.first, statePair2.second)
-                        },
+                        loadAction(dynamicDataMapOf(statePair1, statePair2)),
                         id = id,
                         minClickableWidth = minTouchWidth,
                         minClickableHeight = minTouchHeight
@@ -198,7 +188,7 @@ class ModifiersTest {
         assertThat(modifiers.clickable?.onClick).isInstanceOf(LoadAction::class.java)
         val action = modifiers.clickable?.onClick as LoadAction
         assertThat(action.requestState?.keyToValueMapping)
-            .containsExactlyEntriesIn(mapOf(statePair1, statePair2))
+            .containsExactlyEntriesIn(mapOf(statePair1.asPair(), statePair2.asPair()))
     }
 
     @Test

@@ -87,9 +87,7 @@ internal sealed class KspTypeElement(
         declaration.typeParameters.map { KspTypeParameterElement(env, it) }
     }
 
-    override val qualifiedName: String by lazy {
-        (declaration.qualifiedName ?: declaration.simpleName).asString()
-    }
+    override val qualifiedName: String by lazy { asClassName().kotlin.canonicalName }
 
     override val type: KspType by lazy {
         env.wrap(ksType = declaration.asType(emptyList()), allowPrimitives = false)

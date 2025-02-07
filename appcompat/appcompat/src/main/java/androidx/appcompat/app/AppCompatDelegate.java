@@ -304,6 +304,7 @@ public abstract class AppCompatDelegate {
     /**
      * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code activity}.
      *
+     * @param activity The activity linked to the returned instance.
      * @param callback An optional callback for AppCompat specific events
      */
     public static @NonNull AppCompatDelegate create(@NonNull Activity activity,
@@ -314,6 +315,7 @@ public abstract class AppCompatDelegate {
     /**
      * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with {@code dialog}.
      *
+     * @param dialog The dialog to be linked to the returned instance instead of an activity.
      * @param callback An optional callback for AppCompat specific events
      */
     public static @NonNull AppCompatDelegate create(@NonNull Dialog dialog,
@@ -325,6 +327,8 @@ public abstract class AppCompatDelegate {
      * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with a {@code context}
      * and a {@code window}.
      *
+     * @param context The context of the associated window
+     * @param window The window to be linked to the returned instance instead of an activity.
      * @param callback An optional callback for AppCompat specific events
      */
     public static @NonNull AppCompatDelegate create(@NonNull Context context,
@@ -336,6 +340,8 @@ public abstract class AppCompatDelegate {
      * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with a {@code context}
      * and hosted by an {@code Activity}.
      *
+     * @param context The context of the associated activity
+     * @param activity The activity to be linked to the returned instance
      * @param callback An optional callback for AppCompat specific events
      */
     public static @NonNull AppCompatDelegate create(@NonNull Context context,

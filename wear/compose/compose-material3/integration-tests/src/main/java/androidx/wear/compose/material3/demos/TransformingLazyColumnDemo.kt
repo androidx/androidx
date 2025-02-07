@@ -159,7 +159,7 @@ fun TransformingLazyColumnButtons() {
                 ButtonGroup(Modifier.scrollTransform(this@item)) {
                     Button(
                         onClick = {},
-                        Modifier.enlargeOnPress(interactionSource1),
+                        Modifier.animateWidth(interactionSource1),
                         interactionSource = interactionSource1
                     ) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -168,7 +168,7 @@ fun TransformingLazyColumnButtons() {
                     }
                     Button(
                         onClick = {},
-                        Modifier.enlargeOnPress(interactionSource2),
+                        Modifier.animateWidth(interactionSource2),
                         interactionSource = interactionSource2
                     ) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

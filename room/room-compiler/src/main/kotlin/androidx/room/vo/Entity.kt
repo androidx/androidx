@@ -22,20 +22,20 @@ import androidx.room.migration.bundle.BaseEntityBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
-/** A Pojo with a mapping SQLite table. */
+/** A data class with a mapping SQLite table. */
 open class Entity(
     element: XTypeElement,
     override val tableName: String,
     type: XType,
-    fields: List<Field>,
-    embeddedFields: List<EmbeddedField>,
+    properties: List<Property>,
+    embeddedProperties: List<EmbeddedProperty>,
     val primaryKey: PrimaryKey,
     val indices: List<Index>,
     val foreignKeys: List<ForeignKey>,
     constructor: Constructor?,
     val shadowTableName: String?
 ) :
-    DataClass(element, type, fields, embeddedFields, emptyList(), constructor),
+    DataClass(element, type, properties, embeddedProperties, emptyList(), constructor),
     HasSchemaIdentity,
     EntityOrView {
 
@@ -46,7 +46,7 @@ open class Entity(
         val identityKey = SchemaIdentityKey()
         identityKey.append(tableName)
         identityKey.append(primaryKey)
-        identityKey.appendSorted(fields)
+        identityKey.appendSorted(this@Entity.properties)
         identityKey.appendSorted(indices)
         identityKey.appendSorted(foreignKeys)
         return identityKey.hash()
@@ -54,8 +54,9 @@ open class Entity(
 
     private fun createTableQuery(tableName: String): String {
         val definitions =
-            (fields.map {
-                    val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
+            (this@Entity.properties.map {
+                    val autoIncrement =
+                        primaryKey.autoGenerateId && primaryKey.properties.contains(it)
                     it.databaseDefinition(autoIncrement)
                 } + createPrimaryKeyDefinition() + createForeignKeyDefinitions())
                 .filterNotNull()
@@ -67,7 +68,7 @@ open class Entity(
     }
 
     private fun createPrimaryKeyDefinition(): String? {
-        return if (primaryKey.fields.isEmpty() || primaryKey.autoGenerateId) {
+        return if (primaryKey.properties.isEmpty() || primaryKey.autoGenerateId) {
             null
         } else {
             val keys = primaryKey.columnNames.joinToString(", ") { "`$it`" }
@@ -87,7 +88,7 @@ open class Entity(
         EntityBundle(
             tableName,
             createTableQuery(TABLE_NAME_PLACEHOLDER),
-            fields.map { it.toBundle() },
+            this@Entity.properties.map { it.toBundle() },
             primaryKey.toBundle(),
             indices.map { it.toBundle() },
             foreignKeys.map { it.toBundle() }
@@ -102,7 +103,7 @@ open class Entity(
         } else {
             indices.any { index ->
                 index.unique &&
-                    index.fields.size == columns.size &&
+                    index.properties.size == columns.size &&
                     index.columnNames.containsAll(columns)
             }
         }

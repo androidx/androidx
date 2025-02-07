@@ -21,7 +21,6 @@ import android.os.HandlerThread
 import android.os.Process
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.AndroidThreads
-import androidx.camera.camera2.pipe.core.AndroidThreads.asCachedThreadPool
 import androidx.camera.camera2.pipe.core.AndroidThreads.asFixedSizeThreadPool
 import androidx.camera.camera2.pipe.core.AndroidThreads.asScheduledThreadPool
 import androidx.camera.camera2.pipe.core.AndroidThreads.withAndroidPriority
@@ -71,12 +70,13 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
             "testOnlyDispatcher and testOnlyScope must be specified together!"
         }
 
+        // TODO: b/391655975 - Figure out why cached thread pool creates kotlin default executors.
         val blockingExecutor =
             threadConfig.defaultBlockingExecutor
                 ?: AndroidThreads.factory
                     .withPrefix("CXCP-IO-")
                     .withAndroidPriority(defaultThreadPriority)
-                    .asCachedThreadPool()
+                    .asScheduledThreadPool(8)
         val blockingDispatcher = blockingExecutor.asCoroutineDispatcher()
 
         val backgroundExecutor =

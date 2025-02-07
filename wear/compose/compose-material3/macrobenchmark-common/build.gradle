@@ -31,4 +31,7 @@ dependencies {
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-material3-samples"))
     implementation("androidx.compose.material:material-icons-core:1.6.0")
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
 }

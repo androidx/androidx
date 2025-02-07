@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Runtime Testing Lint Checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2023"
     description = "Android Lifecycle Runtime Testing Lint Checks"
 }

@@ -32,6 +32,7 @@ import androidx.health.connect.client.records.SeriesRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
@@ -61,31 +62,29 @@ private val RECORDS_TO_AGGREGATE_METRICS_INFO_MAP =
             )
     )
 
-internal suspend fun <T : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRecord(
-    recordType: KClass<T>,
+internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.aggregateSeries(
     aggregateRequest: AggregateRequest
 ): AggregationResult {
     val timeRange = createTimeRange(aggregateRequest.timeRangeFilter)
     return aggregate(
         ReadRecordsRequest(
-            recordType,
+            T::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
             aggregateRequest.dataOriginFilter
         ),
         ResultAggregator(
             timeRange,
-            SeriesAggregationProcessor(recordType, aggregateRequest.metrics, timeRange)
+            SeriesAggregationProcessor(T::class, aggregateRequest.metrics, timeRange)
         )
     )
 }
 
-internal suspend fun <T : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRecord(
-    recordType: KClass<T>,
+internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.aggregateSeries(
     aggregateRequest: AggregateGroupByPeriodRequest
 ): List<AggregationResultGroupedByPeriod> {
     return aggregate(
         ReadRecordsRequest(
-            recordType,
+            T::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
             aggregateRequest.dataOriginFilter
         ),
@@ -93,12 +92,31 @@ internal suspend fun <T : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRe
             createLocalTimeRange(aggregateRequest.timeRangeFilter),
             aggregateRequest.timeRangeSlicer
         ) {
-            SeriesAggregationProcessor(recordType, aggregateRequest.metrics, it)
+            SeriesAggregationProcessor(T::class, aggregateRequest.metrics, it)
         }
     )
 }
 
-private class SeriesAggregationProcessor<T : SeriesRecord<*>>(
+internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.aggregateSeries(
+    aggregateRequest: AggregateGroupByDurationRequest
+): List<AggregationResultGroupedByDurationWithMinTime> {
+    return aggregate(
+        ReadRecordsRequest(
+            T::class,
+            aggregateRequest.timeRangeFilter.withBufferedStart(),
+            aggregateRequest.dataOriginFilter
+        ),
+        ResultGroupedByDurationAggregator(
+            createTimeRange(aggregateRequest.timeRangeFilter),
+            aggregateRequest.timeRangeSlicer
+        ) {
+            SeriesAggregationProcessor(T::class, aggregateRequest.metrics, it)
+        }
+    )
+}
+
+@VisibleForTesting
+internal class SeriesAggregationProcessor<T : SeriesRecord<*>>(
     recordType: KClass<T>,
     val metrics: Set<AggregateMetric<*>>,
     val timeRange: TimeRange<*>,

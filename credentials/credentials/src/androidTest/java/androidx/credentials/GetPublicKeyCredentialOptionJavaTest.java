@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Set;
 
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetPublicKeyCredentialOptionJavaTest {

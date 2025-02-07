@@ -69,6 +69,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.jspecify)
     coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
@@ -134,9 +135,4 @@ room {
 // See b/198431380
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
-}
-
-androidx {
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

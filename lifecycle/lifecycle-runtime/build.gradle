@@ -6,7 +6,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -16,7 +16,7 @@ plugins {
     id("androidx.baselineprofile")
 }
 androidXMultiplatform {
-    android()
+    androidTarget()
     desktop()
     mac()
     linux()
@@ -143,7 +143,7 @@ android {
 
 androidx {
     name = "Lifecycle Runtime"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle Runtime"
 }

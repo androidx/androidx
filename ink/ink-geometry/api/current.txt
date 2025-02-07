@@ -15,7 +15,7 @@ package androidx.ink.geometry {
   }
 
   public static final class AffineTransform.Companion {
-    property public final androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
+    property public androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
   }
 
   public final class Angle {
@@ -23,10 +23,10 @@ package androidx.ink.geometry {
     method @FloatRange(from=0.0, to=androidx.ink.geometry.Angle.FULL_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalized(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @FloatRange(from=-3.141592653589793, to=androidx.ink.geometry.Angle.HALF_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedAboutZero(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @androidx.ink.geometry.AngleDegreesFloat public static float radiansToDegrees(@androidx.ink.geometry.AngleRadiansFloat float radians);
-    property @androidx.ink.geometry.AngleRadiansFloat public final float FULL_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float HALF_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float QUARTER_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float ZERO;
+    property @androidx.ink.geometry.AngleRadiansFloat public float FULL_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float HALF_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float QUARTER_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float ZERO;
     field @androidx.ink.geometry.AngleRadiansFloat public static final float FULL_TURN_RADIANS;
     field @androidx.ink.geometry.AngleRadiansFloat public static final float HALF_TURN_RADIANS;
     field public static final androidx.ink.geometry.Angle INSTANCE;
@@ -79,7 +79,7 @@ package androidx.ink.geometry {
     method public boolean isEmpty();
     method public androidx.ink.geometry.BoxAccumulator populateFrom(androidx.ink.geometry.BoxAccumulator input);
     method public androidx.ink.geometry.BoxAccumulator reset();
-    property public final androidx.ink.geometry.Box? box;
+    property public androidx.ink.geometry.Box? box;
   }
 
   public final class ImmutableAffineTransform extends androidx.ink.geometry.AffineTransform {
@@ -443,7 +443,7 @@ package androidx.ink.geometry {
     method public void multiply(float lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
     method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public float signedAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
     method public void subtract(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
-    property public final androidx.ink.geometry.ImmutableVec ORIGIN;
+    property public androidx.ink.geometry.ImmutableVec ORIGIN;
   }
 
 }

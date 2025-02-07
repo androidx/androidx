@@ -108,7 +108,6 @@ public final class SetSchemaRequest {
             ENTERPRISE_ACCESS,
             MANAGED_PROFILE_CONTACTS_ACCESS,
             EXECUTE_APP_FUNCTIONS,
-            EXECUTE_APP_FUNCTIONS_TRUSTED,
             PACKAGE_USAGE_STATS,
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -211,15 +210,8 @@ public final class SetSchemaRequest {
     public static final int EXECUTE_APP_FUNCTIONS = 9;
 
     /**
-     * The AppSearch enumeration corresponding to {@link
-     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} Android permission that can be
-     * used to guard AppSearch schema type visibility in {@link
-     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
-     *
-     * <p>This is internally used by AppFunctions API to store app functions runtime metadata so it
-     * is visible to packages holding {@link
-     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} permission (currently associated
-     * with system packages in the {@link android.app.role.SYSTEM_UI_INTELLIGENCE} role).
+     * @deprecated The corresponding permission is deprecated. Some documents are already persisted
+     *     with this constant, therefore keeping the constant here for compatibility reasons.
      *
      * @exportToFramework:hide
      */

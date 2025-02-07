@@ -29,6 +29,7 @@ import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.authoring.latency.LatencyDataPool
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.MutableBox
 import androidx.ink.strokes.ImmutableStrokeInputBatch
@@ -37,6 +38,7 @@ import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
 import androidx.test.espresso.idling.CountingIdlingResource
+import java.util.Random
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -67,7 +69,7 @@ internal class InProgressStrokesManager(
     /** The callback for reporting latency data to the client. */
     private val latencyDataCallback: LatencyDataCallback = LatencyDataCallback {},
     /** For getting timestamps for latency measurement. Injectable for testing only. */
-    private inline val getNanoTime: () -> Long = System::nanoTime,
+    private val getNanoTime: () -> Long = System::nanoTime,
     /** For getting instances of [InProgressStroke]. Injectable for testing only. */
     inProgressStrokePool: InProgressStrokePool = InProgressStrokePool.create(),
     /**
@@ -177,6 +179,9 @@ internal class InProgressStrokesManager(
     /** The state that is accessed just by the render thread. */
     private val renderThreadState =
         object {
+
+            /** Generates seed values for new in-progress strokes. */
+            val noiseSeedGenerator = Random()
 
             /**
              * Strokes that are being drawn by this class. This includes the contents of
@@ -901,7 +906,9 @@ internal class InProgressStrokesManager(
             AndroidMatrix().apply { action.motionEventToStrokeTransform.invert(this) }
         val strokeState = run {
             val stroke = renderThreadState.inProgressStrokePool.obtain()
-            stroke.start(action.brush)
+            val seed = renderThreadState.noiseSeedGenerator.nextInt()
+            @OptIn(ExperimentalInkCustomBrushApi::class)
+            stroke.start(action.brush, noiseSeed = seed)
             stroke
                 .enqueueInputs(
                     MutableStrokeInputBatch().addOrIgnore(action.strokeInput),
@@ -1243,15 +1250,6 @@ internal class InProgressStrokesManager(
             }
         }
         if (inProgressStrokesRenderHelper.contentsPreservedBetweenDraws) {
-            // The updated region for each stroke must be drawn into for all strokes, not just
-            // itself, to
-            // handle when a live stroke intersects another live stroke. Without this nested loop
-            // (if
-            // scissor+draw happened for each stroke in isolation), a live stroke A drawing over
-            // another
-            // live stroke B would clear a rectangle where B was previously drawn and only draw A in
-            // that
-            // space - but that part of B needs to be filled in again.
             for ((strokeIdToScissor, strokeStateToScissor) in renderThreadState.toDrawStrokes) {
                 fillUpdatedStrokeRegion(strokeIdToScissor, strokeStateToScissor)
                 val updatedRegionBox = renderThreadState.updatedRegion.box
@@ -1260,6 +1258,17 @@ internal class InProgressStrokesManager(
                     // Change updatedRegion from stroke coordinates to view coordinates.
                     fillStrokeToViewTransform(strokeStateToScissor)
                     renderThreadState.scratchRect.transform(renderThreadState.strokeToViewTransform)
+                    // This call loops over all live strokes and draws each one, so overall (with
+                    // the outer
+                    // loop over all update regions) we do N^2 draws. This is necessary to handle
+                    // when two
+                    // live strokes intersect. Without the inner loop (i.e., if scissor+draw
+                    // happened for each
+                    // stroke in isolation), a live stroke A drawing over another live stroke B
+                    // would clear a
+                    // rectangle where B was previously drawn and only draw A in that space - but
+                    // that part of
+                    // B needs to be filled in again.
                     drawAllStrokesInModifiedRegion(renderThreadState.scratchRect)
                 }
             }

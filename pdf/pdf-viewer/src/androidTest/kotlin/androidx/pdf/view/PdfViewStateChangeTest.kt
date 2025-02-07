@@ -202,7 +202,7 @@ class PdfViewStateChangeTest {
             Espresso.onView(withId(PDF_VIEW_ID)).checkPagesAreVisible(firstVisiblePage = 0)
             // Then, make sure we can interact with the new document: scroll to page 3, and make
             // sure it's visible
-            scrollToPage(3, pdfDocument)
+            scrollToPage(3, differentDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 

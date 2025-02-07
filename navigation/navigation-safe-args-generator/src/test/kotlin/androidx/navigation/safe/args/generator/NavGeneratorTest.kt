@@ -83,7 +83,9 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "androidx.navigation.testapp.MainFragmentDirections",
                 "foo.flavor.NextFragmentDirections",
                 "androidx.navigation.testapp.MainFragmentArgs",
-                "foo.flavor.NextFragmentArgs"
+                "foo.flavor.NextFragmentArgs",
+                "com.example.HomeScreenKt_HomeScreenDirections",
+                "com.example.HomeScreenKt_HomeScreenArgs"
             )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))

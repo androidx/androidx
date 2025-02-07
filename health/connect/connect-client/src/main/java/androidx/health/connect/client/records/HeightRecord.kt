@@ -28,7 +28,7 @@ public class HeightRecord(
     override val zoneOffset: ZoneOffset?,
     /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
     public val height: Length,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     init {

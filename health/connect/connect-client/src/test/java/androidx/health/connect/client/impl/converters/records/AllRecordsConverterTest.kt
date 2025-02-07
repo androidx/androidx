@@ -66,6 +66,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.TemperatureDelta
@@ -100,10 +101,11 @@ private val START_ZONE_OFFSET = ZoneOffset.ofHours(1)
 private val END_ZONE_OFFSET = ZoneOffset.ofHours(2)
 private val TEST_METADATA =
     Metadata(
+        recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
         id = "uid",
         clientRecordId = "clientId",
         clientRecordVersion = 10,
-        device = Device(manufacturer = "manufacturer"),
+        device = Device(type = Device.Companion.TYPE_PHONE, manufacturer = "manufacturer"),
         lastModifiedTime = END_TIME,
         dataOrigin = DataOrigin(packageName = "appId")
     )
@@ -671,6 +673,7 @@ class AllRecordsConverterTest {
     fun testActivitySessionWithOnlyRequiredData() {
         val data =
             ExerciseSessionRecord(
+                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
                 exerciseType = EXERCISE_TYPE_BADMINTON,
                 startTime = START_TIME,
                 startZoneOffset = null,

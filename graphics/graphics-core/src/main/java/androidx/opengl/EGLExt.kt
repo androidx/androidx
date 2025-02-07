@@ -28,7 +28,6 @@ import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
 /** Utility class that provides some helper methods for interacting EGL Extension APIs */
-@Suppress("AcronymName")
 class EGLExt private constructor() {
 
     companion object {
@@ -191,7 +190,6 @@ class EGLExt private constructor() {
 
         /** Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
         annotation class EGLSyncAttribute
 
@@ -246,7 +244,6 @@ class EGLExt private constructor() {
 
         /** Specifies the type of fence to create in [eglCreateSyncKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
         annotation class EGLFenceType
 
@@ -290,7 +287,6 @@ class EGLExt private constructor() {
         /** Specifies various return values for the [eglClientWaitSyncKHR] method */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.TYPE)
-        @Suppress("AcronymName")
         @IntDef(value = [EGL_CONDITION_SATISFIED_KHR, EGL_TIMEOUT_EXPIRED_KHR, EGL_FALSE])
         annotation class EGLClientWaitResult
 
@@ -368,7 +364,6 @@ class EGLExt private constructor() {
          * @return True if the destruction of the EGLImageKHR object was successful, false otherwise
          */
         @JvmStatic
-        @Suppress("AcronymName")
         fun eglDestroyImageKHR(eglDisplay: EGLDisplay, image: EGLImageKHR): Boolean =
             EGLBindings.nDestroyImageKHR(eglDisplay.nativeHandle, image.nativeHandle)
 
@@ -406,7 +401,6 @@ class EGLExt private constructor() {
          *   supported
          */
         @JvmStatic
-        @Suppress("AcronymName")
         fun eglCreateSyncKHR(
             eglDisplay: EGLDisplay,
             @EGLFenceType type: Int,
@@ -441,7 +435,6 @@ class EGLExt private constructor() {
          *   returned.
          */
         @JvmStatic
-        @Suppress("AcronymName")
         fun eglGetSyncAttribKHR(
             eglDisplay: EGLDisplay,
             sync: EGLSyncKHR,
@@ -498,7 +491,6 @@ class EGLExt private constructor() {
          *   [EGL_FALSE] if an error occurs.
          */
         @JvmStatic
-        @Suppress("AcronymName")
         fun eglClientWaitSyncKHR(
             eglDisplay: EGLDisplay,
             sync: EGLSyncKHR,
@@ -557,7 +549,6 @@ class EGLExt private constructor() {
          *   this sync in eglCreateSyncKHR.
          */
         @JvmStatic
-        @Suppress("AcronymName")
         fun eglDestroySyncKHR(eglDisplay: EGLDisplay, eglSync: EGLSyncKHR): Boolean =
             EGLBindings.nDestroySyncKHR(eglDisplay.nativeHandle, eglSync.nativeHandle)
 

@@ -28,27 +28,16 @@ import androidx.annotation.RestrictTo
 public abstract class AppFunctionException
 internal constructor(
     /** The error code. */
-    @ErrorCode internal val errorCode: Int,
+    @ErrorCode internal val internalErrorCode: Int,
     /** The error message. */
     public val errorMessage: String?,
     internal val extras: Bundle
 ) : Exception(errorMessage) {
-    /**
-     * Create an [AppFunctionException].
-     *
-     * @param errorCode The error code.
-     * @param errorMessage The error message.
-     */
-    public constructor(
-        @ErrorCode errorCode: Int,
-        errorMessage: String? = null,
-    ) : this(errorCode, errorMessage, Bundle.EMPTY)
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPlatformExtensionsClass():
         com.android.extensions.appfunctions.AppFunctionException {
         return com.android.extensions.appfunctions.AppFunctionException(
-            errorCode,
+            internalErrorCode,
             errorMessage,
             extras
         )
@@ -66,7 +55,7 @@ internal constructor(
      */
     @ErrorCategory
     internal val errorCategory: Int =
-        when (errorCode) {
+        when (internalErrorCode) {
             in 1000..1999 -> ERROR_CATEGORY_REQUEST_ERROR
             in 2000..2999 -> ERROR_CATEGORY_SYSTEM
             in 3000..3999 -> ERROR_CATEGORY_APP
@@ -291,18 +280,24 @@ internal constructor(
 /**
  * Thrown when an unknown error has occurred.
  *
- * <p> This Exception is used when the error doesn't belong to any other AppFunctionException. Note
- * that this different from [AppFunctionAppUnknownException], in that the error wasn't necessarily
- * caused by the app.
+ * <p> This Exception is used when the error doesn't belong to any other AppFunctionException. This
+ * may happen due to version skews in the error codes between the platform and the sdk. E.g. if the
+ * app is running on a newer platform version (with a new error code) and an older sdk.
+ *
+ * <p>Note that this is different from [AppFunctionAppUnknownException], in that the error wasn't
+ * necessarily caused by the app.
  */
 public class AppFunctionUnknownException
-internal constructor(
-    public val unknownErrorCode: Int,
-    errorMessage: String? = null,
-    extras: Bundle
-) : AppFunctionException(unknownErrorCode, errorMessage, extras) {
+internal constructor(public val errorCode: Int, errorMessage: String? = null, extras: Bundle) :
+    AppFunctionException(errorCode, errorMessage, extras) {
+    /**
+     * Create an [AppFunctionUnknownException].
+     *
+     * @param errorCode The error code.
+     * @param errorMessage The error message.
+     */
     public constructor(
-        unknownErrorCode: Int,
+        errorCode: Int,
         errorMessage: String? = null
-    ) : this(unknownErrorCode, errorMessage, Bundle.EMPTY)
+    ) : this(errorCode, errorMessage, Bundle.EMPTY)
 }

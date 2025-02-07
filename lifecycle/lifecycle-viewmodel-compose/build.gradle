@@ -23,17 +23,18 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -45,12 +46,17 @@ androidXMultiplatform {
                 api(project(":lifecycle:lifecycle-viewmodel"))
                 api("androidx.annotation:annotation:1.8.1")
                 api("androidx.compose.runtime:runtime:1.6.0")
+                api(libs.kotlinSerializationCore)
                 implementation(libs.kotlinStdlib)
             }
         }
 
         commonTest {
-            // TODO(b/330323282): Move common dependencies here.
+            dependencies {
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-testing"))
+                implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            }
         }
 
         androidMain {
@@ -83,9 +89,7 @@ androidXMultiplatform {
                 // but it doesn't work in androidx.
                 // See aosp/1804059
                 implementation(project(":lifecycle:lifecycle-common-java8"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
                 implementation(project(":activity:activity-compose"))
-                implementation(project(":lifecycle:lifecycle-runtime-testing"))
             }
         }
     }
@@ -97,7 +101,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle ViewModel Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
     samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))

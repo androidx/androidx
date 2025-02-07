@@ -41,13 +41,15 @@ class AndroidAutofillBenchmark {
 
     @get:Rule val benchmarkRule = BenchmarkRule()
 
-    private lateinit var autofillTree: androidx.compose.ui.autofill.AutofillTree
+    private lateinit var autofillTree:
+        @Suppress("Deprecation")
+        androidx.compose.ui.autofill.AutofillTree
     private lateinit var composeView: View
 
     @Before
     fun setup() {
         composeTestRule.setContent {
-            autofillTree = LocalAutofillTree.current
+            autofillTree = @Suppress("Deprecation") LocalAutofillTree.current
             composeView = LocalView.current
         }
     }
@@ -59,6 +61,7 @@ class AndroidAutofillBenchmark {
             composeTestRule.runOnUiThread {
                 // Arrange.
                 val autofillNode =
+                    @Suppress("Deprecation")
                     androidx.compose.ui.autofill.AutofillNode(
                         onFill = {},
                         autofillTypes =

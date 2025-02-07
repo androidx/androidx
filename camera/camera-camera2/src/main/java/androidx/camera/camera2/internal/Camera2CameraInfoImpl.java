@@ -721,8 +721,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     @IntRange(from = 0)
     public int getMaxTorchStrengthLevel() {
-        return mCameraCharacteristicsCompat.isTorchStrengthLevelSupported()
-                ? mCameraCharacteristicsCompat.getMaxTorchStrengthLevel()
+        return isTorchStrengthSupported() ? mCameraCharacteristicsCompat.getMaxTorchStrengthLevel()
                 : TORCH_STRENGTH_LEVEL_UNSUPPORTED;
     }
 
@@ -732,7 +731,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             if (mCamera2CameraControlImpl == null) {
                 if (mRedirectTorchStrengthLiveData == null) {
                     mRedirectTorchStrengthLiveData = new RedirectableLiveData<>(
-                            mCameraCharacteristicsCompat.isTorchStrengthLevelSupported()
+                            isTorchStrengthSupported()
                                     ? mCameraCharacteristicsCompat.getDefaultTorchStrengthLevel()
                                     : TORCH_STRENGTH_LEVEL_UNSUPPORTED);
                 }
@@ -745,5 +744,10 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
             return mCamera2CameraControlImpl.getTorchControl().getTorchStrengthLevel();
         }
+    }
+
+    @Override
+    public boolean isTorchStrengthSupported() {
+        return mCameraCharacteristicsCompat.isTorchStrengthLevelSupported();
     }
 }

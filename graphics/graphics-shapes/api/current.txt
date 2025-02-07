@@ -6,14 +6,14 @@ package androidx.graphics.shapes {
     ctor public CornerRounding(optional @FloatRange(from=0.0) float radius, optional @FloatRange(from=0.0, to=1.0) float smoothing);
     method public float getRadius();
     method public float getSmoothing();
-    property @FloatRange(from=0.0) public final float radius;
-    property @FloatRange(from=0.0, to=1.0) public final float smoothing;
+    property @FloatRange(from=0.0) public float radius;
+    property @FloatRange(from=0.0, to=1.0) public float smoothing;
     field public static final androidx.graphics.shapes.CornerRounding.Companion Companion;
     field public static final androidx.graphics.shapes.CornerRounding Unrounded;
   }
 
   public static final class CornerRounding.Companion {
-    property public final androidx.graphics.shapes.CornerRounding Unrounded;
+    property public androidx.graphics.shapes.CornerRounding Unrounded;
   }
 
   public class Cubic {
@@ -131,10 +131,10 @@ package androidx.graphics.shapes {
     method public java.util.List<androidx.graphics.shapes.Feature> getFeatures();
     method public androidx.graphics.shapes.RoundedPolygon normalized();
     method public androidx.graphics.shapes.RoundedPolygon transformed(androidx.graphics.shapes.PointTransformer f);
-    property public final float centerX;
-    property public final float centerY;
-    property public final java.util.List<androidx.graphics.shapes.Cubic> cubics;
-    property public final java.util.List<androidx.graphics.shapes.Feature> features;
+    property public float centerX;
+    property public float centerY;
+    property public java.util.List<androidx.graphics.shapes.Cubic> cubics;
+    property public java.util.List<androidx.graphics.shapes.Feature> features;
     field public static final androidx.graphics.shapes.RoundedPolygon.Companion Companion;
   }
 

@@ -80,9 +80,9 @@ class EntityTest {
             element = mock(XTypeElement::class.java),
             tableName = tableName,
             type = mock(XType::class.java),
-            fields = emptyList(),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
+            properties = emptyList(),
+            embeddedProperties = emptyList(),
+            primaryKey = PrimaryKey(mock(XElement::class.java), Properties(), false),
             indices = emptyList(),
             foreignKeys = foreignKeys,
             constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
@@ -98,7 +98,7 @@ class EntityTest {
         return ForeignKey(
             parentTable = parentTable,
             parentColumns = emptyList(),
-            childFields = emptyList(),
+            childProperties = emptyList(),
             onDelete = onDelete,
             onUpdate = ForeignKeyAction.NO_ACTION,
             deferred = deferred

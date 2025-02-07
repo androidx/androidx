@@ -379,7 +379,11 @@ fun CurvedSpacingEmDemo() {
                 }
                 basicCurvedText(
                     "| $spacing em |",
-                    style = style.copy(letterSpacing = spacing.em),
+                    style =
+                        style.copy(
+                            letterSpacing = spacing.em,
+                            letterSpacingCounterClockwise = spacing.em
+                        ),
                     modifier =
                         CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
                 )
@@ -405,7 +409,11 @@ fun CurvedSpacingSpDemo() {
                 }
                 basicCurvedText(
                     "| $spacing sp |",
-                    style = style.copy(letterSpacing = spacing.sp),
+                    style =
+                        style.copy(
+                            letterSpacing = spacing.sp,
+                            letterSpacingCounterClockwise = spacing.sp
+                        ),
                     modifier =
                         CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
                 )

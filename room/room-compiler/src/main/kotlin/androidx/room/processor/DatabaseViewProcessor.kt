@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
@@ -36,17 +37,18 @@ class DatabaseViewProcessor(
             androidx.room.DatabaseView::class,
             ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
         )
-        val annotationBox = element.getAnnotation(androidx.room.DatabaseView::class)
+        val annotation = element.getAnnotation(androidx.room.DatabaseView::class)
 
         val viewName: String =
-            if (annotationBox != null) {
-                extractViewName(element, annotationBox.value)
+            if (annotation != null) {
+                extractViewName(element, annotation)
             } else {
                 element.name
             }
         val query: ParsedQuery =
-            if (annotationBox != null) {
-                SqlParser.parse(annotationBox.value.value).also {
+            if (annotation != null) {
+                val viewSql = annotation.getAsString("value")
+                SqlParser.parse(viewSql).also {
                     context.checker.check(
                         it.errors.isEmpty(),
                         element,
@@ -78,7 +80,7 @@ class DatabaseViewProcessor(
             DataClassProcessor.createFor(
                     context = context,
                     element = element,
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                     parent = null,
                     referenceStack = referenceStack
                 )
@@ -89,18 +91,19 @@ class DatabaseViewProcessor(
             viewName = viewName,
             query = query,
             type = pojo.type,
-            fields = pojo.fields,
-            embeddedFields = pojo.embeddedFields,
+            fields = pojo.properties,
+            embeddedProperties = pojo.embeddedProperties,
             constructor = pojo.constructor
         )
     }
 
     companion object {
-        fun extractViewName(element: XTypeElement, annotation: androidx.room.DatabaseView): String {
-            return if (annotation.viewName == "") {
+        fun extractViewName(element: XTypeElement, annotation: XAnnotation): String {
+            val viewName = annotation["viewName"]?.asString() ?: ""
+            return if (viewName == "") {
                 element.name
             } else {
-                annotation.viewName
+                viewName
             }
         }
     }

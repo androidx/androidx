@@ -19,12 +19,12 @@ package androidx.privacysandbox.tools.integration.testsdk
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
 import android.widget.TextView
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionConstants
 import java.util.concurrent.Executor
 
 @PrivacySandboxService
@@ -49,7 +49,7 @@ class MySdkImpl(private val context: Context) : MySdk {
 class TextViewAdImpl : TextViewAd {
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionConstants: SessionConstants,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,

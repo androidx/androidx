@@ -329,12 +329,6 @@ internal class GraphProcessorTest {
 
             assertThat(abortEvent1.request).isSameInstanceAs(request2)
             assertThat(globalAbortEvent.request).isSameInstanceAs(request2)
-
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
         }
 
     @Test

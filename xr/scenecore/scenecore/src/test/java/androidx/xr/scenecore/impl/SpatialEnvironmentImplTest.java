@@ -31,11 +31,13 @@ import android.app.Activity;
 import androidx.xr.extensions.environment.EnvironmentVisibilityState;
 import androidx.xr.extensions.environment.PassthroughVisibilityState;
 import androidx.xr.extensions.space.SpatialState;
+import androidx.xr.scenecore.JxrPlatformAdapter.ExrImageResource;
 import androidx.xr.scenecore.JxrPlatformAdapter.SpatialEnvironment.SetPassthroughOpacityPreferenceResult;
 import androidx.xr.scenecore.JxrPlatformAdapter.SpatialEnvironment.SetSpatialEnvironmentPreferenceResult;
 import androidx.xr.scenecore.JxrPlatformAdapter.SpatialEnvironment.SpatialEnvironmentPreference;
 import androidx.xr.scenecore.testing.FakeImpressApi;
 import androidx.xr.scenecore.testing.FakeXrExtensions;
+import androidx.xr.scenecore.testing.FakeXrExtensions.FakeEnvironmentToken;
 import androidx.xr.scenecore.testing.FakeXrExtensions.FakeEnvironmentVisibilityState;
 import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNode;
 import androidx.xr.scenecore.testing.FakeXrExtensions.FakePassthroughVisibilityState;
@@ -43,6 +45,8 @@ import androidx.xr.scenecore.testing.FakeXrExtensions.FakeSpatialState;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,6 +79,9 @@ public final class SpatialEnvironmentImplTest {
     private SubspaceNode mExpectedSubspace;
     private SpatialEnvironmentImpl mEnvironment = null;
     private SplitEngineSubspaceManager mSplitEngineSubspaceManager;
+    FakeEnvironmentToken mNullSkyboxToken = new FakeEnvironmentToken("nullSkyboxToken");
+    ListenableFuture<ExrImageResource> mNullSkyboxResourceFuture =
+            Futures.immediateFuture(new ExrImageResourceImpl(mNullSkyboxToken));
 
     @Before
     public void setUp() {
@@ -94,6 +101,7 @@ public final class SpatialEnvironmentImplTest {
                         mFakeExtensions,
                         fakeSceneRootNode,
                         this::getSpatialState,
+                        mNullSkyboxResourceFuture,
                         /* useSplitEngine= */ false);
         mEnvironment.onSplitEngineReady(mSplitEngineSubspaceManager, mFakeImpressApi);
     }
@@ -110,6 +118,7 @@ public final class SpatialEnvironmentImplTest {
                         mFakeExtensions,
                         fakeSceneRootNode,
                         this::getSpatialState,
+                        mNullSkyboxResourceFuture,
                         /* useSplitEngine= */ true);
         mEnvironment.onSplitEngineReady(mSplitEngineSubspaceManager, mFakeImpressApi);
     }
@@ -324,16 +333,12 @@ public final class SpatialEnvironmentImplTest {
         // Ensure environment is not removed if both skybox and geometry are updated to null.
         mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
 
-        assertThat(skyboxNode.getParent()).isNull();
+        assertThat(skyboxNode.getParent()).isNull(); // Skybox should be set to a black skybox node.
         assertThat(geometryNode.getParent()).isNull();
 
-        // TODO: b/371221872 - When the behavior is changed to set the black skybox, the fake env
-        // node
-        // will no longer be null and the commented out line should replace the uncommented line.
-        // This change isn't relevant for end users but it confirms the environment implementation
-        // is working as designed.
-        // assertThat(fakeExtensions.getFakeEnvironmentNode()).isNotNull();
-        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNull();
+        // The skybox should be set to a black skybox node. This isn't relevant for end users but it
+        // confirms the environment implementation is working as designed.
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNotNull();
     }
 
     @Test
@@ -359,17 +364,87 @@ public final class SpatialEnvironmentImplTest {
 
         // Ensure environment is not removed if both skybox and geometry are updated to null.
         mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
-
-        assertThat(skyboxNode.getParent()).isNull();
+        skyboxNode = mFakeExtensions.testGetNodeWithEnvironmentToken(mNullSkyboxToken);
+        assertThat(skyboxNode).isNotNull(); // Skybox should be set to a black skybox node.
+        assertThat(skyboxNode.getParent()).isNotNull();
         // TODO: b/354711945 - Uncomment when we can test the SetGeometrySplitEngine(null) path.
         // assertThat(fakeImpressApi.impressNodeHasParent(geometryNodes.get(0))).isFalse();
 
-        // TODO: b/371221872 - When the behavior is changed to set the black skybox,
-        // the fake env nodewill no longer be null and the commented out line should replace
-        // the uncommented line. This change isn't relevant for end users but it
+        // The skybox should be set to a black skybox node. This isn't relevant for end users but it
         // confirms the environment implementation is working as designed.
-        // assertThat(fakeExtensions.getFakeEnvironmentNode()).isNotNull();
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNotNull();
+    }
+
+    @Test
+    public void
+            setSpatialEnvironmentPreferenceWithNullSkyboxAndGeometry_attachesEnvironmentWithSkybox() {
+        setupSplitEngineEnvironmentImpl();
+        // Ensure environment is attached if both skybox and geometry are set to null at start.
+        mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
+        FakeNode skyboxNode = mFakeExtensions.testGetNodeWithEnvironmentToken(mNullSkyboxToken);
+        assertThat(skyboxNode).isNotNull();
+        assertThat(skyboxNode.getParent()).isNotNull();
+
+        // The skybox should be set to a black skybox node. This isn't relevant for end users but it
+        // confirms the environment implementation is working as designed.
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNotNull();
+    }
+
+    @Test
+    public void
+            setSpatialEnvironmentPreferenceWithNullSkyboxAndGeometryButMisingResource_doesntAttachEnvironment() {
+        // Reset our state and setup environment with null skybox resource.
+        mFakeExtensions = new FakeXrExtensions();
+        FakeNode fakeSceneRootNode = (FakeNode) mFakeExtensions.createNode();
+        mSubspaceNode = (FakeNode) mFakeExtensions.createNode();
+        mExpectedSubspace = new SubspaceNode(SUBSPACE_ID, mSubspaceNode);
+        mSplitEngineSubspaceManager = Mockito.mock(SplitEngineSubspaceManager.class);
+        when(mSplitEngineSubspaceManager.createSubspace(anyString(), anyInt()))
+                .thenReturn(mExpectedSubspace);
+        mEnvironment =
+                new SpatialEnvironmentImpl(
+                        mActivity,
+                        mFakeExtensions,
+                        fakeSceneRootNode,
+                        this::getSpatialState,
+                        /* nullSkyboxResourceFuture= */ null,
+                        /* useSplitEngine= */ true);
+        mEnvironment.onSplitEngineReady(mSplitEngineSubspaceManager, mFakeImpressApi);
+
+        // If the skybox resource is missing, we don't attach anything to the environment.
+        mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
+        FakeNode skyboxNode = mFakeExtensions.testGetNodeWithEnvironmentToken(mNullSkyboxToken);
+        assertThat(skyboxNode).isNull();
         assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNull();
+    }
+
+    @Test
+    public void
+            setSpatialEnvironmentPreferenceFromNullPreferenceToNullSkyboxAndGeometrySplitEngine_doesNotDetachEnvironment() {
+        setupSplitEngineEnvironmentImpl();
+        androidx.xr.extensions.asset.EnvironmentToken exr = fakeLoadEnvironment("fakeEnvironment");
+        long gltf = fakeLoadGltfModelSplitEngine("fakeGltfModel");
+
+        // Ensure that an environment is set.
+        mEnvironment.setSpatialEnvironmentPreference(null);
+
+        FakeNode skyboxNode = mFakeExtensions.testGetNodeWithEnvironmentToken(exr);
+        List<Integer> geometryNodes = mFakeImpressApi.getImpressNodesForToken(gltf);
+
+        assertThat(skyboxNode).isNull();
+        assertThat(geometryNodes).isEmpty();
+
+        // Ensure environment is not removed if both skybox and geometry are updated to null.
+        mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
+        skyboxNode = mFakeExtensions.testGetNodeWithEnvironmentToken(mNullSkyboxToken);
+        assertThat(skyboxNode).isNotNull(); // Skybox should be set to a black skybox node.
+        assertThat(skyboxNode.getParent()).isNotNull();
+        // TODO: b/354711945 - Uncomment when we can test the SetGeometrySplitEngine(null) path.
+        // assertThat(fakeImpressApi.impressNodeHasParent(geometryNodes.get(0))).isFalse();
+
+        // The skybox should be set to a black skybox node. This isn't relevant for end users but it
+        // confirms the environment implementation is working as designed.
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNotNull();
     }
 
     @Test
@@ -523,6 +598,18 @@ public final class SpatialEnvironmentImplTest {
         mEnvironment.dispose();
         mEnvironment.firePassthroughOpacityChangedEvent(0.5f);
         verify(listener).accept(any());
+    }
+
+    @Test
+    public void dispose_clearsNullSkyboxResource() {
+        mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNotNull();
+
+        // Ensure null skybox resource is cleared and doesn't re-attach the environment after a
+        // dispose.
+        mEnvironment.dispose();
+        mEnvironment.setSpatialEnvironmentPreference(new SpatialEnvironmentPreference(null, null));
+        assertThat(mFakeExtensions.getFakeEnvironmentNode()).isNull();
     }
 
     @Test

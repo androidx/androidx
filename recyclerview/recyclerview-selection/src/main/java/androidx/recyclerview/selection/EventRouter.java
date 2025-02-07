@@ -20,9 +20,10 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A class responsible for routing MotionEvents to tool-type specific handlers.

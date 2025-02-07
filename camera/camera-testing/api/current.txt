@@ -167,8 +167,8 @@ package androidx.camera.testing.imagecapture {
     method public int getCaptureStatus();
     method public static androidx.camera.testing.imagecapture.CaptureResult successfulResult();
     method public static androidx.camera.testing.imagecapture.CaptureResult successfulResult(optional androidx.camera.testing.fakes.FakeCameraCaptureResult fakeCameraCaptureResult);
-    property public final androidx.camera.testing.fakes.FakeCameraCaptureResult? cameraCaptureResult;
-    property public final int captureStatus;
+    property public androidx.camera.testing.fakes.FakeCameraCaptureResult? cameraCaptureResult;
+    property public int captureStatus;
     field public static final int CAPTURE_STATUS_CANCELLED = 2; // 0x2
     field public static final int CAPTURE_STATUS_FAILED = 1; // 0x1
     field public static final int CAPTURE_STATUS_SUCCESSFUL = 0; // 0x0
@@ -180,9 +180,9 @@ package androidx.camera.testing.imagecapture {
     method public androidx.camera.testing.imagecapture.CaptureResult failedResult();
     method public androidx.camera.testing.imagecapture.CaptureResult successfulResult();
     method public androidx.camera.testing.imagecapture.CaptureResult successfulResult(optional androidx.camera.testing.fakes.FakeCameraCaptureResult fakeCameraCaptureResult);
-    property public static final int CAPTURE_STATUS_CANCELLED;
-    property public static final int CAPTURE_STATUS_FAILED;
-    property public static final int CAPTURE_STATUS_SUCCESSFUL;
+    property public static int CAPTURE_STATUS_CANCELLED;
+    property public static int CAPTURE_STATUS_FAILED;
+    property public static int CAPTURE_STATUS_SUCCESSFUL;
   }
 
 }

@@ -86,7 +86,9 @@ object RunnerUtils {
                     SCREEN_SIZE_SMALL,
                     SCREEN_SIZE_SMALL
                 )
-            rule.assertBitmapAgainstGolden(bitmap, expected, MSSIMMatcher())
+            // Increase the threshold of Structural Similarity Index for image comparison to 0.995,
+            // so that we do not miss the image differences.
+            rule.assertBitmapAgainstGolden(bitmap, expected, MSSIMMatcher(threshold = 0.995))
         }
     }
 

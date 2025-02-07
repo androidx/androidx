@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,6 +40,7 @@ dependencies {
     lintPublish(project(":wear:protolayout:protolayout-lint"))
     compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("androidx.core:core:1.15.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
@@ -52,6 +53,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(project(":wear:protolayout:protolayout-proto"))
     testImplementation(project(":wear:protolayout:protolayout-testing"))
+    testImplementation(project(":wear:protolayout:protolayout"))
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
@@ -76,7 +78,7 @@ android {
 
 androidx {
     name = "androidx.wear.protolayout:protolayout-material3"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     samples(project(":wear:protolayout:protolayout-material3-samples"))
     inceptionYear = "2024"
     description = "Material3 components library for ProtoLayout."

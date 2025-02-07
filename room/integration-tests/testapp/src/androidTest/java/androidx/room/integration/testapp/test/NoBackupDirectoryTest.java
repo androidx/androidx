@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.TestDatabase;
@@ -34,6 +33,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,10 +97,9 @@ public class NoBackupDirectoryTest {
             mDelegate = new FrameworkSQLiteOpenHelperFactory();
         }
 
-        @NonNull
         @Override
-        public SupportSQLiteOpenHelper create(
-                @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
+        public @NonNull SupportSQLiteOpenHelper create(
+                SupportSQLiteOpenHelper.@NonNull Configuration configuration) {
             SupportSQLiteOpenHelper.Configuration backupConfiguration =
                     SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
                             .callback(configuration.callback)

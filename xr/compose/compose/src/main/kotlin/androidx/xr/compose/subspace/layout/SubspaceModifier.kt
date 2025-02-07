@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNodeCoordinator
 import androidx.xr.compose.subspace.node.SubspaceModifierElement
@@ -27,7 +26,6 @@ import androidx.xr.compose.subspace.node.SubspaceModifierElement
  *
  * Based on [androidx.compose.ui.Modifier]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SubspaceModifier {
 
     /**
@@ -86,6 +84,36 @@ public interface SubspaceModifier {
                 null
             }
         }
+
+        /**
+         * Indicates that the node is attached to a [SubspaceLayout] which is part of the UI tree.
+         * This will get set to true right before [onAttach] is called, and set to false right after
+         * [onDetach] is called.
+         *
+         * @see onAttach
+         * @see onDetach
+         */
+        public var isAttached: Boolean = false
+            private set
+
+        internal open fun markAsAttached() {
+            check(!isAttached) { "Cannot attach node that is already attached!" }
+            isAttached = true
+        }
+
+        internal open fun markAsDetached() {
+            check(isAttached) { "Cannot detach node that is not attached!" }
+            isAttached = false
+        }
+
+        /** Called when the node is attached to a [SubspaceLayout] which is part of the UI tree. */
+        public open fun onAttach() {}
+
+        /**
+         * Called when the node is not attached to a [SubspaceLayout] anymore. Note that the node
+         * can be reattached again.
+         */
+        public open fun onDetach() {}
     }
 
     /**
@@ -106,7 +134,6 @@ public interface SubspaceModifier {
  * A node in a [SubspaceModifier] chain. A CombinedSubspaceModifier always contains at least two
  * elements; a SubspaceModifier [outer] that wraps around the SubspaceModifier [inner].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class CombinedSubspaceModifier(
     internal val outer: SubspaceModifier,
     internal val inner: SubspaceModifier,
@@ -147,13 +174,11 @@ public class CombinedSubspaceModifier(
  *
  * If this node is the root, an empty sequence is returned.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.Node.traverseAncestors(): Sequence<SubspaceModifier.Node> {
     return generateSequence(seed = parent) { it.parent }
 }
 
 /** Generates a sequence with self and elements up the node tree to the root. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.Node.traverseSelfThenAncestors(): Sequence<SubspaceModifier.Node> =
     sequenceOf(this) + traverseAncestors()
 
@@ -162,13 +187,11 @@ public fun SubspaceModifier.Node.traverseSelfThenAncestors(): Sequence<SubspaceM
  *
  * If this node is a leaf node, an empty sequence is returned.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.Node.traverseDescendants(): Sequence<SubspaceModifier.Node> {
     return generateSequence(seed = child) { it.child }
 }
 
 /** Generates a sequence with self and elements down the node tree. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.Node.traverseSelfThenDescendants(): Sequence<SubspaceModifier.Node> =
     sequenceOf(this) + traverseDescendants()
 

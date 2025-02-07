@@ -1,4 +1,158 @@
 // Signature format: 4.0
+package androidx.xr.runtime.testing {
+
+  public interface AnchorHolder {
+    method public void detachAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public void persistAnchor(androidx.xr.runtime.internal.Anchor anchor);
+  }
+
+  public final class FakeLifecycleManager {
+    ctor public FakeLifecycleManager();
+    method public void allowOneMoreCallToUpdate();
+    method public void configure();
+    method public void create();
+    method public androidx.xr.runtime.testing.FakeLifecycleManager.State getState();
+    method public kotlin.time.TestTimeSource getTimeSource();
+    method public void pause();
+    method public void resume();
+    method public void stop();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
+    property public androidx.xr.runtime.testing.FakeLifecycleManager.State state;
+    property public kotlin.time.TestTimeSource timeSource;
+  }
+
+  public enum FakeLifecycleManager.State {
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State INITIALIZED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State NOT_INITIALIZED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State PAUSED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State RESUMED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State STOPPED;
+  }
+
+  public final class FakePerceptionManager implements androidx.xr.runtime.testing.AnchorHolder {
+    ctor public FakePerceptionManager();
+    method public void addHitResult(androidx.xr.runtime.internal.HitResult hitResult);
+    method public void addTrackable(androidx.xr.runtime.internal.Trackable trackable);
+    method public void clearHitResults();
+    method public void clearTrackables();
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public java.util.List<androidx.xr.runtime.internal.Anchor> getAnchors();
+    method public androidx.xr.runtime.internal.Hand? getLeftHand();
+    method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
+    method public androidx.xr.runtime.internal.Hand? getRightHand();
+    method public java.util.List<androidx.xr.runtime.internal.Trackable> getTrackables();
+    method public java.util.List<androidx.xr.runtime.internal.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
+    method public androidx.xr.runtime.internal.Anchor loadAnchor(java.util.UUID uuid);
+    method public androidx.xr.runtime.internal.Anchor loadAnchorFromNativePointer(long nativePointer);
+    method public void persistAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public void unpersistAnchor(java.util.UUID uuid);
+    property public java.util.List<androidx.xr.runtime.internal.Anchor> anchors;
+    property public androidx.xr.runtime.internal.Hand? leftHand;
+    property public androidx.xr.runtime.internal.Hand? rightHand;
+    property public java.util.List<androidx.xr.runtime.internal.Trackable> trackables;
+  }
+
+  public final class FakeRuntime {
+    ctor public FakeRuntime(androidx.xr.runtime.testing.FakeLifecycleManager lifecycleManager, androidx.xr.runtime.testing.FakePerceptionManager perceptionManager);
+    method public androidx.xr.runtime.testing.FakeLifecycleManager component1();
+    method public androidx.xr.runtime.testing.FakePerceptionManager component2();
+    method public androidx.xr.runtime.testing.FakeRuntime copy(androidx.xr.runtime.testing.FakeLifecycleManager lifecycleManager, androidx.xr.runtime.testing.FakePerceptionManager perceptionManager);
+    method public androidx.xr.runtime.testing.FakeLifecycleManager getLifecycleManager();
+    method public androidx.xr.runtime.testing.FakePerceptionManager getPerceptionManager();
+    property public androidx.xr.runtime.testing.FakeLifecycleManager lifecycleManager;
+    property public androidx.xr.runtime.testing.FakePerceptionManager perceptionManager;
+  }
+
+  public final class FakeRuntimeAnchor {
+    ctor public FakeRuntimeAnchor(androidx.xr.runtime.math.Pose pose, optional androidx.xr.runtime.testing.AnchorHolder? anchorHolder);
+    method public void detach();
+    method public androidx.xr.runtime.testing.AnchorHolder? getAnchorHolder();
+    method public androidx.xr.runtime.internal.Anchor.PersistenceState getPersistenceState();
+    method public androidx.xr.runtime.math.Pose getPose();
+    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method public java.util.UUID? getUuid();
+    method public boolean isAttached();
+    method public void persist();
+    method public void setPersistenceState(androidx.xr.runtime.internal.Anchor.PersistenceState);
+    method public void setPose(androidx.xr.runtime.math.Pose);
+    method public void setTrackingState(androidx.xr.runtime.internal.TrackingState);
+    method public void setUuid(java.util.UUID?);
+    property public androidx.xr.runtime.testing.AnchorHolder? anchorHolder;
+    property public boolean isAttached;
+    property public androidx.xr.runtime.internal.Anchor.PersistenceState persistenceState;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public java.util.UUID? uuid;
+    field public static final int ANCHOR_RESOURCE_LIMIT = 5; // 0x5
+    field public static final androidx.xr.runtime.testing.FakeRuntimeAnchor.Companion Companion;
+  }
+
+  public static final class FakeRuntimeAnchor.Companion {
+    method public int getAnchorsCreated();
+    method public void setAnchorsCreated(int);
+    property public static int ANCHOR_RESOURCE_LIMIT;
+    property public int anchorsCreated;
+  }
+
+  public final class FakeRuntimeFactory {
+    ctor public FakeRuntimeFactory();
+    method public androidx.xr.runtime.testing.FakeRuntime createRuntime(android.app.Activity activity);
+  }
+
+  public final class FakeRuntimeHand {
+    ctor public FakeRuntimeHand();
+    ctor public FakeRuntimeHand(optional boolean isActive, optional java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints);
+    method public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
+    method public boolean isActive();
+    method public void setActive(boolean);
+    method public void setHandJoints(java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose>);
+    property public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
+    property public boolean isActive;
+  }
+
+  public final class FakeRuntimePlane implements androidx.xr.runtime.testing.AnchorHolder {
+    ctor public FakeRuntimePlane();
+    ctor public FakeRuntimePlane(optional androidx.xr.runtime.internal.Plane.Type type, optional androidx.xr.runtime.internal.Plane.Label label, optional androidx.xr.runtime.internal.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.Vector2 extents, optional java.util.List<androidx.xr.runtime.math.Vector2> vertices, optional androidx.xr.runtime.internal.Plane? subsumedBy, optional java.util.Collection<androidx.xr.runtime.internal.Anchor> anchors);
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public java.util.Collection<androidx.xr.runtime.internal.Anchor> getAnchors();
+    method public androidx.xr.runtime.math.Pose getCenterPose();
+    method public androidx.xr.runtime.math.Vector2 getExtents();
+    method public androidx.xr.runtime.internal.Plane.Label getLabel();
+    method public androidx.xr.runtime.internal.Plane? getSubsumedBy();
+    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method public androidx.xr.runtime.internal.Plane.Type getType();
+    method public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
+    method public void persistAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method public void setExtents(androidx.xr.runtime.math.Vector2);
+    method public void setSubsumedBy(androidx.xr.runtime.internal.Plane?);
+    method public void setTrackingState(androidx.xr.runtime.internal.TrackingState);
+    method public void setVertices(java.util.List<androidx.xr.runtime.math.Vector2>);
+    property public java.util.Collection<androidx.xr.runtime.internal.Anchor> anchors;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.Vector2 extents;
+    property public androidx.xr.runtime.internal.Plane.Label label;
+    property public androidx.xr.runtime.internal.Plane? subsumedBy;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public androidx.xr.runtime.internal.Plane.Type type;
+    property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
+  }
+
+  public final class FakeStateExtender {
+    ctor public FakeStateExtender();
+    method public suspend Object? extend(androidx.xr.runtime.CoreState coreState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public java.util.List<androidx.xr.runtime.CoreState> getExtended();
+    method public void initialize(androidx.xr.runtime.internal.Runtime runtime);
+    method public boolean isInitialized();
+    method public void setInitialized(boolean);
+    property public java.util.List<androidx.xr.runtime.CoreState> extended;
+    property public boolean isInitialized;
+  }
+
+}
+
 package androidx.xr.runtime.testing.math {
 
   public final class MathAssertions {

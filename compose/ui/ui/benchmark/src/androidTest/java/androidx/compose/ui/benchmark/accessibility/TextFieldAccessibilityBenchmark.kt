@@ -83,7 +83,7 @@ class TextFieldAccessibilityBenchmark(
                 )
             },
             benchmark = {
-                val semanticsId = runWithTimingDisabled { findIdByTag("tag") }
+                val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
             }
         )
@@ -105,7 +105,7 @@ class TextFieldAccessibilityBenchmark(
                 }
             },
             benchmark = {
-                val semanticsId = runWithTimingDisabled { findIdByTag("tag") }
+                val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
             }
         )
@@ -380,13 +380,13 @@ class TextFieldAccessibilityBenchmark(
             }
         ) {
             benchmarkRule.measureRepeatedOnUiThread {
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     doFrame()
                     assertNoPendingChanges()
                     if (invalidateSemanticsOnEachRun) invalidateSemantics()
                 }
                 benchmark()
-                runWithTimingDisabled { disposeContent() }
+                runWithMeasurementDisabled { disposeContent() }
             }
         }
     }

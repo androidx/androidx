@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ExposedDropdownMenu_androidKt")
+
 package androidx.compose.material
 
 import androidx.compose.animation.animateColorAsState
@@ -61,6 +63,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
+import kotlin.jvm.JvmName
 import kotlin.math.max
 
 /**

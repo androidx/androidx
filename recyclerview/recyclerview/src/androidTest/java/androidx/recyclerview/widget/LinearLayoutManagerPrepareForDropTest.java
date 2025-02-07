@@ -23,9 +23,9 @@ import static org.junit.Assert.assertSame;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -127,7 +127,7 @@ public class LinearLayoutManagerPrepareForDropTest extends BaseLinearLayoutManag
         config.mTestAdapter = new BaseRecyclerViewInstrumentationTest.TestAdapter(100) {
             @Override
             public void onBindViewHolder(
-                    @NonNull BaseRecyclerViewInstrumentationTest.TestViewHolder holder,
+                    BaseRecyclerViewInstrumentationTest.@NonNull TestViewHolder holder,
                     int position) {
                 super.onBindViewHolder(holder, position);
                 if (config.mOrientation == HORIZONTAL) {

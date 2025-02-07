@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -39,7 +39,7 @@ android {
 
 androidx {
     name = "androidx.wear.protolayout:protolayout-material3-samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for Material3 components library for ProtoLayout."
 }

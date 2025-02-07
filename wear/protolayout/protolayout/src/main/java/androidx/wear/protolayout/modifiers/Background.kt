@@ -115,7 +115,7 @@ fun LayoutModifier.clipBottomRight(
 ): LayoutModifier = this then BaseCornerElement(bottomRightRadius = cornerRadius(x, y))
 
 internal class BaseBackgroundElement(val color: LayoutColor) : LayoutModifier.Element {
-    fun foldIn(initial: Background.Builder?): Background.Builder =
+    fun mergeTo(initial: Background.Builder?): Background.Builder =
         (initial ?: Background.Builder()).setColor(color.prop)
 }
 
@@ -127,7 +127,7 @@ internal class BaseCornerElement(
     @RequiresSchemaVersion(major = 1, minor = 400) val bottomRightRadius: CornerRadius? = null
 ) : LayoutModifier.Element {
     @SuppressLint("ProtoLayoutMinSchema")
-    fun foldIn(initial: Corner.Builder?): Corner.Builder =
+    fun mergeTo(initial: Corner.Builder?): Corner.Builder =
         (initial ?: Corner.Builder()).apply {
             cornerRadiusDp?.let { setRadius(cornerRadiusDp.dp) }
             topLeftRadius?.let { setTopLeftRadius(cornerRadius(it.x.value, it.y.value)) }

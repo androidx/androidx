@@ -24,8 +24,8 @@ package androidx.metrics.performance {
     ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameDurationTotalNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
     method public long getFrameDurationTotalNanos();
     method public long getFrameOverrunNanos();
-    property public final long frameDurationTotalNanos;
-    property public final long frameOverrunNanos;
+    property public long frameDurationTotalNanos;
+    property public long frameOverrunNanos;
   }
 
   public final class JankStats {
@@ -34,8 +34,8 @@ package androidx.metrics.performance {
     method public boolean isTrackingEnabled();
     method public void setJankHeuristicMultiplier(float);
     method @UiThread public void setTrackingEnabled(boolean);
-    property public final boolean isTrackingEnabled;
-    property public final float jankHeuristicMultiplier;
+    property public boolean isTrackingEnabled;
+    property public float jankHeuristicMultiplier;
     field public static final androidx.metrics.performance.JankStats.Companion Companion;
   }
 
@@ -61,15 +61,15 @@ package androidx.metrics.performance {
 
   public static final class PerformanceMetricsState.Holder {
     method public androidx.metrics.performance.PerformanceMetricsState? getState();
-    property public final androidx.metrics.performance.PerformanceMetricsState? state;
+    property public androidx.metrics.performance.PerformanceMetricsState? state;
   }
 
   public final class StateInfo {
     ctor public StateInfo(String key, String value);
     method public String getKey();
     method public String getValue();
-    property public final String key;
-    property public final String value;
+    property public String key;
+    property public String value;
   }
 
 }

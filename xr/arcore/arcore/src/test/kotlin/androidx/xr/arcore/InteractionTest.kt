@@ -49,7 +49,11 @@ class InteractionTest {
     private lateinit var perceptionManager: FakePerceptionManager
 
     @get:Rule
-    val grantPermissionRule = GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING")
+    val grantPermissionRule =
+        GrantPermissionRule.grant(
+            "android.permission.SCENE_UNDERSTANDING",
+            "android.permission.HAND_TRACKING",
+        )
 
     @Test
     fun hitTest_successWithOneHitResult() = createTestSessionAndRunTest {

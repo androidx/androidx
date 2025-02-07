@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -36,21 +36,19 @@ dependencies {
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("com.google.ar:impress:0.0.1")
+    implementation("com.google.ar:impress:0.0.2")
 }
 
 android {
     defaultConfig {
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdkVersion 24
     }
     namespace = "androidx.xr.scenecore.testing"
 }
 
 androidx {
     name = "XR SceneCore Testing"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Libraries to aid in unit testing SceneCore clients."
 

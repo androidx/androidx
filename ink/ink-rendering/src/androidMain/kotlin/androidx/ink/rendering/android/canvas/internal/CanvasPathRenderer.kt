@@ -113,7 +113,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         firstInput: StrokeInput,
         lastInput: StrokeInput,
     ) {
-        // TODO: b/373649230 - Use [animationProgress] in renderer.
+        // TODO: b/373649230 - Use [textureAnimationProgress] in renderer.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val paint = paintCache.obtain(brushPaint, color, brushSize, firstInput, lastInput)
             // On API 28 and above, both the Path and the Canvas are in stroke coordinate space.
@@ -142,17 +142,17 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, stroke, scratchAffineTransformMatrix, animationProgress)
+        draw(canvas, stroke, scratchAffineTransformMatrix, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         if (stroke.inputs.isEmpty()) return // nothing to draw
         stroke.inputs.populate(0, scratchFirstInput)
@@ -175,17 +175,17 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, inProgressStroke, scratchAffineTransformMatrix, animationProgress)
+        draw(canvas, inProgressStroke, scratchAffineTransformMatrix, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val brush =
             checkNotNull(inProgressStroke.brush) {

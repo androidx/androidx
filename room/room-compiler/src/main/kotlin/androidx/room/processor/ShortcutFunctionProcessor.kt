@@ -15,7 +15,7 @@
  */
 package androidx.room.processor
 
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -24,7 +24,7 @@ import androidx.room.vo.DataClass
 import androidx.room.vo.Entity
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.vo.findFieldByColumnName
+import androidx.room.vo.findPropertyByColumnName
 import kotlin.reflect.KClass
 
 /** Common functionality for shortcut function processors */
@@ -37,7 +37,7 @@ class ShortcutFunctionProcessor(
     private val delegate =
         FunctionProcessorDelegate.createFor(context, containing, executableElement)
 
-    fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): XAnnotationBox<T>? {
+    fun <T : Annotation> extractAnnotation(klass: KClass<T>, errorMsg: String): XAnnotation? {
         val annotation = executableElement.getAnnotation(klass)
         context.checker.check(annotation != null, executableElement, errorMsg)
         return annotation
@@ -149,20 +149,20 @@ class ShortcutFunctionProcessor(
                             DataClassProcessor.createFor(
                                     context = context,
                                     element = pojoTypeElement,
-                                    bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                                    bindingScope = PropertyProcessor.BindingScope.BIND_TO_STMT,
                                     parent = null
                                 )
                                 .process()
                                 .also { pojo ->
-                                    pojo.fields
+                                    pojo.properties
                                         .filter {
-                                            targetEntity.findFieldByColumnName(it.columnName) ==
+                                            targetEntity.findPropertyByColumnName(it.columnName) ==
                                                 null
                                         }
                                         .forEach {
                                             context.logger.e(
                                                 it.element,
-                                                ProcessorErrors.cannotFindAsEntityField(
+                                                ProcessorErrors.cannotFindAsEntityProperty(
                                                     targetEntity.typeName.toString(
                                                         context.codeLanguage
                                                     )
@@ -178,7 +178,7 @@ class ShortcutFunctionProcessor(
                                         )
                                     }
 
-                                    if (pojo.fields.isEmpty()) {
+                                    if (pojo.properties.isEmpty()) {
                                         context.logger.e(
                                             executableElement,
                                             ProcessorErrors.noColumnsInPartialEntity(

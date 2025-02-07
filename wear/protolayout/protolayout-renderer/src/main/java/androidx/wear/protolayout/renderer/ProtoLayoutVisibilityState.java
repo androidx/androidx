@@ -34,8 +34,10 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ProtoLayoutVisibilityState {
     /** Fully visible and on-screen. */
     int VISIBILITY_STATE_FULLY_VISIBLE = 0;
+
     /** The layout is either entering or leaving the screen. */
     int VISIBILITY_STATE_PARTIALLY_VISIBLE = 1;
+
     /** The layout is off screen, or covered up by a foreground activity. */
     int VISIBILITY_STATE_INVISIBLE = 2;
 }

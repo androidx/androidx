@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,7 @@ dependencies {
 
 androidx {
     name = "WindowManager Sidecar"
-    type = LibraryType.PUBLISHED_LIBRARY // Only to generate per-project-zips
+    type = SoftwareType.PUBLISHED_LIBRARY // Only to generate per-project-zips
     inceptionYear = "2020"
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
             "module instead."

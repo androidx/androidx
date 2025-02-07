@@ -18,9 +18,10 @@ package androidx.recyclerview.selection;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Wrapper class that regulates delivery of MotionEvents to delegate listeners, uniformly

@@ -65,7 +65,7 @@ class SpatialAudioTrackTest {
     fun setWithPointSource_callsRuntimeAudioTrackBuilderSetPointSource() {
         val builder = AudioTrack.Builder()
 
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         val pointSourceAttributes = PointSourceAttributes(entity)
 
         whenever(
@@ -137,7 +137,7 @@ class SpatialAudioTrackTest {
     @Test
     fun getPointSourceAttributes_callsRuntimeAudioTrackGetPointSourceAttributes() {
         val audioTrack = AudioTrack.Builder().build()
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
 
         val temp: BaseEntity<*> = entity as BaseEntity<*>
         val rtEntity = temp.rtEntity

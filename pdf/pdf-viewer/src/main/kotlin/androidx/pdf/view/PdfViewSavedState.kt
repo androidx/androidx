@@ -30,6 +30,7 @@ internal class PdfViewSavedState : AbsSavedState {
     var zoom: Float = 1F
     var documentUri: Uri? = null
     var paginationModel: PaginationModel? = null
+    var isInitialZoomDone: Boolean = false
     /**
      * The width of the PdfView before the last layout change (e.g., before rotation). Used to
      * preserve the zoom level when the device is rotated.

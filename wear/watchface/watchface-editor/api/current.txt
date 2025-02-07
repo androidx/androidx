@@ -6,9 +6,9 @@ package androidx.wear.watchface.editor {
     method public androidx.wear.watchface.complications.ComplicationDataSourceInfo? getComplicationDataSourceInfo();
     method public int getComplicationSlotId();
     method public android.os.Bundle getExtras();
-    property public final androidx.wear.watchface.complications.ComplicationDataSourceInfo? complicationDataSourceInfo;
-    property public final int complicationSlotId;
-    property public final android.os.Bundle extras;
+    property public androidx.wear.watchface.complications.ComplicationDataSourceInfo? complicationDataSourceInfo;
+    property public int complicationSlotId;
+    property public android.os.Bundle extras;
   }
 
   public final class EditorRequest {
@@ -21,12 +21,12 @@ package androidx.wear.watchface.editor {
     method public androidx.wear.watchface.editor.PreviewScreenshotParams? getPreviewScreenshotParams();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
-    property public final String editorPackageName;
-    property public final androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig;
-    property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
-    property public final androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams;
-    property public final android.content.ComponentName watchFaceComponentName;
-    property @RequiresApi(android.os.Build.VERSION_CODES.R) public final androidx.wear.watchface.client.WatchFaceId watchFaceId;
+    property public String editorPackageName;
+    property public androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig;
+    property public androidx.wear.watchface.style.UserStyleData? initialUserStyle;
+    property public androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams;
+    property public android.content.ComponentName watchFaceComponentName;
+    property @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId watchFaceId;
     field public static final androidx.wear.watchface.editor.EditorRequest.Companion Companion;
   }
 
@@ -78,8 +78,8 @@ package androidx.wear.watchface.editor {
     ctor public PreviewScreenshotParams(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant);
     method public java.time.Instant getInstant();
     method public androidx.wear.watchface.RenderParameters getRenderParameters();
-    property public final java.time.Instant instant;
-    property public final androidx.wear.watchface.RenderParameters renderParameters;
+    property public java.time.Instant instant;
+    property public androidx.wear.watchface.RenderParameters renderParameters;
   }
 
   public class WatchFaceEditorContract extends androidx.activity.result.contract.ActivityResultContract<androidx.wear.watchface.editor.EditorRequest,kotlin.Unit> {
@@ -91,7 +91,7 @@ package androidx.wear.watchface.editor {
   }
 
   public static final class WatchFaceEditorContract.Companion {
-    property public static final String ACTION_WATCH_FACE_EDITOR;
+    property public static String ACTION_WATCH_FACE_EDITOR;
   }
 
 }

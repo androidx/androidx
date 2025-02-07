@@ -38,7 +38,7 @@ internal interface InternalXAnnotated : XAnnotated {
     fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
         containerAnnotation: KClass<out Annotation>? = annotation.containerAnnotation
-    ): List<XAnnotationBox<T>>
+    ): List<XAnnotation>
 
     override fun <T : Annotation> getAnnotations(annotation: KClass<T>) =
         getAnnotations(
@@ -58,7 +58,6 @@ internal interface InternalXAnnotated : XAnnotated {
      * @param annotation The annotation to query
      * @param containerAnnotation The container annotation of the [annotation] if it is a repeatable
      *   annotation.
-     * @see [toAnnotationBox]
      * @see [hasAnyAnnotation]
      */
     fun hasAnnotation(

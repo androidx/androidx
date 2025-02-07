@@ -63,13 +63,19 @@ public abstract class EmbeddingPropertyAnnotation extends DataPropertyAnnotation
         return new AutoValue_EmbeddingPropertyAnnotation(
                 name.isEmpty() ? defaultName : name,
                 (boolean) annotationParams.get("required"),
-                (int) annotationParams.get("indexingType"));
+                (int) annotationParams.get("indexingType"),
+                (int) annotationParams.get("quantizationType"));
     }
 
     /**
      * Specifies how a property should be indexed.
      */
     public abstract int getIndexingType();
+
+    /**
+     * Specifies whether the embedding vectors in this property should be quantized.
+     */
+    public abstract int getQuantizationType();
 
     @Override
     public final @NonNull Kind getDataPropertyKind() {

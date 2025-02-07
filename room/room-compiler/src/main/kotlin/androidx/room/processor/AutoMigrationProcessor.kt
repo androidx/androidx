@@ -21,7 +21,9 @@ import androidx.room.DeleteTable
 import androidx.room.ProvidedAutoMigrationSpec
 import androidx.room.RenameColumn
 import androidx.room.RenameTable
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.get
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
@@ -108,8 +110,8 @@ class AutoMigrationProcessor(
             specElement?.let { element ->
                 element.getAnnotations(DeleteColumn::class).map {
                     AutoMigration.DeletedColumn(
-                        tableName = it.value.tableName,
-                        columnName = it.value.columnName
+                        tableName = it.getAsString("tableName"),
+                        columnName = it.getAsString("columnName")
                     )
                 }
             } ?: emptyList()
@@ -117,7 +119,7 @@ class AutoMigrationProcessor(
         val deleteTableEntries =
             specElement?.let { element ->
                 element.getAnnotations(DeleteTable::class).map {
-                    AutoMigration.DeletedTable(deletedTableName = it.value.tableName)
+                    AutoMigration.DeletedTable(deletedTableName = it.getAsString("tableName"))
                 }
             } ?: emptyList()
 
@@ -125,8 +127,8 @@ class AutoMigrationProcessor(
             specElement?.let { element ->
                 element.getAnnotations(RenameTable::class).map {
                     AutoMigration.RenamedTable(
-                        originalTableName = it.value.fromTableName,
-                        newTableName = it.value.toTableName
+                        originalTableName = it.getAsString("fromTableName"),
+                        newTableName = it.getAsString("toTableName")
                     )
                 }
             } ?: emptyList()
@@ -135,9 +137,9 @@ class AutoMigrationProcessor(
             specElement?.let { element ->
                 element.getAnnotations(RenameColumn::class).map {
                     AutoMigration.RenamedColumn(
-                        tableName = it.value.tableName,
-                        originalColumnName = it.value.fromColumnName,
-                        newColumnName = it.value.toColumnName
+                        tableName = it.getAsString("tableName"),
+                        originalColumnName = it.getAsString("fromColumnName"),
+                        newColumnName = it.getAsString("toColumnName")
                     )
                 }
             } ?: emptyList()

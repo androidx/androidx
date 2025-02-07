@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,9 +50,21 @@ android {
     namespace = "androidx.test.uiautomator"
 }
 
+/**
+ * Build UIAutomator using JDK17 instead of the current default (JDK21). This works around changes
+ * in JDK21 that result in r8 compilation failures (b/281536562). While the r8 issue has been fixed
+ * in main, this keeps the UIAutomator prebuilt compatible with older Android branches that lack the
+ * fix (e.g. AOSP releases before Android 14 QPR2).
+ */
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 androidx {
     name = "UIAutomator"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2012"
     description = "UI testing framework suitable for cross-app functional UI testing"
     failOnDeprecationWarnings = false

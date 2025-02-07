@@ -633,7 +633,7 @@ internal fun mul3x3Float3(lhs: FloatArray, rhs: FloatArray): FloatArray {
  * @param r2: The third element of the vector
  * @return The first element of the resulting multiplication.
  */
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 internal inline fun mul3x3Float3_0(lhs: FloatArray, r0: Float, r1: Float, r2: Float): Float {
     return lhs[0] * r0 + lhs[3] * r1 + lhs[6] * r2
 }
@@ -648,7 +648,7 @@ internal inline fun mul3x3Float3_0(lhs: FloatArray, r0: Float, r1: Float, r2: Fl
  * @param r2: The third element of the vector
  * @return The second element of the resulting multiplication.
  */
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 internal inline fun mul3x3Float3_1(lhs: FloatArray, r0: Float, r1: Float, r2: Float): Float {
     return lhs[1] * r0 + lhs[4] * r1 + lhs[7] * r2
 }
@@ -663,7 +663,7 @@ internal inline fun mul3x3Float3_1(lhs: FloatArray, r0: Float, r1: Float, r2: Fl
  * @param r2: The third element of the vector
  * @return The third element of the resulting multiplication.
  */
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 internal inline fun mul3x3Float3_2(lhs: FloatArray, r0: Float, r1: Float, r2: Float): Float {
     return lhs[2] * r0 + lhs[5] * r1 + lhs[8] * r2
 }

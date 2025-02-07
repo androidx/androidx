@@ -19,14 +19,8 @@ package androidx.compose.runtime.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.implementedInJetBrainsFork
-import kotlinx.coroutines.CancellationException
-
-internal actual fun identityHashCode(instance: Any?): Int = implementedInJetBrainsFork()
 
 internal actual fun invokeComposable(composer: Composer, composable: @Composable () -> Unit): Unit =
     implementedInJetBrainsFork()
-
-internal actual abstract class PlatformOptimizedCancellationException
-actual constructor(message: String?) : CancellationException(message)
 
 internal actual fun logError(message: String, e: Throwable): Unit = implementedInJetBrainsFork()

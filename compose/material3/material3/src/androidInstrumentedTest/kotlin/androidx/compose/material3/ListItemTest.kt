@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -159,6 +161,33 @@ class ListItemTest {
     }
 
     @Test
+    fun listItem_multipleItems_intrinsicSize() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.width(300.dp).height(IntrinsicSize.Min)) {
+                // 2 identical list items. Leading content leaves small space
+                // for headline, so it has to wrap.
+                ListItem(
+                    modifier = Modifier.testTag("ListItem1"),
+                    leadingContent = { Box(Modifier.width(240.dp)) },
+                    headlineContent = { Text("A B C D E F G H") },
+                )
+                ListItem(
+                    modifier = Modifier.testTag("ListItem2"),
+                    leadingContent = { Box(Modifier.width(240.dp)) },
+                    headlineContent = { Text("A B C D E F G H") },
+                )
+            }
+        }
+
+        val item1Height =
+            rule
+                .onNodeWithTag("ListItem1", useUnmergedTree = true)
+                .getUnclippedBoundsInRoot()
+                .height
+        rule.onNodeWithTag("ListItem2", useUnmergedTree = true).assertHeightIsEqualTo(item1Height)
+    }
+
+    @Test
     fun listItem_twoLine_intrinsicSize() {
         testIntrinsicMeasurements(
             expectedHeight = ListTokens.ListItemTwoLineContainerHeight,
@@ -206,10 +235,7 @@ class ListItemTest {
                     modifier = Modifier.fillMaxHeight().testTag(ListTag),
                     headlineContent = { Text("Primary text") },
                     supportingContent = {
-                        Text(
-                            "Very very very very very very long supporting text " +
-                                "which will span at least two lines"
-                        )
+                        Text("Long supporting text\nwhich will span at least two lines")
                     },
                     leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
                     trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
@@ -272,6 +298,24 @@ class ListItemTest {
                 .isWithin(1f)
                 .of((listItemHeight.toPx() - trailingSize.value!!.height) / 2f)
         }
+    }
+
+    @Test
+    fun listItem_threeLine_overlineAndSupporting_constraintsDoNotCrash() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ListItem(
+                // Extremely small width to test limits of constraints arithmetic
+                modifier = Modifier.width(10.dp),
+                headlineContent = { Text(".") },
+                overlineContent = { Text(".") },
+                supportingContent = { Text("Supporting") },
+                leadingContent = { Icon(icon24x24, null) },
+                trailingContent = { Icon(icon24x24, null) },
+            )
+        }
+
+        rule.waitForIdle()
+        // should not have crashed
     }
 
     @Test
@@ -590,8 +634,7 @@ class ListItemTest {
                     },
                     supportingContent = {
                         Text(
-                            "Very very very very very very long supporting text " +
-                                "which will span at least two lines",
+                            "Long supporting text\nwhich will span at least two lines",
                             Modifier.saveLayout(secondaryTextPosition, secondaryTextSize)
                         )
                     },

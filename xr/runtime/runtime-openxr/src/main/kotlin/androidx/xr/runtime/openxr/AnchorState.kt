@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.openxr
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.TrackingState
 import androidx.xr.runtime.math.Pose
 
@@ -27,7 +26,6 @@ import androidx.xr.runtime.math.Pose
  * @property pose the pose of the center of the detected anchor. Can be null iff the tracking state
  *   is [TrackingState.Stopped].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public data class AnchorState(
     val trackingState: TrackingState = TrackingState.Paused,
     val pose: Pose? = Pose(),

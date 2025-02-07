@@ -63,39 +63,49 @@ internal class CanvasStrokeUnifiedRenderer(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         getDelegateRendererOrThrow(stroke)
-            .draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+            .draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         getDelegateRendererOrThrow(stroke)
-            .draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+            .draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+        delegateRenderer.draw(
+            canvas,
+            inProgressStroke,
+            strokeToScreenTransform,
+            textureAnimationProgress,
+        )
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+        delegateRenderer.draw(
+            canvas,
+            inProgressStroke,
+            strokeToScreenTransform,
+            textureAnimationProgress,
+        )
     }
 }

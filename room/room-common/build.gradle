@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -32,12 +32,14 @@ plugins {
 }
 
 androidXMultiplatform {
+    js()
     jvm() {
         withJava()
     }
     mac()
     linux()
     ios()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -45,7 +47,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 
@@ -84,7 +86,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Room-Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room-Common"
     legacyDisableKotlinStrictApiMode = true

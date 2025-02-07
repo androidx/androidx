@@ -140,24 +140,25 @@ fun TransformingLazyColumnScrollingSample() {
                             Box(
                                 Modifier.size(25.dp)
                                     .drawWithContent {
-                                        drawContent()
-
-                                        val colorProgress =
-                                            scrollProgress?.let {
-                                                (it.topOffsetFraction + it.bottomOffsetFraction) /
-                                                    2f
-                                            } ?: 0f
-                                        val r = size.height / 2f
-                                        drawCircle(
-                                            rainbowColor(colorProgress),
-                                            radius = r,
-                                            center = Offset(size.width - r, r)
-                                        )
-                                        drawCircle(
-                                            rainbowColor(random.nextFloat()),
-                                            radius = r / 8,
-                                            center = Offset(size.width - r, r)
-                                        )
+                                        with(scrollProgress) {
+                                            if (isUnspecified) {
+                                                return@with
+                                            }
+                                            drawContent()
+                                            val colorProgress =
+                                                (topOffsetFraction + bottomOffsetFraction) / 2f
+                                            val r = size.height / 2f
+                                            drawCircle(
+                                                rainbowColor(colorProgress),
+                                                radius = r,
+                                                center = Offset(size.width - r, r)
+                                            )
+                                            drawCircle(
+                                                rainbowColor(random.nextFloat()),
+                                                radius = r / 8,
+                                                center = Offset(size.width - r, r)
+                                            )
+                                        }
                                     }
                                     .clickable {
                                         expandedItemKey =
@@ -319,7 +320,7 @@ fun TransformingLazyColumnReducedMotionSample() {
                 }
             }
         ) { contentPadding ->
-            CompositionLocalProvider(LocalReduceMotion provides { enableReduceMotion }) {
+            CompositionLocalProvider(LocalReduceMotion provides enableReduceMotion) {
                 TransformingLazyColumn(
                     state = state,
                     contentPadding = contentPadding,

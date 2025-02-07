@@ -21,7 +21,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /** A data class that holds the information about an FTS table. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual class FtsTableInfo(
     /** The table name */
     @JvmField actual val name: String,

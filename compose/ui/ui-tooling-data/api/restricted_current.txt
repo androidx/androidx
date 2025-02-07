@@ -41,15 +41,15 @@ package androidx.compose.ui.tooling.data {
     method public androidx.compose.ui.tooling.data.JoinedKey copy(Object? left, Object? right);
     method public Object? getLeft();
     method public Object? getRight();
-    property public final Object? left;
-    property public final Object? right;
+    property public Object? left;
+    property public Object? right;
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class NodeGroup extends androidx.compose.ui.tooling.data.Group {
     ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<? extends java.lang.Object?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
     method public Object getNode();
     property public java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo;
-    property public final Object node;
+    property public Object node;
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class ParameterInformation {
@@ -69,13 +69,13 @@ package androidx.compose.ui.tooling.data {
     method public boolean getStable();
     method public boolean getStatic();
     method public Object? getValue();
-    property public final boolean compared;
-    property public final boolean fromDefault;
-    property public final String? inlineClass;
-    property public final String name;
-    property public final boolean stable;
-    property public final boolean static;
-    property public final Object? value;
+    property public boolean compared;
+    property public boolean fromDefault;
+    property public String? inlineClass;
+    property public String name;
+    property public boolean stable;
+    property public boolean static;
+    property public Object? value;
   }
 
   public final class SlotTreeKt {
@@ -83,6 +83,7 @@ package androidx.compose.ui.tooling.data {
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> findParameters(androidx.compose.runtime.tooling.CompositionGroup, optional androidx.compose.ui.tooling.data.ContextCache? cache);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? getPosition(androidx.compose.ui.tooling.data.Group);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> T? mapTree(androidx.compose.runtime.tooling.CompositionData, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? extends T?> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
+    property @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? position;
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public interface SourceContext {
@@ -113,11 +114,11 @@ package androidx.compose.ui.tooling.data {
     method public int getOffset();
     method public int getPackageHash();
     method public String? getSourceFile();
-    property public final int length;
-    property public final int lineNumber;
-    property public final int offset;
-    property public final int packageHash;
-    property public final String? sourceFile;
+    property public int length;
+    property public int lineNumber;
+    property public int offset;
+    property public int packageHash;
+    property public String? sourceFile;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is for tooling only and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UiToolingDataApi {

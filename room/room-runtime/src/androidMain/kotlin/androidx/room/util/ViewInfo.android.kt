@@ -27,7 +27,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual class ViewInfo
 actual constructor(
     /** The view name */

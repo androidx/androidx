@@ -17,6 +17,7 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.SuppressLint
+import android.health.connect.datatypes.Metadata.RECORDING_METHOD_UNKNOWN
 import android.os.Build
 import androidx.health.connect.client.RECORD_CLASSES
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -2312,6 +2313,7 @@ class RecordConvertersTest {
 
         val METADATA =
             Metadata(
+                recordingMethod = RECORDING_METHOD_UNKNOWN,
                 id = "someId",
                 dataOrigin = DataOrigin("somePackage"),
                 device =

@@ -147,11 +147,6 @@ constructor(
         }
     }
 
-    /** Fetch the semantics ID. */
-    fun semanticsId(): Int {
-        return fetchSemanticsNode().id
-    }
-
     private fun fetchOneOrThrow(
         errorMessageOnFail: String? = null,
         skipDeactivatedNodes: Boolean = true

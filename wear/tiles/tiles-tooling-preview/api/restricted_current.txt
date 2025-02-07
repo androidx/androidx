@@ -30,9 +30,9 @@ package androidx.wear.tiles.tooling.preview {
     method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> getOnTileRequest();
     method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> getOnTileResourceRequest();
     method public androidx.wear.protolayout.expression.PlatformDataValues? getPlatformDataValues();
-    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
-    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
-    property public final androidx.wear.protolayout.expression.PlatformDataValues? platformDataValues;
+    property public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
+    property public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
+    property public androidx.wear.protolayout.expression.PlatformDataValues? platformDataValues;
   }
 
   public final class TilePreviewHelper {

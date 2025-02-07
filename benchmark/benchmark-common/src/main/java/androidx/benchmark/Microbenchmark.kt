@@ -18,13 +18,17 @@ package androidx.benchmark
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState.Companion.enableMethodTracingAffectsMeasurementError
+import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
+import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
 import androidx.tracing.trace
@@ -35,18 +39,34 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 
+/**
+ * Scope handle for pausing/resuming microbenchmark measurement.
+ *
+ * This is functionally an equivalent to `BenchmarkRule.Scope` which will work without the JUnit
+ * dependency.
+ */
+open class MicrobenchmarkScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-open class MicrobenchmarkScope(internal val state: MicrobenchmarkRunningState) {
+constructor(internal val state: MicrobenchmarkRunningState) {
+    /**
+     * Disable measurement for a block of code.
+     *
+     * Used for disabling timing/measurement for work that isn't part of the benchmark:
+     * - When constructing per-loop randomized inputs for operations with caching,
+     * - Controlling which parts of multi-stage work are measured (e.g. View measure/layout)
+     * - Per-loop verification
+     *
+     * @sample androidx.benchmark.samples.runWithMeasurementDisabledSample
+     */
     inline fun <T> runWithMeasurementDisabled(block: () -> T): T {
         pauseMeasurement()
-        // Note: we only bother with tracing for the runWithTimingDisabled function for
-        // Kotlin callers, as it's more difficult to corrupt the trace with incorrectly
-        // paired BenchmarkState pause/resume calls
+        // Note: we only bother with tracing for the runWithMeasurementDisabled function for
+        // Kotlin callers, since we want to avoid corrupting the trace with incorrectly paired
+        // pauseMeasurement/resumeMeasurement calls
         val ret: T =
             try {
-                // TODO: use `trace() {}` instead of this manual try/finally,
-                //  once the block parameter is marked crossinline.
-                Trace.beginSection("runWithTimingDisabled")
+                // have to use begin/end since block isn't crossinline
+                Trace.beginSection("runWithMeasurementDisabled")
                 block()
             } finally {
                 Trace.endSection()
@@ -58,7 +78,7 @@ open class MicrobenchmarkScope(internal val state: MicrobenchmarkRunningState) {
     /**
      * Resume measurement after a call to [pauseMeasurement].
      *
-     * Kotlin callers should generally instead use [runWithTimingDisabled].
+     * Kotlin callers should generally instead use [runWithMeasurementDisabled].
      */
     fun pauseMeasurement() {
         state.pauseMeasurement()
@@ -67,7 +87,7 @@ open class MicrobenchmarkScope(internal val state: MicrobenchmarkRunningState) {
     /**
      * Resume measurement after a call to [pauseMeasurement]
      *
-     * Kotlin callers should generally instead use [runWithTimingDisabled].
+     * Kotlin callers should generally instead use [runWithMeasurementDisabled].
      */
     fun resumeMeasurement() {
         state.resumeMeasurement()
@@ -303,17 +323,45 @@ internal class Microbenchmark(
         }
     }
 
-    fun output(perfettoTracePath: String?): MicrobenchmarkOutput {
+    /** Register a PerfettoTrace to be added to outputs, and used to extract metrics. */
+    @RequiresApi(23)
+    fun processPerfettoTrace(perfettoTracePath: String) {
+        // trace completed, and copied into shell writeable dir
+        val file = File(perfettoTracePath)
+        file.appendUiState(
+            UiState(
+                timelineStart = null,
+                timelineEnd = null,
+                highlightPackage = InstrumentationRegistry.getInstrumentation().context.packageName
+            )
+        )
+        state.profilerResults.forEach { it.embedInPerfettoTrace(perfettoTracePath) }
+        if (state.profilerResults.any { it.type == ProfilerOutput.Type.MethodTrace }) {
+            TraceProcessor.runSingleSessionServer(absoluteTracePath = perfettoTracePath) {
+                // NOTE: this query assumes that method trace only occurs once
+                state.metricResults.addAll(MethodTracing.queryMetrics(this))
+            }
+        }
+
+        // add at front since this affects output order
+        state.profilerResults.add(
+            0,
+            Profiler.ResultFile.ofPerfettoTrace(label = "Trace", absolutePath = perfettoTracePath)
+        )
+    }
+
+    fun output(): MicrobenchmarkOutput {
         Log.i(
             BenchmarkState.TAG,
             definition.outputTestName +
                 state.metricResults.map { it.getSummary() } +
                 "count=${state.maxIterationsPerRepeat}"
         )
+        state.profilerResults.forEach { it.convertBeforeSync?.invoke() }
         return MicrobenchmarkOutput(
                 definition = definition,
                 metricResults = state.metricResults,
-                profilerResults = processProfilerResults(perfettoTracePath),
+                profilerResults = state.profilerResults,
                 totalRunTimeNs = System.nanoTime() - startTimeNs,
                 warmupIterations = state.warmupIterations,
                 repeatIterations = state.maxIterationsPerRepeat,
@@ -328,35 +376,6 @@ internal class Microbenchmark(
 
     fun getMinTimeNanos(): Double {
         return state.metricResults.first { it.name == "timeNs" }.min
-    }
-
-    private fun processProfilerResults(perfettoTracePath: String?): List<Profiler.ResultFile> {
-        // prepare profiling result files
-        perfettoTracePath?.apply {
-            // trace completed, and copied into shell writeable dir
-            val file = File(this)
-            file.appendUiState(
-                UiState(
-                    timelineStart = null,
-                    timelineEnd = null,
-                    highlightPackage =
-                        InstrumentationRegistry.getInstrumentation().context.packageName
-                )
-            )
-        }
-        state.profilerResults.forEach {
-            it.convertBeforeSync?.invoke()
-            if (perfettoTracePath != null) {
-                it.embedInPerfettoTrace(perfettoTracePath)
-            }
-        }
-        val profilerResults =
-            listOfNotNull(
-                perfettoTracePath?.let {
-                    Profiler.ResultFile.ofPerfettoTrace(label = "Trace", absolutePath = it)
-                }
-            ) + state.profilerResults
-        return profilerResults
     }
 
     companion object {
@@ -408,7 +427,7 @@ internal suspend fun measureRepeatedImplNoTracing(
         )
         .apply {
             executePhases()
-            output(perfettoTracePath = null)
+            output()
         }
 }
 
@@ -437,7 +456,10 @@ fun measureRepeatedImplWithTracing(
                 }
             }
         }
-    microbenchmark.output(perfettoTracePath)
+    if (perfettoTracePath != null && Build.VERSION.SDK_INT > 23) {
+        microbenchmark.processPerfettoTrace(perfettoTracePath)
+    }
+    microbenchmark.output()
 }
 
 /**

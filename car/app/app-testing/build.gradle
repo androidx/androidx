@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -54,15 +54,12 @@ dependencies {
 }
 
 android {
-    lintOptions {
-        disable("InvalidPackage")
-    }
     namespace = "androidx.car.app.testing"
 }
 
 androidx {
     name = "androidx.car.app:app-testing"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }

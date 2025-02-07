@@ -1684,6 +1684,13 @@ import java.util.Set;
         }
 
         /* package */ void disconnect() {
+            for (MediaRouteProvider.RouteController memberController :
+                    mRouteIdToMemberControllerMap.values()) {
+                memberController.onUnselect(UNSELECT_REASON_DISCONNECTED);
+                memberController.onRelease();
+            }
+            mRouteIdToMemberControllerMap.clear();
+
             mController.onUnselect(UNSELECT_REASON_DISCONNECTED);
             mController.onRelease();
             notifyRouteDisconnected(MediaRouter.REASON_DISCONNECT_CALLED);

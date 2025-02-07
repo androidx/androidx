@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
-import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.isRtlLayoutDirectionFromLocale;
 import static androidx.wear.protolayout.renderer.inflater.ArcWidgetHelper.getSignForClockwise;
 import static androidx.wear.protolayout.renderer.inflater.ArcWidgetHelper.isPointInsideArcArea;
 

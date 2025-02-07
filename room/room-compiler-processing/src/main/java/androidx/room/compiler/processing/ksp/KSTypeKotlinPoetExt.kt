@@ -69,16 +69,29 @@ private fun KSDeclaration.asKTypeName(
     if (this is KSTypeParameter) {
         return this.asKTypeName(resolver, typeArgumentTypeLookup)
     }
-    val qualified = qualifiedName?.asString() ?: return ERROR_KTYPE_NAME
     val pkg = getNormalizedPackageName()
-    val shortNames =
-        if (pkg == "") {
-                qualified
-            } else {
-                qualified.substring(pkg.length + 1)
-            }
-            .split('.')
-    return KClassName(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
+    val qualified = qualifiedName?.asString()
+    if (qualified != null) {
+        val simpleNames =
+            if (pkg.isNotEmpty()) {
+                    check(qualified.startsWith(pkg))
+                    qualified.substring(pkg.length + 1, qualified.length)
+                } else {
+                    qualified
+                }
+                .split('.')
+        return KClassName(pkg, simpleNames)
+    } else {
+        val errorTypeName =
+            ERROR_TYPE_PATTERN.find(simpleName.asString())?.groupValues?.get(1)
+                // If we don't match the ERROR_TYPE_PATTERN just return the default error type name.
+                ?: return ERROR_KTYPE_NAME
+        // Although we don't get an actual package for an error type, the error type found in the
+        // simple name's pattern match may contain a package if the type it references is fully
+        // qualified. Since we only get this as a string, use bestGuess to get a class name.
+        check(pkg.isEmpty())
+        return KClassName.bestGuess(errorTypeName)
+    }
 }
 
 private fun KSTypeParameter.asKTypeName(

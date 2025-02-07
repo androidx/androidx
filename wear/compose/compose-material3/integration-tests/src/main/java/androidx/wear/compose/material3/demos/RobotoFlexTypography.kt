@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material3.Typography
 import androidx.wear.compose.material3.tokens.TypographyVariableFontsTokens
 
@@ -32,22 +33,32 @@ fun createRobotoFlexTextStyle(style: TextStyle, variationSettings: FontVariation
             Font(R.font.robotoflex_variable, variationSettings = variationSettings).toFontFamily()
     )
 
+@OptIn(ExperimentalTextApi::class)
+fun createRobotoFlexCurvedTextStyle(
+    style: CurvedTextStyle,
+    variationSettings: FontVariation.Settings
+) =
+    style.copy(
+        fontFamily =
+            Font(R.font.robotoflex_variable, variationSettings = variationSettings).toFontFamily()
+    )
+
 val DefaultTypography = Typography()
 
 val RobotoFlexTypography =
     Typography(
         arcLarge =
-            createRobotoFlexTextStyle(
+            createRobotoFlexCurvedTextStyle(
                 DefaultTypography.arcLarge,
                 TypographyVariableFontsTokens.ArcLargeVariationSettings
             ),
         arcMedium =
-            createRobotoFlexTextStyle(
+            createRobotoFlexCurvedTextStyle(
                 DefaultTypography.arcMedium,
                 TypographyVariableFontsTokens.ArcMediumVariationSettings
             ),
         arcSmall =
-            createRobotoFlexTextStyle(
+            createRobotoFlexCurvedTextStyle(
                 DefaultTypography.arcSmall,
                 TypographyVariableFontsTokens.ArcSmallVariationSettings
             ),

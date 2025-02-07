@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -53,7 +53,7 @@ android {
 androidx {
     name = "Health Connect Testing"
     mavenVersion = LibraryVersions.HEALTH_CONNECT_TESTING_QUARANTINE
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Test utils for Health Connect. This library should be added as a test dependency when writing unit tests that call HealthConnect APIs."
     samples(project(":health:connect:connect-testing-samples"))

@@ -53,7 +53,7 @@ class EntityRowAdapter(val entity: Entity, out: XType) : QueryMappedRowAdapter(o
                             indexVar =
                                 XCodeBlock.of("%M(%L, %S)", packageMember, stmtVarName, columnName)
                                     // indexVar expects a string, and that depends on the language.
-                                    // We should change the method signature to accept XCodeBlock.
+                                    // We should change the function signature to accept XCodeBlock.
                                     .toString(scope.language)
                         )
                     }
@@ -74,7 +74,7 @@ class EntityRowAdapter(val entity: Entity, out: XType) : QueryMappedRowAdapter(o
         if (indices.isNotEmpty() && indices != indexAdapter.getIndexVars()) {
             // Due to entity converter code being shared and using getColumnIndex() we can't
             // generate code that uses the mapping directly. Instead we create a wrapped statement
-            // that is solely used in the shared converter method and whose getColumnIndex() is
+            // that is solely used in the shared converter function and whose getColumnIndex() is
             // overridden to return the resolved column index.
             stmtDelegateVarName = scope.getTmpVar("_wrappedStmt")
             val entityColumnNamesParam =

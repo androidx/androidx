@@ -113,6 +113,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             null
         }
 
+    var testExceptionHandler: RootForTest.ExceptionHandler? = null
+
     /**
      * Requests lookahead remeasure for this [layoutNode] and nodes affected by its measure result
      *
@@ -497,6 +499,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             duringFullMeasureLayoutPass = fullPass
             try {
                 block()
+            } catch (e: Throwable) {
+                testExceptionHandler.handleOrThrow(e)
             } finally {
                 duringMeasureLayout = false
                 duringFullMeasureLayoutPass = false

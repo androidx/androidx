@@ -420,7 +420,7 @@ interface BooksDao {
     ): Book = action(input)
 
     // Commented out because of https://youtrack.jetbrains.com/issue/KT-48013
-    // This is a private method to validate b/194706278
+    // This is a private function to validate b/194706278
     // private fun getNullAuthor(): Author? = null
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")

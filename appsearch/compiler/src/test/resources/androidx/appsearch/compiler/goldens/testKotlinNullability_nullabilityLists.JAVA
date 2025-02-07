@@ -66,10 +66,12 @@ public final class $$__AppSearch__KotlinGift implements DocumentClassFactory<Kot
           .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("nonNullEmbeddings")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("nullableEmbeddings")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
             .build())
           .build();
   }

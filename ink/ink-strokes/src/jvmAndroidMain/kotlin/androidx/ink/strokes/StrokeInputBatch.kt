@@ -17,6 +17,7 @@
 package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
@@ -90,6 +91,15 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
      * [StrokeInput.orientationRadians]. If not, then no input items have an orientation value.
      */
     public fun hasOrientation(): Boolean = StrokeInputBatchNative.hasOrientation(nativePointer)
+
+    /**
+     * Returns the seed value that should be used for seeding any noise generators for brush
+     * behaviors when a full stroke is regenerated with this input batch. If no seed value has yet
+     * been set for this input batch, returns the default seed of zero.
+     */
+    @ExperimentalInkCustomBrushApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    public fun getNoiseSeed(): Int = StrokeInputBatchNative.getNoiseSeed(nativePointer)
 
     /**
      * Gets the value of the i-th input. Requires that [index] is positive and less than [size].
@@ -381,10 +391,20 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.c
         return this
     }
 
+    /**
+     * Sets the per-stroke seed value that should be used when regenerating a stroke from this input
+     * batch.
+     */
+    @ExperimentalInkCustomBrushApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    public fun setNoiseSeed(seed: Int): Unit =
+        MutableStrokeInputBatchNative.setNoiseSeed(nativePointer, seed)
+
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun asImmutable(): ImmutableStrokeInputBatch =
-        if (isEmpty()) {
+        @OptIn(ExperimentalInkCustomBrushApi::class)
+        if (isEmpty() && getNoiseSeed() == 0) {
             ImmutableStrokeInputBatch.EMPTY
         } else {
             ImmutableStrokeInputBatch(MutableStrokeInputBatchNative.copy(nativePointer))
@@ -418,6 +438,8 @@ private object StrokeInputBatchNative {
     @UsedByNative external fun hasTilt(nativePointer: Long): Boolean
 
     @UsedByNative external fun hasOrientation(nativePointer: Long): Boolean
+
+    @UsedByNative external fun getNoiseSeed(nativePointer: Long): Int
 
     /**
      * The [toolTypeClass] parameter is passed as a convenience to native JNI code, to avoid it
@@ -455,4 +477,6 @@ private object MutableStrokeInputBatchNative {
     @UsedByNative external fun appendBatch(nativePointer: Long, addedNativePointer: Long): String?
 
     @UsedByNative external fun copy(nativePointer: Long): Long
+
+    @UsedByNative external fun setNoiseSeed(nativePointer: Long, seed: Int)
 }

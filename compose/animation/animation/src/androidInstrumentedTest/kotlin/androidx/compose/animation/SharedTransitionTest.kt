@@ -2766,6 +2766,69 @@ class SharedTransitionTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testSharedElementsDroppedFromOverlayAfterTransition() {
+        // Test that shared elements are dropped from overlay after transition **even if their
+        // match is still in the tree**.
+        val duration = 500
+        var showOverlay by mutableStateOf(false)
+        rule.setContent {
+            SharedTransitionLayout(Modifier.requiredSize(120.dp).testTag("root")) {
+                Box(
+                    modifier =
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                sharedContentState = rememberSharedContentState("box"),
+                                visible = !showOverlay,
+                                boundsTransform = BoundsTransform { _, _ -> tween(duration) }
+                            )
+                            .background(Color.LightGray)
+                            .fillMaxSize(),
+                )
+                Box(
+                    modifier =
+                        Modifier.sharedElementWithCallerManagedVisibility(
+                                sharedContentState = rememberSharedContentState("box"),
+                                visible = showOverlay,
+                                boundsTransform = BoundsTransform { _, _ -> tween(duration) }
+                            )
+                            .background(Color.LightGray)
+                            .size(110.dp)
+                )
+                Box(
+                    modifier =
+                        Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
+                            .size(100.dp)
+                            .background(Color.Black)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            rule.mainClock.autoAdvance = false
+            showOverlay = !showOverlay
+        }
+        rule.waitForIdle()
+
+        repeat(6) {
+            rule.mainClock.advanceTimeBy(100)
+            rule.onNodeWithTag("root").captureToImage().assertContainsColor(Color.Black)
+        }
+
+        rule.mainClock.autoAdvance = true
+
+        rule.runOnIdle {
+            rule.mainClock.autoAdvance = false
+            showOverlay = !showOverlay
+        }
+        rule.waitForIdle()
+
+        repeat(6) {
+            rule.mainClock.advanceTimeBy(100)
+            rule.onNodeWithTag("root").captureToImage().assertContainsColor(Color.Black)
+        }
+    }
+
     // Regression test for b/347520198, SharedTransitionLayout onDraw would not get invalidated
     // in some cases.
     @SdkSuppress(minSdkVersion = 26)

@@ -31,7 +31,6 @@ import androidx.room.RoomSQLiteQuery
  *
  * Any loaded data or queued loads prior to returning INVALID will be discarded
  */
-@get:Suppress("AcronymName")
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val INVALID: LoadResult<Any, Any> = LoadResult.Invalid<Any, Any>()
 

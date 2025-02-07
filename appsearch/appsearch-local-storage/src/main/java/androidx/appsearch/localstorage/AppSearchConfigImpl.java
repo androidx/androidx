@@ -171,6 +171,11 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
+    public @NonNull String getIcuDataFileAbsolutePath() {
+        return mIcingOptionsConfig.getIcuDataFileAbsolutePath();
+    }
+
+    @Override
     public PersistType. @NonNull Code getLightweightPersistType() {
         return mPersistToDiskRecoveryProof ?
                 PersistType.Code.RECOVERY_PROOF : PersistType.Code.LITE;

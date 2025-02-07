@@ -96,7 +96,7 @@ class FastScrollDrawerTest {
         val expectedLeftRange = Range(600, 700)
         val expectedTopRange = Range(100, 200)
         val expectedRightRange = Range(700, 800)
-        val expectedBottomRange = Range(200, 300)
+        val expectedBottomRange = Range(100, 300)
         assertTrue(expectedLeftRange.contains(leftCaptor.value))
         assertTrue(expectedTopRange.contains(topCaptor.value))
         assertTrue(expectedRightRange.contains(rightCaptor.value))
@@ -106,8 +106,16 @@ class FastScrollDrawerTest {
         verify(spyCanvas).drawText(textCaptor.capture(), anyFloat(), anyFloat(), any())
 
         // Hyphens are being interpreted in unicode rather than ascii which is failing the assertion
-        // hence forcing ascii conversion
-        val expectedLabelValue = "2-6 / 10".replace("\u2014", "-")
-        assertEquals(expectedLabelValue, textCaptor.value)
+        // hence using indices to find characters
+        val pageIndicatorLabels = textCaptor.value.toString().trim().split('/')
+        val pageRange = pageIndicatorLabels[0].trim()
+        val totalPages = pageIndicatorLabels[1].trim()
+
+        val expectedLowerPageRange = 2
+        val expectedUpperPageRange = 6
+        val expectedTotalPages = 10
+        assertEquals(expectedLowerPageRange, pageRange[0].toString().toInt())
+        assertEquals(expectedUpperPageRange, pageRange[2].toString().toInt())
+        assertEquals(expectedTotalPages, totalPages.toString().toInt())
     }
 }

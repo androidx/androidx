@@ -69,7 +69,7 @@ internal fun Modifier.stylusHandwriting(
         this
     }
 
-private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Unit) :
+private class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Unit) :
     ModifierNodeElement<StylusHandwritingNode>() {
     override fun create(): StylusHandwritingNode {
         return StylusHandwritingNode(onHandwritingSlopExceeded)
@@ -82,6 +82,17 @@ private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () ->
     override fun InspectorInfo.inspectableProperties() {
         name = "stylusHandwriting"
         properties["onHandwritingSlopExceeded"] = onHandwritingSlopExceeded
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StylusHandwritingElement) return false
+
+        return onHandwritingSlopExceeded === other.onHandwritingSlopExceeded
+    }
+
+    override fun hashCode(): Int {
+        return onHandwritingSlopExceeded.hashCode()
     }
 }
 

@@ -44,7 +44,9 @@ import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.util.fastRoundToInt
 
@@ -161,12 +163,25 @@ internal class SharedBoundsNode(
     }
 
     private fun MeasureScope.approachPlace(placeable: Placeable): MeasureResult {
-        if (!sharedElement.foundMatch) {
-            // No match
+        if (!sharedElement.foundMatch || !sharedElement.scope.isTransitionActive) {
+            // If there is one or more matches (in shared element key) when the transition is
+            // inactive, all matches will be measured and placed using the constraints and position
+            // derived from the target bounds.
             return layout(placeable.width, placeable.height) {
-                // Update currentBounds
-                coordinates?.updateCurrentBounds()
-                placeable.place(0, 0)
+                if (boundsAnimation.target || !sharedElement.foundMatch) {
+                    // Update currentBounds
+                    coordinates?.updateCurrentBounds()
+                    placeable.place(0, 0)
+                } else {
+                    // Match is found, but is not visible: Derive measured size & position
+                    // from the target bounds.
+                    val bounds = sharedElement.currentBounds!!
+                    val positionInScope =
+                        coordinates?.let { rootCoords.localPositionOf(it, Offset.Zero) }
+                    val (x, y) =
+                        positionInScope?.let { bounds.topLeft - it }?.round() ?: IntOffset.Zero
+                    placeable.place(x, y)
+                }
             }
         } else {
             val (w, h) =
@@ -220,6 +235,8 @@ internal class SharedBoundsNode(
             if (!sharedElement.foundMatch) {
                 constraints
             } else {
+                // When a match is found, all matches will be measured using the constraints
+                // created by the target bounds, **even when there is no active transition**.
                 (boundsAnimation.value ?: sharedElement.currentBounds)?.let {
                     val (width, height) = it.size.roundToIntSize()
                     require(width != Constraints.Infinity && height != Constraints.Infinity) {

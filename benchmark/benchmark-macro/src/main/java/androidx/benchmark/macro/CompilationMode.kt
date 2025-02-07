@@ -25,13 +25,7 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.inMemoryTrace
-import androidx.benchmark.macro.CompilationMode.Full
-import androidx.benchmark.macro.CompilationMode.Ignore
-import androidx.benchmark.macro.CompilationMode.None
-import androidx.benchmark.macro.CompilationMode.Partial
-import androidx.benchmark.macro.MacrobenchmarkScope.KillFlushMode
 import androidx.profileinstaller.ProfileInstallReceiver
-import java.lang.StringBuilder
 import org.junit.AssumptionViolatedException
 
 /**
@@ -342,7 +336,7 @@ sealed class CompilationMode {
                     // baseline profile install success, kill process before compiling
                     Log.d(TAG, "Killing process $packageName")
                     // We don't really need to flush ART profiles here, but its safer to do it.
-                    scope.killProcessAndFlushArtProfiles()
+                    scope.killProcess()
                     cmdPackageCompile(packageName, "speed-profile")
                 } else {
                     if (baselineProfileMode == BaselineProfileMode.Require) {
@@ -353,13 +347,13 @@ sealed class CompilationMode {
                 }
             }
             if (warmupIterations > 0) {
-                scope.withKillFlushMode(
-                    current = KillFlushMode.None,
-                    override = KillFlushMode.FlushArtProfiles
+                scope.withKillMode(
+                    current = scope.killMode,
+                    override = scope.killMode.copy(flushArtProfiles = true)
                 ) {
                     check(!scope.hasFlushedArtProfiles)
                     repeat(warmupIterations) { warmupBlock() }
-                    scope.killProcessAndFlushArtProfiles()
+                    scope.killProcess()
                     check(scope.hasFlushedArtProfiles) {
                         "Process $packageName never flushed profiles in any process - check that" +
                             " you launched the process, and that you only killed it with" +

@@ -16,9 +16,10 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.xr.compose.platform.LocalCoreEntity
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
@@ -26,6 +27,8 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetName
 import androidx.xr.compose.subspace.node.SubspaceNodeApplier
+import androidx.xr.compose.subspace.rememberCoreContentlessEntity
+import androidx.xr.scenecore.ContentlessEntity
 
 /**
  * [SubspaceLayout] is the main core component for layout for "leaf" nodes. It can be used to
@@ -38,10 +41,8 @@ import androidx.xr.compose.subspace.node.SubspaceNodeApplier
  * @param name a name for the ComposeSubspaceNode. This can be useful for debugging.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
-@Suppress("NOTHING_TO_INLINE")
 @SubspaceComposable
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceLayout(
     modifier: SubspaceModifier = SubspaceModifier,
     name: String = defaultSubspaceLayoutName(),
@@ -72,21 +73,28 @@ public fun SubspaceLayout(
 @Suppress("ComposableLambdaParameterPosition")
 @SubspaceComposable
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceLayout(
     content: @Composable @SubspaceComposable () -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
     name: String = defaultSubspaceLayoutName(),
     measurePolicy: MeasurePolicy,
 ) {
+    val coreEntity = rememberCoreContentlessEntity {
+        ContentlessEntity.create(session = this, name = name)
+    }
     ComposeNode<ComposeSubspaceNode, SubspaceNodeApplier>(
         factory = ComposeSubspaceNode.Constructor,
         update = {
             set(measurePolicy, SetMeasurePolicy)
+            set(coreEntity, SetCoreEntity)
+            // TODO(b/390674036) Remove call-order dependency between SetCoreEntity and SetModifier
+            // Execute SetModifier after SetCoreEntity, it depends on CoreEntity.
             set(modifier, SetModifier)
             set(name, SetName)
         },
-        content = content,
+        content = {
+            CompositionLocalProvider(LocalCoreEntity provides coreEntity, content = content)
+        },
     )
 }
 
@@ -105,13 +113,12 @@ public fun SubspaceLayout(
  * @param name a name for the ComposeSubspaceNode. This can be useful for debugging.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
-@Suppress("NOTHING_TO_INLINE")
 @SubspaceComposable
 @Composable
 internal fun SubspaceLayout(
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
     name: String = defaultSubspaceLayoutName(),
+    coreEntity: CoreEntity? = null,
     measurePolicy: MeasurePolicy,
 ) {
     ComposeNode<ComposeSubspaceNode, SubspaceNodeApplier>(
@@ -119,6 +126,7 @@ internal fun SubspaceLayout(
         update = {
             set(measurePolicy, SetMeasurePolicy)
             set(coreEntity, SetCoreEntity)
+            // TODO(b/390674036) Remove call-order dependency between SetCoreEntity and SetModifier
             // Execute SetModifier after SetCoreEntity, it depends on CoreEntity.
             set(modifier, SetModifier)
             set(name, SetName)
@@ -148,8 +156,10 @@ internal fun SubspaceLayout(
 internal fun SubspaceLayout(
     content: @Composable @SubspaceComposable () -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
     name: String = defaultSubspaceLayoutName(),
+    coreEntity: CoreEntity = rememberCoreContentlessEntity {
+        ContentlessEntity.create(session = this, name = name)
+    },
     measurePolicy: MeasurePolicy,
 ) {
     ComposeNode<ComposeSubspaceNode, SubspaceNodeApplier>(
@@ -157,17 +167,19 @@ internal fun SubspaceLayout(
         update = {
             set(measurePolicy, SetMeasurePolicy)
             set(coreEntity, SetCoreEntity)
+            // TODO(b/390674036) Remove call-order dependency between SetCoreEntity and SetModifier
             // Execute SetModifier after SetCoreEntity, it depends on CoreEntity.
             set(modifier, SetModifier)
             set(name, SetName)
         },
-        content = content,
+        content = {
+            CompositionLocalProvider(LocalCoreEntity provides coreEntity, content = content)
+        },
     )
 }
 
 private var subspaceLayoutNamePart: Int = 0
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun defaultSubspaceLayoutName(): String {
     return "SubspaceLayoutNode-${subspaceLayoutNamePart++}"
 }

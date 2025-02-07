@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -33,7 +33,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     desktop()
     ios()
     linux()
@@ -178,7 +178,7 @@ android {
 
 androidx {
     name = "Lifecycle ViewModel with SavedState"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
     samples(project(":lifecycle:lifecycle-viewmodel-savedstate-samples"))

@@ -15,7 +15,7 @@
  */
 package androidx.constraintlayout.core.parser;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Iterator;
 
@@ -106,9 +106,8 @@ public class CLObject extends CLContainer implements Iterable<CLKey> {
         }
     }
 
-    @NonNull
     @Override
-    public CLObject clone() {
+    public @NonNull CLObject clone() {
         // Overriding to get expected return type
         return (CLObject) super.clone();
     }

@@ -40,20 +40,16 @@ class FakeThreadsTest {
     fun fakeThreadsUseDelaySkipping() =
         testScope.runTest {
             launch(fakeThreads.backgroundDispatcher) { delay(1000000) }.join()
-            launch(fakeThreads.blockingDispatcher) { delay(1000000) }.join()
             launch(fakeThreads.lightweightDispatcher) { delay(1000000) }.join()
             fakeThreads.globalScope.launch { delay(1000000) }.join()
 
             var backgroundTaskExecuted = false
-            var blockingTaskExecuted = false
             var lightweightTaskExecuted = false
             fakeThreads.backgroundExecutor.execute { backgroundTaskExecuted = true }
-            fakeThreads.blockingExecutor.execute { blockingTaskExecuted = true }
             fakeThreads.lightweightExecutor.execute { lightweightTaskExecuted = true }
             advanceUntilIdle()
 
             assertThat(backgroundTaskExecuted).isTrue()
-            assertThat(blockingTaskExecuted).isTrue()
             assertThat(lightweightTaskExecuted).isTrue()
         }
 

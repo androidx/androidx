@@ -46,8 +46,8 @@ public abstract class AudioStats {
     }
 
     static @NonNull AudioStats of(@AudioState int state, @Nullable Throwable errorCause,
-            double audioAmplitude) {
-        return new AutoValue_AudioStats(state, audioAmplitude, errorCause);
+            double audioAmplitude, long audioBytes) {
+        return new AutoValue_AudioStats(state, audioAmplitude, audioBytes, errorCause);
     }
 
     /**
@@ -155,6 +155,12 @@ public abstract class AudioStats {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     abstract double getAudioAmplitudeInternal();
+
+    /**
+     * Returns the number of audio bytes recorded.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public abstract long getAudioBytesRecorded();
 
     /**
      * Gets the error cause.

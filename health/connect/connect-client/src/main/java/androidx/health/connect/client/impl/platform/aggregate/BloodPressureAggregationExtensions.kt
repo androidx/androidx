@@ -25,6 +25,7 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
@@ -41,6 +42,24 @@ private val BLOOD_PRESSURE_METRICS =
         BloodPressureRecord.SYSTOLIC_MAX,
         BloodPressureRecord.SYSTOLIC_MIN,
     )
+
+internal suspend fun HealthConnectClient.aggregateBloodPressure(
+    aggregateRequest: AggregateGroupByDurationRequest
+): List<AggregationResultGroupedByDurationWithMinTime> {
+    return aggregate(
+        ReadRecordsRequest(
+            BloodPressureRecord::class,
+            aggregateRequest.timeRangeFilter,
+            aggregateRequest.dataOriginFilter
+        ),
+        ResultGroupedByDurationAggregator(
+            createTimeRange(aggregateRequest.timeRangeFilter),
+            aggregateRequest.timeRangeSlicer
+        ) {
+            BloodPressureAggregationProcessor(aggregateRequest.metrics)
+        }
+    )
+}
 
 internal suspend fun HealthConnectClient.aggregateBloodPressure(
     aggregateRequest: AggregateGroupByPeriodRequest

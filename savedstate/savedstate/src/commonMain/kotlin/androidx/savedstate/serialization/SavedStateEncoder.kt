@@ -25,15 +25,13 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeEncoder
-import kotlinx.serialization.modules.EmptySerializersModule
-import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 
 /**
  * Encode a serializable object to a [SavedState] with an explicit serializer, which can be a custom
  * or third-party one.
  *
- * @sample androidx.savedstate.encode
+ * @sample androidx.savedstate.encodeWithExplicitSerializer
  * @param serializer The serializer to use.
  * @param value The serializable object to encode.
  * @return The encoded [SavedState].
@@ -43,18 +41,48 @@ public fun <T : Any> encodeToSavedState(
     serializer: SerializationStrategy<T>,
     value: T
 ): SavedState =
-    savedState().apply { SavedStateEncoder(this).encodeSerializableValue(serializer, value) }
+    savedState().apply {
+        SavedStateEncoder(this, SavedStateConfig.DEFAULT).encodeSerializableValue(serializer, value)
+    }
+
+/**
+ * Encode a serializable object to a [SavedState] with an explicit serializer, which can be a custom
+ * or third-party one.
+ *
+ * @sample androidx.savedstate.encodeWithExplicitSerializerAndConfig
+ * @param serializer The serializer to use.
+ * @param value The serializable object to encode.
+ * @param config The [SavedStateConfig] to use.
+ * @return The encoded [SavedState].
+ * @throws SerializationException if [value] cannot be serialized.
+ */
+public fun <T : Any> encodeToSavedState(
+    serializer: SerializationStrategy<T>,
+    value: T,
+    config: SavedStateConfig,
+): SavedState =
+    savedState().apply {
+        SavedStateEncoder(this, config).encodeSerializableValue(serializer, value)
+    }
 
 /**
  * Encode a serializable object to a [SavedState] with the default serializer.
  *
- * @sample androidx.savedstate.encodeWithExplicitSerializer
+ * @sample androidx.savedstate.encode
  * @param value The serializable object to encode.
+ * @param config The [SavedStateConfig] to use.
  * @return The encoded [SavedState].
  * @throws SerializationException if [value] cannot be serialized.
  */
-public inline fun <reified T : Any> encodeToSavedState(value: T): SavedState {
-    return encodeToSavedState(serializer<T>(), value)
+public inline fun <reified T : Any> encodeToSavedState(
+    value: T,
+    config: SavedStateConfig = SavedStateConfig.DEFAULT,
+): SavedState {
+    return encodeToSavedState(
+        serializer = config.serializersModule.serializer<T>(),
+        config = config,
+        value = value
+    )
 }
 
 /**
@@ -64,10 +92,14 @@ public inline fun <reified T : Any> encodeToSavedState(value: T): SavedState {
  * @property savedState The [SavedState] to encode to. Has to be empty before encoding.
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class SavedStateEncoder(internal val savedState: SavedState) : AbstractEncoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule()
+internal class SavedStateEncoder(
+    internal val savedState: SavedState,
+    private val config: SavedStateConfig
+) : AbstractEncoder() {
     internal var key: String = ""
         private set
+
+    override val serializersModule = config.serializersModule
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
         false
@@ -170,7 +202,9 @@ internal class SavedStateEncoder(internal val savedState: SavedState) : Abstract
             this
         } else {
             SavedStateEncoder(
-                savedState().also { child -> savedState.write { putSavedState(key, child) } }
+                savedState =
+                    savedState().also { child -> savedState.write { putSavedState(key, child) } },
+                config = config
             )
         }
     }

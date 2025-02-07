@@ -20,9 +20,6 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
-import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -34,21 +31,25 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.wear.compose.foundation.lazy.layout.MutableIntervalList
 
 /** Receiver scope being used by the item content parameter of [TransformingLazyColumn]. */
 @TransformingLazyColumnScopeMarker
 public sealed interface TransformingLazyColumnItemScope {
     /**
      * Scroll progress of the item before height transformation is applied using
-     * [Modifier.transformedHeight]. Is null for the item that is off screen.
+     * [Modifier.transformedHeight]. Is [TransformingLazyColumnItemScrollProgress.Unspecified] for
+     * the item that is off screen.
      */
-    public val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
+    public val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /**
      * Scroll progress of the item before height transformation is applied using
-     * [Modifier.transformedHeight]. Is null for the item that is off screen.
+     * [Modifier.transformedHeight]. Is [TransformingLazyColumnItemScrollProgress.Unspecified] for
+     * the item that is off screen.
      */
-    public val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
+    public val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /**
      * Applies the new height of the item depending on its scroll progress and measured height.
@@ -209,13 +210,15 @@ internal class TransformingLazyColumnItemScopeImpl(
     val reduceMotionEnabled: Boolean
 ) : TransformingLazyColumnItemScope {
 
-    private val _scrollProgress: TransformingLazyColumnItemScrollProgress?
-        get() = state.layoutInfo.visibleItems.fastFirstOrNull { it.index == index }?.scrollProgress
+    private val _scrollProgress: TransformingLazyColumnItemScrollProgress
+        get() =
+            state.layoutInfo.visibleItems.fastFirstOrNull { it.index == index }?.scrollProgress
+                ?: TransformingLazyColumnItemScrollProgress.Unspecified
 
-    override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
+    override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress
         get() = _scrollProgress
 
-    override val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress?
+    override val GraphicsLayerScope.scrollProgress: TransformingLazyColumnItemScrollProgress
         get() = _scrollProgress
 
     override fun Modifier.transformedHeight(
@@ -257,7 +260,6 @@ internal data class TransformingLazyColumnParentData(
     val animationSpecs: LazyLayoutAnimationSpecsNode? = null,
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TransformingLazyColumnScopeImpl(
     val content: TransformingLazyColumnScope.() -> Unit
 ) : LazyLayoutIntervalContent<TransformingLazyColumnInterval>(), TransformingLazyColumnScope {
@@ -300,7 +302,6 @@ internal class TransformingLazyColumnScopeImpl(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TransformingLazyColumnInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),

@@ -137,7 +137,7 @@ abstract class ComposeBenchmarkBase {
             benchmarkRule.measureRepeatedOnMainThread {
                 activity.setContent(recomposer) { CountGroupsAndSlots(block) }
 
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     activity.setContentView(View(activity))
                     testScheduler.advanceUntilIdle()
                 }
@@ -171,7 +171,7 @@ abstract class ComposeBenchmarkBase {
                 }
                 benchmarkState.resumeTiming()
 
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     activity.setContentView(View(activity))
                     testScheduler.advanceUntilIdle()
                 }
@@ -199,7 +199,7 @@ abstract class ComposeBenchmarkBase {
 
         var iterations = 0
         benchmarkRule.measureRepeatedOnMainThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 receiver.updateModelCb()
                 Snapshot.sendApplyNotifications()
                 assertTrue(
@@ -210,7 +210,7 @@ abstract class ComposeBenchmarkBase {
 
             testScheduler.advanceUntilIdle()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertFalse("recomposer has invalidations for frame", recomposer.hasPendingWork)
                 receiver.resetCb()
                 Snapshot.sendApplyNotifications()

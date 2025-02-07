@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.isNotError
@@ -53,7 +53,7 @@ class QueryFunctionProcessor(
      * as a sub procedure in [InternalQueryProcessor].
      */
     fun process(): QueryFunction {
-        val annotation = executableElement.getAnnotation(Query::class)?.value
+        val annotation = executableElement.getAnnotation(Query::class)
         context.checker.check(
             annotation != null,
             executableElement,
@@ -72,7 +72,7 @@ class QueryFunctionProcessor(
                         dbVerifier = dbVerifier,
                         containing = containing
                     )
-                    .processQuery(annotation?.value)
+                    .processQuery(annotation?.getAsString("value"))
             }
         // check if want to swap the query for a better one
         val finalResult =
@@ -293,14 +293,14 @@ private class InternalQueryProcessor(
                     }
             if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
                 val warningMsg =
-                    ProcessorErrors.queryFieldDataClassMismatch(
+                    ProcessorErrors.queryPropertyDataClassMismatch(
                         dataClassTypeNames =
                             dataClassMappings.map {
                                 it.dataClass.typeName.toString(context.codeLanguage)
                             },
                         unusedColumns = unusedColumns,
                         allColumns = columnNames,
-                        dataClassUnusedFields = pojoUnusedFields,
+                        dataClassUnusedProperties = pojoUnusedFields,
                     )
                 context.logger.w(Warning.QUERY_MISMATCH, executableElement, warningMsg)
             }
@@ -324,15 +324,15 @@ private class InternalQueryProcessor(
      */
     @Suppress("DEPRECATION") // Due to @MapInfo usage
     private fun processMapInfo(
-        mapInfoAnnotation: XAnnotationBox<androidx.room.MapInfo>,
+        mapInfoAnnotation: XAnnotation,
         query: ParsedQuery,
         queryExecutableElement: XMethodElement,
         adapterExtras: TypeAdapterExtras,
     ) {
-        val keyColumn = mapInfoAnnotation.value.keyColumn
-        val keyTable = mapInfoAnnotation.value.keyTable.ifEmpty { null }
-        val valueColumn = mapInfoAnnotation.value.valueColumn
-        val valueTable = mapInfoAnnotation.value.valueTable.ifEmpty { null }
+        val keyColumn = mapInfoAnnotation["keyColumn"]?.asString() ?: ""
+        val keyTable = mapInfoAnnotation["keyTable"]?.asString()?.ifEmpty { null }
+        val valueColumn = mapInfoAnnotation["valueColumn"]?.asString() ?: ""
+        val valueTable = mapInfoAnnotation["valueTable"]?.asString()?.ifEmpty { null }
 
         val resultTableAliases = query.tables.associate { it.name to it.alias }
         // Checks if this list of columns contains one with matching name and origin table.

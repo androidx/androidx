@@ -18,8 +18,9 @@ package androidx.recyclerview.selection;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Register an OnItemActivatedListener to be notified when an item is activated

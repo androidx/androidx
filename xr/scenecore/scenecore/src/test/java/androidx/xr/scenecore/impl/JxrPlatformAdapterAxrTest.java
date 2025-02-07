@@ -44,11 +44,13 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.test.rule.GrantPermissionRule;
 import androidx.xr.extensions.environment.EnvironmentVisibilityState;
 import androidx.xr.extensions.environment.PassthroughVisibilityState;
 import androidx.xr.extensions.node.Mat4f;
 import androidx.xr.extensions.node.ReformOptions;
 import androidx.xr.extensions.node.Vec3;
+import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
@@ -109,6 +111,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -146,6 +149,10 @@ public final class JxrPlatformAdapterAxrTest {
     private Activity mActivity;
     private JxrPlatformAdapter mRealityCoreRuntime;
 
+    @Rule
+    public GrantPermissionRule mGrantPermissionRule =
+            GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
+
     @Before
     public void setUp() {
         mActivityController = Robolectric.buildActivity(Activity.class);
@@ -153,6 +160,7 @@ public final class JxrPlatformAdapterAxrTest {
         mFakeExtensions.setOpenXrWorldSpaceType(OPEN_XR_REFERENCE_SPACE_TYPE);
         when(mPerceptionLibrary.initSession(mActivity, OPEN_XR_REFERENCE_SPACE_TYPE, mFakeExecutor))
                 .thenReturn(immediateFuture(mSession));
+        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
 
         mRealityCoreRuntime =
                 JxrPlatformAdapterAxr.create(
@@ -784,17 +792,24 @@ public final class JxrPlatformAdapterAxrTest {
     }
 
     @Test
-    public void getPoseInActivitySpace_withActivitySpaceParent_returnsScaledPose()
+    public void getPoseInActivitySpace_withScaledActivitySpaceParent_returnsPose()
             throws Exception {
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), new Quaternion(1f, 2f, 3f, 4f));
 
         // Set the parent as the activity space so these entities' activitySpacePose should match
         // their
-        // local pose relative to their parent.
+        // local pose relative to their parent regardless of the activity space
+        // scale/position/rotation.
         PanelEntityImpl panelEntity = (PanelEntityImpl) createPanelEntity(pose);
         GltfEntityImpl gltfEntity = (GltfEntityImpl) createGltfEntity(pose);
         AndroidXrEntity contentlessEntity = (AndroidXrEntity) createContentlessEntity(pose);
         ActivitySpace activitySpace = mRealityCoreRuntime.getActivitySpace();
+        ((ActivitySpaceImpl) activitySpace)
+                .setOpenXrReferenceSpacePose(
+                        Matrix4.fromTrs(
+                                new Vector3(5f, 6f, 7f),
+                                Quaternion.fromEulerAngles(22f, 33f, 44f),
+                                new Vector3(2f, 2f, 2f)));
         panelEntity.setParent(activitySpace);
         gltfEntity.setParent(activitySpace);
         contentlessEntity.setParent(activitySpace);
@@ -814,7 +829,13 @@ public final class JxrPlatformAdapterAxrTest {
         GltfEntityImpl child2 = (GltfEntityImpl) createGltfEntity(localPose);
         GltfEntityImpl child3 = (GltfEntityImpl) createGltfEntity(localPose);
         ActivitySpace activitySpace = mRealityCoreRuntime.getActivitySpace();
-        assertVector3(activitySpace.getScale(), new Vector3(1f, 1f, 1f));
+        ((ActivitySpaceImpl) activitySpace)
+                .setOpenXrReferenceSpacePose(
+                        Matrix4.fromTrs(
+                                new Vector3(5f, 6f, 7f),
+                                Quaternion.fromEulerAngles(22f, 33, 44),
+                                new Vector3(2f, 2f, 2f)));
+        assertVector3(activitySpace.getScale(), new Vector3(2f, 2f, 2f));
 
         // Set a non-unit local scale to each child.
         child1.setParent(activitySpace);
@@ -1163,6 +1184,20 @@ public final class JxrPlatformAdapterAxrTest {
                                 .map(FakeNode::getAlpha)
                                 .collect(Collectors.toList()))
                 .containsAtLeast(0.5f, 0.5f, 0.5f);
+    }
+
+    @Test
+    public void transformPoseTo_withScaleAndNoOffset_returnsPose() throws Exception {
+        PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
+        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        sourceEntity.setPose(new Pose(new Vector3(0f, 0f, 1f), Quaternion.Identity));
+        sourceEntity.setScale(new Vector3(2f, 2f, 2f));
+        destinationEntity.setPose(new Pose(new Vector3(1f, 0f, 0f), Quaternion.Identity));
+        destinationEntity.setScale(new Vector3(3f, 3f, 3f));
+
+        assertPose(
+                sourceEntity.transformPoseTo(Pose.Identity, destinationEntity),
+                new Pose(new Vector3(-1 / 3f, 0f, 1 / 3f), Quaternion.Identity));
     }
 
     @Test
@@ -2215,9 +2250,147 @@ public final class JxrPlatformAdapterAxrTest {
                 () ->
                         mRealityCoreRuntime.createStereoSurfaceEntity(
                                 StereoSurfaceEntity.StereoMode.SIDE_BY_SIDE,
-                                new Dimensions(1.0f, 1.0f, 1.0f),
+                                new StereoSurfaceEntity.CanvasShape.Quad(1.0f, 1.0f),
                                 new Pose(),
                                 mRealityCoreRuntime.getActivitySpaceRootImpl()));
+    }
+
+    @Test
+    public void createStereoSurfaceEntity_returnsStereoSurfaceWhenSplitEngineEnabled() {
+        // create a "test" runtime with SplitEngine enabled
+        FakeNode rootNode = (FakeNode) mFakeExtensions.createNode();
+        FakeNode taskWindowLeashNode = (FakeNode) mFakeExtensions.createNode();
+
+        // This is a little unrealistic because it's going to return the same subspace for all the
+        // entities created in this test. In practice this is an implementation detail that's
+        // irrelevant
+        // to the JxrPlatformAdapterAxr.
+        when(mSplitEngineSubspaceManager.createSubspace(anyString(), anyInt()))
+                .thenReturn(mExpectedSubspace);
+
+        JxrPlatformAdapterAxr runtime =
+                JxrPlatformAdapterAxr.create(
+                        mActivity,
+                        mFakeExecutor,
+                        mFakeExtensions,
+                        mFakeImpressApi,
+                        new EntityManager(),
+                        mPerceptionLibrary,
+                        mSplitEngineSubspaceManager,
+                        mSplitEngineRenderer,
+                        rootNode,
+                        taskWindowLeashNode,
+                        /* useSplitEngine= */ true);
+
+        runtime.setSplitEngineSubspaceManager(mSplitEngineSubspaceManager);
+
+        final float kTestWidth = 14.0f;
+        final float kTestHeight = 28.0f;
+        final float kTestSphereRadius = 7.0f;
+        final float kTestHemisphereRadius = 11.0f;
+
+        StereoSurfaceEntity stereoSurfaceEntityQuad =
+                runtime.createStereoSurfaceEntity(
+                        StereoSurfaceEntity.StereoMode.SIDE_BY_SIDE,
+                        new StereoSurfaceEntity.CanvasShape.Quad(kTestWidth, kTestHeight),
+                        new Pose(),
+                        runtime.getActivitySpaceRootImpl());
+
+        assertThat(stereoSurfaceEntityQuad).isNotNull();
+        assertThat(stereoSurfaceEntityQuad).isInstanceOf(StereoSurfaceEntitySplitEngineImpl.class);
+        FakeImpressApi.StereoSurfaceEntityData quadData =
+                mFakeImpressApi
+                        .getStereoSurfaceEntities()
+                        .get(
+                                ((StereoSurfaceEntitySplitEngineImpl) stereoSurfaceEntityQuad)
+                                        .getEntityImpressNode());
+
+        StereoSurfaceEntity stereoSurfaceEntitySphere =
+                runtime.createStereoSurfaceEntity(
+                        StereoSurfaceEntity.StereoMode.TOP_BOTTOM,
+                        new StereoSurfaceEntity.CanvasShape.Vr360Sphere(kTestSphereRadius),
+                        new Pose(),
+                        runtime.getActivitySpaceRootImpl());
+
+        assertThat(stereoSurfaceEntitySphere).isNotNull();
+        assertThat(stereoSurfaceEntitySphere)
+                .isInstanceOf(StereoSurfaceEntitySplitEngineImpl.class);
+        FakeImpressApi.StereoSurfaceEntityData sphereData =
+                mFakeImpressApi
+                        .getStereoSurfaceEntities()
+                        .get(
+                                ((StereoSurfaceEntitySplitEngineImpl) stereoSurfaceEntitySphere)
+                                        .getEntityImpressNode());
+
+        StereoSurfaceEntity stereoSurfaceEntityHemisphere =
+                runtime.createStereoSurfaceEntity(
+                        StereoSurfaceEntity.StereoMode.MONO,
+                        new StereoSurfaceEntity.CanvasShape.Vr180Hemisphere(kTestHemisphereRadius),
+                        new Pose(),
+                        runtime.getActivitySpaceRootImpl());
+
+        assertThat(stereoSurfaceEntityHemisphere).isNotNull();
+        assertThat(stereoSurfaceEntityHemisphere)
+                .isInstanceOf(StereoSurfaceEntitySplitEngineImpl.class);
+        FakeImpressApi.StereoSurfaceEntityData hemisphereData =
+                mFakeImpressApi
+                        .getStereoSurfaceEntities()
+                        .get(
+                                ((StereoSurfaceEntitySplitEngineImpl) stereoSurfaceEntityHemisphere)
+                                        .getEntityImpressNode());
+
+        assertThat(mFakeImpressApi.getStereoSurfaceEntities()).hasSize(3);
+
+        // TODO: b/366588688 - Move these into tests for StereoSurfaceEntitySplitEngineImpl
+        assertThat(quadData.getStereoMode()).isEqualTo(StereoSurfaceEntity.StereoMode.SIDE_BY_SIDE);
+        assertThat(quadData.getCanvasShape())
+                .isEqualTo(FakeImpressApi.StereoSurfaceEntityData.CanvasShape.QUAD);
+        assertThat(sphereData.getStereoMode()).isEqualTo(StereoSurfaceEntity.StereoMode.TOP_BOTTOM);
+        assertThat(sphereData.getCanvasShape())
+                .isEqualTo(FakeImpressApi.StereoSurfaceEntityData.CanvasShape.VR_360_SPHERE);
+        assertThat(hemisphereData.getStereoMode()).isEqualTo(StereoSurfaceEntity.StereoMode.MONO);
+        assertThat(hemisphereData.getCanvasShape())
+                .isEqualTo(FakeImpressApi.StereoSurfaceEntityData.CanvasShape.VR_180_HEMISPHERE);
+
+        assertThat(quadData.getWidth()).isEqualTo(kTestWidth);
+        assertThat(quadData.getHeight()).isEqualTo(kTestHeight);
+        Dimensions quadDimensions = stereoSurfaceEntityQuad.getDimensions();
+        assertThat(quadDimensions.width).isEqualTo(kTestWidth);
+        assertThat(quadDimensions.height).isEqualTo(kTestHeight);
+        assertThat(quadDimensions.depth).isEqualTo(0.0f);
+
+        assertThat(sphereData.getRadius()).isEqualTo(kTestSphereRadius);
+        Dimensions sphereDimensions = stereoSurfaceEntitySphere.getDimensions();
+        assertThat(sphereDimensions.width).isEqualTo(kTestSphereRadius * 2.0f);
+        assertThat(sphereDimensions.height).isEqualTo(kTestSphereRadius * 2.0f);
+        assertThat(sphereDimensions.depth).isEqualTo(kTestSphereRadius * 2.0f);
+
+        assertThat(hemisphereData.getRadius()).isEqualTo(kTestHemisphereRadius);
+        Dimensions hemisphereDimensions = stereoSurfaceEntityHemisphere.getDimensions();
+        assertThat(hemisphereDimensions.width).isEqualTo(kTestHemisphereRadius * 2.0f);
+        assertThat(hemisphereDimensions.height).isEqualTo(kTestHemisphereRadius * 2.0f);
+        assertThat(hemisphereDimensions.depth).isEqualTo(kTestHemisphereRadius);
+
+        assertThat(quadData.getSurface()).isEqualTo(stereoSurfaceEntityQuad.getSurface());
+        assertThat(sphereData.getSurface()).isEqualTo(stereoSurfaceEntitySphere.getSurface());
+        assertThat(hemisphereData.getSurface())
+                .isEqualTo(stereoSurfaceEntityHemisphere.getSurface());
+
+        // Check that calls to set the CanvasShape and StereoMode after construction call through
+        // Change the Quad to a Sphere
+        stereoSurfaceEntityQuad.setCanvasShape(
+                new StereoSurfaceEntity.CanvasShape.Vr360Sphere(kTestSphereRadius));
+        // change the StereoMode to Top/Bottom from Side/Side
+        stereoSurfaceEntityQuad.setStereoMode(StereoSurfaceEntity.StereoMode.TOP_BOTTOM);
+        quadData =
+                mFakeImpressApi
+                        .getStereoSurfaceEntities()
+                        .get(
+                                ((StereoSurfaceEntitySplitEngineImpl) stereoSurfaceEntityQuad)
+                                        .getEntityImpressNode());
+        assertThat(quadData.getCanvasShape())
+                .isEqualTo(FakeImpressApi.StereoSurfaceEntityData.CanvasShape.VR_360_SPHERE);
+        assertThat(quadData.getStereoMode()).isEqualTo(StereoSurfaceEntity.StereoMode.TOP_BOTTOM);
     }
 
     @Test

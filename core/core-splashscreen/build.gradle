@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +52,7 @@ dependencies {
 
 androidx {
     name = "SplashScreen"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
     inceptionYear = "2021"
     description = "This library provides the compatibility APIs for SplashScreen " +

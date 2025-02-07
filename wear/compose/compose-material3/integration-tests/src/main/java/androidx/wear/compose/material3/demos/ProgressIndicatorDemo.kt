@@ -58,7 +58,7 @@ import androidx.wear.compose.material3.Stepper
 import androidx.wear.compose.material3.StepperDefaults
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.samples.CircularProgressIndicatorStaticSample
+import androidx.wear.compose.material3.samples.CircularProgressIndicatorCustomAnimationSample
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
 import androidx.wear.compose.material3.samples.IndeterminateProgressArcSample
 import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
@@ -118,7 +118,7 @@ val ProgressIndicatorDemos =
                     Centralize { CircularProgressCustomisableFullScreenDemo() }
                 },
                 ComposableDemo("Custom animation") {
-                    Centralize { CircularProgressIndicatorStaticSample() }
+                    Centralize { CircularProgressIndicatorCustomAnimationSample() }
                 },
             )
         ),

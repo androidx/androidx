@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.ink.storage {
+
+  public final class StrokeInputBatchSerialization {
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch? decodeOrNull(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream input);
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch? decodeOrNull(java.io.InputStream input);
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decodeOrThrow(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream input);
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decodeOrThrow(java.io.InputStream input);
+    method public static void encode(androidx.ink.strokes.StrokeInputBatch, java.io.OutputStream output);
+  }
+
+}
+

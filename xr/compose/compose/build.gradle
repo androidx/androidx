@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 
 plugins {
@@ -34,13 +34,13 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(project(":xr:scenecore:scenecore"))
 
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.savedstate:savedstate:1.2.1")
     implementation("androidx.activity:activity:1.9.3")
     implementation("androidx.lifecycle:lifecycle-common:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-    implementation(project(":xr:scenecore:scenecore"))
 
     implementation("androidx.compose.animation:animation-core:1.7.5")
     implementation("androidx.compose.foundation:foundation:1.7.5")
@@ -64,16 +64,14 @@ dependencies {
 
 android {
     defaultConfig {
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdkVersion 24
     }
     namespace = "androidx.xr.compose"
 }
 
 androidx {
     name = "XR Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Compose libraries for the androidx.xr namespace."
     kotlinTarget = KotlinTarget.KOTLIN_1_9

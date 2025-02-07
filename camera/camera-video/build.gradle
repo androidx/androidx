@@ -15,7 +15,7 @@
  */
 
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -77,8 +77,8 @@ dependencies {
 android {
     compileSdk = 35
 
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 
     // Use Robolectric 4.+
@@ -88,7 +88,7 @@ android {
 
 androidx {
     name = "Camera Video"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Video components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +

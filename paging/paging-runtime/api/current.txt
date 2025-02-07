@@ -43,9 +43,9 @@ package androidx.paging {
     method public androidx.paging.ItemSnapshotList<T> snapshot();
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final int itemCount;
-    property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
-    property public final kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
+    property public int itemCount;
+    property public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
+    property public kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
   }
 
   @Deprecated public final class LivePagedListBuilder<Key, Value> {
@@ -134,6 +134,7 @@ package androidx.paging {
     method public static <T> androidx.lifecycle.LiveData<androidx.paging.PagingData<T>> cachedIn(androidx.lifecycle.LiveData<androidx.paging.PagingData<T>>, androidx.lifecycle.ViewModel viewModel);
     method public static <T> androidx.lifecycle.LiveData<androidx.paging.PagingData<T>> cachedIn(androidx.lifecycle.LiveData<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
     method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagingData<Value>> getLiveData(androidx.paging.Pager<Key,Value>);
+    property public static androidx.lifecycle.LiveData<androidx.paging.PagingData<Value>> liveData;
   }
 
 }

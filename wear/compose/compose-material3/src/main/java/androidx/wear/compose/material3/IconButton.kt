@@ -351,7 +351,7 @@ internal fun IconButtonImpl(
     val (finalShape, finalInteractionSource) =
         animateButtonShape(
             defaultShape = shapes.shape,
-            pressedShape = shapes.pressed,
+            pressedShape = shapes.pressedShape,
             onPressAnimationSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>().faster(200f),
             onReleaseAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
             interactionSource = interactionSource
@@ -385,15 +385,32 @@ public object IconButtonDefaults {
     /** Recommended alpha to apply to an IconButton with Image content with disabled */
     public val DisabledImageOpacity: Float = DisabledContentAlpha
 
+    /** Creates an [IconButtonShapes] with a static [shape]. */
+    @Composable public fun shapes(): IconButtonShapes = MaterialTheme.shapes.defaultShapes
+
     /**
-     * Creates a [IconButtonShapes] with a static [shape].
+     * Creates an [IconButtonShapes] with a static [shape].
      *
      * @param shape The normal shape of the IconButton.
      */
     @Composable
     public fun shapes(
-        shape: Shape = IconButtonDefaults.shape,
-    ): IconButtonShapes = IconButtonShapes(shape = shape)
+        shape: Shape? = null,
+    ): IconButtonShapes = MaterialTheme.shapes.defaultShapes.copy(shape = shape)
+
+    /**
+     * Creates a [Shape] with a animation between two CornerBasedShapes.
+     *
+     * A simple icon button using the default colors, animated when pressed.
+     *
+     * @sample androidx.wear.compose.material3.samples.IconButtonWithCornerAnimationSample
+     *
+     * A simple icon toggle button using the default colors, animated when pressed.
+     *
+     * @sample androidx.wear.compose.material3.samples.IconToggleButtonSample
+     */
+    @Composable
+    public fun animatedShapes(): IconButtonShapes = MaterialTheme.shapes.defaultAnimatedShapes
 
     /**
      * Creates a [Shape] with a animation between two CornerBasedShapes.
@@ -413,10 +430,7 @@ public object IconButtonDefaults {
         shape: CornerBasedShape = IconButtonDefaults.shape,
         pressedShape: CornerBasedShape = IconButtonDefaults.pressedShape,
     ): IconButtonShapes =
-        IconButtonShapes(
-            shape = shape,
-            pressed = pressedShape,
-        )
+        MaterialTheme.shapes.defaultAnimatedShapes.copy(shape = shape, pressedShape = pressedShape)
 
     /**
      * Recommended icon size for a given icon button size.
@@ -647,6 +661,22 @@ public object IconButtonDefaults {
      */
     public val LargeButtonSize: Dp = IconButtonTokens.ContainerLargeSize
 
+    internal val Shapes.defaultShapes: IconButtonShapes
+        @Composable
+        get() {
+            return defaultIconButtonShapesCached
+                ?: IconButtonShapes(shape = shape).also { defaultIconButtonShapesCached = it }
+        }
+
+    internal val Shapes.defaultAnimatedShapes: IconButtonShapes
+        @Composable
+        get() {
+            return defaultIconButtonAnimatedShapesCached
+                ?: IconButtonShapes(shape = shape, pressedShape = pressedShape).also {
+                    defaultIconButtonAnimatedShapesCached = it
+                }
+        }
+
     private val ColorScheme.defaultFilledIconButtonColors: IconButtonColors
         get() {
             return defaultFilledIconButtonColorsCached
@@ -829,33 +859,37 @@ public class IconButtonColors(
 /**
  * Represents the shapes used for [IconButton] in various states.
  *
- * If [pressed] is non null the shape will be animated on press.
+ * If [pressedShape] is non null the shape will be animated on press.
  *
  * @param shape the shape of the icon button when enabled
- * @param pressed the shape of the icon button when pressed
+ * @param pressedShape the shape of the icon button when pressed
  */
 public class IconButtonShapes(
     public val shape: Shape,
-    public val pressed: Shape? = null,
+    public val pressedShape: Shape? = null,
 ) {
     public fun copy(
-        default: Shape = this.shape,
-        pressed: Shape? = this.pressed,
-    ): IconButtonShapes = IconButtonShapes(default, pressed)
+        shape: Shape? = this.shape,
+        pressedShape: Shape? = this.pressedShape,
+    ): IconButtonShapes =
+        IconButtonShapes(
+            shape = shape ?: this.shape,
+            pressedShape = pressedShape ?: this.pressedShape
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is IconButtonShapes) return false
 
         if (shape != other.shape) return false
-        if (pressed != other.pressed) return false
+        if (pressedShape != other.pressedShape) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = shape.hashCode()
-        result = 31 * result + pressed.hashCode()
+        result = 31 * result + pressedShape.hashCode()
 
         return result
     }

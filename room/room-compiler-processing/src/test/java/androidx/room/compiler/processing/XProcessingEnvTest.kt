@@ -17,10 +17,12 @@
 package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -160,26 +162,24 @@ class XProcessingEnvTest {
 
     @Test
     fun findGeneratedAnnotation() {
-        runProcessorTest(
-            sources = emptyList(),
-            classpath = emptyList(),
-            javacArguments = listOf("-target", "1.8", "-source", "1.8"),
-            kotlincArguments = listOf("-jvm-target=1.8")
-        ) { invocation ->
-            val generatedAnnotation = invocation.processingEnv.findGeneratedAnnotation()
-            assertThat(generatedAnnotation?.qualifiedName).isEqualTo("javax.annotation.Generated")
+
+        fun validateGeneratedAnnotation(jvmTarget: String, fqn: String) {
+            runProcessorTest(
+                sources = emptyList(),
+                classpath = emptyList(),
+                javacArguments = listOf("-target", jvmTarget, "-source", jvmTarget),
+                kotlincArguments = listOf("-jvm-target=$jvmTarget")
+            ) { invocation ->
+                val generatedAnnotation = invocation.processingEnv.findGeneratedAnnotation()
+                assertWithMessage("On jvmTarget=$jvmTarget")
+                    .that(generatedAnnotation?.qualifiedName)
+                    .isEqualTo(fqn)
+            }
         }
 
-        runProcessorTest(
-            sources = emptyList(),
-            classpath = emptyList(),
-            javacArguments = listOf("-target", "11", "-source", "11"),
-            kotlincArguments = listOf("-jvm-target=11")
-        ) { invocation ->
-            val generatedAnnotation = invocation.processingEnv.findGeneratedAnnotation()
-            assertThat(generatedAnnotation?.qualifiedName)
-                .isEqualTo("javax.annotation.processing.Generated")
-        }
+        validateGeneratedAnnotation("1.8", "javax.annotation.Generated")
+        validateGeneratedAnnotation("9", "javax.annotation.processing.Generated")
+        validateGeneratedAnnotation("11", "javax.annotation.processing.Generated")
     }
 
     @Test
@@ -307,6 +307,72 @@ class XProcessingEnvTest {
                 if (invocation.isKsp) {
                     assertThat(it.asTypeName().kotlin.toString()).isEqualTo("kotlin.Int")
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testInteropTypesByNameFirst() {
+        runProcessorTest(
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "test.Subject.kt",
+                        """
+                        package test
+                        class Subject {
+                            val javaString: java.lang.String = TODO()
+                            val kotlinString: String = TODO()
+                        }
+                        """
+                            .trimIndent()
+                    )
+                )
+        ) { invocation ->
+            val processingEnv = invocation.processingEnv
+            assertThat(processingEnv.requireTypeElement("java.lang.String").asClassName())
+                .isEqualTo(XTypeName.STRING)
+            if (invocation.isKsp) {
+                assertThat(processingEnv.requireTypeElement("kotlin.String").asClassName())
+                    .isEqualTo(XTypeName.STRING)
+            }
+            val subject = processingEnv.requireTypeElement("test.Subject")
+            assertThat(subject.getDeclaredField("javaString").type.typeElement!!.asClassName())
+                .isEqualTo(XClassName.get("java.lang", "String"))
+            assertThat(subject.getDeclaredField("kotlinString").type.typeElement!!.asClassName())
+                .isEqualTo(XTypeName.STRING)
+        }
+    }
+
+    @Test
+    fun testInteropTypesByDeclarationFirst() {
+        runProcessorTest(
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "test.Subject.kt",
+                        """
+                        package test
+                        class Subject {
+                            val javaString: java.lang.String = TODO()
+                            val kotlinString: String = TODO()
+                        }
+                        """
+                            .trimIndent()
+                    )
+                )
+        ) { invocation ->
+            val processingEnv = invocation.processingEnv
+            val subject = processingEnv.requireTypeElement("test.Subject")
+            assertThat(subject.getDeclaredField("javaString").type.typeElement!!.asClassName())
+                .isEqualTo(XClassName.get("java.lang", "String"))
+            assertThat(subject.getDeclaredField("kotlinString").type.typeElement!!.asClassName())
+                .isEqualTo(XTypeName.STRING)
+            assertThat(processingEnv.requireTypeElement("java.lang.String").asClassName())
+                .isEqualTo(XTypeName.STRING)
+            if (invocation.isKsp) {
+                assertThat(processingEnv.requireTypeElement("kotlin.String").asClassName())
+                    .isEqualTo(XTypeName.STRING)
             }
         }
     }

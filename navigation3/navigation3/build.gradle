@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -32,7 +32,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -112,11 +112,12 @@ android {
 
 androidx {
     name = "Androidx Navigation 3"
-    type = LibraryType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Provides the building blocks for a Compose first Navigation solution that " +
             "easily supports extensions."
     samples(project(":navigation3:navigation3:navigation3-samples"))
     doNotDocumentReason = "Not published to maven"
     kotlinTarget = KotlinTarget.KOTLIN_1_9
+    addGoldenImageAssets()
 }

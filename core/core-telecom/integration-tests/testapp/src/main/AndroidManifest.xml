@@ -23,6 +23,14 @@
     <!-- required permissions in order to post call-style notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- The queries tag is required for the Call Icon Extension.  The queries block allows the
+      remote InCallServices to be visible to this VoIP app so this app can grant Uri permissions
+      to them -->
+    <queries>
+        <intent>
+            <action android:name="android.telecom.InCallService" />
+        </intent>
+    </queries>
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -38,8 +46,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- The queries tag is useful for the Call Icon Extension.  It allows the VoIP app to
+             store a bitmap to memory and creates a URI that can be shared to another app -->
         <provider
-            android:name=".VoipAppFileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="androidx.core.telecom.test.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">

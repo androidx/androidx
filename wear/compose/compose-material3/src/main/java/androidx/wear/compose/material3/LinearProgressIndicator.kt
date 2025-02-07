@@ -118,7 +118,7 @@ public fun LinearProgressIndicator(
  *   visually disabled.
  */
 @Composable
-public fun LinearProgressIndicatorContent(
+private fun LinearProgressIndicatorContent(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),

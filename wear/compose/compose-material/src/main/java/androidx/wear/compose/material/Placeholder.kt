@@ -366,7 +366,7 @@ internal constructor(
 public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
     val maxScreenDimension =
         with(LocalDensity.current) { Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx() }
-    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val isReduceMotionEnabled = LocalReduceMotion.current
     val myLambdaState = rememberUpdatedState(isContentReady)
     return remember { PlaceholderState(myLambdaState, maxScreenDimension, isReduceMotionEnabled) }
 }
@@ -457,7 +457,7 @@ public fun Modifier.placeholderShimmer(
     color: Color = MaterialTheme.colors.onSurface,
 ): Modifier =
     this.then(
-        if (LocalReduceMotion.current.enabled()) {
+        if (LocalReduceMotion.current) {
             Modifier
         } else {
             PlaceholderShimmerElement(

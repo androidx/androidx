@@ -176,19 +176,12 @@ class MutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            MutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = MutableVec(0f, 0f),
                 width = 14f,
                 height = 4f,
                 rotation = Angle.ZERO,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        MutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        0f
-                    )
-                },
+                shearFactor = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }
@@ -201,19 +194,12 @@ class MutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            MutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = MutableVec(3f, 3f),
                 width = 12.485281f,
                 height = 4f,
                 rotation = Angle.HALF_TURN_RADIANS / 4.0f,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        MutableVec(3f, 3f),
-                        w,
-                        h,
-                        r,
-                        0f
-                    )
-                },
+                shearFactor = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }

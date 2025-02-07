@@ -957,19 +957,23 @@ public class ContextCompat {
      * Android, and then asserts that the app registering the receiver also has that permission
      * so it can receiver its own broadcasts.
      *
-     * @param obj   Context to check the permission in.
+     * @param obj Context to check the permission in.
      * @return The name of the permission
      */
     static String obtainAndCheckReceiverPermission(Context obj) {
-        String permission;
-        if (Build.VERSION.SDK_INT >= 29) {
-            permission = obj.getOpPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
-        } else {
-            permission = obj.getApplicationContext().getPackageName()
-                    + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
-        }
+        String permission = obj.getApplicationContext().getPackageName()
+                + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+
         if (PermissionChecker.checkSelfPermission(obj, permission)
                 != PermissionChecker.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= 29) {
+                permission =
+                        obj.getOpPackageName() + DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX;
+                if (PermissionChecker.checkSelfPermission(obj, permission)
+                        == PermissionChecker.PERMISSION_GRANTED) {
+                    return permission;
+                }
+            }
             throw new RuntimeException("Permission " + permission + " is required by your "
                     + "application to receive broadcasts, please add it to your manifest");
         }

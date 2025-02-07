@@ -29,7 +29,6 @@ import java.util.Locale
  * A database abstraction which removes the framework dependency and allows swapping underlying sql
  * versions. It mimics the behavior of [android.database.sqlite.SQLiteDatabase]
  */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public interface SupportSQLiteDatabase : Closeable {
     /**
      * Compiles the given SQL statement.
@@ -250,7 +249,6 @@ public interface SupportSQLiteDatabase : Closeable {
     public fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean
 
     /** Is true if [execPerConnectionSQL] is supported by the implementation. */
-    @get:Suppress("AcronymName") // To keep consistency with framework method name.
     public val isExecPerConnectionSQLSupported: Boolean
         get() = false
 
@@ -275,7 +273,6 @@ public interface SupportSQLiteDatabase : Closeable {
      * @throws UnsupportedOperationException if this operation is not supported. To check if it
      *   supported use [isExecPerConnectionSQLSupported]
      */
-    @Suppress("AcronymName") // To keep consistency with framework method name.
     public fun execPerConnectionSQL(
         sql: String,
         @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?
@@ -425,9 +422,7 @@ public interface SupportSQLiteDatabase : Closeable {
      *   not supported.
      * @throws SQLException if the SQL string is invalid
      */
-    @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-    @Throws(SQLException::class)
-    public fun execSQL(sql: String)
+    @Throws(SQLException::class) public fun execSQL(sql: String)
 
     /**
      * Execute a single SQL statement that does not return any data.
@@ -441,9 +436,7 @@ public interface SupportSQLiteDatabase : Closeable {
      * @param bindArgs only byte[], String, Long and Double are supported in selectionArgs.
      * @throws SQLException if the SQL string is invalid
      */
-    @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-    @Throws(SQLException::class)
-    public fun execSQL(sql: String, bindArgs: Array<out Any?>)
+    @Throws(SQLException::class) public fun execSQL(sql: String, bindArgs: Array<out Any?>)
 
     /** Is true if the database is opened as read only. */
     public val isReadOnly: Boolean

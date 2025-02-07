@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -76,7 +76,7 @@ androidXMultiplatform {
 androidx {
     // This library is consumed by Kotlin CI to run Compose runtime test with the latest compiler.
     name = "Compose Internal Test Utils"
-    type = LibraryType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2024"
     description = "Compose runtime test utils shared between runtime and compiler tests."
 }

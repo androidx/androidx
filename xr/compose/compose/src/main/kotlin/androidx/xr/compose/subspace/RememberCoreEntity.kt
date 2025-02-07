@@ -18,13 +18,14 @@ package androidx.xr.compose.subspace
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.platform.disposableValueOf
+import androidx.xr.compose.platform.getValue
 import androidx.xr.compose.subspace.layout.CoreContentlessEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
-import androidx.xr.scenecore.BasePanelEntity
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Session
 
 /**
@@ -36,22 +37,25 @@ internal inline fun rememberCoreContentlessEntity(
     crossinline entityFactory: @DisallowComposableCalls Session.() -> Entity
 ): CoreContentlessEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val entity = remember { session.entityFactory() }
-
-    DisposableEffect(entity) { onDispose { entity.dispose() } }
-
-    return remember { CoreContentlessEntity(entity) }
+    val coreEntity by remember {
+        disposableValueOf(CoreContentlessEntity(session.entityFactory())) { it.dispose() }
+    }
+    return coreEntity
 }
 
 /** Creates a [CorePanelEntity] that is automatically disposed of when it leaves the composition. */
 @Composable
 internal inline fun rememberCorePanelEntity(
-    crossinline entityFactory: @DisallowComposableCalls Session.() -> BasePanelEntity<*>
+    crossinline onCoreEntityCreated: @DisallowComposableCalls (CorePanelEntity) -> Unit = {},
+    crossinline entityFactory: @DisallowComposableCalls Session.() -> PanelEntity,
 ): CorePanelEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val entity = remember { session.entityFactory() }
-
-    DisposableEffect(entity) { onDispose { entity.dispose() } }
-
-    return remember { CorePanelEntity(session, entity) }
+    val coreEntity by remember {
+        disposableValueOf(
+            CorePanelEntity(session, session.entityFactory()).also(onCoreEntityCreated)
+        ) {
+            it.dispose()
+        }
+    }
+    return coreEntity
 }

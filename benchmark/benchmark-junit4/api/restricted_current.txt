@@ -11,17 +11,14 @@ package androidx.benchmark.junit4 {
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public androidx.benchmark.MicrobenchmarkConfig getConfig();
     method public androidx.benchmark.BenchmarkState getState();
-    property public final androidx.benchmark.MicrobenchmarkConfig config;
-    property @kotlin.PublishedApi internal final androidx.benchmark.TestDefinition? testDefinition;
+    property public androidx.benchmark.MicrobenchmarkConfig config;
+    property @kotlin.PublishedApi internal androidx.benchmark.TestDefinition? testDefinition;
     field @kotlin.PublishedApi internal androidx.benchmark.TestDefinition? testDefinition;
   }
 
-  public final class BenchmarkRule.Scope {
+  public final class BenchmarkRule.Scope extends androidx.benchmark.MicrobenchmarkScope {
     method @kotlin.PublishedApi internal androidx.benchmark.BenchmarkState getOuterState();
-    method public final void pauseMeasurement();
-    method public final void resumeMeasurement();
-    method public final <T> T! runWithMeasurementDisabled(kotlin.jvm.functions.Function0<? extends T!>);
-    method public inline <T> T runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
+    method @Deprecated public inline <T> T runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
   }
 
   public final class BenchmarkRuleKt {
@@ -36,9 +33,9 @@ package androidx.benchmark.junit4 {
     method public boolean getEnableAppTagTracing();
     method public boolean getEnableUserspaceTracing();
     method public kotlin.jvm.functions.Function1<androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? getTraceCallback();
-    property public final boolean enableAppTagTracing;
-    property public final boolean enableUserspaceTracing;
-    property public final kotlin.jvm.functions.Function1<androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback;
+    property public boolean enableAppTagTracing;
+    property public boolean enableUserspaceTracing;
+    property public kotlin.jvm.functions.Function1<androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback;
   }
 
 }

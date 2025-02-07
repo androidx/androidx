@@ -93,5 +93,6 @@ internal fun emptyMeasureResult(
         beforeContentPadding = beforeContentPadding,
         afterContentPadding = afterContentPadding,
         itemSpacing = 0,
+        childConstraints = Constraints(),
         measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
     )

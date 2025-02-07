@@ -1,0 +1,33 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.room:room-paging>
+abstract class <#A: kotlin/Any> androidx.room.paging/LimitOffsetPagingSource : androidx.paging/PagingSource<kotlin/Int, #A> { // androidx.room.paging/LimitOffsetPagingSource|null[0]
+    constructor <init>(androidx.room/RoomRawQuery, androidx.room/RoomDatabase, kotlin/Array<out kotlin/String>...) // androidx.room.paging/LimitOffsetPagingSource.<init>|<init>(androidx.room.RoomRawQuery;androidx.room.RoomDatabase;kotlin.Array<out|kotlin.String>...){}[0]
+
+    final val db // androidx.room.paging/LimitOffsetPagingSource.db|{}db[0]
+        final fun <get-db>(): androidx.room/RoomDatabase // androidx.room.paging/LimitOffsetPagingSource.db.<get-db>|<get-db>(){}[0]
+    final val itemCount // androidx.room.paging/LimitOffsetPagingSource.itemCount|{}itemCount[0]
+        final fun <get-itemCount>(): kotlin/Int // androidx.room.paging/LimitOffsetPagingSource.itemCount.<get-itemCount>|<get-itemCount>(){}[0]
+    final val sourceQuery // androidx.room.paging/LimitOffsetPagingSource.sourceQuery|{}sourceQuery[0]
+        final fun <get-sourceQuery>(): androidx.room/RoomRawQuery // androidx.room.paging/LimitOffsetPagingSource.sourceQuery.<get-sourceQuery>|<get-sourceQuery>(){}[0]
+    open val jumpingSupported // androidx.room.paging/LimitOffsetPagingSource.jumpingSupported|{}jumpingSupported[0]
+        open fun <get-jumpingSupported>(): kotlin/Boolean // androidx.room.paging/LimitOffsetPagingSource.jumpingSupported.<get-jumpingSupported>|<get-jumpingSupported>(){}[0]
+
+    open fun getRefreshKey(androidx.paging/PagingState<kotlin/Int, #A>): kotlin/Int? // androidx.room.paging/LimitOffsetPagingSource.getRefreshKey|getRefreshKey(androidx.paging.PagingState<kotlin.Int,1:0>){}[0]
+    open suspend fun convertRows(androidx.room/RoomRawQuery, kotlin/Int): kotlin.collections/List<#A> // androidx.room.paging/LimitOffsetPagingSource.convertRows|convertRows(androidx.room.RoomRawQuery;kotlin.Int){}[0]
+    open suspend fun load(androidx.paging/PagingSource.LoadParams<kotlin/Int>): androidx.paging/PagingSource.LoadResult<kotlin/Int, #A> // androidx.room.paging/LimitOffsetPagingSource.load|load(androidx.paging.PagingSource.LoadParams<kotlin.Int>){}[0]
+}
+
+final const val androidx.room.paging.util/INITIAL_ITEM_COUNT // androidx.room.paging.util/INITIAL_ITEM_COUNT|{}INITIAL_ITEM_COUNT[0]
+    final fun <get-INITIAL_ITEM_COUNT>(): kotlin/Int // androidx.room.paging.util/INITIAL_ITEM_COUNT.<get-INITIAL_ITEM_COUNT>|<get-INITIAL_ITEM_COUNT>(){}[0]
+
+final fun <#A: kotlin/Any> (androidx.paging/PagingState<kotlin/Int, #A>).androidx.room.paging.util/getClippedRefreshKey(): kotlin/Int? // androidx.room.paging.util/getClippedRefreshKey|getClippedRefreshKey@androidx.paging.PagingState<kotlin.Int,0:0>(){0§<kotlin.Any>}[0]
+final fun androidx.room.paging.util/getLimit(androidx.paging/PagingSource.LoadParams<kotlin/Int>, kotlin/Int): kotlin/Int // androidx.room.paging.util/getLimit|getLimit(androidx.paging.PagingSource.LoadParams<kotlin.Int>;kotlin.Int){}[0]
+final fun androidx.room.paging.util/getOffset(androidx.paging/PagingSource.LoadParams<kotlin/Int>, kotlin/Int, kotlin/Int): kotlin/Int // androidx.room.paging.util/getOffset|getOffset(androidx.paging.PagingSource.LoadParams<kotlin.Int>;kotlin.Int;kotlin.Int){}[0]
+final suspend fun <#A: kotlin/Any> androidx.room.paging.util/queryDatabase(androidx.paging/PagingSource.LoadParams<kotlin/Int>, androidx.room/RoomRawQuery, kotlin/Int, kotlin.coroutines/SuspendFunction2<androidx.room/RoomRawQuery, kotlin/Int, kotlin.collections/List<#A>>): androidx.paging/PagingSource.LoadResult<kotlin/Int, #A> // androidx.room.paging.util/queryDatabase|queryDatabase(androidx.paging.PagingSource.LoadParams<kotlin.Int>;androidx.room.RoomRawQuery;kotlin.Int;kotlin.coroutines.SuspendFunction2<androidx.room.RoomRawQuery,kotlin.Int,kotlin.collections.List<0:0>>){0§<kotlin.Any>}[0]
+final suspend fun androidx.room.paging.util/queryItemCount(androidx.room/RoomRawQuery, androidx.room/RoomDatabase): kotlin/Int // androidx.room.paging.util/queryItemCount|queryItemCount(androidx.room.RoomRawQuery;androidx.room.RoomDatabase){}[0]

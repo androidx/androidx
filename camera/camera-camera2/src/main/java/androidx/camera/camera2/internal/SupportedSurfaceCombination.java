@@ -1131,7 +1131,8 @@ final class SupportedSurfaceCombination {
             case TargetAspectRatio.RATIO_MAX_JPEG:
                 Size maxJpegSize = getUpdatedSurfaceSizeDefinitionByFormat(
                         ImageFormat.JPEG).getMaximumSize(ImageFormat.JPEG);
-                ratio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+                ratio = maxJpegSize == null ? null : new Rational(maxJpegSize.getWidth(),
+                        maxJpegSize.getHeight());
                 break;
             case TargetAspectRatio.RATIO_ORIGINAL:
                 ratio = null;

@@ -21,7 +21,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.annotation.RestrictTo
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -29,7 +28,6 @@ import androidx.core.content.ContextCompat
  * Utility class for handling Android permissions. SceneCore applications should use this before
  * creating Anchors.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object PermissionHelper {
     public const val SCENE_UNDERSTANDING_PERMISSION_CODE: Int = 0
     public const val SCENE_UNDERSTANDING_PERMISSION: String =

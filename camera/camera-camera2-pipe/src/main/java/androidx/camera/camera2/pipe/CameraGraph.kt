@@ -807,29 +807,29 @@ public interface CameraGraph : AutoCloseable {
  * states are produced by the underlying camera as a result of these start/stop calls.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class GraphState internal constructor() {
+public abstract class GraphState internal constructor(private val name: String) {
     /**
      * When the [CameraGraph] is starting. This means we're in the process of opening a (virtual)
      * camera and creating a capture session.
      */
-    public object GraphStateStarting : GraphState()
+    public object GraphStateStarting : GraphState("GRAPH_STARTING")
 
     /**
      * When the [CameraGraph] is started. This means a capture session has been successfully created
      * for the [CameraGraph].
      */
-    public object GraphStateStarted : GraphState()
+    public object GraphStateStarted : GraphState("GRAPH_STARTED")
 
     /**
      * When the [CameraGraph] is stopping. This means we're in the process of stopping the graph.
      */
-    public object GraphStateStopping : GraphState()
+    public object GraphStateStopping : GraphState("GRAPH_STOPPING")
 
     /**
      * When the [CameraGraph] hasn't been started, or stopped. This does not guarantee the closure
      * of the capture session or the camera device itself.
      */
-    public object GraphStateStopped : GraphState()
+    public object GraphStateStopped : GraphState("GRAPH_STOPPED")
 
     /**
      * When the [CameraGraph] has encountered an error. If [willAttemptRetry] is true, CameraPipe
@@ -838,10 +838,12 @@ public abstract class GraphState internal constructor() {
     public class GraphStateError(
         public val cameraError: CameraError,
         public val willAttemptRetry: Boolean
-    ) : GraphState() {
+    ) : GraphState("GRAPH_ERROR") {
         override fun toString(): String =
             super.toString() + "(cameraError=$cameraError, willAttemptRetry=$willAttemptRetry)"
     }
+
+    override fun toString(): String = name
 }
 
 /** @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants. */

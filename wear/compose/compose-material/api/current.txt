@@ -31,14 +31,14 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors outlinedButtonColors(optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors primaryButtonColors(optional long backgroundColor, optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors secondaryButtonColors(optional long backgroundColor, optional long contentColor);
-    property public final float CompactButtonBackgroundPadding;
-    property public final float DefaultButtonSize;
-    property public final float DefaultIconSize;
-    property public final float ExtraSmallButtonSize;
-    property public final float LargeButtonSize;
-    property public final float LargeIconSize;
-    property public final float SmallButtonSize;
-    property public final float SmallIconSize;
+    property public float CompactButtonBackgroundPadding;
+    property public float DefaultButtonSize;
+    property public float DefaultIconSize;
+    property public float ExtraSmallButtonSize;
+    property public float LargeButtonSize;
+    property public float LargeIconSize;
+    property public float SmallButtonSize;
+    property public float SmallIconSize;
     field public static final androidx.wear.compose.material.ButtonDefaults INSTANCE;
   }
 
@@ -56,8 +56,8 @@ package androidx.wear.compose.material {
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
-    property public final float AppImageSize;
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public float AppImageSize;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material.CardDefaults INSTANCE;
   }
 
@@ -111,18 +111,18 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors outlinedChipColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors primaryChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ChipColors secondaryChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor);
-    property public final float ChipHorizontalPadding;
-    property public final float ChipVerticalPadding;
-    property public final androidx.compose.foundation.layout.PaddingValues CompactChipContentPadding;
-    property public final float CompactChipHeight;
-    property public final float CompactChipHorizontalPadding;
-    property public final androidx.compose.foundation.layout.PaddingValues CompactChipTapTargetPadding;
-    property public final float CompactChipVerticalPadding;
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final float Height;
-    property public final float IconSize;
-    property public final float LargeIconSize;
-    property public final float SmallIconSize;
+    property public float ChipHorizontalPadding;
+    property public float ChipVerticalPadding;
+    property public androidx.compose.foundation.layout.PaddingValues CompactChipContentPadding;
+    property public float CompactChipHeight;
+    property public float CompactChipHorizontalPadding;
+    property public androidx.compose.foundation.layout.PaddingValues CompactChipTapTargetPadding;
+    property public float CompactChipVerticalPadding;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public float Height;
+    property public float IconSize;
+    property public float LargeIconSize;
+    property public float SmallIconSize;
     field public static final androidx.wear.compose.material.ChipDefaults INSTANCE;
   }
 
@@ -154,19 +154,19 @@ package androidx.wear.compose.material {
     method public long getSecondary();
     method public long getSecondaryVariant();
     method public long getSurface();
-    property public final long background;
-    property public final long error;
-    property public final long onBackground;
-    property public final long onError;
-    property public final long onPrimary;
-    property public final long onSecondary;
-    property public final long onSurface;
-    property public final long onSurfaceVariant;
-    property public final long primary;
-    property public final long primaryVariant;
-    property public final long secondary;
-    property public final long secondaryVariant;
-    property public final long surface;
+    property public long background;
+    property public long error;
+    property public long onBackground;
+    property public long onError;
+    property public long onPrimary;
+    property public long onSecondary;
+    property public long onSurface;
+    property public long onSurfaceVariant;
+    property public long primary;
+    property public long primaryVariant;
+    property public long secondary;
+    property public long secondaryVariant;
+    property public long surface;
   }
 
   public final class ColorsKt {
@@ -178,20 +178,20 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public float getDisabled();
     method @androidx.compose.runtime.Composable public float getHigh();
     method @androidx.compose.runtime.Composable public float getMedium();
-    property @androidx.compose.runtime.Composable public final float disabled;
-    property @androidx.compose.runtime.Composable public final float high;
-    property @androidx.compose.runtime.Composable public final float medium;
+    property @androidx.compose.runtime.Composable public float disabled;
+    property @androidx.compose.runtime.Composable public float high;
+    property @androidx.compose.runtime.Composable public float medium;
     field public static final androidx.wear.compose.material.ContentAlpha INSTANCE;
   }
 
   public final class ContentAlphaKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> getLocalContentAlpha();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> LocalContentAlpha;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> LocalContentAlpha;
   }
 
   public final class ContentColorKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
   public final class CurvedTextKt {
@@ -234,8 +234,8 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.InlineSliderColors colors(optional long backgroundColor, optional long spacerColor, optional long selectedBarColor, optional long unselectedBarColor, optional long disabledBackgroundColor, optional long disabledSpacerColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor);
     method public androidx.compose.ui.graphics.vector.ImageVector getDecrease();
     method public androidx.compose.ui.graphics.vector.ImageVector getIncrease();
-    property public final androidx.compose.ui.graphics.vector.ImageVector Decrease;
-    property public final androidx.compose.ui.graphics.vector.ImageVector Increase;
+    property public androidx.compose.ui.graphics.vector.ImageVector Decrease;
+    property public androidx.compose.ui.graphics.vector.ImageVector Increase;
     field public static final androidx.wear.compose.material.InlineSliderDefaults INSTANCE;
   }
 
@@ -247,9 +247,9 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Colors getColors();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Shapes getShapes();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Typography getTypography();
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.wear.compose.material.Colors colors;
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.wear.compose.material.Shapes shapes;
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.wear.compose.material.Typography typography;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Colors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.wear.compose.material.Typography typography;
     field public static final androidx.wear.compose.material.MaterialTheme INSTANCE;
   }
 
@@ -278,8 +278,8 @@ package androidx.wear.compose.material {
   public static final class PageIndicatorStyle.Companion {
     method public int getCurved();
     method public int getLinear();
-    property public final int Curved;
-    property public final int Linear;
+    property public int Curved;
+    property public int Linear;
   }
 
   public final class PickerDefaults {
@@ -287,7 +287,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.wear.compose.material.PickerState state, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
     method public float getDefaultGradientRatio();
     method @Deprecated public androidx.wear.compose.material.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
-    property public final float DefaultGradientRatio;
+    property public float DefaultGradientRatio;
     field public static final androidx.wear.compose.material.PickerDefaults INSTANCE;
   }
 
@@ -300,13 +300,13 @@ package androidx.wear.compose.material {
     method public kotlin.jvm.functions.Function3<androidx.wear.compose.material.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> getOption();
     method public androidx.wear.compose.material.PickerState getPickerState();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? getReadOnlyLabel();
-    property public final String? contentDescription;
-    property public final androidx.compose.ui.focus.FocusRequester? focusRequester;
-    property public final androidx.compose.ui.Modifier modifier;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit> onSelected;
-    property public final kotlin.jvm.functions.Function3<androidx.wear.compose.material.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option;
-    property public final androidx.wear.compose.material.PickerState pickerState;
-    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel;
+    property public String? contentDescription;
+    property public androidx.compose.ui.focus.FocusRequester? focusRequester;
+    property public androidx.compose.ui.Modifier modifier;
+    property public kotlin.jvm.functions.Function0<kotlin.Unit> onSelected;
+    property public kotlin.jvm.functions.Function3<androidx.wear.compose.material.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option;
+    property public androidx.wear.compose.material.PickerState pickerState;
+    property public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel;
   }
 
   public final class PickerGroupKt {
@@ -319,13 +319,13 @@ package androidx.wear.compose.material {
     ctor public PickerGroupState(optional int initiallySelectedIndex);
     method public int getSelectedIndex();
     method public void setSelectedIndex(int);
-    property public final int selectedIndex;
+    property public int selectedIndex;
     field public static final androidx.wear.compose.material.PickerGroupState.Companion Companion;
   }
 
   public static final class PickerGroupState.Companion {
     method public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerGroupState,java.lang.Object> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerGroupState,java.lang.Object> Saver;
+    property public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerGroupState,java.lang.Object> Saver;
   }
 
   public final class PickerKt {
@@ -356,15 +356,15 @@ package androidx.wear.compose.material {
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public boolean isScrollInProgress;
-    property public final int numberOfOptions;
-    property public final boolean repeatItems;
-    property public final int selectedOption;
+    property public int numberOfOptions;
+    property public boolean repeatItems;
+    property public int selectedOption;
     field public static final androidx.wear.compose.material.PickerState.Companion Companion;
   }
 
   public static final class PickerState.Companion {
     method public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
+    property public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.PickerState,java.lang.Object> Saver;
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class PlaceholderDefaults {
@@ -386,9 +386,9 @@ package androidx.wear.compose.material {
     method public boolean isShowContent();
     method public boolean isWipeOff();
     method public suspend Object? startPlaceholderAnimation(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final boolean isShowContent;
-    property public final boolean isWipeOff;
-    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final float placeholderProgression;
+    property public boolean isShowContent;
+    property public boolean isWipeOff;
+    property @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public float placeholderProgression;
   }
 
   @kotlin.jvm.JvmInline public final value class PositionIndicatorAlignment {
@@ -400,17 +400,17 @@ package androidx.wear.compose.material {
     method public int getLeft();
     method public int getOppositeRsb();
     method public int getRight();
-    property public final int End;
-    property public final int Left;
-    property public final int OppositeRsb;
-    property public final int Right;
+    property public int End;
+    property public int Left;
+    property public int OppositeRsb;
+    property public int Right;
   }
 
   public final class PositionIndicatorDefaults {
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getPositionAnimationSpec();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getVisibilityAnimationSpec();
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec;
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> visibilityAnimationSpec;
+    property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec;
+    property public androidx.compose.animation.core.AnimationSpec<java.lang.Float> visibilityAnimationSpec;
     field public static final androidx.wear.compose.material.PositionIndicatorDefaults INSTANCE;
   }
 
@@ -443,9 +443,9 @@ package androidx.wear.compose.material {
     method public int getAutoHide();
     method public int getHide();
     method public int getShow();
-    property public final int AutoHide;
-    property public final int Hide;
-    property public final int Show;
+    property public int AutoHide;
+    property public int Hide;
+    property public int Show;
   }
 
   public final class ProgressIndicatorDefaults {
@@ -453,10 +453,10 @@ package androidx.wear.compose.material {
     method public float getIndeterminateStrokeWidth();
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getProgressAnimationSpec();
     method public float getStrokeWidth();
-    property public final float FullScreenStrokeWidth;
-    property public final float IndeterminateStrokeWidth;
-    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> ProgressAnimationSpec;
-    property public final float StrokeWidth;
+    property public float FullScreenStrokeWidth;
+    property public float IndeterminateStrokeWidth;
+    property public androidx.compose.animation.core.SpringSpec<java.lang.Float> ProgressAnimationSpec;
+    property public float StrokeWidth;
     field public static final androidx.wear.compose.material.ProgressIndicatorDefaults INSTANCE;
   }
 
@@ -481,9 +481,9 @@ package androidx.wear.compose.material {
     method public float getBasis();
     method public float getFactorAtMax();
     method public float getFactorAtMin();
-    property @FloatRange(from=0.0, fromInclusive=false) public final float basis;
-    property @FloatRange(from=0.0) public final float factorAtMax;
-    property @FloatRange(from=0.0) public final float factorAtMin;
+    property @FloatRange(from=0.0, fromInclusive=false) public float basis;
+    property @FloatRange(from=0.0) public float factorAtMax;
+    property @FloatRange(from=0.0) public float factorAtMin;
   }
 
   public final class RippleKt {
@@ -516,8 +516,8 @@ package androidx.wear.compose.material {
   @Deprecated public static final class ScalingLazyListAnchorType.Companion {
     method @Deprecated public int getItemCenter();
     method @Deprecated public int getItemStart();
-    property @Deprecated public final int ItemCenter;
-    property @Deprecated public final int ItemStart;
+    property @Deprecated public int ItemCenter;
+    property @Deprecated public int ItemStart;
   }
 
   @Deprecated public sealed interface ScalingLazyListItemInfo {
@@ -588,16 +588,16 @@ package androidx.wear.compose.material {
     method @Deprecated public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property @Deprecated public boolean canScrollBackward;
     property @Deprecated public boolean canScrollForward;
-    property @Deprecated public final int centerItemIndex;
-    property @Deprecated public final int centerItemScrollOffset;
+    property @Deprecated public int centerItemIndex;
+    property @Deprecated public int centerItemScrollOffset;
     property @Deprecated public boolean isScrollInProgress;
-    property @Deprecated public final androidx.wear.compose.material.ScalingLazyListLayoutInfo layoutInfo;
+    property @Deprecated public androidx.wear.compose.material.ScalingLazyListLayoutInfo layoutInfo;
     field @Deprecated public static final androidx.wear.compose.material.ScalingLazyListState.Companion Companion;
   }
 
   @Deprecated public static final class ScalingLazyListState.Companion {
     method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> getSaver();
-    property @Deprecated public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> Saver;
+    property @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> Saver;
   }
 
   public final class ScalingLazyListStateKt {
@@ -645,9 +645,9 @@ package androidx.wear.compose.material {
     method public float getIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SelectableChipColors selectableChipColors(optional long selectedStartBackgroundColor, optional long selectedEndBackgroundColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSelectionControlColor, optional long unselectedStartBackgroundColor, optional long unselectedEndBackgroundColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSelectionControlColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SplitSelectableChipColors splitSelectableChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long selectedSelectionControlColor, optional long unselectedSelectionControlColor, optional long splitBackgroundOverlayColor);
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final float Height;
-    property public final float IconSize;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public float Height;
+    property public float IconSize;
     field public static final androidx.wear.compose.material.SelectableChipDefaults INSTANCE;
   }
 
@@ -663,9 +663,9 @@ package androidx.wear.compose.material {
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
     method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
-    property public final androidx.compose.foundation.shape.CornerBasedShape large;
-    property public final androidx.compose.foundation.shape.CornerBasedShape medium;
-    property public final androidx.compose.foundation.shape.CornerBasedShape small;
+    property public androidx.compose.foundation.shape.CornerBasedShape large;
+    property public androidx.compose.foundation.shape.CornerBasedShape medium;
+    property public androidx.compose.foundation.shape.CornerBasedShape small;
   }
 
   public final class SliderKt {
@@ -692,8 +692,8 @@ package androidx.wear.compose.material {
   public final class StepperDefaults {
     method public androidx.compose.ui.graphics.vector.ImageVector getDecrease();
     method public androidx.compose.ui.graphics.vector.ImageVector getIncrease();
-    property public final androidx.compose.ui.graphics.vector.ImageVector Decrease;
-    property public final androidx.compose.ui.graphics.vector.ImageVector Increase;
+    property public androidx.compose.ui.graphics.vector.ImageVector Decrease;
+    property public androidx.compose.ui.graphics.vector.ImageVector Increase;
     field public static final androidx.wear.compose.material.StepperDefaults INSTANCE;
   }
 
@@ -709,16 +709,16 @@ package androidx.wear.compose.material {
     method public float getFraction();
     method public T getFrom();
     method public T getTo();
-    property @FloatRange(from=0.0, to=1.0) public final float fraction;
-    property public final T from;
-    property public final T to;
+    property @FloatRange(from=0.0, to=1.0) public float fraction;
+    property public T from;
+    property public T to;
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class SwipeToDismissBoxDefaults {
     method @Deprecated public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
     method @Deprecated public float getEdgeWidth();
-    property @Deprecated public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
-    property @Deprecated public final float EdgeWidth;
+    property @Deprecated public androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property @Deprecated public float EdgeWidth;
     field @Deprecated public static final androidx.wear.compose.material.SwipeToDismissBoxDefaults INSTANCE;
   }
 
@@ -738,9 +738,9 @@ package androidx.wear.compose.material {
     method @Deprecated public androidx.wear.compose.material.SwipeToDismissValue getTargetValue();
     method @Deprecated public boolean isAnimationRunning();
     method @Deprecated public suspend Object? snapTo(androidx.wear.compose.material.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property @Deprecated public final androidx.wear.compose.material.SwipeToDismissValue currentValue;
-    property @Deprecated public final boolean isAnimationRunning;
-    property @Deprecated public final androidx.wear.compose.material.SwipeToDismissValue targetValue;
+    property @Deprecated public androidx.wear.compose.material.SwipeToDismissValue currentValue;
+    property @Deprecated public boolean isAnimationRunning;
+    property @Deprecated public androidx.wear.compose.material.SwipeToDismissValue targetValue;
   }
 
   public enum SwipeToDismissKeys {
@@ -761,12 +761,12 @@ package androidx.wear.compose.material {
     method public long getSecondaryActionContentColor();
     method public long getUndoActionBackgroundColor();
     method public long getUndoActionContentColor();
-    property public final long primaryActionBackgroundColor;
-    property public final long primaryActionContentColor;
-    property public final long secondaryActionBackgroundColor;
-    property public final long secondaryActionContentColor;
-    property public final long undoActionBackgroundColor;
-    property public final long undoActionContentColor;
+    property public long primaryActionBackgroundColor;
+    property public long primaryActionContentColor;
+    property public long secondaryActionBackgroundColor;
+    property public long secondaryActionContentColor;
+    property public long undoActionBackgroundColor;
+    property public long undoActionContentColor;
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToRevealDefaults {
@@ -774,9 +774,9 @@ package androidx.wear.compose.material {
     method public androidx.compose.foundation.shape.RoundedCornerShape getCardActionShape();
     method public androidx.compose.ui.graphics.vector.ImageVector getDelete();
     method public androidx.compose.ui.graphics.vector.ImageVector getMoreOptions();
-    property public final androidx.compose.foundation.shape.RoundedCornerShape CardActionShape;
-    property public final androidx.compose.ui.graphics.vector.ImageVector Delete;
-    property public final androidx.compose.ui.graphics.vector.ImageVector MoreOptions;
+    property public androidx.compose.foundation.shape.RoundedCornerShape CardActionShape;
+    property public androidx.compose.ui.graphics.vector.ImageVector Delete;
+    property public androidx.compose.ui.graphics.vector.ImageVector MoreOptions;
     field public static final androidx.wear.compose.material.SwipeToRevealDefaults INSTANCE;
   }
 
@@ -792,10 +792,10 @@ package androidx.wear.compose.material {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
     method public float getVelocityThreshold();
     method public androidx.wear.compose.material.ResistanceConfig? resistanceConfig(java.util.Set<java.lang.Float> anchors, optional float factorAtMin, optional float factorAtMax);
-    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
-    property public static final float StandardResistanceFactor;
-    property public static final float StiffResistanceFactor;
-    property public final float VelocityThreshold;
+    property public androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property public static float StandardResistanceFactor;
+    property public static float StiffResistanceFactor;
+    property public float VelocityThreshold;
     field public static final androidx.wear.compose.material.SwipeableDefaults INSTANCE;
     field public static final float StandardResistanceFactor = 10.0f;
     field public static final float StiffResistanceFactor = 20.0f;
@@ -849,7 +849,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public interface ThresholdConfig {
@@ -868,9 +868,9 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public String timeFormat();
     method public androidx.wear.compose.material.TimeSource timeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public static final String TimeFormat12Hours;
-    property public static final String TimeFormat24Hours;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public static String TimeFormat12Hours;
+    property public static String TimeFormat24Hours;
     field public static final androidx.wear.compose.material.TimeTextDefaults INSTANCE;
     field public static final String TimeFormat12Hours = "h:mm";
     field public static final String TimeFormat24Hours = "HH:mm";
@@ -892,11 +892,11 @@ package androidx.wear.compose.material {
     method public float getSmallIconSize();
     method public float getSmallToggleButtonSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleButtonColors toggleButtonColors(optional long checkedBackgroundColor, optional long checkedContentColor, optional long disabledCheckedBackgroundColor, optional long disabledCheckedContentColor, optional long uncheckedBackgroundColor, optional long uncheckedContentColor, optional long disabledUncheckedBackgroundColor, optional long disabledUncheckedContentColor);
-    property public final float DefaultIconSize;
-    property public final int DefaultRole;
-    property public final float DefaultToggleButtonSize;
-    property public final float SmallIconSize;
-    property public final float SmallToggleButtonSize;
+    property public float DefaultIconSize;
+    property public int DefaultRole;
+    property public float DefaultToggleButtonSize;
+    property public float SmallIconSize;
+    property public float SmallToggleButtonSize;
     field public static final androidx.wear.compose.material.ToggleButtonDefaults INSTANCE;
   }
 
@@ -926,13 +926,13 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SplitToggleChipColors splitToggleChipColors(optional long backgroundColor, optional long contentColor, optional long secondaryContentColor, optional long checkedToggleControlColor, optional long uncheckedToggleControlColor, optional long splitBackgroundOverlayColor);
     method public androidx.compose.ui.graphics.vector.ImageVector switchIcon(boolean checked);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleChipColors toggleChipColors(optional long checkedStartBackgroundColor, optional long checkedEndBackgroundColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedToggleControlColor, optional long uncheckedStartBackgroundColor, optional long uncheckedEndBackgroundColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedToggleControlColor, optional androidx.compose.ui.unit.LayoutDirection gradientDirection);
-    property public final androidx.compose.ui.graphics.vector.ImageVector CheckboxOn;
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final float Height;
-    property public final float IconSize;
-    property public final androidx.compose.ui.graphics.vector.ImageVector RadioOff;
-    property public final androidx.compose.ui.graphics.vector.ImageVector RadioOn;
-    property @androidx.compose.runtime.Composable public final long SwitchUncheckedIconColor;
+    property public androidx.compose.ui.graphics.vector.ImageVector CheckboxOn;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public float Height;
+    property public float IconSize;
+    property public androidx.compose.ui.graphics.vector.ImageVector RadioOff;
+    property public androidx.compose.ui.graphics.vector.ImageVector RadioOn;
+    property @androidx.compose.runtime.Composable public long SwitchUncheckedIconColor;
     field public static final androidx.wear.compose.material.ToggleChipDefaults INSTANCE;
   }
 
@@ -966,18 +966,18 @@ package androidx.wear.compose.material {
     method public androidx.compose.ui.text.TextStyle getTitle1();
     method public androidx.compose.ui.text.TextStyle getTitle2();
     method public androidx.compose.ui.text.TextStyle getTitle3();
-    property public final androidx.compose.ui.text.TextStyle body1;
-    property public final androidx.compose.ui.text.TextStyle body2;
-    property public final androidx.compose.ui.text.TextStyle button;
-    property public final androidx.compose.ui.text.TextStyle caption1;
-    property public final androidx.compose.ui.text.TextStyle caption2;
-    property public final androidx.compose.ui.text.TextStyle caption3;
-    property public final androidx.compose.ui.text.TextStyle display1;
-    property public final androidx.compose.ui.text.TextStyle display2;
-    property public final androidx.compose.ui.text.TextStyle display3;
-    property public final androidx.compose.ui.text.TextStyle title1;
-    property public final androidx.compose.ui.text.TextStyle title2;
-    property public final androidx.compose.ui.text.TextStyle title3;
+    property public androidx.compose.ui.text.TextStyle body1;
+    property public androidx.compose.ui.text.TextStyle body2;
+    property public androidx.compose.ui.text.TextStyle button;
+    property public androidx.compose.ui.text.TextStyle caption1;
+    property public androidx.compose.ui.text.TextStyle caption2;
+    property public androidx.compose.ui.text.TextStyle caption3;
+    property public androidx.compose.ui.text.TextStyle display1;
+    property public androidx.compose.ui.text.TextStyle display2;
+    property public androidx.compose.ui.text.TextStyle display3;
+    property public androidx.compose.ui.text.TextStyle title1;
+    property public androidx.compose.ui.text.TextStyle title2;
+    property public androidx.compose.ui.text.TextStyle title3;
   }
 
   public final class VignetteKt {
@@ -993,9 +993,9 @@ package androidx.wear.compose.material {
     method public int getBottom();
     method public int getTop();
     method public int getTopAndBottom();
-    property public final int Bottom;
-    property public final int Top;
-    property public final int TopAndBottom;
+    property public int Bottom;
+    property public int Top;
+    property public int TopAndBottom;
   }
 
 }
@@ -1009,12 +1009,12 @@ package androidx.wear.compose.material.dialog {
     method public long getIndefiniteDurationMillis();
     method public long getLongDurationMillis();
     method public long getShortDurationMillis();
-    property public final androidx.compose.foundation.layout.Arrangement.Vertical AlertVerticalArrangement;
-    property public final androidx.compose.foundation.layout.Arrangement.Vertical ConfirmationVerticalArrangement;
-    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
-    property public final long IndefiniteDurationMillis;
-    property public final long LongDurationMillis;
-    property public final long ShortDurationMillis;
+    property public androidx.compose.foundation.layout.Arrangement.Vertical AlertVerticalArrangement;
+    property public androidx.compose.foundation.layout.Arrangement.Vertical ConfirmationVerticalArrangement;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public long IndefiniteDurationMillis;
+    property public long LongDurationMillis;
+    property public long ShortDurationMillis;
     field public static final androidx.wear.compose.material.dialog.DialogDefaults INSTANCE;
   }
 

@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.Release
 import androidx.build.metalava.MetalavaRunnerKt
 import androidx.build.uptodatedness.EnableCachingKt
@@ -108,7 +108,7 @@ android {
 
 androidx {
     name = "Android for Cars App"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
     legacyDisableKotlinStrictApiMode = true

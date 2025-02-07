@@ -126,11 +126,7 @@ public class ViewStrokeRenderer(
         val viewToScreenTransform =
             scratchMatrix.also {
                 it.reset()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    view.transformMatrixToGlobal(it)
-                } else {
-                    transformMatrixToGlobalFallback(view, it)
-                }
+                transformMatrixToGlobalWithFallback(view, it)
             }
         require(viewToScreenTransform.isAffine) { "View to screen transform must be affine." }
         val scope = recycledDrawScopes.removeFirstOrNull() ?: StrokeDrawScope(canvasStrokeRenderer)
@@ -150,7 +146,20 @@ public class ViewStrokeRenderer(
 
 /**
  * Modify [matrix] such that it maps from view-local to on-screen coordinates when
- * [View.transformMatrixToGlobal] is not available.
+ * [View.transformMatrixToGlobal] might not be available.
+ */
+private fun transformMatrixToGlobalWithFallback(view: View, matrix: Matrix) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        view.transformMatrixToGlobal(matrix)
+    } else {
+        transformMatrixToGlobalFallback(view, matrix)
+    }
+}
+
+/**
+ * Modify [matrix] such that it maps from view-local to on-screen coordinates when
+ * [View.transformMatrixToGlobal] is not available. Implementation cribbed from internal code in
+ * `androidx/transition/ViewUtils.java`.
  */
 private fun transformMatrixToGlobalFallback(view: View, matrix: Matrix) {
     (view.parent as? View)?.let {

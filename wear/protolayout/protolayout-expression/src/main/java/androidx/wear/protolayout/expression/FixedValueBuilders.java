@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
@@ -127,6 +128,17 @@ final class FixedValueBuilders {
         @Override
         public int getIntValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicInt32.class.isAssignableFrom(type)
+                    || type == int.class
+                    || type == Integer.class;
         }
 
         @Override
@@ -259,6 +271,16 @@ final class FixedValueBuilders {
         @Override
         public @NonNull String getStringValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicString.class.isAssignableFrom(type)
+                    || type == String.class;
         }
 
         @Override
@@ -399,6 +421,17 @@ final class FixedValueBuilders {
             return mImpl.getValue();
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicFloat.class.isAssignableFrom(type)
+                    || type == float.class
+                    || type == Float.class;
+        }
+
         @Override
         public int hashCode() {
             return Float.hashCode(mImpl.getValue());
@@ -535,6 +568,17 @@ final class FixedValueBuilders {
             return mImpl.getValue();
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicBool.class.isAssignableFrom(type)
+                    || type == boolean.class
+                    || type == Boolean.class;
+        }
+
         @Override
         public int hashCode() {
             return Boolean.hashCode(mImpl.getValue());
@@ -669,6 +713,15 @@ final class FixedValueBuilders {
             return mImpl.getArgb();
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicColor.class.isAssignableFrom(type) || type == Color.class;
+        }
+
         @Override
         public int hashCode() {
             return Integer.hashCode(mImpl.getArgb());
@@ -749,6 +802,16 @@ final class FixedValueBuilders {
         @Override
         public @NonNull Instant getInstantValue() {
             return Instant.ofEpochSecond(mImpl.getEpochSeconds());
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicInstant.class.isAssignableFrom(type)
+                    || type == Instant.class;
         }
 
         @Override
@@ -883,6 +946,16 @@ final class FixedValueBuilders {
         @Override
         public @NonNull Duration getDurationValue() {
             return Duration.ofSeconds(mImpl.getSeconds());
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a value of the
+         * specified {@code type}. Otherwise returns false.
+         */
+        @Override
+        public boolean hasValueOfType(@NonNull Class<?> type) {
+            return DynamicBuilders.DynamicDuration.class.isAssignableFrom(type)
+                    || type == Duration.class;
         }
 
         @Override

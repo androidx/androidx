@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -76,7 +76,7 @@ dependencies {
 
 androidx {
     name = "Compose Layout Inspector"
-    type = LibraryType.IDE_PLUGIN
+    type = SoftwareType.IDE_PLUGIN
     inceptionYear = "2021"
     description = "Compose layout inspector. Exposes information to our tools for better IDE support."
 }

@@ -30,8 +30,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A stub data paging provider used for testing of paging support.
@@ -89,7 +90,7 @@ public final class TestContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(
-            Uri uri, @Nullable String[] projection, String selection, String[] selectionArgs,
+            Uri uri, String @Nullable [] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         return query(uri, projection, null, null);
     }
@@ -134,7 +135,7 @@ public final class TestContentProvider extends ContentProvider {
             return value;
         }
 
-        @Nullable String argValue = uri.getQueryParameter(key);
+        String argValue = uri.getQueryParameter(key);
         if (argValue != null) {
             try {
                 return Integer.parseInt(argValue);

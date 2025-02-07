@@ -1,0 +1,50 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.sqlite:sqlite-framework>
+open annotation class androidx.sqlite.driver/OpenFlag : kotlin/Annotation { // androidx.sqlite.driver/OpenFlag|null[0]
+    constructor <init>() // androidx.sqlite.driver/OpenFlag.<init>|<init>(){}[0]
+}
+
+final class androidx.sqlite.driver/NativeSQLiteConnection : androidx.sqlite/SQLiteConnection { // androidx.sqlite.driver/NativeSQLiteConnection|null[0]
+    constructor <init>(kotlinx.cinterop/CPointer<cnames.structs/sqlite3>) // androidx.sqlite.driver/NativeSQLiteConnection.<init>|<init>(kotlinx.cinterop.CPointer<cnames.structs.sqlite3>){}[0]
+
+    final fun close() // androidx.sqlite.driver/NativeSQLiteConnection.close|close(){}[0]
+    final fun prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite.driver/NativeSQLiteConnection.prepare|prepare(kotlin.String){}[0]
+}
+
+final class androidx.sqlite.driver/NativeSQLiteDriver : androidx.sqlite/SQLiteDriver { // androidx.sqlite.driver/NativeSQLiteDriver|null[0]
+    constructor <init>() // androidx.sqlite.driver/NativeSQLiteDriver.<init>|<init>(){}[0]
+
+    final val threadingMode // androidx.sqlite.driver/NativeSQLiteDriver.threadingMode|{}threadingMode[0]
+        final fun <get-threadingMode>(): kotlin/Int // androidx.sqlite.driver/NativeSQLiteDriver.threadingMode.<get-threadingMode>|<get-threadingMode>(){}[0]
+
+    final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite.driver/NativeSQLiteDriver.open|open(kotlin.String){}[0]
+    final fun open(kotlin/String, kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.sqlite.driver/NativeSQLiteDriver.open|open(kotlin.String;kotlin.Int){}[0]
+}
+
+final class androidx.sqlite.driver/NativeSQLiteStatement : androidx.sqlite/SQLiteStatement { // androidx.sqlite.driver/NativeSQLiteStatement|null[0]
+    constructor <init>(kotlinx.cinterop/CPointer<cnames.structs/sqlite3>, kotlinx.cinterop/CPointer<cnames.structs/sqlite3_stmt>) // androidx.sqlite.driver/NativeSQLiteStatement.<init>|<init>(kotlinx.cinterop.CPointer<cnames.structs.sqlite3>;kotlinx.cinterop.CPointer<cnames.structs.sqlite3_stmt>){}[0]
+
+    final fun bindBlob(kotlin/Int, kotlin/ByteArray) // androidx.sqlite.driver/NativeSQLiteStatement.bindBlob|bindBlob(kotlin.Int;kotlin.ByteArray){}[0]
+    final fun bindDouble(kotlin/Int, kotlin/Double) // androidx.sqlite.driver/NativeSQLiteStatement.bindDouble|bindDouble(kotlin.Int;kotlin.Double){}[0]
+    final fun bindLong(kotlin/Int, kotlin/Long) // androidx.sqlite.driver/NativeSQLiteStatement.bindLong|bindLong(kotlin.Int;kotlin.Long){}[0]
+    final fun bindNull(kotlin/Int) // androidx.sqlite.driver/NativeSQLiteStatement.bindNull|bindNull(kotlin.Int){}[0]
+    final fun bindText(kotlin/Int, kotlin/String) // androidx.sqlite.driver/NativeSQLiteStatement.bindText|bindText(kotlin.Int;kotlin.String){}[0]
+    final fun clearBindings() // androidx.sqlite.driver/NativeSQLiteStatement.clearBindings|clearBindings(){}[0]
+    final fun close() // androidx.sqlite.driver/NativeSQLiteStatement.close|close(){}[0]
+    final fun getBlob(kotlin/Int): kotlin/ByteArray // androidx.sqlite.driver/NativeSQLiteStatement.getBlob|getBlob(kotlin.Int){}[0]
+    final fun getColumnCount(): kotlin/Int // androidx.sqlite.driver/NativeSQLiteStatement.getColumnCount|getColumnCount(){}[0]
+    final fun getColumnName(kotlin/Int): kotlin/String // androidx.sqlite.driver/NativeSQLiteStatement.getColumnName|getColumnName(kotlin.Int){}[0]
+    final fun getColumnType(kotlin/Int): kotlin/Int // androidx.sqlite.driver/NativeSQLiteStatement.getColumnType|getColumnType(kotlin.Int){}[0]
+    final fun getDouble(kotlin/Int): kotlin/Double // androidx.sqlite.driver/NativeSQLiteStatement.getDouble|getDouble(kotlin.Int){}[0]
+    final fun getLong(kotlin/Int): kotlin/Long // androidx.sqlite.driver/NativeSQLiteStatement.getLong|getLong(kotlin.Int){}[0]
+    final fun getText(kotlin/Int): kotlin/String // androidx.sqlite.driver/NativeSQLiteStatement.getText|getText(kotlin.Int){}[0]
+    final fun isNull(kotlin/Int): kotlin/Boolean // androidx.sqlite.driver/NativeSQLiteStatement.isNull|isNull(kotlin.Int){}[0]
+    final fun reset() // androidx.sqlite.driver/NativeSQLiteStatement.reset|reset(){}[0]
+    final fun step(): kotlin/Boolean // androidx.sqlite.driver/NativeSQLiteStatement.step|step(){}[0]
+}

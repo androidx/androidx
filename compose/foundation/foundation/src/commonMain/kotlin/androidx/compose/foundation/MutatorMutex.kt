@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -57,7 +58,8 @@ enum class MutatePriority {
  * lookups to build the exception message and stack trace collection. Remove if these are changed in
  * kotlinx.coroutines.
  */
-internal expect class MutationInterruptedException() : CancellationException
+internal class MutationInterruptedException :
+    PlatformOptimizedCancellationException("Mutation interrupted")
 
 /**
  * Mutual exclusion for UI state mutation over time.

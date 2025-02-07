@@ -18,6 +18,7 @@ package androidx.pdf.viewer.fragment.insets
 
 import android.view.View
 import android.view.WindowManager
+import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -38,11 +39,32 @@ internal class TranslateInsetsAnimationCallback(
     dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE
 ) : WindowInsetsAnimationCompat.Callback(dispatchMode) {
 
+    init {
+        view.setOnApplyWindowInsetsListener { _, insets ->
+            val keyboardInsets =
+                insets.getInsets(WindowInsetsCompat.Type.ime()).run {
+                    Insets.of(left, top, right, bottom)
+                }
+            // Avoid consuming null ime events which are set as zero on configuration changes.
+            if (keyboardInsets.bottom > 0) {
+                translateViewWithKeyboard(keyboardInsets)
+            }
+
+            insets
+        }
+    }
+
     override fun onProgress(
         insets: WindowInsetsCompat,
         runningAnimations: List<WindowInsetsAnimationCompat>
     ): WindowInsetsCompat {
         // onProgress() is called when any of the running animations progress...
+
+        translateViewWithKeyboard(insets.getInsets(WindowInsetsCompat.Type.ime()))
+        return insets
+    }
+
+    private fun translateViewWithKeyboard(keyboardInsets: Insets) {
 
         var absoluteContainerBottom = 0
         /*
@@ -56,7 +78,6 @@ internal class TranslateInsetsAnimationCallback(
         }
 
         // Extract keyboard insets
-        val keyboardInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
 
         /*
         By default the keyboard top should be aligned with container bottom;
@@ -78,7 +99,5 @@ internal class TranslateInsetsAnimationCallback(
 
         // Apply the translationY to the view
         view.translationY = translationY
-
-        return insets
     }
 }

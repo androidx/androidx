@@ -14,13 +14,13 @@ package androidx.paging {
     method public androidx.paging.LoadStates getSource();
     method public boolean hasError();
     method public boolean isIdle();
-    property public final androidx.paging.LoadState append;
-    property public final boolean hasError;
-    property public final boolean isIdle;
-    property public final androidx.paging.LoadStates? mediator;
-    property public final androidx.paging.LoadState prepend;
-    property public final androidx.paging.LoadState refresh;
-    property public final androidx.paging.LoadStates source;
+    property public androidx.paging.LoadState append;
+    property public boolean hasError;
+    property public boolean isIdle;
+    property public androidx.paging.LoadStates? mediator;
+    property public androidx.paging.LoadState prepend;
+    property public androidx.paging.LoadState refresh;
+    property public androidx.paging.LoadStates source;
   }
 
   public final class CombinedLoadStatesKt {
@@ -110,9 +110,9 @@ package androidx.paging {
     method public int getPlaceholdersAfter();
     method public int getPlaceholdersBefore();
     method public int getSize();
-    property public final java.util.List<T> items;
-    property @IntRange(from=0L) public final int placeholdersAfter;
-    property @IntRange(from=0L) public final int placeholdersBefore;
+    property public java.util.List<T> items;
+    property @IntRange(from=0L) public int placeholdersAfter;
+    property @IntRange(from=0L) public int placeholdersBefore;
     property public int size;
   }
 
@@ -124,7 +124,7 @@ package androidx.paging {
   public static final class LoadState.Error extends androidx.paging.LoadState {
     ctor public LoadState.Error(Throwable error);
     method public Throwable getError();
-    property public final Throwable error;
+    property public Throwable error;
   }
 
   public static final class LoadState.Loading extends androidx.paging.LoadState {
@@ -146,11 +146,11 @@ package androidx.paging {
     method public androidx.paging.LoadState getRefresh();
     method public boolean hasError();
     method public boolean isIdle();
-    property public final androidx.paging.LoadState append;
-    property public final boolean hasError;
-    property public final boolean isIdle;
-    property public final androidx.paging.LoadState prepend;
-    property public final androidx.paging.LoadState refresh;
+    property public androidx.paging.LoadState append;
+    property public boolean hasError;
+    property public boolean isIdle;
+    property public androidx.paging.LoadState prepend;
+    property public androidx.paging.LoadState refresh;
   }
 
   public enum LoadType {
@@ -265,11 +265,11 @@ package androidx.paging {
   }
 
   @Deprecated public static final class PagedList.Config {
-    property @Deprecated public final boolean enablePlaceholders;
-    property @Deprecated public final int initialLoadSizeHint;
-    property @Deprecated public final int maxSize;
-    property @Deprecated public final int pageSize;
-    property @Deprecated public final int prefetchDistance;
+    property @Deprecated public boolean enablePlaceholders;
+    property @Deprecated public int initialLoadSizeHint;
+    property @Deprecated public int maxSize;
+    property @Deprecated public int pageSize;
+    property @Deprecated public int prefetchDistance;
     field @Deprecated public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field @Deprecated public final boolean enablePlaceholders;
     field @Deprecated public final int initialLoadSizeHint;
@@ -301,7 +301,7 @@ package androidx.paging {
     ctor public Pager(androidx.paging.PagingConfig config, optional Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     ctor public Pager(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> getFlow();
-    property public final kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> flow;
+    property public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> flow;
   }
 
   public final class PagingConfig {
@@ -311,12 +311,12 @@ package androidx.paging {
     ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize);
     ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize);
     ctor public PagingConfig(int pageSize, optional @IntRange(from=0L) int prefetchDistance, optional boolean enablePlaceholders, optional @IntRange(from=1L) int initialLoadSize, optional @IntRange(from=2L) int maxSize, optional int jumpThreshold);
-    property public final boolean enablePlaceholders;
-    property @IntRange(from=1L) public final int initialLoadSize;
-    property public final int jumpThreshold;
-    property @IntRange(from=2L) public final int maxSize;
-    property public final int pageSize;
-    property @IntRange(from=0L) public final int prefetchDistance;
+    property public boolean enablePlaceholders;
+    property @IntRange(from=1L) public int initialLoadSize;
+    property public int jumpThreshold;
+    property @IntRange(from=2L) public int maxSize;
+    property public int pageSize;
+    property @IntRange(from=0L) public int prefetchDistance;
     field public static final androidx.paging.PagingConfig.Companion Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
@@ -328,7 +328,7 @@ package androidx.paging {
   }
 
   public static final class PagingConfig.Companion {
-    property public static final int MAX_SIZE_UNBOUNDED;
+    property public static int MAX_SIZE_UNBOUNDED;
   }
 
   public final class PagingData<T> {
@@ -358,10 +358,10 @@ package androidx.paging {
     method public int getNewPlaceholdersAfter();
     method public int getOldPlaceholdersAfter();
     method public int getStartIndex();
-    property public final java.util.List<T> inserted;
-    property public final int newPlaceholdersAfter;
-    property public final int oldPlaceholdersAfter;
-    property public final int startIndex;
+    property public java.util.List<T> inserted;
+    property public int newPlaceholdersAfter;
+    property public int oldPlaceholdersAfter;
+    property public int startIndex;
   }
 
   public static final class PagingDataEvent.DropAppend<T> extends androidx.paging.PagingDataEvent<T> {
@@ -369,35 +369,35 @@ package androidx.paging {
     method public int getNewPlaceholdersAfter();
     method public int getOldPlaceholdersAfter();
     method public int getStartIndex();
-    property public final int dropCount;
-    property public final int newPlaceholdersAfter;
-    property public final int oldPlaceholdersAfter;
-    property public final int startIndex;
+    property public int dropCount;
+    property public int newPlaceholdersAfter;
+    property public int oldPlaceholdersAfter;
+    property public int startIndex;
   }
 
   public static final class PagingDataEvent.DropPrepend<T> extends androidx.paging.PagingDataEvent<T> {
     method public int getDropCount();
     method public int getNewPlaceholdersBefore();
     method public int getOldPlaceholdersBefore();
-    property public final int dropCount;
-    property public final int newPlaceholdersBefore;
-    property public final int oldPlaceholdersBefore;
+    property public int dropCount;
+    property public int newPlaceholdersBefore;
+    property public int oldPlaceholdersBefore;
   }
 
   public static final class PagingDataEvent.Prepend<T> extends androidx.paging.PagingDataEvent<T> {
     method public java.util.List<T> getInserted();
     method public int getNewPlaceholdersBefore();
     method public int getOldPlaceholdersBefore();
-    property public final java.util.List<T> inserted;
-    property public final int newPlaceholdersBefore;
-    property public final int oldPlaceholdersBefore;
+    property public java.util.List<T> inserted;
+    property public int newPlaceholdersBefore;
+    property public int oldPlaceholdersBefore;
   }
 
   public static final class PagingDataEvent.Refresh<T> extends androidx.paging.PagingDataEvent<T> {
     method public androidx.paging.PlaceholderPaddedList<T> getNewList();
     method public androidx.paging.PlaceholderPaddedList<T> getPreviousList();
-    property public final androidx.paging.PlaceholderPaddedList<T> newList;
-    property public final androidx.paging.PlaceholderPaddedList<T> previousList;
+    property public androidx.paging.PlaceholderPaddedList<T> newList;
+    property public androidx.paging.PlaceholderPaddedList<T> previousList;
   }
 
   public abstract class PagingDataPresenter<T> {
@@ -488,7 +488,7 @@ package androidx.paging {
     method public Throwable component1();
     method public androidx.paging.PagingSource.LoadResult.Error<Key,Value> copy(Throwable throwable);
     method public Throwable getThrowable();
-    property public final Throwable throwable;
+    property public Throwable throwable;
   }
 
   public static final class PagingSource.LoadResult.Invalid<Key, Value> extends androidx.paging.PagingSource.LoadResult<Key,Value> {
@@ -510,17 +510,17 @@ package androidx.paging {
     method public Key? getNextKey();
     method public Key? getPrevKey();
     method public java.util.Iterator<Value> iterator();
-    property public final java.util.List<Value> data;
-    property @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) public final int itemsAfter;
-    property @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) public final int itemsBefore;
-    property public final Key? nextKey;
-    property public final Key? prevKey;
+    property public java.util.List<Value> data;
+    property @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) public int itemsAfter;
+    property @IntRange(from=androidx.paging.PagingSource.LoadResult.Page.COUNT_UNDEFINED.toLong()) public int itemsBefore;
+    property public Key? nextKey;
+    property public Key? prevKey;
     field public static final int COUNT_UNDEFINED = -2147483648; // 0x80000000
     field public static final androidx.paging.PagingSource.LoadResult.Page.Companion Companion;
   }
 
   public static final class PagingSource.LoadResult.Page.Companion {
-    property public static final int COUNT_UNDEFINED;
+    property public static int COUNT_UNDEFINED;
   }
 
   public fun interface PagingSourceFactory<Key, Value> extends kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
@@ -537,9 +537,9 @@ package androidx.paging {
     method public java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> getPages();
     method public boolean isEmpty();
     method public Value? lastItemOrNull();
-    property public final Integer? anchorPosition;
-    property public final androidx.paging.PagingConfig config;
-    property public final java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages;
+    property public Integer? anchorPosition;
+    property public androidx.paging.PagingConfig config;
+    property public java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages;
   }
 
   public interface PlaceholderPaddedList<T> {
@@ -620,13 +620,13 @@ package androidx.paging {
   public static final class RemoteMediator.MediatorResult.Error extends androidx.paging.RemoteMediator.MediatorResult {
     ctor public RemoteMediator.MediatorResult.Error(Throwable throwable);
     method public Throwable getThrowable();
-    property public final Throwable throwable;
+    property public Throwable throwable;
   }
 
   public static final class RemoteMediator.MediatorResult.Success extends androidx.paging.RemoteMediator.MediatorResult {
     ctor public RemoteMediator.MediatorResult.Success(boolean endOfPaginationReached);
     method public boolean endOfPaginationReached();
-    property public final boolean endOfPaginationReached;
+    property public boolean endOfPaginationReached;
   }
 
   public enum TerminalSeparatorType {

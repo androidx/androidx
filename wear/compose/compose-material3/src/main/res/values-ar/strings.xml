@@ -55,4 +55,5 @@
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"تأكيد"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"إغلاق"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"فتح على الهاتف"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="7845336918219306426">"رمز الفتح على الهاتف"</string>
 </resources>

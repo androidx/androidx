@@ -26,11 +26,11 @@ import android.media.tv.TvContract;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import java.io.FileNotFoundException;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -151,10 +151,9 @@ public class ChannelLogoUtils {
      * @see #storeChannelLogo(Context, long, Uri)
      * @see #storeChannelLogo(Context, long, Bitmap)
      */
-    @Nullable
     @WorkerThread
     @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
-    public static Bitmap loadChannelLogo(@NonNull Context context, long channelId) {
+    public static @Nullable Bitmap loadChannelLogo(@NonNull Context context, long channelId) {
         Bitmap channelLogo = null;
         Uri logoUri = TvContract.buildChannelLogoUri(channelId);
         try (InputStream is = context.getContentResolver().openInputStream(logoUri)) {

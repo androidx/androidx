@@ -21,9 +21,10 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -87,7 +88,7 @@ public abstract class StorageStrategy<K> {
      * @return StorageStrategy suitable for use with {@link Parcelable} keys
      * (like {@link android.net.Uri}).
      */
-    public static @NonNull <K extends Parcelable> StorageStrategy<K> createParcelableStorage(
+    public static <K extends Parcelable> @NonNull StorageStrategy<K> createParcelableStorage(
             @NonNull Class<K> type) {
         return new ParcelableStorageStrategy<>(type);
     }
@@ -120,7 +121,7 @@ public abstract class StorageStrategy<K> {
                 return null;
             }
 
-            @Nullable ArrayList<String> stored = state.getStringArrayList(SELECTION_ENTRIES);
+            ArrayList<String> stored = state.getStringArrayList(SELECTION_ENTRIES);
             if (stored == null) {
                 return null;
             }
@@ -158,7 +159,7 @@ public abstract class StorageStrategy<K> {
                 return null;
             }
 
-            @Nullable long[] stored = state.getLongArray(SELECTION_ENTRIES);
+            long[] stored = state.getLongArray(SELECTION_ENTRIES);
             if (stored == null) {
                 return null;
             }
@@ -204,7 +205,7 @@ public abstract class StorageStrategy<K> {
                 return null;
             }
 
-            @Nullable ArrayList<K> stored = state.getParcelableArrayList(SELECTION_ENTRIES);
+            ArrayList<K> stored = state.getParcelableArrayList(SELECTION_ENTRIES);
             if (stored == null) {
                 return null;
             }

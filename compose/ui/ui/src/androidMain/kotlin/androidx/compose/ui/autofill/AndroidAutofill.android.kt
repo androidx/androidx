@@ -37,7 +37,10 @@ import androidx.compose.ui.util.fastRoundToInt
  * @param autofillTree The autofill tree. This will be replaced by a semantic tree (b/138604305).
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class AndroidAutofill(val view: View, val autofillTree: AutofillTree) : Autofill {
+internal class AndroidAutofill(
+    val view: View,
+    val autofillTree: @Suppress("Deprecation") AutofillTree
+) : @Suppress("Deprecation") Autofill {
 
     val autofillManager =
         view.context.getSystemService(AutofillManager::class.java)
@@ -50,7 +53,7 @@ internal class AndroidAutofill(val view: View, val autofillTree: AutofillTree) :
             checkPreconditionNotNull(ViewCompatShims.getAutofillId(view)?.toAutofillId())
     }
 
-    override fun requestAutofillForNode(autofillNode: AutofillNode) {
+    override fun requestAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode) {
         val boundingBox =
             autofillNode.boundingBox ?: error("requestAutofill called before onChildPositioned()")
 
@@ -69,7 +72,7 @@ internal class AndroidAutofill(val view: View, val autofillTree: AutofillTree) :
         )
     }
 
-    override fun cancelAutofillForNode(autofillNode: AutofillNode) {
+    override fun cancelAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode) {
         autofillManager.notifyViewExited(view, autofillNode.id)
     }
 }

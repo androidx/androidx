@@ -21,15 +21,15 @@ import androidx.room.migration.bundle.PrimaryKeyBundle
 /** Represents a PrimaryKey for an Entity. */
 data class PrimaryKey(
     val declaredIn: XElement?,
-    override val fields: Fields,
+    override val properties: Properties,
     val autoGenerateId: Boolean
-) : HasSchemaIdentity, HasFields {
+) : HasSchemaIdentity, HasProperties {
     companion object {
-        val MISSING = PrimaryKey(null, Fields(), false)
+        val MISSING = PrimaryKey(null, Properties(), false)
     }
 
     fun toHumanReadableString(): String {
-        return "PrimaryKey[${fields.joinToString(separator = ", ", transform = Field::getPath) }]"
+        return "PrimaryKey[${properties.joinToString(separator = ", ", transform = Property::getPath) }]"
     }
 
     fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(autoGenerateId, columnNames)

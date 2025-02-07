@@ -32,13 +32,13 @@ package androidx.camera.viewfinder.core {
     method public int getSourceRotation();
     method public boolean isSourceMirroredHorizontally();
     method public boolean isSourceMirroredVertically();
-    property public final int cropRectBottom;
-    property public final int cropRectLeft;
-    property public final int cropRectRight;
-    property public final int cropRectTop;
-    property public final boolean isSourceMirroredHorizontally;
-    property public final boolean isSourceMirroredVertically;
-    property public final int sourceRotation;
+    property public int cropRectBottom;
+    property public int cropRectLeft;
+    property public int cropRectRight;
+    property public int cropRectTop;
+    property public boolean isSourceMirroredHorizontally;
+    property public boolean isSourceMirroredVertically;
+    property public int sourceRotation;
   }
 
   public final class ViewfinderSurfaceRequest {
@@ -51,10 +51,10 @@ package androidx.camera.viewfinder.core {
     method public void markSurfaceSafeToRelease();
     method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.Result?> resultListener);
     method public boolean willNotProvideSurface();
-    property public final androidx.camera.viewfinder.core.ImplementationMode? implementationMode;
-    property public final int outputMirrorMode;
-    property public final android.util.Size resolution;
-    property public final int sourceOrientation;
+    property public androidx.camera.viewfinder.core.ImplementationMode? implementationMode;
+    property public int outputMirrorMode;
+    property public android.util.Size resolution;
+    property public int sourceOrientation;
     field public static final androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.Companion Companion;
     field public static final int MIRROR_MODE_HORIZONTAL = 1; // 0x1
     field public static final int MIRROR_MODE_NONE = 0; // 0x0
@@ -71,8 +71,8 @@ package androidx.camera.viewfinder.core {
   }
 
   public static final class ViewfinderSurfaceRequest.Companion {
-    property public static final int MIRROR_MODE_HORIZONTAL;
-    property public static final int MIRROR_MODE_NONE;
+    property public static int MIRROR_MODE_HORIZONTAL;
+    property public static int MIRROR_MODE_NONE;
   }
 
   @com.google.auto.value.AutoValue public static final class ViewfinderSurfaceRequest.Result {
@@ -82,8 +82,8 @@ package androidx.camera.viewfinder.core {
     method public androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.Result copy(int code, android.view.Surface surface);
     method public int getCode();
     method public android.view.Surface getSurface();
-    property public final int code;
-    property public final android.view.Surface surface;
+    property public int code;
+    property public android.view.Surface surface;
     field public static final androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.Result.Companion Companion;
     field public static final int RESULT_INVALID_SURFACE = 2; // 0x2
     field public static final int RESULT_REQUEST_CANCELLED = 1; // 0x1
@@ -93,11 +93,11 @@ package androidx.camera.viewfinder.core {
   }
 
   public static final class ViewfinderSurfaceRequest.Result.Companion {
-    property public static final int RESULT_INVALID_SURFACE;
-    property public static final int RESULT_REQUEST_CANCELLED;
-    property public static final int RESULT_SURFACE_ALREADY_PROVIDED;
-    property public static final int RESULT_SURFACE_USED_SUCCESSFULLY;
-    property public static final int RESULT_WILL_NOT_PROVIDE_SURFACE;
+    property public static int RESULT_INVALID_SURFACE;
+    property public static int RESULT_REQUEST_CANCELLED;
+    property public static int RESULT_SURFACE_ALREADY_PROVIDED;
+    property public static int RESULT_SURFACE_USED_SUCCESSFULLY;
+    property public static int RESULT_WILL_NOT_PROVIDE_SURFACE;
   }
 
   public final class ViewfinderSurfaceRequestUtil {
@@ -114,9 +114,9 @@ package androidx.camera.viewfinder.core {
     method @UiThread public boolean onTouchEvent(android.view.MotionEvent event);
     method public void setQuickZoomEnabled(boolean);
     method public void setStylusZoomEnabled(boolean);
-    property public final boolean isQuickZoomEnabled;
-    property public final boolean isStylusZoomEnabled;
-    property public final long timeDelta;
+    property public boolean isQuickZoomEnabled;
+    property public boolean isStylusZoomEnabled;
+    property public long timeDelta;
     field public static final androidx.camera.viewfinder.core.ZoomGestureDetector.Companion Companion;
   }
 
@@ -143,13 +143,13 @@ package androidx.camera.viewfinder.core {
   public static final class ZoomGestureDetector.ZoomEvent.End extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
     ctor public ZoomGestureDetector.ZoomEvent.End(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
     method public float getIncrementalScaleFactor();
-    property @FloatRange(from=0.0, fromInclusive=false) public final float incrementalScaleFactor;
+    property @FloatRange(from=0.0, fromInclusive=false) public float incrementalScaleFactor;
   }
 
   public static final class ZoomGestureDetector.ZoomEvent.Move extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
     ctor public ZoomGestureDetector.ZoomEvent.Move(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
     method public float getIncrementalScaleFactor();
-    property @FloatRange(from=0.0, fromInclusive=false) public final float incrementalScaleFactor;
+    property @FloatRange(from=0.0, fromInclusive=false) public float incrementalScaleFactor;
   }
 
 }

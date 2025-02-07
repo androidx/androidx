@@ -182,10 +182,18 @@ internal class ParagraphLayoutCache(
         val localWidth = cachedIntrinsicHeightInputWidth
         val localHeght = cachedIntrinsicHeight
         if (width == localWidth && localWidth != -1) return localHeght
+        val constraints = Constraints(0, width, 0, Constraints.Infinity)
+        val finalConstraints =
+            if (minLines > 1) {
+                useMinLinesConstrainer(constraints, layoutDirection)
+            } else {
+                constraints
+            }
         val result =
-            layoutText(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
+            layoutText(finalConstraints, layoutDirection)
                 .height
                 .ceilToIntPx()
+                .coerceAtLeast(finalConstraints.minHeight)
 
         cachedIntrinsicHeightInputWidth = width
         cachedIntrinsicHeight = result

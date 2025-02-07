@@ -25,7 +25,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A {@link ContentPager.QueryRunner} that executes queries using a {@link LoaderManager}.
@@ -48,7 +48,7 @@ public final class LoaderQueryRunner implements ContentPager.QueryRunner {
 
     @Override
     @SuppressWarnings({"unchecked", "deprecation"})
-    public void query(final @NonNull Query query, @NonNull final Callback callback) {
+    public void query(final @NonNull Query query, final @NonNull Callback callback) {
         if (DEBUG) Log.d(TAG, "Handling query: " + query);
 
         android.app.LoaderManager.LoaderCallbacks<Cursor> callbacks =

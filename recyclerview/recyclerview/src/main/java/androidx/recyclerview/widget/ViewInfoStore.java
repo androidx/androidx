@@ -23,12 +23,13 @@ import static androidx.recyclerview.widget.ViewInfoStore.InfoRecord.FLAG_POST;
 import static androidx.recyclerview.widget.ViewInfoStore.InfoRecord.FLAG_PRE;
 import static androidx.recyclerview.widget.ViewInfoStore.InfoRecord.FLAG_PRE_AND_POST;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.LongSparseArray;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pools;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class abstracts all tracking for Views to run animations.
@@ -81,8 +82,8 @@ class ViewInfoStore {
      * @param vh The ViewHolder whose information is being queried
      * @return The ItemHolderInfo for the given ViewHolder or null if it does not exist
      */
-    @Nullable
-    RecyclerView.ItemAnimator.ItemHolderInfo popFromPreLayout(RecyclerView.ViewHolder vh) {
+    RecyclerView.ItemAnimator.@Nullable ItemHolderInfo popFromPreLayout(
+            RecyclerView.ViewHolder vh) {
         return popFromLayoutStep(vh, FLAG_PRE);
     }
 
@@ -92,8 +93,8 @@ class ViewInfoStore {
      * @param vh The ViewHolder whose information is being queried
      * @return The ItemHolderInfo for the given ViewHolder or null if it does not exist
      */
-    @Nullable
-    RecyclerView.ItemAnimator.ItemHolderInfo popFromPostLayout(RecyclerView.ViewHolder vh) {
+    RecyclerView.ItemAnimator.@Nullable ItemHolderInfo popFromPostLayout(
+            RecyclerView.ViewHolder vh) {
         return popFromLayoutStep(vh, FLAG_POST);
     }
 
@@ -278,12 +279,15 @@ class ViewInfoStore {
     }
 
     interface ProcessCallback {
-        void processDisappeared(RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ItemAnimator.ItemHolderInfo preInfo,
-                @Nullable RecyclerView.ItemAnimator.ItemHolderInfo postInfo);
-        void processAppeared(RecyclerView.ViewHolder viewHolder, @Nullable RecyclerView.ItemAnimator.ItemHolderInfo preInfo,
+        void processDisappeared(RecyclerView.ViewHolder viewHolder,
+                RecyclerView.ItemAnimator.@NonNull ItemHolderInfo preInfo,
+                RecyclerView.ItemAnimator.@Nullable ItemHolderInfo postInfo);
+        void processAppeared(RecyclerView.ViewHolder viewHolder,
+                RecyclerView.ItemAnimator.@Nullable ItemHolderInfo preInfo,
                 RecyclerView.ItemAnimator.ItemHolderInfo postInfo);
-        void processPersistent(RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ItemAnimator.ItemHolderInfo preInfo,
-                @NonNull RecyclerView.ItemAnimator.ItemHolderInfo postInfo);
+        void processPersistent(RecyclerView.ViewHolder viewHolder,
+                RecyclerView.ItemAnimator.@NonNull ItemHolderInfo preInfo,
+                RecyclerView.ItemAnimator.@NonNull ItemHolderInfo postInfo);
         void unused(RecyclerView.ViewHolder holder);
     }
 
@@ -300,10 +304,8 @@ class ViewInfoStore {
         static final int FLAG_PRE_AND_POST = FLAG_PRE | FLAG_POST;
         static final int FLAG_APPEAR_PRE_AND_POST = FLAG_APPEAR | FLAG_PRE | FLAG_POST;
         int flags;
-        @Nullable
-        RecyclerView.ItemAnimator.ItemHolderInfo preInfo;
-        @Nullable
-        RecyclerView.ItemAnimator.ItemHolderInfo postInfo;
+        RecyclerView.ItemAnimator.@Nullable ItemHolderInfo preInfo;
+        RecyclerView.ItemAnimator.@Nullable ItemHolderInfo postInfo;
         static Pools.Pool<InfoRecord> sPool = new Pools.SimplePool<>(20);
 
         private InfoRecord() {

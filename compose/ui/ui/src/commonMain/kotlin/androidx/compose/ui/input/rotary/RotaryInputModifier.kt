@@ -72,7 +72,7 @@ fun Modifier.onPreRotaryScrollEvent(
             onPreRotaryScrollEvent = onPreRotaryScrollEvent
         )
 
-private data class RotaryInputElement(
+private class RotaryInputElement(
     val onRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?,
     val onPreRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?
 ) : ModifierNodeElement<RotaryInputNode>() {
@@ -93,6 +93,22 @@ private data class RotaryInputElement(
             name = "onPreRotaryScrollEvent"
             properties["onPreRotaryScrollEvent"] = it
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RotaryInputElement) return false
+
+        if (onRotaryScrollEvent !== other.onRotaryScrollEvent) return false
+        if (onPreRotaryScrollEvent !== other.onPreRotaryScrollEvent) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = onRotaryScrollEvent?.hashCode() ?: 0
+        result = 31 * result + (onPreRotaryScrollEvent?.hashCode() ?: 0)
+        return result
     }
 }
 

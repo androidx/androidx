@@ -31,11 +31,11 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.InputDeviceCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -129,9 +129,8 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         TestEdgeEffect mTop, mBottom;
 
-        @NonNull
         @Override
-        protected EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
+        protected @NonNull EdgeEffect createEdgeEffect(RecyclerView view, int direction) {
             TestEdgeEffect effect = new TestEdgeEffect(view.getContext());
             if (direction == EdgeEffectFactory.DIRECTION_TOP) {
                 mTop = effect;

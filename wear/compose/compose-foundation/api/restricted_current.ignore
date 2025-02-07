@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-DefaultValueChange: androidx.wear.compose.foundation.lazy.ScalingLazyListState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.wear.compose.foundation.lazy.ScalingLazyListState.animateScrollToItem
-DefaultValueChange: androidx.wear.compose.foundation.lazy.ScalingLazyListState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
-    Attempted to remove default value from parameter arg3 in androidx.wear.compose.foundation.lazy.ScalingLazyListState.scrollToItem
+ChangedType: androidx.wear.compose.foundation.CompositionLocalsKt#getLocalReduceMotion():
+    Method androidx.wear.compose.foundation.CompositionLocalsKt.getLocalReduceMotion has changed return type from androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> to androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean>

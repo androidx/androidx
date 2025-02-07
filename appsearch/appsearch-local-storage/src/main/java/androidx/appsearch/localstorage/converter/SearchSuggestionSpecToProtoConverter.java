@@ -108,10 +108,21 @@ public final class SearchSuggestionSpecToProtoConverter {
                 .setPrefix(mSuggestionQueryExpression)
                 .addAllNamespaceFilters(mTargetPrefixedNamespaceFilters)
                 .addAllSchemaTypeFilters(mTargetPrefixedSchemaFilters)
-                .setNumToReturn(mSearchSuggestionSpec.getMaximumResultCount())
-                .addAllQueryParameterStrings(mSearchSuggestionSpec.getSearchStringParameters());
+                .setNumToReturn(mSearchSuggestionSpec.getMaximumResultCount());
 
-        setMinimumQueryFeaturesEnabled(protoBuilder);
+        if (!mSearchSuggestionSpec.getSearchStringParameters().isEmpty()) {
+            protoBuilder.addAllQueryParameterStrings(
+                    mSearchSuggestionSpec.getSearchStringParameters());
+            // When the SearchSuggestions api first launched, it did not include the various "set
+            // feature enabled" apis that {@link SearchSpec} has.
+            //
+            // Search string parameters necessarily invokes the LIST_FILTER_QUERY_LANGUAGE feature
+            // because they are referenced in the query expression through a function call.
+            // To avoid errors about using un-enabled query features, we add it here. This is safe
+            // to do because search string parameters were added after the
+            // LIST_FILTER_QUERY_LANGUAGE.
+            protoBuilder.addEnabledFeatures(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE);
+        }
 
         // Convert type property filter map into type property mask proto.
         for (Map.Entry<String, List<String>> entry :
@@ -163,21 +174,5 @@ public final class SearchSuggestionSpecToProtoConverter {
                 throw new IllegalArgumentException("Invalid suggestion ranking strategy: "
                         + rankingStrategyCode);
         }
-    }
-
-    // When the SearchSuggestions api first launched, it did not include the various "set feature
-    // enabled" apis that {@link SearchSpec} has. This means that any suggestion query sent to
-    // platform-storage that invokes a query feature not present in Android T, will throw an error.
-    //
-    // To mitigate this, we enable all query features that were present at the time that the
-    // SearchSuggestions api launched. This will NOT resolve the issue for any features added
-    // *after* that time. Resolution of those cases will have to wait for the addition of the proper
-    // "set feature enabled" apis.
-    private static void setMinimumQueryFeaturesEnabled(SuggestionSpecProto.Builder protoBuilder) {
-        protoBuilder.addAllEnabledFeatures(
-                Arrays.asList(
-                        FeatureConstants.LIST_FILTER_QUERY_LANGUAGE,
-                        FeatureConstants.NUMERIC_SEARCH,
-                        FeatureConstants.VERBATIM_SEARCH));
     }
 }

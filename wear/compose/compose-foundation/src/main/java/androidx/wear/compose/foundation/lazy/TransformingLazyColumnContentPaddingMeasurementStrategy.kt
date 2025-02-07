@@ -256,6 +256,11 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         )
 
         actuallyVisibleItems.fastForEach { it.isInMeasure = false }
+        val childConstraints =
+            Constraints(
+                maxHeight = Constraints.Infinity,
+                maxWidth = containerConstraints.maxWidth - leftContentPadding - rightContentPadding
+            )
 
         return TransformingLazyColumnMeasureResult(
             anchorItemIndex = anchorItem.index,
@@ -273,6 +278,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             itemSpacing = itemSpacing,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
+            childConstraints = childConstraints,
             measureResult =
                 layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                     actuallyVisibleItems.fastForEach { it.place(this) }

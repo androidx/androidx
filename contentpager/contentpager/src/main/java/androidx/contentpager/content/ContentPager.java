@@ -34,12 +34,13 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.collection.LruCache;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -279,8 +280,8 @@ public class ContentPager {
      */
     @MainThread
     public @NonNull Query query(
-            @NonNull @RequiresPermission.Read Uri uri,
-            @Nullable String[] projection,
+            @RequiresPermission.Read @NonNull Uri uri,
+            String @Nullable [] projection,
             @NonNull Bundle queryArgs,
             @Nullable CancellationSignal cancellationSignal,
             @NonNull ContentCallback callback) {

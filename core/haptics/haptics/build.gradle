@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -49,7 +49,7 @@ android {
 
 androidx {
     name = "AndroidX Core Haptics"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Core Haptics Libraries to help navigate different device and Android SDK " +
             "functionalities and create reliable haptic effects across all of Android."

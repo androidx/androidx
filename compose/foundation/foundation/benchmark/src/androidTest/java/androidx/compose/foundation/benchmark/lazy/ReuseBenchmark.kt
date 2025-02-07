@@ -127,7 +127,7 @@ private fun ComposeBenchmarkRule.createBenchmark(
         }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 getTestCase().clearContent()
                 doFramesUntilIdle()
@@ -154,7 +154,7 @@ private fun ComposeBenchmarkRule.disposeBenchmark(
             getTestCase().clearContent()
             doFramesUntilIdle()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 getTestCase().initContent()
                 doFramesUntilIdle()

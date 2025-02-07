@@ -19,7 +19,6 @@ package androidx.xr.compose.testing
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -40,7 +39,6 @@ import org.mockito.kotlin.mock
  * TODO(b/370856223) Update documentation
  */
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun TestSetup(
     isXrEnabled: Boolean = true,
     isFullSpace: Boolean = true,

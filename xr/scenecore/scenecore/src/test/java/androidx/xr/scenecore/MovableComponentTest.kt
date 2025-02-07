@@ -64,7 +64,7 @@ class MovableComponentTest {
 
     @Test
     fun addMovableComponent_addsRuntimeMovableComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockAnchorPlacement = mock<JxrPlatformAdapter.AnchorPlacement>()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any())).thenReturn(mock())
@@ -96,7 +96,7 @@ class MovableComponentTest {
 
     @Test
     fun addMovableComponentDefaultArguments_addsRuntimeMovableComponentWithDefaults() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -115,7 +115,7 @@ class MovableComponentTest {
 
     @Test
     fun removeMovableComponent_removesRuntimeMovableComponent() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -128,8 +128,8 @@ class MovableComponentTest {
 
     @Test
     fun movableComponent_canAttachOnlyOnce() {
-        val entity = session.createEntity("test")
-        val entity2 = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
+        val entity2 = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)
@@ -141,7 +141,7 @@ class MovableComponentTest {
 
     @Test
     fun movableComponent_setSizeInvokesRuntimeMovableComponentSetSize() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val mockRtMovableComponent = mock<JxrPlatformAdapter.MovableComponent>()
@@ -160,7 +160,7 @@ class MovableComponentTest {
 
     @Test
     fun movableComponent_addMoveListenerInvokesRuntimeMovableComponentAddMoveEventListener() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtMovableComponent = mock<JxrPlatformAdapter.MovableComponent>()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any()))
@@ -228,7 +228,7 @@ class MovableComponentTest {
 
     @Test
     fun movableComponent_addMultipleMoveEventListenersInvokesAllListeners() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtMovableComponent = mock<JxrPlatformAdapter.MovableComponent>()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any()))
@@ -268,7 +268,7 @@ class MovableComponentTest {
 
     @Test
     fun movableComponent_removeMoveEventListenerInvokesRuntimeRemoveMoveEventListener() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         val mockRtMovableComponent = mock<JxrPlatformAdapter.MovableComponent>()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any()))
@@ -319,7 +319,7 @@ class MovableComponentTest {
 
     @Test
     fun movablecomponent_canAttachAgainAfterDetach() {
-        val entity = session.createEntity("test")
+        val entity = ContentlessEntity.create(session, "test")
         assertThat(entity).isNotNull()
         whenever(mockRuntime.createMovableComponent(any(), any(), any(), any())).thenReturn(mock())
         whenever(mockContentlessEntity.addComponent(any())).thenReturn(true)

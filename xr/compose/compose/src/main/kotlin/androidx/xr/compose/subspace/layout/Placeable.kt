@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 
 /**
@@ -25,7 +24,6 @@ import androidx.xr.runtime.math.Pose
  *
  * Based on [androidx.compose.ui.layout.Placeable].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class Placeable {
     /** The measured width of the layout, in pixels. */
     public var measuredWidth: Int = 0

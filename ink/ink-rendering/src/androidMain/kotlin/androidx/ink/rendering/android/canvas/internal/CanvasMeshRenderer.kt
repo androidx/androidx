@@ -168,10 +168,10 @@ internal class CanvasMeshRenderer(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         strokeToScreenTransform.populateMatrix(scratchMatrix)
-        draw(canvas, stroke, scratchMatrix, animationProgress)
+        draw(canvas, stroke, scratchMatrix, textureAnimationProgress)
     }
 
     /**
@@ -189,14 +189,14 @@ internal class CanvasMeshRenderer(
      *   care must be taken so that these transformations are reflected in the
      *   [strokeToScreenTransform]. Without this, anti-aliasing at the edge of strokes will not
      *   render properly.
-     * @param animationProgress The animation progress value for the stroke's animated textures, if
-     *   any.
+     * @param textureAnimationProgress The animation progress value for the stroke's animated
+     *   textures, if any.
      */
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         require(strokeToScreenTransform.isAffine) { "strokeToScreenTransform must be affine" }
         if (stroke.inputs.isEmpty()) return // nothing to draw
@@ -208,7 +208,7 @@ internal class CanvasMeshRenderer(
             val brushPaint = stroke.brush.family.coats[coatIndex].paint
             val textureMapping = firstTextureMapping(brushPaint)
             val blendMode = finalBlendMode(brushPaint)
-            // TODO: b/373649230 - Use [animationProgress] in renderer.
+            // TODO: b/373649230 - Use [textureAnimationProgress] in renderer.
             // A white paint color ensures that the paint color doesn't affect how the paint texture
             // is blended with the mesh coloring.
             val androidPaint =
@@ -314,17 +314,17 @@ internal class CanvasMeshRenderer(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         strokeToScreenTransform.populateMatrix(scratchMatrix)
-        draw(canvas, inProgressStroke, scratchMatrix, animationProgress)
+        draw(canvas, inProgressStroke, scratchMatrix, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val brush =
             checkNotNull(inProgressStroke.brush) {
@@ -344,7 +344,7 @@ internal class CanvasMeshRenderer(
             val brushPaint = brush.family.coats[coatIndex].paint
             val textureMapping = firstTextureMapping(brushPaint)
             val blendMode = finalBlendMode(brushPaint)
-            // TODO: b/373649230 - Use [animationProgress] in renderer.
+            // TODO: b/373649230 - Use [textureAnimationProgress] in renderer.
             val androidPaint =
                 paintCache.obtain(
                     brushPaint,

@@ -21,6 +21,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.runtime.internal.AnchorResourcesExhaustedException
 import androidx.xr.runtime.internal.Plane
 import androidx.xr.runtime.internal.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -30,6 +31,7 @@ import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -73,24 +75,45 @@ class OpenXrPlaneTest {
 
     @Test
     fun createAnchor_addsAnchor() = initOpenXrManagerAndRunTest {
-        check(xrResources.updatables.size == 1)
+        check(xrResources.updatables.size == 3)
         check(xrResources.updatables.contains(underTest))
 
         val anchor = underTest.createAnchor(Pose())
 
-        assertThat(xrResources.updatables).containsExactly(underTest, anchor as Updatable)
+        assertThat(xrResources.updatables)
+            .containsExactly(
+                underTest,
+                xrResources.leftHand,
+                xrResources.rightHand,
+                anchor as Updatable
+            )
+    }
+
+    @Test
+    fun createAnchor_anchorResourcesExhausted_throwsException() = initOpenXrManagerAndRunTest {
+        check(xrResources.updatables.size == 3)
+        check(xrResources.updatables.contains(underTest))
+
+        // Number of calls comes from 'kAnchorResourcesLimit' defined in
+        // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+        repeat(5) { underTest.createAnchor(Pose()) }
+
+        assertThrows(AnchorResourcesExhaustedException::class.java) {
+            underTest.createAnchor(Pose())
+        }
     }
 
     @Test
     fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrManagerAndRunTest {
         val anchor = underTest.createAnchor(Pose())
-        check(xrResources.updatables.size == 2)
+        check(xrResources.updatables.size == 4)
         check(xrResources.updatables.contains(underTest))
         check(xrResources.updatables.contains(anchor as Updatable))
 
         anchor.detach()
 
-        assertThat(xrResources.updatables).containsExactly(underTest)
+        assertThat(xrResources.updatables)
+            .containsExactly(underTest, xrResources.leftHand, xrResources.rightHand)
     }
 
     @Test

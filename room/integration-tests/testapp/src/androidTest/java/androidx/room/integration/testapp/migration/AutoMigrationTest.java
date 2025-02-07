@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.database.SQLException;
 
-import androidx.annotation.NonNull;
 import androidx.room.migration.Migration;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
@@ -30,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

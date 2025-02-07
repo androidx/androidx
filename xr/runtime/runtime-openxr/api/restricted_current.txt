@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.xr.runtime.openxr {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorState {
+  public final class AnchorState {
     ctor public AnchorState();
     ctor public AnchorState(optional androidx.xr.runtime.internal.TrackingState trackingState, optional androidx.xr.runtime.math.Pose? pose);
     method public androidx.xr.runtime.internal.TrackingState component1();
@@ -9,29 +9,34 @@ package androidx.xr.runtime.openxr {
     method public androidx.xr.runtime.openxr.AnchorState copy(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.runtime.math.Pose? pose);
     method public androidx.xr.runtime.math.Pose? getPose();
     method public androidx.xr.runtime.internal.TrackingState getTrackingState();
-    property public final androidx.xr.runtime.math.Pose? pose;
-    property public final androidx.xr.runtime.internal.TrackingState trackingState;
+    property public androidx.xr.runtime.math.Pose? pose;
+    property public androidx.xr.runtime.internal.TrackingState trackingState;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ExportableAnchor extends androidx.xr.runtime.internal.Anchor {
+  public interface ExportableAnchor extends androidx.xr.runtime.internal.Anchor {
     method public android.os.IBinder getAnchorToken();
     method public long getNativePointer();
     property public abstract android.os.IBinder anchorToken;
     property public abstract long nativePointer;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class HitData {
+  public final class HandState {
+    ctor public HandState();
+    ctor public HandState(optional boolean isActive, optional java.util.List<androidx.xr.runtime.math.Pose> handJoints);
+  }
+
+  public final class HitData {
     ctor public HitData(androidx.xr.runtime.math.Pose pose, long id);
     method public androidx.xr.runtime.math.Pose component1();
     method public long component2();
     method public androidx.xr.runtime.openxr.HitData copy(androidx.xr.runtime.math.Pose pose, long id);
     method public long getId();
     method public androidx.xr.runtime.math.Pose getPose();
-    property public final long id;
-    property public final androidx.xr.runtime.math.Pose pose;
+    property public long id;
+    property public androidx.xr.runtime.math.Pose pose;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrAnchor implements androidx.xr.runtime.openxr.ExportableAnchor {
+  public final class OpenXrAnchor implements androidx.xr.runtime.openxr.ExportableAnchor {
     method public void detach();
     method public android.os.IBinder getAnchorToken();
     method public long getNativePointer();
@@ -49,7 +54,15 @@ package androidx.xr.runtime.openxr {
     property public java.util.UUID? uuid;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrManager implements androidx.xr.runtime.internal.LifecycleManager {
+  public final class OpenXrHand implements androidx.xr.runtime.internal.Hand {
+    method public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
+    method public boolean isActive();
+    method public void update(long xrTime);
+    property public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
+    property public boolean isActive;
+  }
+
+  public final class OpenXrManager implements androidx.xr.runtime.internal.LifecycleManager {
     method public void configure();
     method public void create();
     method public void pause();
@@ -58,19 +71,23 @@ package androidx.xr.runtime.openxr {
     method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrPerceptionManager implements androidx.xr.runtime.internal.PerceptionManager {
+  public final class OpenXrPerceptionManager implements androidx.xr.runtime.internal.PerceptionManager {
     method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.runtime.internal.Hand getLeftHand();
     method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
+    method public androidx.xr.runtime.internal.Hand getRightHand();
     method public java.util.Collection<androidx.xr.runtime.internal.Trackable> getTrackables();
     method public java.util.List<androidx.xr.runtime.internal.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
     method public androidx.xr.runtime.internal.Anchor loadAnchor(java.util.UUID uuid);
     method public androidx.xr.runtime.internal.Anchor loadAnchorFromNativePointer(long nativePointer);
     method public void unpersistAnchor(java.util.UUID uuid);
     method public void update(long xrTime);
+    property public androidx.xr.runtime.internal.Hand leftHand;
+    property public androidx.xr.runtime.internal.Hand rightHand;
     property public java.util.Collection<androidx.xr.runtime.internal.Trackable> trackables;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrPlane implements androidx.xr.runtime.internal.Plane {
+  public final class OpenXrPlane implements androidx.xr.runtime.internal.Plane {
     method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.runtime.math.Pose getCenterPose();
     method public androidx.xr.runtime.math.Vector2 getExtents();
@@ -89,14 +106,14 @@ package androidx.xr.runtime.openxr {
     property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrRuntime implements androidx.xr.runtime.internal.Runtime {
+  public final class OpenXrRuntime implements androidx.xr.runtime.internal.Runtime {
     method public androidx.xr.runtime.openxr.OpenXrManager getLifecycleManager();
     method public androidx.xr.runtime.openxr.OpenXrPerceptionManager getPerceptionManager();
     property public androidx.xr.runtime.openxr.OpenXrManager lifecycleManager;
     property public androidx.xr.runtime.openxr.OpenXrPerceptionManager perceptionManager;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrRuntimeFactory implements androidx.xr.runtime.internal.RuntimeFactory {
+  public final class OpenXrRuntimeFactory implements androidx.xr.runtime.internal.RuntimeFactory {
     ctor public OpenXrRuntimeFactory();
     method public androidx.xr.runtime.internal.Runtime createRuntime(android.app.Activity activity);
     field public static final androidx.xr.runtime.openxr.OpenXrRuntimeFactory.Companion Companion;

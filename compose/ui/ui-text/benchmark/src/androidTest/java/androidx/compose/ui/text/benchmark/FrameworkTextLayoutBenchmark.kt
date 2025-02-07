@@ -77,7 +77,7 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
                 val (text, paint) =
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         val text = textGenerator.nextParagraph(textLength)
                         val paint =
                             TextPaint().apply {
@@ -110,7 +110,7 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
         textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureRepeated {
                 val (text, paint) =
-                    runWithTimingDisabled {
+                    runWithMeasurementDisabled {
                         val text = textGenerator.nextParagraph(textLength)
                         val paint =
                             TextPaint().apply {

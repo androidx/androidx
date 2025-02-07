@@ -33,22 +33,23 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     }
 
     private fun parseProject(fileLines: List<String>): ParsedProject {
-        var libraryType: String? = null
+        var softwareType: String? = null
         var publish: String? = null
         var specifiesVersion = false
         fileLines.forEach { line ->
-            if (libraryType == null) libraryType = line.extractVariableValue(" type = LibraryType.")
+            if (softwareType == null)
+                softwareType = line.extractVariableValue(" type = SoftwareType.")
             if (publish == null) publish = line.extractVariableValue(" publish = Publish.")
             if (line.contains("mavenVersion =")) specifiesVersion = true
         }
-        val libraryTypeEnum = libraryType?.let { LibraryType.valueOf(it) } ?: LibraryType.UNSET
-        return ParsedProject(libraryType = libraryTypeEnum, specifiesVersion = specifiesVersion)
+        val softwareTypeEnum = softwareType?.let { SoftwareType.valueOf(it) } ?: SoftwareType.UNSET
+        return ParsedProject(softwareType = softwareTypeEnum, specifiesVersion = specifiesVersion)
     }
 
-    data class ParsedProject(val libraryType: LibraryType, val specifiesVersion: Boolean) {
-        fun shouldPublish(): Boolean = libraryType.publish.shouldPublish()
+    data class ParsedProject(val softwareType: SoftwareType, val specifiesVersion: Boolean) {
+        fun shouldPublish(): Boolean = softwareType.publish.shouldPublish()
 
-        fun shouldRelease(): Boolean = libraryType.publish.shouldRelease()
+        fun shouldRelease(): Boolean = softwareType.publish.shouldRelease()
     }
 }
 

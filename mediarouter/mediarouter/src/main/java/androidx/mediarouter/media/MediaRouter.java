@@ -2476,14 +2476,14 @@ public final class MediaRouter {
             UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE,
             UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION
         })
-        @interface UpdateRoutesReason {}
+        /* package */ @interface UpdateRoutesReason {}
 
         /**
          * The {@link #updateRoutes(List)} has updated routes for the dynamic group.
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_SUCCESSFUL = 1;
+        /* package */ static final int UPDATE_ROUTES_SUCCESSFUL = 1;
 
         /**
          * Updating routes for a dynamic group has failed because the updated routes don't contain
@@ -2491,7 +2491,7 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_NOT_TRANSFERABLE = 2;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_NOT_TRANSFERABLE = 2;
 
         /**
          * Updating routes for a dynamic group has failed because the group route doesn't support
@@ -2499,7 +2499,7 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 3;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 3;
 
         /**
          * Updating routes for a dynamic group has failed because the group route is a connected
@@ -2507,7 +2507,8 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION = 4;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION =
+                4;
 
         @NonNull private final List<RouteInfo> mRoutesInGroup = new ArrayList<>();
 
@@ -2566,15 +2567,17 @@ public final class MediaRouter {
         }
 
         /**
-         * Updates the routes to be members of the dynamic group if the routes are transferable.
-         * Non-transferable routes will not be included in the dynamic group.
+         * Updates the routes to be members of the dynamic group if the routes are transferable. The
+         * dynamic group will remove all existing routes and then add all of the transferable routes
+         * of the given routes. Non-transferable routes will not be included in the updated dynamic
+         * group.
          *
          * @return The state of updating routes for the dynamic group.
          * @see #isTransferable(RouteInfo)
          */
         @UpdateRoutesReason
         @MainThread
-        public int updateRoutes(@NonNull List<RouteInfo> routes) {
+        /* package */ int updateRoutes(@NonNull List<RouteInfo> routes) {
             checkCallingThread();
             return getGlobalRouter().updateRoutesForGroup(this, routes);
         }
@@ -2622,6 +2625,7 @@ public final class MediaRouter {
          * Returns {@code true} if the route is transferable and can be updated for the dynamic
          * group with the {@link #updateRoutes(List)} method.
          */
+        @RestrictTo(LIBRARY)
         public boolean isTransferable(@NonNull RouteInfo route) {
             DynamicRouteDescriptor dynamicRouteDescriptor =
                     mRouteIdToDynamicRouteDescriptorMap.get(route.getId());

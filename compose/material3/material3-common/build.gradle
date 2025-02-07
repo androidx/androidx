@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -114,13 +114,12 @@ androidXMultiplatform {
 androidx {
     name = "Compose Material 3 Common"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_COMMON
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Compose Material 3 Common Library. This library contains foundational, themeless " +
             "components that can be shared between different Material libraries or used by app" +
             " developers. It builds upon the Jetpack Compose libraries."
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-common:material3-common-samples"))
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

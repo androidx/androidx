@@ -27,8 +27,10 @@ import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
+import androidx.credentials.internal.FormFactorHelper
 import java.util.concurrent.Executor
 
 /**
@@ -246,6 +248,17 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             )
             return
         }
+
+        // Check if this is a Wearable device, creation is not supported.
+        if (FormFactorHelper.isWear(context)) {
+            callback.onError(
+                CreateCredentialUnsupportedException(
+                    "createCredential is not supported on this device"
+                )
+            )
+            return
+        }
+
         provider.onCreateCredential(context, request, cancellationSignal, executor, callback)
     }
 

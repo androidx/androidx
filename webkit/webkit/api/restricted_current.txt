@@ -25,9 +25,9 @@ package androidx.webkit {
   }
 
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class NoVarySearchHeader {
-    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader alwaysVaryData();
-    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader neverVaryData();
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader alwaysVaryHeader();
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader neverVaryExcept(boolean, java.util.List<java.lang.String!>);
+    method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader neverVaryHeader();
     method @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static androidx.webkit.NoVarySearchHeader varyExcept(boolean, java.util.List<java.lang.String!>);
     field public final java.util.List<java.lang.String!> consideredQueryParameters;
     field public final boolean ignoreDifferencesInParameters;
@@ -422,8 +422,8 @@ package androidx.webkit {
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROCESS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isMultiProcessEnabled();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
-    method @SuppressCompatibility @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.PRERENDER_WITH_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static void prerenderUrlAsync(android.webkit.WebView, String, androidx.core.os.CancellationSignal?, androidx.webkit.PrerenderOperationCallback);
-    method @SuppressCompatibility @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.PRERENDER_WITH_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static void prerenderUrlAsync(android.webkit.WebView, String, androidx.core.os.CancellationSignal?, androidx.webkit.SpeculativeLoadingParameters, androidx.webkit.PrerenderOperationCallback);
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.PRERENDER_WITH_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static void prerenderUrlAsync(android.webkit.WebView, String, android.os.CancellationSignal?, java.util.concurrent.Executor, androidx.webkit.PrerenderOperationCallback);
+    method @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.PRERENDER_WITH_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static void prerenderUrlAsync(android.webkit.WebView, String, android.os.CancellationSignal?, java.util.concurrent.Executor, androidx.webkit.SpeculativeLoadingParameters, androidx.webkit.PrerenderOperationCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void removeWebMessageListener(android.webkit.WebView, String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setAudioMuted(android.webkit.WebView, boolean);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.DEFAULT_TRAFFICSTATS_TAGGING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDefaultTrafficStatsTag(int);
@@ -478,7 +478,7 @@ package androidx.webkit {
     field public static final String MUTE_AUDIO = "MUTE_AUDIO";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
-    field @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static final String PRERENDER_WITH_URL = "PRERENDER_URL";
+    field @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalUrlPrerender public static final String PRERENDER_WITH_URL = "PRERENDER_URL_V2";
     field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public static final String PROFILE_URL_PREFETCH = "PREFETCH_URL_V3";
     field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
     field public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";

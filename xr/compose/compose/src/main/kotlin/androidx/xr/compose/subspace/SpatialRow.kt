@@ -17,7 +17,6 @@
 package androidx.xr.compose.subspace
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -26,6 +25,7 @@ import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.ContentlessEntity
 
 /**
  * A layout composable that arranges its children in a horizontal sequence. For arranging children
@@ -43,7 +43,6 @@ import androidx.xr.runtime.math.Pose
  */
 @Composable
 @SubspaceComposable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SpatialRow(
     modifier: SubspaceModifier = SubspaceModifier,
     alignment: SpatialAlignment = SpatialAlignment.Center,
@@ -55,7 +54,9 @@ public fun SpatialRow(
         modifier = modifier,
         content = { SpatialRowScopeInstance.content() },
         coreEntity =
-            rememberCoreContentlessEntity { createEntity(name = name, pose = Pose.Identity) },
+            rememberCoreContentlessEntity {
+                ContentlessEntity.create(this, name = name, pose = Pose.Identity)
+            },
         name = name,
         measurePolicy =
             RowColumnMeasurePolicy(
@@ -68,7 +69,6 @@ public fun SpatialRow(
 
 /** Scope for customizing the layout of children within a [SpatialRow]. */
 @LayoutScopeMarker
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialRowScope {
     /**
      * Sizes the element's width proportionally to its [weight] relative to other weighted sibling

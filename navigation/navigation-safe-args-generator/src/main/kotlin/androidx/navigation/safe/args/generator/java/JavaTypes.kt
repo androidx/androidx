@@ -65,15 +65,18 @@ internal val SYSTEM_CLASSNAME = ClassName.get("java.lang", "System")
 internal abstract class Annotations {
     abstract val NULLABLE_CLASSNAME: ClassName
     abstract val NONNULL_CLASSNAME: ClassName
+    abstract val CHECK_RESULT: ClassName
 
     private object AndroidAnnotations : Annotations() {
         override val NULLABLE_CLASSNAME = ClassName.get("android.support.annotation", "Nullable")
         override val NONNULL_CLASSNAME = ClassName.get("android.support.annotation", "NonNull")
+        override val CHECK_RESULT = error("Must be using AndroidX for CheckResult Annotation")
     }
 
-    private object AndroidXAnnotations : Annotations() {
+    internal object AndroidXAnnotations : Annotations() {
         override val NULLABLE_CLASSNAME = ClassName.get("androidx.annotation", "Nullable")
         override val NONNULL_CLASSNAME = ClassName.get("androidx.annotation", "NonNull")
+        override val CHECK_RESULT = ClassName.get("androidx.annotation", "CheckResult")
     }
 
     companion object {

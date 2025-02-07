@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,7 @@ android {
 
 androidx {
     name = "androidx.core:core-viewtree"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_VIEWTREE
     inceptionYear = "2024"
     description = "Provides ViewTree extensions packaged for use by other core androidx libraries"

@@ -58,6 +58,23 @@ public expect inline fun savedState(
 ): SavedState
 
 /**
+ * Builds a new [SavedState] with the specified [initialState], given as a [SavedState] instance.
+ *
+ * Allows further modification of the state using the [builderAction].
+ *
+ * **IMPORTANT:** The [SavedStateWriter] passed as a receiver to the [builderAction] is valid only
+ * inside that function. Using it outside of the function may produce an unspecified behavior.
+ *
+ * @param initialState An initial [SavedState] to populate the state.
+ * @param builderAction A lambda function with a [SavedStateWriter] receiver to modify the state.
+ * @return A [SavedState] instance containing the initialized key-value pairs.
+ */
+public expect inline fun savedState(
+    initialState: SavedState,
+    builderAction: SavedStateWriter.() -> Unit = {},
+): SavedState
+
+/**
  * Calls the specified function [block] with a [SavedStateReader] value as its receiver and returns
  * the [block] value.
  *

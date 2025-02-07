@@ -16,8 +16,9 @@
 
 package androidx.compose.material3
 
-import androidx.compose.foundation.gestures.PressGestureScope
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
@@ -33,11 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
@@ -84,11 +85,7 @@ fun VerticalDragHandle(
             modifier
                 .minimumInteractiveComponentSize()
                 .hoverable(interactionSource)
-                .pressable(interactionSource) { _ ->
-                    isPressed = true
-                    tryAwaitRelease()
-                    isPressed = false
-                }
+                .pressable(interactionSource, { isPressed = true }, { isPressed = false })
                 .graphicsLayer {
                     shape = if (isDragged || isPressed) shapes.pressedShape else shapes.defaultShape
                     clip = true
@@ -281,5 +278,14 @@ object VerticalDragHandleDefaults {
 
 private fun Modifier.pressable(
     interactionSource: MutableInteractionSource,
-    onPress: suspend PressGestureScope.(Offset) -> Unit,
-): Modifier = pointerInput(interactionSource) { detectTapGestures(onPress = onPress) }
+    onPressed: () -> Unit,
+    onReleasedOrCancelled: () -> Unit
+): Modifier =
+    pointerInput(interactionSource) {
+        awaitEachGesture {
+            awaitFirstDown(pass = PointerEventPass.Initial)
+            onPressed()
+            waitForUpOrCancellation(pass = PointerEventPass.Initial)
+            onReleasedOrCancelled()
+        }
+    }

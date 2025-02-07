@@ -59,14 +59,14 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                                         CommonTypeNames.STRING,
                                         RoomTypeNames.TABLE_INFO_COLUMN
                                     ),
-                                    entity.fields.size
+                                    entity.properties.size
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_MAP_OF)
                         }
                     }
             )
-            entity.fields.forEach { field ->
+            entity.properties.forEach { field ->
                 addStatement(
                     "%L.put(%S, %L)",
                     columnListVar,
@@ -77,7 +77,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         field.columnName, // name
                         field.affinity?.name ?: SQLTypeAffinity.TEXT.name, // type
                         field.nonNull, // nonNull
-                        entity.primaryKey.fields.indexOf(field) + 1, // pkeyPos
+                        entity.primaryKey.properties.indexOf(field) + 1, // pkeyPos
                         field.defaultValue, // defaultValue
                         RoomTypeNames.TABLE_INFO,
                         CREATED_FROM_ENTITY // createdFrom
@@ -117,7 +117,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         it.parentTable, // parent table
                         it.onDelete.sqlName, // on delete
                         it.onUpdate.sqlName, // on update
-                        listOfStrings(it.childFields.map { it.columnName }), // parent names
+                        listOfStrings(it.childProperties.map { it.columnName }), // parent names
                         listOfStrings(it.parentColumns) // parent column names
                     )
                 )

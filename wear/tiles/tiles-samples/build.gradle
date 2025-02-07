@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("com.android.application")
@@ -62,7 +62,7 @@ dependencies {
 
 androidx {
     name = "androidx.wear.tiles:tiles-samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code and demo for Tiles using ProtoLayout."
 }

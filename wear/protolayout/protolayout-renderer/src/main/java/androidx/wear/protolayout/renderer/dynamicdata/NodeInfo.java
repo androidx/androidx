@@ -119,8 +119,8 @@ class NodeInfo implements TreeNode {
         return mFailedBindingRequests;
     }
 
-    @NonNull ResolvedAvd addResolvedAvd(@NonNull AnimatedVectorDrawable drawable,
-            @NonNull Trigger trigger) {
+    @NonNull ResolvedAvd addResolvedAvd(
+            @NonNull AnimatedVectorDrawable drawable, @NonNull Trigger trigger) {
         if (mResolvedAvds.isEmpty()) {
             mResolvedAvds = new ArraySet<>();
         }

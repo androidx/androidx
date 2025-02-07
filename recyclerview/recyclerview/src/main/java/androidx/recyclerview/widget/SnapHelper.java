@@ -22,8 +22,8 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Class intended to support snapping for a {@link RecyclerView}.
@@ -154,7 +154,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      *
      * @return true if it is handled, false otherwise.
      */
-    private boolean snapFromFling(@NonNull RecyclerView.LayoutManager layoutManager, int velocityX,
+    private boolean snapFromFling(RecyclerView.@NonNull LayoutManager layoutManager, int velocityX,
             int velocityY) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return false;
@@ -206,9 +206,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      *
      * @return a {@link RecyclerView.SmoothScroller} which will handle the scrolling.
      */
-    @Nullable
-    protected RecyclerView.SmoothScroller createScroller(
-            @NonNull RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.@Nullable SmoothScroller createScroller(
+            RecyclerView.@NonNull LayoutManager layoutManager) {
         return createSnapScroller(layoutManager);
     }
 
@@ -221,10 +220,9 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return a {@link LinearSmoothScroller} which will handle the scrolling.
      * @deprecated use {@link #createScroller(RecyclerView.LayoutManager)} instead.
      */
-    @Nullable
     @Deprecated
-    protected LinearSmoothScroller createSnapScroller(
-            @NonNull RecyclerView.LayoutManager layoutManager) {
+    protected @Nullable LinearSmoothScroller createSnapScroller(
+            RecyclerView.@NonNull LayoutManager layoutManager) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }
@@ -267,9 +265,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * on horizontal axis and out[1] is the distance on vertical axis.
      */
     @SuppressWarnings("WeakerAccess")
-    @Nullable
-    public abstract int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
-            @NonNull View targetView);
+    public abstract int @Nullable [] calculateDistanceToFinalSnap(
+            RecyclerView.@NonNull LayoutManager layoutManager, @NonNull View targetView);
 
     /**
      * Override this method to provide a particular target view for snapping.
@@ -287,9 +284,8 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return the target view to which to snap on fling or end of scroll
      */
     @SuppressWarnings("WeakerAccess")
-    @Nullable
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
-    public abstract View findSnapView(RecyclerView.LayoutManager layoutManager);
+    public abstract @Nullable View findSnapView(RecyclerView.LayoutManager layoutManager);
 
     /**
      * Override to provide a particular adapter target position for snapping.

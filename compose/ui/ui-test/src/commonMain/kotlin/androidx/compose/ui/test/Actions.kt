@@ -75,7 +75,6 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     do {
         val shouldContinueScroll =
@@ -157,7 +156,6 @@ private fun SemanticsNode.scrollToNode(testOwner: TestOwner): Boolean {
  * @see hasScrollToIndexAction
  */
 fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     fetchSemanticsNode("Failed: performScrollToIndex($index)").scrollToIndex(index, this)
     return this
@@ -187,7 +185,6 @@ private fun SemanticsNode.scrollToIndex(index: Int, nodeInteraction: SemanticsNo
  * @see hasScrollToKeyAction
  */
 fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed: performScrollToKey(\"$key\")")
     requireSemantics(node, IndexForKey, ScrollToIndex) {
@@ -235,7 +232,6 @@ fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteract
 fun SemanticsNodeInteraction.performScrollToNode(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = scrollToMatchingDescendantOrReturnScrollable(matcher) ?: return this
     // If this is NOT a lazy list, but we haven't found the node above ..
@@ -384,7 +380,6 @@ fun SemanticsNodeInteraction.performGesture(
 fun SemanticsNodeInteraction.performTouchInput(
     block: TouchInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to inject touch input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
@@ -434,7 +429,6 @@ fun SemanticsNodeInteraction.performTouchInput(
 fun SemanticsNodeInteraction.performMouseInput(
     block: MouseInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to inject mouse input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
@@ -474,7 +468,6 @@ fun SemanticsNodeInteraction.performMouseInput(
 fun SemanticsNodeInteraction.performKeyInput(
     block: KeyInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to inject key input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
@@ -623,7 +616,6 @@ fun SemanticsNodeInteraction.performSemanticsAction(
 fun SemanticsNodeInteraction.performRotaryScrollInput(
     block: RotaryInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to send rotary Event")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
@@ -707,7 +699,6 @@ fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
 fun SemanticsNodeInteraction.performFirstLinkClick(
     predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
 
     val errorMessage = "Failed to click the link."

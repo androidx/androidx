@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime
 
-import androidx.annotation.RestrictTo
 import kotlin.time.ComparableTimeMark
 
 /**
@@ -24,5 +23,4 @@ import kotlin.time.ComparableTimeMark
  *
  * @property timeMark at which the state was computed.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public data class CoreState(val timeMark: ComparableTimeMark) {}

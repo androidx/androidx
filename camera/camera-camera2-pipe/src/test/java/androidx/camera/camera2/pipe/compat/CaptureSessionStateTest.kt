@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeCaptureSessionFactory
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -101,6 +102,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -126,6 +128,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -156,6 +159,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -192,6 +196,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -218,6 +223,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -244,6 +250,7 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )
@@ -261,7 +268,7 @@ class CaptureSessionStateTest {
 
     @Test
     fun captureSessionStateClosesCaptureSessionWhenQuirkIsEnabled() = runTest {
-        val fakeThreads = FakeThreads.fromTestScope(this)
+        val fakeThreads = FakeThreads.fromTestScope(this, Dispatchers.IO)
         val state =
             CaptureSessionState(
                 fakeGraphListener,
@@ -272,6 +279,7 @@ class CaptureSessionStateTest {
                 CameraGraph.Flags(
                     closeCaptureSessionOnDisconnect = true,
                 ),
+                fakeThreads.blockingDispatcher,
                 fakeThreads.backgroundDispatcher,
                 this
             )

@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -33,6 +32,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,9 +66,8 @@ public class RecordPojoTest {
 
     @Dao
     interface RecordEntityDao {
-        @NonNull
         @Query("SELECT * FROM RecordEntity")
-        List<RecordEntity> getAll();
+        @NonNull List<RecordEntity> getAll();
 
         @Insert
         void insert(@NonNull RecordEntity item);

@@ -105,9 +105,10 @@ public interface CanvasStrokeRenderer {
     ): Unit = draw(canvas, stroke, strokeToScreenTransform, 0f)
 
     /**
-     * Render a single [stroke] on the provided [canvas], using the specified [animationProgress]
-     * value (typically 0 to 1) for the stroke's animated textures, if any. Renderer implementations
-     * that don't support animated textures may ignore the [animationProgress] argument.
+     * Render a single [stroke] on the provided [canvas], using the specified
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -123,7 +124,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -144,9 +145,10 @@ public interface CanvasStrokeRenderer {
         draw(canvas, stroke, strokeToScreenTransform, 0f)
 
     /**
-     * Render a single [stroke] on the provided [canvas], using the specified [animationProgress]
-     * value (typically 0 to 1) for the stroke's animated textures, if any. Renderer implementations
-     * that don't support animated textures may ignore the [animationProgress] argument.
+     * Render a single [stroke] on the provided [canvas], using the specified
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -162,7 +164,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -183,9 +185,9 @@ public interface CanvasStrokeRenderer {
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [animationProgress] value (typically 0 to 1) for the stroke's animated textures, if any.
-     * Renderer implementations that don't support animated textures may ignore the
-     * [animationProgress] argument.
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * The [strokeToScreenTransform] should represent the complete transformation from stroke
      * coordinates to the canvas, modulo translation. This transform will not be applied to the
@@ -198,7 +200,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -219,9 +221,9 @@ public interface CanvasStrokeRenderer {
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [animationProgress] value (typically 0 to 1) for the stroke's animated textures, if any.
-     * Renderer implementations that don't support animated textures may ignore the
-     * [animationProgress] argument.
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
      * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
@@ -234,7 +236,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**

@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -49,6 +51,7 @@ import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.EdgeButtonDefaults
 import androidx.wear.compose.material3.EdgeButtonSize
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
@@ -219,7 +222,13 @@ fun EdgeButtonMultiDemo() {
             Column(modifier = Modifier.weight(1f)) {
                 Row { Spacer(modifier = Modifier.height(10.dp)) }
                 Row {
-                    Text("Sizes", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    ListHeader {
+                        Text(
+                            "Sizes",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -235,7 +244,13 @@ fun EdgeButtonMultiDemo() {
                     }
                 }
                 Row {
-                    Text("Colors", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    ListHeader {
+                        Text(
+                            "Colors",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -306,11 +321,12 @@ fun EdgeButtonConfigurableDemo() {
                     enabled = colors[selectedColor].first != "Disabled"
                 ) {
                     if (selectedType == 0) {
+                        val iconSize = EdgeButtonDefaults.iconSizeFor(sizes[selectedSize].second)
                         CheckIcon(
                             modifier =
-                                Modifier.size(
-                                    EdgeButtonDefaults.iconSizeFor(sizes[selectedSize].second)
-                                )
+                                Modifier.size(iconSize * 2 / 3)
+                                    .wrapContentSize(unbounded = true)
+                                    .size(iconSize)
                         )
                     } else {
                         Text("Ok")

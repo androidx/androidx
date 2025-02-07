@@ -23,11 +23,14 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
@@ -399,6 +402,62 @@ class ThreePaneScaffoldTest {
             }
         }
     }
+
+    @Test
+    fun threePaneScaffold_afterPaneSwitching_paneStatesAreSaved() {
+        val restorationTester = StateRestorationTester(rule)
+        val scaffoldValueSecondaryShown =
+            ThreePaneScaffoldValue(
+                primary = PaneAdaptedValue.Expanded,
+                secondary = PaneAdaptedValue.Expanded,
+                tertiary = PaneAdaptedValue.Hidden
+            )
+        val scaffoldValueSecondaryHidden =
+            ThreePaneScaffoldValue(
+                primary = PaneAdaptedValue.Expanded,
+                secondary = PaneAdaptedValue.Hidden,
+                tertiary = PaneAdaptedValue.Hidden
+            )
+
+        var increment = 0
+        var numberOnSecondaryPane = -1
+        var restorableNumberOnSecondaryPane = -1
+        var testScaffoldValue by mutableStateOf(scaffoldValueSecondaryShown)
+
+        restorationTester.setContent {
+            SampleThreePaneScaffold(
+                scaffoldDirective = MockScaffoldDirective,
+                scaffoldValue = testScaffoldValue,
+                paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
+                secondaryContent = {
+                    numberOnSecondaryPane = remember { increment++ }
+                    restorableNumberOnSecondaryPane = rememberSaveable { increment++ }
+                }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(numberOnSecondaryPane).isEqualTo(0)
+            assertThat(restorableNumberOnSecondaryPane).isEqualTo(1)
+            testScaffoldValue = scaffoldValueSecondaryHidden
+        }
+
+        // wait for the screen switch to apply
+        rule.runOnIdle {
+            numberOnSecondaryPane = -1
+            restorableNumberOnSecondaryPane = -1
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // switch back to screen1
+        rule.runOnIdle { testScaffoldValue = scaffoldValueSecondaryShown }
+
+        rule.runOnIdle {
+            assertThat(numberOnSecondaryPane).isEqualTo(2)
+            assertThat(restorableNumberOnSecondaryPane).isEqualTo(1)
+        }
+    }
 }
 
 private val MockScaffoldDirective = PaneScaffoldDirective.Default
@@ -434,6 +493,9 @@ internal fun SampleThreePaneScaffold(
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = PaneExpansionState(),
+    primaryContent: (@Composable ThreePaneScaffoldScope.() -> Unit) = {},
+    secondaryContent: (@Composable ThreePaneScaffoldScope.() -> Unit) = {},
+    tertiaryContent: (@Composable ThreePaneScaffoldScope.() -> Unit) = {}
 ) {
     ThreePaneScaffold(
         modifier = Modifier.fillMaxSize().testTag(ThreePaneScaffoldTestTag),
@@ -447,7 +509,9 @@ internal fun SampleThreePaneScaffold(
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.secondary
-                ) {}
+                ) {
+                    secondaryContent()
+                }
             }
         },
         tertiaryPane = {
@@ -455,12 +519,16 @@ internal fun SampleThreePaneScaffold(
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary
-                ) {}
+                ) {
+                    tertiaryContent()
+                }
             }
         }
     ) {
         AnimatedPane(modifier = Modifier.testTag(tag = "PrimaryPane")) {
-            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {}
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {
+                primaryContent()
+            }
         }
     }
 }

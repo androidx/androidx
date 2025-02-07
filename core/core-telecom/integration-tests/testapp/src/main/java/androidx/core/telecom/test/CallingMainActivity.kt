@@ -79,8 +79,6 @@ class CallingMainActivity : Activity() {
     private lateinit var mNotificationManager: NotificationManager
     private val mNotificationActionInfoFlow: MutableStateFlow<NotificationActionInfo> =
         MutableStateFlow(NotificationActionInfo(-1, false))
-    // Files
-    private lateinit var mFileProvider: VoipAppFileProvider
 
     /**
      * NotificationActionInfo couples information propagated from the Call-Style notification on
@@ -96,7 +94,6 @@ class CallingMainActivity : Activity() {
         mContext = applicationContext
         initNotifications(mContext)
         mCallsManager = CallsManager(this)
-        mFileProvider = VoipAppFileProvider().init(applicationContext)
 
         val raiseHandCheckBox = findViewById<CheckBox>(R.id.RaiseHandCheckbox)
         val kickParticipantCheckBox = findViewById<CheckBox>(R.id.KickPartCheckbox)
@@ -157,7 +154,7 @@ class CallingMainActivity : Activity() {
         }
 
         // setup the adapters which hold the endpoint and call rows
-        mAdapter = CallListAdapter(mCallObjects, null, mFileProvider)
+        mAdapter = CallListAdapter(mCallObjects, null, applicationContext)
         mPreCallEndpointAdapter = PreCallEndpointsAdapter(mCurrentPreCallEndpoints)
 
         // set up the view holders
@@ -228,7 +225,6 @@ class CallingMainActivity : Activity() {
     ) {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall(this, attributes, mNextNotificationId++)
-        mFileProvider.writeCallIconBitMapToFile(callObject)
 
         try {
             val handler = CoroutineExceptionHandler { _, exception ->
@@ -345,6 +341,8 @@ class CallingMainActivity : Activity() {
                 }
             callObject.mLocalCallSilenceExtension = lcsE
 
+            val iconExtension = addCallIconExtension(callObject.getIconUri()!!)
+
             val participants = ParticipantsExtensionManager()
             val participantExtension =
                 addParticipantExtension(
@@ -382,6 +380,10 @@ class CallingMainActivity : Activity() {
                         onParticipantRemoved = participants::removeParticipant
                     )
                 )
+
+                callObject.mIconExtensionControl =
+                    VoipCall.IconControl(onUriChanged = iconExtension::updateCallIconUri)
+
                 addCallRow(callObject)
                 launch {
                     mNotificationActionInfoFlow.collect {

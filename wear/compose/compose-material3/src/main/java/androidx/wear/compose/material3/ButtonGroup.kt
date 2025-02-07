@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -101,7 +101,7 @@ public fun ButtonGroup(
                 return this.then(ButtonGroupElement(minWidth = minWidth))
             }
 
-            override fun Modifier.enlargeOnPress(interactionSource: MutableInteractionSource) =
+            override fun Modifier.animateWidth(interactionSource: InteractionSource) =
                 this.then(
                     EnlargeOnPressElement(
                         interactionSource = interactionSource,
@@ -206,13 +206,13 @@ public interface ButtonGroupScope {
      * @param minWidth the minimum width. If none is specified, minimumInteractiveComponentSize is
      *   used.
      */
-    public fun Modifier.minWidth(minWidth: Dp = minimumInteractiveComponentSize): Modifier
+    public fun Modifier.minWidth(minWidth: Dp = ButtonGroupDefaults.MinWidth): Modifier
 
     /**
      * Specifies the interaction source to use with this item. This is used to listen to events and
-     * grow/shrink the buttons in reaction.
+     * animate growing the pressed button and shrink the neighbor(s).
      */
-    public fun Modifier.enlargeOnPress(interactionSource: MutableInteractionSource): Modifier
+    public fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
 }
 
 /** Contains the default values used by [ButtonGroup] */
@@ -235,6 +235,9 @@ public object ButtonGroupDefaults {
 
     /** Spacing between buttons. */
     public val Spacing: Dp = 4.dp
+
+    /** Default for the minimum width of buttons in a ButtonGroup */
+    public val MinWidth: Dp = minimumInteractiveComponentSize
 
     /** Padding at each side of the [ButtonGroup], as a percentage of the available space. */
     private const val FullWidthHorizontalPaddingPercentage: Float = 5.2f
@@ -303,7 +306,7 @@ internal class ButtonGroupNode(var weight: Float, var minWidth: Dp) :
 }
 
 internal class EnlargeOnPressElement(
-    val interactionSource: MutableInteractionSource,
+    val interactionSource: InteractionSource,
     val downAnimSpec: AnimationSpec<Float>,
     val upAnimSpec: AnimationSpec<Float>,
 ) : ModifierNodeElement<EnlargeOnPressNode>() {
@@ -341,7 +344,7 @@ internal class EnlargeOnPressElement(
 }
 
 internal class EnlargeOnPressNode(
-    var interactionSource: MutableInteractionSource,
+    var interactionSource: InteractionSource,
     var downAnimSpec: AnimationSpec<Float>,
     var upAnimSpec: AnimationSpec<Float>,
 ) : ParentDataModifierNode, Modifier.Node() {

@@ -37,6 +37,20 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 
+// TODO(https://github.com/google/ksp/issues/2268): KSP outputs the error type but we currently have
+//  to capture it from a pattern due to the associated KSP bug. The pattern looks for one of the
+//  following:
+//    1: <ERROR TYPE: foo.bar.MissingType>
+//    2: <ERROR TYPE: foo.bar.MissingType?>
+//    3: (<ERROR TYPE: foo.bar.MissingType>..<ERROR TYPE: foo.bar.MissingType?>)
+//  Note that this pattern won't catch all cases, but it ensures the cases we do catch won't cause
+//  issues when creating the javapoet/kotlinpoet class names. Any error type that does not end up
+//  matching will just return "error.NonExistentClass".
+internal val PACKAGE_PATTERN = "[a-z][^.?]*\\."
+internal val CLASS_PATTERN = "[A-Z][^.?]*"
+internal val ERROR_TYPE_PATTERN =
+    Regex("<ERROR TYPE: ((?:$PACKAGE_PATTERN)*(?:$CLASS_PATTERN\\.)*(?:$CLASS_PATTERN)+)[?]?>")
+
 // Catch-all type name when we cannot resolve to anything. This is what KAPT uses as error type
 // and we use the same type in KSP for consistency.
 // https://kotlinlang.org/docs/reference/kapt.html#non-existent-type-correction
@@ -81,10 +95,6 @@ private fun KSDeclaration.asJTypeName(
     if (this is KSTypeParameter) {
         return this.asJTypeName(resolver, typeResolutionContext)
     }
-    // if there is no qualified name, it is a resolution error so just return shared instance
-    // KSP may improve that later and if not, we can improve it in Room
-    // TODO: https://issuetracker.google.com/issues/168639183
-    val qualified = qualifiedName?.asString() ?: return ERROR_JTYPE_NAME
     val pkg = getNormalizedPackageName()
 
     // We want to map Kotlin types to equivalent Java types if there is one (e.g.
@@ -94,7 +104,7 @@ private fun KSDeclaration.asJTypeName(
     // type args of another type, (e.g. List<MyInlineType>).
     val isInline = isValueClass()
     val isKotlinType = pkg == "kotlin" || pkg.startsWith("kotlin.")
-    val isKotlinUnitType = qualified == "kotlin.Unit"
+    val isKotlinUnitType = qualifiedName?.asString() == "kotlin.Unit"
     if (
         !isKotlinUnitType &&
             ((isInline && isUsedDirectly(typeResolutionContext)) || (!isInline && isKotlinType))
@@ -104,16 +114,28 @@ private fun KSDeclaration.asJTypeName(
             return jvmSignature.typeNameFromJvmSignature()
         }
     }
-
-    // using qualified name and pkg, figure out the short names.
-    val shortNames =
-        if (pkg == "") {
-                qualified
-            } else {
-                qualified.substring(pkg.length + 1)
-            }
-            .split('.')
-    return JClassName.get(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
+    val qualified = qualifiedName?.asString()
+    if (qualified != null) {
+        val simpleNames =
+            if (pkg.isNotEmpty()) {
+                    check(qualified.startsWith(pkg))
+                    qualified.substring(pkg.length + 1, qualified.length)
+                } else {
+                    qualified
+                }
+                .split('.')
+        return JClassName.get(pkg, simpleNames.first(), *(simpleNames.drop(1).toTypedArray()))
+    } else {
+        val errorTypeName =
+            ERROR_TYPE_PATTERN.find(simpleName.asString())?.groupValues?.get(1)
+                // If we don't match the ERROR_TYPE_PATTERN just return the default error type name.
+                ?: return ERROR_JTYPE_NAME
+        // Although we don't get an actual package for an error type, the error type found in the
+        // simple name's pattern match may contain a package if the type it references is fully
+        // qualified. Since we only get this as a string, use bestGuess to get a class name.
+        check(pkg.isEmpty())
+        return JClassName.bestGuess(errorTypeName)
+    }
 }
 
 /** Turns a KSTypeArgument into a TypeName in java's type system. */

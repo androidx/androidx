@@ -46,9 +46,11 @@ final class OpenXrActivityPoseHelper {
             return new Pose();
         }
 
-        // ActivitySpace and the ActivityPose should have unit scale and the ActivityPose should
-        // have no
-        // direct parent so we can just compose the two poses without scaling.
+        // The ActivityPose should have unit scale (1.0f, 1.0f, 1.0f) and it should have no
+        // direct parent, but the activity space can have a non-unit scale.
+        // However, openXrToActivitySpace does not have the scale applied to it so we need to apply
+        // the scale from ActivitySpace to the OpenXR pose to properly compute values in scaled
+        // space.
         final Pose openXrToActivitySpace = mActivitySpace.getPoseInOpenXrReferenceSpace();
         // TODO: b/353575470 throw an exception here instead of returning identity pose.
         if (openXrToActivitySpace == null || openXrToPose == null) {
@@ -60,7 +62,17 @@ final class OpenXrActivityPoseHelper {
         }
 
         final Pose activitySpaceToOpenXr = openXrToActivitySpace.getInverse();
-        return activitySpaceToOpenXr.compose(openXrToPose);
+        final Pose scaledActivitySpacetoOpenXr =
+                activitySpaceToOpenXr.copy(
+                        activitySpaceToOpenXr
+                                .getTranslation()
+                                .div(mActivitySpace.getWorldSpaceScale()));
+        // Apply the inverse of the ActivitySpace scale to the OpenXR pose.
+        final Pose scaledOpenXrToPose =
+                new Pose(
+                        openXrToPose.getTranslation().div(mActivitySpace.getWorldSpaceScale()),
+                        openXrToPose.getRotation());
+        return scaledActivitySpacetoOpenXr.compose(scaledOpenXrToPose);
     }
 
     /** Returns the ActivityPose's pose in the activity space. */

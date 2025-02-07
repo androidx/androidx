@@ -21,10 +21,23 @@
  facilitates secure file sharing.
 -->
 <paths>
-    <external-path
-        name="external_files"
-        path="." />
+    <!--
+    The files-path element in the file_paths.xml file defines a path within the app's internal
+    storage that the FileProvider can use to generate ContentUris. When you write the image file
+    to the directory specified by the files-path (in this case, "images/"), the FileProvider can
+    still grant access to that file to other applications through a ContentUri.
+
+    The "name" property is what the uri uses to hide the actual path.
+    The "path" property is the segment that is amended to the end of the directory for a file group
+    e.g.
+
+    dir = File(context.filesDir, "images")
+
+    dir  = [/data/user/0/androidx.core.telecom.test/files/images]
+    file = [/data/user/0/androidx.core.telecom.test/files/images/testImage.png]
+    uri  = [content://androidx.core.telecom.test.fileprovider/my_images/testImage.png]
+    -->
     <files-path
-        name="my_files"
-        path="files/" />
+        name="my_images"
+        path="images/" />
 </paths>

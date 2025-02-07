@@ -21,8 +21,8 @@ import android.graphics.PointF;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of the {@link SnapHelper} supporting pager style snapping in either vertical or
@@ -40,15 +40,12 @@ public class PagerSnapHelper extends SnapHelper {
     private static final int MAX_SCROLL_ON_FLING_DURATION = 100; // ms
 
     // Orientation helpers are lazily created per LayoutManager.
-    @Nullable
-    private OrientationHelper mVerticalHelper;
-    @Nullable
-    private OrientationHelper mHorizontalHelper;
+    private @Nullable OrientationHelper mVerticalHelper;
+    private @Nullable OrientationHelper mHorizontalHelper;
 
-    @Nullable
     @Override
-    public int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
-            @NonNull View targetView) {
+    public int @Nullable [] calculateDistanceToFinalSnap(
+            RecyclerView.@NonNull LayoutManager layoutManager, @NonNull View targetView) {
         int[] out = new int[2];
         if (layoutManager.canScrollHorizontally()) {
             out[0] = distanceToCenter(targetView,
@@ -66,10 +63,9 @@ public class PagerSnapHelper extends SnapHelper {
         return out;
     }
 
-    @Nullable
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
-    public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+    public @Nullable View findSnapView(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollVertically()) {
             return findCenterView(layoutManager, getVerticalHelper(layoutManager));
         } else if (layoutManager.canScrollHorizontally()) {
@@ -167,17 +163,16 @@ public class PagerSnapHelper extends SnapHelper {
         return false;
     }
 
-    @Nullable
     @Override
-    protected RecyclerView.SmoothScroller createScroller(
-            @NonNull RecyclerView.LayoutManager layoutManager) {
+    protected RecyclerView.@Nullable SmoothScroller createScroller(
+            RecyclerView.@NonNull LayoutManager layoutManager) {
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
             return null;
         }
         return new LinearSmoothScroller(mRecyclerView.getContext()) {
             @Override
             protected void onTargetFound(@NonNull View targetView,
-                    @NonNull RecyclerView.State state, @NonNull Action action) {
+                    RecyclerView.@NonNull State state, @NonNull Action action) {
                 int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
                         targetView);
                 final int dx = snapDistances[0];
@@ -216,8 +211,7 @@ public class PagerSnapHelper extends SnapHelper {
      *
      * @return the child view that is currently closest to the center of this parent.
      */
-    @Nullable
-    private View findCenterView(RecyclerView.LayoutManager layoutManager,
+    private @Nullable View findCenterView(RecyclerView.LayoutManager layoutManager,
             OrientationHelper helper) {
         int childCount = layoutManager.getChildCount();
         if (childCount == 0) {
@@ -243,8 +237,8 @@ public class PagerSnapHelper extends SnapHelper {
         return closestChild;
     }
 
-    @Nullable
-    private OrientationHelper getOrientationHelper(RecyclerView.LayoutManager layoutManager) {
+    private @Nullable OrientationHelper getOrientationHelper(
+            RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollVertically()) {
             return getVerticalHelper(layoutManager);
         } else if (layoutManager.canScrollHorizontally()) {
@@ -254,17 +248,16 @@ public class PagerSnapHelper extends SnapHelper {
         }
     }
 
-    @NonNull
-    private OrientationHelper getVerticalHelper(@NonNull RecyclerView.LayoutManager layoutManager) {
+    private @NonNull OrientationHelper getVerticalHelper(
+            RecyclerView.@NonNull LayoutManager layoutManager) {
         if (mVerticalHelper == null || mVerticalHelper.mLayoutManager != layoutManager) {
             mVerticalHelper = OrientationHelper.createVerticalHelper(layoutManager);
         }
         return mVerticalHelper;
     }
 
-    @NonNull
-    private OrientationHelper getHorizontalHelper(
-            @NonNull RecyclerView.LayoutManager layoutManager) {
+    private @NonNull OrientationHelper getHorizontalHelper(
+            RecyclerView.@NonNull LayoutManager layoutManager) {
         if (mHorizontalHelper == null || mHorizontalHelper.mLayoutManager != layoutManager) {
             mHorizontalHelper = OrientationHelper.createHorizontalHelper(layoutManager);
         }

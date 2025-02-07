@@ -32,11 +32,11 @@ import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.compat.XConverters.toString
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
-import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -214,7 +214,7 @@ class CustomTypeConverterResolutionTest {
         sources: List<Source>,
         onCompilationResult: (CompilationResultSubject) -> Unit = { it.hasErrorCount(0) }
     ) {
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources =
                 sources +
                     CUSTOM_TYPE_JFO +

@@ -17,11 +17,11 @@
 package androidx.room.writer
 
 import androidx.room.DatabaseProcessingStep
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
-import androidx.room.runKspTestWithK1
 import java.io.File
 import loadTestSource
 import writeTestSource
@@ -66,22 +66,17 @@ abstract class BaseDaoKotlinCodeGenTest {
             }
             handler.invoke(it)
         }
-        if (withKsp2) {
-            runKspTest(
-                sources = sources,
-                classpath = compiledFiles,
-                options = options,
-                kotlincArguments = kotlincArguments,
-                handler = invocationHandler
-            )
-        } else {
-            runKspTestWithK1(
-                sources = sources,
-                classpath = compiledFiles,
-                options = options,
-                kotlincArguments = kotlincArguments,
-                handler = invocationHandler
-            )
-        }
+        runKspTest(
+            sources = sources,
+            classpath = compiledFiles,
+            options = options,
+            kotlincArguments =
+                if (!withKsp2) {
+                    KOTLINC_LANGUAGE_1_9_ARGS
+                } else {
+                    emptyList<String>()
+                } + kotlincArguments,
+            handler = invocationHandler
+        )
     }
 }

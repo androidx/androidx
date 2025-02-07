@@ -368,9 +368,15 @@ private const val FocusMask = 0x3L
 private const val MinFocusBits = 16
 private const val MaxAllowedForMinFocusBits = (1 shl (31 - MinFocusBits)) - 2
 
+/** The mask to use for the focused dimension when there is minimal focus. */
+private const val MinFocusMask = 0xFFFF // 64K (16 bits)
+
 /** The number of bits used for the non-focused dimension when there is minimal focus. */
 private const val MinNonFocusBits = 15
 private const val MaxAllowedForMinNonFocusBits = (1 shl (31 - MinNonFocusBits)) - 2
+
+/** The mask to use for the non-focused dimension when there is minimal focus. */
+private const val MinNonFocusMask = 0x7FFF // 32K (15 bits)
 
 /** The number of bits to use for the focused dimension when there is maximal focus. */
 private const val MaxFocusBits = 18
@@ -382,6 +388,9 @@ private const val MaxFocusMask = 0x3FFFF // 256K-1 (18 bits)
 /** The number of bits to use for the non-focused dimension when there is maximal focus. */
 private const val MaxNonFocusBits = 13
 private const val MaxAllowedForMaxNonFocusBits = (1 shl (31 - MaxNonFocusBits)) - 2
+
+/** The mask to use for the non-focused dimension when there is maximal focus. */
+private const val MaxNonFocusMask = 0x1FFF // 8K (13 bits)
 
 // 0xFFFFFFFE_00000003UL.toLong(), written as a signed value to declare it const
 @PublishedApi internal const val MaxDimensionsAndFocusMask = -0x00000001_FFFFFFFDL
@@ -443,35 +452,22 @@ internal fun createConstraints(
 }
 
 internal fun bitsNeedForSizeUnchecked(size: Int): Int {
-    // We could look at the value of size itself, for instance by doing:
-    // when {
-    //     size < MaxNonFocusMask -> MaxNonFocusBits
-    //     ...
-    // }
-    // but the following solution saves a few instructions by avoiding
-    // multiple moves to load large constants
-    val bits = (size + 1).countLeadingZeroBits()
     return when {
-        bits >= 32 - MaxNonFocusBits -> MaxNonFocusBits
-        bits >= 32 - MinNonFocusBits -> MinNonFocusBits
-        bits >= 32 - MinFocusBits -> MinFocusBits
-        bits >= 32 - MaxFocusBits -> MaxFocusBits
+        size < MaxNonFocusMask -> MaxNonFocusBits
+        size < MinNonFocusMask -> MinNonFocusBits
+        size < MinFocusMask -> MinFocusBits
+        size < MaxFocusMask -> MaxFocusBits
         else -> 255
     }
 }
 
 private inline fun maxAllowedForSize(size: Int): Int {
-    // See comment in bitsNeedForSizeUnchecked()
-    // Note: the return value in every case is `1 shl (31 - bits) - 2`
-    // However, computing the value instead of using constants uses more
-    // instructions, so not worth it
-    val bits = (size + 1).countLeadingZeroBits()
-    if (bits <= 13) throwInvalidConstraintsSizeException(size)
     return when {
-        bits >= 32 - MaxNonFocusBits -> MaxAllowedForMaxNonFocusBits
-        bits >= 32 - MinNonFocusBits -> MaxAllowedForMinNonFocusBits
-        bits >= 32 - MinFocusBits -> MaxAllowedForMinFocusBits
-        else -> MaxAllowedForMaxFocusBits
+        size < MaxNonFocusMask -> MaxAllowedForMaxNonFocusBits
+        size < MinNonFocusMask -> MaxAllowedForMinNonFocusBits
+        size < MinFocusMask -> MaxAllowedForMinFocusBits
+        size < MaxFocusMask -> MaxAllowedForMaxFocusBits
+        else -> throwInvalidConstraintsSizeException(size)
     }
 }
 

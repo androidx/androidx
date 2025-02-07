@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,7 +44,7 @@ dependencies {
 
 androidx {
     name = "ProtoLayout Lint Checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2023"
     description = "Lint checks for ProtoLayout API usage. The linter mainly enforces version checking for calling any non 1.0 API."
 }

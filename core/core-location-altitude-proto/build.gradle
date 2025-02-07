@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Location Altitude Protos"
-    type = LibraryType.PUBLISHED_PROTO_LIBRARY
+    type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"
     description = "Implementation protos for core-location-altitude artifact."

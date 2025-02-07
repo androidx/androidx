@@ -44,6 +44,7 @@ internal class TouchFocusTransferringView(
     private val scvh: SurfaceControlViewHost = surfaceControlViewHost
     private val detector = ScrollDetector(context)
 
+    @Suppress("deprecation") // transferTouchGestureToHost needs to be called on U- devices
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         detector.onTouchEvent(ev)
         if (!detector.isScrolling) {

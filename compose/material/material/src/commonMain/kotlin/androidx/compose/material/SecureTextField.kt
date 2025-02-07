@@ -126,7 +126,6 @@ fun SecureTextField(
     val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicSecureTextField(
         state = state,
         modifier =
@@ -251,7 +250,6 @@ fun OutlinedSecureTextField(
 
     val density = LocalDensity.current
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicSecureTextField(
         state = state,
         modifier =

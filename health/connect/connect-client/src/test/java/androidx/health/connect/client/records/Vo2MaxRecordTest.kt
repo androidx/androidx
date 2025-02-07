@@ -17,6 +17,7 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_UNKNOWN
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -44,7 +45,7 @@ class Vo2MaxRecordTest {
                         zoneOffset = null,
                         vo2MillilitersPerMinuteKilogram = 95.0,
                         measurementMethod = Vo2MaxRecord.MEASUREMENT_METHOD_ROCKPORT_FITNESS_TEST,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN),
                     )
                     .toString()
             )

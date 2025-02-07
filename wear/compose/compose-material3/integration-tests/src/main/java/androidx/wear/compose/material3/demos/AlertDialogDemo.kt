@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -195,7 +194,6 @@ fun AlertDialogWithButtonStack() {
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { showDialog = false },
                 label = { Text("While using app") },
-                icon = { Icon(Icons.Filled.Check, "Check") }
             )
         }
         item {
@@ -203,7 +201,6 @@ fun AlertDialogWithButtonStack() {
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { showDialog = false },
                 label = { Text("Ask every time") },
-                icon = { Icon(Icons.Filled.Check, "Check") }
             )
         }
         item {
@@ -211,7 +208,6 @@ fun AlertDialogWithButtonStack() {
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { showDialog = false },
                 label = { Text("Don't allow") },
-                icon = { Icon(Icons.Filled.Check, "Check") }
             )
         }
     }

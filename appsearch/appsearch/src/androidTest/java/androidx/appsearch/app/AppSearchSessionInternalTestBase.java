@@ -30,6 +30,7 @@ import android.content.Context;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.testutil.AppSearchTestUtils;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -40,7 +41,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +64,8 @@ public abstract class AppSearchSessionInternalTestBase {
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName, @NonNull ExecutorService executor);
+
+    @Rule public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
 
     @Before
     public void setUp() throws Exception {

@@ -12,9 +12,9 @@ package androidx.graphics.path {
     method public androidx.graphics.path.PathSegment.Type next(float[] points);
     method public androidx.graphics.path.PathSegment.Type next(float[] points, optional int offset);
     method public androidx.graphics.path.PathSegment.Type peek();
-    property public final androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation;
-    property public final android.graphics.Path path;
-    property public final float tolerance;
+    property public androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation;
+    property public android.graphics.Path path;
+    property public float tolerance;
   }
 
   public enum PathIterator.ConicEvaluation {
@@ -26,9 +26,9 @@ package androidx.graphics.path {
     method public android.graphics.PointF[] getPoints();
     method public androidx.graphics.path.PathSegment.Type getType();
     method public float getWeight();
-    property public final android.graphics.PointF[] points;
-    property public final androidx.graphics.path.PathSegment.Type type;
-    property public final float weight;
+    property public android.graphics.PointF[] points;
+    property public androidx.graphics.path.PathSegment.Type type;
+    property public float weight;
   }
 
   public enum PathSegment.Type {
@@ -44,8 +44,8 @@ package androidx.graphics.path {
   public final class PathSegmentUtilities {
     method public static androidx.graphics.path.PathSegment getCloseSegment();
     method public static androidx.graphics.path.PathSegment getDoneSegment();
-    property public static final androidx.graphics.path.PathSegment CloseSegment;
-    property public static final androidx.graphics.path.PathSegment DoneSegment;
+    property public static androidx.graphics.path.PathSegment CloseSegment;
+    property public static androidx.graphics.path.PathSegment DoneSegment;
   }
 
   public final class PathUtilities {

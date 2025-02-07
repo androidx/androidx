@@ -77,7 +77,7 @@ class TextAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = { Text("Text Composable", Modifier.testTag("tag")) },
             benchmark = {
-                val semanticsId = runWithTimingDisabled { findIdByTag("tag") }
+                val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
             }
         )
@@ -95,7 +95,7 @@ class TextAccessibilityBenchmark(
                 }
             },
             benchmark = {
-                val semanticsId = runWithTimingDisabled { findIdByTag("tag") }
+                val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
             }
         )
@@ -355,13 +355,13 @@ class TextAccessibilityBenchmark(
             }
         ) {
             benchmarkRule.measureRepeatedOnUiThread {
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     doFrame()
                     assertNoPendingChanges()
                     if (invalidateSemanticsOnEachRun) invalidateSemantics()
                 }
                 benchmark()
-                runWithTimingDisabled { disposeContent() }
+                runWithMeasurementDisabled { disposeContent() }
             }
         }
     }

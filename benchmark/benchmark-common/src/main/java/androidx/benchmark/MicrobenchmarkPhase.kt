@@ -80,16 +80,18 @@ internal class MicrobenchmarkPhase(
                 // Note, we don't use System.gc() because it doesn't always have consistent behavior
                 Runtime.getRuntime().gc()
             }
+            var profilerStartBegin = 0L
+            var profilerStartEnd = 0L
             while (true) { // keep running until phase successful
                 try {
                     phaseProfilerResult =
                         profiler?.run {
-                            inMemoryTrace("start profiling") {
-                                startIfNotRiskingAnrDeadline(
+                            profilerStartBegin = System.nanoTime()
+                            startIfNotRiskingAnrDeadline(
                                     traceUniqueName = traceUniqueName,
                                     estimatedDurationNs = state.warmupEstimatedIterationTimeNs
                                 )
-                            }
+                                .also { profilerStartEnd = System.nanoTime() }
                         }
                     state.metrics = metricsContainer // needed for pausing
                     metricsContainer.captureInit()
@@ -124,7 +126,18 @@ internal class MicrobenchmarkPhase(
                         }
                     }
                 } finally {
-                    profiler?.run { inMemoryTrace("profiler.stop()") { stop() } }
+                    profiler?.run {
+                        val profilerStopBegin = System.nanoTime()
+                        stop()
+                        val profilerStopEnd = System.nanoTime()
+                        // instead of actually using inMemoryTrace(){} directly to trace profiling,
+                        // we record timestamps and defer to avoid profiling the tracing logic
+                        // itself, since it's very intrusive to method traces
+                        InMemoryTracing.beginSection("start profiling", profilerStartBegin)
+                        InMemoryTracing.endSection(profilerStartEnd)
+                        InMemoryTracing.beginSection("stop profiling", profilerStopBegin)
+                        InMemoryTracing.endSection(profilerStopEnd)
+                    }
                     state.yieldThreadIfDeadlinePassed()
                 }
                 if (!ThrottleDetector.isDeviceThermalThrottled()) {
@@ -366,14 +379,11 @@ internal class MicrobenchmarkPhase(
                             warmupPhase(
                                 warmupManager = warmupManager,
                                 // Collect the instructions metric to ensure that behavior and
-                                // timing aren't
-                                // significantly skewed between warmup and timing phases. For
-                                // example, if
-                                // only timing phase has a complex impl of pause/resume, then
-                                // behavior
-                                // changes drastically, and the warmupManager will estimate a far
-                                // faster
-                                // impl of `measureRepeated { runWithTimingDisabled }`
+                                // timing aren't significantly skewed between warmup and timing
+                                // phases. For example, if only timing phase has a complex impl of
+                                // pause/resume, then behavior changes drastically, and the
+                                // warmupManager will estimate a far faster impl of
+                                // `measureRepeated { runWithMeasurementDisabled }`
                                 collectCpuEventInstructions =
                                     metrics.any {
                                         it is CpuEventCounterCapture && it.names.isNotEmpty()

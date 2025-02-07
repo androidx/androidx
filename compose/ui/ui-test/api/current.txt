@@ -100,20 +100,15 @@ package androidx.compose.ui.test {
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface ComposeUiTest extends androidx.compose.ui.test.SemanticsNodeInteractionsProvider {
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @RequiresApi(34) public void disableAccessibilityChecks();
-    method @RequiresApi(34) public void enableAccessibilityChecks();
-    method @RequiresApi(34) public com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator? getAccessibilityValidator();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.test.MainTestClock getMainClock();
     method public void registerIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
     method public <T> T runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
-    method @RequiresApi(34) public void setAccessibilityValidator(com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator?);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public void unregisterIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
     method public void waitForIdle();
     method public void waitUntil(optional String? conditionDescription, optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
-    property @RequiresApi(34) public abstract com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator? accessibilityValidator;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.test.MainTestClock mainClock;
   }
@@ -217,7 +212,7 @@ package androidx.compose.ui.test {
   @Deprecated public final class GestureScope {
     ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
     method @Deprecated public long getVisibleSize();
-    property @Deprecated public final long visibleSize;
+    property @Deprecated public long visibleSize;
   }
 
   public final class GestureScopeKt {
@@ -265,13 +260,30 @@ package androidx.compose.ui.test {
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void swipeUp(androidx.compose.ui.test.GestureScope, optional float startY, optional float endY, optional long durationMillis);
     method @Deprecated public static void swipeWithVelocity(androidx.compose.ui.test.GestureScope, long start, long end, float endVelocity, optional long durationMillis);
     method @Deprecated public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
+    property @Deprecated public static inline float bottom;
+    property @Deprecated public static long bottomCenter;
+    property @Deprecated public static long bottomLeft;
+    property @Deprecated public static long bottomRight;
+    property @Deprecated public static long center;
+    property @Deprecated public static long centerLeft;
+    property @Deprecated public static long centerRight;
+    property @Deprecated public static inline float centerX;
+    property @Deprecated public static inline float centerY;
+    property @Deprecated public static inline int height;
+    property @Deprecated public static inline float left;
+    property @Deprecated public static inline float right;
+    property @Deprecated public static inline float top;
+    property @Deprecated public static long topCenter;
+    property @Deprecated public static long topLeft;
+    property @Deprecated public static long topRight;
+    property @Deprecated public static inline int width;
   }
 
   public final class GlobalAssertions {
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void addGlobalAssertion(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.SemanticsNodeInteraction,kotlin.Unit> assertion);
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteractionCollection invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void removeGlobalAssertion(String name);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void addGlobalAssertion(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.SemanticsNodeInteraction,kotlin.Unit> assertion);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteractionCollection invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void removeGlobalAssertion(String name);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface IdlingResource {
@@ -351,6 +363,11 @@ package androidx.compose.ui.test {
     method public static void withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, long key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method public static void withKeysDown(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method public static void withKeysToggled(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    property public static boolean isAltDown;
+    property public static boolean isCtrlDown;
+    property public static boolean isFnDown;
+    property public static boolean isMetaDown;
+    property public static boolean isShiftDown;
   }
 
   public final class KeyInputHelpersKt {
@@ -371,7 +388,7 @@ package androidx.compose.ui.test {
   @kotlin.jvm.JvmInline public final value class MouseButton {
     ctor public MouseButton(int buttonId);
     method public int getButtonId();
-    property public final int buttonId;
+    property public int buttonId;
     field public static final androidx.compose.ui.test.MouseButton.Companion Companion;
   }
 
@@ -379,9 +396,9 @@ package androidx.compose.ui.test {
     method public int getPrimary();
     method public int getSecondary();
     method public int getTertiary();
-    property public final int Primary;
-    property public final int Secondary;
-    property public final int Tertiary;
+    property public int Primary;
+    property public int Secondary;
+    property public int Tertiary;
   }
 
   public interface MouseInjectionScope extends androidx.compose.ui.test.InjectionScope {
@@ -437,23 +454,23 @@ package androidx.compose.ui.test {
 
   @kotlin.jvm.JvmInline public final value class ScrollWheel {
     method public int getValue();
-    property public final int value;
+    property public int value;
     field public static final androidx.compose.ui.test.ScrollWheel.Companion Companion;
   }
 
   public static final class ScrollWheel.Companion {
     method public int getHorizontal();
     method public int getVertical();
-    property public final int Horizontal;
-    property public final int Vertical;
+    property public int Horizontal;
+    property public int Vertical;
   }
 
   public final class SelectionResult {
     ctor public SelectionResult(java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes, optional String? customErrorOnNoMatch);
     method public String? getCustomErrorOnNoMatch();
     method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> getSelectedNodes();
-    property public final String? customErrorOnNoMatch;
-    property public final java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes;
+    property public String? customErrorOnNoMatch;
+    property public java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes;
   }
 
   public final class SelectorsKt {
@@ -478,7 +495,7 @@ package androidx.compose.ui.test {
     method public boolean matchesAny(Iterable<androidx.compose.ui.semantics.SemanticsNode> nodes);
     method public operator androidx.compose.ui.test.SemanticsMatcher not();
     method public infix androidx.compose.ui.test.SemanticsMatcher or(androidx.compose.ui.test.SemanticsMatcher other);
-    property public final String description;
+    property public String description;
     field public static final androidx.compose.ui.test.SemanticsMatcher.Companion Companion;
   }
 
@@ -495,7 +512,6 @@ package androidx.compose.ui.test {
     method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
     method public void assertIsDeactivated(optional String? errorMessageOnFail);
     method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
-    method public int semanticsId();
   }
 
   public final class SemanticsNodeInteractionCollection {
@@ -514,7 +530,7 @@ package androidx.compose.ui.test {
     ctor public SemanticsSelector(String description, boolean requiresExactlyOneNode, optional androidx.compose.ui.test.SemanticsSelector? chainedInputSelector, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.compose.ui.semantics.SemanticsNode>,androidx.compose.ui.test.SelectionResult> selector);
     method public String getDescription();
     method public androidx.compose.ui.test.SelectionResult map(Iterable<androidx.compose.ui.semantics.SemanticsNode> nodes, String errorOnFail);
-    property public final String description;
+    property public String description;
   }
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class StateRestorationTester {
@@ -532,20 +548,22 @@ package androidx.compose.ui.test {
     method public long getFrameDelayNanos();
     method public boolean getHasAwaiters();
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
-    property @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final kotlin.coroutines.ContinuationInterceptor continuationInterceptor;
-    property public final long frameDelayNanos;
-    property public final boolean hasAwaiters;
+    property @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public kotlin.coroutines.ContinuationInterceptor continuationInterceptor;
+    property public long frameDelayNanos;
+    property public boolean hasAwaiters;
   }
 
   public final class TestMonotonicFrameClock_jvmKt {
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static long getFrameDelayMillis(androidx.compose.ui.test.TestMonotonicFrameClock);
+    property @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static long frameDelayMillis;
   }
 
   public final class TextActionsKt {
     method public static void performImeAction(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextClearance(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextInput(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long selection);
+    method @Deprecated public static void performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long selection);
+    method public static void performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long selection, optional boolean relativeToOriginalText);
     method public static void performTextReplacement(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
   }
 

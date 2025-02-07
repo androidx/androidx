@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 
-import androidx.annotation.NonNull;
 import androidx.room.integration.testapp.test.TestDatabaseTest;
 import androidx.room.integration.testapp.test.TestUtil;
 import androidx.room.integration.testapp.vo.User;
@@ -28,6 +27,7 @@ import androidx.room.paging.LimitOffsetDataSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,8 +100,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         assertThat(result, is(users.subList(4, 6)));
     }
 
-    @NonNull
-    private List<User> createUsers(int count) {
+    private @NonNull List<User> createUsers(int count) {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             User user = TestUtil.createUser(i);

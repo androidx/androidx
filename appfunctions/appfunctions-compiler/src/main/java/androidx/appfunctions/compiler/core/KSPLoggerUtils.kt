@@ -21,7 +21,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.FileLocation
 import java.io.File
 
-/** Logs an [ProcessingException] with detail about the error location. */
+/** Logs a [ProcessingException] with detail about the error location. */
 fun KSPLogger.logException(exception: ProcessingException) {
     val location = exception.symbol?.location as? FileLocation
     if (location == null) {

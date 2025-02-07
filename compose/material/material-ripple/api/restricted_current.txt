@@ -7,10 +7,10 @@ package androidx.compose.material.ripple {
     method public float getFocusedAlpha();
     method public float getHoveredAlpha();
     method public float getPressedAlpha();
-    property public final float draggedAlpha;
-    property public final float focusedAlpha;
-    property public final float hoveredAlpha;
-    property public final float pressedAlpha;
+    property public float draggedAlpha;
+    property public float focusedAlpha;
+    property public float hoveredAlpha;
+    property public float pressedAlpha;
   }
 
   public final class RippleKt {
@@ -31,7 +31,7 @@ package androidx.compose.material.ripple {
 
   public final class RippleThemeKt {
     method @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ripple.RippleTheme> getLocalRippleTheme();
-    property @Deprecated public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ripple.RippleTheme> LocalRippleTheme;
+    property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ripple.RippleTheme> LocalRippleTheme;
   }
 
 }

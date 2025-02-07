@@ -59,8 +59,11 @@ internal object DataCardDefaults {
                     .addElement(
                         secondaryIcon ?: secondaryText,
                         horizontalSpacer(
-                            if (secondaryIcon != null) style.iconToTextSpaceDp
-                            else style.secondaryLabelToTextSpaceDp
+                            if (secondaryIcon != null) {
+                                style.iconToTextSpaceDp
+                            } else {
+                                style.secondaryLabelToTextSpaceDp
+                            }
                         )
                     )
             Bottom ->
@@ -71,8 +74,11 @@ internal object DataCardDefaults {
                     .addElement(
                         title,
                         horizontalSpacer(
-                            if (secondaryIcon != null) style.iconToTextSpaceDp
-                            else style.secondaryLabelToTextSpaceDp
+                            if (secondaryIcon != null) {
+                                style.iconToTextSpaceDp
+                            } else {
+                                style.secondaryLabelToTextSpaceDp
+                            }
                         )
                     )
                     .addElement(content, horizontalSpacer(style.titleToContentSpaceDp))

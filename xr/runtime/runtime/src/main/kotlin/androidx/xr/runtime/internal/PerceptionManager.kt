@@ -50,4 +50,10 @@ public interface PerceptionManager {
 
     /** Returns the list of all known trackables. */
     public val trackables: Collection<Trackable>
+
+    /** Hand tracking information for the left [Hand]. Only available on supported platforms. */
+    public val leftHand: Hand?
+
+    /** Hand tracking information for the right [Hand]. Only available on supported platforms. */
+    public val rightHand: Hand?
 }

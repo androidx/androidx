@@ -69,6 +69,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.R;
 import androidx.core.util.Preconditions;
@@ -545,6 +546,8 @@ public class ViewCompat {
     private static Method sChildrenDrawingOrderMethod;
     private static Field sAccessibilityDelegateField;
     private static boolean sAccessibilityDelegateCheckFailed = false;
+
+    private static boolean sTryHiddenViewTransformMatrixToGlobal = true;
 
     private static ThreadLocal<Rect> sThreadLocalRect;
 
@@ -4643,6 +4646,45 @@ public class ViewCompat {
     }
 
     /**
+     * Modifies the input matrix such that it maps on-screen coordinates to
+     * view-local coordinates for the provided view.
+     *
+     * @param view view to examine
+     * @param matrix input matrix to modify
+     */
+    @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
+    public static void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            Api29Impl.transformMatrixToGlobal(view, matrix);
+        } else {
+            // The View method in question is available as a public (but hidden) method all the way
+            // back to API 21, but we check that it's actually present, since conformance testing
+            // does not assert about methods that are not in the public API.
+            if (sTryHiddenViewTransformMatrixToGlobal) {
+                try {
+                    Api29Impl.transformMatrixToGlobal(view, matrix);
+                    return;
+                } catch (NoSuchMethodError e) {
+                    sTryHiddenViewTransformMatrixToGlobal = false;
+                }
+            }
+            fallbackTransformMatrixToGlobal(view, matrix);
+        }
+    }
+
+    @VisibleForTesting
+    static void fallbackTransformMatrixToGlobal(View view, Matrix matrix) {
+        ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            View parentView = (View) parent;
+            fallbackTransformMatrixToGlobal(parentView, matrix);
+            matrix.preTranslate(-parentView.getScrollX(), -parentView.getScrollY());
+        }
+        matrix.preTranslate(view.getLeft(), view.getTop());
+        matrix.preConcat(view.getMatrix());
+    }
+
+    /**
      * Sets whether this View should be a focusable element for screen readers
      * and include non-focusable Views from its subtree when providing feedback.
      * <p>
@@ -5497,6 +5539,10 @@ public class ViewCompat {
                 ContentCaptureSessionCompat contentCaptureSession) {
             view.setContentCaptureSession(contentCaptureSession == null
                     ? null : contentCaptureSession.toContentCaptureSession());
+        }
+
+        static void transformMatrixToGlobal(View view, Matrix matrix) {
+            view.transformMatrixToGlobal(matrix);
         }
     }
 

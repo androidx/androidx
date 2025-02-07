@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Entity;
 import androidx.room.Insert;
@@ -47,6 +46,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -246,23 +246,19 @@ public class ProvidedTypeConverterTest {
      * Class that is serialized differently based on database
      */
     public static class Username {
-        @NonNull
-        private final String mName;
-        @NonNull
-        private final String mLastName;
+        private final @NonNull String mName;
+        private final @NonNull String mLastName;
 
         public Username(@NonNull String name, @NonNull String lastName) {
             mName = name;
             mLastName = lastName;
         }
 
-        @NonNull
-        public String getName() {
+        public @NonNull String getName() {
             return mName;
         }
 
-        @NonNull
-        public String getLastName() {
+        public @NonNull String getLastName() {
             return mLastName;
         }
 

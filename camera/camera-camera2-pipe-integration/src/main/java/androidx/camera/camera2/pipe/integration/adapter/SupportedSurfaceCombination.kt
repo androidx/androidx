@@ -1231,12 +1231,10 @@ public class SupportedSurfaceCombination(
             when (targetAspectRatio[cameraMetadata, streamConfigurationMapCompat]) {
                 TargetAspectRatio.RATIO_4_3 -> AspectRatioUtil.ASPECT_RATIO_4_3
                 TargetAspectRatio.RATIO_16_9 -> AspectRatioUtil.ASPECT_RATIO_16_9
-                TargetAspectRatio.RATIO_MAX_JPEG -> {
-                    val maxJpegSize =
-                        getUpdatedSurfaceSizeDefinitionByFormat(ImageFormat.JPEG)
-                            .getMaximumSize(ImageFormat.JPEG)
-                    Rational(maxJpegSize.width, maxJpegSize.height)
-                }
+                TargetAspectRatio.RATIO_MAX_JPEG ->
+                    getUpdatedSurfaceSizeDefinitionByFormat(ImageFormat.JPEG)
+                        .getMaximumSize(ImageFormat.JPEG)
+                        ?.let { maxJpegSize -> Rational(maxJpegSize.width, maxJpegSize.height) }
                 else -> null
             }
         val resultList: MutableList<Size>

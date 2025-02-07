@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,7 @@ android {
 
 androidx {
     name = "androidx.lifecycle:lifecycle-viewmodel-savedstate-samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Lifecycle ViewModel SavedState Samples"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

@@ -114,7 +114,7 @@ fun Modifier.dragAndDropSource(
             transferData = transferData
         )
 
-private data class DragAndDropSourceElement(
+private class DragAndDropSourceElement(
     /** @see Modifier.dragAndDropSource */
     val drawDragDecoration: DrawScope.() -> Unit,
     /** @see Modifier.dragAndDropSource */
@@ -141,6 +141,24 @@ private data class DragAndDropSourceElement(
         properties["drawDragDecoration"] = drawDragDecoration
         properties["detectDragStart"] = detectDragStart
         properties["transferData"] = transferData
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DragAndDropSourceElement) return false
+
+        if (drawDragDecoration !== other.drawDragDecoration) return false
+        if (detectDragStart !== other.detectDragStart) return false
+        if (transferData !== other.transferData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = drawDragDecoration.hashCode()
+        result = 31 * result + detectDragStart.hashCode()
+        result = 31 * result + transferData.hashCode()
+        return result
     }
 }
 
@@ -199,7 +217,7 @@ internal class DragAndDropSourceNode(
     }
 }
 
-private data class DragAndDropSourceWithDefaultShadowElement(
+private class DragAndDropSourceWithDefaultShadowElement(
     /** @see Modifier.dragAndDropSource */
     var detectDragStart: DragAndDropStartDetector,
     /** @see Modifier.dragAndDropSource */
@@ -221,6 +239,22 @@ private data class DragAndDropSourceWithDefaultShadowElement(
         name = "dragSourceWithDefaultPainter"
         properties["detectDragStart"] = detectDragStart
         properties["transferData"] = transferData
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DragAndDropSourceWithDefaultShadowElement) return false
+
+        if (detectDragStart !== other.detectDragStart) return false
+        if (transferData !== other.transferData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = detectDragStart.hashCode()
+        result = 31 * result + transferData.hashCode()
+        return result
     }
 }
 

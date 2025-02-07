@@ -16,15 +16,12 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
-
 /**
  * Creates an AnchorPlacement for a MovableComponent.
  *
  * <p> This will enable the MovableComponent to automatically anchor the attached entity to a new
  * entity
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class AnchorPlacement() {
     internal val planeTypeFilter: MutableSet<@PlaneTypeValue Int> = HashSet<@PlaneTypeValue Int>()
     internal val planeSemanticFilter: MutableSet<@PlaneSemanticValue Int> =

@@ -79,8 +79,8 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
- * target="_blank">Material Design filled text field</a>.
+ * [Material Design filled text
+ * field](https://m2.material.io/components/text-fields#filled-text-field).
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
  * when surrounded by other content and components.
@@ -201,7 +201,6 @@ fun TextField(
     val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         state = state,
         modifier =
@@ -257,8 +256,8 @@ fun TextField(
 }
 
 /**
- * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
- * target="_blank">Material Design filled text field</a>.
+ * [Material Design filled text
+ * field](https://m2.material.io/components/text-fields#filled-text-field).
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
  * when surrounded by other content and components.
@@ -349,7 +348,6 @@ fun TextField(
     val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
         modifier =
@@ -446,8 +444,8 @@ fun TextField(
 }
 
 /**
- * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
- * target="_blank">Material Design filled text field</a>.
+ * [Material Design filled text
+ * field](https://m2.material.io/components/text-fields#filled-text-field).
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
  * when surrounded by other content and components.
@@ -540,7 +538,6 @@ fun TextField(
     val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
-    @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
         modifier =

@@ -75,6 +75,10 @@ internal actual constructor(
         source.map[key] = value
     }
 
+    public actual inline fun putSavedStateList(key: String, value: List<SavedState>) {
+        source.map[key] = value
+    }
+
     public actual inline fun putStringList(key: String, value: List<String>) {
         source.map[key] = value
     }
@@ -104,6 +108,10 @@ internal actual constructor(
     }
 
     public actual inline fun putLongArray(key: String, value: LongArray) {
+        source.map[key] = value
+    }
+
+    public actual inline fun putSavedStateArray(key: String, value: Array<SavedState>) {
         source.map[key] = value
     }
 

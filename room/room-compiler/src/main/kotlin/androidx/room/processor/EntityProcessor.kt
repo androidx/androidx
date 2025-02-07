@@ -16,11 +16,10 @@
 
 package androidx.room.processor
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.NO_ACTION
 import androidx.room.Fts3
 import androidx.room.Fts4
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.ForeignKeyAction
@@ -30,30 +29,32 @@ interface EntityProcessor : EntityOrViewProcessor {
     override fun process(): androidx.room.vo.Entity
 
     companion object {
-        fun extractTableName(element: XTypeElement, annotation: Entity): String {
-            return if (annotation.tableName == "") {
+        fun extractTableName(element: XTypeElement, annotation: XAnnotation): String {
+            val tableName = annotation["tableName"]?.asString()
+            return if (tableName == null || tableName == "") {
                 element.name
             } else {
-                annotation.tableName
+                tableName
             }
         }
 
-        fun extractIndices(
-            annotation: XAnnotationBox<Entity>,
-            tableName: String
-        ): List<IndexInput> {
-            return annotation.getAsAnnotationBoxArray<androidx.room.Index>("indices").map {
-                val indexAnnotation = it.value
-                val nameValue = indexAnnotation.name
-                val columns = indexAnnotation.value.asList()
-                val orders = indexAnnotation.orders.asList()
+        fun extractIndices(annotation: XAnnotation, tableName: String): List<IndexInput> {
+            val indicesAnnotations = annotation["indices"]?.asAnnotationList() ?: emptyList()
+            return indicesAnnotations.map { indexAnnotation ->
+                val unique = indexAnnotation["unique"]?.asBoolean() == true
+                val nameValue = indexAnnotation["name"]?.asString() ?: ""
+                val columns = indexAnnotation["value"]?.asStringList() ?: emptyList()
+                val orders =
+                    (indexAnnotation["orders"]?.asEnumList() ?: emptyList()).map {
+                        androidx.room.Index.Order.valueOf(it.name)
+                    }
                 val name =
                     if (nameValue == "") {
                         createIndexName(columns, tableName)
                     } else {
                         nameValue
                     }
-                IndexInput(name, indexAnnotation.unique, columns, orders)
+                IndexInput(name, unique, columns, orders)
             }
         }
 
@@ -61,23 +62,23 @@ interface EntityProcessor : EntityOrViewProcessor {
             return Index.DEFAULT_PREFIX + tableName + "_" + columnNames.joinToString("_")
         }
 
-        fun extractForeignKeys(annotation: XAnnotationBox<Entity>): List<ForeignKeyInput> {
-            return annotation.getAsAnnotationBoxArray<ForeignKey>("foreignKeys").mapNotNull {
-                annotationBox ->
-                val foreignKey = annotationBox.value
-                val parent = annotationBox.getAsType("entity")
-                if (parent != null) {
-                    ForeignKeyInput(
-                        parent = parent,
-                        parentColumns = foreignKey.parentColumns.asList(),
-                        childColumns = foreignKey.childColumns.asList(),
-                        onDelete = ForeignKeyAction.fromAnnotationValue(foreignKey.onDelete),
-                        onUpdate = ForeignKeyAction.fromAnnotationValue(foreignKey.onUpdate),
-                        deferred = foreignKey.deferred
-                    )
-                } else {
-                    null
-                }
+        fun extractForeignKeys(annotation: XAnnotation): List<ForeignKeyInput> {
+            val foreignKeyAnnotations = annotation["foreignKeys"]?.asAnnotationList() ?: emptyList()
+            return foreignKeyAnnotations.map { foreignKeyAnnotation ->
+                ForeignKeyInput(
+                    parent = foreignKeyAnnotation.getAsType("entity"),
+                    parentColumns = foreignKeyAnnotation.getAsStringList("parentColumns"),
+                    childColumns = foreignKeyAnnotation.getAsStringList("childColumns"),
+                    onDelete =
+                        ForeignKeyAction.fromAnnotationValue(
+                            foreignKeyAnnotation["onDelete"]?.asInt() ?: NO_ACTION
+                        ),
+                    onUpdate =
+                        ForeignKeyAction.fromAnnotationValue(
+                            foreignKeyAnnotation["onUpdate"]?.asInt() ?: NO_ACTION
+                        ),
+                    deferred = foreignKeyAnnotation["deferred"]?.asBoolean() == true
+                )
             }
         }
     }

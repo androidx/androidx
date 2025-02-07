@@ -89,6 +89,19 @@ class LoadingIndicatorTest {
     }
 
     @Test
+    fun determinateLoadingIndicator_NaNProgress() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { Float.NaN })
+        }
+
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(TestTag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+    }
+
+    @Test
     fun determinateContainedLoadingIndicator_Progress() {
         val progress = mutableFloatStateOf(0f)
 
@@ -110,6 +123,21 @@ class LoadingIndicatorTest {
             .onNodeWithTag(TestTag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
+    }
+
+    @Test
+    fun determinateContainedLoadingIndicator_NaNProgress() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ContainedLoadingIndicator(
+                modifier = Modifier.testTag(TestTag),
+                progress = { Float.NaN }
+            )
+        }
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(TestTag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @Test

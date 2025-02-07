@@ -683,9 +683,9 @@ class DaoWriter(
     /**
      * Represents a query statement prepared in Dao implementation.
      *
-     * @param fields This map holds all the member properties necessary for this query. The key is
-     *   the corresponding parameter name in the defining query function. The value is a pair from
-     *   the property declaration to definition.
+     * @param properties This map holds all the member properties necessary for this query. The key
+     *   is the corresponding parameter name in the defining query function. The value is a pair
+     *   from the property declaration to definition.
      * @param functionImpl The body of the query function implementation.
      */
     data class PreparedStmtQuery(

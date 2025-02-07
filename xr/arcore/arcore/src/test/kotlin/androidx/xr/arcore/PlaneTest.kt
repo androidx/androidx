@@ -29,6 +29,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.FakePerceptionManager
+import androidx.xr.runtime.testing.FakeRuntimeAnchor
 import androidx.xr.runtime.testing.FakeRuntimePlane
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
@@ -56,13 +57,18 @@ class PlaneTest {
     private lateinit var session: Session
 
     @get:Rule
-    val grantPermissionRule = GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING")
+    val grantPermissionRule =
+        GrantPermissionRule.grant(
+            "android.permission.SCENE_UNDERSTANDING",
+            "android.permission.HAND_TRACKING",
+        )
 
     @Before
     fun setUp() {
         xrResourcesManager = XrResourcesManager()
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)
+        FakeRuntimeAnchor.anchorsCreated = 0
     }
 
     @After
@@ -130,9 +136,20 @@ class PlaneTest {
         val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
         val pose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
 
-        val anchor = underTest.createAnchor(pose)
+        val anchor = (underTest.createAnchor(pose) as AnchorCreateSuccess).anchor
 
         assertThat(anchor.state.value.pose).isEqualTo(pose)
+    }
+
+    @Test
+    fun createAnchor_anchorLimitReached_returnsAnchorResourcesExhaustedResult() {
+        val runtimePlane = FakeRuntimePlane()
+        xrResourcesManager.syncTrackables(listOf(runtimePlane))
+        val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
+        repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT) { underTest.createAnchor(Pose()) }
+
+        assertThat(underTest.createAnchor(Pose()))
+            .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
     }
 
     @Test

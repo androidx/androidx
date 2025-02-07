@@ -26,8 +26,10 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,12 +45,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -59,6 +63,8 @@ import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.padding
+import androidx.wear.compose.material3.internal.Strings.Companion.OpenOnPhoneContentDescriptionIcon
+import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.material3.tokens.MotionTokens.DurationLong2
 import androidx.wear.compose.material3.tokens.MotionTokens.DurationShort3
@@ -72,7 +78,7 @@ import kotlinx.coroutines.launch
  *
  * The dialog will be showing a message to the user for [durationMillis]. After a specified timeout,
  * the [onDismissRequest] callback will be invoked, where it's up to the caller to handle the
- * dismissal. To hide the dialog, [show] parameter should be set to false.
+ * dismissal. To hide the dialog, [visible] parameter should be set to false.
  *
  * This dialog is typically used to indicate that an action has been initiated and will continue on
  * the user's phone. Once this dialog is displayed, it's developer responsibility to establish the
@@ -81,30 +87,32 @@ import kotlinx.coroutines.launch
  * Example of an [OpenOnPhoneDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
- * @param show A boolean indicating whether the dialog should be displayed.
+ * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
  *   swiping right or when the [durationMillis] has passed.
- * @param modifier Modifier to be applied to the dialog content.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
- *   edge of the dialog. Defaults to a localized open on phone message.
+ *   edge of the dialog. We recommend using [openOnPhoneDialogCurvedText] for this parameter, which
+ *   will give the default sweep angle and padding, and [OpenOnPhoneDialogDefaults.curvedTextStyle]
+ *   as the style.
+ * @param modifier Modifier to be applied to the dialog content.
  * @param colors [OpenOnPhoneDialogColors] that will be used to resolve the colors used for this
  *   [OpenOnPhoneDialog].
  * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
- * @param durationMillis The duration in milliseconds for which the dialog is displayed. Defaults to
- *   [OpenOnPhoneDialogDefaults.DurationMillis].
+ * @param durationMillis The duration in milliseconds for which the dialog is displayed. This value
+ *   will be adjusted by the accessibility manager according to the content displayed.
  * @param content A slot for displaying an icon inside the open on phone dialog, which can be
- *   animated. Defaults to [OpenOnPhoneDialogDefaults.OpenOnPhoneIcon].
+ *   animated. Defaults to [OpenOnPhoneDialogDefaults.Icon].
  */
 @Composable
 public fun OpenOnPhoneDialog(
-    show: Boolean,
+    visible: Boolean,
     onDismissRequest: () -> Unit,
+    curvedText: (CurvedScope.() -> Unit)?,
     modifier: Modifier = Modifier,
-    curvedText: (CurvedScope.() -> Unit)? = OpenOnPhoneDialogDefaults.curvedText(),
     colors: OpenOnPhoneDialogColors = OpenOnPhoneDialogDefaults.colors(),
     properties: DialogProperties = DialogProperties(),
     durationMillis: Long = OpenOnPhoneDialogDefaults.DurationMillis,
-    content: @Composable BoxScope.() -> Unit = OpenOnPhoneDialogDefaults.OpenOnPhoneIcon,
+    content: @Composable () -> Unit = { OpenOnPhoneDialogDefaults.Icon() },
 ) {
     val a11yFullDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
@@ -114,113 +122,191 @@ public fun OpenOnPhoneDialog(
             containsControls = false,
         ) ?: durationMillis
 
-    LaunchedEffect(show, a11yFullDurationMillis) {
-        if (show) {
+    LaunchedEffect(visible, a11yFullDurationMillis) {
+        if (visible) {
             delay(a11yFullDurationMillis)
             onDismissRequest()
         }
     }
     Dialog(
-        visible = show,
+        visible = visible,
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {
-        var progress by remember { mutableFloatStateOf(0f) }
-        val progressAnimatable = remember { Animatable(0f) }
-        val alphaAnimatable = remember { Animatable(0f) }
+        OpenOnPhoneDialogContent(
+            curvedText = curvedText,
+            durationMillis = a11yFullDurationMillis,
+            colors = colors,
+            content = content
+        )
+    }
+}
 
-        var finalAnimation by remember { mutableStateOf(false) }
+/**
+ * This composable provides the content for an [OpenOnPhoneDialog] that displays an animated icon
+ * with curved text at the bottom.
+ *
+ * Prefer using [OpenOnPhoneDialog] directly, which provides built-in animations when showing/hiding
+ * the dialog. This composable may be used to provide the content for an openOnPhone dialog if
+ * custom show/hide animations are required.
+ *
+ * Example of an [OpenOnPhoneDialog] usage:
+ *
+ * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
+ * @param curvedText A slot for displaying curved text content which will be shown along the bottom
+ *   edge of the dialog. We recommend using [openOnPhoneDialogCurvedText] for this parameter, which
+ *   will give the default sweep angle and padding, and [OpenOnPhoneDialogDefaults.curvedTextStyle]
+ *   as the style.
+ * @param durationMillis The duration in milliseconds for which the progress indicator inside of
+ *   this content is animated. This value should be previously adjusted by the accessibility manager
+ *   according to the content displayed. See [OpenOnPhoneDialog] implementation for more details.
+ * @param modifier Modifier to be applied to the openOnPhone content.
+ * @param colors [OpenOnPhoneDialogColors] that will be used to resolve the colors used for this
+ *   [OpenOnPhoneDialog].
+ * @param content A slot for displaying an icon inside the open on phone dialog, which can be
+ *   animated. Defaults to [OpenOnPhoneDialogDefaults.Icon].
+ */
+@Composable
+public fun OpenOnPhoneDialogContent(
+    curvedText: (CurvedScope.() -> Unit)?,
+    durationMillis: Long,
+    modifier: Modifier = Modifier,
+    colors: OpenOnPhoneDialogColors = OpenOnPhoneDialogDefaults.colors(),
+    content: @Composable () -> Unit
+): Unit {
+    var progress by remember { mutableFloatStateOf(0f) }
+    val progressAnimatable = remember { Animatable(0f) }
+    val alphaAnimatable = remember { Animatable(0f) }
 
-        val finalAnimationDuration = DurationLong2
-        val progressDuration = a11yFullDurationMillis - finalAnimationDuration
+    var finalAnimation by remember { mutableStateOf(false) }
 
-        val alphaAnimationSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
-        val reduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val finalAnimationDuration = DurationLong2
+    val progressDuration = durationMillis - finalAnimationDuration
 
-        LaunchedEffect(a11yFullDurationMillis) {
-            launch {
-                animatedDelay(DurationShort3.toLong(), reduceMotionEnabled)
-                alphaAnimatable.animateTo(1f, alphaAnimationSpec)
-            }
-            launch {
-                if (!reduceMotionEnabled) {
-                    progressAnimatable.animateTo(
-                        targetValue = 1f,
-                        animationSpec =
-                            tween(durationMillis = progressDuration.toInt(), easing = LinearEasing),
-                    ) {
-                        progress = value
-                    }
-                    finalAnimation = true
+    val alphaAnimationSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+    val reduceMotionEnabled = LocalReduceMotion.current
+
+    LaunchedEffect(durationMillis) {
+        launch {
+            animatedDelay(DurationShort3.toLong(), reduceMotionEnabled)
+            alphaAnimatable.animateTo(1f, alphaAnimationSpec)
+        }
+        launch {
+            if (!reduceMotionEnabled) {
+                progressAnimatable.animateTo(
+                    targetValue = 1f,
+                    animationSpec =
+                        tween(durationMillis = progressDuration.toInt(), easing = LinearEasing),
+                ) {
+                    progress = value
                 }
+                finalAnimation = true
             }
         }
+    }
 
-        val colorReversalAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Color>()
-        val sizeAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
-        val progressAlphaAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val colorReversalAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Color>()
+    val sizeAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val progressAlphaAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
 
-        val sizeAnimationFraction =
-            animateFloatAsState(if (finalAnimation) 0f else 1f, sizeAnimationSpec)
-        val progressAlphaAnimationFraction =
-            animateFloatAsState(if (finalAnimation) 0f else 1f, progressAlphaAnimationSpec)
-        val iconColor =
-            animateColorAsState(
-                if (finalAnimation) colors.iconContainerColor else colors.iconColor,
-                colorReversalAnimationSpec
-            )
-        val iconContainerColor =
-            animateColorAsState(
-                if (finalAnimation) colors.iconColor else colors.iconContainerColor,
-                colorReversalAnimationSpec
-            )
+    val sizeAnimationFraction =
+        animateFloatAsState(if (finalAnimation) 0f else 1f, sizeAnimationSpec)
+    val progressAlphaAnimationFraction =
+        animateFloatAsState(if (finalAnimation) 0f else 1f, progressAlphaAnimationSpec)
+    val iconColor =
+        animateColorAsState(
+            if (finalAnimation) colors.iconContainerColor else colors.iconColor,
+            colorReversalAnimationSpec
+        )
+    val iconContainerColor =
+        animateColorAsState(
+            if (finalAnimation) colors.iconColor else colors.iconContainerColor,
+            colorReversalAnimationSpec
+        )
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            val topPadding = screenHeightDp() * HeightPaddingFraction
-            val size = screenWidthDp() * SizeFraction
-            Box(
+    Box(modifier = modifier.fillMaxSize()) {
+        val topPadding = screenHeightDp() * HeightPaddingFraction
+        val size = screenWidthDp() * SizeFraction
+        Box(
+            modifier =
                 Modifier.padding(top = topPadding.dp).size(size.dp).align(Alignment.TopCenter),
-            ) {
-                iconContainer(
-                    iconContainerColor = iconContainerColor.value,
-                    progressIndicatorColors =
-                        ProgressIndicatorDefaults.colors(
-                            SolidColor(colors.progressIndicatorColor),
-                            SolidColor(colors.progressTrackColor)
-                        ),
-                    sizeAnimationFraction = sizeAnimationFraction,
-                    progressAlphaAnimationFraction = progressAlphaAnimationFraction,
-                    progress = { progress }
-                )()
-                CompositionLocalProvider(LocalContentColor provides iconColor.value) { content() }
-            }
-            CompositionLocalProvider(LocalContentColor provides colors.textColor) {
-                curvedText?.let {
-                    CurvedLayout(
-                        modifier = Modifier.graphicsLayer { alpha = alphaAnimatable.value },
-                        anchor = 90f,
-                        contentBuilder = curvedText
-                    )
-                }
+            contentAlignment = Alignment.Center
+        ) {
+            iconAndProgressContainer(
+                iconContainerColor = iconContainerColor.value,
+                progressIndicatorColors =
+                    ProgressIndicatorDefaults.colors(
+                        SolidColor(colors.progressIndicatorColor),
+                        SolidColor(colors.progressTrackColor)
+                    ),
+                sizeAnimationFraction = sizeAnimationFraction,
+                progressAlphaAnimationFraction = progressAlphaAnimationFraction,
+                progress = { progress }
+            )()
+            CompositionLocalProvider(LocalContentColor provides iconColor.value, content)
+        }
+        CompositionLocalProvider(LocalContentColor provides colors.textColor) {
+            curvedText?.let {
+                CurvedLayout(
+                    modifier = Modifier.graphicsLayer { alpha = alphaAnimatable.value },
+                    anchor = 90f,
+                    angularDirection = CurvedDirection.Angular.Reversed,
+                    contentBuilder = curvedText
+                )
             }
         }
     }
 }
 
+/**
+ * A customized variation of [androidx.wear.compose.material3.curvedText] that displays text along a
+ * curved path. This variation adopts suitable sweep angle and padding for use in
+ * [OpenOnPhoneDialog].
+ *
+ * @param text The text to display.
+ * @param style The style to apply to the text. It is recommended to use
+ *   [OpenOnPhoneDialogDefaults.curvedTextStyle] for curved text in [OpenOnPhoneDialog].
+ */
+public fun CurvedScope.openOnPhoneDialogCurvedText(
+    text: String,
+    style: CurvedTextStyle,
+): Unit =
+    curvedText(
+        text = text,
+        style = style,
+        maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
+        modifier = CurvedModifier.padding(PaddingDefaults.edgePadding)
+    )
+
 /** Contains the default values used by [OpenOnPhoneDialog]. */
 public object OpenOnPhoneDialogDefaults {
+
+    /** The default style for curved text content. */
+    public val curvedTextStyle: CurvedTextStyle
+        @Composable get() = CurvedTextStyle(MaterialTheme.typography.titleLarge)
+
+    /** The default message for an [OpenOnPhoneDialog]. */
+    public val text: String
+        @Composable get() = LocalContext.current.getString(R.string.wear_m3c_open_on_phone)
 
     /**
      * A default composable used in [OpenOnPhoneDialog] that displays an open on phone icon with an
      * animation.
+     *
+     * @param modifier Modifier to be applied to the icon.
+     * @param contentDescription The content description for the icon.
      */
     @OptIn(ExperimentalAnimationGraphicsApi::class)
-    public val OpenOnPhoneIcon: @Composable BoxScope.() -> Unit = {
+    @Composable
+    public fun Icon(
+        modifier: Modifier = Modifier,
+        contentDescription: String = iconContentDescription
+    ) {
         val animation =
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_open_on_phone_animation)
         var atEnd by remember { mutableStateOf(false) }
-        val reduceMotionEnabled = LocalReduceMotion.current.enabled()
+        val reduceMotionEnabled = LocalReduceMotion.current
 
         LaunchedEffect(Unit) {
             animatedDelay(IconDelay, reduceMotionEnabled)
@@ -228,31 +314,14 @@ public object OpenOnPhoneDialogDefaults {
         }
         Icon(
             painter = rememberAnimatedVectorPainter(animation, atEnd),
-            contentDescription = null,
-            modifier = Modifier.size(IconSize).align(Alignment.Center),
+            contentDescription = contentDescription,
+            modifier = modifier.size(IconSize)
         )
     }
 
-    /**
-     * A default composable that displays text along a curved path, used in [OpenOnPhoneDialog].
-     *
-     * @param text The text to display. Defaults to an open on phone message.
-     * @param style The style to apply to the text. Defaults to
-     *   CurvedTextStyle(MaterialTheme.typography.titleLarge).
-     */
-    @Composable
-    public fun curvedText(
-        text: String = LocalContext.current.resources.getString(R.string.wear_m3c_open_on_phone),
-        style: CurvedTextStyle = CurvedTextStyle(MaterialTheme.typography.titleLarge)
-    ): CurvedScope.() -> Unit = {
-        curvedText(
-            text = text,
-            style = style,
-            maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-            modifier = CurvedModifier.padding(PaddingDefaults.edgePadding),
-            angularDirection = CurvedDirection.Angular.Reversed
-        )
-    }
+    /** The default content description for the open on phone icon */
+    public val iconContentDescription: String
+        @Composable get() = getString(OpenOnPhoneContentDescriptionIcon)
 
     /**
      * Creates a [OpenOnPhoneDialogColors] that represents the default colors used in
@@ -371,7 +440,7 @@ public class OpenOnPhoneDialogColors(
     }
 }
 
-private fun iconContainer(
+private fun iconAndProgressContainer(
     iconContainerColor: Color,
     progressIndicatorColors: ProgressIndicatorColors,
     sizeAnimationFraction: State<Float>,
@@ -393,13 +462,35 @@ private fun iconContainer(
                 clip = true
             }
             .background(iconContainerColor)
+            .align(Alignment.Center)
     )
 
-    CircularProgressIndicatorStatic(
-        modifier = Modifier.graphicsLayer { alpha = progressAlphaAnimationFraction.value },
+    IconContainerProgressIndicator(
         progress = progress,
+        progressAlpha = progressAlphaAnimationFraction.value,
         strokeWidth = strokeWidth,
         colors = progressIndicatorColors
+    )
+}
+
+@Composable
+private fun IconContainerProgressIndicator(
+    progress: () -> Float,
+    progressAlpha: Float,
+    colors: ProgressIndicatorColors,
+    strokeWidth: Dp,
+) {
+    Spacer(
+        Modifier.fillMaxSize()
+            .focusable()
+            .graphicsLayer { alpha = progressAlpha }
+            .drawBehind {
+                drawCircularProgressIndicator(
+                    progress = progress(),
+                    strokeWidth = strokeWidth,
+                    colors = colors,
+                )
+            }
     )
 }
 

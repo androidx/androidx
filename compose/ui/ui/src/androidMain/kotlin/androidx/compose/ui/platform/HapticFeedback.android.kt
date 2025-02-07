@@ -42,6 +42,8 @@ internal class DefaultHapticFeedback(private val view: View) : HapticFeedback {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
             HapticFeedbackType.GestureThresholdActivate ->
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+            HapticFeedbackType.KeyboardTap ->
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             HapticFeedbackType.LongPress ->
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             HapticFeedbackType.Reject -> view.performHapticFeedback(HapticFeedbackConstants.REJECT)

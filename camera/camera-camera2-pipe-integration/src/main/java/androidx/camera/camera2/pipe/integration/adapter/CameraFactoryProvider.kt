@@ -96,9 +96,6 @@ public class CameraFactoryProvider(
         Debug.traceStart { "Create CameraPipe" }
         val timeSource = SystemTimeSource()
         val start = Timestamps.now(timeSource)
-        // Enable pruning device manager when tested in the MH lab.
-        val usePruningDeviceManager =
-            android.util.Log.isLoggable(CAMERA_PIPE_MH_FLAG, android.util.Log.DEBUG)
 
         val cameraPipe =
             CameraPipe(
@@ -110,16 +107,11 @@ public class CameraFactoryProvider(
                             sharedInteropCallbacks.sessionStateCallback,
                             openRetryMaxTimeout
                         ),
-                    usePruningDeviceManager = usePruningDeviceManager
+                    usePruningDeviceManager = true
                 )
             )
         Log.debug { "Created CameraPipe in ${start.measureNow(timeSource).formatMs()}" }
         Debug.traceStop()
         return cameraPipe
-    }
-
-    private companion object {
-        // Flag set when being tested in the lab. Refer to CameraPipeConfigTestRule for more info.
-        const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
     }
 }

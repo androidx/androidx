@@ -38,9 +38,13 @@ import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.fil
 import androidx.wear.protolayout.material3.DataCardStyle.Companion.extraLargeDataCardStyle
 import androidx.wear.protolayout.material3.DataCardStyle.Companion.largeCompactDataCardStyle
 import androidx.wear.protolayout.material3.GraphicDataCardStyle.Companion.largeGraphicDataCardStyle
+import androidx.wear.protolayout.material3.MaterialScope
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MAX_PRIMARY_LAYOUT_MARGIN
 import androidx.wear.protolayout.material3.TitleCardStyle.Companion.largeTitleCardStyle
 import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.appCard
+import androidx.wear.protolayout.material3.avatarButton
+import androidx.wear.protolayout.material3.avatarImage
 import androidx.wear.protolayout.material3.backgroundImage
 import androidx.wear.protolayout.material3.button
 import androidx.wear.protolayout.material3.buttonGroup
@@ -145,7 +149,7 @@ fun topLevelLayout(
                                 ModifiersBuilders.Modifiers.Builder()
                                     .setBackground(
                                         ModifiersBuilders.Background.Builder()
-                                            .setCorner(shapes.full)
+                                            .setCorner(shapes.small)
                                             .build()
                                     )
                                     .build()
@@ -154,6 +158,8 @@ fun topLevelLayout(
                     }
                 }
             },
+            // Adjust margins as the corner of the inner content is on the square side.
+            margins = MAX_PRIMARY_LAYOUT_MARGIN,
             bottomSlot = {
                 iconEdgeButton(
                     onClick = clickable,
@@ -462,6 +468,16 @@ fun pillShapeButtonsSample(
             }
         )
     }
+
+@Sampled
+fun MaterialScope.avatarButtonSample() =
+    avatarButton(
+        onClick = clickable(),
+        modifier = LayoutModifier.contentDescription("Pill button"),
+        avatarContent = { avatarImage("id") },
+        labelContent = { text("Primary label".layoutString) },
+        secondaryLabelContent = { text("Secondary label".layoutString) },
+    )
 
 @Sampled
 fun compactButtonsSample(

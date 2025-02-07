@@ -32,7 +32,6 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.LongSparseArray
 import android.util.SparseArray
-import android.view.FocusFinder
 import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
@@ -136,6 +135,8 @@ import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
 import androidx.compose.ui.input.key.Key.Companion.DirectionRight
 import androidx.compose.ui.input.key.Key.Companion.DirectionUp
 import androidx.compose.ui.input.key.Key.Companion.Escape
+import androidx.compose.ui.input.key.Key.Companion.NavigateNext
+import androidx.compose.ui.input.key.Key.Companion.NavigatePrevious
 import androidx.compose.ui.input.key.Key.Companion.NumPadEnter
 import androidx.compose.ui.input.key.Key.Companion.PageDown
 import androidx.compose.ui.input.key.Key.Companion.PageUp
@@ -176,6 +177,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.node.handleOrThrow
 import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
@@ -348,7 +350,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             val focusedRect = onFetchFocusRect()?.toAndroidRect()
 
             val nextView =
-                FocusFinder.getInstance().let {
+                FocusFinderCompat.instance.let {
                     if (focusedRect == null) {
                         it.findNextFocus(this, findFocus(), direction)
                     } else {
@@ -369,30 +371,17 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
         val currentFocus = root.findFocus() ?: error("view hasFocus but root can't find it")
 
-        val focusFinder = FocusFinder.getInstance()
-        val nextView: View?
+        val focusFinder = FocusFinderCompat.instance
+        val nextView = focusFinder.findNextFocus(root, currentFocus, direction)
         val focusedRect: Rect?
         if (focusDirection.is1dFocusSearch() && androidViewsHandler.hasFocus()) {
             focusedRect = null
-            if (SDK_INT >= O) {
-                // On newer devices, the focus is normal and we can expect forward/next to work
-                nextView = focusFinder.findNextFocus(root, currentFocus, direction)
-            } else {
-                // On older devices, FocusFinder doesn't properly order Views, so we have to use
-                // a copy of the focus finder the corrects the order
-                nextView = FocusFinderCompat.instance.findNextFocus1d(root, currentFocus, direction)
-            }
         } else {
             focusedRect = onFetchFocusRect()?.toAndroidRect()
-            nextView = focusFinder.findNextFocusFromRect(root, focusedRect, direction)
-            nextView?.getLocationInWindow(tmpPositionArray)
-            val nextPositionX = tmpPositionArray[0]
-            val nextPositionY = tmpPositionArray[1]
-            getLocationInWindow(tmpPositionArray)
-            focusedRect?.offset(
-                tmpPositionArray[0] - nextPositionX,
-                tmpPositionArray[1] - nextPositionY
-            )
+            if (nextView != null && focusedRect != null) {
+                root.offsetDescendantRectToMyCoords(this, focusedRect)
+                root.offsetRectIntoDescendantCoords(nextView, focusedRect)
+            }
         }
 
         // is it part of the compose hierarchy?
@@ -464,13 +453,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 val nextView = findNextNonChildView(androidDirection).takeIf { it != this }
                 if (nextView != null) {
                     val androidRect = checkNotNull(focusedRect?.toAndroidRect()) { "Invalid rect" }
-                    nextView.getLocationInWindow(tmpPositionArray)
-                    val nextX = tmpPositionArray[0]
-                    val nextY = tmpPositionArray[1]
-                    getLocationInWindow(tmpPositionArray)
-                    val currentX = tmpPositionArray[0]
-                    val currentY = tmpPositionArray[1]
-                    androidRect.offset(currentX - nextX, currentY - nextY)
+                    val rootView = rootView as ViewGroup
+                    rootView.offsetDescendantRectToMyCoords(this, androidRect)
+                    rootView.offsetRectIntoDescendantCoords(nextView, androidRect)
                     if (nextView.requestInteropFocus(androidDirection, androidRect)) {
                         return@onKeyEvent true
                     }
@@ -498,7 +483,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private fun findNextNonChildView(direction: Int): View? {
         var currentView: View? = this
-        val focusFinder = FocusFinder.getInstance()
+        val focusFinder = FocusFinderCompat.instance
         while (currentView != null) {
             currentView = focusFinder.findNextFocus(rootView as ViewGroup, currentView, direction)
             if (currentView != null && !containsDescendant(currentView)) return currentView
@@ -903,6 +888,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private val matrixToWindow =
         if (SDK_INT < Q) CalculateMatrixToWindowApi21(tmpMatrix) else CalculateMatrixToWindowApi29()
 
+    private var testExceptionHandler: RootForTest.ExceptionHandler? = null
+
     /**
      * Keyboard modifiers state might be changed when window is not focused, so window doesn't
      * receive any key events. This flag is set when window focus changes. Then we can rely on it
@@ -996,7 +983,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
 
         // Find the next subview if any using FocusFinder.
-        val nextView = FocusFinder.getInstance().findNextFocus(this, focused, direction)
+        val nextView = FocusFinderCompat.instance.findNextFocus(this, focused, direction)
 
         // Find the next composable using FocusOwner.
         val focusedBounds =
@@ -1622,6 +1609,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         measureAndLayout()
     }
 
+    override fun setExceptionHandler(exceptionHandler: RootForTest.ExceptionHandler?) {
+        testExceptionHandler = exceptionHandler
+        measureAndLayoutDelegate.testExceptionHandler = exceptionHandler
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         trace("AndroidOwner:onMeasure") {
             if (!isAttachedToWindow) {
@@ -1853,6 +1845,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
         return when (keyEvent.key) {
+            NavigatePrevious -> Previous
+            NavigateNext -> Next
             Tab -> if (keyEvent.isShiftPressed) Previous else Next
             DirectionRight -> Right
             DirectionLeft -> Left
@@ -1884,33 +1878,37 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // we don't have to observe here because the root has a layer modifier
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
-        canvasHolder.drawInto(canvas) {
-            root.draw(
-                canvas = this,
-                graphicsLayer = null // the root node will provide the root graphics layer
-            )
-        }
-
-        if (dirtyLayers.isNotEmpty()) {
-            for (i in 0 until dirtyLayers.size) {
-                val layer = dirtyLayers[i]
-                layer.updateDisplayList()
+        try {
+            canvasHolder.drawInto(canvas) {
+                root.draw(
+                    canvas = this,
+                    graphicsLayer = null // the root node will provide the root graphics layer
+                )
             }
+
+            if (dirtyLayers.isNotEmpty()) {
+                for (i in 0 until dirtyLayers.size) {
+                    val layer = dirtyLayers[i]
+                    layer.updateDisplayList()
+                }
+            }
+
+            if (ViewLayer.shouldUseDispatchDraw) {
+                // We must update the display list of all children using dispatchDraw()
+                // instead of updateDisplayList(). But since we don't want to actually draw
+                // the contents, we will clip out everything from the canvas.
+                val saveCount = canvas.save()
+                canvas.clipRect(0f, 0f, 0f, 0f)
+
+                super.dispatchDraw(canvas)
+                canvas.restoreToCount(saveCount)
+            }
+
+            dirtyLayers.clear()
+            isDrawingContent = false
+        } catch (e: Throwable) {
+            testExceptionHandler.handleOrThrow(e)
         }
-
-        if (ViewLayer.shouldUseDispatchDraw) {
-            // We must update the display list of all children using dispatchDraw()
-            // instead of updateDisplayList(). But since we don't want to actually draw
-            // the contents, we will clip out everything from the canvas.
-            val saveCount = canvas.save()
-            canvas.clipRect(0f, 0f, 0f, 0f)
-
-            super.dispatchDraw(canvas)
-            canvas.restoreToCount(saveCount)
-        }
-
-        dirtyLayers.clear()
-        isDrawingContent = false
 
         // updateDisplayList operations performed above (during root.draw and during the explicit
         // layer.updateDisplayList() calls) can result in the same layers being invalidated. These

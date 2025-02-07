@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -73,7 +73,7 @@ android {
 
 androidx {
     name = "Graphics Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"

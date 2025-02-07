@@ -23,7 +23,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -58,7 +58,7 @@ dependencies {
     implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
-    def extensions_version = "androidx.window.extensions:extensions:1.4.0-beta01"
+    def extensions_version = "androidx.window.extensions:extensions:1.4.0"
     // A compile only dependency on extensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)
@@ -102,7 +102,7 @@ dependencies {
 
 androidx {
     name = "WindowManager"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."

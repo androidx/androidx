@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -87,8 +87,8 @@ dependencies {
 android {
     compileSdk = 35
 
-    lintOptions {
-        enable("CameraXQuirksClassDetector")
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
     namespace = "androidx.camera.camera2.pipe.integration"
 }
@@ -104,7 +104,7 @@ ksp {
 
 androidx {
     name = "Camera2 Pipe Integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
             "and reliable camera foundation that enables great camera driven experiences across " +

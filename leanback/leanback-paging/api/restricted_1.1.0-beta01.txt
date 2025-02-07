@@ -22,7 +22,7 @@ package androidx.leanback.paging {
     method public androidx.paging.ItemSnapshotList<T> snapshot();
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
+    property public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
   }
 
 }

@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +52,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.appfunctions:appfunctions-app-compiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2024"
     description = "AppFunction App Compiler"
     kotlinTarget = KotlinTarget.KOTLIN_1_9

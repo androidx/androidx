@@ -24,7 +24,7 @@ package androidx.sqlite
  *
  * See also [Database Connection](https://www.sqlite.org/c3ref/sqlite3.html)
  */
-@Suppress("NotCloseable", "AcronymName") // SQL is a known term and should remain capitalized
+@Suppress("NotCloseable")
 public interface SQLiteConnection : AutoCloseable {
     /**
      * Prepares a new SQL statement.

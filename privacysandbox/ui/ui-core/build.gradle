@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,11 +48,12 @@ android {
     buildFeatures {
         aidl = true
     }
+    compileSdk = 35
 }
 
 androidx {
     name = "androidx.privacysandbox.ui:ui-core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
     legacyDisableKotlinStrictApiMode = true

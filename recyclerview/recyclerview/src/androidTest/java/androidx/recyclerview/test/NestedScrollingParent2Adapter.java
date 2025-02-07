@@ -18,9 +18,10 @@ package androidx.recyclerview.test;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
+
+import org.jspecify.annotations.NonNull;
 
 public class NestedScrollingParent2Adapter implements NestedScrollingParent2 {
 
@@ -46,7 +47,7 @@ public class NestedScrollingParent2Adapter implements NestedScrollingParent2 {
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-            @NonNull int[] consumed, @ViewCompat.NestedScrollType int type) {
+            int @NonNull [] consumed, @ViewCompat.NestedScrollType int type) {
     }
 
     @Override
@@ -61,7 +62,7 @@ public class NestedScrollingParent2Adapter implements NestedScrollingParent2 {
     }
 
     @Override
-    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, int @NonNull [] consumed) {
         onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 

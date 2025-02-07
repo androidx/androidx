@@ -637,6 +637,7 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static interface LayoutElementBuilders.FontSetting {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting roundness(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting tabularNum();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(@IntRange(from=1, to=1000) int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting width(@FloatRange(from=25, to=200) float);
@@ -1386,12 +1387,16 @@ package androidx.wear.protolayout {
     method public java.util.Map<androidx.wear.protolayout.expression.AppDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!> getKeyToValueMapping();
     method public String getLastClickableId();
     method public static int getMaxStateEntryCount();
+    method public androidx.wear.protolayout.expression.DynamicDataMap getStateMap();
   }
 
   public static final class StateBuilders.State.Builder {
     ctor public StateBuilders.State.Builder();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.StateBuilders.State.Builder addToStateMap(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object!>...);
     method public androidx.wear.protolayout.StateBuilders.State build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.StateBuilders.State.Builder setStateMap(androidx.wear.protolayout.expression.DynamicDataMap);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.StateBuilders.State.Builder setStateMap(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object!>...);
   }
 
   public final class TimelineBuilders {
@@ -1436,11 +1441,11 @@ package androidx.wear.protolayout {
   public final class TriggerBuilders {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnLoadTrigger();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnVisibleOnceTrigger();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnVisibleOnceTrigger();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnVisibleTrigger();
   }
 
-  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class TriggerBuilders.OnVisibleOnceTrigger implements androidx.wear.protolayout.TriggerBuilders.Trigger {
+  @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class TriggerBuilders.OnVisibleOnceTrigger implements androidx.wear.protolayout.TriggerBuilders.Trigger {
   }
 
   public static final class TriggerBuilders.OnVisibleOnceTrigger.Builder {
@@ -1527,7 +1532,7 @@ package androidx.wear.protolayout {
 package androidx.wear.protolayout.layout {
 
   public final class TextKt {
-    method public static androidx.wear.protolayout.LayoutElementBuilders.Text basicText(androidx.wear.protolayout.types.LayoutString text, optional androidx.wear.protolayout.LayoutElementBuilders.FontStyle? fontStyle, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional int maxLines, optional int multilineAlignment, optional int overflow, optional @Dimension(unit=androidx.annotation.Dimension.Companion.SP) float lineHeight);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.Text basicText(androidx.wear.protolayout.types.LayoutString text, optional androidx.wear.protolayout.LayoutElementBuilders.FontStyle? fontStyle, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional int maxLines, optional int alignment, optional int overflow, optional @Dimension(unit=androidx.annotation.Dimension.Companion.SP) float lineHeight);
     method public static androidx.wear.protolayout.LayoutElementBuilders.FontStyle fontStyle(optional @Dimension(unit=androidx.annotation.Dimension.Companion.SP) float size, optional boolean italic, optional boolean underline, optional androidx.wear.protolayout.types.LayoutColor? color, optional int weight, optional float letterSpacingEm, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) java.util.List<java.lang.Float> additionalSizesSp, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) java.util.List<? extends androidx.wear.protolayout.LayoutElementBuilders.FontSetting> settings, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) java.util.List<java.lang.String> preferredFontFamilies);
   }
 
@@ -1559,22 +1564,22 @@ package androidx.wear.protolayout.modifiers {
     method public static androidx.wear.protolayout.ModifiersBuilders.Clickable clickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) float minClickableWidth, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) float minClickableHeight);
     method public static androidx.wear.protolayout.modifiers.LayoutModifier clickable(androidx.wear.protolayout.modifiers.LayoutModifier, optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id);
     method public static androidx.wear.protolayout.modifiers.LayoutModifier clickable(androidx.wear.protolayout.modifiers.LayoutModifier, androidx.wear.protolayout.ModifiersBuilders.Clickable clickable);
-    method public static androidx.wear.protolayout.ActionBuilders.LoadAction loadAction(optional kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.StateBuilders.State.Builder,kotlin.Unit>? requestedState);
+    method public static androidx.wear.protolayout.ActionBuilders.LoadAction loadAction(optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.expression.DynamicDataMap? requestedStateMap);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static androidx.wear.protolayout.modifiers.LayoutModifier minimumTouchTargetSize(androidx.wear.protolayout.modifiers.LayoutModifier, @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minWidth, @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minHeight);
   }
 
   public interface LayoutModifier {
-    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
+    method public <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
     method public default infix androidx.wear.protolayout.modifiers.LayoutModifier then(androidx.wear.protolayout.modifiers.LayoutModifier other);
     field public static final androidx.wear.protolayout.modifiers.LayoutModifier.Companion Companion;
   }
 
   public static final class LayoutModifier.Companion implements androidx.wear.protolayout.modifiers.LayoutModifier {
-    method public <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
+    method public <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
   }
 
   public static interface LayoutModifier.Element extends androidx.wear.protolayout.modifiers.LayoutModifier {
-    method public default <R> R foldIn(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
+    method public default <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super R,? super androidx.wear.protolayout.modifiers.LayoutModifier.Element,? extends R> operation);
   }
 
   public final class ModifierAppliersKt {
@@ -1612,8 +1617,8 @@ package androidx.wear.protolayout.types {
     ctor public LayoutColor(@ColorInt int staticArgb, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? dynamicArgb);
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? getDynamicArgb();
     method public int getStaticArgb();
-    property @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public final androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? dynamicArgb;
-    property @ColorInt public final int staticArgb;
+    property @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? dynamicArgb;
+    property @ColorInt public int staticArgb;
   }
 
   public final class LayoutColorUtil {
@@ -1621,6 +1626,8 @@ package androidx.wear.protolayout.types {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.types.LayoutColor createLayoutColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, @ColorInt long staticArgb);
     method public static androidx.wear.protolayout.types.LayoutColor createLayoutColor(int);
     method public static androidx.wear.protolayout.types.LayoutColor createLayoutColor(long);
+    property public static androidx.wear.protolayout.types.LayoutColor argb;
+    property public static androidx.wear.protolayout.types.LayoutColor argb;
   }
 
   public final class LayoutString {
@@ -1629,9 +1636,9 @@ package androidx.wear.protolayout.types {
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString? getDynamicValue();
     method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? getLayoutConstraint();
     method public String getStaticValue();
-    property public final androidx.wear.protolayout.expression.DynamicBuilders.DynamicString? dynamicValue;
-    property public final androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? layoutConstraint;
-    property public final String staticValue;
+    property public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString? dynamicValue;
+    property public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? layoutConstraint;
+    property public String staticValue;
   }
 
   public final class LayoutStringUtil {
@@ -1640,6 +1647,7 @@ package androidx.wear.protolayout.types {
     method public static androidx.wear.protolayout.types.LayoutString createLayoutString(String);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint stringLayoutConstraint(String longestPattern);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint stringLayoutConstraint(String longestPattern, optional int alignment);
+    property public static androidx.wear.protolayout.types.LayoutString layoutString;
   }
 
 }

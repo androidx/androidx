@@ -25,6 +25,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
@@ -35,11 +36,12 @@ import kotlinx.coroutines.launch
 
 /** A single PDF page that knows how to render and draw itself */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@MainThread
 internal class Page(
     /** The 0-based index of this page in the PDF */
     private val pageNum: Int,
     /** The size of this PDF page, in content coordinates */
-    pageSizePx: Point,
+    private val pageSize: Point,
     /** The [PdfDocument] this [Page] belongs to */
     private val pdfDocument: PdfDocument,
     /** The [CoroutineScope] to use for background work */
@@ -48,11 +50,11 @@ internal class Page(
      * The maximum size of any single [android.graphics.Bitmap] we render for a page, i.e. the
      * threshold for tiled rendering
      */
-    maxBitmapSizePx: Point,
+    private val maxBitmapSizePx: Point,
     /** Whether touch exploration is enabled */
     private val isTouchExplorationEnabled: Boolean,
     /** A function to call when the [PdfView] hosting this [Page] ought to invalidate itself */
-    onPageUpdate: () -> Unit,
+    private val onPageUpdate: () -> Unit,
     /** A function to call when page text is ready (invoked with page number). */
     private val onPageTextReady: ((Int) -> Unit)
 ) {
@@ -61,15 +63,7 @@ internal class Page(
     }
 
     /** Handles rendering bitmaps for this page using [PdfDocument] */
-    private val bitmapFetcher =
-        BitmapFetcher(
-            pageNum,
-            pageSizePx,
-            pdfDocument,
-            backgroundScope,
-            maxBitmapSizePx,
-            onPageUpdate,
-        )
+    private var bitmapFetcher: BitmapFetcher? = null
 
     // Pre-allocated values to avoid allocations at drawing time
     private val highlightPaint =
@@ -91,19 +85,47 @@ internal class Page(
     internal var links: PdfDocument.PdfPageLinks? = null
         private set
 
-    fun updateState(zoom: Float, isFlinging: Boolean = false) {
-        bitmapFetcher.isActive = true
-        bitmapFetcher.onScaleChanged(zoom)
-        if (!isFlinging) {
+    /**
+     * Puts this page into a "visible" state, and / or updates various properties related to the
+     * page's visible state
+     *
+     * @param zoom the current scale
+     * @param viewArea the portion of the page that's visible, in content coordinates
+     * @param stablePosition true if position is not actively changing, e.g. during a fling
+     */
+    fun setVisible(zoom: Float, viewArea: Rect, stablePosition: Boolean = true) {
+        if (bitmapFetcher == null) {
+            bitmapFetcher =
+                BitmapFetcher(
+                    pageNum,
+                    pageSize,
+                    pdfDocument,
+                    backgroundScope,
+                    maxBitmapSizePx,
+                    onPageUpdate
+                )
+        }
+        bitmapFetcher?.maybeFetchNewBitmaps(zoom, viewArea)
+        if (stablePosition) {
             maybeFetchLinks()
             if (isTouchExplorationEnabled) {
-                fetchPageText()
+                maybeFetchPageText()
             }
         }
     }
 
+    /**
+     * Puts this page into a "nearly visible" state, discarding only high res bitmaps and retaining
+     * lighter weight data in case the page becomes visible again
+     */
+    fun setNearlyVisible() {
+        bitmapFetcher?.discardAndCancelTileBitmaps()
+    }
+
+    /** Puts this page into an "invisible" state, i.e. retaining only the minimum data required */
     fun setInvisible() {
-        bitmapFetcher.isActive = false
+        bitmapFetcher?.close()
+        bitmapFetcher = null
         pageText = null
         fetchPageTextJob?.cancel()
         fetchPageTextJob = null
@@ -112,7 +134,7 @@ internal class Page(
         fetchLinksJob = null
     }
 
-    private fun fetchPageText() {
+    private fun maybeFetchPageText() {
         if (fetchPageTextJob?.isActive == true || pageText != null) return
 
         fetchPageTextJob =
@@ -127,7 +149,7 @@ internal class Page(
     }
 
     fun draw(canvas: Canvas, locationInView: Rect, highlights: List<Highlight>) {
-        val pageBitmaps = bitmapFetcher.pageContents
+        val pageBitmaps = bitmapFetcher?.pageBitmaps
         if (pageBitmaps == null) {
             canvas.drawRect(locationInView, BLANK_PAINT)
             return
@@ -163,7 +185,7 @@ internal class Page(
     }
 
     private fun draw(tileBoard: TileBoard, canvas: Canvas, locationInView: Rect) {
-        tileBoard.backgroundBitmap?.let {
+        tileBoard.fullPageBitmap?.let {
             canvas.drawBitmap(it, /* src= */ null, locationInView, BMP_PAINT)
         }
         for (tile in tileBoard.tiles) {
@@ -171,7 +193,7 @@ internal class Page(
                 canvas.drawBitmap(
                     bitmap, /* src */
                     null,
-                    locationForTile(tile, tileBoard.renderedScale, locationInView),
+                    locationForTile(tile, tileBoard.bitmapScale, locationInView),
                     BMP_PAINT
                 )
             }

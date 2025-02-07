@@ -21,9 +21,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 import java.util.Set;
@@ -83,8 +84,7 @@ public final class PreviewProgram extends BasePreviewProgram {
      * query and in creating a Cursor object, which is used to iterate through the rows in the
      * table.
      */
-    @NonNull
-    public static final String[] PROJECTION = getProjection();
+    public static final String @NonNull [] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;

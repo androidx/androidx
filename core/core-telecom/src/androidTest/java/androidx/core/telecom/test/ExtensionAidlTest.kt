@@ -18,6 +18,7 @@ package androidx.core.telecom.test
 
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ICallDetailsListener
+import androidx.core.telecom.extensions.ICallIconStateListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.ILocalSilenceStateListener
@@ -84,6 +85,15 @@ class ExtensionAidlTest {
             version: Int,
             actions: IntArray?,
             l: ILocalSilenceStateListener?
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun onCreateCallIconExtension(
+            version: Int,
+            actions: IntArray?,
+            remoteName: String,
+            l: ICallIconStateListener?
         ) {
             TODO("Not yet implemented")
         }

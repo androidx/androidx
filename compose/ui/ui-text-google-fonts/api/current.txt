@@ -5,8 +5,8 @@ package androidx.compose.ui.text.googlefonts {
     ctor public GoogleFont(String name, optional boolean bestEffort);
     method public boolean getBestEffort();
     method public String getName();
-    property public final boolean bestEffort;
-    property public final String name;
+    property public boolean bestEffort;
+    property public String name;
   }
 
   public static final class GoogleFont.Provider {

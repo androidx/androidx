@@ -31,6 +31,7 @@ import android.webkit.WebView;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.webkit.OutcomeReceiverCompat;
+import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.Profile;
 import androidx.webkit.ProfileStore;
 import androidx.webkit.ProxyConfig;
@@ -689,8 +690,9 @@ public class WebViewFeatureInternal {
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.WebViewCompat#prerenderUrlAsync(WebView, String,
-     * SpeculativeLoadingParameters, CancellationSignal, PrerenderOperationCallback)}}
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
+     * SpeculativeLoadingParameters, PrerenderOperationCallback)}}
      */
     public static final ApiFeature.NoFramework PRERENDER_WITH_URL =
             new ApiFeature.NoFramework(WebViewFeature.PRERENDER_WITH_URL,

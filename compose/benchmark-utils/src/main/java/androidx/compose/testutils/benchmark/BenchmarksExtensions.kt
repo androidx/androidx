@@ -61,7 +61,7 @@ fun ComposeBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> ComposeTestCase)
 
         var offset = 0
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 // toggle between 0 and 2
                 offset = abs(2 - offset)
                 requestLayout()
@@ -95,7 +95,7 @@ fun AndroidBenchmarkRule.benchmarkLayoutPerf(caseFactory: () -> AndroidTestCase)
 
         var offset = 0
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 // toggle between 0 and 2
                 offset = abs(2 - offset)
                 requestLayout()
@@ -112,12 +112,12 @@ fun AndroidBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> AndroidTestCase) {
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 invalidateViews()
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled { drawFinish() }
+            runWithMeasurementDisabled { drawFinish() }
         }
     }
 }
@@ -128,12 +128,12 @@ fun ComposeBenchmarkRule.benchmarkDrawPerf(caseFactory: () -> ComposeTestCase) {
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 invalidateViews()
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled { drawFinish() }
+            runWithMeasurementDisabled { drawFinish() }
         }
     }
 }
@@ -154,7 +154,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
         measureRepeatedOnUiThread {
-            runWithTimingDisabled { getTestCase().toggleState() }
+            runWithMeasurementDisabled { getTestCase().toggleState() }
             if (requireRecomposition) {
                 recomposeAssertHadChanges()
             } else {
@@ -183,7 +183,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
@@ -218,7 +218,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
@@ -254,7 +254,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 if (toggleCausesRecompose) {
                     recomposeAssertHadChanges()
@@ -268,7 +268,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled { drawFinish() }
+            runWithMeasurementDisabled { drawFinish() }
         }
     }
 }
@@ -281,7 +281,7 @@ T : ToggleableTestCase {
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled { getTestCase().toggleState() }
+            runWithMeasurementDisabled { getTestCase().toggleState() }
             measure()
         }
     }
@@ -295,7 +295,7 @@ T : ToggleableTestCase {
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 measure()
             }
@@ -312,14 +312,14 @@ T : ToggleableTestCase {
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 measure()
                 layout()
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled { drawFinish() }
+            runWithMeasurementDisabled { drawFinish() }
         }
     }
 }
@@ -351,7 +351,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             }
             measure()
             layout()
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 drawPrepare()
                 draw()
                 drawFinish()
@@ -386,7 +386,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkCompose(
                 assertNoPendingChanges()
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 measure()
                 layout()
                 drawPrepare()
@@ -413,7 +413,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().toggleState()
                 if (assertOneRecomposition) {
                     assertNoPendingChanges()
@@ -441,7 +441,7 @@ fun ComposeBenchmarkRule.benchmarkReuseFor(content: @Composable () -> Unit) {
         }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 getTestCase().clearContent()
                 doFramesUntilIdle()

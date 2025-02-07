@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,20 +38,20 @@ dependencies {
     androidTestImplementation(project(":webkit:integration-tests:common"))
 
     androidTestImplementation(libs.okhttpMockwebserver)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test:rules:1.6.1")
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
 
     // Hamcrest matchers:
-    androidTestImplementation(libs.bundles.espressoContrib)
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
 }
 
 androidx {
-    type = type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = type = SoftwareType.INTERNAL_TEST_LIBRARY
     additionalDeviceTestApkKeys.add("chrome")
 }

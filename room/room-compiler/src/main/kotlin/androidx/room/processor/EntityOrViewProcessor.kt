@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.EntityOrView
-import androidx.room.vo.Fields
+import androidx.room.vo.Properties
 
 interface EntityOrViewProcessor {
     fun process(): EntityOrView
@@ -43,13 +43,13 @@ private class NonEntityOrViewProcessor(
         DataClassProcessor.createFor(
                 context = context,
                 element = element,
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
+                bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
                 parent = null,
                 referenceStack = referenceStack
             )
             .process()
         return object : EntityOrView {
-            override val fields: Fields = Fields()
+            override val properties: Properties = Properties()
             override val tableName: String
                 get() = typeName.toString()
 

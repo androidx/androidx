@@ -138,9 +138,8 @@ class GltfEntityImplSplitEngine extends AndroidXrEntity implements GltfEntity {
     @Override
     public void dispose() {
         // TODO(b/377907379): - Punt this logic to the UI thread.
+        // Destroying the subspace will also destroy the underlying Impress nodes.
         mSplitEngineSubspaceManager.deleteSubspace(mSubspace.subspaceId);
-        mImpressApi.destroyImpressNode(mModelImpressNode);
-        mImpressApi.destroyImpressNode(mSubspaceImpressNode);
         super.dispose();
     }
 

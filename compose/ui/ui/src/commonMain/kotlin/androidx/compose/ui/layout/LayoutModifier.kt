@@ -244,9 +244,8 @@ private object MeasuringIntrinsics {
 fun Modifier.layout(measure: MeasureScope.(Measurable, Constraints) -> MeasureResult) =
     this then LayoutElement(measure)
 
-private data class LayoutElement(
-    val measure: MeasureScope.(Measurable, Constraints) -> MeasureResult
-) : ModifierNodeElement<LayoutModifierImpl>() {
+private class LayoutElement(val measure: MeasureScope.(Measurable, Constraints) -> MeasureResult) :
+    ModifierNodeElement<LayoutModifierImpl>() {
     override fun create() = LayoutModifierImpl(measure)
 
     override fun update(node: LayoutModifierImpl) {
@@ -256,6 +255,19 @@ private data class LayoutElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "layout"
         properties["measure"] = measure
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LayoutElement) return false
+
+        if (measure !== other.measure) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return measure.hashCode()
     }
 }
 

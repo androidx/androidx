@@ -16,9 +16,33 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common
 
+import android.content.Context
+import android.hardware.input.InputManager
+import android.view.InputDevice
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+
+fun getRotaryInputDevice(): Int {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    with(context.getSystemService(Context.INPUT_SERVICE) as InputManager) {
+        inputDeviceIds.forEach { deviceId ->
+            // To validate that we have a valid rotary device we need to:
+            // 1) check that we have a rotary device.
+            // 2) check that getScaledMaximumFlingVelocity method returns us a valid fling speed
+            if (
+                getInputDevice(deviceId)?.motionRanges?.find {
+                    it.source == InputDevice.SOURCE_ROTARY_ENCODER
+                } != null
+            )
+                return deviceId
+        }
+    }
+    return 0
+}
+
+fun hasRotaryInputDevice(): Boolean = getRotaryInputDevice() != 0
 
 internal const val CONTENT_DESCRIPTION = "find-me"
 

@@ -21,6 +21,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.runtime.internal.AnchorResourcesExhaustedException
+import androidx.xr.runtime.internal.HandJointType
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
@@ -28,6 +30,7 @@ import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,6 +81,19 @@ class OpenXrPerceptionManagerTest {
     }
 
     @Test
+    fun createAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+        underTest.update(XR_TIME)
+
+        // Number of calls comes from 'kAnchorResourcesLimit' defined in
+        // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+        repeat(5) { underTest.createAnchor(Pose()) }
+
+        assertThrows(AnchorResourcesExhaustedException::class.java) {
+            underTest.createAnchor(Pose())
+        }
+    }
+
+    @Test
     fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrManagerAndRunTest {
         underTest.update(XR_TIME)
 
@@ -102,6 +118,31 @@ class OpenXrPerceptionManagerTest {
         // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat((underTest.trackables.first() as OpenXrPlane).centerPose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
+    }
+
+    @Test
+    fun update_updatesHands() = initOpenXrManagerAndRunTest {
+        check(underTest.xrResources.updatables.size == 2)
+        check(!underTest.leftHand.isActive)
+        check(!underTest.rightHand.isActive)
+
+        underTest.update(XR_TIME)
+
+        // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
+        // they
+        // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
+        assertThat(underTest.leftHand.isActive).isTrue()
+        assertThat(underTest.leftHand.handJoints).hasSize(1)
+        assertThat(underTest.leftHand.handJoints[HandJointType.PALM]!!.rotation)
+            .isEqualTo(Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
+        assertThat(underTest.leftHand.handJoints[HandJointType.PALM]!!.translation)
+            .isEqualTo(Vector3(5.0f, 6.0f, 7.0f))
+        assertThat(underTest.rightHand.isActive).isTrue()
+        assertThat(underTest.rightHand.handJoints).hasSize(1)
+        assertThat(underTest.rightHand.handJoints[HandJointType.PALM]!!.rotation)
+            .isEqualTo(Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
+        assertThat(underTest.rightHand.handJoints[HandJointType.PALM]!!.translation)
+            .isEqualTo(Vector3(5.0f, 6.0f, 7.0f))
     }
 
     @Test
@@ -146,6 +187,19 @@ class OpenXrPerceptionManagerTest {
         // come from `kPose` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
         assertThat(anchor.pose)
             .isEqualTo(Pose(Vector3(0f, 0f, 2.0f), Quaternion(0f, 1.0f, 0f, 1.0f)))
+    }
+
+    @Test
+    fun loadAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+        // Number of calls comes from 'kAnchorResourcesLimit' defined in
+        // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+        // The UUID is randomized because the manager will not create duplicate anchors for the same
+        // UUID.
+        repeat(5) { underTest.loadAnchor(UUID.randomUUID()) }
+
+        assertThrows(AnchorResourcesExhaustedException::class.java) {
+            underTest.loadAnchor(UUID.randomUUID())
+        }
     }
 
     @Test

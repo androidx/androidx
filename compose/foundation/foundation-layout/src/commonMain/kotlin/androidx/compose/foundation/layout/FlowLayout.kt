@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
@@ -80,9 +82,9 @@ import kotlin.math.min
  * @param overflow The strategy to handle overflowing items
  * @param content The content as a [RowScope]
  * @see FlowColumn
- * @see ContextualFlowRow
  * @see [androidx.compose.foundation.layout.Row]
  */
+@Deprecated("The overflow parameter has been deprecated")
 @Composable
 @ExperimentalLayoutApi
 fun FlowRow(
@@ -117,6 +119,58 @@ fun FlowRow(
 }
 
 /**
+ * [FlowRow] is a layout that fills items from left to right (ltr) in LTR layouts or right to left
+ * (rtl) in RTL layouts and when it runs out of space, moves to the next "row" or "line" positioned
+ * on the bottom, and then continues filling items until the items run out.
+ *
+ * Example:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleFlowRow
+ *
+ * When a Modifier [RowScope.weight] is provided, it scales the item based on the number items that
+ * fall on the row it was placed in.
+ *
+ * Note that if two or more Text components are placed in a [Row], normally they should be aligned
+ * by their first baselines. [FlowRow] as a general purpose container does not do it automatically
+ * so developers need to handle this manually. This is achieved by adding a
+ * [RowScope.alignByBaseline] modifier to every such Text component. By default this modifier aligns
+ * by [androidx.compose.ui.layout.FirstBaseline]. If, however, you need to align Texts by
+ * [androidx.compose.ui.layout.LastBaseline] for example, use a more general [RowScope.alignBy]
+ * modifier.
+ *
+ * @param modifier The modifier to be applied to the Row.
+ * @param horizontalArrangement The horizontal arrangement of the layout's children.
+ * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
+ * @param itemVerticalAlignment The cross axis/vertical alignment of an item in the column.
+ * @param maxItemsInEachRow The maximum number of items per row
+ * @param maxLines The max number of rows
+ * @param content The content as a [RowScope]
+ * @see FlowColumn
+ * @see [androidx.compose.foundation.layout.Row]
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun FlowRow(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    itemVerticalAlignment: Alignment.Vertical = Alignment.Top,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
+    content: @Composable FlowRowScope.() -> Unit
+) =
+    FlowRow(
+        modifier,
+        horizontalArrangement,
+        verticalArrangement,
+        itemVerticalAlignment,
+        maxItemsInEachRow,
+        maxLines,
+        FlowRowOverflow.Clip,
+        content,
+    )
+
+/**
  * [FlowColumn] is a layout that fills items from top to bottom, and when it runs out of space on
  * the bottom, moves to the next "column" or "line" on the right or left based on ltr or rtl
  * layouts, and then continues filling items from top to bottom.
@@ -144,6 +198,7 @@ fun FlowRow(
  * @see ContextualFlowColumn
  * @see [androidx.compose.foundation.layout.Column]
  */
+@Deprecated("The overflow parameter has been deprecated")
 @Composable
 @ExperimentalLayoutApi
 fun FlowColumn(
@@ -176,10 +231,57 @@ fun FlowColumn(
     Layout(contents = list, measurePolicy = measurePolicy, modifier = modifier)
 }
 
+/**
+ * [FlowColumn] is a layout that fills items from top to bottom, and when it runs out of space on
+ * the bottom, moves to the next "column" or "line" on the right or left based on ltr or rtl
+ * layouts, and then continues filling items from top to bottom.
+ *
+ * It supports ltr in LTR layouts, by placing the first column to the left, and then moving to the
+ * right It supports rtl in RTL layouts, by placing the first column to the right, and then moving
+ * to the left
+ *
+ * Example:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumn
+ *
+ * When a Modifier [ColumnScope.weight] is provided, it scales the item based on the number items
+ * that fall on the column it was placed in.
+ *
+ * @param modifier The modifier to be applied to the Row.
+ * @param verticalArrangement The vertical arrangement of the layout's children.
+ * @param horizontalArrangement The horizontal arrangement of the layout's virtual columns
+ * @param itemHorizontalAlignment The cross axis/horizontal alignment of an item in the column.
+ * @param maxItemsInEachColumn The maximum number of items per column
+ * @param maxLines The max number of rows
+ * @param content The content as a [ColumnScope]
+ * @see FlowRow
+ * @see [androidx.compose.foundation.layout.Column]
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun FlowColumn(
+    modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    itemHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    maxItemsInEachColumn: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
+    content: @Composable FlowColumnScope.() -> Unit
+) =
+    FlowColumn(
+        modifier,
+        verticalArrangement,
+        horizontalArrangement,
+        itemHorizontalAlignment,
+        maxItemsInEachColumn,
+        maxLines,
+        FlowColumnOverflow.Clip,
+        content,
+    )
+
 /** Scope for the children of [FlowRow]. */
 @LayoutScopeMarker
 @Stable
-@ExperimentalLayoutApi
 interface FlowRowScope : RowScope {
     /**
      * Have the item fill (possibly only partially) the max height of the tallest item in the row it
@@ -218,7 +320,6 @@ interface FlowRowOverflowScope : FlowRowScope {
 /** Scope for the children of [FlowColumn]. */
 @LayoutScopeMarker
 @Stable
-@ExperimentalLayoutApi
 interface FlowColumnScope : ColumnScope {
     /**
      * Have the item fill (possibly only partially) the max width of the widest item in the column

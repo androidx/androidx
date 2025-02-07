@@ -22,17 +22,17 @@ import org.junit.Test
 class AppFunctionAppExceptionsTest {
     @Test
     fun testErrorCategory_AppError() {
-        assertThat(AppFunctionAppUnknownException().errorCode)
+        assertThat(AppFunctionAppUnknownException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_APP_UNKNOWN_ERROR)
         assertThat(AppFunctionAppUnknownException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_APP)
 
-        assertThat(AppFunctionPermissionRequiredException().errorCode)
+        assertThat(AppFunctionPermissionRequiredException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_PERMISSION_REQUIRED)
         assertThat(AppFunctionPermissionRequiredException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_APP)
 
-        assertThat(AppFunctionNotSupportedException().errorCode)
+        assertThat(AppFunctionNotSupportedException().internalErrorCode)
             .isEqualTo(AppFunctionException.ERROR_NOT_SUPPORTED)
         assertThat(AppFunctionNotSupportedException().errorCategory)
             .isEqualTo(AppFunctionException.ERROR_CATEGORY_APP)

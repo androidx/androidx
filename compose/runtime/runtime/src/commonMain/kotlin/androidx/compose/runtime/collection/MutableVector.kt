@@ -66,7 +66,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         ensureCapacity(size + 1)
         val content = content
         if (index != size) {
-            content.copyInto(
+            content.fastCopyInto(
                 destination = content,
                 destinationOffset = index + 1,
                 startIndex = index,
@@ -83,12 +83,13 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     fun addAll(index: Int, elements: List<T>): Boolean {
         if (elements.isEmpty()) return false
-        ensureCapacity(size + elements.size)
+        val elementsSize = elements.size
+        ensureCapacity(size + elementsSize)
         val content = content
         if (index != size) {
-            content.copyInto(
+            content.fastCopyInto(
                 destination = content,
-                destinationOffset = index + elements.size,
+                destinationOffset = index + elementsSize,
                 startIndex = index,
                 endIndex = size
             )
@@ -96,7 +97,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         for (i in elements.indices) {
             content[index + i] = elements[i]
         }
-        size += elements.size
+        size += elementsSize
         return true
     }
 
@@ -105,24 +106,25 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * that are in the way.
      */
     fun addAll(index: Int, elements: MutableVector<T>): Boolean {
-        if (elements.isEmpty()) return false
-        ensureCapacity(size + elements.size)
+        val elementsSize = elements.size
+        if (elementsSize == 0) return false
+        ensureCapacity(size + elementsSize)
         val content = content
         if (index != size) {
-            content.copyInto(
+            content.fastCopyInto(
                 destination = content,
-                destinationOffset = index + elements.size,
+                destinationOffset = index + elementsSize,
                 startIndex = index,
                 endIndex = size
             )
         }
-        elements.content.copyInto(
+        elements.content.fastCopyInto(
             destination = content,
             destinationOffset = index,
             startIndex = 0,
-            endIndex = elements.size
+            endIndex = elementsSize
         )
-        size += elements.size
+        size += elementsSize
         return true
     }
 
@@ -147,12 +149,13 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      * [MutableVector] was changed.
      */
     fun addAll(@Suppress("ArrayReturn") elements: Array<T>): Boolean {
-        if (elements.isEmpty()) {
+        val elementsSize = elements.size
+        if (elementsSize == 0) {
             return false
         }
-        ensureCapacity(size + elements.size)
-        elements.copyInto(destination = content, destinationOffset = size)
-        size += elements.size
+        ensureCapacity(size + elementsSize)
+        elements.fastCopyInto(destination = content, destinationOffset = size, 0, elementsSize)
+        size += elementsSize
         return true
     }
 
@@ -162,18 +165,19 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
      */
     fun addAll(index: Int, elements: Collection<T>): Boolean {
         if (elements.isEmpty()) return false
-        ensureCapacity(size + elements.size)
+        val elementsSize = elements.size
+        ensureCapacity(size + elementsSize)
         val content = content
         if (index != size) {
-            content.copyInto(
+            content.fastCopyInto(
                 destination = content,
-                destinationOffset = index + elements.size,
+                destinationOffset = index + elementsSize,
                 startIndex = index,
                 endIndex = size
             )
         }
         elements.forEachIndexed { i, item -> content[index + i] = item }
-        size += elements.size
+        size += elementsSize
         return true
     }
 
@@ -293,7 +297,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         val oldSize = oldContent.size
         val newSize = max(capacity, oldSize * 2)
         val newContent = arrayOfNulls<Any?>(newSize) as Array<T?>
-        oldContent.copyInto(newContent, 0, 0, oldSize)
+        oldContent.fastCopyInto(newContent, 0, 0, oldSize)
         content = newContent
     }
 
@@ -694,7 +698,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
         val content = content
         val item = content[index] as T
         if (index != lastIndex) {
-            content.copyInto(
+            content.fastCopyInto(
                 destination = content,
                 destinationOffset = index,
                 startIndex = index + 1,
@@ -710,7 +714,7 @@ internal constructor(@PublishedApi @JvmField internal var content: Array<T?>, si
     fun removeRange(start: Int, end: Int) {
         if (end > start) {
             if (end < size) {
-                content.copyInto(
+                content.fastCopyInto(
                     destination = content,
                     destinationOffset = start,
                     startIndex = end,

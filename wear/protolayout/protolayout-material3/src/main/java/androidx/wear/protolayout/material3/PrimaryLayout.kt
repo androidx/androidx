@@ -18,11 +18,11 @@ package androidx.wear.protolayout.material3
 
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.DP
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.DimensionBuilders.DpProp
-import androidx.wear.protolayout.DimensionBuilders.dp
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.DimensionBuilders.wrap
 import androidx.wear.protolayout.LayoutElementBuilders.Box
@@ -33,25 +33,39 @@ import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers
 import androidx.wear.protolayout.ModifiersBuilders.Padding
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.defaultPrimaryLayoutMargins
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.maxBottomMargin
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.maxPrimaryLayoutMargins
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.maxSideMargin
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.midPrimaryLayoutMargins
+import androidx.wear.protolayout.material3.PredefinedPrimaryLayoutMargins.minPrimaryLayoutMargins
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_EDGE_BUTTON_TOP_MARGIN_DP
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_EMPTY_MARGIN_BOTTOM_PERCENTAGE
+import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_MARGIN_BOTTOM_PERCENTAGE
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_MARGIN_SIDE_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_BOTTOM_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_TOP_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_BOTTOM_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_TOP_PERCENTAGE
+import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.BOTTOM_SLOT_OTHER_MARGIN_TOP_DP
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.FOOTER_LABEL_SLOT_MARGIN_SIDE_PERCENTAGE
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.FOOTER_LABEL_TO_BOTTOM_SLOT_SPACER_HEIGHT_DP
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_ICON_SIZE_DP
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_ICON_TITLE_SPACER_HEIGHT_DP
+import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_ICON_TITLE_SPACER_HEIGHT_LARGE_DP
+import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_ICON_TITLE_SPACER_HEIGHT_SMALL_DP
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_MARGIN_BOTTOM_DP
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_MARGIN_SIDE_PERCENTAGE
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.HEADER_MARGIN_TOP_DP
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.MAIN_SLOT_WITH_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE
-import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.MAIN_SLOT_WITH_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE
 import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.METADATA_TAG
+import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.percentageHeightToDp
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.DEFAULT_PRIMARY_LAYOUT_MARGIN
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MAX_PRIMARY_LAYOUT_MARGIN
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MID_PRIMARY_LAYOUT_MARGIN
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.MIN_PRIMARY_LAYOUT_MARGIN
+import androidx.wear.protolayout.material3.PrimaryLayoutMargins.Companion.customizedPrimaryLayoutMargin
+import androidx.wear.protolayout.material3.PrimaryLayoutMarginsImpl.Companion.DEFAULT
+import androidx.wear.protolayout.material3.PrimaryLayoutMarginsImpl.Companion.MAX
+import androidx.wear.protolayout.material3.PrimaryLayoutMarginsImpl.Companion.MID
+import androidx.wear.protolayout.material3.PrimaryLayoutMarginsImpl.Companion.MIN
+import androidx.wear.protolayout.modifiers.LayoutModifier
+import androidx.wear.protolayout.modifiers.padding
+import androidx.wear.protolayout.modifiers.toProtoLayoutModifiers
+import androidx.wear.protolayout.types.dp
 
 /**
  * ProtoLayout Material3 full screen layout that represents a suggested Material3 layout style that
@@ -99,19 +113,31 @@ import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.METADATA_TAG
  *   it an edge button, the given label will be ignored.
  * @param onClick The clickable action for whole layout. If any area (outside of other added
  *   tappable components) is clicked, it will fire the associated action.
+ * @param margins The customized outer margin that will be applied as following:
+ *     * `start` and `end` would be applied as a side margins on [mainSlot]
+ *     * `bottom` would be applied as a bottom margin when [bottomSlot] is not present.
+ *
+ *   It is highly recommended to use provided constants for these
+ *   margins - [DEFAULT_PRIMARY_LAYOUT_MARGIN], [MIN_PRIMARY_LAYOUT_MARGIN],
+ *   [MID_PRIMARY_LAYOUT_MARGIN] or [MAX_PRIMARY_LAYOUT_MARGIN], depending on inner content and its
+ *   corners shape. If providing custom numbers by [customizedPrimaryLayoutMargin], it is a
+ *   requirement for those to be percentages of the screen width and height.
+ *
  * @sample androidx.wear.protolayout.material3.samples.topLevelLayout
+ * @sample androidx.wear.protolayout.material3.samples.cardSample
+ * @sample androidx.wear.protolayout.material3.samples.oneSlotButtonsSample
+ * @sample androidx.wear.protolayout.material3.samples.graphicDataCardSample
  */
-// TODO: b/356568440 - Add sample above and put it in a proper samples file and link with @sample
 // TODO: b/346958146 - Link visuals once they are available.
 // TODO: b/353247528 - Handle the icon.
-// TODO: b/369162409 -Allow side and bottom margins in PrimaryLayout to be customizable.
 // TODO: b/370976767 - Specify that this should be used with MaterialTileService.
 public fun MaterialScope.primaryLayout(
     mainSlot: (MaterialScope.() -> LayoutElement),
     titleSlot: (MaterialScope.() -> LayoutElement)? = null,
     bottomSlot: (MaterialScope.() -> LayoutElement)? = null,
     labelForBottomSlot: (MaterialScope.() -> LayoutElement)? = null,
-    onClick: Clickable? = null
+    onClick: Clickable? = null,
+    margins: PrimaryLayoutMargins = DEFAULT_PRIMARY_LAYOUT_MARGIN
 ): LayoutElement =
     primaryLayoutWithOverrideIcon(
         overrideIcon = false,
@@ -119,7 +145,8 @@ public fun MaterialScope.primaryLayout(
         mainSlot = mainSlot,
         bottomSlot = bottomSlot,
         labelForBottomSlot = labelForBottomSlot,
-        onClick = onClick
+        onClick = onClick,
+        margins = margins
     )
 
 /**
@@ -135,6 +162,7 @@ public fun MaterialScope.primaryLayoutWithOverrideIcon(
     bottomSlot: (MaterialScope.() -> LayoutElement)? = null,
     labelForBottomSlot: (MaterialScope.() -> LayoutElement)? = null,
     onClick: Clickable? = null,
+    margins: PrimaryLayoutMargins = DEFAULT_PRIMARY_LAYOUT_MARGIN
 ): LayoutElement {
     val screenWidth = deviceConfiguration.screenWidthDp
     val screenHeight = deviceConfiguration.screenHeightDp
@@ -155,19 +183,6 @@ public fun MaterialScope.primaryLayoutWithOverrideIcon(
             .setMetadata(ElementMetadata.Builder().setTagData(METADATA_TAG.toTagBytes()).build())
 
     onClick?.apply { modifiers.setClickable(this) }
-
-    val mainSlotSideMargin: DpProp =
-        dp(
-            screenWidth *
-                if (bottomSlot != null)
-                    (if (titleSlot != null)
-                        MAIN_SLOT_WITH_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE
-                    else MAIN_SLOT_WITH_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE)
-                else
-                    (if (titleSlot != null)
-                        MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE
-                    else MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE)
-        )
 
     val mainLayout =
         Column.Builder()
@@ -191,19 +206,60 @@ public fun MaterialScope.primaryLayoutWithOverrideIcon(
                 )
             )
 
+    val bottomSlotValue = bottomSlot?.let { bottomSlot() }
+
+    val marginsValues: Padding =
+        withStyle(
+                layoutSlotsPresence =
+                    LayoutSlotsPresence(
+                        isTitleSlotPresent = titleSlot != null,
+                        isBottomSlotPresent = bottomSlot != null,
+                        isBottomSlotEdgeButton = bottomSlotValue?.isSlotEdgeButton() == true
+                    )
+            )
+            .let { scope ->
+                if (margins is PrimaryLayoutMarginsImpl) {
+                    when (margins.size) {
+                        MIN -> scope.minPrimaryLayoutMargins()
+                        MID -> scope.midPrimaryLayoutMargins()
+                        MAX -> scope.maxPrimaryLayoutMargins()
+                        DEFAULT -> scope.defaultPrimaryLayoutMargins()
+                        else -> scope.defaultPrimaryLayoutMargins()
+                    }
+                } else if (margins is CustomPrimaryLayoutMargins) {
+                    margins.toPadding(scope)
+                } else {
+                    // Fallback to default
+                    scope.defaultPrimaryLayoutMargins()
+                }
+            }
+
     // Contains main content. This Box is needed to set to expand, even if empty so it
     // fills the empty space until bottom content.
-    mainSlot?.let { mainLayout.addContent(mainSlot().getMainContentBox(mainSlotSideMargin)) }
+    mainSlot?.let {
+        mainLayout.addContent(
+            mainSlot()
+                .getMainContentBox(
+                    sideMargins = marginsValues,
+                    maxSideMarginFallbackDp = maxSideMargin()
+                )
+        )
+    }
 
     // Contains bottom slot, optional label or needed padding if empty.
-    mainLayout.addContent(getFooterContent(bottomSlot?.let { bottomSlot() }, labelSlot))
+    mainLayout.addContent(
+        getFooterContent(
+            bottomSlot = bottomSlotValue,
+            labelSlot = labelSlot,
+            bottomMarginForNoContentDp = marginsValues.bottom?.value ?: maxBottomMargin()
+        )
+    )
 
     return mainLayout.build()
 }
 
 private fun MaterialScope.getIconPlaceholder(overrideIcon: Boolean): LayoutElement {
-    val iconSlot =
-        Box.Builder().setWidth(HEADER_ICON_SIZE_DP.toDp()).setHeight(HEADER_ICON_SIZE_DP.toDp())
+    val iconSlot = Box.Builder().setWidth(HEADER_ICON_SIZE_DP.dp).setHeight(HEADER_ICON_SIZE_DP.dp)
     if (overrideIcon) {
         iconSlot.setModifiers(
             Modifiers.Builder()
@@ -233,7 +289,15 @@ private fun MaterialScope.getHeaderContent(
 
     titleSlot?.apply {
         headerBuilder
-            .addContent(horizontalSpacer(HEADER_ICON_TITLE_SPACER_HEIGHT_DP))
+            .addContent(
+                horizontalSpacer(
+                    if (deviceConfiguration.screenHeightDp.isBreakpoint()) {
+                        HEADER_ICON_TITLE_SPACER_HEIGHT_LARGE_DP
+                    } else {
+                        HEADER_ICON_TITLE_SPACER_HEIGHT_SMALL_DP
+                    }
+                )
+            )
             .addContent(titleSlot)
     }
 
@@ -241,22 +305,25 @@ private fun MaterialScope.getHeaderContent(
 }
 
 /** Returns central slot with the optional main content. It expands to fill the available space. */
-private fun LayoutElement.getMainContentBox(sideMargin: DpProp): Box =
-    Box.Builder()
+private fun LayoutElement.getMainContentBox(
+    sideMargins: Padding,
+    maxSideMarginFallbackDp: Float,
+): Box {
+    // Start and end Padding shouldn't be null if these are predefined margins, but if developers
+    // sets some other object, we will fallback to the max margin.
+    val sideMarginStart = sideMargins.start?.value ?: maxSideMarginFallbackDp
+    val sideMarginEnd = sideMargins.end?.value ?: maxSideMarginFallbackDp
+    return Box.Builder()
         .setWidth(expand())
         .setHeight(expand())
         .setModifiers(
-            Modifiers.Builder()
-                .setPadding(
-                    Padding.Builder() // Top and bottom space has been added to other elements.
-                        .setStart(sideMargin)
-                        .setEnd(sideMargin)
-                        .build()
-                )
-                .build()
+            // Top and bottom space has been added to other elements.
+            LayoutModifier.padding(start = sideMarginStart, end = sideMarginEnd)
+                .toProtoLayoutModifiers()
         )
         .addContent(this)
         .build()
+}
 
 /**
  * Returns the footer content, containing bottom slot and optional label with the corresponding
@@ -265,22 +332,19 @@ private fun LayoutElement.getMainContentBox(sideMargin: DpProp): Box =
  */
 private fun MaterialScope.getFooterContent(
     bottomSlot: LayoutElement?,
-    labelSlot: LayoutElement?
+    labelSlot: LayoutElement?,
+    bottomMarginForNoContentDp: Float
 ): LayoutElement {
     val footer = Box.Builder().setWidth(wrap()).setHeight(wrap())
 
     if (bottomSlot == null) {
         footer.setWidth(expand())
-        footer.setHeight(
-            dp(BOTTOM_SLOT_EMPTY_MARGIN_BOTTOM_PERCENTAGE * deviceConfiguration.screenHeightDp)
-        )
+        footer.setHeight(bottomMarginForNoContentDp.dp)
     } else if (bottomSlot.isSlotEdgeButton()) {
         // Label shouldn't be used with EdgeButton.
         footer.setModifiers(
             Modifiers.Builder()
-                .setPadding(
-                    Padding.Builder().setTop(BOTTOM_EDGE_BUTTON_TOP_MARGIN_DP.toDp()).build()
-                )
+                .setPadding(Padding.Builder().setTop(BOTTOM_EDGE_BUTTON_TOP_MARGIN_DP.dp).build())
                 .build()
         )
 
@@ -292,21 +356,10 @@ private fun MaterialScope.getFooterContent(
             Modifiers.Builder()
                 .setPadding(
                     Padding.Builder()
-                        .setTop(
-                            dp(
-                                (if (labelSlot == null)
-                                    BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_TOP_PERCENTAGE
-                                else BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_TOP_PERCENTAGE) *
-                                    deviceConfiguration.screenHeightDp
-                            )
-                        )
+                        .setTop(BOTTOM_SLOT_OTHER_MARGIN_TOP_DP.dp)
                         .setBottom(
-                            dp(
-                                (if (labelSlot == null)
-                                    BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_BOTTOM_PERCENTAGE
-                                else BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_BOTTOM_PERCENTAGE) *
-                                    deviceConfiguration.screenHeightDp
-                            )
+                            percentageHeightToDp(BOTTOM_SLOT_OTHER_MARGIN_BOTTOM_PERCENTAGE / 100)
+                                .dp
                         )
                         .build()
                 )
@@ -317,10 +370,9 @@ private fun MaterialScope.getFooterContent(
             otherBottomSlot
                 .addContent(
                     generateLabelContent(
-                        dp(
-                            FOOTER_LABEL_SLOT_MARGIN_SIDE_PERCENTAGE *
-                                deviceConfiguration.screenWidthDp
-                        )
+                        (FOOTER_LABEL_SLOT_MARGIN_SIDE_PERCENTAGE *
+                                deviceConfiguration.screenWidthDp)
+                            .dp
                     )
                 )
                 .addContent(horizontalSpacer(FOOTER_LABEL_TO_BOTTOM_SLOT_SPACER_HEIGHT_DP))
@@ -330,10 +382,9 @@ private fun MaterialScope.getFooterContent(
             otherBottomSlot
                 .addContent(
                     bottomSlot.generateBottomSlotContent(
-                        dp(
-                            BOTTOM_SLOT_OTHER_MARGIN_SIDE_PERCENTAGE *
-                                deviceConfiguration.screenWidthDp
-                        )
+                        (BOTTOM_SLOT_OTHER_MARGIN_SIDE_PERCENTAGE *
+                                deviceConfiguration.screenWidthDp)
+                            .dp
                     )
                 )
                 .build()
@@ -363,47 +414,47 @@ private fun LayoutElement.generateLabelContent(sidePadding: DpProp): LayoutEleme
         .addContent(this)
         .build()
 
-private fun MaterialScope.getMarginForHeader(): Padding {
-    return Padding.Builder()
-        .setTop(HEADER_MARGIN_TOP_DP.toDp())
-        .setBottom(HEADER_MARGIN_BOTTOM_DP.toDp())
-        .setStart(dp(HEADER_MARGIN_SIDE_PERCENTAGE * deviceConfiguration.screenWidthDp))
-        .setEnd(dp(HEADER_MARGIN_SIDE_PERCENTAGE * deviceConfiguration.screenWidthDp))
-        .build()
-}
+private fun MaterialScope.getMarginForHeader() =
+    padding(
+        top = HEADER_MARGIN_TOP_DP,
+        bottom = HEADER_MARGIN_BOTTOM_DP,
+        start = HEADER_MARGIN_SIDE_PERCENTAGE * deviceConfiguration.screenWidthDp,
+        end = HEADER_MARGIN_SIDE_PERCENTAGE * deviceConfiguration.screenWidthDp
+    )
 
 /** Contains the default values used by Material layout. */
 internal object PrimaryLayoutDefaults {
+    internal fun MaterialScope.percentageWidthToDp(
+        @FloatRange(from = 0.0, to = 1.0) percentage: Float
+    ): Float = percentage * deviceConfiguration.screenWidthDp
+
+    internal fun MaterialScope.percentageHeightToDp(
+        @FloatRange(from = 0.0, to = 1.0) percentage: Float
+    ): Float = percentage * deviceConfiguration.screenHeightDp
+
     /** Tool tag for Metadata in Modifiers, so we know that Row is actually a PrimaryLayout. */
-    @VisibleForTesting const val METADATA_TAG: String = "M3_PL"
+    @VisibleForTesting internal const val METADATA_TAG: String = "M3_PL"
 
-    @Dimension(unit = DP) const val HEADER_MARGIN_TOP_DP: Int = 3
+    @Dimension(DP) internal const val HEADER_MARGIN_TOP_DP = 3f
 
-    @Dimension(unit = DP) const val HEADER_MARGIN_BOTTOM_DP: Int = 6
+    @Dimension(DP) internal const val HEADER_MARGIN_BOTTOM_DP = 6f
 
-    const val HEADER_MARGIN_SIDE_PERCENTAGE: Float = 14.5f / 100
+    internal const val HEADER_MARGIN_SIDE_PERCENTAGE = 14.5f / 100
 
-    @Dimension(unit = DP) const val HEADER_ICON_SIZE_DP: Int = 24
+    @Dimension(DP) internal const val HEADER_ICON_SIZE_DP = 24f
 
-    @Dimension(unit = DP) const val HEADER_ICON_TITLE_SPACER_HEIGHT_DP: Int = 2
+    @Dimension(DP) internal const val HEADER_ICON_TITLE_SPACER_HEIGHT_SMALL_DP = 2
+    @Dimension(DP) internal const val HEADER_ICON_TITLE_SPACER_HEIGHT_LARGE_DP = 4
 
     // The remaining margins around EdgeButton are within the component itself.
-    @Dimension(unit = DP) const val BOTTOM_EDGE_BUTTON_TOP_MARGIN_DP: Int = 4
+    @Dimension(DP) internal const val BOTTOM_EDGE_BUTTON_TOP_MARGIN_DP = 4f
 
-    const val BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_TOP_PERCENTAGE: Float = 4f / 100
-    const val BOTTOM_SLOT_OTHER_NO_LABEL_MARGIN_BOTTOM_PERCENTAGE: Float = 8.3f / 100
+    @Dimension(DP) internal const val BOTTOM_SLOT_OTHER_MARGIN_TOP_DP = 6f
+    internal const val BOTTOM_SLOT_OTHER_MARGIN_BOTTOM_PERCENTAGE = 5.2f
 
-    const val BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_TOP_PERCENTAGE: Float = 3f / 100
-    const val BOTTOM_SLOT_OTHER_WITH_LABEL_MARGIN_BOTTOM_PERCENTAGE: Float = 5f / 100
-    const val BOTTOM_SLOT_OTHER_MARGIN_SIDE_PERCENTAGE: Float = 26f / 100
+    internal const val BOTTOM_SLOT_OTHER_MARGIN_SIDE_PERCENTAGE = 26f / 100
 
-    @Dimension(unit = DP) const val FOOTER_LABEL_TO_BOTTOM_SLOT_SPACER_HEIGHT_DP: Int = 2
+    @Dimension(DP) internal const val FOOTER_LABEL_TO_BOTTOM_SLOT_SPACER_HEIGHT_DP = 2
 
-    const val FOOTER_LABEL_SLOT_MARGIN_SIDE_PERCENTAGE: Float = 16.64f / 100
-
-    const val BOTTOM_SLOT_EMPTY_MARGIN_BOTTOM_PERCENTAGE: Float = 14f / 100
-    const val MAIN_SLOT_WITH_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE: Float = 3f / 100
-    const val MAIN_SLOT_WITH_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE: Float = 6f / 100
-    const val MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITH_TITLE_MARGIN_SIDE_PERCENTAGE: Float = 7.3f / 100
-    const val MAIN_SLOT_WITHOUT_BOTTOM_SLOT_WITHOUT_TITLE_MARGIN_SIDE_PERCENTAGE: Float = 8.3f / 100
+    internal const val FOOTER_LABEL_SLOT_MARGIN_SIDE_PERCENTAGE = 16.64f / 100
 }

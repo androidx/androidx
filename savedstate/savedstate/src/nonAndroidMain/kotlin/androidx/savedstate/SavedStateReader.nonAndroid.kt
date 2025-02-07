@@ -141,6 +141,20 @@ internal actual constructor(
         @Suppress("UNCHECKED_CAST") return source.map[key] as? List<Int> ?: defaultValue()
     }
 
+    public actual inline fun getSavedStateList(key: String): List<SavedState> {
+        if (key !in this) keyNotFoundError(key)
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? List<SavedState> ?: valueNotFoundError(key)
+    }
+
+    public actual inline fun getSavedStateListOrElse(
+        key: String,
+        defaultValue: () -> List<SavedState>
+    ): List<SavedState> {
+        if (key !in this) defaultValue()
+        @Suppress("UNCHECKED_CAST") return source.map[key] as? List<SavedState> ?: defaultValue()
+    }
+
     public actual inline fun getStringList(key: String): List<String> {
         if (key !in this) keyNotFoundError(key)
         @Suppress("UNCHECKED_CAST")
@@ -245,6 +259,21 @@ internal actual constructor(
     ): LongArray {
         if (key !in this) defaultValue()
         return source.map[key] as? LongArray ?: defaultValue()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    public actual inline fun getSavedStateArray(key: String): Array<SavedState> {
+        if (key !in this) keyNotFoundError(key)
+        return source.map[key] as? Array<SavedState> ?: valueNotFoundError(key)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    public actual inline fun getSavedStateArrayOrElse(
+        key: String,
+        defaultValue: () -> Array<SavedState>
+    ): Array<SavedState> {
+        if (key !in this) defaultValue()
+        return source.map[key] as? Array<SavedState> ?: defaultValue()
     }
 
     @Suppress("UNCHECKED_CAST")

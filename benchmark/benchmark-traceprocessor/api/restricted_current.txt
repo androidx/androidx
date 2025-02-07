@@ -1,7 +1,34 @@
 // Signature format: 4.0
 package androidx.benchmark.traceprocessor {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ExperimentalInsightApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ExperimentalTraceProcessorApi {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public final class Insight {
+    ctor public Insight(androidx.benchmark.traceprocessor.Insight.Category category, String observedLabel, androidx.benchmark.traceprocessor.PerfettoTrace.Link traceLink);
+    method public androidx.benchmark.traceprocessor.Insight.Category getCategory();
+    method public String getObservedLabel();
+    method public androidx.benchmark.traceprocessor.PerfettoTrace.Link getTraceLink();
+    property public androidx.benchmark.traceprocessor.Insight.Category category;
+    property public String observedLabel;
+    property public androidx.benchmark.traceprocessor.PerfettoTrace.Link traceLink;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public static final class Insight.Category {
+    ctor public Insight.Category(String title, String? titleUrl, String postTitleLabel);
+    method public String getPostTitleLabel();
+    method public String getTitle();
+    method public String? getTitleUrl();
+    property public String postTitleLabel;
+    property public String title;
+    property public String? titleUrl;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public static interface Insight.Provider {
+    method public java.util.List<androidx.benchmark.traceprocessor.Insight> queryInsights(androidx.benchmark.traceprocessor.TraceProcessor.Session session, String packageName, String traceLinkTitle, String traceLinkPath);
   }
 
   public final class PerfettoTrace {
@@ -10,6 +37,21 @@ package androidx.benchmark.traceprocessor {
   }
 
   public static final class PerfettoTrace.Companion {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public static final class PerfettoTrace.Link {
+    ctor public PerfettoTrace.Link(String title, String path, String urlParamsEncoded);
+    ctor public PerfettoTrace.Link(String title, String path, java.util.Map<java.lang.String,java.lang.String> urlParamMap);
+    method public String getMarkdownUriLink();
+    method public String getPath();
+    method public String getTitle();
+    method public String getUri();
+    method public String getUrlParamsEncoded();
+    property public String markdownUriLink;
+    property public String path;
+    property public String title;
+    property public String uri;
+    property public String urlParamsEncoded;
   }
 
   public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object?> {
@@ -32,6 +74,11 @@ package androidx.benchmark.traceprocessor {
     method public int start();
     method public void stop();
     method public default String timeoutMessage();
+  }
+
+  @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalInsightApi public final class StartupInsights implements androidx.benchmark.traceprocessor.Insight.Provider {
+    ctor public StartupInsights();
+    method public java.util.List<androidx.benchmark.traceprocessor.Insight> queryInsights(androidx.benchmark.traceprocessor.TraceProcessor.Session session, String packageName, String traceLinkTitle, String traceLinkPath);
   }
 
   public final class TraceProcessor {

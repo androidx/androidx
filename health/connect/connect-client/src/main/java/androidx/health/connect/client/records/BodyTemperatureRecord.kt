@@ -27,6 +27,7 @@ import java.time.ZoneOffset
 public class BodyTemperatureRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     /** Temperature in [Temperature] unit. Required field. Valid range: 0-100 Celsius degrees. */
     public val temperature: Temperature,
     /**
@@ -38,7 +39,6 @@ public class BodyTemperatureRecord(
     @property:BodyTemperatureMeasurementLocations
     public val measurementLocation: Int =
         BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN,
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     /*

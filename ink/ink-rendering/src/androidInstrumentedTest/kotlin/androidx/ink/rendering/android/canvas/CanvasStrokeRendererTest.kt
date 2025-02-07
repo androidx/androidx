@@ -16,7 +16,6 @@
 
 package androidx.ink.rendering.android.canvas
 
-import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.ink.brush.Brush
@@ -44,7 +43,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import org.junit.Rule
@@ -175,10 +173,6 @@ class CanvasStrokeRendererTest {
     }
 
     @Test
-    // TODO: b/377927109 - Particles don't yet render correctly with path-based rendering; until
-    // they
-    // do don't bother running this test on versions that only support path-based rendering.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun drawsParticleStrokes() {
         activityScenarioRule.scenario.onActivity { activity ->
             activity.addStrokeRows(

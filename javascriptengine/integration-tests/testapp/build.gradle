@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,8 +44,8 @@ android {
     defaultConfig {
         minSdk = 28
     }
-    lintOptions {
-        disable "UnusedResources"
+    lint {
+        disable.add("UnusedResources")
     }
     buildTypes {
         release {
@@ -57,7 +57,7 @@ android {
 
 androidx {
     name = "JavaScriptEngine Test App"
-    type = LibraryType.TEST_APPLICATION
+    type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2024"
     description = "The JavaScriptEngine AndroidX test application is a demonstration of the APIs provided in the androidx.javascriptengine library."
 }

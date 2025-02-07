@@ -32,9 +32,11 @@ import static org.mockito.Mockito.when;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.app.Activity;
 import android.os.IBinder;
 import android.os.SystemClock;
 
+import androidx.test.rule.GrantPermissionRule;
 import androidx.xr.extensions.node.Node;
 import androidx.xr.runtime.internal.Anchor.PersistenceState;
 import androidx.xr.runtime.internal.TrackingState;
@@ -62,10 +64,13 @@ import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNode;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -154,8 +159,15 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     private long mCurrentTimeMillis = 1000000000L;
     private ActivitySpaceImpl mActivitySpace;
 
+    @Rule
+    public GrantPermissionRule mGrantPermissionRule =
+            GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
+
     @Before
     public void doBeforeEachTest() {
+        ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
+        Activity activity = activityController.create().start().get();
+        when(mPerceptionLibrary.getActivity()).thenReturn(activity);
         Node taskNode = mFakeExtensions.createNode();
         mActivitySpace =
                 new ActivitySpaceImpl(
@@ -822,7 +834,9 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
     public void getPoseInActivitySpace_whenAtSamePose_returnsIdentityPose() {
         AnchorEntityImpl anchorEntity = createAndInitAnchorEntity();
         Pose pose = new Pose(new Vector3(1, 1, 1), new Quaternion(0, 1, 0, 1).toNormalized());
-        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        pose.getTranslation(), pose.getRotation(), new Vector3(2f, 2f, 2f)));
         anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getPoseInActivitySpace(), new Pose());
@@ -836,6 +850,26 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getPoseInActivitySpace(), pose);
+    }
+
+    @Test
+    public void getPoseInActivitySpace_withScaledAndRotatedActivitySpace_returnsDifferencePose() {
+        AnchorEntityImpl anchorEntity = createAndInitAnchorEntity();
+        Quaternion activitySpaceQuaternion = Quaternion.fromEulerAngles(new Vector3(0f, 0f, 90f));
+        Pose pose = new Pose(new Vector3(1, 1, 1), Quaternion.Identity);
+        anchorEntity.setOpenXrReferenceSpacePose(Matrix4.fromPose(pose));
+        mActivitySpace.setOpenXrReferenceSpacePose(
+                Matrix4.fromTrs(
+                        new Vector3(2f, 3f, 4f),
+                        activitySpaceQuaternion,
+                        /* scale= */ new Vector3(2f, 2f, 2f)));
+        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
+        Pose expectedPose =
+                new Pose(
+                        new Vector3(-1.0f, 0.5f, -1.5f),
+                        Quaternion.fromEulerAngles(new Vector3(0f, 0f, -90f)));
+
+        assertPose(anchorEntity.getPoseInActivitySpace(), expectedPose);
     }
 
     @Test

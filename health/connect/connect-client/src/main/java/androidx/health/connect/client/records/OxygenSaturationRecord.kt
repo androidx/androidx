@@ -30,7 +30,7 @@ public class OxygenSaturationRecord(
     override val zoneOffset: ZoneOffset?,
     /** Percentage. Required field. Valid range: 0-100. */
     public val percentage: Percentage,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     init {

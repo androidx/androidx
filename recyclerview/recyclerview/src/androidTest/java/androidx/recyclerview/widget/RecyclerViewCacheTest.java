@@ -43,12 +43,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -311,9 +311,8 @@ public class RecyclerViewCacheTest {
 
         // 100x100 pixel views
         mRecyclerView.setAdapter(new RecyclerView.Adapter() {
-            @NonNull
             @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(
+            public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
                     @NonNull ViewGroup parent, int viewType) {
                 View view = new View(getContext());
                 view.setMinimumWidth(100);
@@ -323,7 +322,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {}
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {}
 
             @Override
             public int getItemCount() {
@@ -363,7 +362,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
                 mRecyclerView.registerTimePassingMs(5);
             }
 
@@ -424,7 +423,7 @@ public class RecyclerViewCacheTest {
 
             @Override
             public void onBindViewHolder(
-                    @NonNull RecyclerView.ViewHolder holder, int position) {
+                    RecyclerView.@NonNull ViewHolder holder, int position) {
                 mRecyclerView.registerTimePassingMs(5);
             }
 
@@ -483,7 +482,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
                 mRecyclerView.registerTimePassingMs(5);
             }
 
@@ -493,7 +492,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+            public void onViewRecycled(RecyclerView.@NonNull ViewHolder holder) {
                 // verify unbound view doesn't get
                 assertNotEquals(RecyclerView.NO_POSITION, holder.getAbsoluteAdapterPosition());
             }
@@ -531,15 +530,14 @@ public class RecyclerViewCacheTest {
 
         // first view 50x100 pixels, rest are 100x100 so second column is offset
         mRecyclerView.setAdapter(new RecyclerView.Adapter() {
-            @NonNull
             @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(
+            public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
                     @NonNull ViewGroup parent, int viewType) {
                 return new RecyclerView.ViewHolder(new View(getContext())) {};
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
                 holder.itemView.setMinimumWidth(100);
                 holder.itemView.setMinimumHeight(position == 0 ? 50 : 100);
             }
@@ -607,15 +605,14 @@ public class RecyclerViewCacheTest {
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(sglm);
         mRecyclerView.setAdapter(new RecyclerView.Adapter() {
-            @NonNull
             @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(
+            public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
                     @NonNull ViewGroup parent, int viewType) {
                 return new RecyclerView.ViewHolder(new View(getContext())) {};
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
                 holder.itemView.setMinimumWidth(100);
                 holder.itemView.setMinimumHeight(position == 0 ? 100 : 200);
             }
@@ -661,7 +658,7 @@ public class RecyclerViewCacheTest {
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
                 int height = expandedPosition[0] == position ? 400 : 100;
                 holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(200, height));
             }
@@ -1166,9 +1163,8 @@ public class RecyclerViewCacheTest {
             }
         }
 
-        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public @NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             mRecyclerView.registerTimePassingMs(5);
             RecyclerView rv = new RecyclerView(parent.getContext());
             rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),

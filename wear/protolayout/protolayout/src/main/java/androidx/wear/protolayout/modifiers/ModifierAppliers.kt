@@ -44,17 +44,17 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
     var visible: BoolProp.Builder? = null
     var opacity: FloatProp.Builder? = null
 
-    this.foldIn(Unit) { _, e ->
+    this.foldRight(Unit) { _, e ->
         when (e) {
-            is BaseSemanticElement -> semantics = e.foldIn(semantics)
-            is BaseBackgroundElement -> background = e.foldIn(background)
-            is BaseCornerElement -> corners = e.foldIn(corners)
-            is BaseClickableElement -> clickable = e.foldIn(clickable)
-            is BasePaddingElement -> padding = e.foldIn(padding)
-            is BaseMetadataElement -> metadata = e.foldIn(metadata)
-            is BaseBorderElement -> border = e.foldIn(border)
-            is BaseVisibilityElement -> visible = e.foldIn(visible)
-            is BaseOpacityElement -> opacity = e.foldIn(opacity)
+            is BaseSemanticElement -> semantics = e.mergeTo(semantics)
+            is BaseBackgroundElement -> background = e.mergeTo(background)
+            is BaseCornerElement -> corners = e.mergeTo(corners)
+            is BaseClickableElement -> clickable = e.mergeTo(clickable)
+            is BasePaddingElement -> padding = e.mergeTo(padding)
+            is BaseMetadataElement -> metadata = e.mergeTo(metadata)
+            is BaseBorderElement -> border = e.mergeTo(border)
+            is BaseVisibilityElement -> visible = e.mergeTo(visible)
+            is BaseOpacityElement -> opacity = e.mergeTo(opacity)
         }
     }
 

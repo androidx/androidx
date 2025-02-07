@@ -101,6 +101,9 @@ public class IntrospectionHelper {
     public static final ClassName EMBEDDING_VECTOR_CLASS =
             ClassName.get(APPSEARCH_PKG, "EmbeddingVector");
 
+    public static final ClassName APPSEARCH_BLOB_HANDLE_CLASS =
+            ClassName.get(APPSEARCH_PKG, "AppSearchBlobHandle");
+
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
 
@@ -124,6 +127,7 @@ public class IntrospectionHelper {
     public final TypeMirror mGenericDocumentType;
     public final TypeMirror mEmbeddingType;
     public final TypeMirror mDoublePrimitiveType;
+    public final TypeMirror mBlobHandleType;
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
     final TypeMirror mIntegerBoxType;
@@ -168,6 +172,8 @@ public class IntrospectionHelper {
                 mElementUtils.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
         mEmbeddingType = mElementUtils.getTypeElement(
                 EMBEDDING_VECTOR_CLASS.canonicalName()).asType();
+        mBlobHandleType = mElementUtils.getTypeElement(
+                APPSEARCH_BLOB_HANDLE_CLASS.canonicalName()).asType();
     }
 
     /**

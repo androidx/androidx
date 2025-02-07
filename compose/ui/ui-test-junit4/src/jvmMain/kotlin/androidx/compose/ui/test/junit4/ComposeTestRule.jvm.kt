@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.junit4
 
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
@@ -228,34 +227,6 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
 
     /** Unregisters an [IdlingResource] from this test. */
     fun unregisterIdlingResource(idlingResource: IdlingResource)
-
-    /**
-     * Enables accessibility checks that will be run before every action that is expected to change
-     * the UI.
-     *
-     * Accessibility checks are platform dependent, refer to the documentation of the platform
-     * specific variant of [ComposeTestRule] to see if it is supported and how you can configure it.
-     *
-     * On Android, this requires API 34+ (Android U), and currently does not work on Robolectric.
-     *
-     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeTestRule_sample
-     * @see disableAccessibilityChecks
-     */
-    @RequiresApi(34)
-    fun enableAccessibilityChecks() {
-        throw NotImplementedError("Accessibility Checks are not implemented on this platform")
-    }
-
-    /**
-     * Disables accessibility checks.
-     *
-     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
-     * @see enableAccessibilityChecks
-     */
-    @RequiresApi(34)
-    fun disableAccessibilityChecks() {
-        throw NotImplementedError("Accessibility Checks are not implemented on this platform")
-    }
 }
 
 /**

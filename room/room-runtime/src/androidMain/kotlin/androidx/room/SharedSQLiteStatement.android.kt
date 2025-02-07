@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @constructor Creates an SQLite prepared statement that can be re-used across threads. If it is in
  *   use, it automatically creates a new one.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 abstract class SharedSQLiteStatement(private val database: RoomDatabase) {
     private val lock = AtomicBoolean(false)
 
