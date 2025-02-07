@@ -614,7 +614,7 @@ public class TypefaceCompatTest {
 
     @Test
     public void testRomanSemiB(){
-        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.roman_semi_b);
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.helvetica_roman_semib);
         assertNotNull(typeface);
     }
 }
