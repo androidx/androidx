@@ -2323,7 +2323,6 @@ private val ThumbSize = DpSize(ThumbWidth, ThumbHeight)
 private val VerticalThumbSize = DpSize(ThumbHeight, ThumbWidth)
 private val ThumbTrackGapSize: Dp = SliderTokens.ActiveHandleLeadingSpace
 private val TrackInsideCornerSize: Dp = 2.dp
-private const val SliderRangeTolerance = 0.0001
 
 private enum class SliderComponents {
     THUMB,
@@ -2684,14 +2683,14 @@ class RangeSliderState(
                 val offsetEnd = rawOffsetEnd
                 var offsetStart = rawOffsetStart.coerceIn(minPx, offsetEnd)
                 offsetStart = snapValueToTick(offsetStart, tickFractions, minPx, maxPx)
-                SliderRange(offsetStart, offsetEnd)
+                SliderRange(offsetStart.coerceAtMost(offsetEnd), offsetEnd)
             } else {
                 rawOffsetEnd = (rawOffsetEnd + offset)
                 rawOffsetStart = scaleToOffset(minPx, maxPx, activeRangeStart)
                 val offsetStart = rawOffsetStart
                 var offsetEnd = rawOffsetEnd.coerceIn(offsetStart, maxPx)
                 offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
-                SliderRange(offsetStart, offsetEnd)
+                SliderRange(offsetStart, offsetEnd.coerceAtLeast(offsetStart))
             }
         val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetRange)
         if (scaledUserValue != SliderRange(activeRangeStart, activeRangeEnd)) {
@@ -2861,7 +2860,7 @@ internal value class SliderRange(val packedValue: Long) {
 internal fun SliderRange(start: Float, endInclusive: Float): SliderRange {
     val isUnspecified = start.isNaN() && endInclusive.isNaN()
 
-    require(isUnspecified || start <= endInclusive + SliderRangeTolerance) {
+    require(isUnspecified || start <= endInclusive) {
         "start($start) must be <= endInclusive($endInclusive)"
     }
     return SliderRange(packFloats(start, endInclusive))
@@ -2878,7 +2877,7 @@ internal fun SliderRange(range: ClosedFloatingPointRange<Float>): SliderRange {
     val start = range.start
     val endInclusive = range.endInclusive
     val isUnspecified = start.isNaN() && endInclusive.isNaN()
-    require(isUnspecified || start <= endInclusive + SliderRangeTolerance) {
+    require(isUnspecified || start <= endInclusive) {
         "ClosedFloatingPointRange<Float>.start($start) must be <= " +
             "ClosedFloatingPoint.endInclusive($endInclusive)"
     }
