@@ -1891,8 +1891,16 @@ private fun scale(a1: Float, b1: Float, x1: Float, a2: Float, b2: Float) =
     lerp(a2, b2, calcFraction(a1, b1, x1))
 
 // Scale x.start, x.endInclusive from a1..b1 range to a2..b2 range
-private fun scale(a1: Float, b1: Float, x: SliderRange, a2: Float, b2: Float) =
-    SliderRange(scale(a1, b1, x.start, a2, b2), scale(a1, b1, x.endInclusive, a2, b2))
+private fun scale(isStart: Boolean, a1: Float, b1: Float, x: SliderRange, a2: Float, b2: Float): SliderRange {
+    val start = scale(a1, b1, x.start, a2, b2)
+    val end = scale(a1, b1, x.endInclusive, a2, b2)
+
+    return if (isStart) {
+        SliderRange(start.coerceAtMost(end), end)
+    } else {
+        SliderRange(start, end.coerceAtLeast(start))
+    }
+}
 
 // Calculate the 0..1 fraction that `pos` value represents between `a` and `b`
 private fun calcFraction(a: Float, b: Float, pos: Float) =
@@ -2692,7 +2700,7 @@ class RangeSliderState(
                 offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
                 SliderRange(offsetStart, offsetEnd.coerceAtLeast(offsetStart))
             }
-        val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetRange)
+        val scaledUserValue = scaleToUserValue(isStart, minPx, maxPx, offsetRange)
         if (scaledUserValue != SliderRange(activeRangeStart, activeRangeEnd)) {
             if (onValueChange != null) {
                 onValueChange?.let { it(scaledUserValue) }
@@ -2716,8 +2724,8 @@ class RangeSliderState(
         get() = floor(steps * (1f - coercedActiveRangeStartAsFraction)).toInt()
 
     // scales range offset from within minPx..maxPx to within valueRange.start..valueRange.end
-    private fun scaleToUserValue(minPx: Float, maxPx: Float, offset: SliderRange) =
-        scale(minPx, maxPx, offset, valueRange.start, valueRange.endInclusive)
+    private fun scaleToUserValue(isStart: Boolean, minPx: Float, maxPx: Float, offset: SliderRange) =
+        scale(isStart, minPx, maxPx, offset, valueRange.start, valueRange.endInclusive)
 
     // scales float userValue within valueRange.start..valueRange.end to within minPx..maxPx
     private fun scaleToOffset(minPx: Float, maxPx: Float, userValue: Float) =
