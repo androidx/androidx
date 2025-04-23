@@ -235,7 +235,7 @@ data class ProjectProps(
 ) {
     companion object {
         private fun Properties.getCanonicalPath(key: String): String {
-            return File(getProperty(key)).canonicalPath
+            return File(getProperty(key)).canonicalFile.invariantSeparatorsPath
         }
 
         private fun Properties.getOptionalCanonicalPath(key: String): String? {
