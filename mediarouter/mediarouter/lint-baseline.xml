@@ -46,13 +46,4 @@
             file="src/main/java/androidx/mediarouter/media/RemotePlaybackClient.java"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/DeviceUtils.java"/>
-    </issue>
-
 </issues>
