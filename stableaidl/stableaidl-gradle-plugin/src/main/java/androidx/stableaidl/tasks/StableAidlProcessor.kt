@@ -39,10 +39,13 @@ fun callStableAidlProcessor(
     processOutputHandler: ProcessOutputHandler,
     sourceOutputDir: File? = null,
     packagedOutputDir: File? = null,
+    packagedList: Collection<String>? = null,
     dependencyFileProcessor: DependencyFileProcessor? = null,
     startDir: Path? = null,
     inputFilePath: Path? = null,
 ) {
+    val nonNullPackagedList = packagedList?.toSet() ?: emptySet()
+
     val builder = ProcessInfoBuilder()
     builder.setExecutable(aidlExecutable)
 
@@ -113,7 +116,8 @@ fun callStableAidlProcessor(
             }
         }
         if (inputFilePath != null && relativeInputFile != null) {
-            if (packagedOutputDir != null && isParcelable) {
+            val isPackaged = relativeInputFile in nonNullPackagedList
+            if (packagedOutputDir != null && isParcelable || isPackaged) {
                 // looks like a parcelable or is listed for packaging
                 // Store it in the secondary output of the DependencyData object.
                 val destFile = File(packagedOutputDir, relativeInputFile)

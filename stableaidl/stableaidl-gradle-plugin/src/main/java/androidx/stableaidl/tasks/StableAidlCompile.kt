@@ -61,6 +61,10 @@ abstract class StableAidlCompile : DefaultTask() {
 
     @get:Internal abstract var variantName: String
 
+    @get:Input
+    @get:Optional
+    abstract val packagedList: SetProperty<String>
+
     /** List of directories containing AIDL sources to be compiled. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -154,6 +158,7 @@ abstract class StableAidlCompile : DefaultTask() {
             aidlFrameworkProvider.orNull?.asFile,
             destinationDir,
             parcelableDir?.asFile,
+            packagedList.orNull,
             extraArgsWithSdk,
             sourceDirsAsFiles,
             projectImportList,
@@ -171,6 +176,7 @@ abstract class StableAidlCompile : DefaultTask() {
             abstract val importFolders: ConfigurableFileCollection
             abstract val sourceOutputDir: DirectoryProperty
             abstract val packagedOutputDir: DirectoryProperty
+            abstract val packagedList: SetProperty<String>
             abstract val dir: RegularFileProperty
             abstract val extraArgs: ListProperty<String>
         }
@@ -214,6 +220,7 @@ abstract class StableAidlCompile : DefaultTask() {
                     logger,
                     parameters.sourceOutputDir.get().asFile,
                     parameters.packagedOutputDir.orNull?.asFile,
+                    parameters.packagedList.orNull,
                     depFileProcessor,
                     request.root.toPath(),
                     request.file.toPath(),
@@ -230,6 +237,7 @@ abstract class StableAidlCompile : DefaultTask() {
             frameworkLocation: File?,
             destinationDir: File,
             parcelableDir: File?,
+            packagedList: Collection<String>?,
             extraArgs: List<String>,
             sourceFolders: Collection<File>,
             projectImportList: Collection<Directory>,
@@ -242,6 +250,7 @@ abstract class StableAidlCompile : DefaultTask() {
                     it.importFolders.from(projectImportList, dependencyImportList)
                     it.sourceOutputDir.set(destinationDir)
                     it.packagedOutputDir.set(parcelableDir)
+                    it.packagedList.set(packagedList)
                     it.extraArgs.set(extraArgs)
                     it.dir.set(dir)
                 }
