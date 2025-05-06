@@ -76,7 +76,7 @@ public fun booleanPreferencesKey(name: String): Preferences.Key<Boolean> = Prefe
 public fun floatPreferencesKey(name: String): Preferences.Key<Float> = Preferences.Key(name)
 
 /**
- * Get a key for an Long preference. You should not have multiple keys with the same name (for use
+ * Get a key for a Long preference. You should not have multiple keys with the same name (for use
  * with the same Preferences). Using overlapping keys with different types can result in
  * ClassCastException.
  *
@@ -101,7 +101,7 @@ public fun stringSetPreferencesKey(name: String): Preferences.Key<Set<String>> =
     Preferences.Key(name)
 
 /**
- * Get a key for an ByteArray preference. You should not have multiple keys with the same name (for
+ * Get a key for a ByteArray preference. You should not have multiple keys with the same name (for
  * use with the same Preferences). Using overlapping keys with different types can result in
  * ClassCastException.
  *
