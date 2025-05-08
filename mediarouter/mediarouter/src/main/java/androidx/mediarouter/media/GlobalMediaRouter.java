@@ -1233,7 +1233,7 @@ import java.util.Set;
         if (mBluetoothRoute != null && targetIsDefaultRoute) {
             StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
             StringBuilder readableStacktraceBuilder = new StringBuilder();
-            readableStacktraceBuilder.append("- Stracktrace: [");
+            readableStacktraceBuilder.append("- Stacktrace: [");
             // callStack[3] is the caller of this method.
             for (int i = 3; i < callStack.length; i++) {
                 StackTraceElement caller = callStack[i];

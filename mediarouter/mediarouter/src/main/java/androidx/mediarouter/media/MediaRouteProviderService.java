@@ -40,7 +40,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_1;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_4;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
@@ -1169,7 +1169,7 @@ public abstract class MediaRouteProviderService extends Service {
                                 mDynamicRoutesChangedListener);
                         mControllers.put(controllerId, controller);
                         Bundle bundle = new Bundle();
-                        bundle.putString(DATA_KEY_GROUPABLE_SECION_TITLE,
+                        bundle.putString(DATA_KEY_GROUPABLE_SECTION_TITLE,
                                 controller.getGroupableSelectionTitle());
                         bundle.putString(DATA_KEY_TRANSFERABLE_SECTION_TITLE,
                                 controller.getTransferableSectionTitle());

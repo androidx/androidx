@@ -908,7 +908,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         /*
-         * Can't override RecyclerView.Adpater#notifyDataSetChanged because it's final method. So,
+         * Can't override RecyclerView.Adapter#notifyDataSetChanged because it's final method. So,
          * implement method with slightly different name.
          */
         void notifyAdapterDataSetChanged() {

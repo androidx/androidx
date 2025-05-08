@@ -309,7 +309,7 @@ public class MediaRouter2Test {
     @SmallTest
     @Test
     public void setRouterParams_onRouteParamsChangedCalled() throws Exception {
-        CountDownLatch onRouterParmasChangedLatch = new CountDownLatch(1);
+        CountDownLatch onRouterParamsChangedLatch = new CountDownLatch(1);
         final MediaRouterParams[] routerParams = {null};
 
         addCallback(new MediaRouter.Callback() {
@@ -317,7 +317,7 @@ public class MediaRouter2Test {
             public void onRouterParamsChanged(
                     @NonNull MediaRouter router, MediaRouterParams params) {
                 routerParams[0] = params;
-                onRouterParmasChangedLatch.countDown();
+                onRouterParamsChangedLatch.countDown();
             }
         });
 
@@ -328,7 +328,7 @@ public class MediaRouter2Test {
             mRouter.setRouterParams(params);
         });
 
-        assertTrue(onRouterParmasChangedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(onRouterParamsChangedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         Bundle actualExtras = routerParams[0].getExtras();
         assertNotNull(actualExtras);
         assertEquals("test-value", actualExtras.getString("test-key"));

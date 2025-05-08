@@ -39,7 +39,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_U
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_MSG_UPDATE_ROUTE_VOLUME;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECION_TITLE;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUPABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
@@ -488,7 +488,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                         @Override
                         public void onResult(Bundle data) {
                             mGroupableSectionTitle =
-                                    data.getString(DATA_KEY_GROUPABLE_SECION_TITLE);
+                                    data.getString(DATA_KEY_GROUPABLE_SECTION_TITLE);
                             mTransferableSectionTitle =
                                     data.getString(DATA_KEY_TRANSFERABLE_SECTION_TITLE);
                         }

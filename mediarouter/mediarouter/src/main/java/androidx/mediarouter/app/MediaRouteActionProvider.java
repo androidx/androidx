@@ -76,7 +76,7 @@ import androidx.mediarouter.media.MediaRouterParams;
  *     protected void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
  *
- *         mRouter = Mediarouter.getInstance(this);
+ *         mRouter = MediaRouter.getInstance(this);
  *         mSelector = new MediaRouteSelector.Builder()
  *                 .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
  *                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)

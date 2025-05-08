@@ -222,7 +222,7 @@ public class MediaRouteProviderServiceTest {
         resetActiveAndPassiveScanCountDownLatches();
         sendDiscoveryRequest(
                 mReceiveMessenger1,
-                new MediaRouteDiscoveryRequest(mSelector, /* activeScane= */ true));
+                new MediaRouteDiscoveryRequest(mSelector, /* activeScan= */ true));
 
         // Active scan should be true.
         assertTrue(sActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));

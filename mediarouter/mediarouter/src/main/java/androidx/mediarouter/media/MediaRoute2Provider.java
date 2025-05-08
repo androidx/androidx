@@ -177,7 +177,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     protected void refreshRoutes() {
-        // Syetem routes should not be published by this provider.
+        // System routes should not be published by this provider.
         List<MediaRoute2Info> newRoutes = new ArrayList<>();
         Set<MediaRoute2Info> route2InfoSet = new ArraySet<>();
         for (MediaRoute2Info route : mMediaRouter2.getRoutes()) {

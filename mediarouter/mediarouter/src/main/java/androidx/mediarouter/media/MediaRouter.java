@@ -3069,7 +3069,7 @@ public final class MediaRouter {
             }
 
             // In order to notify the app of cast-to-phone event, the onRouteSelected(phone)
-            // should be called regaredless of the callbakck's control category.
+            // should be called regardless of the callback's control category.
             if (isTransferToLocalEnabled() && route.isDefaultOrBluetooth()
                     && what == GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED
                     && reason == UNSELECT_REASON_ROUTE_CHANGED
