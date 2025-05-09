@@ -420,7 +420,7 @@ public abstract class MediaRouteProviderService extends Service {
         private final WeakReference<MediaRouteProviderService> mServiceRef;
 
         public ReceiveHandler(MediaRouteProviderService service) {
-            mServiceRef = new WeakReference<MediaRouteProviderService>(service);
+            mServiceRef = new WeakReference<>(service);
         }
 
         @Override
@@ -601,12 +601,7 @@ public abstract class MediaRouteProviderService extends Service {
                 new HashMap<>();
         private final Object mClientInfoListenersLock = new Object();
         private final MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper =
-                new MediaRouterActiveScanThrottlingHelper(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateCompositeDiscoveryRequest();
-                    }
-                });
+                new MediaRouterActiveScanThrottlingHelper(this::updateCompositeDiscoveryRequest);
 
         MediaRouteProviderServiceImplBase(MediaRouteProviderService service) {
             mService = service;
@@ -1091,15 +1086,7 @@ public abstract class MediaRouteProviderService extends Service {
             final SparseArray<RouteController> mControllers = new SparseArray<>();
 
             final OnDynamicRoutesChangedListener mDynamicRoutesChangedListener =
-                    new OnDynamicRoutesChangedListener() {
-                        @Override
-                        public void onRoutesChanged(
-                                @NonNull DynamicGroupRouteController controller,
-                                @NonNull MediaRouteDescriptor groupRoute,
-                                @NonNull Collection<DynamicRouteDescriptor> routes) {
-                            sendDynamicRouteDescriptors(controller, groupRoute, routes);
-                        }
-                    };
+                    this::sendDynamicRouteDescriptors;
 
             ClientRecord(Messenger messenger, int version, String packageName) {
                 mMessenger = messenger;
@@ -1235,7 +1222,7 @@ public abstract class MediaRouteProviderService extends Service {
                 }
                 int controllerId = mControllers.keyAt(index);
 
-                ArrayList<Bundle> dynamicRouteBundles = new ArrayList<Bundle>();
+                ArrayList<Bundle> dynamicRouteBundles = new ArrayList<>();
                 for (DynamicRouteDescriptor descriptor: descriptors) {
                     dynamicRouteBundles.add(descriptor.toBundle());
                 }
@@ -1306,9 +1293,7 @@ public abstract class MediaRouteProviderService extends Service {
                             mClientInfoListeners.entrySet()) {
                         Consumer<List<ClientInfo>> listener = entry.getKey();
                         Executor executor = entry.getValue();
-                        executor.execute(() -> {
-                            listener.accept(clientInfos);
-                        });
+                        executor.execute(() -> listener.accept(clientInfos));
                     }
                 }
             }

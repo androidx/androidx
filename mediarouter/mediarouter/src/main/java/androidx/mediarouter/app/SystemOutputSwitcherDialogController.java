@@ -98,11 +98,7 @@ public final class SystemOutputSwitcherDialogController {
             return true;
         }
 
-        if (isRunningOnWear(context) && showBluetoothSettingsFragment(context)) {
-            return true;
-        }
-
-        return false;
+        return isRunningOnWear(context) && showBluetoothSettingsFragment(context);
     }
 
     private static boolean showDialogForAndroidUAndAbove(@NonNull Context context) {

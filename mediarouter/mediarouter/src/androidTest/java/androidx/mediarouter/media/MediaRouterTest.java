@@ -64,7 +64,7 @@ public class MediaRouterTest {
     private Context mContext;
     private MediaRouter mRouter;
     private MediaSessionCompat mSession;
-    private MediaSessionCallback mSessionCallback = new MediaSessionCallback();
+    private final MediaSessionCallback mSessionCallback = new MediaSessionCallback();
     private MediaRouteProviderImpl mProvider;
     private CountDownLatch mActiveScanCountDownLatch;
     private CountDownLatch mPassiveScanCountDownLatch;
@@ -86,7 +86,7 @@ public class MediaRouterTest {
     @After
     public void tearDown() {
         mSession.release();
-        getInstrumentation().runOnMainSync(() -> MediaRouterTestHelper.resetMediaRouter());
+        getInstrumentation().runOnMainSync(MediaRouterTestHelper::resetMediaRouter);
     }
 
     /**
@@ -157,10 +157,7 @@ public class MediaRouterTest {
                         .setMediaTransferRestrictedToSelfProviders(true)
                         .build();
         getInstrumentation()
-                .runOnMainSync(
-                        () -> {
-                            mRouter.setRouterParams(params);
-                        });
+                .runOnMainSync(() -> mRouter.setRouterParams(params));
         assertTrue(
                 MediaRouter.getGlobalRouter()
                         .mRegisteredProviderWatcher

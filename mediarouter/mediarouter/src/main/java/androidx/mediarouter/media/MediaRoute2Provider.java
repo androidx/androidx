@@ -81,7 +81,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private final Executor mHandlerExecutor;
     private boolean mMediaTransferRestrictedToSelfProviders;
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
-    private Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
+    private final Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
     @Nullable private String mPendingTransferRouteId;
 
     @SuppressWarnings({"SyntheticAccessor"})

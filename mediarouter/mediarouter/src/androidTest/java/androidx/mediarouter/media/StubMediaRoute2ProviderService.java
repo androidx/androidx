@@ -92,7 +92,7 @@ public class StubMediaRoute2ProviderService extends MediaRouteProviderService {
         return new StubMediaRoute2Provider(this);
     }
 
-    class StubMediaRoute2Provider extends MediaRouteProvider {
+    static class StubMediaRoute2Provider extends MediaRouteProvider {
         Map<String, MediaRouteDescriptor> mRoutes = new ArrayMap<>();
         Map<String, List<StubDynamicGroupRouteController>> mDescriptorIdToControllers =
                 new ArrayMap<>();

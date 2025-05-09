@@ -90,8 +90,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     private final ComponentName mComponentName;
     final PrivateHandler mPrivateHandler;
-    private final ArrayList<ControllerConnection> mControllerConnections =
-            new ArrayList<ControllerConnection>();
+    private final ArrayList<ControllerConnection> mControllerConnections = new ArrayList<>();
 
     private boolean mStarted;
     private boolean mBound;
@@ -242,9 +241,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
             // Bind whenever the application has an active route controller.
             // This means that one of this provider's routes is selected.
-            if (!mControllerConnections.isEmpty()) {
-                return true;
-            }
+            return !mControllerConnections.isEmpty();
         }
         return false;
     }
@@ -741,8 +738,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private int mServiceVersion; // non-zero when registration complete
 
         private int mPendingRegisterRequestId;
-        private final SparseArray<ControlRequestCallback> mPendingCallbacks =
-                new SparseArray<ControlRequestCallback>();
+        private final SparseArray<ControlRequestCallback> mPendingCallbacks = new SparseArray<>();
 
         public Connection(Messenger serviceMessenger) {
             mServiceMessenger = serviceMessenger;
@@ -772,12 +768,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             mReceiveHandler.dispose();
             mServiceMessenger.getBinder().unlinkToDeath(this, 0);
 
-            mPrivateHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    failPendingCallbacks();
-                }
-            });
+            mPrivateHandler.post(this::failPendingCallbacks);
         }
 
         void failPendingCallbacks() {
@@ -836,7 +827,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                 }
                 ArrayList<Bundle> bundles = descriptorsBundle.getParcelableArrayList(
                         DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS);
-                List<DynamicRouteDescriptor> descriptors = new ArrayList<DynamicRouteDescriptor>();
+                List<DynamicRouteDescriptor> descriptors = new ArrayList<>();
                 for (Bundle bundle: bundles) {
                     descriptors.add(DynamicRouteDescriptor.fromBundle(bundle));
                 }
@@ -883,13 +874,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         @Override
         public void binderDied() {
-            mPrivateHandler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            onConnectionDied(Connection.this);
-                        }
-                    });
+            mPrivateHandler.post(() -> onConnectionDied(Connection.this));
         }
 
         public int createRouteController(
@@ -1033,7 +1018,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         private final WeakReference<Connection> mConnectionRef;
 
         public ReceiveHandler(Connection connection) {
-            mConnectionRef = new WeakReference<Connection>(connection);
+            mConnectionRef = new WeakReference<>(connection);
         }
 
         public void dispose() {
@@ -1041,7 +1026,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
             Connection connection = mConnectionRef.get();
             if (connection != null) {
                 final int what = msg.what;

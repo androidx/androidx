@@ -66,22 +66,19 @@ class MediaRouteExpandCollapseButton extends AppCompatImageButton {
         setImageDrawable(mExpandAnimationDrawable.getFrame(0));
         setContentDescription(mExpandGroupDescription);
 
-        super.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mIsGroupExpanded = !mIsGroupExpanded;
-                if (mIsGroupExpanded) {
-                    setImageDrawable(mExpandAnimationDrawable);
-                    mExpandAnimationDrawable.start();
-                    setContentDescription(mCollapseGroupDescription);
-                } else {
-                    setImageDrawable(mCollapseAnimationDrawable);
-                    mCollapseAnimationDrawable.start();
-                    setContentDescription(mExpandGroupDescription);
-                }
-                if (mListener != null) {
-                    mListener.onClick(view);
-                }
+        super.setOnClickListener(view -> {
+            mIsGroupExpanded = !mIsGroupExpanded;
+            if (mIsGroupExpanded) {
+                setImageDrawable(mExpandAnimationDrawable);
+                mExpandAnimationDrawable.start();
+                setContentDescription(mCollapseGroupDescription);
+            } else {
+                setImageDrawable(mCollapseAnimationDrawable);
+                mCollapseAnimationDrawable.start();
+                setContentDescription(mExpandGroupDescription);
+            }
+            if (mListener != null) {
+                mListener.onClick(view);
             }
         });
     }

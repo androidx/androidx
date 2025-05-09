@@ -375,12 +375,9 @@ public final class MediaRouteDescriptor {
      * Returns true if the route descriptor has all of the required fields.
      */
     public boolean isValid() {
-        if (TextUtils.isEmpty(getId())
-                || TextUtils.isEmpty(getName())
-                || getControlFilters().contains(null)) {
-            return false;
-        }
-        return true;
+        return !TextUtils.isEmpty(getId())
+                && !TextUtils.isEmpty(getName())
+                && !getControlFilters().contains(null);
     }
 
     @NonNull

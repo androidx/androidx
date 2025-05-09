@@ -119,9 +119,9 @@ import java.util.Set;
     private final boolean mLowRam;
     private final boolean mTransferReceiverDeclared;
 
-    private boolean mUseMediaRouter2ForSystemRouting;
+    private final boolean mUseMediaRouter2ForSystemRouting;
     private MediaRoute2Provider mMr2Provider;
-    private PlatformMediaRouter1RouteProvider mPlatformMediaRouter1RouteProvider;
+    private final PlatformMediaRouter1RouteProvider mPlatformMediaRouter1RouteProvider;
     private DisplayManagerCompat mDisplayManager;
     private MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper;
     private MediaRouterParams mRouterParams;
@@ -2113,7 +2113,7 @@ import java.util.Set;
         // Using Pair<RouteInfo, RouteInfo>
         @SuppressWarnings({"unchecked"})
         private void syncWithPlatformMediaRouter1RouteProvider(int what, Object obj) {
-            RouteSelectedMessageParams params = null;
+            RouteSelectedMessageParams params;
             switch (what) {
                 case MSG_ROUTE_ADDED:
                     mPlatformMediaRouter1RouteProvider.onSyncRouteAdded(
@@ -2159,7 +2159,7 @@ import java.util.Set;
             final MediaRouter.Callback callback = record.mCallback;
             switch (what & MSG_TYPE_MASK) {
                 case MSG_TYPE_ROUTE:
-                    MediaRouter.RouteInfo route = null;
+                    MediaRouter.RouteInfo route;
                     MediaRouter.RouteInfo optionalRoute = null;
                     if (what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED) {
                         RouteSelectedMessageParams selectedMessageParams =
