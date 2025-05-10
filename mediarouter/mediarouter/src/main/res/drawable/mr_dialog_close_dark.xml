@@ -14,6 +14,12 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_dialog_close_dark" />
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="960"
+    android:viewportWidth="960">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="m256,760 l-56,-56 224,-224 -224,-224 56,-56 224,224 224,-224 56,56 -224,224 224,224 -56,56 -224,-224 -224,224Z" />
+</vector>

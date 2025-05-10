@@ -14,6 +14,12 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_media_play_dark" />
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="960"
+    android:viewportWidth="960">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M320,760v-560l440,280 -440,280Z" />
+</vector>

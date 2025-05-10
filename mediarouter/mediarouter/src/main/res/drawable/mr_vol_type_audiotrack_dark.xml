@@ -14,6 +14,12 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_audiotrack_dark" />
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="960"
+    android:viewportWidth="960">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M400,840q-66,0 -113,-47t-47,-113q0,-66 47,-113t113,-47q23,0 42.5,5.5T480,542v-422h240v160L560,280v400q0,66 -47,113t-113,47Z" />
+</vector>
