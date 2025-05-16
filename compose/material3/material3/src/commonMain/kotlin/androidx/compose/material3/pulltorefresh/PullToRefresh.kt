@@ -145,10 +145,11 @@ fun PullToRefreshBox(
             state = state
         )
     },
+    enabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        modifier.pullToRefresh(state = state, isRefreshing = isRefreshing, onRefresh = onRefresh),
+        modifier.pullToRefresh(state = state, isRefreshing = isRefreshing, onRefresh = onRefresh, enabled = enabled),
         contentAlignment = contentAlignment
     ) {
         content()
