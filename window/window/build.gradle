@@ -94,8 +94,8 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(extensions_core_version)
-    androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    androidTestImplementation(compileOnly(extensions_version))
+    androidTestImplementation(project(":window:sidecar:sidecar"))
+    androidTestImplementation(extensions_version)
 }
 
 androidx {
