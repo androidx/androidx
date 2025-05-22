@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.kotlinReflect)
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":activity:activity"))
+    implementation("androidx.activity:activity:1.10.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
