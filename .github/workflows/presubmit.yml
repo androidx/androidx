@@ -137,6 +137,17 @@ jobs:
       DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        if: runner.os == 'Linux'
+        with:
+          tool-cache: true
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - name: "Checkout androidx repo"
         uses: actions/checkout@v4
       - name: "Check if the project should be built"
