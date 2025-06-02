@@ -57,7 +57,7 @@ internal actual fun Modifier.interceptDPadAndMoveFocus(
             !device.supportsSource(SOURCE_DPAD) -> false
 
             // Ignore key events from virtual keyboards
-            device.isVirtual -> false
+            device.isVirtual && keyEvent.nativeKeyEvent.source != InputDevice.SOURCE_HDMI -> false
 
             // Ignore key release events
             keyEvent.type != KeyDown -> false
