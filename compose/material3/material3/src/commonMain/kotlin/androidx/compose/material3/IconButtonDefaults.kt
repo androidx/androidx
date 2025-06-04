@@ -1103,7 +1103,7 @@ object IconButtonDefaults {
                         XSmallIconButtonTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
                     XSmallIconButtonTokens.DefaultLeadingSpace +
-                        XSmallIconButtonTokens.DefaultLeadingSpace
+                        XSmallIconButtonTokens.DefaultTrailingSpace
                 IconButtonWidthOption.Wide ->
                     XSmallIconButtonTokens.WideLeadingSpace +
                         XSmallIconButtonTokens.WideTrailingSpace
@@ -1131,7 +1131,7 @@ object IconButtonDefaults {
                         SmallIconButtonTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
                     SmallIconButtonTokens.DefaultLeadingSpace +
-                        SmallIconButtonTokens.DefaultLeadingSpace
+                        SmallIconButtonTokens.DefaultTrailingSpace
                 IconButtonWidthOption.Wide ->
                     SmallIconButtonTokens.WideLeadingSpace + SmallIconButtonTokens.WideTrailingSpace
                 else -> 0.dp
@@ -1158,7 +1158,7 @@ object IconButtonDefaults {
                         MediumIconButtonTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
                     MediumIconButtonTokens.DefaultLeadingSpace +
-                        MediumIconButtonTokens.DefaultLeadingSpace
+                        MediumIconButtonTokens.DefaultTrailingSpace
                 IconButtonWidthOption.Wide ->
                     MediumIconButtonTokens.WideLeadingSpace +
                         MediumIconButtonTokens.WideTrailingSpace
@@ -1186,7 +1186,7 @@ object IconButtonDefaults {
                         LargeIconButtonTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
                     LargeIconButtonTokens.UniformLeadingSpace +
-                        LargeIconButtonTokens.UniformLeadingSpace
+                        LargeIconButtonTokens.UniformTrailingSpace
                 IconButtonWidthOption.Wide ->
                     LargeIconButtonTokens.WideLeadingSpace + LargeIconButtonTokens.WideTrailingSpace
                 else -> 0.dp
@@ -1213,7 +1213,7 @@ object IconButtonDefaults {
                         XLargeIconButtonTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
                     XLargeIconButtonTokens.DefaultLeadingSpace +
-                        XLargeIconButtonTokens.DefaultLeadingSpace
+                        XLargeIconButtonTokens.DefaultTrailingSpace
                 IconButtonWidthOption.Wide ->
                     XLargeIconButtonTokens.WideLeadingSpace +
                         XLargeIconButtonTokens.WideTrailingSpace
