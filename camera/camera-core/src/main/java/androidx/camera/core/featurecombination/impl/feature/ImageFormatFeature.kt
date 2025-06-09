@@ -16,6 +16,7 @@
 
 package androidx.camera.core.featurecombination.impl.feature
 
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.featurecombination.Feature
 
@@ -25,6 +26,7 @@ import androidx.camera.core.featurecombination.Feature
  * This feature can not be instantiated directly for usage, instead use the
  * [Feature.IMAGE_ULTRA_HDR] object.
  */
+@OptIn(ExperimentalSessionConfig::class)
 internal class ImageFormatFeature(val imageCaptureOutputFormat: Int) : Feature() {
     override val featureTypeInternal: FeatureTypeInternal = FeatureTypeInternal.IMAGE_FORMAT
 

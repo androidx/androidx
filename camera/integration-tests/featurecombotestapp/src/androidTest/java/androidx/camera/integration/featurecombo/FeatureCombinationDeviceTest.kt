@@ -41,7 +41,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination
 import androidx.camera.core.featurecombination.Feature
 import androidx.camera.core.featurecombination.Feature.Companion.FPS_60
 import androidx.camera.core.featurecombination.Feature.Companion.HDR_HLG10
@@ -80,7 +79,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFeatureCombination::class, ExperimentalSessionConfig::class)
+@OptIn(ExperimentalSessionConfig::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class FeatureCombinationDeviceTest(

@@ -30,7 +30,6 @@ import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination
 import androidx.camera.core.featurecombination.Feature
 import androidx.camera.core.takePicture
 import androidx.camera.integration.featurecombo.AppFeatures
@@ -62,7 +61,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 @SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalFeatureCombination::class) // TODO: b/385816441 - Remove experimental annotation
+@OptIn(ExperimentalSessionConfig::class)
 class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     private lateinit var appContext: Context
 

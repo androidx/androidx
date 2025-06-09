@@ -35,7 +35,6 @@ import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
@@ -66,7 +65,6 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.impl.FeatureCombinationQuery;
 import androidx.camera.core.featurecombination.impl.feature.FpsRangeFeature;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
@@ -155,16 +153,12 @@ final class SupportedSurfaceCombination {
     private final DynamicRangeResolver mDynamicRangeResolver;
     private final HighSpeedResolver mHighSpeedResolver;
 
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     private final FeatureCombinationQuery mFeatureCombinationQuery;
 
     @IntDef({DynamicRange.BIT_DEPTH_8_BIT, DynamicRange.BIT_DEPTH_10_BIT})
     @Retention(RetentionPolicy.SOURCE)
     @interface RequiredMaxBitDepth {}
 
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
             @NonNull CamcorderProfileHelper camcorderProfileHelper,
@@ -252,8 +246,6 @@ final class SupportedSurfaceCombination {
      *                                     for feature combination query.
      * @return the check result that whether it could be supported
      */
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     boolean checkSupported(
             @NonNull FeatureSettings featureSettings,
             List<SurfaceConfig> surfaceConfigList,
@@ -288,8 +280,6 @@ final class SupportedSurfaceCombination {
         return isSupported;
     }
 
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     private SessionConfig createFeatureComboSessionConfig(
             FeatureSettings featureSettings,
             List<SurfaceConfig> surfaceConfigList,

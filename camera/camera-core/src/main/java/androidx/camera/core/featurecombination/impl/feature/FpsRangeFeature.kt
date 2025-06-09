@@ -17,6 +17,7 @@
 package androidx.camera.core.featurecombination.impl.feature
 
 import android.util.Range
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.featurecombination.Feature
 
 /**
@@ -24,6 +25,7 @@ import androidx.camera.core.featurecombination.Feature
  *
  * This feature can not be instantiated directly for usage, instead use the [Feature.FPS_60] object.
  */
+@OptIn(ExperimentalSessionConfig::class)
 public class FpsRangeFeature(public val minFps: Int, public val maxFps: Int) : Feature() {
     override val featureTypeInternal: FeatureTypeInternal = FeatureTypeInternal.FPS_RANGE
 

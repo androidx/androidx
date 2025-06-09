@@ -19,6 +19,7 @@ package androidx.camera.core.featurecombination
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.featurecombination.Feature.Companion.FEATURE_TYPE_DYNAMIC_RANGE
@@ -37,6 +38,7 @@ import androidx.camera.core.featurecombination.impl.feature.VideoStabilizationFe
 import androidx.camera.core.featurecombination.impl.feature.VideoStabilizationFeature.StabilizationMode
 
 /** Base [Feature] class for all feature combination features. */
+@ExperimentalSessionConfig
 public abstract class Feature @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) internal constructor() {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal abstract val featureTypeInternal: FeatureTypeInternal
@@ -63,6 +65,7 @@ public abstract class Feature @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) intern
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class FeatureType
 
+    @ExperimentalSessionConfig
     public companion object {
         /**
          * A feature object of type [FEATURE_TYPE_DYNAMIC_RANGE] representing the 10-bit High

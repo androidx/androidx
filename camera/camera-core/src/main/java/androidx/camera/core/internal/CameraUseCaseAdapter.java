@@ -59,13 +59,13 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.Feature;
 import androidx.camera.core.featurecombination.impl.ResolvedFeatureCombination;
 import androidx.camera.core.impl.AdapterCameraInfo;
@@ -381,7 +381,7 @@ public final class CameraUseCaseAdapter implements Camera {
      *                         currently added UseCases exceed the capability of the camera, or
      *                         if the frame rate is not supported by the camera.
      */
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd,
             @Nullable ResolvedFeatureCombination featureCombination) throws CameraException {
         Logger.d(TAG, "addUseCases: appUseCasesToAdd = " + appUseCasesToAdd
@@ -435,7 +435,7 @@ public final class CameraUseCaseAdapter implements Camera {
      * @throws CameraException Thrown if the combination of newly added UseCases and the
      *                         currently added UseCases exceed the capability of the camera.
      */
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     @NonNull
     public CalculatedUseCaseInfo simulateAddUseCases(
             @NonNull Collection<UseCase> appUseCasesToAdd,
@@ -496,7 +496,6 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     @GuardedBy("mLock")
     private CalculatedUseCaseInfo calculateAndValidateUseCases(
             @NonNull Collection<UseCase> appUseCases,
@@ -718,7 +717,7 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     @NonNull
     private static Map<UseCase, Set<Feature>> applyFeatureCombination(
             @NonNull Collection<UseCase> useCases,
@@ -732,7 +731,7 @@ public final class CameraUseCaseAdapter implements Camera {
         return previousFeatureComboMap;
     }
 
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private static void restoreFeatureCombination(
             Map<UseCase, @Nullable Set<@NonNull Feature>> previousFeatureComboMap) {
         for (Map.Entry<UseCase, Set<Feature>> entry : previousFeatureComboMap.entrySet()) {

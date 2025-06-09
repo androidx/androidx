@@ -17,6 +17,7 @@
 package androidx.camera.core.featurecombination
 
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.featurecombination.Feature.Companion.FEATURE_TYPE_DYNAMIC_RANGE
 import androidx.camera.core.featurecombination.Feature.Companion.FEATURE_TYPE_FPS_RANGE
@@ -36,6 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalSessionConfig::class)
 @RunWith(JUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class FeatureTest {
