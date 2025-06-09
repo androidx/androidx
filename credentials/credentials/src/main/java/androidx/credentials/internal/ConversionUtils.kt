@@ -58,9 +58,9 @@ fun getFinalCreateCredentialData(request: CreateCredentialRequest, context: Cont
         Icon.createWithResource(
             context,
             when (request) {
-                is CreatePasswordRequest -> R.drawable.ic_password
-                is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey
-                else -> R.drawable.ic_other_sign_in
+                is CreatePasswordRequest -> R.drawable.adx_ic_password
+                is CreatePublicKeyCredentialRequest -> R.drawable.adx_ic_passkey
+                else -> R.drawable.adx_ic_other_sign_in
             },
         ),
     )

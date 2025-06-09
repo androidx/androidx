@@ -186,7 +186,7 @@ class CreatePasswordRequestTest {
                     ) as Icon?)!!
                     .resId
             )
-            .isEqualTo(R.drawable.ic_password)
+            .isEqualTo(R.drawable.adx_ic_password)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -241,7 +241,7 @@ class CreatePasswordRequestTest {
         val displayInfo = convertedCreatePasswordRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.userId).isEqualTo(idExpected)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_password)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_password)
         assertThat(displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
@@ -305,7 +305,7 @@ class CreatePasswordRequestTest {
         val displayInfo = convertedCreatePasswordRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.userId).isEqualTo(idExpected)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_password)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_password)
         assertThat(displayInfo.preferDefaultProvider).isEqualTo(defaultProviderExpected)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)

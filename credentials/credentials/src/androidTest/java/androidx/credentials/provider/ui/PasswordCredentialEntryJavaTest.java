@@ -187,7 +187,7 @@ public class PasswordCredentialEntryJavaTest {
         PasswordCredentialEntry entry = new PasswordCredentialEntry
                 .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
         assertThat(TestUtilsKt.equals(entry.getIcon(),
-                Icon.createWithResource(mContext, R.drawable.ic_password))).isTrue();
+                Icon.createWithResource(mContext, R.drawable.adx_ic_password))).isTrue();
     }
 
     @Test
