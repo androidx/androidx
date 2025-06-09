@@ -16,6 +16,7 @@
 
 package androidx.camera.core.featurecombination.impl.feature
 
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.featurecombination.Feature
 
 /**
@@ -24,6 +25,7 @@ import androidx.camera.core.featurecombination.Feature
  * This feature should not be instantiated directly for usage, instead use the
  * [Feature.PREVIEW_STABILIZATION] object.
  */
+@OptIn(ExperimentalSessionConfig::class)
 public class VideoStabilizationFeature(public val mode: StabilizationMode) : Feature() {
     public enum class StabilizationMode {
         OFF,

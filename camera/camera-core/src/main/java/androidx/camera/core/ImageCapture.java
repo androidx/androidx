@@ -91,7 +91,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.Feature;
 import androidx.camera.core.featurecombination.impl.feature.ImageFormatFeature;
 import androidx.camera.core.imagecapture.ImageCaptureControl;
@@ -534,7 +533,7 @@ public final class ImageCapture extends UseCase {
      *
      * @see #setFeatureCombination
      */
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private void applyFeatureCombinationToConfig(UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
         Set<@NonNull Feature> featureCombination = getFeatureCombination();
 

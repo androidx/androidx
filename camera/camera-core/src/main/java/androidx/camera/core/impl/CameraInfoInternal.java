@@ -38,7 +38,6 @@ import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.impl.ResolvedFeatureCombination;
 import androidx.camera.core.internal.CalculatedUseCaseInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -310,8 +309,7 @@ public interface CameraInfoInternal extends CameraInfo {
     }
 
     /** {@inheritDoc} */
-    @OptIn(markerClass = ExperimentalSessionConfig.class)
-    @ExperimentalFeatureCombination
+    @ExperimentalSessionConfig
     @Override
     default boolean isFeatureCombinationSupported(@NonNull SessionConfig sessionConfig) {
         try {
@@ -341,7 +339,6 @@ public interface CameraInfoInternal extends CameraInfo {
      * not been called yet.
      */
     @OptIn(markerClass = ExperimentalSessionConfig.class)
-    @ExperimentalFeatureCombination
     default boolean isResolvedFeatureCombinationSupported(
             @NonNull ResolvedFeatureCombination resolvedFeatureCombination,
             @NonNull SessionConfig sessionConfig) {

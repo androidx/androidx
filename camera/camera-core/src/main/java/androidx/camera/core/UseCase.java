@@ -49,7 +49,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.Feature;
 import androidx.camera.core.featurecombination.impl.feature.DynamicRangeFeature;
 import androidx.camera.core.featurecombination.impl.feature.FpsRangeFeature;
@@ -122,7 +121,7 @@ public abstract class UseCase {
      */
     private @NonNull UseCaseConfig<?> mUseCaseConfig;
 
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     private @Nullable Set<@NonNull Feature> mFeatureCombination;
 
     /**
@@ -1158,14 +1157,14 @@ public abstract class UseCase {
      * @see androidx.camera.core.SessionConfig#getRequiredFeatures()
      * @see androidx.camera.core.SessionConfig#getPreferredFeatures()
      */
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     public void setFeatureCombination(@Nullable Set<@NonNull Feature> features) {
         mFeatureCombination = features != null ? new HashSet<>(features) : null;
     }
 
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     public @Nullable Set<@NonNull Feature> getFeatureCombination() {
         return mFeatureCombination;
     }
@@ -1187,7 +1186,6 @@ public abstract class UseCase {
      *
      * @see #setFeatureCombination
      */
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     private void applyFeatureCombinationToConfig(MutableOptionsBundle config) {
         Logger.d(TAG,
                 "applyFeaturesToConfig: mFeatures = " + mFeatureCombination + ", this = " + this);

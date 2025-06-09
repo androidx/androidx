@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSessionConfig::class)
+
 package androidx.camera.core.featurecombination.impl.resolver
 
 import androidx.camera.core.ExperimentalSessionConfig
@@ -21,7 +23,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination
 import androidx.camera.core.featurecombination.Feature
 import androidx.camera.core.featurecombination.impl.ResolvedFeatureCombination
 import androidx.camera.core.featurecombination.impl.UseCaseType
@@ -62,7 +63,6 @@ import androidx.camera.core.internal.CameraUseCaseAdapter.isVideoCapture
  * @property cameraInfoInternal A [CameraInfoInternal] instance to query if a feature combination is
  *   supported.
  */
-@OptIn(ExperimentalSessionConfig::class)
 internal class DefaultFeatureCombinationResolver(
     private val cameraInfoInternal: CameraInfoInternal
 ) : FeatureCombinationResolver {
@@ -137,9 +137,6 @@ internal class DefaultFeatureCombinationResolver(
      *   The feature with most priority has a lower index in this ordering.
      * @return A list of features that is best supported according to [orderedPreferredFeatures].
      */
-    // Unsure why the OptIn is needed despite the package-wide annotation in package-info.java,
-    // probably due to some Java Kotlin interop issue
-    @OptIn(ExperimentalFeatureCombination::class)
     private fun getFeatureListResolvedByPriority(
         sessionConfig: SessionConfig,
         orderedPreferredFeatures: List<Feature>,

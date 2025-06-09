@@ -16,20 +16,17 @@
 
 package androidx.camera.camera2.internal;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.util.Size;
 
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.FeatureCombinationQueryImpl;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.impl.FeatureCombinationQuery;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -104,8 +101,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Prepare necessary resources for the surface manager.
      */
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     private void init(@NonNull Context context, @NonNull CameraManagerCompat cameraManager,
             @NonNull Set<String> availableCameraIds)
             throws CameraUnavailableException {

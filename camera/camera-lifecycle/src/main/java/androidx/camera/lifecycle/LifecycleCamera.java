@@ -32,7 +32,6 @@ import androidx.camera.core.ExperimentalSessionConfig;
 import androidx.camera.core.LegacySessionConfig;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.featurecombination.ExperimentalFeatureCombination;
 import androidx.camera.core.featurecombination.Feature;
 import androidx.camera.core.featurecombination.impl.ResolvedFeatureCombination;
 import androidx.camera.core.impl.CameraConfig;
@@ -243,8 +242,6 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
      * given {@link SessionConfig} or the previously bound {@link SessionConfig} disallows multiple
      * binding.
      */
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalFeatureCombination.class)
     void bind(@NonNull SessionConfig sessionConfig)
             throws CameraUseCaseAdapter.CameraException {
         synchronized (mLock) {

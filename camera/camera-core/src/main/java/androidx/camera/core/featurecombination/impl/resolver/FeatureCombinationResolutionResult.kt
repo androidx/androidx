@@ -16,6 +16,7 @@
 
 package androidx.camera.core.featurecombination.impl.resolver
 
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.featurecombination.Feature
 import androidx.camera.core.featurecombination.impl.ResolvedFeatureCombination
@@ -29,6 +30,7 @@ public sealed interface FeatureCombinationResolutionResult {
     public data class Supported(val resolvedFeatureCombination: ResolvedFeatureCombination) :
         FeatureCombinationResolutionResult
 
+    @OptIn(ExperimentalSessionConfig::class)
     public data class UseCaseMissing(val requiredUseCases: String, val featureRequiring: Feature) :
         FeatureCombinationResolutionResult
 

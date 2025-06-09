@@ -15,7 +15,6 @@
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // TODO: Expose the features
-@ExperimentalFeatureCombination // TODO: b/385816441 - Remove experimental annotation
 package androidx.camera.core.featurecombination;
 
 import androidx.annotation.RestrictTo;

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSessionConfig::class)
+
 package androidx.camera.core.featurecombination.impl
 
 import androidx.camera.core.ExperimentalSessionConfig
@@ -59,7 +61,6 @@ public class ResolvedFeatureCombination(public val features: Set<Feature>) {
          * @throws IllegalArgumentException If resolving the feature combination fails for some
          *   reason.
          */
-        @OptIn(ExperimentalSessionConfig::class)
         @JvmOverloads
         @JvmStatic
         public fun SessionConfig.resolveFeatureCombination(
