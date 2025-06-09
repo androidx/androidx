@@ -166,7 +166,7 @@ internal constructor(
         beginGetPasswordOption: BeginGetPasswordOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_password),
         isAutoSelectAllowed: Boolean = false,
         affiliatedDomain: CharSequence? = null,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
@@ -237,7 +237,7 @@ internal constructor(
         beginGetPasswordOption: BeginGetPasswordOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_password),
         isAutoSelectAllowed: Boolean = false,
         affiliatedDomain: CharSequence? = null,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
@@ -305,7 +305,7 @@ internal constructor(
         beginGetPasswordOption: BeginGetPasswordOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_password),
         isAutoSelectAllowed: Boolean = false,
     ) : this(
         username = username,
@@ -425,7 +425,7 @@ internal constructor(
                 return entry.isDefaultIconFromSlice
             }
             return entry.icon.type == Icon.TYPE_RESOURCE &&
-                entry.icon.resId == R.drawable.ic_password
+                entry.icon.resId == R.drawable.adx_ic_password
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -876,7 +876,7 @@ internal constructor(
         /** Builds an instance of [PasswordCredentialEntry] */
         fun build(): PasswordCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
-                icon = Icon.createWithResource(context, R.drawable.ic_password)
+                icon = Icon.createWithResource(context, R.drawable.adx_ic_password)
             }
             val typeDisplayName =
                 context.getString(R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL)

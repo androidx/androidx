@@ -55,7 +55,7 @@ import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
  * @property isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
  *   default credential type icon when you are the only available provider; see individual
  *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
- *   [R.drawable.ic_password])
+ *   [R.drawable.adx_ic_password])
  * @property biometricPromptData the data that is set optionally to utilize a credential manager
  *   flow that directly handles the biometric verification and presents back the response; set to
  *   null by default, so if not opted in, the embedded biometric prompt flow will not show

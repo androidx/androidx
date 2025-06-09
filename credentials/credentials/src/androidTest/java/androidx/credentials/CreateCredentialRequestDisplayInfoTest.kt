@@ -89,7 +89,7 @@ class CreateCredentialRequestDisplayInfoTest {
     fun constructWithOptionalParameters_success() {
         val expectedUserId: CharSequence = "userId"
         val expectedDisplayName: CharSequence = "displayName"
-        val expectedIcon = Icon.createWithResource(mContext, R.drawable.ic_passkey)
+        val expectedIcon = Icon.createWithResource(mContext, R.drawable.adx_ic_passkey)
         val expectedDefaultProvider = "defaultProvider"
 
         val displayInfo =
@@ -111,7 +111,7 @@ class CreateCredentialRequestDisplayInfoTest {
 
         assertThat(displayInfo.userId).isEqualTo(expectedUserId)
         assertThat(displayInfo.userDisplayName).isNull()
-        assertThat(displayInfo.credentialTypeIcon?.resId).isEqualTo(R.drawable.ic_password)
+        assertThat(displayInfo.credentialTypeIcon?.resId).isEqualTo(R.drawable.adx_ic_password)
         assertThat(displayInfo.preferDefaultProvider).isNull()
     }
 }
