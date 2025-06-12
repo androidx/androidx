@@ -47,7 +47,7 @@ class ContextReceiverTests : BaseComposeTest() {
                     assertEquals(ctxValue, "A")
                 }
             }
-        }
+        }.then {}
     }
 
     context(CtxA)
@@ -71,7 +71,7 @@ class ContextReceiverTests : BaseComposeTest() {
                     assertEquals(ctxValue, "B")
                 }
             }
-        }
+        }.then {}
     }
 
     context(CtxA)
