@@ -169,7 +169,7 @@ internal constructor(
         subtitle: CharSequence? = null,
         typeDisplayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_other_sign_in),
         @Suppress("AutoBoxing") isAutoSelectAllowed: Boolean = false,
     ) : this(
         type = beginGetCredentialOption.type,
@@ -228,7 +228,7 @@ internal constructor(
         subtitle: CharSequence? = null,
         typeDisplayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_other_sign_in),
         @Suppress("AutoBoxing") isAutoSelectAllowed: Boolean = false,
         entryGroupId: CharSequence = title,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
@@ -288,7 +288,7 @@ internal constructor(
         subtitle: CharSequence? = null,
         typeDisplayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_other_sign_in),
         @Suppress("AutoBoxing") isAutoSelectAllowed: Boolean = false,
         entryGroupId: CharSequence = title,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
@@ -412,7 +412,7 @@ internal constructor(
                 return entry.isDefaultIconFromSlice
             }
             return entry.icon.type == Icon.TYPE_RESOURCE &&
-                entry.icon.resId == R.drawable.ic_other_sign_in
+                entry.icon.resId == R.drawable.adx_ic_other_sign_in
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -885,7 +885,7 @@ internal constructor(
         /** Builds an instance of [CustomCredentialEntry] */
         fun build(): CustomCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
-                icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in)
+                icon = Icon.createWithResource(context, R.drawable.adx_ic_other_sign_in)
             }
             return CustomCredentialEntry(
                 type = type,
