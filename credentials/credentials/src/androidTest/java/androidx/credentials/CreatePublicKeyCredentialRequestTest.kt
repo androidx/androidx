@@ -208,7 +208,7 @@ class CreatePublicKeyCredentialRequestTest {
                     ) as Icon?)!!
                     .resId
             )
-            .isEqualTo(R.drawable.ic_passkey)
+            .isEqualTo(R.drawable.adx_ic_passkey)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -260,7 +260,7 @@ class CreatePublicKeyCredentialRequestTest {
         val displayInfo = convertedSubclassRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
         assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_passkey)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_passkey)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
         assertThat(convertedRequest.candidateQueryData.getBoolean(customCandidateQueryDataKey))
@@ -319,7 +319,7 @@ class CreatePublicKeyCredentialRequestTest {
         val displayInfo = convertedSubclassRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
         assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_passkey)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_passkey)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
         assertThat(convertedRequest.candidateQueryData.getBoolean(customCandidateQueryDataKey))

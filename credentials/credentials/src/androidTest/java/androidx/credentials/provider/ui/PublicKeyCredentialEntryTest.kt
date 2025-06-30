@@ -83,7 +83,7 @@ class PublicKeyCredentialEntryTest {
     @Test
     fun constructor_nullIcon_defaultIconSet() {
         val entry = PublicKeyCredentialEntry(mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
-        assertThat(equals(entry.icon, Icon.createWithResource(mContext, R.drawable.ic_passkey)))
+        assertThat(equals(entry.icon, Icon.createWithResource(mContext, R.drawable.adx_ic_passkey)))
             .isTrue()
     }
 
@@ -140,7 +140,7 @@ class PublicKeyCredentialEntryTest {
         assertThat(entry.pendingIntent).isEqualTo(mPendingIntent)
         assertThat(entry.lastUsedTime).isNull()
         assertThat(entry.icon.toString())
-            .isEqualTo(Icon.createWithResource(mContext, R.drawable.ic_passkey).toString())
+            .isEqualTo(Icon.createWithResource(mContext, R.drawable.adx_ic_passkey).toString())
         assertThat(entry.isAutoSelectAllowed).isFalse()
         assertThat(entry.beginGetCredentialOption).isEqualTo(BEGIN_OPTION)
         assertThat(entry.affiliatedDomain).isNull()
