@@ -222,7 +222,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * favor the destination.
          *
          * Specifically, if the destination value is smaller, this multiplies it with the source
-         * value, whereas is the source value is smaller, it multiplies the inverse of the source
+         * value, whereas if the source value is smaller, it multiplies the inverse of the source
          * value with the inverse of the destination value, then inverts the result.
          *
          * Inverting the components means that a fully saturated channel (opaque white) is treated
