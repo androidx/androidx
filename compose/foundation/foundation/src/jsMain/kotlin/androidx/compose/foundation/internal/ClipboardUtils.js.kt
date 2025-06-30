@@ -29,6 +29,7 @@ private const val MIME_TYPE_PLAIN_TEXT = "text/plain"
 
 internal actual suspend fun ClipEntry.readText(): String? {
     if (!this.hasText()) return null
+    if (this.clipboardItems.isEmpty()) return null
     val blob = clipboardItems[0].getType(MIME_TYPE_PLAIN_TEXT).await<Blob>()
     return getTextFromBlob(blob).await<String>().toString()
 }
@@ -45,7 +46,10 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 
 internal actual fun ClipEntry?.hasText(): Boolean {
     if (this == null) return false
-    if (this.clipboardItems.isEmpty()) return false
+    // Empty clipboardItems here mean that the read from web clipboard was ended with an error.
+    // The most common reason is that the permission was denied.
+    // In this case we want to show the "paste" menu item anyway.
+    if (this.clipboardItems.isEmpty()) return true
     return doesJsArrayContainValue(this.clipboardItems[0].types, MIME_TYPE_PLAIN_TEXT)
 }
 

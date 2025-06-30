@@ -37,11 +37,7 @@ class JsPlatformClipboard : Clipboard {
             // The most common reason is that the permission was denied
             println("Failed to read from Clipboard: $it")
             emptyClipboardItems
-        }.then {
-            it
         }.await()
-
-        if (items.isEmpty()) return null
         return ClipEntry(items)
     }
 

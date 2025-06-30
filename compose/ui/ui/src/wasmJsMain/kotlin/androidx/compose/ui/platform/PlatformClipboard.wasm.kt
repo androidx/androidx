@@ -37,11 +37,7 @@ class WasmPlatformClipboard : Clipboard {
             // The most common reason is that the permission was denied
             println("Failed to read from Clipboard: $it")
             emptyClipboardItems
-        }.then {
-            it
         }.await<JsArray<ClipboardItem>>()
-
-        if (items.length == 0) return null
         return ClipEntry(items)
     }
 
