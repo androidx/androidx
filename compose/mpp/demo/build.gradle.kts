@@ -69,13 +69,18 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "demo.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).copy(
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     open = mapOf(
                         "app" to mapOf(
                             "name" to "google-chrome",
                         )
-                    ),
-                )
+                    )
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.rootDir.path)
+                        add(project.projectDir.path)
+                    }
+                }
             }
         }
         binaries.executable()
