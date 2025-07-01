@@ -1895,10 +1895,6 @@ public final class androidx/compose/foundation/text/TextAutoSizeDefaults {
 public final class androidx/compose/foundation/text/TextContextMenu$Companion {
 }
 
-public final class androidx/compose/foundation/text/TextFieldKeyInput_desktopKt {
-	public static final fun isTypedEvent-ZmokQxo (Ljava/lang/Object;)Z
-}
-
 public final class androidx/compose/foundation/text/contextmenu/builder/TextContextMenuBuilderScope {
 	public static final field $stable I
 	public final fun separator ()V

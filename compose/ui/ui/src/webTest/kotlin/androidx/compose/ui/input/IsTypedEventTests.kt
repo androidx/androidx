@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input
 
+import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.ui.events.keyEvent
 import androidx.compose.ui.input.key.toComposeEvent
@@ -24,6 +25,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.w3c.dom.events.KeyboardEvent
 
+@OptIn(InternalFoundationApi::class)
 class IsTypedEventTests {
     private fun KeyboardEvent.assertIsTyped(message: String? = null) {
         val composeEvent = toComposeEvent()

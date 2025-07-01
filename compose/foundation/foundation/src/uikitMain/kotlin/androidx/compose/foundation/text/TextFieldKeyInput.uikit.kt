@@ -18,5 +18,5 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.KeyEvent
 
-actual val KeyEvent.isTypedEvent: Boolean
+internal actual val KeyEvent.isTypedEvent: Boolean
     get() = false // on UIKit physical keyboard not handled as text input
