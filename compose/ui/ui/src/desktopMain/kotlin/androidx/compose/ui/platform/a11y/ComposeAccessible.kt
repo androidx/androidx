@@ -355,11 +355,8 @@ internal class ComposeAccessible(
             return semanticsNode.size.toAwtDimension()
         }
 
-        @Suppress("DEPRECATION")
         override fun isVisible(): Boolean =
-            !semanticsNode.outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent() &&
-                !semanticsConfig.contains(SemanticsProperties.InvisibleToUser) &&
-                !semanticsConfig.contains(SemanticsProperties.HideFromAccessibility)
+            !semanticsNode.outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent()
 
         override fun isEnabled(): Boolean =
             semanticsConfig.getOrNull(SemanticsProperties.Disabled) == null
